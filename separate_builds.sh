@@ -29,7 +29,7 @@ mkdir -p ${INSTALL_ROOT}
 # Which packages to build in which order
 PKGS=(basal units_of_measure fourcc linalg \
 geometry \
-# linalg-utils \
+linalg-utils \
 # linalg-algo \
 # noise \
 # raytrace \

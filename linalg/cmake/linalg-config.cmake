@@ -1,0 +1,5 @@
+include(CMakeFindDependencyMacro)
+find_dependency(basal)
+find_dependency(units_of_measure)
+find_dependency(fourcc)
+include("${CMAKE_CURRENT_LIST_DIR}/LinalgTargets.cmake")

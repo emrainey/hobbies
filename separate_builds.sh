@@ -27,7 +27,15 @@ INSTALL_ROOT=`pwd`/install
 mkdir -p ${INSTALL_ROOT}
 
 # Which packages to build in which order
-PKGS=(basal units_of_measure fourcc)
+PKGS=(basal units_of_measure fourcc linalg \
+# geometry
+# linalg-utils
+# linalg-algo
+# noise
+# raytrace
+# htm
+# xmmt
+)
 
 # Cycle over each package and build it
 for pkg in "${PKGS[@]}"; do

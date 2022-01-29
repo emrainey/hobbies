@@ -5,15 +5,21 @@ project(units_of_measure
 set(CMAKE_CXX_STANDARD 17)
 
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
-find_package(basal 0.7 REQUIRED)
+find_package(basal REQUIRED)
 enable_testing()
 
-# Where all the generated source code goes
 set(UOM_GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/generated)
 
 # The generic interface which all of these generated libraries will depend on
 add_library(uom-generator INTERFACE)
-target_include_directories(uom-generator INTERFACE include/ ${UOM_GEN_DIR}/)
+target_include_directories(uom-generator INTERFACE
+    # Generated Tree
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
+    # Source Tree
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    # Install Tree
+    $<INSTALL_INTERFACE:include>
+)
 
 # The library that all the generated files will be made a dependency of
 add_library(uom-generated INTERFACE)
@@ -31,7 +37,7 @@ function(generate_source_code NAMESPACE CLASSNAME TYPENAME SCALETYPE SCALEVALUE 
         COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/scripts/process_templates.py process_templates.py
         COMMAND ./process_templates.py ARGS --namespace ${NAMESPACE} --class ${CLASSNAME} --typename ${TYPENAME} --scale ${SCALEVALUE} --scaletype ${SCALETYPE} --postfix ${POSTFIX} --infile header.hpp.jinja --outfile ${UOM_GEN_DIR}/${NAMESPACE}/${CLASSNAME}.hpp
         COMMAND ./process_templates.py ARGS --namespace ${NAMESPACE} --class ${CLASSNAME} --typename ${TYPENAME} --scale ${SCALEVALUE} --scaletype ${SCALETYPE} --postfix ${POSTFIX} --infile body.cpp.jinja --outfile ${UOM_GEN_DIR}/${CLASSNAME}.cpp
-        COMMENT Generating the Jinja Templates for CLASSNAME
+        COMMENT "Generating the Jinja Templates for ${CLASSNAME}"
         OUTPUT ${UOM_GEN_DIR}/${NAMESPACE}/${CLASSNAME}.hpp ${UOM_GEN_DIR}/${CLASSNAME}.cpp
         VERBATIM
     )
@@ -61,18 +67,39 @@ file(GLOB public_headers
 target_sources(emrainey-uom
     PRIVATE
         ${private_sources}
-    PUBLIC
-        ${public_headers}
 )
 message(STATUS "List of UOM Libs: ${UOM_LIBS}")
 target_link_libraries(emrainey-uom uom-generator ${UOM_LIBS})
-target_include_directories(emrainey-uom PUBLIC ${emrainey-basal_INCLUDE_DIRS})
+target_include_directories(emrainey-uom PUBLIC
+    # Generated Tree
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
+    # Source Tree
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    # Install Tree
+    $<INSTALL_INTERFACE:include>
+    ${Basal_INCLUDE_DIRS}
+)
 
 install(TARGETS emrainey-uom DESTINATION lib)
 install(DIRECTORY include/iec DESTINATION include)
 install(DIRECTORY include/iso DESTINATION include)
 install(DIRECTORY include/si DESTINATION include)
 
+# Declare installs and exports (this isn't working yet)
+install(TARGETS emrainey-uom uom-generator uom-furlong uom-microfortnight EXPORT UnitsOfMeasureTargets
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+    RUNTIME DESTINATION bin
+    INCLUDES DESTINATION include
+)
+install(EXPORT UnitsOfMeasureTargets
+    FILE UnitsOfMeasureTargets.cmake
+    NAMESPACE UnitsOfMeasure::
+    DESTINATION share/cmake/units_of_measure
+)
+install(FILES "cmake/Findunits_of_measure.cmake" "cmake/units_of_measure-config.cmake"
+    DESTINATION share/cmake/units_of_measure
+)
 #####################################################
 # Unit Testing
 #####################################################

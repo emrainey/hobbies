@@ -5,8 +5,10 @@ project(fourcc
 set(CMAKE_CXX_STANDARD 17)
 
 find_package(GTest REQUIRED)
-find_package(basal 0.7 REQUIRED)
+find_package(basal REQUIRED)
 enable_testing()
+
+#print_package_variables(basal)
 
 if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
 add_definitions(-march=native -mtune=native)
@@ -15,20 +17,46 @@ message(ERROR "No other native format is yet supported!")
 endif()
 
 
-add_library(emrainey-fourcc SHARED)
-target_sources(emrainey-fourcc
-    PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/image.cpp
-    INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/fourcc/image.hpp
+add_library(emrainey-fourcc SHARED
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/image.cpp
 )
-target_link_libraries(emrainey-fourcc PUBLIC emrainey-basal)
 target_include_directories(emrainey-fourcc
     PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        # Generated Tree
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
+        # Build Tree
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        # Install Tree
+        $<INSTALL_INTERFACE:include>
         ${basal_INCLUDE_DIRS}
 )
+target_link_libraries(emrainey-fourcc PUBLIC Basal::emrainey-basal)
 
+#####################
+# EXPORTS
+#####################
+
+# Declare installs and exports (this isn't working yet)
+install(TARGETS emrainey-fourcc EXPORT FourccTargets
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+    RUNTIME DESTINATION bin
+    INCLUDES DESTINATION include
+)
+install(EXPORT FourccTargets
+    FILE FourccTargets.cmake
+    NAMESPACE Fourcc::
+    DESTINATION share/cmake/fourcc
+)
+install(DIRECTORY include/fourcc
+    DESTINATION include
+)
+install(FILES "cmake/Findfourcc.cmake" "cmake/fourccConfig.cmake"
+    DESTINATION share/cmake/fourcc
+)
+#####################
+# Unit Tests
+#####################
 if (${GTest_FOUND})
     add_executable(gtest_fourcc
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_fourcc.cpp

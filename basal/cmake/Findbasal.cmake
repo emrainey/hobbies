@@ -1,6 +1,7 @@
+message(STATUS ">>> Found Basal!")
 find_path(Basal_INCLUDE_DIR include/basal/basal.hpp)
 find_library(Basal_LIBRARY emrainey-basal)
-mark_as_advanced(Basal_INCLUDE_DIR Basal_LIBRARY
+mark_as_advanced(Basal_INCLUDE_DIR Basal_LIBRARY)
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(Basal

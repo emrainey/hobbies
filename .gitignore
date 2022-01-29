@@ -38,6 +38,7 @@
 
 # build output and the test install folder
 /build
+/**/build
 /install
 
 # Compile commands don't need to be saved

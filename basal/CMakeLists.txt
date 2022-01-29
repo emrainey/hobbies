@@ -34,14 +34,20 @@ install(EXPORT BasalTargets
     NAMESPACE Basal::
     DESTINATION share/cmake/basal
 )
-include(CMakePackageConfigHelpers)
-write_basic_package_version_file("BasalConfigVersion.cmake"
-    VERSION ${Basal_VERSION}
-    COMPATIBILITY SameMajorVersion
+install(DIRECTORY include/basal
+    DESTINATION include
 )
-install(FILES "cmake/Findbasal.cmake" "cmake/basalConfig.cmake" "basalConfigVersion.cmake"
+install(FILES "cmake/Findbasal.cmake" "cmake/basalConfig.cmake"
     DESTINATION share/cmake/basal
 )
+#include(CMakePackageConfigHelpers)
+#write_basic_package_version_file("BasalConfigVersion.cmake"
+#    VERSION ${Basal_VERSION}
+#    COMPATIBILITY SameMajorVersion
+#)
+#install(FILES "cmake/Findbasal.cmake" "cmake/basalConfig.cmake" "basalConfigVersion.cmake"
+#    DESTINATION share/cmake/basal
+#)
 
 # Unit Tests
 find_package(GTest REQUIRED)

@@ -43,7 +43,7 @@ SCALE_TYPES = {
 
 def preprocess_template(namespace: str, classname: str, typename: str, scale: str, scaletype: str, postfix: str, input_filepath: str, output_filepath: str) -> bool:
     input_path=pathlib.Path(input_filepath).parent.absolute()
-    print(f'[Preprocessing] {classname} as {typename} and postfix \"{postfix}\"')
+    print(f'[Preprocessing] {classname} as {typename} at scale {scaletype}::{scale} and postfix \"{postfix}\"')
 
     environment = jinja2.Environment(loader=FileSystemLoader(input_path), autoescape=select_autoescape(['cpp', 'hpp']))
     template = environment.get_template(pathlib.Path(input_filepath).name)
@@ -59,6 +59,7 @@ def preprocess_template(namespace: str, classname: str, typename: str, scale: st
     }
     output = template.render(**variables)
     directory = pathlib.Path(output_filepath).parent
+    print("Check for directory? {}".format(directory))
     if not os.path.exists(directory):
         os.makedirs(directory)
     with open(output_filepath, 'w') as filedata:

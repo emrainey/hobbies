@@ -1,0 +1,14 @@
+# temps
+*~
+.DS_Store
+._.DS_Store
+
+# eclipse
+.project
+.cproject
+.settings
+
+# build output
+/build
+/out
+/.vscode

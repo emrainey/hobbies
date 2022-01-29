@@ -1,0 +1,64 @@
+/**
+ * @file
+ * {{comment}}
+ * @copyright Copyright {{year}}.
+ */
+
+#include <cstdint>
+#include <cstddef>
+
+#include <iso/measurement.hpp>
+
+/** {{namespace}} comment */
+namespace {{namespace}} {
+
+struct suffix_type_{{postfix}} {
+    constexpr static const char *suffix = "{{postfix}}";
+};
+
+/** {{classname}} comment */
+class {{classname}} : public measurement<{{typename}}, {{scaletype}}, suffix_type_{{postfix}}> {
+public:
+    /** Default constructor */
+    {{classname}}();
+    /** Parameter constructor */
+    explicit {{classname}}({{typename}} value);
+    /** Copy Constructor */
+    {{classname}}(const {{classname}}& other);
+    /** Move Constructor */
+    {{classname}}({{classname}}&& other);
+    /** Destructor */
+    ~{{classname}}() = default;
+    {{classname}}& operator=(const {{classname}} &other) noexcept;
+    {{classname}}& operator=({{classname}}& other) noexcept;
+    {{classname}}& operator=({{classname}}&& other) noexcept;
+    bool operator==(const {{classname}}& other) const;
+    bool operator!=(const {{classname}}& other) const;
+    {{classname}}& operator+=(const {{classname}}& other);
+    {{classname}}& operator-=(const {{classname}}& other);
+    {{classname}}& operator*=({{typename}} factor);
+    {{classname}}& operator/=({{typename}} factor);
+    {{classname}} operator-() const;
+    bool operator<(const {{classname}}& other) const;
+    bool operator<=(const {{classname}}& other) const;
+    bool operator>(const {{classname}}& other) const;
+    bool operator>=(const {{classname}}& other) const;
+};
+
+{% if typename == float %}
+namespace literals {
+inline {{classname}} operator""_{{postfix}}(long double value) {
+    return {{classname}}(value);
+}
+}
+{% endif %}
+
+{% if typename == long or typename == uint32_t or typename == uint64_t %}
+namespace literals {
+inline {{classname}} operator""_{{postfix}}(long unsigned value) {
+    return {{classname}}(value);
+}
+}
+{% endif %}
+
+}

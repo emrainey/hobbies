@@ -1,5 +1,7 @@
-cmake_minimum_required(VERSION 3.13)
-project(units_of_measure CXX)
+cmake_minimum_required(VERSION 3.20.0)
+project(units_of_measure
+    VERSION 0.7
+    LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 
 find_package(Python3 REQUIRED COMPONENTS Interpreter)

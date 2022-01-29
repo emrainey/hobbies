@@ -5,8 +5,9 @@ project(hobbies CXX)
 #set(CMAKE_CXX_CLANG_TIDY clang-tidy -checks=-*,readability-*)
 
 # lists which things are subprojects and which are not
-set(AS_SUBPROJECTS basal units_of_measure)
-# fourcc xmmt linalg neuralnet geometry noise raytrace htm)
+set(AS_SUBPROJECTS basal units_of_measure fourcc)
+# linalg geometry)
+# xmmt linalg neuralnet noise raytrace htm)
 
 # Append all the subproject cmake folders so that they can be "found"
 foreach(pkg ${AS_SUBPROJECTS})

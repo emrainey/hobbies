@@ -50,6 +50,8 @@ install(EXPORT FourccTargets
 )
 install(DIRECTORY include/fourcc
     DESTINATION include
+    PATTERN "*.hpp"
+    PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
 )
 install(FILES "cmake/Findfourcc.cmake" "cmake/fourccConfig.cmake"
     DESTINATION share/cmake/fourcc

@@ -33,12 +33,16 @@ install(EXPORT BasalTargets
     FILE BasalTargets.cmake
     NAMESPACE Basal::
     DESTINATION share/cmake/basal
+    PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
 )
 install(DIRECTORY include/basal
     DESTINATION include
+    PATTERN "*.hpp"
+    PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
 )
 install(FILES "cmake/Findbasal.cmake" "cmake/basalConfig.cmake"
     DESTINATION share/cmake/basal
+    PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
 )
 #include(CMakePackageConfigHelpers)
 #write_basic_package_version_file("BasalConfigVersion.cmake"

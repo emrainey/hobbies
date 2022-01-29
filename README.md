@@ -23,3 +23,5 @@ Check the README in each folder for it's own progress and issues.
 * Must support `friend operator<<`
 * Use `explicit` Constructors to prevent unexplained auto-magic
 * Use `if constexpr` for debugging.
+* Always install your header files as read-only!
+* Always create your generated source code as read-only!

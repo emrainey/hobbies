@@ -37,6 +37,7 @@ function(generate_source_code NAMESPACE CLASSNAME TYPENAME SCALETYPE SCALEVALUE 
         COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/scripts/process_templates.py process_templates.py
         COMMAND ./process_templates.py ARGS --namespace ${NAMESPACE} --class ${CLASSNAME} --typename ${TYPENAME} --scale ${SCALEVALUE} --scaletype ${SCALETYPE} --postfix ${POSTFIX} --infile header.hpp.jinja --outfile ${UOM_GEN_DIR}/${NAMESPACE}/${CLASSNAME}.hpp
         COMMAND ./process_templates.py ARGS --namespace ${NAMESPACE} --class ${CLASSNAME} --typename ${TYPENAME} --scale ${SCALEVALUE} --scaletype ${SCALETYPE} --postfix ${POSTFIX} --infile body.cpp.jinja --outfile ${UOM_GEN_DIR}/${CLASSNAME}.cpp
+        COMMAND chmod 444 ${UOM_GEN_DIR}/${CLASSNAME}.cpp ${UOM_GEN_DIR}/${NAMESPACE}/${CLASSNAME}.hpp
         COMMENT "Generating the Jinja Templates for ${CLASSNAME}"
         OUTPUT ${UOM_GEN_DIR}/${NAMESPACE}/${CLASSNAME}.hpp ${UOM_GEN_DIR}/${CLASSNAME}.cpp
         VERBATIM
@@ -80,11 +81,6 @@ target_include_directories(emrainey-uom PUBLIC
     ${Basal_INCLUDE_DIRS}
 )
 
-install(TARGETS emrainey-uom DESTINATION lib)
-install(DIRECTORY include/iec DESTINATION include)
-install(DIRECTORY include/iso DESTINATION include)
-install(DIRECTORY include/si DESTINATION include)
-
 # Declare installs and exports (this isn't working yet)
 install(TARGETS emrainey-uom uom-generator uom-furlong uom-microfortnight EXPORT UnitsOfMeasureTargets
     LIBRARY DESTINATION lib
@@ -96,6 +92,11 @@ install(EXPORT UnitsOfMeasureTargets
     FILE UnitsOfMeasureTargets.cmake
     NAMESPACE UnitsOfMeasure::
     DESTINATION share/cmake/units_of_measure
+)
+install(DIRECTORY include/iec include/iso include/si
+    DESTINATION include
+    PATTERN "*.hpp"
+    PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
 )
 install(FILES "cmake/Findunits_of_measure.cmake" "cmake/units_of_measure-config.cmake"
     DESTINATION share/cmake/units_of_measure

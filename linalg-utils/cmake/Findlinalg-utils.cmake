@@ -8,9 +8,9 @@ find_package_handle_standard_args(LinalgUtils
     REQUIRED_VARS LinalgUtils_LIBRARY LinalgUtils_INCLUDE_DIR
 )
 
-if (Linalg_FOUND AND NOT TARGET LinalgUtils::emrainey-linalg)
+if (Linalg_FOUND AND NOT TARGET LinalgUtils::emrainey-linalg-utils)
     add_library(LinalgUtils::emrainey-linalg-utils UNKNOWN IMPORTED)
-    set_target_properties(LinalgUtils::emrainey-linalg PROPERTIES
+    set_target_properties(LinalgUtils::emrainey-linalg-utils PROPERTIES
         IMPORTED_LINK_INTERFACE_LANGUAGES CXX
         IMPORTED_LOCATION "${LinalgUtils_LIBRARY}"
         INTERFACE_INCLUDE_DIRECTORIES "${LinalgUtils_INCLUDE_DIR}"

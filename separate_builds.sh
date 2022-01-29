@@ -5,6 +5,7 @@ set -e
 CLEAN=0
 JOBS=16
 VERBOSE=OFF
+RUN_TESTS=0
 while [[ $# -gt 0 ]]; do
     case $1 in
         -rm)
@@ -15,6 +16,9 @@ while [[ $# -gt 0 ]]; do
         ;;
         -v)
             VERBOSE=ON
+        ;;
+        -t)
+            RUN_TESTS=1
         ;;
         *)
         ;;
@@ -30,7 +34,7 @@ mkdir -p ${INSTALL_ROOT}
 PKGS=(basal units_of_measure fourcc linalg \
 geometry \
 linalg-utils \
-# linalg-algo \
+linalg-algo \
 # noise \
 # raytrace \
 # htm \
@@ -52,5 +56,8 @@ for pkg in "${PKGS[@]}"; do
         -DCMAKE_C_COMPILER:FILEPATH=/usr/bin/clang \
         -DCMAKE_CXX_COMPILER:FILEPATH=/usr/bin/clang++
     cmake --build $pkg/build -j${JOBS}
+    if [[ ${RUN_TESTS} -eq 1 ]]; then
+        cmake --build $pkg/build --target test
+    fi
     cmake --build $pkg/build --target install
 done

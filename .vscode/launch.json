@@ -1,0 +1,135 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "inputs": [
+        {
+            "type":"pickString",
+            "id": "world_module",
+            "description": "Which World Module to Load",
+            "options": [
+                "libworld_example.dylib",
+                "libworld_cornell.dylib",
+                "libworld_spheres.dylib",
+                "libworld_steel.dylib",
+                "libworld_snowman.dylib",
+                "libworld_desktoy.dylib",
+            ]
+        }
+    ],
+    "configurations": [
+        {
+            "type": "lldb-mi",
+            "request": "launch",
+            "name": "Launch Program",
+            "target": "/usr/bin/lldb",
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "name": "(lldb) GTest Noise",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/linalg/Release/gtest_noise",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [{
+                "ABORT": "1"
+            }],
+            "externalConsole": false,
+            "MIMode": "lldb"
+        },
+        {
+            "name": "(lldb) GTest Raytrace",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/linalg/Release/gtest_raytrace",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb"
+        },
+        {
+            "name": "(lldb) GTest Units of Measure",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/units_of_measure/Release/gtest_iso",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb"
+        },
+        {
+            "name": "(lldb) GTest Linear Algebra",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/linalg/Release/gtest_linalg",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [{
+                "ABORT": "1"
+            }],
+            "externalConsole": false,
+            "MIMode": "lldb"
+        },
+        {
+            "name": "(lldb) GTest Points",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/linalg/Release/gtest_point",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb"
+        },
+        {
+            "name": "(lldb) Demo Marble Tuner",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/linalg/Release/demo_marble_tuner",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb"
+        },
+        {
+            "name": "(lldb) Demo KMeans",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/linalg/Release/demo_kmeans",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb"
+        },
+        {
+            "name": "(lldb) Demo Raytrace World Loader",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/linalg/Release/demo_loader",
+            "args": ["-m", "${input:world_module}"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [
+                {
+                    "name": "DYLD_LIBRARY_PATH",
+                    "value": "${workspaceFolder}/build/linalg/Release/"
+                }
+            ],
+            "externalConsole": false,
+            "MIMode": "lldb"
+        },
+    ]
+}

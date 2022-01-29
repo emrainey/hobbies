@@ -1,0 +1,50 @@
+{
+    "cmakeExplorer.buildDir": "${workspaceFolder}/build/",
+    "cmake.copyCompileCommands": "${workspaceFolder}/.vscode/compile_commands.json",
+    "cmake.generator": "Unix Makefiles",
+    "cmake.environment": {
+    },
+    "testMate.cpp.test.advancedExecutables": [
+        {
+            "cwd": "${absDirpath}",
+            "pattern": "{build}/**/*{test,Test}*",
+            "env": {
+                "DYLD_LIBRARY_PATH": "${os_env:DYLD_LIBRARY_PATH}:${workspaceFolder}/build/linalg/Release:${workspaceFolder}/build/simple_os/Release:${workspaceFolder}/build/units_of_measure/Release"
+            }
+        }
+    ],
+    "testMate.cpp.test.workingDirectory": "${absDirpath}",
+    "testMate.cpp.discovery.strictPattern": true,
+    "testMate.cpp.log.logpanel": true,
+    "C_Cpp.errorSquiggles": "Disabled",
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "C_Cpp.configurationWarnings": "Disabled",
+    "python.pythonPath": "/usr/local/bin/python3",
+	"python.linting.pylintEnabled": true,
+    "python.linting.enabled": true,
+    "todo-tree.general.debug": true ,
+    "todo-tree.filtering.excludeGlobs": [
+			"**/googletest/*",
+			"**/googlemock/*",
+			"**/*.cc",
+			"**/*.html",
+			"**/*.js",
+			"**/*.xml"
+		],
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/node_modules/**": true,
+        "**/.hg/store/**": true
+    },
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/bower_components": true,
+        "**/*.code-search": true
+    },
+    "cSpell.ignoreWords": [
+        "abgr",
+        "ABGR",
+        "TUPLTYPE"
+    ]
+}

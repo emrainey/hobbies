@@ -1,0 +1,12 @@
+cmake_minimum_required(VERSION 3.20.0)
+project(hobbies CXX)
+
+add_subdirectory(basal)
+#add_subdirectory(units_of_measure)
+#add_subdirectory(xmmt)
+#add_subdirectory(linalg)
+#add_subdirectory(neuralnet)
+#add_subdirectory(geometry)
+#add_subdirectory(fourcc)
+#add_subdirectory(noise)
+#add_subdirectory(raytrace)

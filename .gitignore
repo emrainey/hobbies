@@ -30,3 +30,11 @@
 *.exe
 *.out
 *.app
+
+# temps
+*~
+.DS_Store
+._.DS_Store
+
+# build output
+/build

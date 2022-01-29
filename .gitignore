@@ -36,8 +36,9 @@
 .DS_Store
 ._.DS_Store
 
-# build output
+# build output and the test install folder
 /build
+/install
 
 # Compile commands don't need to be saved
 .vscode/compile_commands.json

@@ -1,9 +1,14 @@
 {
     "cmakeExplorer.buildDir": "${workspaceFolder}/build/",
     "cmake.copyCompileCommands": "${workspaceFolder}/.vscode/compile_commands.json",
-    "cmake.generator": "Unix Makefiles",
+    "cmake.generator": "Ninja",
     "cmake.environment": {
+        "CMAKE_PREFIX_PATH": "install"
     },
+    "cmake.configureEnvironment": {
+        "CMAKE_INSTALL_PREFIX": "install"
+    },
+    "cmake.installPrefix": "install",
     "testMate.cpp.test.advancedExecutables": [
         {
             "cwd": "${absDirpath}",
@@ -46,5 +51,5 @@
         "abgr",
         "ABGR",
         "TUPLTYPE"
-    ]
+    ],
 }

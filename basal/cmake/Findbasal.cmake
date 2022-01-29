@@ -1,4 +1,4 @@
-message(STATUS ">>> Found Basal!")
+message(FATAL_ERROR ">>> Found Basal!")
 find_path(Basal_INCLUDE_DIR include/basal/basal.hpp)
 find_library(Basal_LIBRARY emrainey-basal)
 mark_as_advanced(Basal_INCLUDE_DIR Basal_LIBRARY)

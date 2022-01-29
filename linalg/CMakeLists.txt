@@ -7,6 +7,7 @@ find_package(GTest REQUIRED)
 find_package(basal REQUIRED)
 find_package(units_of_measure REQUIRED)
 find_package(fourcc REQUIRED)
+enable_testing()
 
 if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
 add_definitions(-march=native -mtune=native)
@@ -14,14 +15,12 @@ else()
 message(ERROR "No other native format is yet supported!")
 endif()
 
-add_library(emrainey-linalg SHARED)
-target_sources(emrainey-linalg
-    PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/matrix.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/solvers.cpp
+add_library(emrainey-linalg SHARED
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/matrix.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/solvers.cpp
 )
 target_link_libraries(emrainey-linalg PUBLIC
-    Basal::emrainey-basal ${units_of_measure_LIBRARY})
+    Basal::emrainey-basal UnitsOfMeasure::emrainey-uom)
 target_include_directories(emrainey-linalg PUBLIC
     # Generated Tree
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
@@ -29,8 +28,6 @@ target_include_directories(emrainey-linalg PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     # Install Tree
     $<INSTALL_INTERFACE:include>
-    ${basal_INCLUDE_DIRS}
-    ${units_of_measure_INCLUDE_DIRS}
 )
 
 #####################

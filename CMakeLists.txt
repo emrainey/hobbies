@@ -5,7 +5,7 @@ project(hobbies CXX)
 #set(CMAKE_CXX_CLANG_TIDY clang-tidy -checks=-*,readability-*)
 
 # lists which things are subprojects and which are not
-set(AS_SUBPROJECTS basal units_of_measure fourcc linalg geometry)
+set(AS_SUBPROJECTS basal units_of_measure fourcc) # linalg geometry)
 # xmmt linalg neuralnet noise raytrace htm)
 
 function(print_package_variables PREFIX)

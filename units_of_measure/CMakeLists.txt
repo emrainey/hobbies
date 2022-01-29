@@ -5,7 +5,6 @@ project(units_of_measure
 set(CMAKE_CXX_STANDARD 17)
 
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
-find_package(basal REQUIRED)
 enable_testing()
 
 set(UOM_GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/generated)
@@ -78,7 +77,6 @@ target_include_directories(emrainey-uom PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     # Install Tree
     $<INSTALL_INTERFACE:include>
-    ${Basal_INCLUDE_DIRS}
 )
 
 # Declare installs and exports (this isn't working yet)

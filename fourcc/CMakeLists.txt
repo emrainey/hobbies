@@ -3,19 +3,15 @@ project(fourcc
     VERSION 0.7
     LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
-
-find_package(GTest REQUIRED)
-find_package(basal REQUIRED)
 enable_testing()
 
-#print_package_variables(basal)
+find_package(basal REQUIRED)
 
 if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
 add_definitions(-march=native -mtune=native)
 else()
 message(ERROR "No other native format is yet supported!")
 endif()
-
 
 add_library(emrainey-fourcc SHARED
     ${CMAKE_CURRENT_SOURCE_DIR}/source/image.cpp
@@ -28,7 +24,6 @@ target_include_directories(emrainey-fourcc
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         # Install Tree
         $<INSTALL_INTERFACE:include>
-        ${basal_INCLUDE_DIRS}
 )
 target_link_libraries(emrainey-fourcc PUBLIC Basal::emrainey-basal)
 
@@ -59,6 +54,8 @@ install(FILES "cmake/Findfourcc.cmake" "cmake/fourccConfig.cmake"
 #####################
 # Unit Tests
 #####################
+
+find_package(GTest)
 if (${GTest_FOUND})
     add_executable(gtest_fourcc
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_fourcc.cpp
@@ -72,7 +69,7 @@ endif()
 # Build Documentation
 #####################
 
-find_package(Doxygen REQUIRED)
+find_package(Doxygen)
 if (${Doxygen_FOUND})
     set(DOXYGEN_GENERATE_HTML YES)
     set(DOXYGEN_GENERATE_MAN NO)

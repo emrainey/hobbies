@@ -38,7 +38,7 @@ linalg-algo \
 xmmt \
 noise \
 raytrace \
-# neuralnet
+neuralnet \
 # htm \
 )
 

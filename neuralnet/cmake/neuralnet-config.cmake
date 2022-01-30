@@ -1,0 +1,5 @@
+# This file is meant to be installed then "found" via find_package()
+include(CMakeFindDependencyMacro)
+find_dependency(basal)
+find_dependency(linalg)
+include("${CMAKE_CURRENT_LIST_DIR}/NeuralnetTargets.cmake")

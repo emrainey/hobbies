@@ -4,6 +4,7 @@
 namespace iso {
 // Following volts = amperes * ohms, watts = volts * amperes
 // Equational operators
+namespace operators {
 volts operator/(const watts &P, const amperes &I) {
     return volts(P.value / I.value);
 }
@@ -22,5 +23,5 @@ amperes operator/(const watts &P, const volts &E) {
 amperes operator/(const volts &E, const ohms &R) {
     return amperes(E.value / R.value);
 }
-
-}
+} // namespace operators
+} // namespace iso

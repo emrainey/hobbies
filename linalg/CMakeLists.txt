@@ -34,7 +34,7 @@ target_include_directories(emrainey-linalg PUBLIC
 # EXPORTS
 #####################
 
-# Declare installs and exports (this isn't working yet)
+# Declare installs and exports
 install(TARGETS emrainey-linalg EXPORT LinalgTargets
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib

@@ -1,0 +1,50 @@
+{
+	"folders": [
+		{
+			"path": "basal"
+		},
+		{
+			"path": "units_of_measure"
+		},
+		{
+			"path": "fourcc"
+		},
+		{
+			"path": "xmmt"
+		},
+		{
+			"path": "noise",
+		}
+		{
+			"path": "linalg"
+		},
+		{
+			"path": "linalg-utils"
+		},
+		{
+			"path": "linalg-algo"
+		},
+		{
+			"path": "raytrace"
+		},
+		{
+			"path": "neuralnet"
+		},
+		{
+			"path": "htm"
+		}
+	],
+	"settings": {
+		"cmake.autoSelectActiveFolder": true,
+		"cmake.installPrefix": "${workspaceFolder}/../install",
+		"todo-tree.general.debug": true,
+		"todo-tree.filtering.excludeGlobs": [
+			"**/googletest/*",
+			"**/googlemock/*",
+			"**/*.cc",
+			"**/*.html",
+			"**/*.js",
+			"**/*.xml"
+		]
+	}
+}

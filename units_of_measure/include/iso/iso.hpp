@@ -1,3 +1,8 @@
+/**
+ * @file
+ * The ISO units of measure header
+ * @copyright Copyright (c) 2022
+ */
 #pragma once
 #include <cstdint>
 #include <iostream>
@@ -30,17 +35,6 @@
 #include "iso/compound.hpp"
 
 namespace iso {
-    // Following volts = amperes * ohms, watts = volts * amperes
-    // Equational operators
-    volts operator/(const watts &P, const amperes &I);
-    volts operator*(const amperes &I, const ohms &R);
-
-    watts operator*(const volts &E, const amperes &I);
-
-    ohms operator/(const volts &E, const amperes &I);
-
-    amperes operator/(const watts &P, const volts &E);
-    amperes operator/(const volts &E, const ohms &R);
 
     // feet <=> meters
     feet convert(meters &A);
@@ -55,24 +49,24 @@ namespace iso {
     // slightly different conversions interface
     void convert(feet& f, const meters& m);
     void convert(meters& m, const feet& f);
+
+    // Theres many different combinations of turns, radians, degrees
     void convert(radians& r, const turns& t);
     void convert(turns& t, const radians& r);
     void convert(degrees& d, const radians& r);
     void convert(radians& r, const degrees& d);
+
+    // Another conversion seconds <-> hertz
     void convert(hertz& hz, const seconds &sec);
     void convert(seconds& sec, const hertz &hz);
 
-    // additional conversions for those in the know about the relationship
-
-    hertz operator/(const double num, const seconds& denom);
-    seconds operator/(const double num, const hertz& denom);
-
-    // Once your system has a basis of units you can assign these concepts
 
     /** Define the standard distance as meters */
     using distance = meters;
     /** Define the standard time as seconds */
     using time = seconds;
+
+    // Once your system has a basis of units you can assign these concepts
 
     /** Define speed as a rate of distance in time */
     using speed = rate<distance,time>;
@@ -86,57 +80,121 @@ namespace iso {
     using crackle = rate<snap,time>;
     /** Define a pop as a rate of crackle in time */
     using pop = rate<crackle,time>;
-
-    /** Creates a speed from a distance over time */
-    speed operator/(const distance &num, const time &denom);
-
-    /** Creates a speed from a distance over time */
-    speed operator/(distance &&num, time &&denom);
-
-    /** Creates a speed from a distance over time */
-    speed operator/(const distance &num, time &&denom);
-
-    /** Creates a speed from a distance over time */
-    speed operator/(distance &&num, const time &denom);
-
-    /** Alternative constructor */
-    rate<feet,seconds> operator/(const feet &num, const seconds &denom);
-
-    /** A quote operator for making speeds */
-    speed operator""_m_per_sec(long double a);
-
-    /** Creates an acceleration from speed per time */
-    acceleration operator/(const speed &num, const time &denom);
-
-    /** Creates an acceleration from speed per time */
-    acceleration operator/(speed &&num, time &&denom);
-
-    /** Creates an acceleration from speed per time */
-    acceleration operator/(const speed &num, time &&denom);
-
-    /** Creates an acceleration from speed per time */
-    acceleration operator/(speed &&num, const time &denom);
-
-    /** Constructs an acceleration from a double */
-    acceleration operator""_G(long double g);
-
     /** A torque is a compound of newtons-meters */
     using torque = compound<newtons,meters>;
 
-    /** Compounds a newtons-meters together into a torque */
-    torque operator*(const newtons &N, const meters &m);
+    namespace operators {
+        /** volts = watts / amperes */
+        volts operator/(const watts &P, const amperes &I);
+        /** volts = amperes * ohms */
+        volts operator*(const amperes &I, const ohms &R);
+        /** watts = volts * amperes */
+        watts operator*(const volts &E, const amperes &I);
+        /** ohms = volts / amperes */
+        ohms operator/(const volts &E, const amperes &I);
+        /** amperes = watts / volts */
+        amperes operator/(const watts &P, const volts &E);
+        /** amperes = volts / ohms */
+        amperes operator/(const volts &E, const ohms &R);
+        /** hertz = _num_ / seconds */
+        hertz operator/(const double num, const seconds& denom);
+        /** seconds = _num_ / hertz */
+        seconds operator/(const double num, const hertz& denom);
 
-    /** Compounds a newtons-meters together into a torque */
-    torque operator*(newtons &&N, meters &&m);
+        /** Creates a speed from a distance over time */
+        speed operator/(const distance &num, const time &denom);
 
-    /** Compounds a newtons-meters together into a torque */
-    torque operator*(const newtons &N, meters &&m);
+        /** Creates a speed from a distance over time */
+        speed operator/(distance &&num, time &&denom);
 
-    /** Compounds a newtons-meters together into a torque */
-    torque operator*(newtons &&N, const meters &m);
+        /** Creates a speed from a distance over time */
+        speed operator/(const distance &num, time &&denom);
 
-    // This is to override specific relations where things ARE equal
+        /** Creates a speed from a distance over time */
+        speed operator/(distance &&num, const time &denom);
 
-    /** Compares Joules to Torque */
-    bool operator==(const joules &J, const torque &T);
-}
+        /** Alternative constructor */
+        rate<feet,seconds> operator/(const feet &num, const seconds &denom);
+
+        /** Creates an acceleration from speed per time */
+        acceleration operator/(const speed &num, const time &denom);
+
+        /** Creates an acceleration from speed per time */
+        acceleration operator/(speed &&num, time &&denom);
+
+        /** Creates an acceleration from speed per time */
+        acceleration operator/(const speed &num, time &&denom);
+
+        /** Creates an acceleration from speed per time */
+        acceleration operator/(speed &&num, const time &denom);
+
+        /** Compounds a newtons-meters together into a torque */
+        torque operator*(const newtons &N, const meters &m);
+
+        /** Compounds a newtons-meters together into a torque */
+        torque operator*(newtons &&N, meters &&m);
+
+        /** Compounds a newtons-meters together into a torque */
+        torque operator*(const newtons &N, meters &&m);
+
+        /** Compounds a newtons-meters together into a torque */
+        torque operator*(newtons &&N, const meters &m);
+
+        // This is to override specific relations where things ARE equal
+
+        /** Compares Joules to Torque */
+        bool operator==(const joules &J, const torque &T);
+    }
+
+    /** A method of computing PI at compile time */
+    constexpr long double compute_pi(size_t digits) {
+        long double pi = 0.0;
+        for (long double i = 0.0; i < digits; i+=1.0) {
+            long double denum = 1.0;
+            for (long double j = i; j > 0; j-=1.0) {
+                denum *= 16.0;
+            }
+            pi += ((4.0/(8.0*i + 1.0)) -
+                   (2.0/(8.0*i + 4.0)) -
+                   (1.0/(8.0*i + 5.0)) -
+                   (1.0/(8.0*i + 6.0))) /
+                   denum;
+        }
+        return pi;
+    }
+
+    /** PI accurate to 200 digits */
+    constexpr double pi = compute_pi(200);
+    /** 2*PI */
+    constexpr double tau = 2.0 * pi;
+
+    /** The namespace where the quote operators are stored. You must `using namespace literals;` to use them */
+    namespace literals {
+        /** A quote operator for making speeds */
+        speed operator""_m_per_sec(long double a);
+
+        /** Constructs an acceleration from a double */
+        acceleration operator""_G(long double g);
+
+        /** Specialized Quote Operator */
+        iso::amperes operator""_mA(long double a);
+        /** Specialized Quote Operator */
+        iso::amperes operator""_mA(const char a[]);
+        /** Specialized Quote Operator */
+        iso::ohms operator""_mOhm(long double a);
+        /** Specialized Quote Operator */
+        iso::ohms operator""_mOhm(const char a[]);
+        /** Specialized Quote Operator */
+        iso::ohms operator""_KOhm(long double a);
+        /** Specialized Quote Operator */
+        iso::ohms operator""_KOhm(const char a[]);
+        /** Specialized Quote Operator */
+        iso::volts operator""_mV(long double a);
+        /** Specialized Quote Operator */
+        iso::volts operator""_mV(const char a[]);
+        /** Specialized Quote Operator */
+        iso::watts operator""_mW(long double a);
+        /** Specialized Quote Operator */
+        iso::watts operator""_mW(const char a[]);
+    } // namespace literals
+} // namespace iso

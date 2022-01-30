@@ -61,7 +61,7 @@ public:
     virtual ~compound() {}
 
     typename LeftType::type reduce() const {
-        return _first.value * _second.value;
+        return _first.reduce() * _second.reduce();
     }
 
     type operator()() const {
@@ -96,9 +96,12 @@ public:
     }
 };
 
+namespace streams {
 template <typename LeftType, typename RightType>
 std::ostream& operator<<(std::ostream& output, compound<LeftType, RightType>& ref) {
     return output << ref.first.value << '*' << ref.second.value << " " << ref.first.get_suffix() << '*' << ref.second.get_suffix() << std::endl;
 }
 
-}
+} // namespace streams
+
+} // namespace iso

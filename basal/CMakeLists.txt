@@ -22,7 +22,7 @@ target_include_directories(emrainey-basal PUBLIC
     $<INSTALL_INTERFACE:include>
 )
 
-# Declare installs and exports (this isn't working yet)
+# Declare installs and exports
 install(TARGETS emrainey-basal EXPORT BasalTargets
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib

@@ -27,11 +27,24 @@ Check the README in each folder for it's own progress and issues.
 * Always create your generated source code as read-only!
 * Only locally install binaries (`install/`). These shouldn't pollute your system.
 
+## Developing
+
+You can open either the `hobbies.code-workspace` or the folder itself. Currently VSCode is not intelligent about running _configure_ in order.
+
+## Building
+
+Currently you can run the `./separate_builds.sh -rm -s` to individually config, build, and install each package. All the artifacts will end up in a new `install/` folder.
+
 ## Running
 
-While in the hobbies' root, you can run things by pre-pending the LD path.
+While in the hobbies' root, you can run things by pre-pending the LD (DYLD) path.
 
 ```bash
-# Mac
+# Running the NCurses Raytracing Console on Mac
 DYLD_LIBRARY_PATH=install/lib:raytrace/build ./raytrace/build/demo_curses -m libworld_example.dylib
 ```
+
+## Hobbies TODO
+
+* TODO Enable Multi-Workspace CMake in VSCode (https://devblogs.microsoft.com/cppblog/visual-studio-code-cmake-tools-extension-multi-root-workspaces-and-file-based-api/)
+* TODO Enable Building with a Single Parent CMakeLists.txt for faster builds.

@@ -28,7 +28,7 @@ target_link_libraries(emrainey-xmmt INTERFACE Basal::emrainey-basal)
 # EXPORTS
 #####################
 
-# Declare installs and exports (this isn't working yet)
+# Declare installs and exports
 install(TARGETS emrainey-xmmt EXPORT XmmtTargets
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib

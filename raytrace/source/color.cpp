@@ -244,6 +244,8 @@ static element_type gaussian_peak(element_type x, element_type low, element_type
 }
 
 color wavelength_to_color(iso::meters lambda) noexcept(false) {
+    using namespace iso::literals;
+
     static const iso::meters near_infrared = 780E-9_m;
     static const iso::meters ultra_violet = 380E-9_m;
     basal::exception::throw_unless(near_infrared >= lambda and lambda >= ultra_violet, __FILE__, __LINE__, "Must be in the visible range");

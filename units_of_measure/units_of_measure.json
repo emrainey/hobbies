@@ -1,0 +1,118 @@
+{
+    "header_template": "templates/header.hpp.jinja",
+    "source_template": "templates/body.cpp.jinja",
+    "units": [
+        {
+            "namespace": "iso",
+            "classname": "amperes",
+            "typename": "double",
+            "scalevalue": "iso",
+            "scaletype": "SI::prefix",
+            "postfix": "A"
+        },
+        {
+            "namespace": "iso",
+            "classname": "degrees",
+            "typename": "double",
+            "scalevalue": "iso",
+            "scaletype": "SI::prefix",
+            "postfix": "d"
+        },
+        {
+            "namespace": "iso",
+            "classname": "grams",
+            "typename": "double",
+            "scalevalue": "iso",
+            "scaletype": "SI::prefix",
+            "postfix": "g"
+        },
+        {
+            "namespace": "iso",
+            "classname": "hertz",
+            "typename": "double",
+            "scalevalue": "iso",
+            "scaletype": "SI::prefix",
+            "postfix": "Hz"
+        },
+        {
+            "namespace": "iso",
+            "classname": "joules",
+            "typename": "double",
+            "scalevalue": "iso",
+            "scaletype": "SI::prefix",
+            "postfix": "J"
+        },
+        {
+            "namespace": "iso",
+            "classname": "meters",
+            "typename": "double",
+            "scalevalue": "iso",
+            "scaletype": "SI::prefix",
+            "postfix": "m"
+        },
+        {
+            "namespace": "iso",
+            "classname": "newtons",
+            "typename": "double",
+            "scalevalue": "iso",
+            "scaletype": "SI::prefix",
+            "postfix": "N"
+        },
+        {
+            "namespace": "iso",
+            "classname": "ohms",
+            "typename": "double",
+            "scalevalue": "iso",
+            "scaletype": "SI::prefix",
+            "postfix": "Ohm"
+        },
+        {
+            "namespace": "iso",
+            "classname": "pascals",
+            "typename": "double",
+            "scalevalue": "iso",
+            "scaletype": "SI::prefix",
+            "postfix": "Pa"
+        },
+        {
+            "namespace": "iso",
+            "classname": "radians",
+            "typename": "double",
+            "scalevalue": "iso",
+            "scaletype": "SI::prefix",
+            "postfix": "rad"
+        },
+        {
+            "namespace": "iso",
+            "classname": "seconds",
+            "typename": "double",
+            "scalevalue": "iso",
+            "scaletype": "SI::prefix",
+            "postfix": "sec"
+        },
+        {
+            "namespace": "iso",
+            "classname": "turns",
+            "typename": "double",
+            "scalevalue": "iso",
+            "scaletype": "SI::prefix",
+            "postfix": "Tau"
+        },
+        {
+            "namespace": "iso",
+            "classname": "volts",
+            "typename": "double",
+            "scalevalue": "iso",
+            "scaletype": "SI::prefix",
+            "postfix": "V"
+        },
+        {
+            "namespace": "iso",
+            "classname": "watts",
+            "typename": "double",
+            "scalevalue": "iso",
+            "scaletype": "SI::prefix",
+            "postfix": "W"
+        }
+    ]
+}

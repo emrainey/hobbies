@@ -1,3 +1,10 @@
+/**
+ * @file
+ * This is an auto-generated source for {{namespace}}::{{classname}}.
+ * {{comment}}
+ * @note See README on re-generation.
+ * @copyright Copyright {{year}}.
+ */
 #include "{{namespace}}/{{classname}}.hpp"
 
 namespace {{namespace}} {
@@ -60,15 +67,34 @@ bool {{classname}}::operator>(const {{classname}}& other) const {
 bool {{classname}}::operator>=(const {{classname}}& other) const {
     return (_value >= other.value);
 }
-{{classname}} operator+(const {{classname}}& A, const {{classname}}& B) { return {{classname}}(A.value+B.value); }
-{{classname}} operator-(const {{classname}}& A, const {{classname}}& B) { return {{classname}}(A.value-B.value); }
-{{classname}} operator*(const {{classname}}& A, {{typename}} factor)         { return {{classname}}(A.value*factor); }
-{{classname}} operator*({{typename}} factor, const {{classname}}& A)         { return {{classname}}(A.value*factor); }
-{{classname}} operator/(const {{classname}}& A, {{typename}} factor)         { return {{classname}}(A.value/factor); }
-} /* end of namespace */
-namespace literals {
-iso::{{classname}} operator""_{{postfix}}(long double a)        { return iso::{{classname}}(a); }
-iso::{{classname}} operator""_{{postfix}}(unsigned long long a) { return iso::{{classname}}(a); }
-iso::{{classname}} operator""_{{postfix}}(const char a[])       { return iso::{{classname}}(atol(a)); }
+namespace operators {
+    {{classname}} operator+(const {{classname}}& A, const {{classname}}& B) {
+        return {{classname}}(A.value+B.value);
+    }
+    {{classname}} operator-(const {{classname}}& A, const {{classname}}& B) {
+        return {{classname}}(A.value-B.value);
+    }
+    {{classname}} operator*(const {{classname}}& A, {{typename}} factor) {
+        return {{classname}}(A.value*factor);
+    }
+    {{classname}} operator*({{typename}} factor, const {{classname}}& A) {
+        return {{classname}}(A.value*factor);
+    }
+    {{classname}} operator/(const {{classname}}& A, {{typename}} factor) {
+        return {{classname}}(A.value/factor);
+    }
 }
+namespace literals {
+    iso::{{classname}} operator""_{{postfix}}(long double a) {
+        return iso::{{classname}}(a);
+    }
+    iso::{{classname}} operator""_{{postfix}}(unsigned long long a) {
+        return iso::{{classname}}(a);
+    }
+    iso::{{classname}} operator""_{{postfix}}(const char a[]) {
+        return iso::{{classname}}(atol(a));
+    }
+} // namespace literals
+} // namespace iso
+
 

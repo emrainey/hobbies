@@ -38,7 +38,7 @@ target_include_directories(emrainey-noise
 # EXPORTS
 #####################
 
-# Declare installs and exports (this isn't working yet)
+# Declare installs and exports
 install(TARGETS emrainey-noise EXPORT NoiseTargets
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib

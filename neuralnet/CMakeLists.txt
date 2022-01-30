@@ -61,7 +61,7 @@ endif()
 # EXPORTS
 #####################
 
-# Declare installs and exports (this isn't working yet)
+# Declare installs and exports
 install(TARGETS emrainey-neuralnet EXPORT NeuralnetTargets
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib

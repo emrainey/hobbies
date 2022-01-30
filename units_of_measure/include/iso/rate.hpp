@@ -76,7 +76,7 @@ public:
     virtual ~rate() {}
 
     typename NumeratorType::type reduce() const {
-        return _numerator.value / _denominator.value;
+        return _numerator.reduce() / _denominator.reduce();
     }
 
     type operator()() const {
@@ -111,10 +111,10 @@ public:
         return suffix;
     }
 };
-
-template <typename NumeratorType, typename DenominatorType>
-std::ostream& operator<<(std::ostream& output, rate<NumeratorType, DenominatorType>& ref) {
-    return output << ref.numerator.value << '/' << ref.denominator.value << " " << ref.numerator.get_suffix() << '/' << ref.denominator.get_suffix() << std::endl;
-}
-
-}
+namespace streams {
+    template <typename NumeratorType, typename DenominatorType>
+    std::ostream& operator<<(std::ostream& output, rate<NumeratorType, DenominatorType>& ref) {
+        return output << ref.numerator.value << '/' << ref.denominator.value << " " << ref.numerator.get_suffix() << '/' << ref.denominator.get_suffix() << std::endl;
+    }
+} // namespace streams
+} // namespace iso

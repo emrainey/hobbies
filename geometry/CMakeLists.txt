@@ -42,7 +42,7 @@ target_include_directories(emrainey-geometry PUBLIC
 # EXPORTS
 #####################
 
-# Declare installs and exports (this isn't working yet)
+# Declare installs and exports
 install(TARGETS emrainey-geometry EXPORT GeometryTargets
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib

@@ -31,7 +31,7 @@ target_link_libraries(emrainey-fourcc PUBLIC Basal::emrainey-basal)
 # EXPORTS
 #####################
 
-# Declare installs and exports (this isn't working yet)
+# Declare installs and exports
 install(TARGETS emrainey-fourcc EXPORT FourccTargets
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib

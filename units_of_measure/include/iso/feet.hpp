@@ -20,20 +20,21 @@ namespace imperial {
 namespace iso {
 // you can still have your own class with internal stuff
 class feet : public measurement<double, imperial::prefix, imperial::suffix_type_ft> {
-    protected:
-        const double unit = 16.0; // sixteenths
-        uint32_t _sixteenths;
-    public:
-        const uint32_t &sixteenths;
-        feet(double a);
-        feet(const feet &other);
-        feet& operator=(const feet &other);
-        // TODO add move as well?
-        // TODO fill in all the other overload methods...
-        ~feet();
+protected:
+    const double unit = 16.0; // sixteenths
+    uint32_t _sixteenths;
+public:
+    const uint32_t &sixteenths;
+    feet(double a);
+    feet(const feet &other);
+    feet& operator=(const feet &other);
+    // TODO add move as well?
+    // TODO fill in all the other overload methods...
+    ~feet();
 };
 
-}
-
-iso::feet operator""_ft(long double a);
-iso::feet operator""_ft(const char a[]);
+namespace literals {
+    iso::feet operator""_ft(long double a);
+    iso::feet operator""_ft(const char a[]);
+} // namespace literals
+} // namespace iso

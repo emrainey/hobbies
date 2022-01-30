@@ -1,18 +1,99 @@
-
+/**
+ * @file
+ * This is an auto-generated source for iso::ohms.
+ * 
+ * @note See README on re-generation.
+ * @copyright Copyright 2022.
+ */
 #include "iso/ohms.hpp"
 
-DECLARE_MEASUREMENT_CLASS(ohms, double, SI::prefix, Ohm)
+namespace iso {
+const char *const suffix_type_Ohm::suffix;
+// default
+ohms::ohms() : measurement() {}
+// explicit value
+ohms::ohms(double a) : measurement(a) {}
+// copy constructor
+ohms::ohms(const ohms& other) : measurement(other) {}
+// move constructor
+ohms::ohms(ohms&& other) : measurement(std::move(other)) {}
 
-iso::ohms operator""_mOhm(long double a) {
-    return iso::ohms(a * SI::prefix::milli);
+ohms& ohms::operator=(const ohms &other) noexcept {
+    _value = other.value;
+    return (*this);
 }
-iso::ohms operator""_mOhm(const char a[]) {
-    return iso::ohms(atol(a) * SI::prefix::milli);
+ohms& ohms::operator=(ohms &other) noexcept {
+    _value = other.value;
+    return (*this);
 }
+ohms& ohms::operator=(ohms &&other) noexcept {
+    _value = other.value;
+    return (*this);
+}
+bool ohms::operator==(const ohms &other) const {
+    return iso::equivalent(value, other.value);
+}
+bool ohms::operator!=(const ohms &other) const {
+    return !operator==(other);
+}
+ohms& ohms::operator+=(const ohms& other) {
+    _value += other.value;
+    return (*this);
+}
+ohms& ohms::operator-=(const ohms& other) {
+    _value -= other.value;
+    return (*this);
+}
+ohms& ohms::operator*=(double factor) {
+    _value *= factor;
+    return (*this);
+}
+ohms& ohms::operator/=(double factor) {
+    _value /= factor;
+    return (*this);
+}
+ohms ohms::operator-() const {
+    return ohms(-value);
+}
+bool ohms::operator<(const ohms& other) const {
+    return (_value < other.value);
+}
+bool ohms::operator<=(const ohms& other) const {
+    return (_value <= other.value);
+}
+bool ohms::operator>(const ohms& other) const {
+    return (_value > other.value);
+}
+bool ohms::operator>=(const ohms& other) const {
+    return (_value >= other.value);
+}
+namespace operators {
+    ohms operator+(const ohms& A, const ohms& B) {
+        return ohms(A.value+B.value);
+    }
+    ohms operator-(const ohms& A, const ohms& B) {
+        return ohms(A.value-B.value);
+    }
+    ohms operator*(const ohms& A, double factor) {
+        return ohms(A.value*factor);
+    }
+    ohms operator*(double factor, const ohms& A) {
+        return ohms(A.value*factor);
+    }
+    ohms operator/(const ohms& A, double factor) {
+        return ohms(A.value/factor);
+    }
+}
+namespace literals {
+    iso::ohms operator""_Ohm(long double a) {
+        return iso::ohms(a);
+    }
+    iso::ohms operator""_Ohm(unsigned long long a) {
+        return iso::ohms(a);
+    }
+    iso::ohms operator""_Ohm(const char a[]) {
+        return iso::ohms(atol(a));
+    }
+} // namespace literals
+} // namespace iso
 
-iso::ohms operator""_KOhm(long double a) {
-    return iso::ohms(a * SI::prefix::kilo);
-}
-iso::ohms operator""_KOhm(const char a[]) {
-    return iso::ohms(atol(a) * SI::prefix::kilo);
-}

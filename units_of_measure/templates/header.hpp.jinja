@@ -1,22 +1,34 @@
 /**
  * @file
+ * This is an auto-generated header for {{namespace}}::{{classname}}.
  * {{comment}}
+ * @note See README on re-generation.
  * @copyright Copyright {{year}}.
  */
-
+#pragma once
 #include <cstdint>
 #include <cstddef>
 
-#include <iso/measurement.hpp>
+#include "iso/measurement.hpp"
 
 /** {{namespace}} comment */
 namespace {{namespace}} {
 
+/** A structure used to hold the postfix for {{classname}} */
 struct suffix_type_{{postfix}} {
     constexpr static const char *suffix = "{{postfix}}";
 };
 
-/** {{classname}} comment */
+/**
+ * This is the {{namespace}}::{{classname}} interface.
+ * These have a default, generic, SI, copy, move, dtor and copy assign
+ * And operator"" and equality and inequality
+ * overload +=,-=,+,- with other units of the same type
+ * overload *=,/=,*,/ with immediate values and atomics
+ * overload ++,-- ?
+ * overload >,<,==,!=,<=,>=
+ * not overloaded %=,%
+ */
 class {{classname}} : public measurement<{{typename}}, {{scaletype}}, suffix_type_{{postfix}}> {
 public:
     /** Default constructor */
@@ -29,36 +41,56 @@ public:
     {{classname}}({{classname}}&& other);
     /** Destructor */
     ~{{classname}}() = default;
+    /** Const Copy Assignment */
     {{classname}}& operator=(const {{classname}} &other) noexcept;
+    /** Copy Assignment */
     {{classname}}& operator=({{classname}}& other) noexcept;
+    /** Move Assignment */
     {{classname}}& operator=({{classname}}&& other) noexcept;
+    /** Equality Operator */
     bool operator==(const {{classname}}& other) const;
+    /** Inequality Operator */
     bool operator!=(const {{classname}}& other) const;
+    /** Accumulation Operator */
     {{classname}}& operator+=(const {{classname}}& other);
+    /** Deccumulation Operator */
     {{classname}}& operator-=(const {{classname}}& other);
+    /** Scaling Operator */
     {{classname}}& operator*=({{typename}} factor);
+    /** Inverse Scaling Operator */
     {{classname}}& operator/=({{typename}} factor);
+    /** Negating Operator */
     {{classname}} operator-() const;
+    /** Less Than Operator */
     bool operator<(const {{classname}}& other) const;
+    /** Less Than or Equal Operator */
     bool operator<=(const {{classname}}& other) const;
+    /** Greater Than Operator */
     bool operator>(const {{classname}}& other) const;
+    /** Greater Than or Equal Operator */
     bool operator>=(const {{classname}}& other) const;
 };
 
-{% if typename == float %}
-namespace literals {
-inline {{classname}} operator""_{{postfix}}(long double value) {
-    return {{classname}}(value);
+namespace operators {
+    /** Addition operator */
+    {{classname}} operator+(const {{classname}}& A, const {{classname}}& B);
+    /** Subtraction operator */
+    {{classname}} operator-(const {{classname}}& A, const {{classname}}& B);
+    /** Left Scaling Operator */
+    {{classname}} operator*(const {{classname}}& A, {{typename}} factor);
+    /** Right Scaling Operator */
+    {{classname}} operator*({{typename}} factor, const {{classname}}& A);
+    /** Inverse Scaling Operator */
+    {{classname}} operator/(const {{classname}}& A, {{typename}} factor);
 }
-}
-{% endif %}
 
-{% if typename == long or typename == uint32_t or typename == uint64_t %}
 namespace literals {
-inline {{classname}} operator""_{{postfix}}(long unsigned value) {
-    return {{classname}}(value);
+    /** Literal Double, Quote Operator */
+    {{classname}} operator""_{{postfix}}(long double value);
+    /** Literal Int, Quote Operator */
+    {{classname}} operator""_{{postfix}}(unsigned long long value);
+    /** Literal String, Quote Operator */
+    iso::{{classname}} operator""_{{postfix}}(const char a[]);
 }
-}
-{% endif %}
 
 }

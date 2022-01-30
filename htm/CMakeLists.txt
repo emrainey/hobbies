@@ -28,7 +28,7 @@ target_include_directories(emrainey-htm
 # EXPORTS
 #####################
 
-# Declare installs and exports (this isn't working yet)
+# Declare installs and exports
 install(TARGETS emrainey-htm EXPORT HTMTargets
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib

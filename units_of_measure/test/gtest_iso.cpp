@@ -31,6 +31,9 @@ TEST(IsoTest, RadiansToDegrees) {
 
 TEST(IsoTest, FeetMeters) {
     using namespace iso;
+    using namespace iso::literals;
+    using namespace iso::operators;
+
     meters A;
     A = 7.42_m; // operator"" into copy assign
     meters X(8.42_m); // operator"" into copy constructor
@@ -46,6 +49,10 @@ TEST(IsoTest, FeetMeters) {
 
 TEST(IsoTest, Scaling) {
     using namespace iso;
+    using namespace iso::literals;
+    using namespace iso::operators;
+    using namespace SI::operators;
+
     meters A = 7.42_m;  // operator""_m
     ASSERT_DOUBLE_EQ(0.007'420, A.at_scale(SI::prefix::kilo));
     ASSERT_DOUBLE_EQ(7'420'000'000, A.at_scale(SI::prefix::nano));
@@ -61,23 +68,28 @@ TEST(IsoTest, Scaling) {
 
 TEST(IsoTest, HertzSeconds) {
     using namespace iso;
+    using namespace iso::literals;
+    using namespace iso::operators;
 
-    hertz framerate = 10.0_hz; // copy assign? or implicit conversion to copy constructor?
-    framerate = 11.0_hz;
+    hertz framerate = 10.0_Hz; // copy assign? or implicit conversion to copy constructor?
+    framerate = 11.0_Hz;
     seconds framewindow = convert(framerate);
     ASSERT_DOUBLE_EQ(1.0/11.0, framewindow.value);
 
     framewindow = 20.0_sec;
     framerate = convert(framewindow);
-    ASSERT_DOUBLE_EQ(1/20.0, framerate.value);
+    ASSERT_DOUBLE_EQ(1.0/20.0, framerate.value);
 
     framerate = hertz(30.0); // wrap new assignment into a copy assign
     framewindow = 1.0 /framerate; // could use any double, which would modify the relationship
-    ASSERT_DOUBLE_EQ(1/30.0, framewindow.value);
+    ASSERT_DOUBLE_EQ(1.0/30.0, framewindow.value);
 }
 
 TEST(IsoTest, Quantities) {
     using namespace iso;
+    using namespace iso::literals;
+    using namespace iso::operators;
+
     distance d1 = 9.807_m;
     iso::time t1 = 1.0_sec;
     acceleration earth = 9.807_G;
@@ -108,6 +120,8 @@ TEST(IsoTest, Quantities) {
 
 TEST(IsoTest, Comparisons) {
     using namespace iso;
+    using namespace iso::literals;
+
     acceleration earth = 9.807_G;
     acceleration mars = 3.711_G;
     acceleration venus = 8.87_G;
@@ -116,6 +130,9 @@ TEST(IsoTest, Comparisons) {
 }
 
 TEST(IsoTest, IECObjects) {
+    using namespace SI;
+    using namespace SI::literals;
+
     uint64_t kib = 24_kibibytes;
     uint64_t kil = 24_kilobytes;
     ASSERT_TRUE(1_kibibytes == 1024) << "Must be power of two valued";
@@ -125,6 +142,9 @@ TEST(IsoTest, IECObjects) {
 
 TEST(IsoTest, VoltageAmperesOhms) {
     using namespace iso;
+    using namespace iso::literals;
+    using namespace iso::operators;
+
     volts V = 24_mV;
     ASSERT_DOUBLE_EQ(V.value, 0.024) << "Must be equal";
     amperes I = 3_mA;
@@ -134,6 +154,9 @@ TEST(IsoTest, VoltageAmperesOhms) {
 
 TEST(IsoTest, JoulesAndCompound) {
     using namespace iso;
+    using namespace iso::literals;
+    using namespace iso::operators;
+
     joules E = 87_J;
     torque F = 87_N * 1.0_m;
     ASSERT_DOUBLE_EQ(E.value, F.value) << "By raw value they are the same!";
@@ -142,6 +165,9 @@ TEST(IsoTest, JoulesAndCompound) {
 
 TEST(IsoTest, GramsAndOverloads) {
     using namespace iso;
+    using namespace iso::literals;
+    using namespace iso::operators;
+
     grams w1 = 118841_g;
     grams w2 = 10_g;
     ASSERT_TRUE((w1 + w2) == 118851_g) << "Must be equal";

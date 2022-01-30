@@ -41,6 +41,7 @@ camera::camera(size_t image_height,
 }
 
 void camera::move_to(const point& look_from, const point& look_at) {
+    using namespace iso::operators;
     // incoming values are *WORLD* coordinates
 
     // set the look vector (which will be reported as "forward")
@@ -103,7 +104,7 @@ void camera::move_to(const point& look_from, const point& look_at) {
 
     // update the intrinsics which converts the focal distance into scaling for pixel
     iso::radians phi; // half of the field of view
-    iso::convert(phi, m_field_of_view * 0.5f);
+    iso::convert(phi, m_field_of_view * 0.5);
     element_type w = element_type(capture.width);
     element_type h = element_type(capture.height);
     m_pixel_scale = 2.0 * image_distance * std::tan(phi.value) / w;

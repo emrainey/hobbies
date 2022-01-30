@@ -3,6 +3,8 @@
 
 namespace iso {
 
+using namespace iso::operators;
+
 // feet <=> meters
 feet convert(meters &A) { return feet(A.value * 3.28084); }
 meters convert(feet &B) { return meters(B.value * 0.3048000097536); }
@@ -47,12 +49,14 @@ void convert(seconds& sec, const hertz &hz) {
     sec = 1.0 / hz;
 }
 
-hertz operator/(const double num, const seconds& denom) {
-    return hertz(num/denom.value);
-}
+namespace operators {
+    hertz operator/(const double num, const seconds& denom) {
+        return hertz(num/denom.value);
+    }
 
-seconds operator/(const double num, const hertz& denom) {
-    return seconds(num/denom.value);
-}
+    seconds operator/(const double num, const hertz& denom) {
+        return seconds(num/denom.value);
+    }
+} // namespace operators
 
-}
+} // namespace iso

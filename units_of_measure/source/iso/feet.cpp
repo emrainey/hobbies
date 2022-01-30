@@ -19,12 +19,14 @@ feet& feet::operator=(const feet &other) {
 }
 
 feet::~feet() {}
-}
+namespace literals {
+    iso::feet operator""_ft(long double a) {
+        return iso::feet(a);
+    }
 
-iso::feet operator""_ft(long double a) {
-    return iso::feet(a);
-}
+    iso::feet operator""_ft(const char a[]) {
+        return iso::feet(atol(a));
+    }
+} // namespace literals
 
-iso::feet operator""_ft(const char a[]) {
-    return iso::feet(atol(a));
-}
+} // namespace iso

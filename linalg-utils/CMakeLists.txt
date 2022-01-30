@@ -42,7 +42,7 @@ endif()
 # EXPORTS
 #####################
 
-# Declare installs and exports (this isn't working yet)
+# Declare installs and exports
 install(TARGETS emrainey-linalg-utils EXPORT LinalgUtilsTargets
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib

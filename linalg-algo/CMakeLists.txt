@@ -39,7 +39,7 @@ target_include_directories(emrainey-linalg-algo
 # EXPORTS
 #####################
 
-# Declare installs and exports (this isn't working yet)
+# Declare installs and exports
 install(TARGETS emrainey-linalg-algo EXPORT LinalgAlgoTargets
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib

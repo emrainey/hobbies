@@ -1,31 +1,96 @@
-
+/**
+ * @file
+ * This is an auto-generated header for iso::turns.
+ * 
+ * @note See README on re-generation.
+ * @copyright Copyright 2022.
+ */
 #pragma once
+#include <cstdint>
+#include <cstddef>
 
 #include "iso/measurement.hpp"
 
-DEFINE_MEASUREMENT_CLASS(turns, double, SI::prefix, Tau) // can't use Tau mark ASCII 231
-
+/** iso comment */
 namespace iso {
 
-    constexpr long double compute_pi(size_t digits) {
-        long double pi = 0.0;
-        for (long double i = 0.0; i < digits; i+=1.0) {
-            long double denum = 1.0;
-            for (long double j = i; j > 0; j-=1.0) {
-                denum *= 16.0;
-            }
-            pi += ((4.0/(8.0*i + 1.0)) -
-                   (2.0/(8.0*i + 4.0)) -
-                   (1.0/(8.0*i + 5.0)) -
-                   (1.0/(8.0*i + 6.0))) /
-                   denum;
-        }
-        return pi;
-    }
+/** A structure used to hold the postfix for turns */
+struct suffix_type_Tau {
+    constexpr static const char *suffix = "Tau";
+};
 
-    // constexpr double tau = 6.283185307179586'4769252867665590057683943387987502116419498891846156328125724179972560696506842341359;
-                            //6.283185307179586'231995926937088370323181152343750
-    // constexpr double pi  = tau / 2.0;
-    constexpr double pi = compute_pi(200);
-    constexpr double tau = 2.0 * pi;
+/**
+ * This is the iso::turns interface.
+ * These have a default, generic, SI, copy, move, dtor and copy assign
+ * And operator"" and equality and inequality
+ * overload +=,-=,+,- with other units of the same type
+ * overload *=,/=,*,/ with immediate values and atomics
+ * overload ++,-- ?
+ * overload >,<,==,!=,<=,>=
+ * not overloaded %=,%
+ */
+class turns : public measurement<double, SI::prefix, suffix_type_Tau> {
+public:
+    /** Default constructor */
+    turns();
+    /** Parameter constructor */
+    explicit turns(double value);
+    /** Copy Constructor */
+    turns(const turns& other);
+    /** Move Constructor */
+    turns(turns&& other);
+    /** Destructor */
+    ~turns() = default;
+    /** Const Copy Assignment */
+    turns& operator=(const turns &other) noexcept;
+    /** Copy Assignment */
+    turns& operator=(turns& other) noexcept;
+    /** Move Assignment */
+    turns& operator=(turns&& other) noexcept;
+    /** Equality Operator */
+    bool operator==(const turns& other) const;
+    /** Inequality Operator */
+    bool operator!=(const turns& other) const;
+    /** Accumulation Operator */
+    turns& operator+=(const turns& other);
+    /** Deccumulation Operator */
+    turns& operator-=(const turns& other);
+    /** Scaling Operator */
+    turns& operator*=(double factor);
+    /** Inverse Scaling Operator */
+    turns& operator/=(double factor);
+    /** Negating Operator */
+    turns operator-() const;
+    /** Less Than Operator */
+    bool operator<(const turns& other) const;
+    /** Less Than or Equal Operator */
+    bool operator<=(const turns& other) const;
+    /** Greater Than Operator */
+    bool operator>(const turns& other) const;
+    /** Greater Than or Equal Operator */
+    bool operator>=(const turns& other) const;
+};
+
+namespace operators {
+    /** Addition operator */
+    turns operator+(const turns& A, const turns& B);
+    /** Subtraction operator */
+    turns operator-(const turns& A, const turns& B);
+    /** Left Scaling Operator */
+    turns operator*(const turns& A, double factor);
+    /** Right Scaling Operator */
+    turns operator*(double factor, const turns& A);
+    /** Inverse Scaling Operator */
+    turns operator/(const turns& A, double factor);
+}
+
+namespace literals {
+    /** Literal Double, Quote Operator */
+    turns operator""_Tau(long double value);
+    /** Literal Int, Quote Operator */
+    turns operator""_Tau(unsigned long long value);
+    /** Literal String, Quote Operator */
+    iso::turns operator""_Tau(const char a[]);
+}
+
 }

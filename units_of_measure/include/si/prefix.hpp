@@ -49,10 +49,22 @@ namespace SI {
         {PREFIX_NAME_(peta)},
         {PREFIX_NAME_(exa)},
     };
-}
 
-double operator*(const double a, SI::prefix p);
+    /** Remove the definition after this table */
+    #undef PREFIX_NAME_
 
-inline uint64_t operator""_kilobytes(long long unsigned int a) {
-    return a * SI::prefix::kilo;
-}
+    namespace operators {
+        /** A scaling prefix for SI units */
+        double operator*(const double a, SI::prefix p);
+    }
+
+    /** Users must `using` this namespace to expose the quote operators */
+    namespace literals {
+        /** Special String Quote Operator */
+        inline uint64_t operator""_kilobytes(long long unsigned int a) {
+            using namespace operators;
+            return a * SI::prefix::kilo;
+        }
+    } // namespace literals
+} // namespace SI
+

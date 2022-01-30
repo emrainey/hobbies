@@ -1,5 +1,5 @@
 {
-    "cmakeExplorer.buildDir": "${workspaceFolder}/build/",
+    "cmakeExplorer.buildDir": "${workspaceFolder}/**/build/",
     "cmake.copyCompileCommands": "${workspaceFolder}/.vscode/compile_commands.json",
     "cmake.generator": "Ninja",
     "cmake.environment": {
@@ -12,7 +12,7 @@
     "testMate.cpp.test.advancedExecutables": [
         {
             "cwd": "${absDirpath}",
-            "pattern": "{build}/**/*{test,Test}*",
+            "pattern": "**/{build}/**/*{test,Test}*",
             "env": {
                 "DYLD_LIBRARY_PATH": "${os_env:DYLD_LIBRARY_PATH}:${workspaceFolder}/build/linalg/Release:${workspaceFolder}/build/simple_os/Release:${workspaceFolder}/build/units_of_measure/Release"
             }

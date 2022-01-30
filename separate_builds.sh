@@ -35,10 +35,10 @@ PKGS=(basal units_of_measure fourcc linalg \
 geometry \
 linalg-utils \
 linalg-algo \
-# noise \
+xmmt \
+noise \
 # raytrace \
 # htm \
-# xmmt \
 )
 
 # Cycle over each package and build it

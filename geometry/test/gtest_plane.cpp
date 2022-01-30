@@ -38,7 +38,7 @@ TEST(PlaneTest, IntersectionWithNullspace) {
     plane P2(1, 1, -1, -1);
     intersection iP1P2 = intersects(P1, P2);
     R3::line p1p2{{0, 3, 3, 2, -1, 0}};
-    test_statement(get_type(iP1P2) == IntersectionType::Line);
+    ASSERT_TRUE(get_type(iP1P2) == IntersectionType::Line);
     //print_this(p1p2);
     //print_this(as_line(iP1P2));
     ASSERT_TRUE(as_line(iP1P2) == p1p2);

@@ -37,8 +37,6 @@ target_include_directories(emrainey-geometry PUBLIC
     # Install Tree
     $<INSTALL_INTERFACE:include>
 )
-include(CMakePrintHelpers)
-cmake_print_properties(TARGETS emrainey-geometry PROPERTIES INTERFACE_INCLUDE_DIRECTORIES INCLUDE_DIRECTORIES)
 
 #####################
 # EXPORTS

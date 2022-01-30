@@ -1,0 +1,48 @@
+
+#include <gtest/gtest.h>
+#include <raytrace/raytrace.hpp>
+#include <basal/basal.hpp>
+#include <vector>
+#include "geometry/gtest_helper.hpp"
+#include "raytrace/gtest_helper.hpp"
+
+using namespace raytrace;
+
+TEST(TriangleTest, PlaneParallelTriangle) {
+    raytrace::point A(0.0, 0.0, 0.0);
+    raytrace::point B(1.0, 1.0, 0.0);
+    raytrace::point C(-1.0, 1.0, 0.0);
+    raytrace::triangle D(A, B, C);
+    geometry::plane E = as_plane(D);
+    vector F{{0.0, 0.0, 1.0 }};  // +Z
+    vector G = E.unormal();
+
+    using namespace linalg::operators;
+    ASSERT_TRUE(G || F);
+}
+
+TEST(TriangleTest, RayIntersection) {
+    using namespace raytrace;
+    raytrace::point A(1, 0, 0);
+    raytrace::point B(-1,-1,0);
+    raytrace::point C(0, 1, 0);
+    triangle T(A, B, C);
+    ray r0(raytrace::point(0.5, 0.5, 1), vector{{0, 0, -1}});
+
+    geometry::intersection ir0T = T.intersect(r0);
+    raytrace::point P(0.5, 0.5, 0);
+    ASSERT_EQ(geometry::IntersectionType::Point, get_type(ir0T));
+    ASSERT_POINT_EQ(P, as_point(ir0T));
+
+    ray r1(raytrace::point(0.7, 0.7, 1), vector{{0, 0, -1}});
+    geometry::intersection ir1T = T.intersect(r1);
+    ASSERT_EQ(geometry::IntersectionType::None, get_type(ir1T));
+
+    ray r2(raytrace::point(0.5, 0.5, -1), vector{{0, 0, 1}});
+    geometry::intersection ir2T = T.intersect(r2);
+    ASSERT_EQ(geometry::IntersectionType::None, get_type(ir2T));
+
+    ray r3(raytrace::point(0.7, 0.7, -1), vector{{0, 0, 1}});
+    geometry::intersection ir3T = T.intersect(r3);
+    ASSERT_EQ(geometry::IntersectionType::None, get_type(ir3T));
+}

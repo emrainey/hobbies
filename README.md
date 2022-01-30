@@ -25,3 +25,13 @@ Check the README in each folder for it's own progress and issues.
 * Use `if constexpr` for debugging.
 * Always install your header files as read-only!
 * Always create your generated source code as read-only!
+* Only locally install binaries (`install/`). These shouldn't pollute your system.
+
+## Running
+
+While in the hobbies' root, you can run things by pre-pending the LD path.
+
+```bash
+# Mac
+DYLD_LIBRARY_PATH=install/lib:raytrace/build ./raytrace/build/demo_curses -m libworld_example.dylib
+```

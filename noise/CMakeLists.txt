@@ -62,6 +62,9 @@ install(FILES "cmake/Findnoise.cmake" "cmake/noise-config.cmake"
 # DEMOS
 ################
 
+add_executable(demo_turbulent_tuner ${CMAKE_CURRENT_SOURCE_DIR}/demo/main_turbulent_tuner.cpp)
+target_link_libraries(demo_turbulent_tuner ${OpenCV_LIBS} emrainey-noise LinalgUtils::emrainey-linalg-utils)
+
 add_executable(demo_perlin_tuner ${CMAKE_CURRENT_SOURCE_DIR}/demo/perlin_tuner.cpp)
 target_link_libraries(demo_perlin_tuner ${OpenCV_LIBS} emrainey-noise LinalgUtils::emrainey-linalg-utils)
 

@@ -89,8 +89,6 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
     default_value = static_cast<size_t>(std::floor(scale));
     cv::createTrackbar(scaleName, windowName, &default_value, 128, on_scale_update, nullptr);
 
-    // FIXME Marble Tuner does not produce marble-like results.
-
     do {
         if (should_render) {
             generate_noise_image();

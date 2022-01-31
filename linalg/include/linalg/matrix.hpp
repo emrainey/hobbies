@@ -511,9 +511,6 @@ matrix hadamard(const matrix& a, const matrix& b) noexcept(false);
 
 // INLINE SHORTCUTS
 
-using namespace operators;
-// TODO (Linalg) Create native functions of the operators so we don't have ot force using
-
 /** Returns the determinant of the matrix */
 inline element_type determinant(const matrix &A) noexcept(false) {
     return A.determinant();
@@ -546,6 +543,7 @@ inline element_type abs(const matrix &A) noexcept(false) {
 
 /** Computes the dot of two matrixes (not vectors) */
 inline element_type dot(const matrix &u, const matrix &v) noexcept(false) {
+    using namespace operators;
     return (v.T()*u).determinant();
 }
 

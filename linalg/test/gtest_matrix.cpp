@@ -292,6 +292,8 @@ TEST(MatrixTest, Invertible) {
 
 TEST(MatrixTest, Transpose) {
     using namespace linalg;
+    using namespace linalg::operators;
+
     matrix m{{{ 4,  6, 9},
               {-8, 11, 1},
               { 0, -3, 4}}};
@@ -309,6 +311,8 @@ TEST(MatrixTest, Transpose) {
 
 TEST(MatrixTest, TransposeRules) {
     using namespace linalg;
+    using namespace linalg::operators;
+
     matrix A{{{1, 2, 3},
               {0, -4, 1},
               {0, 3, -1}}};
@@ -345,6 +349,8 @@ TEST(MatrixTest, TransposeRules) {
 
 TEST(MatrixTest, SingleAssignment) {
     using namespace linalg;
+    using namespace linalg::operators;
+
     matrix mZ = matrix::zeros(3, 3);
     matrix ones(3, 3); // empty
     ones = 1.0; // Single Assignment to all elements
@@ -353,6 +359,8 @@ TEST(MatrixTest, SingleAssignment) {
 
 TEST(MatrixTest, Determinants) {
     using namespace linalg;
+    using namespace linalg::operators;
+
     matrix A{{{1, 2, 3},
               {0, -4, 1},
               {0, 3, -1}}};
@@ -385,6 +393,8 @@ TEST(MatrixTest, Cofactors) {
 
 TEST(MatrixTest, NonSingularRules) {
     using namespace linalg;
+    using namespace linalg::operators;
+
     matrix A{{{1, 2, 3},
               {0, -4, 1},
               {0, 3, -1}}};
@@ -512,6 +522,8 @@ TEST(MatrixTest, NullspaceMatrix) {
 
 TEST(MatrixTest, Joinery) {
     using namespace linalg;
+    using namespace linalg::operators;
+
     double f[2][2] = {{2, 6}, {1, 3}};
     matrix F(f);
     double g[2][4] = {{2, 6, 1, 2}, {1, 3, 3, 4}};
@@ -529,6 +541,7 @@ TEST(MatrixTest, Joinery) {
 
 TEST(MatrixTest, AssignIntoRowCol) {
     using namespace linalg;
+
     matrix A{ {{1, 2, 3},
                {4, 5, 6},
                {7, 8, 9}} };
@@ -600,6 +613,8 @@ TEST(MatrixTest, Pivots) {
 
 TEST(MatrixTest, EigenVectors) {
     using namespace linalg;
+    using namespace linalg::operators;
+
     // find eigenvector of matrix then test
     matrix A{ {{3, 2, 2},
                {2, 3,-2}} };
@@ -616,7 +631,7 @@ TEST(MatrixTest, Rank) {
     ASSERT_EQ(2, A.rank());
 }
 
-TEST(MatrixTest, Triangluar) {
+TEST(MatrixTest, Triangular) {
     using namespace linalg;
     matrix mI = matrix::identity(5, 5);
     matrix A{ {{1, 2, 3},
@@ -647,6 +662,8 @@ TEST(MatrixTest, DISABLED_SVD) {
     * <li>Wikipedia</li>
     */
     using namespace linalg;
+    using namespace linalg::operators;
+
     matrix A{ {{3,2,2},{2,3,-2}} };
     matrix AAT = A * A.T();
     matrix ATA = A.T() * A;
@@ -658,6 +675,8 @@ TEST(MatrixTest, DISABLED_SVD) {
 
 TEST(MatrixTest, PLU) {
     using namespace linalg;
+    using namespace linalg::operators;
+
     matrix M{ {{ 0, 3, 0, 0, 9},
                { 0, 0, 0, 0, 0},
                { 0, 0, 4,-3, 1},

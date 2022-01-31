@@ -1,6 +1,6 @@
 #include <cstdio>
 #include <cinttypes>
-#include <filesystem> // FIXME (GCC) not with GCC-7?
+#include <filesystem>
 #include "fourcc/image.hpp"
 
 namespace fourcc {

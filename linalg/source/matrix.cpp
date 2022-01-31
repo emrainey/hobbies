@@ -464,7 +464,11 @@ bool matrix::degenerate() const {
 }
 
 bool matrix::orthagonal() const {
-    if (rows != cols) return false;
+    if (rows != cols) {
+        return false;
+    }
+
+    using namespace operators;
 
     // Q^T*Q == Q*Q^T == I
     matrix qtq = T()*(*this);
@@ -525,6 +529,7 @@ bool matrix::upper_triangular() const {
 }
 
 bool matrix::eigenvalue(element_type lambda) const {
+    using namespace operators;
     matrix lamI = lambda * matrix::identity(rows, cols);
     return (basal::equals_zero(det(lamI - (*this))));
 }
@@ -565,6 +570,7 @@ matrix matrix::inverse() const noexcept(false) {
         m[1][0] = -array[1][0] / det;
         m[1][1] = array[0][0] / det;
     } else {
+        using namespace operators;
         return (1.0 / det) * adjugate();
     }
     return m;
@@ -766,12 +772,14 @@ void matrix::row_sub(size_t row_dst, size_t row_src, element_type a) {
 
 // normal multiply
 matrix& matrix::operator*=(const matrix& a) {
+    using namespace operators;
     matrix m = (*this) * a;  // create new matrix
     (*this) = m; // copy assignment
     return *this;
 }
 
 matrix& matrix::operator/=(const matrix& a) {
+    using namespace operators;
     matrix m = (*this) / a;
     (*this) = m;
     return *this;

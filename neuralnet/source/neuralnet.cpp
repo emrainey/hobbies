@@ -31,13 +31,11 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
         // these are the visualization images of the hidden layers
         const char *named_i1 = "input";
 
-        // FIXME (NN) make these paths relative again!
-        nn::mnist learning("/Users/emrainey/Source/build_system/train-labels-idx1-ubyte", "/Users/emrainey/Source/build_system/train-images-idx3-ubyte", 6000);
+        nn::mnist learning("train-labels-idx1-ubyte", "train-images-idx3-ubyte", 6000);
         if (not learning.load()) {
             return -1;
         }
-        // FIXME (NN) make these paths relative again!
-        nn::mnist testdata("/Users/emrainey/Source/build_system/t10k-labels-idx1-ubyte", "/Users/emrainey/Source/build_system/t10k-images-idx3-ubyte", 1000);
+        nn::mnist testdata("t10k-labels-idx1-ubyte", "t10k-images-idx3-ubyte", 1000);
         if (not testdata.load()) {
             return -1;
         }

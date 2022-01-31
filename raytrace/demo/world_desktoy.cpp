@@ -24,7 +24,7 @@ public:
         , base(block, cutout, raytrace::overlap::type::subtractive) // cutout from block
         , floater(raytrace::point(0, 0, 6), 2.7)
         , cutout2(raytrace::point(0, 0, -15), 20)
-        , final_base(base, cutout2, raytrace::overlap::type::inclusive) // cutout2 from base // FIXME not working
+        , final_base(base, cutout2, raytrace::overlap::type::inclusive) // cutout2 from base
         , ground(R3::origin, R3::basis::Z, 1)
         , sunlight(raytrace::vector{-2, 2, -1}, colors::white, 1E11)
         , prick(raytrace::point(0, 0, 3), colors::dim_grey, 1E3)

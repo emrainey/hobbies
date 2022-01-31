@@ -501,13 +501,13 @@ TEST(MatrixTest, NullspaceMatrix) {
                { 0, -7,  9},
                { 0,  1,  0},
                { 0,  0,  1}} };
+    ASSERT_MATRIX_EQ(B, C);
     matrix D = A.basis();
     matrix E{ {{1, 0, 0},
                {0, 1, 0},
                {0, 0, 1},
                {0, 0, 0}} };
-    ASSERT_TRUE(B == C);
-    ASSERT_TRUE(D == E);
+    ASSERT_MATRIX_EQ(D, E);
 }
 
 TEST(MatrixTest, Joinery) {

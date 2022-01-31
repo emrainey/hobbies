@@ -14,7 +14,7 @@
             "cwd": "${absDirpath}",
             "pattern": "**/{build}/**/*{test,Test}*",
             "env": {
-                "DYLD_LIBRARY_PATH": "${os_env:DYLD_LIBRARY_PATH}:${workspaceFolder}/build/linalg/Release:${workspaceFolder}/build/simple_os/Release:${workspaceFolder}/build/units_of_measure/Release"
+                "DYLD_LIBRARY_PATH": "${os_env:DYLD_LIBRARY_PATH}:${workspaceFolder}/install/lib
             }
         }
     ],

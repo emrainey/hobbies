@@ -19,6 +19,9 @@
 			"path": "linalg"
 		},
 		{
+			"path": "geometry"
+		},
+		{
 			"path": "linalg-utils"
 		},
 		{

@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.13)
 project(linalg CXX)
 set(CMAKE_CXX_STANDARD 17)
+enable_testing()
+
+if (USE_CONAN)
+include(${CMAKE_BINARY_DIR}/conan_paths.cmake)
+endif()
 
 find_package(OpenCV REQUIRED)
 find_package(OpenMP REQUIRED)
@@ -11,7 +16,7 @@ find_package(linalg REQUIRED)
 find_package(linalg-utils REQUIRED)
 find_package(geometry REQUIRED)
 find_package(noise REQUIRED)
-enable_testing()
+find_package(xmmt REQUIRED)
 
 if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
 add_definitions(-march=native -mtune=native)
@@ -57,7 +62,7 @@ add_library(emrainey-raytrace SHARED
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/triangle.cpp
 )
 target_link_libraries(emrainey-raytrace
-    PUBLIC Linalg::emrainey-linalg Fourcc::emrainey-fourcc Noise::emrainey-noise Geometry::emrainey-geometry
+    PUBLIC Linalg::emrainey-linalg Fourcc::emrainey-fourcc Noise::emrainey-noise Geometry::emrainey-geometry Xmmt::emrainey-xmmt
     PRIVATE OpenMP::OpenMP_CXX
 )
 target_include_directories(emrainey-raytrace
@@ -139,7 +144,7 @@ target_link_libraries(world_planet emrainey-raytrace)
 #####################
 
 find_package(GTest REQUIRED)
-if (${GTest_FOUND})
+if (GTest_FOUND)
     add_executable(gtest_raytrace
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_camera.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_color.cpp

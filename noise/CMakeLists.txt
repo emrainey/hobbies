@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.13)
 project(noise CXX)
 set(CMAKE_CXX_STANDARD 17)
+enable_testing()
+
+if (USE_CONAN)
+include(${CMAKE_BINARY_DIR}/conan_paths.cmake)
+endif()
 
 find_package(OpenCV REQUIRED)
 find_package(basal REQUIRED)
@@ -10,7 +15,6 @@ find_package(linalg REQUIRED)
 find_package(geometry REQUIRED)
 find_package(linalg-utils REQUIRED)
 find_package(xmmt REQUIRED)
-enable_testing()
 
 if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
 add_definitions(-march=native -mtune=native)
@@ -22,7 +26,7 @@ add_library(emrainey-noise SHARED
     ${CMAKE_CURRENT_SOURCE_DIR}/source/noise.cpp
 )
 target_link_libraries(emrainey-noise PUBLIC
-    Fourcc::emrainey-fourcc Geometry::emrainey-geometry
+    Fourcc::emrainey-fourcc Geometry::emrainey-geometry Xmmt::emrainey-xmmt
 )
 target_include_directories(emrainey-noise
     PUBLIC
@@ -72,7 +76,7 @@ target_link_libraries(demo_perlin_tuner ${OpenCV_LIBS} emrainey-noise LinalgUtil
 # Googletests
 #####################
 find_package(GTest REQUIRED)
-if (${GTest_FOUND})
+if (GTest_FOUND)
     add_executable(gtest_noise
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_noise.cpp
     )

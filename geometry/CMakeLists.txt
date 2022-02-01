@@ -1,12 +1,16 @@
 cmake_minimum_required(VERSION 3.13)
 project(geometry CXX)
 set(CMAKE_CXX_STANDARD 17)
+enable_testing()
+
+if (USE_CONAN)
+include(${CMAKE_BINARY_DIR}/conan_paths.cmake)
+endif()
 
 find_package(GTest REQUIRED)
 find_package(basal REQUIRED)
 find_package(units_of_measure REQUIRED)
 find_package(linalg REQUIRED)
-enable_testing()
 
 if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
 add_definitions(-march=native -mtune=native)
@@ -66,7 +70,7 @@ install(FILES "cmake/Findgeometry.cmake" "cmake/geometry-config.cmake"
 # Googletests
 #####################
 
-if (${GTest_FOUND})
+if (GTest_FOUND)
     add_executable(gtest_geometry
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_extra.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_intersections.cpp

@@ -1,5 +1,5 @@
 message(STATUS ">>> Found Neuralnet!")
-find_path(Neuralnet_INCLUDE_DIR include/noise/noise.hpp)
+find_path(Neuralnet_INCLUDE_DIR include/neuralnet/neuralnet.hpp)
 find_library(Neuralnet_LIBRARY emrainey-neuralnet)
 mark_as_advanced(Neuralnet_INCLUDE_DIR Neuralnet_LIBRARY)
 

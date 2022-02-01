@@ -1,9 +1,13 @@
-cmake_minimum_required(VERSION 3.20.0)
+cmake_minimum_required(VERSION 3.22.0)
 project(fourcc
     VERSION 0.7
     LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 enable_testing()
+
+if (USE_CONAN)
+include(${CMAKE_BINARY_DIR}/conan_paths.cmake)
+endif()
 
 find_package(basal REQUIRED)
 
@@ -48,7 +52,7 @@ install(DIRECTORY include/fourcc
     PATTERN "*.hpp"
     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
 )
-install(FILES "cmake/Findfourcc.cmake" "cmake/fourccConfig.cmake"
+install(FILES "cmake/Findfourcc.cmake" "cmake/fourcc-config.cmake"
     DESTINATION share/cmake/fourcc
 )
 #####################
@@ -56,12 +60,12 @@ install(FILES "cmake/Findfourcc.cmake" "cmake/fourccConfig.cmake"
 #####################
 
 find_package(GTest)
-if (${GTest_FOUND})
+if (GTest_FOUND)
     add_executable(gtest_fourcc
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_fourcc.cpp
     )
-    target_include_directories(gtest_fourcc SYSTEM PUBLIC ${GTEST_INCLUDE_DIRS})
-    target_link_libraries(gtest_fourcc ${GTEST_BOTH_LIBRARIES} emrainey-fourcc)
+    target_include_directories(gtest_fourcc SYSTEM PUBLIC ${GTEST_INCLUDE_DIRS} ${GTest_INCLUDE_DIRS})
+    target_link_libraries(gtest_fourcc emrainey-fourcc ${GTEST_BOTH_LIBRARIES} ${GTest_LIBS})
     add_test(NAME gtest_fourcc COMMAND gtest_fourcc)
 endif()
 

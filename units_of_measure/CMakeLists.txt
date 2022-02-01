@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20.0)
+cmake_minimum_required(VERSION 3.22.0)
 project(units_of_measure
     VERSION 0.7
     LANGUAGES CXX)
@@ -66,10 +66,10 @@ install(FILES "cmake/Findunits_of_measure.cmake" "cmake/units_of_measure-config.
 # Unit Testing
 #####################################################
 find_package(GTest REQUIRED)
-if (${GTest_FOUND})
+if (GTest_FOUND)
     add_executable(gtest_iso ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_iso.cpp)
-    target_include_directories(gtest_iso PUBLIC ${GTEST_INCLUDE_DIRS})
-    target_link_libraries(gtest_iso ${GTEST_BOTH_LIBRARIES} emrainey-uom)
+    target_include_directories(gtest_iso PUBLIC ${GTEST_INCLUDE_DIRS} ${GTest_INCLUDE_DIRS})
+    target_link_libraries(gtest_iso emrainey-uom ${GTEST_BOTH_LIBRARIES} ${GTest_LIBS})
     add_test(NAME gtest_iso COMMAND gtest_iso)
 endif()
 

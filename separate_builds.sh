@@ -6,6 +6,7 @@ CLEAN=0
 JOBS=16
 VERBOSE=OFF
 RUN_TESTS=0
+USE_CONAN=0
 while [[ $# -gt 0 ]]; do
     case $1 in
         -rm)
@@ -20,6 +21,9 @@ while [[ $# -gt 0 ]]; do
         -t)
             RUN_TESTS=1
         ;;
+        -c)
+            USE_CONAN=1
+        ;;
         *)
         ;;
     esac
@@ -29,6 +33,8 @@ done
 # The local install location to test the build
 INSTALL_ROOT=`pwd`/install
 mkdir -p ${INSTALL_ROOT}
+
+BRANCH=main
 
 # Which packages to build in which order
 PKGS=(basal units_of_measure fourcc \
@@ -45,21 +51,51 @@ PKGS=(basal units_of_measure fourcc \
 
 # Cycle over each package and build it
 for pkg in "${PKGS[@]}"; do
-    if [[ CLEAN -eq 1 ]]; then
-        rm -rf $pkg/build
+    if [[ ${USE_CONAN} -eq 0 ]]; then
+        if [[ ${CLEAN} -eq 1 ]]; then
+            rm -rf $pkg/build
+        fi
         mkdir -p $pkg/build
+        cmake -B $pkg/build -S $pkg \
+            -DCMAKE_INSTALL_PREFIX:PATH=${INSTALL_ROOT} \
+            -DCMAKE_PREFIX_PATH:PATH=${INSTALL_ROOT} \
+            -DCMAKE_VERBOSE_MAKEFILE:BOOL=${VERBOSE} \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE \
+            -DCMAKE_BUILD_TYPE:STRING=Release \
+            -DCMAKE_C_COMPILER:FILEPATH=/usr/bin/clang \
+            -DCMAKE_CXX_COMPILER:FILEPATH=/usr/bin/clang++
+        cmake --build $pkg/build -j${JOBS}
+        if [[ ${RUN_TESTS} -eq 1 ]]; then
+            cmake --build $pkg/build --target test
+        fi
+        cmake --build $pkg/build --target install
+    else
+        if [[ ${CLEAN} -eq 1 ]]; then
+            conan remove --force $pkg
+            rm -rf .conan/$pkg
+        fi
+
+        build_path=.conan/$pkg/build
+        package_path=.conan/$pkg/package
+
+        mkdir -p ${install_path} ${build_path} ${package_path}
+
+        # this installs the dependencies into a local folder
+        conan install $pkg -if ${build_path}
+        # this runs CMake config
+        conan build $pkg --configure -bf ${build_path}
+        # this actually builds
+        conan build $pkg --build     -bf ${build_path}
+        if [[ ${RUN_TESTS} -eq 1 ]]; then
+            # this runs tests
+            conan build $pkg --test  -bf ${build_path}
+        fi
+        # this installs from the build folder into the packageing folder
+        conan build $pkg --install   -bf ${build_path} -pf ${package_path}
+        # this creates a conan package in the package folder
+        conan package $pkg -bf ${build_path} -pf ${package_path}
+        # conan export $pkg
+        # this exports the package into the local conan cache
+        conan export-pkg $pkg $USER/$BRANCH --force -pf ${package_path}
     fi
-    cmake -B $pkg/build -S $pkg \
-        -DCMAKE_INSTALL_PREFIX:PATH=${INSTALL_ROOT} \
-        -DCMAKE_PREFIX_PATH:PATH=${INSTALL_ROOT} \
-        -DCMAKE_VERBOSE_MAKEFILE:BOOL=${VERBOSE} \
-        -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE \
-        -DCMAKE_BUILD_TYPE:STRING=Release \
-        -DCMAKE_C_COMPILER:FILEPATH=/usr/bin/clang \
-        -DCMAKE_CXX_COMPILER:FILEPATH=/usr/bin/clang++
-    cmake --build $pkg/build -j${JOBS}
-    if [[ ${RUN_TESTS} -eq 1 ]]; then
-        cmake --build $pkg/build --target test
-    fi
-    cmake --build $pkg/build --target install
 done

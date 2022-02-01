@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20.0)
+cmake_minimum_required(VERSION 3.22.0)
 project(basal
     VERSION 0.7
     LANGUAGES CXX)
@@ -40,7 +40,7 @@ install(DIRECTORY include/basal
     PATTERN "*.hpp"
     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
 )
-install(FILES "cmake/Findbasal.cmake" "cmake/basalConfig.cmake"
+install(FILES "cmake/Findbasal.cmake" "cmake/basal-config.cmake"
     DESTINATION share/cmake/basal
     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
 )
@@ -49,18 +49,21 @@ install(FILES "cmake/Findbasal.cmake" "cmake/basalConfig.cmake"
 #    VERSION ${Basal_VERSION}
 #    COMPATIBILITY SameMajorVersion
 #)
-#install(FILES "cmake/Findbasal.cmake" "cmake/basalConfig.cmake" "basalConfigVersion.cmake"
+#install(FILES "cmake/Findbasal.cmake" "cmake/basal-config.cmake" "basalConfigVersion.cmake"
 #    DESTINATION share/cmake/basal
 #)
 
 # Unit Tests
 find_package(GTest REQUIRED)
-if (${GTest_FOUND})
+if (GTest_FOUND)
+    message(STATUS "GTest_FOUND=${GTest_FOUND}")
+    message(STATUS "GTEST_INCLUDE_DIRS=${GTEST_INCLUDE_DIRS}")
+    message(STATUS "GTEST_BOTH_LIBRARIES=${GTEST_BOTH_LIBRARIES}")
     add_executable(gtest_basal
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_basal.cpp
     )
-    target_include_directories(gtest_basal PRIVATE ${GTEST_INCLUDE_DIRS})
-    target_link_libraries(gtest_basal emrainey-basal ${GTEST_BOTH_LIBRARIES})
+    target_include_directories(gtest_basal PRIVATE ${GTEST_INCLUDE_DIRS} ${GTest_INCLUDE_DIRS})
+    target_link_libraries(gtest_basal emrainey-basal ${GTEST_BOTH_LIBRARIES} ${GTest_LIBS})
     add_test(NAME gtest_basal COMMAND gtest_basal)
 endif()
 

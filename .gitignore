@@ -40,6 +40,7 @@
 /build
 /**/build
 /install
+/.conan
 
 # Compile commands don't need to be saved
 .vscode/compile_commands.json

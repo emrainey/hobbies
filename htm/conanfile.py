@@ -1,19 +1,12 @@
 from conans import ConanFile, CMake
 
-class LinAlgUtilsConan(ConanFile):
-    name = "linalg-utils"
-    version = "0.7"
+class HTMConan(ConanFile):
+    name = "htm"
+    version = "0.1"
     settings = "os", "arch", "compiler", "build_type"
-    description = "The Linear Algebra Libraries"
+    description = "The Hierarchical Temporial Memory Library"
     generators = "cmake", "cmake_paths"
-    requires = "gtest/1.8.1", \
-               "opencv/4.5.3", \
-               "basal/0.5@emrainey/main", \
-               "units_of_measure/0.7@emrainey/main", \
-               "fourcc/0.7@emrainey/main", \
-               "linalg/0.7@emrainey/main", \
-               "geometry/0.7@emrainey/main"
-
+    requires = "gtest/1.8.1"
     url = "http://github.com/emrainey/hobbies"
     homepage = "http://github.com/emrainey/hobbies"
     license = 'Unlicense'

@@ -1,12 +1,16 @@
 cmake_minimum_required(VERSION 3.13)
 project(neuralnet CXX)
 set(CMAKE_CXX_STANDARD 17)
+enable_testing()
+
+if (USE_CONAN)
+include(${CMAKE_BINARY_DIR}/conan_paths.cmake)
+endif()
 
 find_package(OpenCV REQUIRED)
 find_package(basal REQUIRED)
 find_package(linalg REQUIRED)
 find_package(linalg-utils REQUIRED)
-enable_testing()
 
 if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
 add_definitions(-march=native -mtune=native)
@@ -25,7 +29,7 @@ add_library(emrainey-neuralnet SHARED
     ${CMAKE_CURRENT_SOURCE_DIR}/source/neuralnet.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/output.cpp
 )
-target_link_libraries(emrainey-neuralnet Linalg::emrainey-linalg LinalgUtils::emrainey-linalg-utils ${OpenCV_LIBS})
+target_link_libraries(emrainey-neuralnet Basal::emrainey-basal Linalg::emrainey-linalg LinalgUtils::emrainey-linalg-utils ${OpenCV_LIBS})
 target_include_directories(emrainey-neuralnet
     PUBLIC
        # Generated Tree

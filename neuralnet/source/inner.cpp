@@ -2,6 +2,9 @@
 
 namespace nn {
 
+using namespace linalg;
+using namespace linalg::operators;
+
 inner::inner(layer::type _type, size_t inputs, size_t num)
     : layer(_type, num)
     , type(activation_type::Sigmoid)

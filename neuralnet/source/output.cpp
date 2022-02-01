@@ -3,6 +3,9 @@
 
 namespace nn {
 
+using namespace linalg;
+using namespace linalg::operators;
+
 output::output(size_t prev, size_t num)
       : inner(layer::type::output, prev, num)
       , error(num, 1)
@@ -46,7 +49,7 @@ void output::learn_label(size_t index, double min, double max) {
     beta = desired - values;
     rms += linalg::hadamard(beta, beta);
     error += linalg::hadamard(beta, beta);
-    delta = hadamard(values - desired, activation_derivative(zeta));
+    delta = linalg::hadamard(values - desired, activation_derivative(zeta));
 }
 
 void output::learn_label(const linalg::matrix& desired) {
@@ -54,7 +57,7 @@ void output::learn_label(const linalg::matrix& desired) {
     beta = desired - values;
     rms += linalg::hadamard(beta, beta);
     error += linalg::hadamard(beta, beta);
-    delta = hadamard(values - desired, activation_derivative(zeta));
+    delta = linalg::hadamard(values - desired, activation_derivative(zeta));
 }
 
 void output::learn_label(linalg::matrix&& desired) {
@@ -62,7 +65,7 @@ void output::learn_label(linalg::matrix&& desired) {
     beta = desired - values;
     rms += linalg::hadamard(beta, beta);
     error += linalg::hadamard(beta, beta);
-    delta = hadamard(values - desired, activation_derivative(zeta));
+    delta = linalg::hadamard(values - desired, activation_derivative(zeta));
 }
 
 }

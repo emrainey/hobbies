@@ -6,6 +6,7 @@
 #include <opencv2/opencv.hpp>
 
 using namespace linalg;
+using namespace linalg::operators;
 
 enum {
     POINTS,

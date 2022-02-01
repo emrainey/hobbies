@@ -3,7 +3,6 @@ project(linalg CXX)
 set(CMAKE_CXX_STANDARD 17)
 
 find_package(OpenCV REQUIRED)
-find_package(GTest REQUIRED)
 find_package(basal REQUIRED)
 find_package(units_of_measure REQUIRED)
 find_package(fourcc REQUIRED)
@@ -58,6 +57,7 @@ install(FILES "cmake/Findlinalg.cmake" "cmake/linalg-config.cmake"
 # Googletests
 #####################
 
+find_package(GTest REQUIRED)
 if (${GTest_FOUND})
     add_executable(gtest_linalg
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_solvers.cpp

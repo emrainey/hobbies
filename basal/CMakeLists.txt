@@ -56,12 +56,12 @@ install(FILES "cmake/Findbasal.cmake" "cmake/basalConfig.cmake"
 # Unit Tests
 find_package(GTest REQUIRED)
 if (${GTest_FOUND})
-    add_executable(test_basal
+    add_executable(gtest_basal
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_basal.cpp
     )
-    target_include_directories(test_basal PRIVATE ${GTEST_INCLUDE_DIRS})
-    target_link_libraries(test_basal emrainey-basal ${GTEST_BOTH_LIBRARIES})
-    add_test(NAME test_basal COMMAND test_basal)
+    target_include_directories(gtest_basal PRIVATE ${GTEST_INCLUDE_DIRS})
+    target_link_libraries(gtest_basal emrainey-basal ${GTEST_BOTH_LIBRARIES})
+    add_test(NAME gtest_basal COMMAND gtest_basal)
 endif()
 
 # Documentation

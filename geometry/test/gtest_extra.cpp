@@ -6,6 +6,7 @@
 #include "geometry/gtest_helper.hpp"
 
 using namespace linalg;
+using namespace linalg::operators;
 using namespace geometry;
 
 TEST(GeomExtraTests, ClosestPointsFromSkewLines) {
@@ -58,8 +59,6 @@ TEST(GeomExtraTests, RotationOfAxes) {
 }
 
 TEST(GeomExtraTests, RotationMatch) {
-    using namespace linalg;
-    using namespace geometry;
     const iso::radians theta(iso::tau / 4);
     matrix rz = rotation(R3::basis::Z, theta);
     // this rotates around Z

@@ -45,5 +45,5 @@
 # Compile commands don't need to be saved
 .vscode/compile_commands.json
 
-# Ignore the root ppms, but not others which could be items to check in.
-/*.ppm
+# Ignore all the ppms
+*.ppm

@@ -196,29 +196,60 @@ TEST_F(RenderTest, DISABLED_Torus) {
     render_all("torus");
 }
 
-TEST_F(RenderTest, DISABLED_QuadraticParabola) {
-    // a bowl sitting on the XY plane
-    matrix C{{{ 1.0, 0.0, 0.0, 0.0},
-              { 0.0, 1.0, 0.0, 0.0},
-              { 0.0, 0.0, 0.0,-2.0},
-              { 0.0, 0.0,-2.0, 0.0}}};
+TEST_F(RenderTest, DISABLED_QuadraticCylinder) {
+    element_type a = 5.0;
+    element_type b = 5.0;
+    matrix C{{
+        {1.0/(a*a), 0.0, 0.0, 0.0},
+        {0.0, 1.0/(b*b), 0.0, 0.0},
+        {0.0, 0.0, 0.0, 0.0},
+        {0.0, 0.0, 0.0, -1.0},
+    }};
     quadratic shape(look_at, C);
+    ASSERT_TRUE(shape.is_closed_surface());
     shape.material(&plastic);
     add_object(&shape);
-    render_all("parabola");
+    render_all("ellipticalcylinder");
 }
 
-TEST_F(RenderTest, DISABLED_QuadraticSaddle) {
-    // FIXME (GTest) this is producing weird results, plane clipping?
-    // a saddle is z = a*x*x + b*y*y + c where either a or b is slightly negative ~ 0.1
-    matrix C{{{ 0.1, 0.0, 0.0, 0.0},
-              { 0.0,-0.1, 0.0, 0.0},
-              { 0.0, 0.0, 1.0, 0.0},
-              { 0.0, 0.0, 0.0, 0.0}}};
+TEST_F(RenderTest, DISABLED_QuadraticCone) {
+    element_type a = 0.3;
+    element_type b = 0.3;
+    matrix C{{
+        {1.0/(a*a), 0.0, 0.0, 0.0},
+        {0.0, 1.0/(b*b), 0.0, 0.0},
+        {0.0, 0.0, -1.0, 0.0},
+        {0.0, 0.0, 0.0, -1.0},
+    }};
     quadratic shape(look_at, C);
+    ASSERT_TRUE(shape.is_closed_surface());
     shape.material(&plastic);
     add_object(&shape);
-    render_all("saddle");
+    render_all("ellipticalcone");
+}
+
+TEST_F(RenderTest, DISABLED_QuadraticEllipsoid) {
+    ellipsoid shape(look_at, 10.0, 8.0, 6.0);
+    ASSERT_TRUE(shape.is_closed_surface());
+    shape.material(&plastic);
+    add_object(&shape);
+    render_all("ellipsoid");
+}
+
+TEST_F(RenderTest, DISABLED_QuadraticParaboloid) {
+    paraboloid shape(look_at, 0.5, 0.5, 1.0);
+    ASSERT_TRUE(shape.is_closed_surface());
+    shape.material(&plastic);
+    add_object(&shape);
+    render_all("paraboloid");
+}
+
+TEST_F(RenderTest, DISABLED_QuadraticHyperboloid) {
+    hyperboloid shape(look_at, 3.0, 3.0, 3.0);
+    ASSERT_TRUE(shape.is_closed_surface());
+    shape.material(&plastic);
+    add_object(&shape);
+    render_all("hyperboloid");
 }
 
 TEST_F(RenderTest, DISABLED_InclusiveOverlap) {

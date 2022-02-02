@@ -36,10 +36,10 @@ public:
 protected:
     /** Print in stream for cuboid */
     friend std::ostream& operator<<(std::ostream& os, const quadratic& c);
-
+    /** Subclass constructor */
+    quadratic(const point& center);
     // The Coefficient Matrix form of Q from Graphic Gems Vol 3 for Quadratic Surfaces.
     raytrace::matrix m_coefficients;
 };
 
-
-}
+} // namespace quadratic

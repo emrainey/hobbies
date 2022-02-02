@@ -3,6 +3,13 @@
 
 namespace raytrace {
 
+quadratic::quadratic(const point &center)
+    : object(center, 2, true) // 2 collisions, closed surface (CHECK)
+    , m_coefficients(4, 4) // start zeroed
+    {
+    basal::exception::throw_unless(m_coefficients.rows == 4 and m_coefficients.cols == 4, __FILE__, __LINE__, "Must be a 4x4");
+}
+
 quadratic::quadratic(const point &center, raytrace::matrix& C)
     : object(center, 2, true) // 2 collisions, closed surface (CHECK)
     , m_coefficients(C)
@@ -77,7 +84,7 @@ void quadratic::print(const char name[]) const {
 }
 
 std::ostream& operator<<(std::ostream& os, const quadratic& q) {
-    os << " Cube " << q.position() << ", Coefficients {" << q.m_coefficients << "}";
+    os << " Quadratic " << q.position() << ", Coefficients {" << q.m_coefficients << "}";
     return os;
 }
 

@@ -197,15 +197,7 @@ TEST_F(RenderTest, DISABLED_Torus) {
 }
 
 TEST_F(RenderTest, DISABLED_QuadraticCylinder) {
-    element_type a = 5.0;
-    element_type b = 5.0;
-    matrix C{{
-        {1.0/(a*a), 0.0, 0.0, 0.0},
-        {0.0, 1.0/(b*b), 0.0, 0.0},
-        {0.0, 0.0, 0.0, 0.0},
-        {0.0, 0.0, 0.0, -1.0},
-    }};
-    quadratic shape(look_at, C);
+    ellipticalcylinder shape(look_at, 5.0, 5.0);
     ASSERT_TRUE(shape.is_closed_surface());
     shape.material(&plastic);
     add_object(&shape);
@@ -213,15 +205,7 @@ TEST_F(RenderTest, DISABLED_QuadraticCylinder) {
 }
 
 TEST_F(RenderTest, DISABLED_QuadraticCone) {
-    element_type a = 0.3;
-    element_type b = 0.3;
-    matrix C{{
-        {1.0/(a*a), 0.0, 0.0, 0.0},
-        {0.0, 1.0/(b*b), 0.0, 0.0},
-        {0.0, 0.0, -1.0, 0.0},
-        {0.0, 0.0, 0.0, -1.0},
-    }};
-    quadratic shape(look_at, C);
+    ellipticalcone shape(look_at, 0.3, 0.3);
     ASSERT_TRUE(shape.is_closed_surface());
     shape.material(&plastic);
     add_object(&shape);

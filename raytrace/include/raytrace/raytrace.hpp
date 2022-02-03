@@ -41,6 +41,7 @@ namespace raytrace {
 #include "raytrace/hyperboloid.hpp"
 #include "raytrace/ellipsoid.hpp"
 #include "raytrace/ellipticalcone.hpp"
+#include "raytrace/ellipticalcylinder.hpp"
 #include "raytrace/ring.hpp"
 #include "raytrace/sphere.hpp"
 #include "raytrace/square.hpp"

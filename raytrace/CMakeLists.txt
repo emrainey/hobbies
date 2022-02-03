@@ -53,6 +53,7 @@ add_library(emrainey-raytrace SHARED
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/cylinder.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/ellipsoid.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/ellipticalcone.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/ellipticalcylinder.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/hyperboloid.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/overlap.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/paraboloid.cpp

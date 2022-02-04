@@ -2,7 +2,7 @@
 /**
  * @file
  * Definitions for any visualization objects.
- * @copyright Copyright 2019 (C) Erik Rainey.
+ * @copyright Copyright 2022 (C) Erik Rainey.
  */
 
 #include <vector>
@@ -323,4 +323,25 @@ protected:
     std::vector<std::vector<PIXEL_TYPE>> data;
 };
 
-}
+/** Enumerates the channels */
+enum class channel : int8_t {
+    R, G, B, Y, U, V,
+};
+
+/** Convolves a specific channel of the input image and the kernel into the output gradient image */
+void convolve(fourcc::image<int16_t, fourcc::pixel_format::Y16>& out,
+            const int16_t (&kernel)[3][3],
+            const fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8>& input,
+            channel channel);
+
+/** Convolves a specific channel of the input image and the kernel into the output gradient image */
+void convolve(fourcc::image<int16_t, fourcc::pixel_format::Y16>& out,
+            const int16_t (&kernel)[3][3],
+            const fourcc::image<fourcc::iyu2, fourcc::pixel_format::IYU2>& input,
+            channel channel);
+
+/** Converts RGB8 to IYU2 */
+void convert(const fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8>& in,
+                fourcc::image<fourcc::iyu2, fourcc::pixel_format::IYU2>& out);
+
+} // namespace fourcc

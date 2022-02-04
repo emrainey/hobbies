@@ -14,28 +14,36 @@ using namespace raytrace;
 class SteelWorld : public world {
 public:
     SteelWorld()
-        : look_from(5, -20, 20)
+        : light_subsamples(1)
+        , look_from(5, -20, 20)
         , look_at(0, 0, 0)
         , steel(colors::grey, smoothness::polished, roughness::loose)
         , plain_white(colors::white, ambient::none, colors::white, smoothness::none, roughness::tight)
         , ground(raytrace::origin, R3::basis::Z, 1)
-        , light0(raytrace::point(-5, 0, 10), 1, colors::white, 10, 20)
-        , light1(raytrace::point(-4, 0, 10), 1, colors::white, 10, 20)
-        , light2(raytrace::point(-3, 0, 10), 1, colors::white, 10, 20)
-        , light3(raytrace::point(-2, 0, 10), 1, colors::white, 10, 20)
-        , light4(raytrace::point(-1, 0, 10), 1, colors::white, 10, 20)
-        , light5(raytrace::point( 0, 0, 10), 1, colors::white, 10, 20)
-        , light6(raytrace::point( 1, 0, 10), 1, colors::white, 10, 20)
-        , light7(raytrace::point( 2, 0, 10), 1, colors::white, 10, 20)
-        , light8(raytrace::point( 3, 0, 10), 1, colors::white, 10, 20)
-        , light9(raytrace::point( 4, 0, 10), 1, colors::white, 10, 20)
-        , light10(raytrace::point(5, 0, 10), 1, colors::white, 10, 20)
+        , light0(raytrace::point(-5, 0, 10), 1, colors::white, 10, light_subsamples)
+        , light1(raytrace::point(-4, 0, 10), 1, colors::white, 10, light_subsamples)
+        , light2(raytrace::point(-3, 0, 10), 1, colors::white, 10, light_subsamples)
+        , light3(raytrace::point(-2, 0, 10), 1, colors::white, 10, light_subsamples)
+        , light4(raytrace::point(-1, 0, 10), 1, colors::white, 10, light_subsamples)
+        , light5(raytrace::point( 0, 0, 10), 1, colors::white, 10, light_subsamples)
+        , light6(raytrace::point( 1, 0, 10), 1, colors::white, 10, light_subsamples)
+        , light7(raytrace::point( 2, 0, 10), 1, colors::white, 10, light_subsamples)
+        , light8(raytrace::point( 3, 0, 10), 1, colors::white, 10, light_subsamples)
+        , light9(raytrace::point( 4, 0, 10), 1, colors::white, 10, light_subsamples)
+        , light10(raytrace::point(5, 0, 10), 1, colors::white, 10, light_subsamples)
         , s1(raytrace::point(4, 2, 1), 1)
+        //, s1(raytrace::point(4, 2, 1), 1, 0.8, 0.6)
         , s2(raytrace::point(-4,-2, 2), 2)
         , s3(raytrace::point(1, -5, 3), 3)
         , c1(raytrace::point(6, 3, 0), 1, 4) // cone
+        //, cylint(raytrace::point(-2, 3, 2), 2, 1) // cylinder
+        //, cylint(raytrace::point(-2, 3, 2), 1, 1) // cylinder
+        //, cylbox(raytrace::point(-2, 3, 2), 1, 1, 2)
+        //, cyl(cylint, cylbox, overlap::type::inclusive)
         , cyl(raytrace::point(-2, 3, 2), 2, 1) // cylinder
         , cap(raytrace::point(-2, 3, 4), R3::basis::Z, 0, 1)
+        , t0(raytrace::point(1, 5, 0.4), 0.6, 0.4)
+        , cb0(raytrace::point(7, -2, 1), 1, 1, 1)
         {
             // assign surfaces and materials
             ground.material(&plain_white);
@@ -45,6 +53,9 @@ public:
             c1.material(&steel);
             cyl.material(&steel);
             cap.material(&steel);
+            t0.material(&steel);
+            cb0.material(&steel);
+            cb0.rotation(iso::degrees(0), iso::degrees(0), iso::degrees(15));
     }
 
     raytrace::point& looking_from() override {
@@ -90,8 +101,11 @@ public:
         scene.add_object(&c1);
         scene.add_object(&cyl);
         scene.add_object(&cap);
+        scene.add_object(&t0);
+        scene.add_object(&cb0);
     }
 protected:
+    element_type light_subsamples;
     raytrace::point look_from;
     raytrace::point look_at;
     metal steel;
@@ -109,11 +123,17 @@ protected:
     bulb light9;
     bulb light10;
     raytrace::sphere s1;
+    //ellipsoid s1;
     raytrace::sphere s2;
     raytrace::sphere s3;
     cone c1;
     cylinder cyl;
+    //ellipticalcylinder cylint;
+    //cuboid   cylbox;
+    //overlap  cyl;
     ring cap;
+    torus t0;
+    cuboid cb0;
 };
 
 // declare a single instance and return the reference to it

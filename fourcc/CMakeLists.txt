@@ -19,6 +19,7 @@ endif()
 
 add_library(emrainey-fourcc SHARED
     ${CMAKE_CURRENT_SOURCE_DIR}/source/image.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/convolve.cpp
 )
 target_include_directories(emrainey-fourcc
     PUBLIC

@@ -344,4 +344,12 @@ void convolve(fourcc::image<int16_t, fourcc::pixel_format::Y16>& out,
 void convert(const fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8>& in,
                 fourcc::image<fourcc::iyu2, fourcc::pixel_format::IYU2>& out);
 
+/** Produces a Sobel Mask image */
+void sobel_mask(const fourcc::image<fourcc::iyu2, fourcc::pixel_format::IYU2>& iyu2_image,
+                fourcc::image<uint8_t, fourcc::pixel_format::Y8>& mask);
+
+/** Produces a Sobel Mask image */
+void sobel_mask(const fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8>& rgb_image,
+                fourcc::image<uint8_t, fourcc::pixel_format::Y8>& mask);
+
 } // namespace fourcc

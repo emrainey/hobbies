@@ -39,12 +39,15 @@ public:
      * @param sub_func The subsampler functor
      * @param number_of_samples The number of samples per pixel.
      * @param opt_func The optional renderer callback
+     * @param mask The mask image to use
      * @param mask_threshold Used to do adaptive anti-aliasing. If the mask pixel is above the threshold value, then it will attempt to recompute. If 255, anti-aliasing is disabled.
+
      */
     void generate_each(subsampler sub_func,
                         size_t number_of_samples = 1,
                         std::optional<rendered_line> opt_func = std::nullopt,
-                        uint8_t mask_threshold = 255);
+                        fourcc::image<uint8_t, fourcc::pixel_format::Y8>* mask = nullptr,
+                        uint8_t mask_threshold = AAA_MASK_DISABLED);
 
     /** Returns the image pixel at the point (rounded raster coordinates) */
     fourcc::rgb8& at(const point& p);
@@ -52,25 +55,11 @@ public:
     // declared override
     fourcc::rgb8& at(size_t y, size_t x) override;
 
-    /**
-     * Computes a Mask image Per channel and returns that as a separate image
-     * @note Mask is the same dimensionality as the original image.
-     */
-    void compute_mask();
-
-    /**
-     * Returns the existing mask image
-     */
-    const fourcc::image<uint8_t, fourcc::pixel_format::Y8>& get_mask() const {
-        return mask;
-    }
     /** The value of the threshold in which the Adaptive Antialiasing is always disabled */
     constexpr static uint8_t AAA_MASK_DISABLED = 255u;
 
     /** The value of the threshold in which the Adaptive Antialiasing is always enabled */
     constexpr static uint8_t AAA_MASK_ENABLED = 0u;
-protected:
-    fourcc::image<uint8_t, fourcc::pixel_format::Y8> mask;
 };
 
 } // namespace raytrace

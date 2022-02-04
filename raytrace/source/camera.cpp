@@ -13,7 +13,8 @@ camera::camera(size_t image_height,
                size_t image_width,
                iso::degrees field_of_view)
     : entity()
-    , capture(image_height, image_width) // just one subsample for now
+    , capture(image_height, image_width)
+    , mask(image_height, image_width)
     , m_intrinsics(matrix::identity(raytrace::dimensions, raytrace::dimensions))
     , m_pixel_scale(1.0) // will be computed in a second
     , m_field_of_view(field_of_view)
@@ -38,6 +39,10 @@ camera::camera(size_t image_height,
 
     // we can't move anything until the camera to world rotation has been computed, as we use it.
     move_to(m_world_position, m_world_look_at);
+    // initialize it to all white
+    mask.for_each([](size_t, size_t, uint8_t& pixel) -> void {
+        pixel = image::AAA_MASK_DISABLED;
+    });
 }
 
 void camera::move_to(const point& look_from, const point& look_at) {

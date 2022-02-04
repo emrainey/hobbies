@@ -349,7 +349,7 @@ void scene::render(std::string filename,
         return trace(world_ray, mediums::vaccum, reflection_depth);
     };
     // if we're doing adaptive anti-aliasing we only shoot 1 ray at first and then compute a constrast mask later
-    view.capture.generate_each(tracer, adaptive_antialiasing ? 1 : number_of_samples, row_notifier, image::AAA_MASK_DISABLED);
+    view.capture.generate_each(tracer, adaptive_antialiasing ? 1 : number_of_samples, row_notifier, &view.mask, image::AAA_MASK_DISABLED);
     //
     if (aaa_mask_threshold < image::AAA_MASK_DISABLED) {
         // reset all rendered lines
@@ -360,9 +360,9 @@ void scene::render(std::string filename,
             }
         }
         // compute the mask
-        view.capture.compute_mask();
+        fourcc::sobel_mask(view.capture, view.mask);
         // update the image based on the mask
-        view.capture.generate_each(tracer, number_of_samples, row_notifier, aaa_mask_threshold);
+        view.capture.generate_each(tracer, number_of_samples, row_notifier, &view.mask, aaa_mask_threshold);
     }
     view.capture.save(filename);
 }

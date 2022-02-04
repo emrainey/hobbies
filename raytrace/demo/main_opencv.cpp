@@ -224,7 +224,7 @@ int main(int argc, char *argv[]) {
             cv::imwrite("render_image.png", render_image);
 
             //if (params.mask_threshold < raytrace::image::AAA_MASK_DISABLED) {
-                scene.view.capture.get_mask().for_each([&](size_t y, size_t x, const uint8_t& pixel) -> void {
+                scene.view.mask.for_each([&](size_t y, size_t x, const uint8_t& pixel) -> void {
                     mask_image.at<cv::Vec3b>(y, x)[0] = pixel;
                     mask_image.at<cv::Vec3b>(y, x)[1] = pixel;
                     mask_image.at<cv::Vec3b>(y, x)[2] = pixel;

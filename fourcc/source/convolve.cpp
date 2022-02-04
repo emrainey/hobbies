@@ -5,10 +5,52 @@
  */
 #include "fourcc/image.hpp"
 
+#include <cmath>
+
 namespace fourcc {
 
-void convert(const fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8>& in,
-             fourcc::image<fourcc::iyu2, fourcc::pixel_format::IYU2>& out) {
+void sobel_mask(const image<rgb8, pixel_format::RGB8>& rgb_image,
+                image<uint8_t, pixel_format::Y8>& mask) {
+    size_t height = rgb_image.height;
+    size_t width = rgb_image.width;
+    image<iyu2, pixel_format::IYU2> iyu2_image(height, width);
+    convert(rgb_image, iyu2_image);
+    sobel_mask(iyu2_image, mask);
+}
+
+void sobel_mask(const image<iyu2, pixel_format::IYU2>& iyu2_image,
+                image<uint8_t, pixel_format::Y8>& mask) {
+    size_t height = iyu2_image.height;
+    size_t width = iyu2_image.width;
+
+    // create a x and Y gradient image and then sum them and down scale to the mask
+    const int16_t sobel_x[3][3] = {
+        {-1,  0, +1},
+        {-2,  0, +2},
+        {-1,  0, +1},
+    };
+    const int16_t sobel_y[3][3] = {
+        {-1, -2, -1},
+        { 0,  0,  0},
+        {+1, +2, +1},
+    };
+
+    image<int16_t, pixel_format::Y16> grad_x(height, width);
+    image<int16_t, pixel_format::Y16> grad_y(height, width);
+
+    convolve(grad_x, sobel_x, iyu2_image, channel::Y);
+    convolve(grad_y, sobel_y, iyu2_image, channel::Y);
+
+    mask.for_each([&](size_t y, size_t x, uint8_t& pixel) {
+        int16_t a = grad_x.at(y, x);
+        int16_t b = grad_y.at(y, x);
+        int32_t c = std::sqrt(a*a + b*b);
+        pixel = std::min(c, 255);
+    });
+}
+
+void convert(const image<rgb8, pixel_format::RGB8>& in,
+             image<iyu2, pixel_format::IYU2>& out) {
     throw_exception_unless(in.height == out.height, "Must be the same height %zu != %zu", in.height, out.height);
     throw_exception_unless(in.width == out.width, "Must be the same width %zu != %zu", in.width, out.width);
     for (size_t y = 0; y < in.height; y++) {
@@ -25,7 +67,7 @@ void convert(const fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8>& in,
             uint8_t _u = (u_ > 255 ? 255 : (u_ < 0 ? 0 : u_));
             uint8_t _y = (y_ > 255 ? 255 : (y_ < 0 ? 0 : y_));
             uint8_t _v = (v_ > 255 ? 255 : (v_ < 0 ? 0 : v_));
-            fourcc::iyu2 pixel;
+            iyu2 pixel;
             pixel.u = u_;
             pixel.y = y_;
             pixel.v = v_;
@@ -34,10 +76,10 @@ void convert(const fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8>& in,
     }
 }
 
-void convolve(fourcc::image<int16_t, fourcc::pixel_format::Y16>& out,
+void convolve(image<int16_t, pixel_format::Y16>& out,
               const int16_t (&kernel)[3][3],
-              const fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8>& input,
-              Channel channel) {
+              const image<rgb8, pixel_format::RGB8>& input,
+              channel channel) {
 
     for (int y = 1; y < input.height-1; y++) {
         for (int x = 1; x < input.width-1; x++) {
@@ -47,11 +89,11 @@ void convolve(fourcc::image<int16_t, fourcc::pixel_format::Y16>& out,
                 for (int i = -1; i <= 1; i++) {
                     div += kernel[j+1][i+1];
                     uint8_t v = 0;
-                    if (channel == Channel::R) {
+                    if (channel == channel::R) {
                         v = input.at(y + j, x + i).r;
-                    } else if (channel == Channel::G) {
+                    } else if (channel == channel::G) {
                         v = input.at(y + j, x + i).g;
-                    } else if (channel == Channel::B) {
+                    } else if (channel == channel::B) {
                         v = input.at(y + j, x + i).b;
                     }
                     sum += v * kernel[j+1][i+1];
@@ -71,10 +113,10 @@ void convolve(fourcc::image<int16_t, fourcc::pixel_format::Y16>& out,
 }
 
 
-void convolve(fourcc::image<int16_t, fourcc::pixel_format::Y16>& out,
+void convolve(image<int16_t, pixel_format::Y16>& out,
               const int16_t (&kernel)[3][3],
-              const fourcc::image<fourcc::iyu2, fourcc::pixel_format::IYU2>& input,
-              Channel channel) {
+              const image<iyu2, pixel_format::IYU2>& input,
+              channel channel) {
 
     for (int y = 1; y < input.height-1; y++) {
         for (int x = 1; x < input.width-1; x++) {
@@ -84,11 +126,11 @@ void convolve(fourcc::image<int16_t, fourcc::pixel_format::Y16>& out,
                 for (int i = -1; i <= 1; i++) {
                     div += kernel[j+1][i+1];
                     uint8_t v = 0;
-                    if (channel == Channel::Y) {
+                    if (channel == channel::Y) {
                         v = input.at(y + j, x + i).y;
-                    } else if (channel == Channel::U) {
+                    } else if (channel == channel::U) {
                         v = input.at(y + j, x + i).u;
-                    } else if (channel == Channel::V) {
+                    } else if (channel == channel::V) {
                         v = input.at(y + j, x + i).v;
                     }
                     sum += v * kernel[j+1][i+1];

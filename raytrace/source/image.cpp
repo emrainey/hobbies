@@ -11,12 +11,7 @@ namespace raytrace {
 
 image::image(size_t h, size_t w)
     : fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8>(h, w)
-    , mask(h, w)
     {
-    // initialize it to all white
-    mask.for_each([](size_t, size_t, uint8_t& pixel) -> void {
-        pixel = AAA_MASK_DISABLED;
-    });
     basal::exception::throw_if(is_odd(height) or is_odd(width), __FILE__, __LINE__, "Height %d and Width %d must be even", height, width);
 }
 
@@ -33,6 +28,7 @@ fourcc::rgb8& image::at(const image::point& p) {
 void image::generate_each(subsampler get_color,
                      size_t number_of_samples,
                      std::optional<rendered_line> row_notifier,
+                     fourcc::image<uint8_t, fourcc::pixel_format::Y8>* mask,
                      uint8_t mask_threshold) {
     std::default_random_engine generator;
     std::uniform_real_distribution<element_type> distribution(-0.5, 0.5);
@@ -41,7 +37,7 @@ void image::generate_each(subsampler get_color,
     #pragma omp parallel for shared(data, delta, get_color)
     for (size_t y = 0; y < height; y++) {
         for (size_t x = 0; x < width; x++) {
-            if (mask.at(y, x) < mask_threshold) {
+            if (mask and (mask->at(y, x) < mask_threshold)) {
                 // skip pixel that are below the threshold
                 continue;
             }
@@ -66,37 +62,6 @@ void image::generate_each(subsampler get_color,
             func(y, true);
         }
     }
-}
-
-void image::compute_mask() {
-
-    fourcc::image<fourcc::iyu2, fourcc::pixel_format::IYU2> iyu2_image(height, width);
-    fourcc::convert(*this, iyu2_image);
-
-    // create a x and Y gradient image and then sum them and down scale to the mask
-    const int16_t sobel_x[3][3] = {
-        {-1,  0, +1},
-        {-2,  0, +2},
-        {-1,  0, +1},
-    };
-    const int16_t sobel_y[3][3] = {
-        {-1, -2, -1},
-        { 0,  0,  0},
-        {+1, +2, +1},
-    };
-
-    fourcc::image<int16_t, fourcc::pixel_format::Y16> grad_x(height, width);
-    fourcc::image<int16_t, fourcc::pixel_format::Y16> grad_y(height, width);
-
-    fourcc::convolve(grad_x, sobel_x, iyu2_image, fourcc::channel::Y);
-    fourcc::convolve(grad_y, sobel_y, iyu2_image, fourcc::channel::Y);
-
-    mask.for_each([&](size_t y, size_t x, uint8_t& pixel) {
-        int16_t a = grad_x.at(y, x);
-        int16_t b = grad_y.at(y, x);
-        int32_t c = std::sqrt(a*a + b*b);
-        pixel = std::min(c, 255);
-    });
 }
 
 } // namespace raytrace

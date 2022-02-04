@@ -97,7 +97,8 @@ namespace raytrace {
         /** Returns the camera intrinsics for inspection */
         const linalg::matrix& intrinsics() const;
 
-        image  capture;                 ///< The image projected on the plane
+        raytrace::image  capture;       ///< The image projected on the plane
+        fourcc::image<uint8_t, fourcc::pixel_format::Y8> mask; ///< The mask of the capture image
     protected:
         linalg::matrix m_intrinsics;    ///< Camera Intrinsics
         element_type m_pixel_scale;     ///< The scaling factor for sizing pixels in the image plane

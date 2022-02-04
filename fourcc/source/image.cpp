@@ -2,6 +2,7 @@
 #include <cinttypes>
 #include <filesystem>
 #include "fourcc/image.hpp"
+#include "fourcc/targa.hpp"
 
 namespace fourcc {
 
@@ -56,7 +57,32 @@ bool image<rgba, pixel_format::RGBA>::save(std::string filename) const {
         }
         return true;
     } else if (is_extension(filename, ".tga")) {
-        ///
+        FILE *fp = fopen(filename.c_str(), "wb");
+        if (fp) {
+            targa::header hdr;
+            hdr.id_length = 0;
+            hdr.color_map_type = targa::ColorMapType::None;
+            hdr.image_map_type = targa::ImageMapType::UncompressedTrueColor;
+            hdr.color_map.first_index = 0;
+            hdr.color_map.length = 0;
+            hdr.color_map.entry_size = 0;
+            hdr.image_map.x_origin = 0;
+            hdr.image_map.y_origin = 0;
+            hdr.image_map.image_width = width;
+            hdr.image_map.image_height = height;
+            hdr.image_map.pixel_depth = depth * 8;
+            hdr.image_map.image_descriptor = 0; //avoid complex interleaving
+            fwrite(&hdr, sizeof(hdr), 1, fp);
+            // identification string
+            // color map
+            // image data as B. then G, then R.
+            for_each([&](const rgba& pixel) -> void {
+                fwrite(&pixel.b, 1, sizeof(pixel.b), fp);
+                fwrite(&pixel.g, 1, sizeof(pixel.g), fp);
+                fwrite(&pixel.r, 1, sizeof(pixel.r), fp);
+            });
+            fclose(fp);
+        }
     }
     return false;
 }
@@ -83,18 +109,47 @@ bool image<abgr, pixel_format::ABGR>::save(std::string filename) const {
 
 template <>
 bool image<rgb8, pixel_format::RGB8>::save(std::string filename) const {
-    FILE *fp = fopen(filename.c_str(), "wb");
-    if (fp) {
-        fprintf(fp, "P7\n");
-        fprintf(fp, "WIDTH %zu\nHEIGHT %zu\nDEPTH %zu\n", width, height, depth);
-        fprintf(fp, "MAXVAL %u\n", 255u);
-        fprintf(fp, "TUPLTYPE %s\n", channel_order(format));
-        fprintf(fp, "ENDHDR\n");
-        for_each([&](const rgb8& pixel) -> void {
-            fwrite(&pixel, 1, sizeof(rgb8), fp);
-        });
-        fclose(fp);
-        return true;
+    if (is_extension(filename, ".ppm")) {
+        FILE *fp = fopen(filename.c_str(), "wb");
+        if (fp) {
+            fprintf(fp, "P7\n");
+            fprintf(fp, "WIDTH %zu\nHEIGHT %zu\nDEPTH %zu\n", width, height, depth);
+            fprintf(fp, "MAXVAL %u\n", 255u);
+            fprintf(fp, "TUPLTYPE %s\n", channel_order(format));
+            fprintf(fp, "ENDHDR\n");
+            for_each([&](const rgb8& pixel) -> void {
+                fwrite(&pixel, 1, sizeof(rgb8), fp);
+            });
+            fclose(fp);
+            return true;
+        }
+    } else if (is_extension(filename, ".tga")) {
+        FILE *fp = fopen(filename.c_str(), "wb");
+        if (fp) {
+            targa::header hdr;
+            hdr.id_length = 0;
+            hdr.color_map_type = targa::ColorMapType::None;
+            hdr.image_map_type = targa::ImageMapType::UncompressedTrueColor;
+            hdr.color_map.first_index = 0;
+            hdr.color_map.length = 0;
+            hdr.color_map.entry_size = 0;
+            hdr.image_map.x_origin = 0;
+            hdr.image_map.y_origin = 0;
+            hdr.image_map.image_width = width;
+            hdr.image_map.image_height = height;
+            hdr.image_map.pixel_depth = depth * 8;
+            hdr.image_map.image_descriptor = 0; //avoid complex interleaving
+            fwrite(&hdr, sizeof(hdr), 1, fp);
+            // identification string
+            // color map
+            // image data as B, then G, then R.
+            for_each([&](const rgb8& pixel) -> void {
+                fwrite(&pixel.b, 1, sizeof(pixel.b), fp);
+                fwrite(&pixel.g, 1, sizeof(pixel.g), fp);
+                fwrite(&pixel.r, 1, sizeof(pixel.r), fp);
+            });
+            fclose(fp);
+        }
     }
     return false;
 }

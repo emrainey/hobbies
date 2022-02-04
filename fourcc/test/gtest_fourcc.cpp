@@ -45,4 +45,5 @@ TEST(FourccTest, Bars) {
         }
     });
     img.save("bars.ppm");
+    img.save("bars.tga");
 }

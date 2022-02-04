@@ -45,5 +45,9 @@
 # Compile commands don't need to be saved
 .vscode/compile_commands.json
 
-# Ignore all the ppms
+# Ignore all the ppms and tga
 *.ppm
+*.tga
+
+# Ignore the render image that the OpenCV version makes
+render_image.png

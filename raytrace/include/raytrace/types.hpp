@@ -38,6 +38,8 @@ namespace raytrace {
         size_t bounced_rays;
         /** Transmitted Rays */
         size_t transmitted_rays;
+        /** Saved Bounces from adaptive threshold */
+        size_t saved_ray_traces;
 
         static statistics& get() {
             static statistics s;
@@ -49,6 +51,7 @@ namespace raytrace {
             , intersections_with_objects(0)
             , bounced_rays(0)
             , transmitted_rays(0)
+            , saved_ray_traces(0)
             {}
     };
 }

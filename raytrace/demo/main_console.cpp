@@ -220,6 +220,7 @@ int main(int argc, char *argv[]) {
                 console.print(11, w, "  INTR: %zu", raytrace::statistics::get().intersections_with_objects);
                 console.print(12, w, "BOUNCE: %zu", raytrace::statistics::get().bounced_rays);
                 console.print(13, w, "  XMIT: %zu", raytrace::statistics::get().transmitted_rays);
+                console.print(14, w, " SAVED: %zu", raytrace::statistics::get().saved_ray_traces);
                 console.refresh();
             }
         }

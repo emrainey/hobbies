@@ -50,7 +50,7 @@ public:
     scene() = delete;
 
     /** Configures the camera and image projection */
-    scene(size_t image_height, size_t image_width, iso::degrees field_of_view);
+    scene(size_t image_height, size_t image_width, iso::degrees field_of_view, double adaptive_threshhold = 1.0/32.0);
 
     /** Destructor */
     virtual ~scene();
@@ -99,8 +99,11 @@ public:
      * @param world_ray The ray in world coordinates to trace.
      * @param refractive_index The current medium's refractive index. Most of time this will be air (~1.0)
      * @param reflection_depth The current recursive depth of reflections.
+     * @param recursive_contribution The amount of contribution from this level of recursion to the top level color.
+     *                               When it falls below a global limit, the reflection will not be considered.
+     *                               @see adaptive_reflection_threshhold
      */
-    color trace(const ray& world_ray, const medium& media, size_t depth = 1);
+    color trace(const ray& world_ray, const medium& media, size_t depth = 1, double recursive_contribution = 1.0);
 
     /**
      * Computes the scene and saves the camera image to a file
@@ -115,6 +118,9 @@ public:
                 size_t reflection_depth = 1,
                 std::optional<image::rendered_line> func = std::nullopt,
                 uint8_t mask_threshold = raytrace::image::AAA_MASK_DISABLED);
+
+    /** The limit for reflective contributions to the top level trace. */
+    double adaptive_reflection_threshhold;
 
     /** The camera of the scene */
     camera view;

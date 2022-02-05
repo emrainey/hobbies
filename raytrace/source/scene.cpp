@@ -18,8 +18,9 @@ static constexpr bool use_specular_scaling = true;
 // displays the distance to a light in shadow as a grayscale value (black is still shadow, white is very close)
 static constexpr bool use_grayscale_distance = false;
 
-scene::scene(size_t image_height, size_t image_width, iso::degrees field_of_view)
+scene::scene(size_t image_height, size_t image_width, iso::degrees field_of_view, double art)
     : view(image_height, image_width, field_of_view)
+    , adaptive_reflection_threshhold(art)
     , m_objects()
     , m_lights()
     , m_background([](const raytrace::ray&) { return colors::black; })
@@ -218,7 +219,7 @@ color scene::find_surface_color(const object& obj,
     return color::accumulate_samples(surface_colors);
 }
 
-color scene::trace(const ray& world_ray, const medium& media, size_t reflection_depth) {
+color scene::trace(const ray& world_ray, const medium& media, size_t reflection_depth, double recursive_contribution) {
     // This enables rendering the outline of all objects (remove background planes and such first)
     constexpr bool show_outline = false;
 
@@ -261,6 +262,7 @@ color scene::trace(const ray& world_ray, const medium& media, size_t reflection_
         element_type transparency = 0;
         element_type emitted = 0;
 
+        // several different types of color in this area to contend with
         color surface_color, emitted_color, reflected_color, transmitted_color;
 
         // compute the incident angle of the reflection vector
@@ -285,18 +287,24 @@ color scene::trace(const ray& world_ray, const medium& media, size_t reflection_
 
                 // mix how much local surface color versus reflected surface there should be
                 element_type smoothness = medium.smoothness(object_surface_point);
-
-                // only cast the ray if it's more than zero
                 if (smoothness > 0.0) {
-                    // find the reflected vector at world_surface_point
-                    ray new_ray(world_surface_point, world_reflection);
+                    // should we continue bouncing given the contribution?
+                    if (recursive_contribution < adaptive_reflection_threshhold) {
+                        // count this as a save bounce
+                        statistics::get().saved_ray_traces++;
+                        // just use the surface color
+                        reflected_color = surface_properties_color;
+                    } else { // only cast the ray if it's more than zero
+                        // find the reflected vector at world_surface_point
+                        ray new_ray(world_surface_point, world_reflection);
 
-                    // find out what the reflection adds to this
-                    color bounced_color = trace(new_ray, media, reflection_depth - 1);
-                    statistics::get().bounced_rays++;
+                        // find out what the reflection adds to this
+                        color bounced_color = trace(new_ray, media, reflection_depth - 1, recursive_contribution * smoothness);
+                        statistics::get().bounced_rays++;
 
-                    // somehow interpolate the two based on how much of a smooth mirror this medium is.
-                    reflected_color = interpolate(bounced_color, surface_properties_color, smoothness);
+                        // somehow interpolate the two based on how much of a smooth mirror this medium is.
+                        reflected_color = interpolate(bounced_color, surface_properties_color, smoothness);
+                    }
                 } else {
                     // perfectly diffuse so it's just surface properties
                     reflected_color = surface_properties_color;
@@ -309,17 +317,30 @@ color scene::trace(const ray& world_ray, const medium& media, size_t reflection_
         if (reflection_depth > 0 and transparency > 0.0 and not world_refraction.direction().is_zero()) {
             // find the dropoff of the medium we're *in* given the distance
             element_type dropoff = medium.absorbance(nearest.distance);
-            // get the colors from the transmitted light
-            transmitted_color = trace(world_refraction, medium, reflection_depth - 1);
-            // now scale that transmitted_color via the dropoff
-            transmitted_color.scale(1.0 - dropoff);
-            statistics::get().transmitted_rays++;
+            element_type transmitted_scaling = 1.0 - dropoff;
+            if (transmitted_scaling > 0.0) {
+                if (recursive_contribution < adaptive_reflection_threshhold) {
+                    // due to the low contribution to the final color, we can disregard this.
+                    statistics::get().saved_ray_traces++;
+                    // just return black?
+                    transmitted_color = colors::black;
+                } else {
+                    // get the colors from the transmitted light
+                    transmitted_color = trace(world_refraction, medium, reflection_depth - 1, recursive_contribution * transmitted_scaling);
+                    // now scale that transmitted_color via the dropoff
+                    transmitted_color.scale(transmitted_scaling);
+                    // this ray was transmitted through the new medium
+                    statistics::get().transmitted_rays++;
+                }
+            } else {
+                // not a transmissible medium, set that to black;
+                transmitted_color = colors::black;
+            }
         }
         // blend that reflected color with the transmitted color
         surface_color = interpolate(transmitted_color, reflected_color, transparency);
-        // now add emitted color
+        // TODO now add emitted color
         //surface_color += emitted_color;
-
         return surface_color;
     } else { // if (get_type(closest_intersection) == geometry::intersectionType::None) {
         if constexpr (show_outline) {

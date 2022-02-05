@@ -10,7 +10,7 @@ plain::plain(const color& amb, element_type amb_scale, const color& dif, element
     m_ambient = amb;
     m_ambient_scale = amb_scale;
     m_diffuse = dif;
-    m_smoothness = ref; // no "reflections"
+    m_smoothness = ref;
     m_tightness = rough;
 }
 

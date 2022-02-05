@@ -75,12 +75,18 @@ bool image<rgba, pixel_format::RGBA>::save(std::string filename) const {
             fwrite(&hdr, sizeof(hdr), 1, fp);
             // identification string
             // color map
-            // image data as B. then G, then R.
-            for_each([&](const rgba& pixel) -> void {
-                fwrite(&pixel.b, 1, sizeof(pixel.b), fp);
-                fwrite(&pixel.g, 1, sizeof(pixel.g), fp);
-                fwrite(&pixel.r, 1, sizeof(pixel.r), fp);
-            });
+            // image data as B. then G, then R. but y is inverted
+            for (size_t y = (height - 1); /* y >= 0 */; y--) {
+                for (size_t x = 0; x < width; x++) {
+                    const rgba& pixel = at(y, x);
+                    fwrite(&pixel.b, 1, sizeof(pixel.b), fp);
+                    fwrite(&pixel.g, 1, sizeof(pixel.g), fp);
+                    fwrite(&pixel.r, 1, sizeof(pixel.r), fp);
+                }
+                if (y == 0) {
+                    break;
+                }
+            }
             fclose(fp);
         }
     }
@@ -142,12 +148,18 @@ bool image<rgb8, pixel_format::RGB8>::save(std::string filename) const {
             fwrite(&hdr, sizeof(hdr), 1, fp);
             // identification string
             // color map
-            // image data as B, then G, then R.
-            for_each([&](const rgb8& pixel) -> void {
-                fwrite(&pixel.b, 1, sizeof(pixel.b), fp);
-                fwrite(&pixel.g, 1, sizeof(pixel.g), fp);
-                fwrite(&pixel.r, 1, sizeof(pixel.r), fp);
-            });
+            // image data as B, then G, then R. but upside down where y is inverted
+            for (size_t y = (height - 1); /* y >= 0 */; y--) {
+                for (size_t x = 0; x < width; x++) {
+                    const rgb8& pixel = at(y, x);
+                    fwrite(&pixel.b, 1, sizeof(pixel.b), fp);
+                    fwrite(&pixel.g, 1, sizeof(pixel.g), fp);
+                    fwrite(&pixel.r, 1, sizeof(pixel.r), fp);
+                }
+                if (y == 0) {
+                    break;
+                }
+            }
             fclose(fp);
         }
     }

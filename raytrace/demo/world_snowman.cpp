@@ -46,7 +46,7 @@ public:
         , steel(colors::grey, smoothness::polished, roughness::loose)
         , snow(colors::white, ambient::dim, colors::white, smoothness::none, roughness::tight)
         , red_eyes(colors::red, ambient::glowy, colors::red, smoothness::none, roughness::tight)
-        , carrot(colors::orange, ambient::none, colors::orange, smoothness::none, roughness::tight)
+        , carrot(colors::orange, ambient::dim, colors::orange, smoothness::none, roughness::tight)
         , plum(colors::plum, ambient::none, colors::plum, smoothness::none, roughness::loose)
         , ground(raytrace::point(0, 0, 0), R3::basis::Z, 1)
         , sn_btm(raytrace::point(0, 0, 2), 2.5)
@@ -129,11 +129,11 @@ public:
     }
 
     std::string window_name() const override {
-        return std::string("Spheres");
+        return std::string("Snowman");
     }
 
     std::string output_filename() const override {
-        return std::string("world_snowman.ppm");
+        return std::string("world_snowman.tga");
     }
 
     raytrace::color background(const raytrace::ray&) const override {

@@ -220,8 +220,7 @@ color scene::find_surface_color(const object& obj,
 }
 
 color scene::trace(const ray& world_ray, const medium& media, size_t reflection_depth, double recursive_contribution) {
-    // This enables rendering the outline of all objects (remove background planes and such first)
-    constexpr bool show_outline = false;
+    using namespace operators;
 
     // finds all the intersections with the objects
     intersect_list intersections = find_intersections(world_ray, m_objects);
@@ -231,10 +230,6 @@ color scene::trace(const ray& world_ray, const medium& media, size_t reflection_
 
     // if it was a point...
     if (get_type(nearest.intersector) == IntersectionType::Point) {
-        // if we're just debugging to show a collision, return now.
-        if constexpr (show_outline) {
-            return colors::white;
-        }
         assert(nearest.objptr != nullptr);
         // temporary for not using pointer.
         const object& obj = *nearest.objptr;
@@ -260,7 +255,7 @@ color scene::trace(const ray& world_ray, const medium& media, size_t reflection_
         // (which means the surface could be like a film of mirror with bits flaking off)
         element_type reflectivity = 0;
         element_type transparency = 0;
-        element_type emitted = 0;
+        element_type emissivity = 0;
 
         // several different types of color in this area to contend with
         color surface_color, emitted_color, reflected_color, transmitted_color;
@@ -271,20 +266,81 @@ color scene::trace(const ray& world_ray, const medium& media, size_t reflection_
         // compute the transmitted angle of the refraction vector
         iso::radians transmitted_angle = geometry::angle(world_surface_normal, world_refraction.direction());
 
+        /*********************************************************************/
+
         // get the light components, emission, reflection and refraction (diffraction, phosporescense and fluorescence not computed)
-        medium.radiosity(object_surface_point, media.refractive_index(object_surface_point), incident_angle, transmitted_angle, emitted, reflectivity, transparency);
-        if (emitted > 0) { // the medium is emitting light
+        medium.radiosity(object_surface_point,
+                         media.refractive_index(object_surface_point),
+                         incident_angle, transmitted_angle,
+                         // outputs
+                         emissivity, reflectivity, transparency);
+
+        if (emissivity > 0) { // the medium is emitting light
             // TODO light sources which emit light
             emitted_color = colors::black;
             // surface_color += ???
         }
         if (reflectivity > 0.0) { // on the very last depth call we still have to return the surface color, just no more casts
-
             // find the *reflected* medium color from all lights (without blocked paths)
-            color surface_properties_color = find_surface_color(obj, world_surface_point, world_surface_normal, object_surface_point, object_surface_point, world_reflection, m_objects, m_lights);
+            // The set of colors from each light source (including ambient)
+            std::vector<color> surface_colors;
+            // the medium starts at the ambient light
+            surface_colors.push_back(medium.ambient(object_surface_point));
+            // for each light in the scene... check the SHADOW rays!
+            for (auto& light_ : m_lights) {
+                // convenience variable
+                const light& scene_light = *light_;
+                // the samples for this light
+                std::vector<color> surface_color_samples(scene_light.number_of_samples()); // should initialize to all black
+                // for each sample, get the color
+                for (size_t sample_index = 0; sample_index < scene_light.number_of_samples(); sample_index++) {
+                    // get the ray to the light source (full magnitude)
+                    ray ray_to_light = scene_light.incident(world_surface_point, sample_index);
+                    // just the vector to the light from P
+                    const vector& light_direction = ray_to_light.direction();
+                    // normalized light vector
+                    vector normalized_light_direction = light_direction.normalized();
+                    // construct a world ray from that point and normalized vector
+                    ray world_ray(world_surface_point, normalized_light_direction);
+                    // is the light blocked by anything?
+                    intersect_list intersections = find_intersections(world_ray, m_objects);
+                    // find the nearest object in the light path, which may include P (at/near zero)
+                    // if the current object is blocking the light.
+                    scene::intersect_set nearest = nearest_object(world_ray, intersections, m_objects);
+                    // is this point in a shadow of this light?
+                    // either there's no intersection to the light, or
+                    // there is one but it's farther away than the light itself.
+                    bool not_in_shadow = (   get_type(nearest.intersector) == IntersectionType::None
+                                          or (    get_type(nearest.intersector) == IntersectionType::Point
+                                              and nearest.distance > light_direction.norm()));
+                    if (not_in_shadow) {
+                        // get the light color at this distance
+                        color raw_light_color = scene_light.color_at(world_surface_point);
+                        // the scaling at this point due to this light source's
+                        // relationship with the normal of the medium this will be
+                        // some fractional component from -1.0 to 1.0 since both input vectors are normalized.
+                        element_type incident_scaling = dot(normalized_light_direction, world_surface_normal);
+                        //basal::exception::throw_unless(within_inclusive(-1.0, incident_scaling, 1.0), __FILE__, __LINE__, "Must be within bounds");
+                        color incident_light = (incident_scaling > 0.0) ? incident_scaling * raw_light_color : colors::black;
+                        color diffuse_light = medium.diffuse(object_surface_point);
+                        element_type specular_scaling = dot(normalized_light_direction, world_reflection);
+                        //basal::exception::throw_unless(within_inclusive(-1.0, specular_scaling, 1.0), __FILE__, __LINE__, "Must be within bounds");
+                        color specular_light = (specular_scaling > 0) ? medium.specular(object_surface_point, specular_scaling, raw_light_color) : colors::black;
+                        // blend the light color and the surface color together
+                        surface_color_samples[sample_index] = (diffuse_light * incident_light);
+                        // don't use color + color as that "blends", use accumulate for specular light.
+                        surface_color_samples[sample_index] += specular_light;
+                    }
+                }
+                // blend or accumulate? all the surface samples from this light (could be all black)
+                //color surface_color = color::accumulate_samples(surface_color_samples);
+                color surface_color = color::blend_samples(surface_color_samples);
+                surface_colors.push_back(surface_color);
+            }
+            // now accumulate all the light sources together (including ambient)
+            color surface_properties_color = color::accumulate_samples(surface_colors);
 
             if (reflection_depth > 0) {
-
                 // mix how much local surface color versus reflected surface there should be
                 element_type smoothness = medium.smoothness(object_surface_point);
                 if (smoothness > 0.0) {
@@ -343,12 +399,8 @@ color scene::trace(const ray& world_ray, const medium& media, size_t reflection_
         //surface_color += emitted_color;
         return surface_color;
     } else { // if (get_type(closest_intersection) == geometry::intersectionType::None) {
-        if constexpr (show_outline) {
-            return colors::black;
-        } else {
-            // return the background as the ray didn't hit anything.
-            return m_background(world_ray);
-        }
+        // return the background as the ray didn't hit anything.
+        return m_background(world_ray);
     }
 }
 

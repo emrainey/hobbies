@@ -208,7 +208,6 @@ color color::greyscale(element_type d, element_type min, element_type max) {
 
 
 namespace operators {
-// FIXME Why does this exist!?!? How do colors multiply?!?
 color operator*(const color& a, const color& b) {
 #if defined(USE_SIMD_INSTRUCTIONS)
     color c;

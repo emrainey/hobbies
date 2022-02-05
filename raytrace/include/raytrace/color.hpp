@@ -308,7 +308,7 @@ namespace operators {
         return operator*(x, a);
     }
 
-    /** Pairwise Color Mixing */
+    /** Pairwise Color Mixing (when a light and a surface color self select the output color) */
     color operator*(const color& a, const color& b);
 }
 

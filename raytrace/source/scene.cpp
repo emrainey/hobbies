@@ -408,7 +408,8 @@ void scene::render(std::string filename,
                    size_t number_of_samples,
                    size_t reflection_depth,
                    std::optional<image::rendered_line> row_notifier,
-                   uint8_t aaa_mask_threshold) {
+                   uint8_t aaa_mask_threshold,
+                   bool filter_capture) {
     bool adaptive_antialiasing = aaa_mask_threshold != raytrace::image::AAA_MASK_DISABLED;
     if constexpr (debug) {
         view.print("Camera Info:\n");
@@ -423,7 +424,7 @@ void scene::render(std::string filename,
     };
     // if we're doing adaptive anti-aliasing we only shoot 1 ray at first and then compute a constrast mask later
     view.capture.generate_each(tracer, adaptive_antialiasing ? 1 : number_of_samples, row_notifier, &view.mask, image::AAA_MASK_DISABLED);
-    //
+    // if the threshold is not disabled, then compute the extra pixels based on the mask
     if (aaa_mask_threshold < image::AAA_MASK_DISABLED) {
         // reset all rendered lines
         if (row_notifier != std::nullopt) {
@@ -436,6 +437,13 @@ void scene::render(std::string filename,
         fourcc::sobel_mask(view.capture, view.mask);
         // update the image based on the mask
         view.capture.generate_each(tracer, number_of_samples, row_notifier, &view.mask, aaa_mask_threshold);
+    }
+    // if we want to filter the image before viewing or saving, do that here.
+    if (filter_capture) {
+        // copy the image into a duplicate
+        fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8> capture_copy(view.capture);
+        int16_t kernel[3]{-1, 2, 1};
+        fourcc::filter(view.capture, capture_copy, kernel);
     }
     view.capture.save(filename);
 }

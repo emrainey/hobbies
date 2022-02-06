@@ -117,7 +117,8 @@ public:
                 size_t number_of_samples = 1,
                 size_t reflection_depth = 1,
                 std::optional<image::rendered_line> func = std::nullopt,
-                uint8_t mask_threshold = raytrace::image::AAA_MASK_DISABLED);
+                uint8_t mask_threshold = raytrace::image::AAA_MASK_DISABLED,
+                bool filter_capture = false);
 
     /** The limit for reflective contributions to the top level trace. */
     double adaptive_reflection_threshhold;

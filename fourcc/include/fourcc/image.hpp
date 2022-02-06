@@ -215,7 +215,24 @@ public:
     }
 
     /// Copy constructor
-    image(const image& other) = delete;
+    image(const image& other)
+        : depth(depth_in_format(PIXEL_FORMAT))
+        , width(other.width)
+        , height(other.height)
+        , planes(planes_in_format(PIXEL_FORMAT))
+        , format(PIXEL_FORMAT)
+        , data(planes)
+        {
+        for (auto& plane : data) {
+            // each unit is a PIXEL_TYPE
+            plane.resize(width * height);
+        }
+        // copy
+        for_each([&](size_t y, size_t x, PIXEL_TYPE& pixel){
+            pixel = other.at(y, x);
+        });
+    }
+
     /// Move constructor
     image(image&& other) = delete;
     /// Destructor
@@ -351,5 +368,13 @@ void sobel_mask(const fourcc::image<fourcc::iyu2, fourcc::pixel_format::IYU2>& i
 /** Produces a Sobel Mask image */
 void sobel_mask(const fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8>& rgb_image,
                 fourcc::image<uint8_t, fourcc::pixel_format::Y8>& mask);
+
+/**
+ * Runs a 1D filter across an image
+ * @warning no gamma correction!
+ */
+void filter(fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8>& output,
+            const fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8>& input,
+            const int16_t kernel[3]);
 
 } // namespace fourcc

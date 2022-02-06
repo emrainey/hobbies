@@ -7,7 +7,13 @@
 
 #include <cmath>
 
+
 namespace fourcc {
+
+template <typename TYPE>
+TYPE clamp(TYPE value, TYPE _min, TYPE _max) {
+    return std::max(_min, std::min(value, _max));
+}
 
 void sobel_mask(const image<rgb8, pixel_format::RGB8>& rgb_image,
                 image<uint8_t, pixel_format::Y8>& mask) {
@@ -146,6 +152,33 @@ void convolve(image<int16_t, pixel_format::Y16>& out,
             div = 0;
             out.at(y, x) = value;
         }
+    }
+}
+
+// use a simple kernel like -1, 2, -1 or if you use one which does not sum to 0.
+void filter(image<rgb8, pixel_format::RGB8>& output,
+            const image<rgb8, pixel_format::RGB8>& input,
+            const int16_t kernel[3]) {
+    basal::exception::throw_unless(output.width == input.width, __FILE__, __LINE__);
+    basal::exception::throw_unless(output.height == input.height, __FILE__, __LINE__);
+    for (int y = 0; y < input.height-1; y++) {
+        output.at(y, 0) = input.at(y, 0);
+        for (int x = 1; x < input.width-1; x++) {
+            int16_t sum = kernel[0] + kernel[1] + kernel[2];
+            int16_t r = kernel[0] * input.at(y, x-1).r +
+                        kernel[1] * input.at(y, x-0).r +
+                        kernel[2] * input.at(y, x+1).r;
+            int16_t g = kernel[0] * input.at(y, x-1).g +
+                        kernel[1] * input.at(y, x-0).g +
+                        kernel[2] * input.at(y, x+1).g;
+            int16_t b = kernel[0] * input.at(y, x-1).b +
+                        kernel[1] * input.at(y, x-0).b +
+                        kernel[2] * input.at(y, x+1).b;
+            output.at(y, x).r = uint8_t(clamp<int16_t>(r / (sum == 0 ? 1 : sum), 0, 255));
+            output.at(y, x).g = uint8_t(clamp<int16_t>(g / (sum == 0 ? 1 : sum), 0, 255));
+            output.at(y, x).b = uint8_t(clamp<int16_t>(b / (sum == 0 ? 1 : sum), 0, 255));
+        }
+        output.at(y, input.width-1) = input.at(y, input.width-1);
     }
 }
 

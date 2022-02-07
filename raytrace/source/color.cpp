@@ -206,6 +206,11 @@ color color::greyscale(element_type d, element_type min, element_type max) {
     }
 }
 
+color color::random() {
+    return color(basal::rand_range(0.0, 1.0),
+                 basal::rand_range(0.0, 1.0),
+                 basal::rand_range(0.0, 1.0));
+}
 
 namespace operators {
 color operator*(const color& a, const color& b) {

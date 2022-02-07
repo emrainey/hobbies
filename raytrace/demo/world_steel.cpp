@@ -17,7 +17,6 @@ public:
         : light_subsamples(1)
         , look_from(5, -20, 20)
         , look_at(0, 0, 0)
-        , steel(colors::grey, smoothness::polished, roughness::loose)
         , plain_white(colors::white, ambient::none, colors::white, smoothness::none, roughness::tight)
         , ground(raytrace::origin, R3::basis::Z, 1)
         , light0(raytrace::point(-5, 0, 10), 1, colors::white, 10, light_subsamples)
@@ -47,14 +46,14 @@ public:
         {
             // assign surfaces and materials
             ground.material(&plain_white);
-            s1.material(&steel);
-            s2.material(&steel);
-            s3.material(&steel);
-            c1.material(&steel);
-            cyl.material(&steel);
-            cap.material(&steel);
-            t0.material(&steel);
-            cb0.material(&steel);
+            s1.material(&metals::steel);
+            s2.material(&metals::steel);
+            s3.material(&metals::steel);
+            c1.material(&metals::steel);
+            cyl.material(&metals::steel);
+            cap.material(&metals::steel);
+            t0.material(&metals::steel);
+            cb0.material(&metals::steel);
             cb0.rotation(iso::degrees(0), iso::degrees(0), iso::degrees(15));
     }
 
@@ -108,7 +107,6 @@ protected:
     element_type light_subsamples;
     raytrace::point look_from;
     raytrace::point look_at;
-    metal steel;
     plain plain_white;
     raytrace::plane ground;
     bulb light0;

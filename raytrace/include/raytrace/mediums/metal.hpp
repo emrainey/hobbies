@@ -21,4 +21,13 @@ protected:
 
 } // namespace mediums
 
+namespace metals {
+    const mediums::metal aluminum(colors::aluminum, smoothness::small, roughness::loose);
+    const mediums::metal brass(colors::brass, smoothness::polished, roughness::tight);
+    const mediums::metal chrome(colors::chrome, smoothness::polished, roughness::tight);
+    const mediums::metal copper(colors::copper, smoothness::polished, roughness::tight);
+    const mediums::metal steel(colors::steel, smoothness::polished, roughness::tight);
+    const mediums::metal tin(colors::tin, smoothness::barely, roughness::loose);
+}
+
 } // namespace raytrace

@@ -175,6 +175,10 @@ public:
      */
     static color greyscale(element_type d, element_type min, element_type max);
 
+    /**
+     * Generates a random color.
+     */
+    static color random();
 
     // Don't add interfaces as color needs to be constexpr for colors below
 };
@@ -282,6 +286,15 @@ namespace colors {
     constexpr color coffee_brown (.15234375, .2578125, .11328125);
     constexpr color beige_peach (.80078, .80078, .33203);
 
+    // metallic colors
+    constexpr color aluminum(0.91, 0.91, 0.91);
+    constexpr color brass(1.0, 0,85, 0.37);
+    constexpr color bronze(0.47, 0.34, 0.18);
+    constexpr color chrome(0.8, 0.93, 1.0);
+    constexpr color copper(0.7784315, 0.48681375, 0.1336275);
+    constexpr color stainless(0.97, 1.0, 1.0);
+    constexpr color steel(0.62, 0.62, 0.51);
+    constexpr color tin(0.72, 0.71, 0.61);
 }
 
 /** Assumes a 50% blend (uses gamma correct) */

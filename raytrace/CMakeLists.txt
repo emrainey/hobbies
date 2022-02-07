@@ -103,46 +103,14 @@ target_link_libraries(demo_curses emrainey-raytrace ncurses)
 #################################
 # WORLDS
 #################################
+set(DEMOS world_example world_spheres world_cornell
+          world_desktoy world_steel world_snowman
+          world_lenses world_planet world_spheres2)
 
-add_library(world_example SHARED
-    ${CMAKE_CURRENT_SOURCE_DIR}/demo/world_example.cpp
-)
-target_link_libraries(world_example emrainey-raytrace)
-
-add_library(world_spheres SHARED
-    ${CMAKE_CURRENT_SOURCE_DIR}/demo/world_spheres.cpp
-)
-target_link_libraries(world_spheres emrainey-raytrace)
-
-add_library(world_cornell SHARED
-    ${CMAKE_CURRENT_SOURCE_DIR}/demo/world_cornell.cpp
-)
-target_link_libraries(world_cornell emrainey-raytrace)
-
-add_library(world_desktoy SHARED
-    ${CMAKE_CURRENT_SOURCE_DIR}/demo/world_desktoy.cpp
-)
-target_link_libraries(world_desktoy emrainey-raytrace)
-
-add_library(world_steel SHARED
-    ${CMAKE_CURRENT_SOURCE_DIR}/demo/world_steel_objects.cpp
-)
-target_link_libraries(world_steel emrainey-raytrace)
-
-add_library(world_snowman SHARED
-    ${CMAKE_CURRENT_SOURCE_DIR}/demo/world_snowman.cpp
-)
-target_link_libraries(world_snowman emrainey-raytrace)
-
-add_library(world_lenses SHARED
-    ${CMAKE_CURRENT_SOURCE_DIR}/demo/world_lenses.cpp
-)
-target_link_libraries(world_lenses emrainey-raytrace)
-
-add_library(world_planet SHARED
-    ${CMAKE_CURRENT_SOURCE_DIR}/demo/world_planet.cpp
-)
-target_link_libraries(world_planet emrainey-raytrace)
+foreach(demo IN LISTS DEMOS)
+    add_library(${demo} SHARED ${CMAKE_CURRENT_SOURCE_DIR}/demo/${demo}.cpp)
+    target_link_libraries(${demo} emrainey-raytrace)
+endforeach()
 
 #####################
 # Googletests

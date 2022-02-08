@@ -65,7 +65,11 @@ public:
     vector reflection(const vector& I, const point& P) const {
         vector N = normal(P); // MAYBE (Optim) should we already have calculated the normal at this point already?
         vector nI = I.normalized(); // MAYBE (Optim) shouldn't this already be normalized?
-        return laws::reflection(N, nI);
+        vector R = laws::reflection(N, nI);
+        if (m_medium) {
+            R = R + m_medium->perturbation(P);
+        }
+        return R;
     }
 
     /** Computes the reflection ray at the surface point P given the incident ray I */

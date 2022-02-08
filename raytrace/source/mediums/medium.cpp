@@ -65,4 +65,8 @@ void medium::mapper(mapping::reducer mapper) {
     m_reducing_map = mapper;
 }
 
+raytrace::vector medium::perturbation(const raytrace::point&) const {
+    return geometry::R3::null;
+}
+
 } // namespace raytrace

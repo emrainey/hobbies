@@ -55,7 +55,7 @@ public:
     {
         raytrace::point center = look_at;
         spheres.push_back(new raytrace::sphere(center, 4.5));
-        subspheres(spheres, center, 6, 1.5, number_of_spheres);
+        subspheres(spheres, center, 6, 1.2, number_of_spheres);
         materials(mats, spheres.size());
         for (size_t s = 0; s < number_of_spheres; s++) {
             spheres[s]->material(mats[s]);

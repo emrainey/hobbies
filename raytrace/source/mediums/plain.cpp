@@ -8,9 +8,9 @@ plain::plain(const color& amb, element_type amb_scale, const color& dif, element
     : opaque()
     {
     m_ambient = amb;
-    m_ambient_scale = amb_scale;
+    m_ambient_scale = basal::clamp(0.0, amb_scale, 1.0);
     m_diffuse = dif;
-    m_smoothness = ref;
+    m_smoothness = basal::clamp(0.0, ref, 1.0);
     m_tightness = rough;
 }
 

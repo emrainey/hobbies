@@ -26,6 +26,10 @@ constexpr double epsilon = use_high_precision ? 0x1.0p-20 : 0x1.0p-10;
 // 1/(1024) == 0.000007875504032
 // 1/(1024*1024) == 0.000000953674316
 
+    inline double clamp(double min, double value, double max) {
+        return std::max(min, std::min(value, max));
+    }
+
     /*! Allows a double to be approximately equal to another double within a range */
     inline bool equals(double a, double b, double range) {
         return (std::abs(a - b) <= std::abs(range));

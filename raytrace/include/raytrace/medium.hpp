@@ -26,10 +26,13 @@ public:
 
     /** Within reflection, given the uv point of the surface, returns a diffuse color */
     virtual color diffuse(const raytrace::point& volumetric_point) const;
+
     /** Within reflection, given the uv point of the surface, returns a specular color */
     virtual color specular(const raytrace::point& volumetric_point, element_type scaling, const color& light_color) const;
+
     /** Returns the overall tightness the specular highlight (K) */
     virtual element_type specular_tightness(const raytrace::point& volumetric_point) const;
+
     /**
      * HACK "Smoothness"
      * Determines the proportion of reflected light which is coherently reflected from the surface like a mirror
@@ -71,6 +74,9 @@ public:
 
     /** Allows the mapping mechanism to be set */
     void mapper(mapping::reducer m);
+
+    /** Returns the perturbation of the normal at a given surface point */
+    virtual raytrace::vector perturbation(const raytrace::point& volumetric_point) const;
 
 protected:
     /** How bright the ambient color is in unit scale */

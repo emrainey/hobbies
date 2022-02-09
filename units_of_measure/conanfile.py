@@ -6,7 +6,7 @@ class UnitsOfMeasureConan(ConanFile):
     version = "0.7"
     settings = "os", "arch", "compiler", "build_type"
     description = "A library for defining ISO/IEC standard units of measure"
-    generators = "cmake", "cmake_paths"
+    generators = "cmake"
     requires = "gtest/1.8.1"
     url = "http://github.com/emrainey/hobbies"
     homepage = "http://github.com/emrainey/hobbies"
@@ -21,13 +21,11 @@ class UnitsOfMeasureConan(ConanFile):
 
     def package(self):
         cmake = CMake(self)
-        cmake.definitions["USE_CONAN"] = "TRUE"
         cmake.configure()
         cmake.install()
 
     def build(self):
         cmake = CMake(self)
-        cmake.definitions["USE_CONAN"] = "TRUE"
         cmake.configure()
         cmake.build()
         cmake.install()

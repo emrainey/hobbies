@@ -1,19 +1,12 @@
 cmake_minimum_required(VERSION 3.13)
 project(htm CXX)
+
+find_package(fourcc REQUIRED)
+
+# Build Everything with C++17 and full native optimizations
 set(CMAKE_CXX_STANDARD 17)
-enable_testing()
-
-if (USE_CONAN)
-include(${CMAKE_BINARY_DIR}/conan_paths.cmake)
-endif()
-
-# put find packages here
-
-if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
 add_definitions(-march=native -mtune=native)
-else()
-message(ERROR "No other native format is yet supported!")
-endif()
+enable_testing()
 
 add_library(emrainey-htm SHARED
     ${CMAKE_CURRENT_SOURCE_DIR}/source/encoders.cpp

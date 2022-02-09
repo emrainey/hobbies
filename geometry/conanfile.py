@@ -24,13 +24,13 @@ class LinAlgConan(ConanFile):
 
     def package(self):
         cmake = CMake(self)
-        cmake.definitions["USE_CONAN"] = "TRUE"
+        cmake.definitions[f"CMAKE_PROJECT_{self.name}_INCLUDE"] = f"{self.build_folder}/conan_paths.cmake"
         cmake.configure()
         cmake.install()
 
     def build(self):
         cmake = CMake(self)
-        cmake.definitions["USE_CONAN"] = "TRUE"
+        cmake.definitions[f"CMAKE_PROJECT_{self.name}_INCLUDE"] = f"{self.build_folder}/conan_paths.cmake"
         cmake.configure()
         cmake.build()
         cmake.install()

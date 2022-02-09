@@ -10,7 +10,7 @@ class BasalConan(ConanFile):
     version = "0.5"
     settings = "os", "arch", "compiler", "build_type"
     description = "A simple library which extend base features"
-    generators = "cmake", "cmake_paths"
+    generators = "cmake"
     requires = "gtest/1.8.1"
     url = "http://github.com/emrainey/hobbies"
     homepage = "http://github.com/emrainey/hobbies"
@@ -26,13 +26,11 @@ class BasalConan(ConanFile):
     def package(self):
         """ Creates the Conan package after the build """
         cmake = CMake(self)
-        cmake.definitions["USE_CONAN"] = "TRUE"
         cmake.configure()
         cmake.install()
 
     def build(self):
         cmake = CMake(self)
-        cmake.definitions["USE_CONAN"] = "TRUE"
         cmake.configure()
         cmake.build()
         cmake.install()

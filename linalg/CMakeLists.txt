@@ -1,22 +1,15 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.22.0)
 project(linalg CXX)
-set(CMAKE_CXX_STANDARD 17)
-enable_testing()
-
-if (USE_CONAN)
-include(${CMAKE_BINARY_DIR}/conan_paths.cmake)
-endif()
 
 find_package(OpenCV REQUIRED)
 find_package(basal REQUIRED)
 find_package(units_of_measure REQUIRED)
 find_package(fourcc REQUIRED)
 
-if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+# Build Everything with C++17 and full native optimizations
+set(CMAKE_CXX_STANDARD 17)
 add_definitions(-march=native -mtune=native)
-else()
-message(ERROR "No other native format is yet supported!")
-endif()
+enable_testing()
 
 add_library(emrainey-linalg SHARED
     ${CMAKE_CURRENT_SOURCE_DIR}/source/matrix.cpp

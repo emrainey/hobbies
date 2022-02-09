@@ -1,11 +1,5 @@
-cmake_minimum_required(VERSION 3.13)
-project(linalg CXX)
-set(CMAKE_CXX_STANDARD 17)
-enable_testing()
-
-if (USE_CONAN)
-include(${CMAKE_BINARY_DIR}/conan_paths.cmake)
-endif()
+cmake_minimum_required(VERSION 3.22.0)
+project(linalg-utils CXX)
 
 find_package(OpenCV REQUIRED)
 find_package(GTest REQUIRED)
@@ -15,11 +9,10 @@ find_package(fourcc REQUIRED)
 find_package(linalg REQUIRED)
 find_package(geometry REQUIRED)
 
-if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+# Build Everything with C++17 and full native optimizations
+set(CMAKE_CXX_STANDARD 17)
 add_definitions(-march=native -mtune=native)
-else()
-message(ERROR "No other native format is yet supported!")
-endif()
+enable_testing()
 
 
 if (${OpenCV_FOUND})

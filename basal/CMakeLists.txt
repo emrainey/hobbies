@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.22.0)
-project(basal
-    VERSION 0.7
-    LANGUAGES CXX)
+project(basal CXX)
 set(CMAKE_CXX_STANDARD 17)
 enable_testing()
 

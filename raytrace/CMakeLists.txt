@@ -1,11 +1,5 @@
-cmake_minimum_required(VERSION 3.13)
-project(linalg CXX)
-set(CMAKE_CXX_STANDARD 17)
-enable_testing()
-
-if (USE_CONAN)
-include(${CMAKE_BINARY_DIR}/conan_paths.cmake)
-endif()
+cmake_minimum_required(VERSION 3.22.0)
+project(raytrace CXX)
 
 find_package(OpenCV REQUIRED)
 find_package(OpenMP REQUIRED)
@@ -18,11 +12,10 @@ find_package(geometry REQUIRED)
 find_package(noise REQUIRED)
 find_package(xmmt REQUIRED)
 
-if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+# Build Everything with C++17 and full native optimizations
+set(CMAKE_CXX_STANDARD 17)
 add_definitions(-march=native -mtune=native)
-else()
-message(ERROR "No other native format is yet supported!")
-endif()
+enable_testing()
 
 add_library(emrainey-raytrace SHARED
     ${CMAKE_CURRENT_SOURCE_DIR}/source/camera.cpp

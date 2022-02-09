@@ -26,9 +26,13 @@ protected:
 
 namespace metals {
     const mediums::metal aluminum(colors::aluminum, smoothness::small, roughness::loose);
-    const mediums::metal brass(colors::brass, smoothness::polished, roughness::tight);
-    const mediums::metal chrome(colors::chrome, smoothness::polished, roughness::tight);
-    const mediums::metal copper(colors::copper, smoothness::polished, roughness::tight);
+    const mediums::metal brass(colors::brass, smoothness::polished - 0.1, roughness::tight);
+    const mediums::metal bronze(colors::bronze, smoothness::small, roughness::loose);
+    const mediums::metal chrome(colors::chrome, smoothness::polished + 0.2, roughness::tight);
+    const mediums::metal copper(colors::copper, smoothness::polished + 0.2, roughness::tight);
+    const mediums::metal gold(colors::gold, smoothness::polished, roughness::tight);
+    const mediums::metal silver(colors::silver, smoothness::polished + 0.2, roughness::tight);
+    const mediums::metal stainless(colors::stainless, smoothness::polished + 0.2, roughness::tight);
     const mediums::metal steel(colors::steel, smoothness::polished, roughness::tight);
     const mediums::metal tin(colors::tin, smoothness::barely, roughness::loose);
 }

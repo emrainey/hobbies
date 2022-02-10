@@ -5,6 +5,8 @@
  * @copyright Copyright 2019 (C) Erik Rainey.
  */
 
+#include <chrono>
+#include <cstddef>
 #include "neuralnet/input.hpp"
 #include "neuralnet/hidden.hpp"
 #include "neuralnet/output.hpp"

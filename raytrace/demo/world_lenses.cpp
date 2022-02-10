@@ -7,7 +7,6 @@
  */
 
 #include <raytrace/raytrace.hpp>
-#include <basal/options.hpp>
 #include "world.hpp"
 
 using namespace raytrace;

@@ -1,7 +1,6 @@
-cmake_minimum_required(VERSION 3.22.0)
+cmake_minimum_required(VERSION 3.20.0)
 project(linalg CXX)
 
-find_package(OpenCV REQUIRED)
 find_package(basal REQUIRED)
 find_package(units_of_measure REQUIRED)
 find_package(fourcc REQUIRED)

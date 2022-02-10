@@ -1,7 +1,10 @@
 
 #include "basal/exception.hpp"
 
+#if defined(__linux__) || defined(__APPLE__)
 #include <execinfo.h>
+#endif
+#include <cstdarg>
 #include <csignal>
 #include <cstdlib>
 #include <cstring>
@@ -18,6 +21,7 @@ exception::exception(std::string desc, std::string loc, std::size_t line)
          , location(loc)
          , line_number(line)
          {
+#if defined(__linux__) || defined(__APPLE__)             
     if (support_backtrace) {
         size = backtrace(stack.data(), stack.size());
         // print out all the frames to stderr
@@ -65,7 +69,12 @@ exception::exception(std::string desc, std::string loc, std::size_t line)
             }
             free(stack_strings);
         }
+    } else {
+        description.append("Backtraces disabled\n");
     }
+#else 
+    description.append("Backtraces not supported\n");
+#endif    
 }
 
 exception::~exception() {}

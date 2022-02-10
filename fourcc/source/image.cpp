@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <cstring>
 #include <cinttypes>
 #include <filesystem>
 #include "fourcc/image.hpp"

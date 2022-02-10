@@ -5,6 +5,8 @@
  * @copyright Copyright 2020 (C) Erik Rainey.
  */
 
+#include <limits>
+
 #include <basal/exception.hpp>
 
 /** The Geometry Namespace */

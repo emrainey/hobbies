@@ -1,4 +1,4 @@
-
+#include <cassert>
 #include "raytrace/camera.hpp"
 #include "iso/radians.hpp"
 #include <linalg/linalg.hpp>

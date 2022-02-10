@@ -1,4 +1,5 @@
 #include <tuple>
+#include <cassert>
 #include "raytrace/scene.hpp"
 
 namespace raytrace {

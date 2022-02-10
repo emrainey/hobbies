@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22.0)
+cmake_minimum_required(VERSION 3.20.0)
 project(raytrace CXX)
 
 find_package(OpenCV REQUIRED)
@@ -76,7 +76,7 @@ target_include_directories(emrainey-raytrace
 # DEMOS
 ################
 
-
+if (OpenCV_FOUND)
 add_executable(demo_sphere_surfaces
     ${CMAKE_CURRENT_SOURCE_DIR}/demo/main_sphere_surfaces.cpp
 )
@@ -86,6 +86,7 @@ add_executable(demo_raytrace_loader
     ${CMAKE_CURRENT_SOURCE_DIR}/demo/main_opencv.cpp
 )
 target_link_libraries(demo_raytrace_loader ${OpenCV_LIBS} emrainey-raytrace LinalgUtils::emrainey-linalg-utils)
+endif()
 
 add_executable(demo_curses
     ${CMAKE_CURRENT_SOURCE_DIR}/demo/main_console.cpp

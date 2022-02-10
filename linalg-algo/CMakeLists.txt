@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22.0)
+cmake_minimum_required(VERSION 3.20.0)
 project(linalg-algo CXX)
 
 find_package(OpenCV REQUIRED)
@@ -13,6 +13,7 @@ find_package(linalg-utils REQUIRED)
 set(CMAKE_CXX_STANDARD 17)
 enable_testing()
 
+if (OpenCV_FOUND)
 add_library(emrainey-linalg-algo SHARED
     ${CMAKE_CURRENT_SOURCE_DIR}/source/kmeans.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/dkf.cpp
@@ -55,15 +56,14 @@ install(DIRECTORY include/linalg
 install(FILES "cmake/Findlinalg-algo.cmake" "cmake/linalg-algo-config.cmake"
     DESTINATION share/cmake/linalg-algo
 )
+
 #####################
 # Demos
 #####################
 
-if (${OpenCV_FOUND})
-    add_executable(demo_kmeans ${CMAKE_CURRENT_SOURCE_DIR}/demo/demo_kmeans.cpp)
-    target_include_directories(demo_kmeans PRIVATE ${OpenCV_INCLUDE_DIRS})
-    target_link_libraries(demo_kmeans emrainey-linalg-algo)
-endif()
+add_executable(demo_kmeans ${CMAKE_CURRENT_SOURCE_DIR}/demo/demo_kmeans.cpp)
+target_include_directories(demo_kmeans PRIVATE ${OpenCV_INCLUDE_DIRS})
+target_link_libraries(demo_kmeans emrainey-linalg-algo)
 
 #####################
 # Build Documentation
@@ -76,3 +76,5 @@ if (${Doxygen_FOUND})
         ${CMAKE_CURRENT_SOURCE_DIR}/include/linalg
         COMMENT "Linalg + Algo Doxygen")
 endif()
+
+endif() # OpenCV

@@ -1,5 +1,6 @@
 
 #include <cmath>
+#include <cassert>
 #include <basal/basal.hpp>
 #include "geometry/point.hpp"
 #include "geometry/line.hpp"

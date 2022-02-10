@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22.0)
+cmake_minimum_required(VERSION 3.20.0)
 project(linalg-utils CXX)
 
 find_package(OpenCV REQUIRED)
@@ -13,8 +13,7 @@ find_package(geometry REQUIRED)
 set(CMAKE_CXX_STANDARD 17)
 enable_testing()
 
-
-if (${OpenCV_FOUND})
+if (OpenCV_FOUND)
 add_library(emrainey-linalg-utils SHARED)
 target_sources(emrainey-linalg-utils
     PRIVATE
@@ -33,7 +32,6 @@ target_include_directories(emrainey-linalg-utils
         $<INSTALL_INTERFACE:include>
         ${OpenCV_INCLUDE_DIRS}
 )
-endif()
 
 #####################
 # EXPORTS
@@ -63,7 +61,6 @@ install(FILES "cmake/Findlinalg-utils.cmake" "cmake/linalg-utils-config.cmake"
 # Demos
 #####################
 
-if (${OpenCV_FOUND})
 add_executable(demo_least_squares ${CMAKE_CURRENT_SOURCE_DIR}/demo/demo_least_squares.cpp)
 target_include_directories(demo_least_squares PRIVATE ${OpenCV_INCLUDE_DIRS})
 target_link_libraries(demo_least_squares emrainey-linalg-utils)
@@ -71,7 +68,6 @@ target_link_libraries(demo_least_squares emrainey-linalg-utils)
 add_executable(demo_images ${CMAKE_CURRENT_SOURCE_DIR}/demo/demo_images.cpp)
 target_include_directories(demo_images PRIVATE ${OpenCV_INCLUDE_DIRS})
 target_link_libraries(demo_images emrainey-linalg-utils)
-endif()
 
 #####################
 # Build Documentation
@@ -84,3 +80,5 @@ if (${Doxygen_FOUND})
         ${CMAKE_CURRENT_SOURCE_DIR}/include/linalg
         COMMENT "Linalg Doxygen")
 endif()
+
+endif() # OpenCV

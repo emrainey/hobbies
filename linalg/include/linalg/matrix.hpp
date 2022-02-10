@@ -192,6 +192,8 @@ public:
      */
     matrix resize(size_t rs, size_t cs) noexcept(false);
 
+#undef minor // somewhere deep in Unix land this is used to make minor numbers
+
     /** Returns the determinant of the sub matrix */
     element_type minor(size_t number_of_rows, size_t number_of_columns) const;
     /** Returns a matrix of the minors of the object matrix */

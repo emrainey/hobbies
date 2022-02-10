@@ -61,9 +61,9 @@ for pkg in "${PKGS[@]}"; do
             -DCMAKE_PREFIX_PATH:PATH=${INSTALL_ROOT} \
             -DCMAKE_VERBOSE_MAKEFILE:BOOL=${VERBOSE} \
             -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE \
-            -DCMAKE_BUILD_TYPE:STRING=Release \
-            -DCMAKE_C_COMPILER:FILEPATH=/usr/bin/clang \
-            -DCMAKE_CXX_COMPILER:FILEPATH=/usr/bin/clang++
+            -DCMAKE_BUILD_TYPE:STRING=Release 
+            #-DCMAKE_C_COMPILER:FILEPATH=/usr/bin/clang \
+            #-DCMAKE_CXX_COMPILER:FILEPATH=/usr/bin/clang++
         cmake --build $pkg/build -j${JOBS}
         if [[ ${RUN_TESTS} -eq 1 ]]; then
             cmake --build $pkg/build --target test

@@ -4,7 +4,7 @@
  * Common header of the linear algebra library.
  * @copyright Copyright 2019 (C) Erik Rainey.
  */
-
+#include <limits>
 #include <basal/exception.hpp>
 
 /** The Linear Algebra Library Namespace */

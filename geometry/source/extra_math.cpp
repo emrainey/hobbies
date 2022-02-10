@@ -1,6 +1,4 @@
-
-/*! This header is to declare cross object math operations */
-
+#include <cassert>
 #include "geometry/extra_math.hpp"
 
 namespace geometry {

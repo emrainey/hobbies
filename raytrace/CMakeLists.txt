@@ -14,7 +14,6 @@ find_package(xmmt REQUIRED)
 
 # Build Everything with C++17 and full native optimizations
 set(CMAKE_CXX_STANDARD 17)
-add_definitions(-march=native -mtune=native)
 enable_testing()
 
 add_library(emrainey-raytrace SHARED
@@ -60,7 +59,7 @@ add_library(emrainey-raytrace SHARED
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/triangle.cpp
 )
 target_link_libraries(emrainey-raytrace
-    PUBLIC Linalg::emrainey-linalg Fourcc::emrainey-fourcc Noise::emrainey-noise Geometry::emrainey-geometry Xmmt::emrainey-xmmt
+    PUBLIC Linalg::emrainey-linalg Fourcc::emrainey-fourcc Noise::emrainey-noise Geometry::emrainey-geometry Xmmt::emrainey-xmmt Basal::native-optimized
     PRIVATE OpenMP::OpenMP_CXX
 )
 target_include_directories(emrainey-raytrace

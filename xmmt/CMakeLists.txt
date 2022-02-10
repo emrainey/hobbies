@@ -3,9 +3,8 @@ project(xmmt CXX)
 
 find_package(basal REQUIRED)
 
-# Build Everything with C++17 and full native optimizations
+# Build Everything with C++17
 set(CMAKE_CXX_STANDARD 17)
-add_definitions(-march=native -mtune=native)
 enable_testing()
 
 add_library(emrainey-xmmt INTERFACE)
@@ -17,7 +16,7 @@ target_include_directories(emrainey-xmmt INTERFACE
     # Install Tree
     $<INSTALL_INTERFACE:include>
 )
-target_link_libraries(emrainey-xmmt INTERFACE Basal::emrainey-basal)
+target_link_libraries(emrainey-xmmt INTERFACE Basal::emrainey-basal Basal::native-optimized)
 
 #####################
 # EXPORTS

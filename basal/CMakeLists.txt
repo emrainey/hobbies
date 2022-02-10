@@ -3,6 +3,13 @@ project(basal CXX)
 set(CMAKE_CXX_STANDARD 17)
 enable_testing()
 
+add_library(native-optimized INTERFACE)
+if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU|Clang")
+target_compile_options(native-optimized INTERFACE -march=native -mtune=native)
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" AND CMAKE_SYSTEM_PROCESSOR STREQUAL "x64_64")
+target_compile_options(native-optimized INTERFACE /arch:AVX2)
+endif()
+
 add_library(emrainey-basal SHARED)
 target_sources(emrainey-basal
     PRIVATE
@@ -21,7 +28,7 @@ target_include_directories(emrainey-basal PUBLIC
 )
 
 # Declare installs and exports
-install(TARGETS emrainey-basal EXPORT BasalTargets
+install(TARGETS emrainey-basal native-optimized EXPORT BasalTargets
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
     RUNTIME DESTINATION bin

@@ -12,7 +12,6 @@ find_package(xmmt REQUIRED)
 
 # Build Everything with C++17 and full native optimizations
 set(CMAKE_CXX_STANDARD 17)
-add_definitions(-march=native -mtune=native)
 enable_testing()
 
 add_library(emrainey-noise SHARED

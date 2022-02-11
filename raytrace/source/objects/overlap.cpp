@@ -10,7 +10,7 @@ using namespace linalg::operators;
 overlap::overlap(const object& A, const object& B, overlap::type type) : m_A(A), m_B(B), m_type(type) {}
 
 vector  overlap::normal(const point& world_surface_point) const {
-    // FIXME (overlap) how to properly determine which object the point belongs to?
+    // normals are computed from points where the objects have a collision, this it should be a surface point.
     raytrace::point overlap_point = reverse_transform(world_surface_point);
     vector vA = m_A.normal(overlap_point);
     vector vB = m_B.normal(overlap_point);

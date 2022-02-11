@@ -100,7 +100,7 @@ public:
     }
 
     /**
-     * Returns the normal to the surface given an world space point.
+     * Returns the normal to the surface given an world space point which is presumed to be the collision point, thus on the surface.
      * @param world_surface_point The point on the object to use.
      * @warning It is assumed that the point given is an intersection point.
      * @retval R3::null indicates that the point is not on the surface.

@@ -65,13 +65,15 @@ scene::intersect_set scene::nearest_object(const ray& world_ray,
     for (size_t i = 0; i < intersections.size(); i++) {
         const geometry::intersection& inter = intersections[i];
         if (get_type(inter) == IntersectionType::Point) {
+            if constexpr (debug) {
+                std::cout << inter << std::endl;
+            }
             // find the distance
             vector D = as_point(inter) - world_ray.location();
             element_type distance2 = D.quadrance();
             // distance can't be negative but can be zero
             // which means the world_ray is already touching so we don't need to care about that?
             if (basal::epsilon < distance2 and distance2 < closest_distance2) {
-                // copy assign
                 closest_distance2 = distance2;
                 closest_intersection = inter;
                 closest_object = objects[i];
@@ -79,16 +81,16 @@ scene::intersect_set scene::nearest_object(const ray& world_ray,
         } else if (get_type(inter) == IntersectionType::Points) {
             // returns two points, check each one.
             set_of_points sop = as_points(inter);
-            std::cout << inter << std::endl;
+            if constexpr (debug) {
+                std::cout << inter << std::endl;
+            }
             for (size_t j = 0; j < sop.size(); j++) {
                 vector D = sop[j] - world_ray.location();
                 element_type distance2 = D.quadrance();
                 if (basal::epsilon < distance2 and distance2 < closest_distance2) {
-                    // copy assign
                     closest_distance2 = distance2;
                     closest_intersection = intersection(sop[j]);
                     closest_object = objects[i];
-                    // FIXME (Scene) what if the normal is incorrect? why would it be incorrect?
                 }
             }
         }

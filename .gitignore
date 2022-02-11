@@ -49,5 +49,8 @@
 *.ppm
 *.tga
 
+# Trainging data and t10k data
+*-ubyte
+
 # Ignore the render image that the OpenCV version makes
 render_image.png

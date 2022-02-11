@@ -18,7 +18,6 @@ add_library(emrainey-neuralnet SHARED
     ${CMAKE_CURRENT_SOURCE_DIR}/source/matrix.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/mnist.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/network.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/neuralnet.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/output.cpp
 )
 target_link_libraries(emrainey-neuralnet Basal::emrainey-basal Linalg::emrainey-linalg LinalgUtils::emrainey-linalg-utils ${OpenCV_LIBS})
@@ -38,6 +37,9 @@ target_include_directories(emrainey-neuralnet
 
 add_executable(demo_neuralnet ${CMAKE_CURRENT_SOURCE_DIR}/demo/neuralnet_counter.cpp)
 target_link_libraries(demo_neuralnet emrainey-neuralnet ${OpenCV_LIBS})
+
+add_executable(neuralnet ${CMAKE_CURRENT_SOURCE_DIR}/source/neuralnet.cpp)
+target_link_libraries(neuralnet emrainey-neuralnet ${OpenCV_LIBS})
 
 #####################
 # Build Documentation

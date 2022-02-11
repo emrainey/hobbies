@@ -1,4 +1,5 @@
 
+#include <basal/options.hpp>
 #include "neuralnet/neuralnet.hpp"
 #include <unistd.h>
 
@@ -10,7 +11,19 @@ constexpr double alpha = -0.25;
 constexpr double gamma = -0.9;
 }
 
-int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused))) {
+int main(int argc, char *argv[]) {
+
+    std::string training_labels("train-labels-idx1-ubyte");
+    std::string training_images("train-images-idx3-ubyte");
+    std::string data_labels("t10k-labels-idx1-ubyte");
+    std::string data_images("t10k-images-idx3-ubyte");
+
+     basal::options::config opts[] = {
+        {"-tl", "--train-labels", training_labels.c_str(), "Training Data Labels"},
+        {"-ti", "--train-images", training_images.c_str(), "Training Data Images"},
+        {"-dl", "--data-labels", data_labels.c_str(), "Data Labels"},
+        {"-di", "--data-images", data_images.c_str(), "Data Images"},
+    };
     try {
         constexpr const uint32_t num = nn::mnist::inputs;
         char path[256] = {0};
@@ -31,11 +44,18 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
         // these are the visualization images of the hidden layers
         const char *named_i1 = "input";
 
-        nn::mnist learning("train-labels-idx1-ubyte", "train-images-idx3-ubyte", 6000);
+        basal::options::process(opts, argc, argv);
+        basal::options::find(opts, "--train-labels", training_labels);
+        basal::options::find(opts, "--train-images", training_images);
+        basal::options::find(opts, "--data-labels", data_labels);
+        basal::options::find(opts, "--data-images", data_images);
+        basal::options::print(opts);
+
+        nn::mnist learning(training_labels, training_images, 6000);
         if (not learning.load()) {
             return -1;
         }
-        nn::mnist testdata("t10k-labels-idx1-ubyte", "t10k-images-idx3-ubyte", 1000);
+        nn::mnist testdata(data_labels, data_images, 1000);
         if (not testdata.load()) {
             return -1;
         }

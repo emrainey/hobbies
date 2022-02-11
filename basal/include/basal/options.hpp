@@ -6,10 +6,15 @@
 
 #include <string>
 #include <cstdint>
+#include <cstddef>
+#include <cinttypes>
 #include <algorithm>
 #include <variant>
 #include <cstdio>
-#include <inttypes.h>
+
+#ifndef PRIz
+#define PRIz "%zu"
+#endif
 
 namespace basal {
 namespace options {
@@ -40,7 +45,7 @@ void process(config (&options)[NUM_OPTS], int argc, char *argv[]) {
                     size_t v = 0;
                     sscanf(argv[i+1], "%" PRIz, &v);
                     options[j].value = v;
-                }  else if (std::holds_alternative<double>(options[j].value)) {
+                } else if (std::holds_alternative<double>(options[j].value)) {
                     double v;
                     sscanf(argv[i+1], "%lf", &v);
                     options[j].value = v;

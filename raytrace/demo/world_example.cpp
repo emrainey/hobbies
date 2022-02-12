@@ -104,7 +104,7 @@ public:
     }
 
     std::string output_filename() const override {
-        return std::string("world_example.ppm");
+        return std::string("world_example.tga");
     }
 
     raytrace::color background(const raytrace::ray&) const override {

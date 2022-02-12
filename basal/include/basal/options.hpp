@@ -5,6 +5,7 @@
  */
 
 #include <string>
+#include <cstring>
 #include <cstdint>
 #include <cstddef>
 #include <cinttypes>

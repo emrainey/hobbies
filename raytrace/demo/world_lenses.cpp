@@ -67,7 +67,7 @@ public:
     }
 
     std::string output_filename() const override {
-        return std::string("world_lenses.ppm");
+        return std::string("world_lenses.tga");
     }
 
     raytrace::color background(const raytrace::ray& world_ray) const override {

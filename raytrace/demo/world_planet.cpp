@@ -52,7 +52,7 @@ public:
     }
 
     std::string output_filename() const override {
-        return std::string("world_planet.ppm");
+        return std::string("world_planet.tga");
     }
 
     raytrace::color background(const raytrace::ray& world_ray) const override {

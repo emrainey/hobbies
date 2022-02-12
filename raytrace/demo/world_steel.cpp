@@ -69,7 +69,7 @@ public:
     }
 
     std::string output_filename() const override {
-        return std::string("world_steel.ppm");
+        return std::string("world_steel.tga");
     }
 
     raytrace::color background(const raytrace::ray& world_ray) const override {

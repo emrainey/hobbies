@@ -57,7 +57,7 @@ public:
     }
 
     std::string output_filename() const override {
-        return std::string("world_cornell.ppm");
+        return std::string("world_cornell.tga");
     }
 
     raytrace::color background(const raytrace::ray&) const override {

@@ -76,7 +76,7 @@ public:
     }
 
     std::string output_filename() const override {
-        return std::string("world_spheres.ppm");
+        return std::string("world_spheres.tga");
     }
 
     raytrace::color background(const raytrace::ray&) const override {

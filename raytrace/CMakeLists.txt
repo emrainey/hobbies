@@ -86,6 +86,11 @@ add_executable(demo_raytrace_loader
     ${CMAKE_CURRENT_SOURCE_DIR}/demo/main_opencv.cpp
 )
 target_link_libraries(demo_raytrace_loader ${OpenCV_LIBS} emrainey-raytrace LinalgUtils::emrainey-linalg-utils)
+
+add_executable(demo_random_tuner
+    ${CMAKE_CURRENT_SOURCE_DIR}/demo/main_random_tuner.cpp
+)
+target_link_libraries(demo_random_tuner ${OpenCV_LIBS} emrainey-raytrace LinalgUtils::emrainey-linalg-utils)
 endif()
 
 add_executable(demo_curses

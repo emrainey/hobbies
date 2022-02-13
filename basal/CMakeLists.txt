@@ -5,7 +5,7 @@ enable_testing()
 
 add_library(native-optimized INTERFACE)
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU|Clang")
-target_compile_options(native-optimized INTERFACE -march=native -mtune=native)
+target_compile_options(native-optimized INTERFACE -ggdb -march=native -mtune=native)
 # add -pg above (might have problems in shared object environment w/ multiple symbols)
 # target_link_options(native-optimized INTERFACE -pg)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" AND CMAKE_SYSTEM_PROCESSOR STREQUAL "x64_64")

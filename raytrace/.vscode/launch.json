@@ -22,7 +22,18 @@
         }
     ],
     "configurations": [
-
+        {
+            "name": "(lldb) Launch Random Tuner",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/demo_random_tuner",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb"
+        },
         {
             "type": "lldb-mi",
             "request": "launch",

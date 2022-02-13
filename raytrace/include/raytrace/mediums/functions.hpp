@@ -72,4 +72,33 @@ color pseudo_random_noise(const image::point& p, const palette& pal);
 
 } // namespace functions
 
+namespace tuning {
+class prn_parameters {
+public:
+    double gain;
+    double radius;
+    iso::radians theta_r;
+    iso::radians theta_g;
+    iso::radians theta_b;
+    noise::vector vec_r;
+    noise::vector vec_g;
+    noise::vector vec_b;
+    bool _initialized;
+
+    // Constructs and initializes the values
+    prn_parameters();
+
+    // initializes the values
+    void initialize(bool again = false);
+
+    // updates the vectors from the angles
+    void update();
+};
+
+// the structure used with pseudo random noise
+extern prn_parameters pseudo_random_noise_params;
+
+} // namespace tuning
+
+
 } // namespace raytrace

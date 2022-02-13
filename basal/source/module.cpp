@@ -29,7 +29,7 @@ module::module(const char name[])
         if (handle == nullptr) {
             printf("Load failed: %s\r\n", dlerror());
         } else {
-            printf("Load passed %s\r\n", buffer, dlerror());
+            printf("Load passed for %s (error: %s)\r\n", buffer, dlerror());
         }
     }
     printf("Loaded into %p handle\r\n", handle);

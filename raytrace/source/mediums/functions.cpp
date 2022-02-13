@@ -184,14 +184,10 @@ color grid(const raytrace::point& p, const palette& pal) {
 
 color pseudo_random_noise(const image::point& p, const palette& pal __attribute__((unused))) {
     noise::vector vec{{p.x, p.y}};
-    // each point just gets a pixel value
-    noise::vector vec_r{{ -2.199848, 7.345820}};
-    noise::vector vec_g{{  9.810393, 2.928390}};
-    noise::vector vec_b{{ -8.320293,-9.908293}};
-    double gain = 23.83;
-    double _r, r = noise::random(vec, vec_r, gain);
-    double _g, g = noise::random(vec, vec_g, gain);
-    double _b, b = noise::random(vec, vec_b, gain);
+    vec = (vec == geometry::R2::null) ? geometry::R2::null : vec.normalized();
+    double _r, r = noise::random(vec, tuning::pseudo_random_noise_params.vec_r, tuning::pseudo_random_noise_params.gain);
+    double _g, g = noise::random(vec, tuning::pseudo_random_noise_params.vec_g, tuning::pseudo_random_noise_params.gain);
+    double _b, b = noise::random(vec, tuning::pseudo_random_noise_params.vec_b, tuning::pseudo_random_noise_params.gain);
     color out(std::modf(r, &_r) * 255,
               std::modf(g, &_g) * 255,
               std::modf(b, &_b) * 255);
@@ -199,5 +195,42 @@ color pseudo_random_noise(const image::point& p, const palette& pal __attribute_
 }
 
 } // namespace functions
+
+
+namespace tuning {
+
+prn_parameters::prn_parameters() : _initialized(false) {
+    initialize();
+}
+
+void prn_parameters::initialize(bool again) {
+    if (not _initialized or (_initialized and again)) {
+        gain = 1.0;
+        radius = 1.0;
+        theta_r = iso::radians(iso::pi * 0.5);
+        theta_g = iso::radians(iso::pi * 0.2);
+        theta_b = iso::radians(iso::pi * 0.8);
+        _initialized = true;
+    }
+}
+
+void prn_parameters::update() {
+    vec_r[0] = radius * std::cos(theta_r.value);
+    vec_r[1] = radius * std::sin(theta_r.value);
+    vec_g[0] = radius * std::cos(theta_g.value);
+    vec_g[1] = radius * std::sin(theta_g.value);
+    vec_b[0] = radius * std::cos(theta_b.value);
+    vec_b[1] = radius * std::sin(theta_b.value);
+
+    std::cout << "Gain: " << gain << " Radius: " << radius << std::endl;
+    std::cout << "Theta R/pi: " << theta_r.value/iso::pi << " Vec R: " << vec_r << std::endl;
+    std::cout << "Theta G/pi: " << theta_g.value/iso::pi << " Vec G: " << vec_g << std::endl;
+    std::cout << "Theta B/pi: " << theta_b.value/iso::pi << " Vec B: " << vec_b << std::endl;
+}
+
+// The global instance of the parameters used by the pseudo_random_noise
+prn_parameters pseudo_random_noise_params;
+
+} //namespace tuning
 
 } // namespace raytrace

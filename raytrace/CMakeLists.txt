@@ -102,7 +102,7 @@ target_link_libraries(demo_curses emrainey-raytrace ncurses)
 # WORLDS
 #################################
 set(DEMOS world_example world_spheres world_cornell
-          world_desktoy world_steel world_snowman
+          world_desktoy world_monochrome world_snowman
           world_lenses world_planet world_spheres2)
 
 foreach(demo IN LISTS DEMOS)

@@ -10,9 +10,9 @@
 
 using namespace raytrace;
 
-class SteelWorld : public world {
+class MonochromeWorld : public world {
 public:
-    SteelWorld()
+    MonochromeWorld()
         : light_subsamples(1)
         , look_from(5, -20, 20)
         , look_at(0, 0, 0)
@@ -45,14 +45,14 @@ public:
         {
             // assign surfaces and materials
             ground.material(&plain_white);
-            s1.material(&metals::steel);
-            s2.material(&metals::steel);
-            s3.material(&metals::steel);
-            c1.material(&metals::steel);
-            cyl.material(&metals::steel);
-            cap.material(&metals::steel);
-            t0.material(&metals::steel);
-            cb0.material(&metals::steel);
+            s1.material(&metals::stainless);
+            s2.material(&metals::stainless);
+            s3.material(&metals::stainless);
+            c1.material(&metals::stainless);
+            cyl.material(&metals::stainless);
+            cap.material(&metals::stainless);
+            t0.material(&metals::stainless);
+            cb0.material(&metals::stainless);
             cb0.rotation(iso::degrees(0), iso::degrees(0), iso::degrees(15));
     }
 
@@ -65,11 +65,11 @@ public:
     }
 
     std::string window_name() const override {
-        return std::string("Steel World");
+        return std::string("Monochrome World");
     }
 
     std::string output_filename() const override {
-        return std::string("world_steel.tga");
+        return std::string("world_monochrome.tga");
     }
 
     raytrace::color background(const raytrace::ray& world_ray) const override {
@@ -135,6 +135,6 @@ protected:
 
 // declare a single instance and return the reference to it
 world* get_world() {
-    static SteelWorld my_world;
+    static MonochromeWorld my_world;
     return &my_world;
 }

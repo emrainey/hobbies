@@ -80,7 +80,7 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
 
         if (should_render) {
             raytrace::tuning::pseudo_random_noise_params.update();
-            raytrace::palette colors = {raytrace::colors::black};
+            raytrace::palette colors = {raytrace::colors::black};  // unused
             random_noise_image.generate_each([&](const raytrace::image::point& pnt) {
                 raytrace::image::point uv((pnt.x / random_noise_image.width) - 0.5,
                                           (pnt.y / random_noise_image.height) - 0.5);

@@ -5,21 +5,15 @@ using namespace raytrace;
 using namespace raytrace::colors;
 using namespace raytrace::operators;
 
-
+// Good results at values of depth=8, subsamples=16, 1024x768, fov=23
 class PlanetWorld : public world {
 public:
     PlanetWorld()
-        : look_from(50, 0, 34)
-        , look_at(8, 8, 10)
-        //, reflection_depth(8)
-        //, subsamples(16)
-        //, image_height(768)
-        //, image_width(1024)
-        //, field_of_view(23)
-        , steel(colors::white, smoothness::polished, roughness::loose)
-        , beam_of_light(raytrace::vector{-20, 0, -21}, colors::white, 1E3)
-        , inner_light(raytrace::point(0, 0, 80), colors::white, 1E11)
-        , center(0, 0, 10)
+        : look_from(0, 50, 10)
+        , look_at(8, 0, 0)
+        , sunrays(raytrace::vector{-20, 0, -21}, colors::white, 1E4)
+        , inner_light(raytrace::point(0, 0, 80), colors::white, 1E12)
+        , center(0, 0, 0)
         , ringA(center, R3::basis::Z, 10.0, 11.8)
         , ringB(center, R3::basis::Z, 12.0, 12.2)
         , ringC(center, R3::basis::Z, 12.4, 13.2)
@@ -28,13 +22,13 @@ public:
         , ringF(center, R3::basis::Z, 15.0, 16.7)
         , planet(center, 7.5)
         {
-        planet.material(&steel);
-        ringA.material(&steel);
-        ringB.material(&steel);
-        ringC.material(&steel);
-        ringD.material(&steel);
-        ringE.material(&steel);
-        ringF.material(&steel);
+        planet.material(&metals::stainless);
+        ringA.material(&metals::stainless);
+        ringB.material(&metals::stainless);
+        ringC.material(&metals::stainless);
+        ringD.material(&metals::stainless);
+        ringE.material(&metals::stainless);
+        ringF.material(&metals::stainless);
     }
 
     ~PlanetWorld() = default;
@@ -56,11 +50,13 @@ public:
     }
 
     raytrace::color background(const raytrace::ray& world_ray) const override {
+        // FIXME add starfield background
         return colors::black;
     }
 
     void add_to(scene& scene) override {
-        scene.add_light(&inner_light);
+        //scene.add_light(&inner_light);
+        scene.add_light(&sunrays);
         scene.add_object(&planet);
         scene.add_object(&ringA);
         scene.add_object(&ringB);
@@ -73,10 +69,9 @@ public:
 protected:
     raytrace::point look_from;
     raytrace::point look_at;
-    mediums::metal steel;
-    beam beam_of_light;
+    beam sunrays;
     speck inner_light;
-    R3::point center;
+    raytrace::point center;
     raytrace::ring ringA;
     raytrace::ring ringB;
     raytrace::ring ringC;

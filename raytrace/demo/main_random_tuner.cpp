@@ -10,6 +10,7 @@
 
 #include <opencv2/opencv.hpp>
 #include <raytrace/raytrace.hpp>
+#include "trackbar.hpp"
 
 constexpr int width = 1024;
 constexpr int height = 1024;
@@ -60,21 +61,21 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
     std::string windowName("Random Noise Image");
     cv::namedWindow(windowName, cv::WINDOW_AUTOSIZE);
 
+    // these are UoM and not easy to apply to the template unless I specialize it?
     default_value = int(raytrace::tuning::pseudo_random_noise_params.theta_r.value * 100);
     cv::createTrackbar(std::string("Vec Red"), windowName, &default_value, 628, on_vec_r_update, nullptr);
     default_value = int(raytrace::tuning::pseudo_random_noise_params.theta_g.value * 100);
     cv::createTrackbar(std::string("Vec Grn"), windowName, &default_value, 628, on_vec_g_update, nullptr);
     default_value = int(raytrace::tuning::pseudo_random_noise_params.theta_b.value * 100);
     cv::createTrackbar(std::string("Vec Blu"), windowName, &default_value, 628, on_vec_b_update, nullptr);
-    default_value = int(raytrace::tuning::pseudo_random_noise_params.gain * 10);
-    cv::createTrackbar(std::string("Gain"), windowName, &default_value, 1000, on_gain_update, nullptr);
-    default_value = int(raytrace::tuning::pseudo_random_noise_params.radius * 10);
-    cv::createTrackbar(std::string("Radius"), windowName, &default_value, 1000, on_radius_update, nullptr);
+    // these are atomic types and easier to use the template
+    linalg::Trackbar trackbar_gain("Gain", windowName, 0.125, 1.0, 100.0, 0.125, &raytrace::tuning::pseudo_random_noise_params.gain);
+    linalg::Trackbar trackbar_radius("Radius", windowName, 0.125, 1.0, 100.0, 0.125, &raytrace::tuning::pseudo_random_noise_params.radius);
 
     do {
         if (should_animate) {
             raytrace::tuning::pseudo_random_noise_params.radius += 0.125;
-            cv::setTrackbarPos(std::string("Radius"), windowName, int(raytrace::tuning::pseudo_random_noise_params.radius * 10));
+            trackbar_radius.set(raytrace::tuning::pseudo_random_noise_params.radius);
             should_render = true;
         }
 
@@ -110,11 +111,11 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
                 raytrace::tuning::pseudo_random_noise_params.radius =
                     (raytrace::tuning::pseudo_random_noise_params.radius > 0.125) ?
                      raytrace::tuning::pseudo_random_noise_params.radius - 0.125 : 0.125;
-                cv::setTrackbarPos(std::string("Radius"), windowName, int(raytrace::tuning::pseudo_random_noise_params.radius * 10));
+                trackbar_radius.set(raytrace::tuning::pseudo_random_noise_params.radius);
                 break;
             case ']':
                 raytrace::tuning::pseudo_random_noise_params.radius += 0.125;
-                cv::setTrackbarPos(std::string("Radius"), windowName, int(raytrace::tuning::pseudo_random_noise_params.radius * 10));
+                trackbar_radius.set(raytrace::tuning::pseudo_random_noise_params.radius);
                 break;
             default: break;
         }

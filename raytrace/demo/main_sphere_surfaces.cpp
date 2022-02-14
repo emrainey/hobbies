@@ -8,6 +8,7 @@
 
 #include <opencv2/opencv.hpp>
 #include <raytrace/raytrace.hpp>
+#include "trackbar.hpp"
 
 size_t width = 640;
 size_t height = 480;
@@ -15,42 +16,16 @@ iso::degrees fov(55);
 
 using namespace raytrace;
 
-size_t scale = 100;
-size_t tightness_scale = 1;
-
 size_t ambient_color_index = 0;
 double ambient_scale = 0.1;
-size_t specular_color_index = 0;
 size_t diffuse_color_index = 0;
 double smoothiness = smoothness::polished;
 double tightness = roughness::tight;
-color color_choices[] = {colors::white, colors::red, colors::green, colors::blue, colors::cyan, colors::magenta, colors::yellow, colors::black};
+color color_choices[] = {
+    colors::white, colors::red, colors::green, colors::blue,
+    colors::cyan, colors::magenta, colors::yellow, colors::black
+};
 constexpr size_t number_of_colors = dimof(color_choices);
-
-void on_ambient_color_change(int value, void *cookie) {
-    (void)cookie;
-    ambient_color_index = value;
-}
-
-void on_ambient_change(int value, void *cookie) {
-    (void)cookie;
-    ambient_scale = (double)value / scale;
-}
-
-void on_diffuse_color_change(int value, void *cookie) {
-    (void)cookie;
-    diffuse_color_index = value;
-}
-
-void on_smoothiness_change(int value, void *cookie) {
-    (void)cookie;
-    smoothiness = (double)value / scale;
-}
-
-void on_tightness_change(int value, void *cookie) {
-    (void)cookie;
-    tightness = (double)value * tightness_scale;
-}
 
 int main(int argc, char *argv[]) {
     using namespace raytrace;
@@ -68,28 +43,16 @@ int main(int argc, char *argv[]) {
     bool should_render = true;
     std::string windowName("RayTracing Surface Tester");
 
-    std::string ambientColorName("Ambient Color");
-    std::string ambientName("Ambient Scale");
-    std::string diffuseColorName("Diffuse Color");
-    std::string smoothinessName("Smoothness");
-    std::string tightnessName("Tightness");
-
     // the render image
     cv::Mat render_image(height, width, CV_8UC3);
     cv::namedWindow(windowName, cv::WINDOW_AUTOSIZE);
 
-    int default_value = 0;
+    linalg::Trackbar<size_t> trackbar_diff_color("Diffuse Color", windowName, 0u, diffuse_color_index, number_of_colors, 1u, &diffuse_color_index);
+    linalg::Trackbar<size_t> trackbar_amb_color("Ambient Color", windowName, 0u, ambient_color_index, number_of_colors, 1u, &ambient_color_index);
+    linalg::Trackbar trackbar_amb_scale("Ambient Scale", windowName, 0.0, ambient_scale, 1.0, 0.1, &ambient_scale);
+    linalg::Trackbar trackbar_smoothness("Smoothness", windowName, 0.0, smoothiness, 1.0, 0.1, &smoothiness);
+    linalg::Trackbar trackbar_tightness("Tightness", windowName, 0.0, tightness, 100.0, 5.0, &tightness);
 
-    default_value = static_cast<int>(ambient_color_index);
-    cv::createTrackbar(ambientColorName, windowName, &default_value, number_of_colors-1, on_ambient_color_change, nullptr);
-    default_value = static_cast<int>(ambient_scale * scale);
-    cv::createTrackbar(ambientName, windowName, &default_value, scale+1, on_ambient_change, nullptr);
-    default_value = static_cast<int>(diffuse_color_index);
-    cv::createTrackbar(diffuseColorName, windowName, &default_value, number_of_colors-1, on_diffuse_color_change, nullptr);
-    default_value = static_cast<int>(smoothiness * scale);
-    cv::createTrackbar(smoothinessName, windowName, &default_value, scale+1, on_smoothiness_change, nullptr);
-    default_value = static_cast<int>(tightness / tightness_scale);
-    cv::createTrackbar(tightnessName, windowName, &default_value, scale+1, on_tightness_change, nullptr);
 
     double move_unit = 5.0;
     raytrace::point look_from(0, 0, 60);
@@ -100,9 +63,8 @@ int main(int argc, char *argv[]) {
     vector up = R3::basis::Z;
     vector down = -R3::basis::Z;
 
-
     raytrace::plane ground(R3::origin, up, 1.0);
-    plain plain_green(colors::green, 0.1, colors::green, 0.2, 100.0);
+    plain plain_green(colors::green, ambient::dim, colors::green, smoothness::barely, roughness::loose);
     ground.material(&plain_green);
 
     raytrace::point sphere_center(40, 40, 10);

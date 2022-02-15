@@ -104,7 +104,7 @@ void camera::move_to(const point& look_from, const point& look_at) {
             " Tilt must be +PI/2 > %lf > -PI/2\r\n", ry.value);
     // no rotation should ever be NaN
     assert(not std::isnan(rx.value) and not std::isnan(ry.value) and not std::isnan(rz.value));
-    // move the
+    // move the camera's entity base class by these values
     rotation(rx, ry, rz);
 
     // update the intrinsics which converts the focal distance into scaling for pixel

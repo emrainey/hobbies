@@ -4,10 +4,18 @@ namespace raytrace {
 
 namespace mapping {
 
-geometry::R2::point spherical(const geometry::R3::point& p) {
-    geometry::R3::vector q = p - geometry::R3::origin;
-    q.normalize();
+geometry::R2::point spherical(const geometry::R3::point& s) {
+    geometry::R3::vector q = s - geometry::R3::origin;
+    geometry::R3::point p = geometry::R3::origin + q.normalized();
     element_type u = std::atan2(p.y, p.x)  / iso::tau; // 0-theta-2pi
+    u = (u < 0 ? 1.0 + u : u);
+    element_type v = std::acos(p.z) / iso::pi; // 0-phi-pi
+    return geometry::R2::point(u, v);
+}
+
+geometry::R2::point spherical(const geometry::R3::vector& q) {
+    geometry::R3::point p = geometry::R3::origin + q.normalized();
+    element_type u = std::atan2(p.y, p.x) / iso::tau; // 0-theta-2pi
     u = (u < 0 ? 1.0 + u : u);
     element_type v = std::acos(p.z) / iso::pi; // 0-phi-pi
     return geometry::R2::point(u, v);

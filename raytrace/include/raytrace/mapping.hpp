@@ -8,11 +8,20 @@
 namespace raytrace {
 
 namespace mapping {
-    /** Defines function pointer to a R3=>R2 reducing mapping function */
+    /** Defines function pointer to a R3=>R2 reducing mapping function*/
     using reducer = std::function<geometry::R2::point(const geometry::R3::point&)>;
 
-    /** Normalizes the R3 point to a unit sphere while converting to R2 coordinates on the surface of the sphere */
+    /**
+     * Normalizes the R3 point to a unit sphere while converting to R2 coordinates on the surface of the sphere
+     * @note Values are in unit TURNS not RADS
+     */
     geometry::R2::point spherical(const geometry::R3::point& p);
+
+    /**
+     * Normalizes the R3 vector to a unit sphere while converting to R2 coordinates on the surface of the sphere.
+     * @note Values are in unit TURNS not RADS
+     */
+    geometry::R2::point spherical(const geometry::R3::vector& q);
 
     /**
      * Maps on to an ideal cylinderical fields along the Z axis

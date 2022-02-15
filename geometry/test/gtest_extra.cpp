@@ -2,6 +2,7 @@
 #include <geometry/geometry.hpp>
 #include <basal/basal.hpp>
 #include <vector>
+#include <tuple>
 #include <chrono>
 #include "geometry/gtest_helper.hpp"
 
@@ -127,4 +128,20 @@ TEST(GeomExtraTests, CrossPerf) {
     auto diff = std::chrono::steady_clock::now() - start;
     double rate = (double(number_of_ops) / (diff.count() / 1E9)) / 1E6;
     std::cout << "cross rate:" << rate << " M-cross/sec, Period: " << diff.count()/1E9 << " sec" << std::endl;
+}
+
+TEST(MappingTests, CartesianToSphericalTest) {
+    std::vector<std::tuple<geometry::R3::point, geometry::R3::point>> combos = {
+        std::make_tuple(geometry::R3::point(0, 0, 1),geometry::R3::point(1, 0, 0)),
+        std::make_tuple(geometry::R3::point(1, 0, 0),geometry::R3::point(1, 0, iso::pi/2)),
+        std::make_tuple(geometry::R3::point(0, 1, 0),geometry::R3::point(1,iso::pi/2, iso::pi/2)),
+        std::make_tuple(geometry::R3::point(0, 0,-1),geometry::R3::point(1, 0, iso::pi)),
+        std::make_tuple(geometry::R3::point(0,-1, 0),geometry::R3::point(1,-iso::pi/2, iso::pi/2)),
+    };
+    for (auto & params : combos) {
+        geometry::R3::point cartesian = std::get<0>(params);
+        geometry::R3::point spherical = std::get<1>(params);
+        geometry::R3::point new_point = cartesian_to_spherical(cartesian);
+        ASSERT_POINT_EQ(spherical, new_point);
+    }
 }

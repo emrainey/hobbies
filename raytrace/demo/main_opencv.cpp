@@ -12,6 +12,7 @@
 #include "world.hpp"
 #include <functional>
 #include <thread>
+#include "trackbar.hpp"
 
 using namespace std::placeholders;
 
@@ -94,10 +95,6 @@ int main(int argc, char *argv[]) {
     my_assert(basal::options::find(opts, "--aaa", params.mask_threshold), "Must be get value");
     basal::options::print(opts);
 
-    std::string DimensionsName("Dimensions");
-    std::string SubsamplingName("Subsamples");
-    std::string ReflectionsName("Reflections");
-    std::string FovName("FOV");
 
     basal::module mod(params.module.c_str());
     my_assert(mod.is_loaded(), "Must have loaded module");
@@ -113,27 +110,49 @@ int main(int argc, char *argv[]) {
     cv::namedWindow(world.window_name(), cv::WINDOW_AUTOSIZE);
     cv::namedWindow("mask", cv::WINDOW_AUTOSIZE);
 
-    int default_value = 0;
+    raytrace::vector look = world.looking_from() - world.looking_at();
+    raytrace::point cart = geometry::R3::origin + look.normalized();
+    raytrace::point sphl = geometry::cartesian_to_spherical(cart);
 
-    default_value = 1; // QVGA
-    cv::createTrackbar(DimensionsName, world.window_name(), &default_value, dimof(dimensions), on_dimension_change, &params);
-    default_value = static_cast<int>(params.subsamples - 1);
-    cv::createTrackbar(SubsamplingName, world.window_name(), &default_value, 16, on_subsampling_change, &params);
-    default_value = static_cast<int>(params.reflections);
-    cv::createTrackbar(ReflectionsName, world.window_name(), &default_value, 16, on_reflections_change, &params);
-    default_value = static_cast<int>(params.fov);
-    cv::createTrackbar(FovName, world.window_name(), &default_value, 90, on_fov_change, &params);
+    double radius = look.magnitude();
+    double theta = sphl.y;
+    double phi = sphl.z;
+
+    std::cout << "ρ=" << radius << ", Θ=" << theta << ", Φ=" << phi << std::endl;
+
+    linalg::Trackbar<double> trackbar_theta("Camera Theta", world.window_name(), -iso::pi, theta, iso::pi, iso::pi/8, &theta);
+    linalg::Trackbar<double> trackbar_phi("Camera Phi", world.window_name(), 0, phi, iso::pi, iso::pi/16, &phi);
+    radius = (world.looking_from() - world.looking_at()).magnitude();
+    linalg::Trackbar<double> trackbar_radius("Camera Radius", world.window_name(), 1.0, radius, 100.0, 5.0, &radius);
+    linalg::Trackbar<size_t> trackbar_dim("Dimensions", world.window_name(), 1u, 1u, dimof(dimensions), 1u);
+    linalg::Trackbar<size_t> trackbar_subsamples("Subsamples", world.window_name(), 1, params.subsamples, 16, 1, &params.subsamples);
+    linalg::Trackbar<size_t> trackbar_reflect("Reflections", world.window_name(), 0, params.reflections, 10, 1, &params.reflections);
+    linalg::Trackbar<double> trackbar_fov("FOV", world.window_name(), 10, params.fov, 90, 5, &params.fov);
 
     do {
+        int index = trackbar_dim.get();
+        params.width = dimensions[index][0];
+        params.height = dimensions[index][1];
+
         // what we're rendering into
         cv::Mat render_image(params.height, params.width, CV_8UC3);
         cv::Mat mask_image(params.height, params.width, CV_8UC3);
 
+        double x = radius * std::sin(phi) * std::cos(theta);
+        double y = radius * std::sin(phi) * std::sin(theta);
+        double z = radius * std::cos(phi);
+
+        raytrace::vector diff{x, y, z};
+        raytrace::point  from = world.looking_at() + diff;
+        std::cout << "Look From: " << from << std::endl;
+        std::cout << "Look At: " << world.looking_at() << " (Towards)" << std::endl;
+
         // tiny image, simple camera placement
         raytrace::scene scene(params.height, params.width, iso::degrees(params.fov));
-        raytrace::vector looking = (world.looking_at() - world.looking_from()).normalized();
-        raytrace::point image_plane_principal_point = world.looking_from() + looking;
-        scene.view.move_to(world.looking_from(), image_plane_principal_point);
+        raytrace::vector looking = (world.looking_at() - from).normalized();
+        raytrace::point image_plane_principal_point = from + looking;
+        std::cout << "Principal: " << image_plane_principal_point << std::endl;
+        scene.view.move_to(from, image_plane_principal_point);
         scene.set_background_mapper(std::bind(&raytrace::world::background, &world, std::placeholders::_1));
         world.add_to(scene);
         if (verbose) {

@@ -16,7 +16,7 @@ public:
     ExampleWorld()
         : world()
         , look_from(0, 0, 60)
-        , look_at(look_from + R3::vector{{1, 1, -1}})
+        , look_at(60, 60, 0)
         , tilt{{-0.2, +0.2, 1}}
         // define some surfaces
         , plain_green(colors::green, ambient::none, colors::green, 0.2, 100.0)

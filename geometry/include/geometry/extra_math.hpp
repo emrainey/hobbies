@@ -39,10 +39,16 @@ namespace geometry {
     /** Returns a polar point on the unit plane given the 2d cartesian coordinates */
     R2::point cartesian_to_polar(const R2::point& polar);
 
-    /** Converts a 3D point to a 3D spherical coordinate.
+    /** Converts a Cartesian 3D point to a 3D spherical coordinate.
      * @see https://keisan.casio.com/exec/system/1359533867
      */
     R3::point cartesian_to_spherical(const R3::point& cartesian_point);
+
+    /**
+     * Converts a 3D Spherical Coordinate to a Cartesian 3D Coordinate
+     * @return R3::point
+     */
+    R3::point spherical_to_cartesian(const R3::point& spherical_point);
 
     /**
      * Returns a 3x3 rotation matrix.

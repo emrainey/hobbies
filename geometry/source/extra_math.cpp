@@ -67,6 +67,17 @@ R3::point cartesian_to_spherical(const R3::point& cartesian_point) {
     return R3::point(r, theta, phi);
 }
 
+
+R3::point spherical_to_cartesian(const R3::point& spherical_point) {
+    element_type radius = spherical_point.x;
+    element_type theta = spherical_point.y;
+    element_type phi = spherical_point.z;
+    element_type x = radius * std::sin(phi) * std::cos(theta);
+    element_type y = radius * std::sin(phi) * std::sin(theta);
+    element_type z = radius * std::cos(phi);
+    return R3::point(x, y, z);
+}
+
 linalg::matrix rotation(const R3::vector& axis, const iso::radians theta) {
     element_type a = axis[0];
     element_type b = axis[1];

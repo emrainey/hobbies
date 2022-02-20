@@ -10,7 +10,7 @@
 
 #include <opencv2/opencv.hpp>
 #include <raytrace/raytrace.hpp>
-#include "trackbar.hpp"
+#include <linalg/trackbar.hpp>
 
 constexpr int width = 1024;
 constexpr int height = 1024;

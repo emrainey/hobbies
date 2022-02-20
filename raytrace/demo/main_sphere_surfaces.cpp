@@ -8,7 +8,7 @@
 
 #include <opencv2/opencv.hpp>
 #include <raytrace/raytrace.hpp>
-#include "trackbar.hpp"
+#include <linalg/trackbar.hpp>
 
 size_t width = 640;
 size_t height = 480;

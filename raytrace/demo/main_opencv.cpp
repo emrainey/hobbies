@@ -12,7 +12,7 @@
 #include "world.hpp"
 #include <functional>
 #include <thread>
-#include "trackbar.hpp"
+#include <linalg/trackbar.hpp>
 
 using namespace std::placeholders;
 

@@ -34,12 +34,18 @@ namespace raytrace {
         size_t cast_rays_from_camera;
         /** Intersections with objects */
         size_t intersections_with_objects;
-        /** Bounces from reflections */
+        /** The count of rays reflected off objects */
         size_t bounced_rays;
-        /** Transmitted Rays */
+        /** The count of rays transmitted through mediums via refraction */
         size_t transmitted_rays;
         /** Saved Bounces from adaptive threshold */
         size_t saved_ray_traces;
+        /** The count of shadow rays used to determine lighting */
+        size_t shadow_rays;
+        /** The count of rays added due to multiple samples from light sources */
+        size_t sampled_rays;
+        /** The count of sampled rays which actually contribute to the color of the scene. */
+        size_t color_sampled_rays;
 
         static statistics& get() {
             static statistics s;
@@ -52,6 +58,9 @@ namespace raytrace {
             , bounced_rays(0)
             , transmitted_rays(0)
             , saved_ray_traces(0)
+            , shadow_rays(0)
+            , sampled_rays(0)
+            , color_sampled_rays(0)
             {}
     };
 }

@@ -17,6 +17,8 @@
 #include "world.hpp"
 #include <functional>
 #include <thread>
+#include <chrono>
+#include <iomanip>
 #include <ncurses.h>
 
 using namespace std::placeholders;
@@ -134,14 +136,12 @@ protected:
     static const int PROGRESS_PAIR = 2;
 };
 
-
 #define my_assert(condition, statement) { \
     if ((condition) == false) { \
         printf("%s failed, %s\n", #condition, statement); \
         exit(-1); \
     } \
 }
-
 
 int main(int argc, char *argv[]) {
     Parameters params;
@@ -151,6 +151,8 @@ int main(int argc, char *argv[]) {
     double move_unit = 5.0;
     std::string module_name;
     State state = State::MENU;
+    std::time_t start_time;
+    std::chrono::duration<double> diff;
 
     basal::options::config opts[] = {
         {"-w", "--width", (size_t)320, "Width of the image in pixels"},
@@ -208,12 +210,18 @@ int main(int argc, char *argv[]) {
             double percentage = 100.0 * count / completed.size();
             bool done = (count == completed.size());
             if (state == State::MENU) {
-                console.print(6, 2, " >> PROGRESS [ %0.3lf %%]", done ? 100.0 : percentage);
-                console.progress(7, percentage);
+                size_t h = console.get_height() - 2; // account for border
+                console.print(h-1, 2, " >> PROGRESS [ %0.3lf %%]", done ? 100.0 : percentage);
+                console.progress(h, percentage);
 
                 console.print(9, 2, "GEOMETRY");
                 console.print(10, 2, "  DOT: %zu", geometry::statistics::get().dot_operations);
                 console.print(11, 2, "CROSS: %zu", geometry::statistics::get().cross_products);
+                console.print(12, 2, "LINALG:");
+                console.print(13, 2, "  MULT: %zu", linalg::statistics::get().matrix_multiply);
+                console.print(14, 2, "  QUAD: %zu", linalg::statistics::get().quadratic_roots);
+                console.print(15, 2, " CUBIC: %zu", linalg::statistics::get().cubic_roots);
+                console.print(16, 2, " QUART: %zu", linalg::statistics::get().quartic_roots);
                 size_t w = console.get_width() / 2;
                 console.print(9, w, "RAYS");
                 console.print(10, w, "  CAST: %zu", raytrace::statistics::get().cast_rays_from_camera);
@@ -221,6 +229,9 @@ int main(int argc, char *argv[]) {
                 console.print(12, w, "BOUNCE: %zu", raytrace::statistics::get().bounced_rays);
                 console.print(13, w, "  XMIT: %zu", raytrace::statistics::get().transmitted_rays);
                 console.print(14, w, " SAVED: %zu", raytrace::statistics::get().saved_ray_traces);
+                console.print(15, w, "SHADOW: %zu", raytrace::statistics::get().shadow_rays);
+                console.print(16, w, "SAMPLE: %zu", raytrace::statistics::get().sampled_rays);
+                console.print(17, w, " S.CLR: %zu", raytrace::statistics::get().color_sampled_rays);
                 console.refresh();
             }
         }
@@ -253,10 +264,12 @@ int main(int argc, char *argv[]) {
                 world.looking_from().x, world.looking_from().y, world.looking_from().z,
                 world.looking_at().x, world.looking_at().y, world.looking_at().z,
                 params.fov);
+            console.print(5, 2, "#LIGHTS %zu #OBJECTS %zu", scene.number_of_lights(), scene.number_of_objects());
+            //console.print(6, 2, "START TIME: %s, RENDERING TIME: %0.3lf secs", std::ctime(&start_time), diff.count());
 #if defined(RENDER_TO_CONSOLE)
-            console.print(5, 2, "Commands: (r)ender, (m)enu, (d)raw, (q)uit");
+            console.print(7, 2, "Commands: (r)ender, (m)enu, (d)raw, (q)uit");
 #else
-            console.print(5, 2, "Commands: (r)ender, (q)uit");
+            console.print(7, 2, "Commands: (r)ender, (q)uit");
 #endif
             console.refresh();
         }
@@ -283,6 +296,10 @@ int main(int argc, char *argv[]) {
                     break;
                 case 'r': {
                     auto start = std::chrono::steady_clock::now();
+                    start_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+                    char time_string[256];
+                    std::strftime(time_string, dimof(time_string), "%A %c", std::localtime(&start_time));
+                    console.print(6, 2, "START TIME: %s, RENDERING TIME: ??? secs", time_string);
                     std::thread bar_thread(progress_bar); // thread starts
                     try {
                         scene.render(world.output_filename(), params.subsamples, params.reflections, row_notifier, params.mask_threshold);
@@ -292,10 +309,10 @@ int main(int argc, char *argv[]) {
                     } catch (...) {
                         std::cout << "Caught unknown exception in scene.render()! " << std::endl;
                     }
-                    std::chrono::duration<double> diff = std::chrono::steady_clock::now() - start;
+                    diff = std::chrono::steady_clock::now() - start;
                     running = false;
                     bar_thread.join(); // thread stop
-                    console.print(14, 2, "Completed. Image Rendered in %0.3lf seconds", diff.count());
+                    console.print(6, 2, "START TIME: %s, RENDERING TIME: %0.3lf secs", time_string, diff.count());
                     break;
                 }
 #if defined(RENDER_TO_CONSOLE)

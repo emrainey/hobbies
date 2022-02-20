@@ -85,6 +85,7 @@ public:
      * @param objects The list of objects in the scene.
      * @param lights The list of lights in the scene.
      */
+    [[deprecated]]
     static color find_surface_color(const object& obj,
                                     const point& world_surface_point,
                                     const vector& world_surface_normal,
@@ -140,6 +141,12 @@ public:
 
     /** @copydoc basal::printable::print */
     void print(const char str[]) const override;
+
+    /** Returns the number of objects in the scene */
+    size_t number_of_objects(void) const;
+
+    /** Returns the number of lights in the scene */
+    size_t number_of_lights(void) const;
 
 protected:
     /** The list of objects in the scene. */

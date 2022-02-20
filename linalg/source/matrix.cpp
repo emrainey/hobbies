@@ -640,6 +640,7 @@ matrix matrix::adjugate() const {
 element_type matrix::determinant() const noexcept(false) {
     element_type det = 0.0;
     basal::exception::throw_unless(rows == cols, g_filename, __LINE__, "Must be a square matrix");
+    statistics::get().matrix_determinants++;
     if (rows == 1) {
         // identity
         det = at(1,1);
@@ -1162,6 +1163,7 @@ matrix subtraction(const matrix& a, const matrix& b) noexcept(false) {
 matrix multiply(const matrix& a, const matrix& b) noexcept(false) {
     basal::exception::throw_unless(a.cols == b.rows, g_filename, __LINE__, "Columns and Rows must match!");
     matrix m(a.rows, b.cols);
+    statistics::get().matrix_multiply++;
     for (size_t r = 0; r < m.rows; r++) {
         for (size_t c = 0; c < m.cols; c++) {
             m[r][c] = 0.0;

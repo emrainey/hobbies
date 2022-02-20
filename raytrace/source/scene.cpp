@@ -45,6 +45,14 @@ void scene::clear() {
     m_lights.clear();
 }
 
+size_t scene::number_of_objects(void) const {
+    return m_objects.size();
+}
+
+size_t scene::number_of_lights(void) const {
+    return m_lights.size();
+}
+
 scene::intersect_list scene::find_intersections(const ray& world_ray, const object_list& objects) {
     // find collisions (objects determine number of collisions) with the environment
     intersect_list intersections;
@@ -290,6 +298,7 @@ color scene::trace(const ray& world_ray, const medium& media, size_t reflection_
             // the medium starts at the ambient light
             surface_colors.push_back(medium.ambient(object_surface_point));
             // for each light in the scene... check the SHADOW rays!
+            statistics::get().shadow_rays++;
             for (auto& light_ : m_lights) {
                 // convenience variable
                 const light& scene_light = *light_;
@@ -297,6 +306,7 @@ color scene::trace(const ray& world_ray, const medium& media, size_t reflection_
                 std::vector<color> surface_color_samples(scene_light.number_of_samples()); // should initialize to all black
                 // for each sample, get the color
                 for (size_t sample_index = 0; sample_index < scene_light.number_of_samples(); sample_index++) {
+                    statistics::get().sampled_rays++;
                     // get the ray to the light source (full magnitude)
                     ray ray_to_light = scene_light.incident(world_surface_point, sample_index);
                     // just the vector to the light from P
@@ -317,6 +327,7 @@ color scene::trace(const ray& world_ray, const medium& media, size_t reflection_
                                           or (    get_type(nearest.intersector) == IntersectionType::Point
                                               and nearest.distance > light_direction.norm()));
                     if (not_in_shadow) {
+                        statistics::get().color_sampled_rays++;
                         // get the light color at this distance
                         color raw_light_color = scene_light.color_at(world_surface_point);
                         // the scaling at this point due to this light source's
@@ -349,8 +360,8 @@ color scene::trace(const ray& world_ray, const medium& media, size_t reflection_
                 if (smoothness > 0.0) {
                     // should we continue bouncing given the contribution?
                     if (recursive_contribution < adaptive_reflection_threshhold) {
-                        // count this as a save bounce
-                        statistics::get().saved_ray_traces++;
+                        // count this as a save bounce (plus the rest we won't do)
+                        statistics::get().saved_ray_traces += reflection_depth;
                         // just use the surface color
                         reflected_color = surface_properties_color;
                     } else { // only cast the ray if it's more than zero
@@ -380,7 +391,7 @@ color scene::trace(const ray& world_ray, const medium& media, size_t reflection_
             if (transmitted_scaling > 0.0) {
                 if (recursive_contribution < adaptive_reflection_threshhold) {
                     // due to the low contribution to the final color, we can disregard this.
-                    statistics::get().saved_ray_traces++;
+                    statistics::get().saved_ray_traces += reflection_depth;
                     // just return black?
                     transmitted_color = colors::black;
                 } else {

@@ -30,8 +30,14 @@ namespace linalg {
     public:
         /** The number of quadratic roots */
         size_t quadratic_roots;
+        /** The number of cubic roots */
         size_t cubic_roots;
+        /** The number of quartic roots */
         size_t quartic_roots;
+        /** The number of matrix multiplies */
+        size_t matrix_multiply;
+        /** The number of determinants */
+        size_t matrix_determinants;
 
         static statistics& get() {
             static statistics s;
@@ -42,6 +48,8 @@ namespace linalg {
             : quadratic_roots(0)
             , cubic_roots(0)
             , quartic_roots(0)
+            , matrix_multiply(0)
+            , matrix_determinants(0)
             {}
     };
 }

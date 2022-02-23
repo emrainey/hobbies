@@ -74,28 +74,6 @@ public:
     static intersect_set nearest_object(const ray& world_ray, const intersect_list& intersections, const object_list&);
 
     /**
-     * Takes an object list and a light list and finds the blended color for that point from the
-     * lights.
-     * @param obj The reference to the object on which to find the color.
-     * @param world_surface_point the point to consider in world space
-     * @param world_surface_normal The normal on the object at that point in world space
-     * @param object_surface_point The point to consider in object space
-     * @param volumetric_point The volumetric point on the surface of the object.
-     * @param reflection The vector at surface_point where the world_ray will bounce off to
-     * @param objects The list of objects in the scene.
-     * @param lights The list of lights in the scene.
-     */
-    [[deprecated]]
-    static color find_surface_color(const object& obj,
-                                    const point& world_surface_point,
-                                    const vector& world_surface_normal,
-                                    const point& object_surface_point,
-                                    const raytrace::point& volumetric_point,
-                                    const vector& reflection,
-                                    const object_list& objects,
-                                    const light_list& lights);
-
-    /**
      * Traces the path of a world ray within the scene and returns the color.
      * @param world_ray The ray in world coordinates to trace.
      * @param refractive_index The current medium's refractive index. Most of time this will be air (~1.0)

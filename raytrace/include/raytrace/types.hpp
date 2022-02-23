@@ -46,6 +46,8 @@ namespace raytrace {
         size_t sampled_rays;
         /** The count of sampled rays which actually contribute to the color of the scene. */
         size_t color_sampled_rays;
+        /** The count of the points in the shadow which don't have a color contribution */
+        size_t point_in_shadow;
 
         static statistics& get() {
             static statistics s;
@@ -61,6 +63,7 @@ namespace raytrace {
             , shadow_rays(0)
             , sampled_rays(0)
             , color_sampled_rays(0)
+            , point_in_shadow(0)
             {}
     };
 }

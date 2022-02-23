@@ -59,6 +59,9 @@ inline double dispersion(double a1, double a2, double b1, double b2, double c1, 
 /** The common vaccum, perfectly transparent with no fade */
 const transparent vaccum(refractive_index::vaccum, 0.0);
 
+/** The normal atmosphere on earth */
+const transparent earth_atmosphere(refractive_index::air, 0.04);
+
 } // namespace mediums
 
 } // namespace raytrace

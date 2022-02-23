@@ -4,26 +4,25 @@ namespace raytrace {
 
 namespace mediums {
 
-checkerboard::checkerboard(element_type r, color dark, color light)
+checkerboard::checkerboard(element_type repeat, color dark, color light)
     : opaque()
-    , m_repeat(r)
-    , m_dark(dark)
-    , m_light(light)
+    , m_repeat(repeat)
+    , m_pal(2)
     {
     m_ambient = colors::white;
     m_ambient_scale = ambient::none;
     m_smoothness = smoothness::barely;
+    m_pal[0] = dark;
+    m_pal[1] = light;
 }
 
 color checkerboard::diffuse(const raytrace::point& volumetric_point) const {
-    palette pal = {m_dark, m_light};
     if (m_reducing_map) {
-        image::point texture_point = m_reducing_map(volumetric_point);
-        texture_point.x *= m_repeat;
-        texture_point.y *= m_repeat;
-        return functions::checkerboard(texture_point, pal);
+        image::point texture_point = m_reducing_map(volumetric_point) * m_repeat;
+        return functions::checkerboard(texture_point, m_pal);
     } else {
-        return functions::checkerboard(volumetric_point, pal);
+        raytrace::point voxel_point = volumetric_point * m_repeat;
+        return functions::checkerboard(voxel_point, m_pal);
     }
 }
 

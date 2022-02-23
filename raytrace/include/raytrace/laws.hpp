@@ -51,7 +51,7 @@ namespace laws {
         element_type cos_theta_t = std::cos(theta_tr.value);
         element_type Rs = (n1 * cos_theta_i - n2 * cos_theta_t) / (n1 * cos_theta_i + n2 * cos_theta_t);
         Rs *= Rs;
-        element_type Rp = (n1 * cos_theta_t - n2 * cos_theta_i) / (n1 * cos_theta_t + n2 * cos_theta_i);
+        element_type Rp = (n2 * cos_theta_i - n1 * cos_theta_t) / (n2 * cos_theta_i + n1 * cos_theta_t);
         Rp *= Rp;
         return (0.5 * (Rs + Rp));
     }

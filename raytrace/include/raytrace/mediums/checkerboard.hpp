@@ -9,15 +9,15 @@ namespace mediums {
 class checkerboard : public opaque {
 public:
     /**
-     * @param r repeat value
+     * @param repeat repeat value (values under 1.0 scale up pattern, values over 1.0 scale down pattern)
      */
-    checkerboard(element_type r, color dark, color light);
+    checkerboard(element_type repeat, color dark, color light);
     virtual ~checkerboard() = default;
 
     color diffuse(const raytrace::point& volumetric_point) const final;
 protected:
     element_type m_repeat;
-    color m_dark, m_light;
+    palette m_pal;
 };
 
 } // namespace mediums

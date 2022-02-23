@@ -323,9 +323,17 @@ color scene::trace(const ray& world_ray, const medium& media, size_t reflection_
                     // is this point in a shadow of this light?
                     // either there's no intersection to the light, or
                     // there is one but it's farther away than the light itself.
-                    bool not_in_shadow = (   get_type(nearest.intersector) == IntersectionType::None
-                                          or (    get_type(nearest.intersector) == IntersectionType::Point
-                                              and nearest.distance > light_direction.norm()));
+                    bool no_intersection = (get_type(nearest.intersector) == IntersectionType::None);
+                    bool point_farther_than_light = false;
+                    bool object_is_transparent = false;
+                    if (get_type(nearest.intersector) == IntersectionType::Point) {
+                        point_farther_than_light = (nearest.distance > light_direction.norm());
+                        if (nearest.objptr != nullptr) {
+                            // FIXME is a refractive object so it must be transparent?
+                            //object_is_transparent = (nearest.objptr->material().refractive_index(world_surface_point) > 0.0);
+                        }
+                    }
+                    bool not_in_shadow = (no_intersection or point_farther_than_light or object_is_transparent);
                     if (not_in_shadow) {
                         statistics::get().color_sampled_rays++;
                         // get the light color at this distance
@@ -344,6 +352,18 @@ color scene::trace(const ray& world_ray, const medium& media, size_t reflection_
                         surface_color_samples[sample_index] = (diffuse_light * incident_light);
                         // don't use color + color as that "blends", use accumulate for specular light.
                         surface_color_samples[sample_index] += specular_light;
+                        // now add the transmitted light if the object was transparent
+                        // FIXME this is incorrect as we're only considering if the object is inline with the light, not if it's out of line!
+                        if (object_is_transparent) {
+                            // convenience reference
+                            const raytrace::object &obj = *nearest.objptr;
+                            // convenience reference
+                            const raytrace::medium &mat = obj.material();
+                            // trace another ray through the object
+                            surface_color_samples[sample_index] += trace(world_ray, mat, reflection_depth - 1, recursive_contribution);
+                        }
+                    } else {
+                        statistics::get().point_in_shadow++;
                     }
                 }
                 // blend or accumulate? all the surface samples from this light (could be all black)
@@ -395,12 +415,12 @@ color scene::trace(const ray& world_ray, const medium& media, size_t reflection_
                     // just return black?
                     transmitted_color = colors::black;
                 } else {
+                    // this ray was transmitted through the new medium
+                    statistics::get().transmitted_rays++;
                     // get the colors from the transmitted light
                     transmitted_color = trace(world_refraction, medium, reflection_depth - 1, recursive_contribution * transmitted_scaling);
                     // now scale that transmitted_color via the dropoff
                     transmitted_color.scale(transmitted_scaling);
-                    // this ray was transmitted through the new medium
-                    statistics::get().transmitted_rays++;
                 }
             } else {
                 // not a transmissible medium, set that to black;

@@ -26,17 +26,39 @@ TEST(SurfaceTest, ShinySurface) {
     ASSERT_DOUBLE_EQ(250.0f, shiny.specular_tightness(R3::origin));
 }
 
-TEST(FunctionTest, Chess) {
+TEST(SurfaceTest, CheckboardDifuse) {
     using namespace raytrace;
     image img(480, 480);
-    palette pal = {colors::black, colors::white};
+    raytrace::checkerboard board(6.0, colors::red, colors::green);
+    img.generate_each([&](const image::point& p1) {
+        raytrace::point p2(p1.x / img.width, p1.y / img.height, 0.0);
+        return board.diffuse(p2);
+    });
+    img.save("checkerboard_diffuse.ppm");
+}
+
+TEST(SurfaceTest, MarbleWeirdSurface) {
+    using namespace raytrace;
+    image img(512, 512);
+    mediums::marble weird(13*iso::pi/19, 0.032, 72.9828302, colors::black, colors::white);
+    img.generate_each([&](const image::point& p1) {
+        raytrace::point p2(p1.x / img.width, p1.y / img.height, 0.0);
+        return weird.diffuse(p2);
+    });
+    img.save("marble_weird.ppm");
+}
+
+TEST(FunctionTest, CheckboardFunction) {
+    using namespace raytrace;
+    image img(480, 480);
+    palette pal = {colors::blue, colors::yellow};
     element_type s = 10.0;
     img.generate_each([&](const image::point& p1) {
         // using one divisor will make it even
         image::point p2(s * p1.x / img.width, s * p1.y / img.height);
         return functions::checkerboard(p2, pal);
     });
-    img.save("checkerboard.ppm");
+    img.save("checkerboard_function.ppm");
 }
 
 TEST(FunctionTest, Grid) {
@@ -88,21 +110,10 @@ TEST(FunctionTest, RandomNoise) {
     img.save("pseudo_random_noise.ppm");
 }
 
-TEST(SurfaceTest, MarbleWeirdSurface) {
-    using namespace raytrace;
-    image img(512, 512);
-    mediums::marble weird(13*iso::pi/19, 0.032, 72.9828302, colors::black, colors::white);
-    img.generate_each([&](const image::point& p1) {
-        raytrace::point p2(p1.x / img.width, p1.y / img.height, 0.0);
-        return weird.diffuse(p2);
-    });
-    img.save("marble_weird.ppm");
-}
-
 TEST(VolumetricTest, DISABLED_Checkerboard) {
     using namespace raytrace;
     size_t pixels = 24;
-    palette pal = {colors::black, colors::white};
+    palette pal = {colors::cyan, colors::magenta};
     image img(pixels, pixels);
     for (size_t i = 0; i < pixels; i++) {
         char buffer[256];

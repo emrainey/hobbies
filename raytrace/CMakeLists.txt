@@ -103,7 +103,7 @@ target_link_libraries(demo_curses emrainey-raytrace ncurses)
 #################################
 set(DEMOS world_example world_spheres world_cornell
           world_desktoy world_monochrome world_snowman
-          world_lenses world_planet world_spheres2)
+          world_lenses world_planet world_spheres2 world_example2)
 
 foreach(demo IN LISTS DEMOS)
     add_library(${demo} SHARED ${CMAKE_CURRENT_SOURCE_DIR}/demo/${demo}.cpp)

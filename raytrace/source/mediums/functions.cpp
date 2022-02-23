@@ -13,28 +13,28 @@ color simple(const image::point& p __attribute__((unused)),
 color checkerboard(const image::point& p, const palette& pal) {
     basal::exception::throw_unless(pal.size() == 2, __FILE__, __LINE__, "Must have only two colors in checkerboard");
     element_type h = 0.5;
-    element_type u = std::fmod(p.x, 1.0);
-    element_type v = std::fmod(p.y, 1.0);
+    element_type u = std::fmod(p.x, 1.0); // values betwee n -1.0 and 1.0 exclusive
+    element_type v = std::fmod(p.y, 1.0); // values betwee n -1.0 and 1.0 exclusive
     // this only really works in u > 0 && v > 0
-    if (u > 0 and v > 0) {
+    if (u >= 0 and v >= 0) { // quad 1
         if ((u < h and v < h) or (u >= h and v >= h)) {
             return pal[0];
         } else {
             return pal[1];
         }
-    } else if (u < 0 and v > 0) {
+    } else if (u < 0 and v >= 0) { // quad 2
         if ((u > -h and v < h) or (u <= -h and v >= h)) {
             return pal[1];
         } else {
             return pal[0];
         }
-    } else if (u > 0 and v < 0) {
+    } else if (u >= 0 and v < 0) { // quad 4
         if ((u < h and v > -h) or (u >= h and v <= -h)) {
             return pal[1];
         } else {
             return pal[0];
         }
-    } else if (u < 0 and v < 0) {
+    } else if (u < 0 and v < 0) { // quad 3
         if ((u > -h and v > -h) or (u <= -h and v <= -h)) {
             return pal[0];
         } else {
@@ -42,7 +42,8 @@ color checkerboard(const image::point& p, const palette& pal) {
         }
     }
     // should never see this
-    return colors::yellow;
+    std::cerr << "Bad coordinates " << p << " u:" << u << " v:" << v << std::endl;
+    return colors::cyan;
 }
 
 color checkerboard(const raytrace::point& p, const palette& pal) {

@@ -288,7 +288,7 @@ TEST_F(RenderTest, DISABLED_SphereSpotLight) {
     raytrace::ray r0(raytrace::point(-30, 0, 30), -R3::basis::Z);
     raytrace::spot spot0(r0, colors::white, 1E3, iso::degrees{45});
     raytrace::sphere shape(look_at, 10);
-    shape.material(&checkers);
+    shape.material(&checkers2);
     add_object(&shape);
     add_light(&spot0);
     render_all("sphere_spot");
@@ -296,7 +296,7 @@ TEST_F(RenderTest, DISABLED_SphereSpotLight) {
 
 TEST_F(RenderTest, DISABLED_SphereBunchOfSpecks) {
     raytrace::sphere shape(look_at, 5);
-    shape.material(&checkers);
+    shape.material(&checkers2);
     add_object(&shape);
     // create a 20x20 grid of specks above the sphere
     std::vector<raytrace::speck*> specks;

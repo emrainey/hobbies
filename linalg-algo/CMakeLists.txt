@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.20.0)
 project(linalg-algo CXX)
 
 find_package(OpenCV REQUIRED)
-find_package(GTest REQUIRED)
 find_package(basal REQUIRED)
 find_package(units_of_measure REQUIRED)
 find_package(fourcc REQUIRED)
@@ -14,15 +13,15 @@ set(CMAKE_CXX_STANDARD 17)
 enable_testing()
 
 if (OpenCV_FOUND)
-add_library(emrainey-linalg-algo SHARED
+add_library(hobbies-linalg-algo SHARED
     ${CMAKE_CURRENT_SOURCE_DIR}/source/kmeans.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/dkf.cpp
 )
-target_link_libraries(emrainey-linalg-algo PUBLIC
-    Geometry::emrainey-geometry
-    LinalgUtils::emrainey-linalg-utils
+target_link_libraries(hobbies-linalg-algo PUBLIC
+    Geometry::hobbies-geometry
+    LinalgUtils::hobbies-linalg-utils
 )
-target_include_directories(emrainey-linalg-algo
+target_include_directories(hobbies-linalg-algo
     PUBLIC
         # Generated Tree
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
@@ -37,7 +36,7 @@ target_include_directories(emrainey-linalg-algo
 #####################
 
 # Declare installs and exports
-install(TARGETS emrainey-linalg-algo EXPORT LinalgAlgoTargets
+install(TARGETS hobbies-linalg-algo EXPORT LinalgAlgoTargets
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
     RUNTIME DESTINATION bin
@@ -63,16 +62,17 @@ install(FILES "cmake/Findlinalg-algo.cmake" "cmake/linalg-algo-config.cmake"
 
 add_executable(demo_kmeans ${CMAKE_CURRENT_SOURCE_DIR}/demo/demo_kmeans.cpp)
 target_include_directories(demo_kmeans PRIVATE ${OpenCV_INCLUDE_DIRS})
-target_link_libraries(demo_kmeans emrainey-linalg-algo)
+target_link_libraries(demo_kmeans hobbies-linalg-algo)
 
 #####################
 # Build Documentation
 #####################
 
-if (${Doxygen_FOUND})
+find_package(Doxygen)
+if (Doxygen_FOUND)
     set(DOXYGEN_GENERATE_HTML YES)
     set(DOXYGEN_GENERATE_MAN NO)
-    doxygen_add_docs(emrainey-linalg-algo-docs
+    doxygen_add_docs(hobbies-linalg-algo-docs
         ${CMAKE_CURRENT_SOURCE_DIR}/include/linalg
         COMMENT "Linalg + Algo Doxygen")
 endif()

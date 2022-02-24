@@ -27,7 +27,7 @@ public:
         , plain_cyan(colors::white, ambient::none, colors::cyan, 0.2, 120.0)
         , ikea_checkers(5, colors::yellow, colors::blue)
         , polka_dots(0.333, colors::black, colors::white)
-        , marble(13*iso::pi/72, 0.0497, 23.3, colors::black, colors::white)
+        , bw_marble(13*iso::pi/72, 0.0497, 23.3, colors::black, colors::white)
         , grid1(1, colors::black, colors::green)
         // sphere w/ ring
         , s2r(7.5)
@@ -70,8 +70,8 @@ public:
         //s2.material(&grid1);
         ring0.material(&plain_blue);
         ring1.material(&plain_blue);
-        marble.mapper(std::bind(&raytrace::cylinder::map, &cyl1, std::placeholders::_1));
-        cyl1.material(&marble);
+        bw_marble.mapper(std::bind(&raytrace::cylinder::map, &cyl1, std::placeholders::_1));
+        cyl1.material(&bw_marble);
         cap.material(&plain_yellow);
         //polka_dots.mapper(std::bind(&raytrace::cuboid::map, &c0, std::placeholders::_1));
         c0.material(&polka_dots);
@@ -147,7 +147,7 @@ protected:
     plain plain_cyan;
     checkerboard ikea_checkers;
     dots polka_dots;
-    marble marble;
+    marble bw_marble;
     grid grid1;
     // sphere w/ ring
     element_type s2r;

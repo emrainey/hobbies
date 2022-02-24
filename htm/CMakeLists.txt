@@ -7,11 +7,11 @@ find_package(fourcc REQUIRED)
 set(CMAKE_CXX_STANDARD 17)
 enable_testing()
 
-add_library(emrainey-htm SHARED
+add_library(hobbies-htm SHARED
     ${CMAKE_CURRENT_SOURCE_DIR}/source/encoders.cpp
 )
-# target_link_libraries(emrainey-htm PUBLIC)
-target_include_directories(emrainey-htm
+# target_link_libraries(hobbies-htm PUBLIC)
+target_include_directories(hobbies-htm
     PUBLIC
         # Generated Tree
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
@@ -26,7 +26,7 @@ target_include_directories(emrainey-htm
 #####################
 
 # Declare installs and exports
-install(TARGETS emrainey-htm EXPORT HTMTargets
+install(TARGETS hobbies-htm EXPORT HTMTargets
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
     RUNTIME DESTINATION bin
@@ -50,7 +50,7 @@ install(FILES "cmake/Findhtm.cmake" "cmake/htm-config.cmake"
 ################
 
 add_executable(demo_sparse_word ${CMAKE_CURRENT_SOURCE_DIR}/demo/sparse_word.cpp)
-target_link_libraries(demo_sparse_word emrainey-htm)
+target_link_libraries(demo_sparse_word hobbies-htm)
 
 #####################
 # Build Documentation
@@ -59,7 +59,7 @@ find_package(Doxygen)
 if (${Doxygen_FOUND})
     set(DOXYGEN_GENERATE_HTML YES)
     set(DOXYGEN_GENERATE_MAN NO)
-    doxygen_add_docs(emrainey-htm-docs
+    doxygen_add_docs(hobbies-htm-docs
         ${CMAKE_CURRENT_SOURCE_DIR}/include/htm
         COMMENT "HTM Doxygen")
 endif()

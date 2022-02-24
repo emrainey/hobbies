@@ -21,22 +21,20 @@ public:
         , plain_blue(colors::blue, ambient::none, colors::blue, smoothness::none, roughness::tight)
         , marble0(0.128283, 0.2, 32.0, colors::black, colors::yellow)
         , glass(refractive_index::glass, 0.9)
-        , walls{
-            {raytrace::point(0, 80, 80), -R3::basis::Y, 1.0}, // left
-            {raytrace::point(0, -80, 80), R3::basis::Y, 1.0}, // right
-            {raytrace::point(80, 0, 80), -R3::basis::X, 1.0}, // back
-            {R3::origin, R3::basis::Z, 1.0},                  // floor
-            {raytrace::point(0, 0, 160), -R3::basis::Z, 1.0}  // ceiling
-        }
+        , wall0(raytrace::point(0, 80, 80), -R3::basis::Y, 1.0) // left
+        , wall1(raytrace::point(0, -80, 80), R3::basis::Y, 1.0) // right
+        , wall2(raytrace::point(80, 0, 80), -R3::basis::X, 1.0) // back
+        , wall3(R3::origin, R3::basis::Z, 1.0)                  // floor
+        , wall4(raytrace::point(0, 0, 160), -R3::basis::Z, 1.0) // ceiling
         , box(raytrace::point(0, -30, 60), 20, 20, 60)
         , ball(raytrace::point(0, 30, 30), 30)
         , toplight(raytrace::point(0, 0, 150), colors::white, 1E11)
         {
-        walls[0].material(&plain_blue);
-        walls[1].material(&plain_red);
-        walls[2].material(&plain_white);
-        walls[3].material(&plain_white);
-        walls[4].material(&plain_white);
+        wall0.material(&plain_blue);
+        wall1.material(&plain_red);
+        wall2.material(&plain_white);
+        wall3.material(&plain_white);
+        wall4.material(&plain_white);
         box.rotation(iso::degrees(0), iso::degrees(0), iso::degrees(35));
         marble0.mapper(std::bind(&cuboid::map, &box, std::placeholders::_1)); // allows 2D mapping on the cube
         // box.material(&marble0);
@@ -66,9 +64,11 @@ public:
 
     void add_to(scene& scene) override {
         // add the objects to the scene.
-        for (auto& w : walls) {
-            scene.add_object(&w);
-        }
+        scene.add_object(&wall0);
+        scene.add_object(&wall1);
+        scene.add_object(&wall2);
+        scene.add_object(&wall3);
+        scene.add_object(&wall4);
         scene.add_object(&box);
         scene.add_object(&ball);
         scene.add_light(&toplight);
@@ -82,7 +82,11 @@ protected:
     plain plain_blue;
     marble marble0;
     transparent glass;
-    raytrace::plane walls[5];
+    raytrace::plane wall0;
+    raytrace::plane wall1;
+    raytrace::plane wall2;
+    raytrace::plane wall3;
+    raytrace::plane wall4;
     cuboid box;
     raytrace::sphere ball;
     speck toplight;

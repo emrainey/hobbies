@@ -10,7 +10,7 @@ find_package(linalg-utils REQUIRED)
 set(CMAKE_CXX_STANDARD 17)
 enable_testing()
 
-add_library(emrainey-neuralnet SHARED
+add_library(hobbies-neuralnet SHARED
     ${CMAKE_CURRENT_SOURCE_DIR}/source/hidden.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/inner.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/input.cpp
@@ -20,8 +20,8 @@ add_library(emrainey-neuralnet SHARED
     ${CMAKE_CURRENT_SOURCE_DIR}/source/network.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/output.cpp
 )
-target_link_libraries(emrainey-neuralnet Basal::emrainey-basal Linalg::emrainey-linalg LinalgUtils::emrainey-linalg-utils ${OpenCV_LIBS})
-target_include_directories(emrainey-neuralnet
+target_link_libraries(hobbies-neuralnet Basal::hobbies-basal Linalg::hobbies-linalg LinalgUtils::hobbies-linalg-utils ${OpenCV_LIBS})
+target_include_directories(hobbies-neuralnet
     PUBLIC
        # Generated Tree
        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
@@ -36,10 +36,10 @@ target_include_directories(emrainey-neuralnet
 #####################
 
 add_executable(demo_neuralnet ${CMAKE_CURRENT_SOURCE_DIR}/demo/neuralnet_counter.cpp)
-target_link_libraries(demo_neuralnet emrainey-neuralnet ${OpenCV_LIBS})
+target_link_libraries(demo_neuralnet hobbies-neuralnet ${OpenCV_LIBS})
 
 add_executable(neuralnet ${CMAKE_CURRENT_SOURCE_DIR}/source/neuralnet.cpp)
-target_link_libraries(neuralnet emrainey-neuralnet ${OpenCV_LIBS})
+target_link_libraries(neuralnet hobbies-neuralnet ${OpenCV_LIBS})
 
 #####################
 # Build Documentation
@@ -49,7 +49,7 @@ find_package(Doxygen)
 if (${Doxygen_FOUND})
     set(DOXYGEN_GENERATE_HTML YES)
     set(DOXYGEN_GENERATE_MAN NO)
-    doxygen_add_docs(emrainey-neuralnet-docs
+    doxygen_add_docs(hobbies-neuralnet-docs
         ${CMAKE_CURRENT_SOURCE_DIR}/include/neuralnet
         COMMENT "Neural Network Doxygen")
 endif()
@@ -60,7 +60,7 @@ endif()
 #####################
 
 # Declare installs and exports
-install(TARGETS emrainey-neuralnet EXPORT NeuralnetTargets
+install(TARGETS hobbies-neuralnet EXPORT NeuralnetTargets
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
     RUNTIME DESTINATION bin

@@ -35,11 +35,15 @@
 		},
 		{
 			"path": "htm"
+		},
+		{
+			"path": "testing"
 		}
 	],
 	"settings": {
 		"cmake.autoSelectActiveFolder": true,
 		"cmake.installPrefix": "${workspaceFolder}/../install",
+		"cmake.configureOnOpen": false,
 		"todo-tree.general.debug": true,
 		"todo-tree.filtering.excludeGlobs": [
 			"**/googletest/*",

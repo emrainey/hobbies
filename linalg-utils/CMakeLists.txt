@@ -14,15 +14,15 @@ set(CMAKE_CXX_STANDARD 17)
 enable_testing()
 
 if (OpenCV_FOUND)
-add_library(emrainey-linalg-utils SHARED)
-target_sources(emrainey-linalg-utils
+add_library(hobbies-linalg-utils SHARED)
+target_sources(hobbies-linalg-utils
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/source/opencv.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/plot.cpp
 )
-target_link_libraries(emrainey-linalg-utils PUBLIC
-    Linalg::emrainey-linalg Geometry::emrainey-geometry Fourcc::emrainey-fourcc ${OpenCV_LIBS})
-target_include_directories(emrainey-linalg-utils
+target_link_libraries(hobbies-linalg-utils PUBLIC
+    Linalg::hobbies-linalg Geometry::hobbies-geometry Fourcc::hobbies-fourcc ${OpenCV_LIBS})
+target_include_directories(hobbies-linalg-utils
     PUBLIC
         # Generated Tree
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
@@ -38,7 +38,7 @@ target_include_directories(emrainey-linalg-utils
 #####################
 
 # Declare installs and exports
-install(TARGETS emrainey-linalg-utils EXPORT LinalgUtilsTargets
+install(TARGETS hobbies-linalg-utils EXPORT LinalgUtilsTargets
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
     RUNTIME DESTINATION bin
@@ -63,20 +63,21 @@ install(FILES "cmake/Findlinalg-utils.cmake" "cmake/linalg-utils-config.cmake"
 
 add_executable(demo_least_squares ${CMAKE_CURRENT_SOURCE_DIR}/demo/demo_least_squares.cpp)
 target_include_directories(demo_least_squares PRIVATE ${OpenCV_INCLUDE_DIRS})
-target_link_libraries(demo_least_squares emrainey-linalg-utils)
+target_link_libraries(demo_least_squares hobbies-linalg-utils)
 
 add_executable(demo_images ${CMAKE_CURRENT_SOURCE_DIR}/demo/demo_images.cpp)
 target_include_directories(demo_images PRIVATE ${OpenCV_INCLUDE_DIRS})
-target_link_libraries(demo_images emrainey-linalg-utils)
+target_link_libraries(demo_images hobbies-linalg-utils)
 
 #####################
 # Build Documentation
 #####################
 
-if (${Doxygen_FOUND})
+find_package(Doxygen)
+if (Doxygen_FOUND)
     set(DOXYGEN_GENERATE_HTML YES)
     set(DOXYGEN_GENERATE_MAN NO)
-    doxygen_add_docs(emrainey-linalg-utils-docs
+    doxygen_add_docs(hobbies-linalg-utils-docs
         ${CMAKE_CURRENT_SOURCE_DIR}/include/linalg
         COMMENT "Linalg Doxygen")
 endif()

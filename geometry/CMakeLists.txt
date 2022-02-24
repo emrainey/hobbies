@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.20.0)
 project(geometry CXX)
 
-find_package(GTest REQUIRED)
 find_package(basal REQUIRED)
 find_package(units_of_measure REQUIRED)
 find_package(linalg REQUIRED)
@@ -10,7 +9,7 @@ find_package(linalg REQUIRED)
 set(CMAKE_CXX_STANDARD 17)
 enable_testing()
 
-add_library(emrainey-geometry SHARED
+add_library(hobbies-geometry SHARED
     ${CMAKE_CURRENT_SOURCE_DIR}/source/extra_math.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/intersection.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/line.cpp
@@ -20,12 +19,12 @@ add_library(emrainey-geometry SHARED
     ${CMAKE_CURRENT_SOURCE_DIR}/source/sphere.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/vector.cpp
 )
-target_link_libraries(emrainey-geometry PUBLIC
-    Basal::emrainey-basal
-    UnitsOfMeasure::emrainey-uom
-    Linalg::emrainey-linalg
+target_link_libraries(hobbies-geometry PUBLIC
+    Basal::hobbies-basal
+    UnitsOfMeasure::hobbies-uom
+    Linalg::hobbies-linalg
 )
-target_include_directories(emrainey-geometry PUBLIC
+target_include_directories(hobbies-geometry PUBLIC
     # Generated Tree
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
     # Build Tree
@@ -39,7 +38,7 @@ target_include_directories(emrainey-geometry PUBLIC
 #####################
 
 # Declare installs and exports
-install(TARGETS emrainey-geometry EXPORT GeometryTargets
+install(TARGETS hobbies-geometry EXPORT GeometryTargets
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
     RUNTIME DESTINATION bin
@@ -62,6 +61,9 @@ install(FILES "cmake/Findgeometry.cmake" "cmake/geometry-config.cmake"
 # Googletests
 #####################
 
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+find_package(GTest REQUIRED)
 if (GTest_FOUND)
     add_executable(gtest_geometry
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_extra.cpp
@@ -73,7 +75,7 @@ if (GTest_FOUND)
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_vector.cpp
     )
     target_include_directories(gtest_geometry SYSTEM PUBLIC ${GTEST_INCLUDE_DIRS})
-    target_link_libraries(gtest_geometry ${GTEST_BOTH_LIBRARIES} emrainey-geometry)
+    target_link_libraries(gtest_geometry PRIVATE ${GTEST_BOTH_LIBRARIES} hobbies-geometry Threads::Threads)
     add_test(NAME gtest_geometry COMMAND gtest_geometry)
 endif()
 
@@ -84,7 +86,7 @@ endif()
 if (${Doxygen_FOUND})
     set(DOXYGEN_GENERATE_HTML YES)
     set(DOXYGEN_GENERATE_MAN NO)
-    doxygen_add_docs(emrainey-geometry-docs
+    doxygen_add_docs(hobbies-geometry-docs
         ${CMAKE_CURRENT_SOURCE_DIR}/include/geometry
         COMMENT "Geometry Doxygen")
 endif()

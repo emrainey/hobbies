@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 enable_testing()
 
-add_library(emrainey-uom SHARED
+add_library(hobbies-uom SHARED
     # IEC
     "source/iec/prefix.cpp"
     # ISO
@@ -31,7 +31,7 @@ add_library(emrainey-uom SHARED
     # SI
     "source/si/prefix.cpp"
 )
-target_include_directories(emrainey-uom PUBLIC
+target_include_directories(hobbies-uom PUBLIC
     # Generated Tree
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
     # Source Tree
@@ -41,7 +41,7 @@ target_include_directories(emrainey-uom PUBLIC
 )
 
 # Declare installs and exports
-install(TARGETS emrainey-uom EXPORT UnitsOfMeasureTargets
+install(TARGETS hobbies-uom EXPORT UnitsOfMeasureTargets
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
     RUNTIME DESTINATION bin
@@ -63,11 +63,13 @@ install(FILES "cmake/Findunits_of_measure.cmake" "cmake/units_of_measure-config.
 #####################################################
 # Unit Testing
 #####################################################
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
 find_package(GTest REQUIRED)
 if (GTest_FOUND)
     add_executable(gtest_iso ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_iso.cpp)
     target_include_directories(gtest_iso PUBLIC ${GTEST_INCLUDE_DIRS} ${GTest_INCLUDE_DIRS})
-    target_link_libraries(gtest_iso emrainey-uom ${GTEST_BOTH_LIBRARIES} ${GTest_LIBS})
+    target_link_libraries(gtest_iso PRIVATE hobbies-uom ${GTEST_BOTH_LIBRARIES} ${GTest_LIBS} Threads::Threads)
     add_test(NAME gtest_iso COMMAND gtest_iso)
 endif()
 
@@ -82,7 +84,7 @@ if (${Doxygen_FOUND})
     set(DOXYGEN_GENERATE_HTML YES)
     set(DOXYGEN_GENERATE_MAN NO)
 
-    doxygen_add_docs(emrainey-uom-docs
+    doxygen_add_docs(hobbies-uom-docs
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         COMMENT "Units of Measure Doxygen")
 endif()

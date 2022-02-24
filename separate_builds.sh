@@ -96,6 +96,6 @@ for pkg in "${PKGS[@]}"; do
         conan package $pkg -bf ${build_path} -pf ${package_path}
         # conan export $pkg
         # this exports the package into the local conan cache
-        conan export-pkg $pkg $USER/$BRANCH --force -pf ${package_path}
+        conan export-pkg $pkg --force -pf ${package_path} --profile default
     fi
 done

@@ -54,3 +54,12 @@
 
 # Ignore the render image that the OpenCV version makes
 render_image.png
+
+# Ignore the Virtual Environment Stuff for Conan
+activate.*
+conan.lock
+conanbuildinfo.txt
+conaninfo.txt
+deactivate.*
+environment.*.env
+graph_info.json

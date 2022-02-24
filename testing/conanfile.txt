@@ -1,0 +1,5 @@
+[requires]
+raytrace/0.7
+
+[generators]
+virtualenv

@@ -7,9 +7,9 @@ class LinAlgConan(ConanFile):
     description = "The Geometry Library"
     generators = "cmake", "cmake_paths"
     requires = "gtest/1.8.1", \
-                "basal/0.5@emrainey/main", \
-                "units_of_measure/0.7@emrainey/main", \
-                "linalg/0.7@emrainey/main"
+                "basal/0.5", \
+                "units_of_measure/0.7", \
+                "linalg/0.7"
 
     url = "http://github.com/emrainey/hobbies"
     homepage = "http://github.com/emrainey/hobbies"
@@ -17,7 +17,7 @@ class LinAlgConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.name = self.name
-        self.cpp_info.libs = [f'emrainey-{self.name}']
+        self.cpp_info.libs = [f'hobbies-{self.name}']
         self.cpp_info.includedirs = ['include']
         self.cpp_info.build_modules["cmake_find_package"].append(f"cmake/{self.name}-config.cmake")
         self.cpp_info.build_modules["cmake_find_package"].append(f"cmake/Find{self.name}.cmake")

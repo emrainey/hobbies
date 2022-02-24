@@ -9,13 +9,13 @@ find_package(fourcc REQUIRED)
 set(CMAKE_CXX_STANDARD 17)
 enable_testing()
 
-add_library(emrainey-linalg SHARED
+add_library(hobbies-linalg SHARED
     ${CMAKE_CURRENT_SOURCE_DIR}/source/matrix.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/solvers.cpp
 )
-target_link_libraries(emrainey-linalg PUBLIC
-    Basal::emrainey-basal UnitsOfMeasure::emrainey-uom)
-target_include_directories(emrainey-linalg PUBLIC
+target_link_libraries(hobbies-linalg PUBLIC
+    Basal::hobbies-basal UnitsOfMeasure::hobbies-uom)
+target_include_directories(hobbies-linalg PUBLIC
     # Generated Tree
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
     # Build Tree
@@ -29,7 +29,7 @@ target_include_directories(emrainey-linalg PUBLIC
 #####################
 
 # Declare installs and exports
-install(TARGETS emrainey-linalg EXPORT LinalgTargets
+install(TARGETS hobbies-linalg EXPORT LinalgTargets
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
     RUNTIME DESTINATION bin
@@ -52,6 +52,8 @@ install(FILES "cmake/Findlinalg.cmake" "cmake/linalg-config.cmake"
 # Googletests
 #####################
 
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
 find_package(GTest REQUIRED)
 if (GTest_FOUND)
     add_executable(gtest_linalg
@@ -59,7 +61,7 @@ if (GTest_FOUND)
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_matrix.cpp
     )
     target_include_directories(gtest_linalg SYSTEM PUBLIC ${GTEST_INCLUDE_DIRS})
-    target_link_libraries(gtest_linalg ${GTEST_BOTH_LIBRARIES} emrainey-linalg)
+    target_link_libraries(gtest_linalg PRIVATE ${GTEST_BOTH_LIBRARIES} hobbies-linalg Threads::Threads)
     add_test(NAME gtest_linalg COMMAND gtest_linalg)
 endif()
 
@@ -67,10 +69,11 @@ endif()
 # Build Documentation
 #####################
 
-if (${Doxygen_FOUND})
+find_package(Doxygen)
+if (Doxygen_FOUND)
     set(DOXYGEN_GENERATE_HTML YES)
     set(DOXYGEN_GENERATE_MAN NO)
-    doxygen_add_docs(emrainey-linalg-docs
+    doxygen_add_docs(hobbies-linalg-docs
         ${CMAKE_CURRENT_SOURCE_DIR}/include/linalg
         COMMENT "Linalg Doxygen")
 endif()

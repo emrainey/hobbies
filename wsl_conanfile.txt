@@ -1,0 +1,6 @@
+[requires]
+cmake/3.22.0
+doxygen/1.8.18
+
+[generators]
+virtualenv

@@ -12,8 +12,8 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" AND CMAKE_SYSTEM_PROCESSOR STREQUAL
 target_compile_options(native-optimized INTERFACE /arch:AVX2)
 endif()
 
-add_library(emrainey-basal SHARED)
-target_sources(emrainey-basal
+add_library(hobbies-basal SHARED)
+target_sources(hobbies-basal
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/source/debuggable.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/exception.cpp
@@ -21,7 +21,7 @@ target_sources(emrainey-basal
         ${CMAKE_CURRENT_SOURCE_DIR}/source/module.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/basal.cpp
 )
-target_include_directories(emrainey-basal PUBLIC
+target_include_directories(hobbies-basal PUBLIC
     # Generated Tree
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
     # Build Tree
@@ -29,9 +29,10 @@ target_include_directories(emrainey-basal PUBLIC
     # Install Tree
     $<INSTALL_INTERFACE:include>
 )
+target_link_libraries(hobbies-basal dl)
 
 # Declare installs and exports
-install(TARGETS emrainey-basal native-optimized EXPORT BasalTargets
+install(TARGETS hobbies-basal native-optimized EXPORT BasalTargets
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
     RUNTIME DESTINATION bin
@@ -62,6 +63,8 @@ install(FILES "cmake/Findbasal.cmake" "cmake/basal-config.cmake"
 #)
 
 # Unit Tests
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
 find_package(GTest REQUIRED)
 if (GTest_FOUND)
     message(STATUS "GTest_FOUND=${GTest_FOUND}")
@@ -71,7 +74,7 @@ if (GTest_FOUND)
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_basal.cpp
     )
     target_include_directories(gtest_basal PRIVATE ${GTEST_INCLUDE_DIRS} ${GTest_INCLUDE_DIRS})
-    target_link_libraries(gtest_basal emrainey-basal ${GTEST_BOTH_LIBRARIES} ${GTest_LIBS})
+    target_link_libraries(gtest_basal PRIVATE hobbies-basal ${GTEST_BOTH_LIBRARIES} ${GTest_LIBS} Threads::Threads)
     add_test(NAME gtest_basal COMMAND gtest_basal)
 endif()
 
@@ -80,7 +83,7 @@ find_package(Doxygen REQUIRED)
 if (${Doxygen_FOUND})
     set(DOXYGEN_GENERATE_HTML YES)
     set(DOXYGEN_GENERATE_MAN NO)
-    doxygen_add_docs(emrainey-basal-docs
+    doxygen_add_docs(hobbies-basal-docs
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         COMMENT "Basal Doxygen")
 endif()

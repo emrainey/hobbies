@@ -4,13 +4,12 @@ class LinAlgConan(ConanFile):
     name = "linalg"
     version = "0.7"
     settings = "os", "arch", "compiler", "build_type"
-    description = "The Linear Algebra Libraries"
+    description = "The Linear Algebra Library"
     generators = "cmake", "cmake_paths"
     requires = "gtest/1.8.1", \
-                "opencv/4.5.3", \
-                "basal/0.5@emrainey/main", \
-                "units_of_measure/0.7@emrainey/main", \
-                "fourcc/0.7@emrainey/main"
+               "basal/0.5", \
+               "units_of_measure/0.7", \
+               "fourcc/0.7"
 
     url = "http://github.com/emrainey/hobbies"
     homepage = "http://github.com/emrainey/hobbies"
@@ -18,7 +17,7 @@ class LinAlgConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.name = self.name
-        self.cpp_info.libs = [f'emrainey-{self.name}']
+        self.cpp_info.libs = [f'hobbies-{self.name}']
         self.cpp_info.includedirs = ['include']
         self.cpp_info.build_modules["cmake_find_package"].append(f"cmake/{self.name}-config.cmake")
         self.cpp_info.build_modules["cmake_find_package"].append(f"cmake/Find{self.name}.cmake")

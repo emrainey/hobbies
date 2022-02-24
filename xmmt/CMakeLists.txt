@@ -7,8 +7,8 @@ find_package(basal REQUIRED)
 set(CMAKE_CXX_STANDARD 17)
 enable_testing()
 
-add_library(emrainey-xmmt INTERFACE)
-target_include_directories(emrainey-xmmt INTERFACE
+add_library(hobbies-xmmt INTERFACE)
+target_include_directories(hobbies-xmmt INTERFACE
     # Generated Tree
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
     # Build Tree
@@ -16,14 +16,14 @@ target_include_directories(emrainey-xmmt INTERFACE
     # Install Tree
     $<INSTALL_INTERFACE:include>
 )
-target_link_libraries(emrainey-xmmt INTERFACE Basal::emrainey-basal Basal::native-optimized)
+target_link_libraries(hobbies-xmmt INTERFACE Basal::hobbies-basal Basal::native-optimized)
 
 #####################
 # EXPORTS
 #####################
 
 # Declare installs and exports
-install(TARGETS emrainey-xmmt EXPORT XmmtTargets
+install(TARGETS hobbies-xmmt EXPORT XmmtTargets
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
     RUNTIME DESTINATION bin
@@ -47,11 +47,13 @@ install(FILES "cmake/Findxmmt.cmake" "cmake/xmmt-config.cmake"
 #####################
 
 if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+    set(THREADS_PREFER_PTHREAD_FLAG ON)
+    find_package(Threads REQUIRED)
     find_package(GTest REQUIRED)
     if (GTest_FOUND)
         add_executable(gtest_xmmt ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_xmmt.cpp)
         target_include_directories(gtest_xmmt SYSTEM PUBLIC ${GTEST_INCLUDE_DIRS})
-        target_link_libraries(gtest_xmmt ${GTEST_BOTH_LIBRARIES} emrainey-xmmt)
+        target_link_libraries(gtest_xmmt PRIVATE ${GTEST_BOTH_LIBRARIES} hobbies-xmmt Threads::Threads)
         add_test(NAME gtest_xmmt COMMAND gtest_xmmt)
     endif()
 endif()
@@ -61,10 +63,10 @@ endif()
 #####################
 
 find_package(Doxygen)
-if (${Doxygen_FOUND})
+if (Doxygen_FOUND)
     set(DOXYGEN_GENERATE_HTML YES)
     set(DOXYGEN_GENERATE_MAN NO)
-    doxygen_add_docs(emrainey-xmmt-docs
+    doxygen_add_docs(hobbies-xmmt-docs
         ${CMAKE_CURRENT_SOURCE_DIR}/include/xmmt
         COMMENT "XMMT Doxygen")
 endif()

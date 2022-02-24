@@ -16,7 +16,7 @@ find_package(xmmt REQUIRED)
 set(CMAKE_CXX_STANDARD 17)
 enable_testing()
 
-add_library(emrainey-raytrace SHARED
+add_library(hobbies-raytrace SHARED
     ${CMAKE_CURRENT_SOURCE_DIR}/source/camera.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/color.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/image.cpp
@@ -58,11 +58,11 @@ add_library(emrainey-raytrace SHARED
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/torus.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/triangle.cpp
 )
-target_link_libraries(emrainey-raytrace
-    PUBLIC Linalg::emrainey-linalg Fourcc::emrainey-fourcc Noise::emrainey-noise Geometry::emrainey-geometry Xmmt::emrainey-xmmt Basal::native-optimized
+target_link_libraries(hobbies-raytrace
+    PUBLIC Linalg::hobbies-linalg Fourcc::hobbies-fourcc Noise::hobbies-noise Geometry::hobbies-geometry Xmmt::hobbies-xmmt Basal::native-optimized
     PRIVATE OpenMP::OpenMP_CXX
 )
-target_include_directories(emrainey-raytrace
+target_include_directories(hobbies-raytrace
     PUBLIC
        # Generated Tree
        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
@@ -80,23 +80,29 @@ if (OpenCV_FOUND)
 add_executable(demo_sphere_surfaces
     ${CMAKE_CURRENT_SOURCE_DIR}/demo/main_sphere_surfaces.cpp
 )
-target_link_libraries(demo_sphere_surfaces ${OpenCV_LIBS} emrainey-raytrace LinalgUtils::emrainey-linalg-utils)
+target_link_libraries(demo_sphere_surfaces PRIVATE ${OpenCV_LIBS} hobbies-raytrace LinalgUtils::hobbies-linalg-utils Threads::Threads)
 
 add_executable(demo_raytrace_loader
     ${CMAKE_CURRENT_SOURCE_DIR}/demo/main_opencv.cpp
 )
-target_link_libraries(demo_raytrace_loader ${OpenCV_LIBS} emrainey-raytrace LinalgUtils::emrainey-linalg-utils)
+target_link_libraries(demo_raytrace_loader ${OpenCV_LIBS} hobbies-raytrace LinalgUtils::hobbies-linalg-utils Threads::Threads)
 
 add_executable(demo_random_tuner
     ${CMAKE_CURRENT_SOURCE_DIR}/demo/main_random_tuner.cpp
 )
-target_link_libraries(demo_random_tuner ${OpenCV_LIBS} emrainey-raytrace LinalgUtils::emrainey-linalg-utils)
+target_link_libraries(demo_random_tuner PRIVATE ${OpenCV_LIBS} hobbies-raytrace LinalgUtils::hobbies-linalg-utils Threads::Threads)
 endif()
 
-add_executable(demo_curses
-    ${CMAKE_CURRENT_SOURCE_DIR}/demo/main_console.cpp
-)
-target_link_libraries(demo_curses emrainey-raytrace ncurses)
+find_package(Threads REQUIRED)
+find_package(Curses)
+if (CURSES_FOUND)
+    add_executable(demo_curses
+        ${CMAKE_CURRENT_SOURCE_DIR}/demo/main_console.cpp
+    )
+    target_include_directories(demo_curses PRIVATE ${CURSES_INCLUDE_DIRS})
+    target_link_libraries(demo_curses PRIVATE hobbies-raytrace ${CURSES_LIBRARIES} Threads::Threads)
+    target_compile_options(demo_curses PRIVATE ${CURSES_CFLAGS})
+endif()
 
 #################################
 # WORLDS
@@ -107,13 +113,15 @@ set(DEMOS world_example world_spheres world_cornell
 
 foreach(demo IN LISTS DEMOS)
     add_library(${demo} SHARED ${CMAKE_CURRENT_SOURCE_DIR}/demo/${demo}.cpp)
-    target_link_libraries(${demo} emrainey-raytrace)
+    target_link_libraries(${demo} PRIVATE hobbies-raytrace)
 endforeach()
 
 #####################
 # Googletests
 #####################
 
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
 find_package(GTest REQUIRED)
 if (GTest_FOUND)
     add_executable(gtest_raytrace
@@ -138,7 +146,7 @@ if (GTest_FOUND)
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_triangle.cpp
     )
     target_include_directories(gtest_raytrace SYSTEM PUBLIC ${GTEST_INCLUDE_DIRS})
-    target_link_libraries(gtest_raytrace ${GTEST_BOTH_LIBRARIES} emrainey-raytrace)
+    target_link_libraries(gtest_raytrace PRIVATE ${GTEST_BOTH_LIBRARIES} hobbies-raytrace Threads::Threads)
     add_test(NAME gtest_raytrace COMMAND gtest_raytrace)
 endif()
 
@@ -150,7 +158,7 @@ find_package(Doxygen)
 if (${Doxygen_FOUND})
     set(DOXYGEN_GENERATE_HTML YES)
     set(DOXYGEN_GENERATE_MAN NO)
-    doxygen_add_docs(emrainey-raytrace-docs
+    doxygen_add_docs(hobbies-raytrace-docs
         ${CMAKE_CURRENT_SOURCE_DIR}/include/raytrace
         COMMENT "Raytracing Doxygen")
 endif()
@@ -161,7 +169,7 @@ endif()
 #####################
 
 # Declare installs and exports
-install(TARGETS emrainey-raytrace EXPORT RaytraceTargets
+install(TARGETS hobbies-raytrace EXPORT RaytraceTargets
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
     RUNTIME DESTINATION bin

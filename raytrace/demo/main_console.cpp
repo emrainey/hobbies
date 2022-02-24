@@ -161,11 +161,12 @@ int main(int argc, char *argv[]) {
         {"-r", "--reflections", (size_t)4, "Reflection Depth"},
         {"-f", "--fov", 55.0, "Field of View in Degrees"},
         {"-v", "--verbose", false, "Enables showing the early debugging"},
-        {"-m", "--module", "", "Module to load"},
+        {"-m", "--module", std::string(""), "Module to load"},
         {"-a", "--aaa", (size_t)raytrace::image::AAA_MASK_DISABLED, "Adaptive Anti-Aliasing Threshold value (255 disables)"},
     };
 
     basal::options::process(opts, argc, argv);
+    basal::options::print(opts);
     my_assert(basal::options::find(opts, "--width", params.width), "Must have a width value");
     my_assert(basal::options::find(opts, "--height", params.height), "Must have a width value");
     my_assert(basal::options::find(opts, "--fov", params.fov), "Must have a FOV value");
@@ -174,7 +175,6 @@ int main(int argc, char *argv[]) {
     my_assert(basal::options::find(opts, "--reflections", params.reflections), "Must have some number of reflections");
     my_assert(basal::options::find(opts, "--module", params.module), "Must choose a module to load");
     my_assert(basal::options::find(opts, "--aaa", params.mask_threshold), "Must be get value");
-    basal::options::print(opts);
 
     basal::module mod(params.module.c_str());
     my_assert(mod.is_loaded(), "Must have loaded module");

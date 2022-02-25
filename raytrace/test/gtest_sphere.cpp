@@ -129,3 +129,63 @@ TEST(SphereTest, IntersectionsFromRays) {
     ASSERT_EQ(geometry::IntersectionType::Point, geometry::get_type(iSGmx));
     ASSERT_EQ(geometry::IntersectionType::Point, geometry::get_type(iSGpx));
 }
+
+
+TEST(SphereTest, Refraction) {
+    struct {
+        element_type eta;
+        iso::radians entry_exterior_angle;
+        iso::radians entry_interior_angle;
+        iso::radians exit_interior_angle;
+        iso::radians exit_exterior_angle;
+    } params[] = {
+        {refractive_index::water, iso::radians{0}, iso::radians{0}, iso::radians{0}, iso::radians{0}},
+        {refractive_index::water, iso::radians{iso::pi/12}, iso::radians{0.19540396}, iso::radians{0.12900853}, iso::radians{0.2617994}},
+        {refractive_index::water, iso::radians{iso::pi/6}, iso::radians{0.38449794}, iso::radians{0.24539709}, iso::radians{0.52359879}},
+    };
+    for (auto& param : params) {
+        element_type eta = param.eta;
+        element_type entry_y = std::cos(param.entry_exterior_angle.value);
+        element_type entry_z = std::sin(param.entry_exterior_angle.value);
+        raytrace::sphere shape(R3::origin, 1.0);
+        raytrace::transparent med(eta, 0.0);
+        shape.material(&med);
+        raytrace::vector incident{0, -1, 0};
+        raytrace::ray shot{raytrace::point(0, 2, entry_z), incident};
+        std::cout << "Shot: " << shot << std::endl;
+        //============ Entry
+        auto entry_hit = shape.intersect(shot);
+        std::cout << "Entry Hit: " << entry_hit << std::endl;
+        ASSERT_EQ(geometry::IntersectionType::Point, geometry::get_type(entry_hit));
+        raytrace::point entry_surface_point = geometry::as_point(entry_hit);
+        std::cout << "Entry Surface point: " << entry_surface_point << std::endl;
+        raytrace::point s0{0, entry_y, entry_z};
+        ASSERT_POINT_EQ(s0, entry_surface_point);
+        raytrace::vector normal = shape.normal(entry_surface_point);
+        std::cout << "Entry Normal: " << normal << std::endl;
+        iso::radians incident_angle = geometry::angle(-normal, shot.direction());
+        ASSERT_FLOAT_EQ(param.entry_exterior_angle.value, incident_angle.value);
+        raytrace::ray refracted_ray = shape.refraction(shot, entry_surface_point, 1.0, eta);
+        std::cout << "Refracted: " << refracted_ray << std::endl;
+        ASSERT_POINT_EQ(entry_surface_point, refracted_ray.location());
+        iso::radians refracted_angle = geometry::angle(-normal, refracted_ray.direction());
+        ASSERT_FLOAT_EQ(param.entry_interior_angle.value, refracted_angle.value);
+        //============ Exit
+        auto exit_hit = shape.intersect(refracted_ray);
+        std::cout << "Exit Hit: " << exit_hit << std::endl;
+        ASSERT_EQ(geometry::IntersectionType::Point, geometry::get_type(exit_hit));
+        raytrace::point exit_surface_point = geometry::as_point(exit_hit);
+        ASSERT_TRUE(shape.surface(exit_surface_point));
+        normal = shape.normal(exit_surface_point);
+        std::cout << "Exit Normal: " << normal << std::endl;
+        incident_angle = geometry::angle(normal, shot.direction());
+        std::cout << "Exit Incident Angle: " << incident_angle.value << std::endl;
+        EXPECT_FLOAT_EQ(param.exit_interior_angle.value, incident_angle.value);
+        raytrace::ray transmitted_ray = shape.refraction(refracted_ray, exit_surface_point, eta, 1.0);
+        std::cout << "Transmitted Ray: " << transmitted_ray << std::endl;
+        refracted_angle = geometry::angle(normal, transmitted_ray.direction());
+        EXPECT_FLOAT_EQ(param.exit_exterior_angle.value, refracted_angle.value);
+        std::cout << "Exit Refracted Angle: " << refracted_angle.value << std::endl;
+        std::cout << "===========================" << std::endl;
+    }
+}

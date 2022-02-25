@@ -86,7 +86,12 @@ public:
     vector refraction(const vector& I, const point& P, element_type nu1, element_type nu2) const {
         vector N = normal(P); // MAYBE (Optim) should we already have calculated the normal at this point already?
         vector nI = I.normalized(); // MAYBE (Optim) shouldn't this already be normalized?
-        return laws::snell(N, nI, nu1, nu2);
+        // if the Incident and the Normal have a positive dot then they are not arranged properly
+        if (dot(N, I) > 0) {
+            return laws::snell(-N, nI, nu1, nu2);
+        } else {
+            return laws::snell(N, nI, nu1, nu2);
+        }
     }
 
     /** Computes the refraction ray at the surface point P.
@@ -139,6 +144,10 @@ public:
                         const vector& I = world_ray.direction();
                         element_type d = dot(N, I);
                         if (d < 0) { // the ray points "into" the material so it's a collision
+                            // however if the material is transparent, that's ok and it should not count as a collision
+                            if (m_medium and m_medium->refractive_index(world_ray.location()) > 0.0) {
+                                continue;
+                            }
                             closest = t;
                             break;
                         } else {

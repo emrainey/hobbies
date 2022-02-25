@@ -9,8 +9,10 @@ namespace laws {
     /**
      * Computes Snell's law from a given set of "n" (eta in greek) or refractive indexes
      * and the normalized normal of the surface
-     * @param N The normal of the surface, normalized
-     * @param I The incident vector to the surface, normalized
+     * @param N The normal of the surface, normalized.
+     * @warning Must always point oppositely the incident vector
+     * @param I The incident vector to the surface, normalized.
+     * @warning Must always point oppositely the normal vector
      * @param eta1 The refractive index of the current medium
      * @param eta2 The refractive index of the next medium
      * @retval R3::null when total internal reflection has occurred.
@@ -21,7 +23,7 @@ namespace laws {
         // we want the value of phi as applied on the outgoing vector
         element_type eta = eta1/eta2;
         element_type eta_eta = eta * eta;
-        element_type cos_theta = dot(N, I); // doesn't matter if -I since it'll be squared
+        element_type cos_theta = dot(N, I);
         element_type sin2_phi = eta_eta * (1.0 - (cos_theta * cos_theta));
         if (sin2_phi <= 1.0) {
             return (eta * I) - (((eta * cos_theta) + sqrt(1.0 - sin2_phi)) * N);

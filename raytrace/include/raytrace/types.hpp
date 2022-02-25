@@ -48,6 +48,8 @@ namespace raytrace {
         size_t color_sampled_rays;
         /** The count of the points in the shadow which don't have a color contribution */
         size_t point_in_shadow;
+        /** The count of rays absorbed into a media */
+        size_t absorbed_rays;
 
         static statistics& get() {
             static statistics s;
@@ -64,6 +66,7 @@ namespace raytrace {
             , sampled_rays(0)
             , color_sampled_rays(0)
             , point_in_shadow(0)
+            , absorbed_rays(0)
             {}
     };
 }

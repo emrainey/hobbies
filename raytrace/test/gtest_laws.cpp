@@ -52,6 +52,12 @@ TEST(LawsTest, Reflection) {
     vector R = laws::reflection(N, I);
     vector R1{0,-1, 1};
     ASSERT_VECTOR_EQ(R1, R);
+
+    // does reflection "work" if the Normal and the incident are backwards?
+    vector J{0, 1, 1};
+    vector R2{0, 1, -1};
+    R = laws::reflection(N, J);
+    ASSERT_VECTOR_EQ(R2, R);
 }
 
 TEST(LawsTest, Fresnel) {

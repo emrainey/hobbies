@@ -132,11 +132,15 @@ color scene::trace(const ray& world_ray, const medium& media, size_t reflection_
         if constexpr (enforce_ranges) {
             basal::exception::throw_unless(basal::equals(world_surface_normal.magnitude(), 1.0), __FILE__, __LINE__, "Must be normalized");
         }
+        // if this is true, we've collided with something from the inside or the "backside"
+        bool inside_out = (dot(world_surface_normal, world_ray.direction()) > 0);
 
         // compute the reflection vector
-        vector world_reflection = obj.reflection(world_ray.direction(), world_surface_point);
+        ray world_reflection = obj.reflection(world_ray, world_surface_point);
         // compute the refracted vector
         ray world_refraction = obj.refraction(world_ray, world_surface_point, media.refractive_index(object_surface_point), medium.refractive_index(object_surface_point));
+
+        basal::exception::throw_if(dot(world_ray.direction(), world_refraction.direction()) < 0, __FILE__, __LINE__, "Refracted ray should not be opposites");
 
         // today we get the surface's reflectivity at this texture point
         // (which means the surface could be like a film of mirror with bits flaking off)
@@ -148,10 +152,10 @@ color scene::trace(const ray& world_ray, const medium& media, size_t reflection_
         color surface_color, emitted_color, reflected_color, transmitted_color;
 
         // compute the incident angle of the reflection vector
-        iso::radians incident_angle = geometry::angle(world_surface_normal, world_reflection);
+        iso::radians incident_angle = geometry::angle((inside_out ? -world_surface_normal : world_surface_normal), world_ray.direction());
 
         // compute the transmitted angle of the refraction vector
-        iso::radians transmitted_angle = geometry::angle(world_surface_normal, world_refraction.direction());
+        iso::radians transmitted_angle = geometry::angle((inside_out ? -world_surface_normal : world_surface_normal), world_refraction.direction());
 
         /*********************************************************************/
 
@@ -221,7 +225,7 @@ color scene::trace(const ray& world_ray, const medium& media, size_t reflection_
                         //basal::exception::throw_unless(within_inclusive(-1.0, incident_scaling, 1.0), __FILE__, __LINE__, "Must be within bounds");
                         color incident_light = (incident_scaling > 0.0) ? incident_scaling * raw_light_color : colors::black;
                         color diffuse_light = medium.diffuse(object_surface_point);
-                        element_type specular_scaling = dot(normalized_light_direction, world_reflection);
+                        element_type specular_scaling = dot(normalized_light_direction, world_reflection.direction());
                         //basal::exception::throw_unless(within_inclusive(-1.0, specular_scaling, 1.0), __FILE__, __LINE__, "Must be within bounds");
                         color specular_light = (specular_scaling > 0) ? medium.specular(object_surface_point, specular_scaling, raw_light_color) : colors::black;
                         // blend the light color and the surface color together
@@ -261,12 +265,11 @@ color scene::trace(const ray& world_ray, const medium& media, size_t reflection_
                         // just use the surface color
                         reflected_color = surface_properties_color;
                     } else { // only cast the ray if it's more than zero
-                        // find the reflected vector at world_surface_point
-                        ray new_ray(world_surface_point, world_reflection);
+                        // this ray was bounced off an object
+                        statistics::get().bounced_rays++;
 
                         // find out what the reflection adds to this
-                        color bounced_color = trace(new_ray, media, reflection_depth - 1, recursive_contribution * smoothness);
-                        statistics::get().bounced_rays++;
+                        color bounced_color = trace(world_reflection, media, reflection_depth - 1, recursive_contribution * smoothness);
 
                         // somehow interpolate the two based on how much of a smooth mirror this medium is.
                         reflected_color = interpolate(bounced_color, surface_properties_color, smoothness);
@@ -282,7 +285,7 @@ color scene::trace(const ray& world_ray, const medium& media, size_t reflection_
         }
         if (reflection_depth > 0 and transparency > 0.0 and not world_refraction.direction().is_zero()) {
             // find the dropoff of the medium we're *in* given the distance
-            element_type dropoff = medium.absorbance(nearest.distance);
+            element_type dropoff = medium.absorbance(nearest.distance); //< FIXME this needs to be lifted out of this clause for haze to work
             element_type transmitted_scaling = 1.0 - dropoff;
             if (transmitted_scaling > 0.0) {
                 if (recursive_contribution < adaptive_reflection_threshhold) {
@@ -299,6 +302,7 @@ color scene::trace(const ray& world_ray, const medium& media, size_t reflection_
                     transmitted_color.scale(transmitted_scaling);
                 }
             } else {
+                statistics::get().absorbed_rays++;
                 // not a transmissible medium, set that to black;
                 transmitted_color = colors::black;
             }

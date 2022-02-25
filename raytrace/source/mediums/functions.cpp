@@ -11,7 +11,7 @@ color simple(const image::point& p __attribute__((unused)),
 }
 
 color checkerboard(const image::point& p, const palette& pal) {
-    basal::exception::throw_unless(pal.size() == 2, __FILE__, __LINE__, "Must have only two colors in checkerboard");
+    basal::exception::throw_unless(pal.size() == 8, __FILE__, __LINE__, "Must have all 8 colors in checkerboard");
     element_type h = 0.5;
     element_type u = std::fmod(p.x, 1.0); // values betwee n -1.0 and 1.0 exclusive
     element_type v = std::fmod(p.y, 1.0); // values betwee n -1.0 and 1.0 exclusive
@@ -24,21 +24,21 @@ color checkerboard(const image::point& p, const palette& pal) {
         }
     } else if (u < 0 and v >= 0) { // quad 2
         if ((u > -h and v < h) or (u <= -h and v >= h)) {
-            return pal[1];
+            return pal[3];
         } else {
-            return pal[0];
+            return pal[2];
         }
     } else if (u >= 0 and v < 0) { // quad 4
         if ((u < h and v > -h) or (u >= h and v <= -h)) {
-            return pal[1];
+            return pal[7];
         } else {
-            return pal[0];
+            return pal[6];
         }
     } else if (u < 0 and v < 0) { // quad 3
         if ((u > -h and v > -h) or (u <= -h and v <= -h)) {
-            return pal[0];
+            return pal[4];
         } else {
-            return pal[1];
+            return pal[5];
         }
     }
     // should never see this

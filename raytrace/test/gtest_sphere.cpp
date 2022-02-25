@@ -125,7 +125,7 @@ TEST(SphereTest, IntersectionsFromRays) {
     ASSERT_EQ(geometry::IntersectionType::None, geometry::get_type(iSFmx));
     ASSERT_EQ(geometry::IntersectionType::None, geometry::get_type(iSFpx));
 
-    // FIXME rays from the center outwards should not intersect
+    // rays from the center outwards should intersect, so that we can have transparent objects!
     ASSERT_EQ(geometry::IntersectionType::Point, geometry::get_type(iSGmx));
     ASSERT_EQ(geometry::IntersectionType::Point, geometry::get_type(iSGpx));
 }

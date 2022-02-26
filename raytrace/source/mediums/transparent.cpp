@@ -9,7 +9,7 @@ transparent::transparent(element_type eta, element_type fade)
     : dielectric()
     , m_fade(basal::clamp(0.0, fade, 1.0))
     {
-    m_smoothness = smoothness::mirror; // no "surface colors"
+    m_smoothness = mediums::smoothness::mirror; // no "surface colors"
     m_refractive_index = eta;
 }
 

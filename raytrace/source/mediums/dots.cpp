@@ -11,7 +11,7 @@ dots::dots(element_type r, color dot, color background)
     , m_background(background)
     {
     m_ambient = colors::white;
-    m_ambient_scale = ambient::dim;
+    m_ambient_scale = mediums::ambient::dim;
 }
 
 color dots::diffuse(const raytrace::point& volumetric_point) const {

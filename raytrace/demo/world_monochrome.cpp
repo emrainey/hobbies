@@ -18,7 +18,7 @@ public:
         : light_subsamples(1)
         , look_from(5, -20, 20)
         , look_at(0, 0, 0)
-        , plain_white(colors::white, ambient::none, colors::white, smoothness::none, roughness::tight)
+        , plain_white(colors::white, mediums::ambient::none, colors::white, mediums::smoothness::none, roughness::tight)
         , ground(raytrace::origin, R3::basis::Z, 1)
         , light0(raytrace::point(-5, 0, 10), 1, colors::white, 10, light_subsamples)
         , light1(raytrace::point(-4, 0, 10), 1, colors::white, 10, light_subsamples)
@@ -47,14 +47,14 @@ public:
         {
             // assign surfaces and materials
             ground.material(&plain_white);
-            s1.material(&metals::stainless);
-            s2.material(&metals::stainless);
-            s3.material(&metals::stainless);
-            c1.material(&metals::stainless);
-            cyl.material(&metals::stainless);
-            cap.material(&metals::stainless);
-            t0.material(&metals::stainless);
-            cb0.material(&metals::stainless);
+            s1.material(&mediums::metals::stainless);
+            s2.material(&mediums::metals::stainless);
+            s3.material(&mediums::metals::stainless);
+            c1.material(&mediums::metals::stainless);
+            cyl.material(&mediums::metals::stainless);
+            cap.material(&mediums::metals::stainless);
+            t0.material(&mediums::metals::stainless);
+            cb0.material(&mediums::metals::stainless);
             cb0.rotation(iso::degrees(0), iso::degrees(0), iso::degrees(15));
     }
 

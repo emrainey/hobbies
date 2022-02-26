@@ -14,9 +14,9 @@ marble::marble(element_type seed, element_type scale, element_type gain, color d
     , m_scale(scale)
     {
     m_ambient = colors::white;
-    m_ambient_scale = ambient::none;
-    m_smoothness = smoothness::small; // moderate polish
-    m_tightness = roughness::tight;
+    m_ambient_scale = mediums::ambient::none;
+    m_smoothness = mediums::smoothness::small; // moderate polish
+    m_tightness = mediums::roughness::tight;
     m_seed = noise::convert_to_seed(iso::radians{seed});
 }
 

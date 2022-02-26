@@ -27,11 +27,11 @@ public:
         , sunlight(raytrace::vector{-2, 2, -1}, colors::white, 1E11)
         , prick(raytrace::point(0, 0, 3), colors::dim_grey, 1E3)
     {
-        block.material(&metals::chrome);
-        cutout.material(&metals::chrome);
-        cutout2.material(&metals::chrome);
-        floater.material(&metals::chrome);
-        ground.material(&metals::chrome);
+        block.material(&mediums::metals::chrome);
+        cutout.material(&mediums::metals::chrome);
+        cutout2.material(&mediums::metals::chrome);
+        floater.material(&mediums::metals::chrome);
+        ground.material(&mediums::metals::chrome);
     }
 
     ~DesktoyWorld() {}

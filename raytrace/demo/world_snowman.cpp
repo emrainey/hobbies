@@ -42,11 +42,10 @@ public:
         : world()
         , look_from(-20, 14, 5.5)
         , look_at(0, 0, 5.5)
-        , steel(colors::grey, smoothness::polished, roughness::loose, 0.05)
-        , snow(colors::white, ambient::dim, colors::white, smoothness::none, roughness::tight)
-        , red_eyes(colors::red, ambient::glowy, colors::red, smoothness::none, roughness::tight)
-        , carrot(colors::orange, ambient::dim, colors::orange, smoothness::none, roughness::tight)
-        , plum(colors::plum, ambient::none, colors::plum, smoothness::none, roughness::loose)
+        , snow(colors::white, mediums::ambient::dim, colors::white, mediums::smoothness::none, mediums::roughness::tight)
+        , red_eyes(colors::red, mediums::ambient::glowy, colors::red, mediums::smoothness::none, mediums::roughness::tight)
+        , carrot(colors::orange, mediums::ambient::dim, colors::orange, mediums::smoothness::none, mediums::roughness::tight)
+        , plum(colors::plum, mediums::ambient::none, colors::plum, mediums::smoothness::none, mediums::roughness::loose)
         , ground(raytrace::point(0, 0, 0), R3::basis::Z, 1)
         , sn_btm(raytrace::point(0, 0, 2), 2.5)
         , sn_mid(raytrace::point(0, 0, 5), 2)
@@ -84,17 +83,17 @@ public:
         , lights()
     {
         ground.material(&snow);
-        sn_btm.material(&steel);
-        sn_mid.material(&steel);
-        sn_top.material(&steel);
-        left_arm.material(&steel);
-        right_arm.material(&steel);
-        left_elbow.material(&steel);
-        right_elbow.material(&steel);
-        left_forarm.material(&steel);
-        right_forarm.material(&steel);
-        left_hand.material(&steel);
-        right_hand.material(&steel);
+        sn_btm.material(&mediums::metals::stainless);
+        sn_mid.material(&mediums::metals::stainless);
+        sn_top.material(&mediums::metals::stainless);
+        left_arm.material(&mediums::metals::stainless);
+        right_arm.material(&mediums::metals::stainless);
+        left_elbow.material(&mediums::metals::stainless);
+        right_elbow.material(&mediums::metals::stainless);
+        left_forarm.material(&mediums::metals::stainless);
+        right_forarm.material(&mediums::metals::stainless);
+        left_hand.material(&mediums::metals::stainless);
+        right_hand.material(&mediums::metals::stainless);
         left_eye.material(&red_eyes);
         right_eye.material(&red_eyes);
         hat_ribbon.material(&red_eyes);
@@ -106,7 +105,7 @@ public:
         hat_ribbon.material(&red_eyes);
         hat_top.material(&plum);
         for (int i = 0; i <= 10; i++) {
-            //lights.push_back(new bulb(raytrace::point(i - 5, 0, 15), 1.0, colors::white, 1E11, 4));
+            //lights.push_back(new lights::bulb(raytrace::point(i - 5, 0, 15), 1.0, colors::white, 1E11, 4));
             //lights.push_back(new lights::speck(raytrace::point(i - 5, 0, 15), colors::white, 5));
         }
         // move the nose into the right orientation
@@ -184,7 +183,6 @@ public:
 protected:
     raytrace::point look_from;
     raytrace::point look_at;
-    raytrace::mediums::metal steel;
     raytrace::mediums::plain snow;
     raytrace::mediums::plain red_eyes;
     raytrace::mediums::plain carrot;

@@ -198,7 +198,7 @@ protected:
     /** Some objects may return more than 1 collisions but are not closed surfaces */
     const bool m_closed_surface;
     /** The pointer to the medium to use */
-    const raytrace::medium *m_medium;
+    const raytrace::mediums::medium *m_medium;
     /** The std::bind or used to reference the instance of the mapping function */
     std::function<geometry::R2::point(const geometry::R3::point&)> m_bound_map;
 };

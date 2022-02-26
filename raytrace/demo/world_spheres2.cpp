@@ -14,8 +14,16 @@ using namespace raytrace;
 using mat = const mediums::metal;
 
 const raytrace::mediums::metal* my_metals[] = {
-    &raytrace::metals::aluminum, &raytrace::metals::brass, &raytrace::metals::bronze, &raytrace::metals::chrome, &raytrace::metals::copper,
-    &raytrace::metals::gold, &raytrace::metals::silver, &raytrace::metals::stainless, &raytrace::metals::steel, &raytrace::metals::tin
+    &raytrace::mediums::metals::aluminum,
+    &raytrace::mediums::metals::brass,
+    &raytrace::mediums::metals::bronze,
+    &raytrace::mediums::metals::chrome,
+    &raytrace::mediums::metals::copper,
+    &raytrace::mediums::metals::gold,
+    &raytrace::mediums::metals::silver,
+    &raytrace::mediums::metals::stainless,
+    &raytrace::mediums::metals::steel,
+    &raytrace::mediums::metals::tin
 };
 
 void subspheres(std::vector<raytrace::objects::sphere *>& spheres, const raytrace::point& center, double R, double sR, size_t limit) {
@@ -33,7 +41,7 @@ void materials(std::vector<mat *>& mats, size_t limits) {
         int r = rand() % dimof(my_metals);
         mats.push_back(my_metals[r]);
         // plain (plastic?)
-        //mats.push_back(new plain(colors::white, ambient::none, color::random(), smoothness::barely, roughness::tight));
+        //mats.push_back(new plain(colors::white, mediums::ambient::none, color::random(), mediums::smoothness::barely, roughness::tight));
     }
 }
 

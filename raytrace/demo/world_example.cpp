@@ -21,12 +21,12 @@ public:
         , look_at(60, 60, 0)
         , tilt{{-0.2, +0.2, 1}}
         // define some surfaces
-        , plain_green(colors::green, ambient::none, colors::green, 0.2, 100.0)
-        , plain_yellow(colors::yellow, ambient::none, colors::yellow, 0.2, 100.0)
+        , plain_green(colors::green, mediums::ambient::none, colors::green, 0.2, 100.0)
+        , plain_yellow(colors::yellow, mediums::ambient::none, colors::yellow, 0.2, 100.0)
         , grey_checkers(9, colors::grey, colors::red)
-        , plain_blue(colors::white, ambient::none, colors::blue, 0.2, 100.0)
-        , plain_red(colors::white, ambient::none, colors::red, 0.2, 100.0)
-        , plain_cyan(colors::white, ambient::none, colors::cyan, 0.2, 120.0)
+        , plain_blue(colors::white, mediums::ambient::none, colors::blue, 0.2, 100.0)
+        , plain_red(colors::white, mediums::ambient::none, colors::red, 0.2, 100.0)
+        , plain_cyan(colors::white, mediums::ambient::none, colors::cyan, 0.2, 120.0)
         , ikea_checkers(5, colors::yellow, colors::blue)
         , polka_dots(0.333, colors::black, colors::white)
         , bw_marble(13*iso::pi/72, 0.0497, 23.3, colors::black, colors::white)

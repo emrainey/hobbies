@@ -12,6 +12,9 @@
 
 namespace raytrace {
 
+/** The namespace that contains all surface/volumetric mediums */
+namespace mediums {
+
 /** A special mixin interface for mediums which are used to make objects */
 class medium {
 public:
@@ -138,4 +141,5 @@ namespace roughness {
     constexpr element_type loose = 20.0;
 }
 
+} // namespace mediums
 } // namespace raytrace

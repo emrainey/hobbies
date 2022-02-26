@@ -24,13 +24,13 @@ public:
         , ringF(center, R3::basis::Z, 15.0, 16.7)
         , planet(center, 7.5)
         {
-        planet.material(&metals::stainless);
-        ringA.material(&metals::stainless);
-        ringB.material(&metals::stainless);
-        ringC.material(&metals::stainless);
-        ringD.material(&metals::stainless);
-        ringE.material(&metals::stainless);
-        ringF.material(&metals::stainless);
+        planet.material(&mediums::metals::stainless);
+        ringA.material(&mediums::metals::stainless);
+        ringB.material(&mediums::metals::stainless);
+        ringC.material(&mediums::metals::stainless);
+        ringD.material(&mediums::metals::stainless);
+        ringE.material(&mediums::metals::stainless);
+        ringF.material(&mediums::metals::stainless);
     }
 
     ~PlanetWorld() = default;

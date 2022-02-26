@@ -19,8 +19,8 @@ using namespace raytrace;
 size_t ambient_color_index = 0;
 double ambient_scale = 0.1;
 size_t diffuse_color_index = 0;
-double smoothiness = smoothness::polished;
-double tightness = roughness::tight;
+double smoothiness = mediums::smoothness::polished;
+double tightness = mediums::roughness::tight;
 color color_choices[] = {
     colors::white, colors::red, colors::green, colors::blue,
     colors::cyan, colors::magenta, colors::yellow, colors::black
@@ -64,7 +64,7 @@ int main(int argc, char *argv[]) {
     vector down = -R3::basis::Z;
 
     raytrace::objects::plane ground(R3::origin, up, 1.0);
-    mediums::plain plain_green(colors::green, ambient::dim, colors::green, smoothness::barely, roughness::loose);
+    mediums::plain plain_green(colors::green, mediums::ambient::dim, colors::green, mediums::smoothness::barely, mediums::roughness::loose);
     ground.material(&plain_green);
 
     raytrace::point sphere_center(40, 40, 10);

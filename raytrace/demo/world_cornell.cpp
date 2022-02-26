@@ -15,9 +15,9 @@ public:
     cornell_box()
         : look_from(-220, 0, 80)
         , look_at(0, 0, 80)
-        , plain_white(colors::white, ambient::none, colors::white, smoothness::none, roughness::tight)
-        , plain_red(colors::red, ambient::none, colors::red,  smoothness::none, roughness::tight)
-        , plain_blue(colors::blue, ambient::none, colors::blue, smoothness::none, roughness::tight)
+        , plain_white(colors::white, mediums::ambient::none, colors::white, mediums::smoothness::none, mediums::roughness::tight)
+        , plain_red(colors::red, mediums::ambient::none, colors::red,  mediums::smoothness::none, mediums::roughness::tight)
+        , plain_blue(colors::blue, mediums::ambient::none, colors::blue, mediums::smoothness::none, mediums::roughness::tight)
         , marble0(0.128283, 0.2, 32.0, colors::black, colors::yellow)
         , glass(mediums::refractive_index::glass, 0.9)
         , wall0(raytrace::point(0, 80, 80), -R3::basis::Y, 1.0) // left
@@ -38,7 +38,7 @@ public:
         marble0.mapper(std::bind(&objects::cuboid::map, &box, std::placeholders::_1)); // allows 2D mapping on the cube
         // box.material(&marble0);
         box.material(&glass);
-        ball.material(&metals::stainless);
+        ball.material(&mediums::metals::stainless);
     }
 
     raytrace::point& looking_from() override {

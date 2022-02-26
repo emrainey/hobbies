@@ -82,7 +82,7 @@ public:
      *                               When it falls below a global limit, the reflection will not be considered.
      *                               @see adaptive_reflection_threshhold
      */
-    color trace(const ray& world_ray, const medium& media, size_t depth = 1, double recursive_contribution = 1.0);
+    color trace(const ray& world_ray, const mediums::medium& media, size_t depth = 1, double recursive_contribution = 1.0);
 
     /**
      * Computes the scene and saves the camera image to a file

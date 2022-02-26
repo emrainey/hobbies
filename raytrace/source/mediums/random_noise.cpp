@@ -10,7 +10,7 @@ random_noise::random_noise()
     : opaque()
     {
     m_ambient = colors::white;
-    m_ambient_scale = ambient::dim;
+    m_ambient_scale = mediums::ambient::dim;
 }
 
 color random_noise::diffuse(const raytrace::point& volumetric_point) const {

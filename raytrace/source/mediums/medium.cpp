@@ -1,14 +1,14 @@
 #include "raytrace/mediums/medium.hpp"
 
 namespace raytrace {
-
+namespace mediums {
 // Surface Constructor
 medium::medium()
-    : m_ambient_scale(ambient::none)
+    : m_ambient_scale(mediums::ambient::none)
     , m_ambient(colors::black)
     , m_diffuse(colors::grey)
     , m_tightness(0.0f)
-    , m_smoothness(smoothness::none)
+    , m_smoothness(mediums::smoothness::none)
     , m_transmissivity(0.0)
     , m_refractive_index(0.0)
     , m_reducing_map(nullptr)
@@ -69,4 +69,5 @@ raytrace::vector medium::perturbation(const raytrace::point&) const {
     return geometry::R3::null;
 }
 
+} // namespace mediums
 } // namespace raytrace

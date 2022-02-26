@@ -23,7 +23,7 @@ public:
         , floor(R3::origin, R3::basis::Z, 100, 100)
         , ikea_checkers(0.1, colors::blue, colors::yellow, colors::red, colors::magenta, colors::green, colors::cyan, colors::black, colors::white)
         , schott_glass(mediums::refractive_index::glass, 0.3)
-        , red_plastic(colors::white, ambient::dim, colors::red, smoothness::barely, roughness::tight)
+        , red_plastic(colors::white, mediums::ambient::dim, colors::red, mediums::smoothness::barely, mediums::roughness::tight)
         , sunlight(raytrace::vector{-2, 2, -1}, colors::white, 1E11)
         , backlight(raytrace::point(-10, -10, 12), colors::white, 1E3)
         , frontlight(raytrace::point(10, 10, 12), colors::white, 1E3)

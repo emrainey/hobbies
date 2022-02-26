@@ -45,7 +45,7 @@ public:
         spheres.push_back(new raytrace::objects::sphere(center, 6));
         subspheres(spheres, center, 12.0, 2);
         for (auto & s : spheres) {
-            s->material(&metals::stainless);
+            s->material(&mediums::metals::stainless);
         }
         specks.push_back(new lights::speck(raytrace::point(80, 120, 80), colors::white, 1E11));
         specks.push_back(new lights::speck(raytrace::point(80, 40, 80), colors::white, 1E11));

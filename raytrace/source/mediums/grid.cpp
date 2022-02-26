@@ -11,7 +11,7 @@ grid::grid(element_type scale, color dark, color light)
     , m_light(light)
     {
     m_ambient = colors::white;
-    m_ambient_scale = ambient::dim;
+    m_ambient_scale = mediums::ambient::dim;
 }
 
 color grid::diffuse(const raytrace::point& volumetric_point) const {

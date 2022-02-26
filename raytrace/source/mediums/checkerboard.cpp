@@ -10,8 +10,8 @@ checkerboard::checkerboard(element_type repeat, color dark, color light)
     , m_pal(2)
     {
     m_ambient = colors::white;
-    m_ambient_scale = ambient::none;
-    m_smoothness = smoothness::barely;
+    m_ambient_scale = mediums::ambient::none;
+    m_smoothness = mediums::smoothness::barely;
     m_pal[0] = dark;
     m_pal[1] = light;
     m_pal[2] = dark;
@@ -32,8 +32,8 @@ checkerboard::checkerboard(element_type repeat,
     , m_pal(8)
     {
         m_ambient = colors::white;
-        m_ambient_scale = ambient::none;
-        m_smoothness = smoothness::barely;
+        m_ambient_scale = mediums::ambient::none;
+        m_smoothness = mediums::smoothness::barely;
         m_pal[0] = q1_dark;
         m_pal[1] = q1_light;
         m_pal[2] = q2_dark;

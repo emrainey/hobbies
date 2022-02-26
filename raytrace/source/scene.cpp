@@ -106,7 +106,7 @@ scene::intersect_set scene::nearest_object(const ray& world_ray,
     return intersect_set(std::sqrt(closest_distance2), closest_intersection, closest_object);
 }
 
-color scene::trace(const ray& world_ray, const medium& media, size_t reflection_depth, double recursive_contribution) {
+color scene::trace(const ray& world_ray, const mediums::medium& media, size_t reflection_depth, double recursive_contribution) {
     using namespace operators;
 
     // finds all the intersections with the objects
@@ -121,7 +121,7 @@ color scene::trace(const ray& world_ray, const medium& media, size_t reflection_
         // temporary for not using pointer.
         const objects::object& obj = *nearest.objptr;
         // temporary for the object's medium
-        const medium& medium = obj.material();
+        const mediums::medium& medium = obj.material();
         // the intersection point in world space
         raytrace::point world_surface_point = as_point(nearest.intersector);
         // find produce the object surface point
@@ -238,7 +238,7 @@ color scene::trace(const ray& world_ray, const medium& media, size_t reflection_
                             // convenience reference
                             const raytrace::objects::object &obj = *nearest.objptr;
                             // convenience reference
-                            const raytrace::medium &mat = obj.material();
+                            const raytrace::mediums::medium &mat = obj.material();
                             // trace another ray through the object
                             surface_color_samples[sample_index] += trace(world_ray, mat, reflection_depth - 1, recursive_contribution);
                         }

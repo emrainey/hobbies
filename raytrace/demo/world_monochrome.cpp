@@ -9,6 +9,7 @@
 #include "world.hpp"
 
 using namespace raytrace;
+using namespace raytrace::objects;
 
 class MonochromeWorld : public world {
 public:
@@ -106,8 +107,8 @@ protected:
     element_type light_subsamples;
     raytrace::point look_from;
     raytrace::point look_at;
-    plain plain_white;
-    raytrace::plane ground;
+    mediums::plain plain_white;
+    raytrace::objects::plane ground;
     bulb light0;
     bulb light1;
     bulb light2;
@@ -119,10 +120,10 @@ protected:
     bulb light8;
     bulb light9;
     bulb light10;
-    raytrace::sphere s1;
+    raytrace::objects::sphere s1;
     //ellipsoid s1;
-    raytrace::sphere s2;
-    raytrace::sphere s3;
+    raytrace::objects::sphere s2;
+    raytrace::objects::sphere s3;
     cone c1;
     cylinder cyl;
     //ellipticalcylinder cylint;

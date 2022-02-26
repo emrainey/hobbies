@@ -5,6 +5,7 @@
 #include "raytrace/objects/plane.hpp"
 
 namespace raytrace {
+namespace objects {
 /** A three point polygon which uses the convex "inner" rules to find the intersection and not the plane intersection rules */
 class triangle : public plane {
 public:
@@ -28,8 +29,8 @@ private:
     /** The squared maximum radius */
     element_type m_radius2;
 };
-
+}
 /** Returns the plane in which the three points we co-planar */
-geometry::plane as_plane(const triangle& tri);
+geometry::plane as_plane(const objects::triangle& tri);
 
 }

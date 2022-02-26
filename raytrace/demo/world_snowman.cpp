@@ -30,10 +30,10 @@ public:
     }
     ~Tree() {}
 protected:
-    raytrace::plain leaves;
-    raytrace::plain bark;
-    raytrace::cone body;
-    raytrace::cylinder trunk;
+    raytrace::mediums::plain leaves;
+    raytrace::mediums::plain bark;
+    raytrace::objects::cone body;
+    raytrace::objects::cylinder trunk;
 };
 
 class SnowmanWorld : public world {
@@ -184,37 +184,37 @@ public:
 protected:
     raytrace::point look_from;
     raytrace::point look_at;
-    raytrace::metal steel;
-    raytrace::plain snow;
-    raytrace::plain red_eyes;
-    raytrace::plain carrot;
-    raytrace::plain plum;
+    raytrace::mediums::metal steel;
+    raytrace::mediums::plain snow;
+    raytrace::mediums::plain red_eyes;
+    raytrace::mediums::plain carrot;
+    raytrace::mediums::plain plum;
     // plane
-    raytrace::plane ground;
+    raytrace::objects::plane ground;
     // snowman body
-    raytrace::sphere sn_btm;
-    raytrace::sphere sn_mid;
-    raytrace::sphere sn_top;
+    raytrace::objects::sphere sn_btm;
+    raytrace::objects::sphere sn_mid;
+    raytrace::objects::sphere sn_top;
     // snowman arms
-    raytrace::cylinder left_arm;
-    raytrace::cylinder right_arm;
-    raytrace::sphere left_elbow;
-    raytrace::sphere right_elbow;
-    raytrace::cylinder left_forarm;
-    raytrace::cylinder right_forarm;
-    raytrace::sphere left_hand;
-    raytrace::sphere right_hand;
+    raytrace::objects::cylinder left_arm;
+    raytrace::objects::cylinder right_arm;
+    raytrace::objects::sphere left_elbow;
+    raytrace::objects::sphere right_elbow;
+    raytrace::objects::cylinder left_forarm;
+    raytrace::objects::cylinder right_forarm;
+    raytrace::objects::sphere left_hand;
+    raytrace::objects::sphere right_hand;
     // snowman face
-    raytrace::sphere left_eye;
-    raytrace::sphere right_eye;
-    raytrace::cone nose;
+    raytrace::objects::sphere left_eye;
+    raytrace::objects::sphere right_eye;
+    raytrace::objects::cone nose;
     // hat
-    raytrace::ring hat_btm;
-    raytrace::cylinder hat_core;
-    raytrace::cylinder hat_brim;
-    raytrace::ring hat_rim;
-    raytrace::cylinder hat_ribbon;
-    raytrace::ring hat_top;
+    raytrace::objects::ring hat_btm;
+    raytrace::objects::cylinder hat_core;
+    raytrace::objects::cylinder hat_brim;
+    raytrace::objects::ring hat_rim;
+    raytrace::objects::cylinder hat_ribbon;
+    raytrace::objects::ring hat_top;
     // trees
     Tree tree01;
     Tree tree02;

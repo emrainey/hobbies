@@ -6,9 +6,10 @@
 #include "raytrace/gtest_helper.hpp"
 
 using namespace raytrace;
+using namespace raytrace::objects;
+//using namespace raytrace::lights;
 using namespace raytrace::colors;
 using namespace raytrace::operators;
-
 
 class RenderTest : public ::testing::Test {
 public:
@@ -97,27 +98,27 @@ protected:
     beam beam_of_light;
     speck inner_light;
     R3::point look_at;
-    raytrace::plane plane0;
+    raytrace::objects::plane plane0;
     std::vector<scene*> scenes;
 };
 
 TEST_F(RenderTest, DISABLED_Sphere) {
-    raytrace::sphere shape(look_at, 10);
-    checkers.mapper(std::bind(&raytrace::sphere::map, &shape, std::placeholders::_1));
+    raytrace::objects::sphere shape(look_at, 10);
+    checkers.mapper(std::bind(&raytrace::objects::sphere::map, &shape, std::placeholders::_1));
     shape.material(&checkers);
     add_object(&shape);
     render_all("sphere");
 }
 
 TEST_F(RenderTest, DISABLED_Pyramid) {
-    raytrace::pyramid shape(look_at, 10);
+    raytrace::objects::pyramid shape(look_at, 10);
     shape.material(&plastic);
     add_object(&shape);
     render_all("pyramid");
 }
 
 TEST_F(RenderTest, DISABLED_Cube) {
-    raytrace::cuboid shape(look_at, 10, 10, 10);
+    raytrace::objects::cuboid shape(look_at, 10, 10, 10);
     iso::degrees rx(0);
     iso::degrees ry(0);
     iso::degrees rz(45);
@@ -132,8 +133,8 @@ TEST_F(RenderTest, DISABLED_Cube) {
 TEST_F(RenderTest, DISABLED_Cylinder) {
     R3::point c0(0, 0, 10);
     R3::point c1(0, 0, 20);
-    raytrace::cylinder shape(c0, 10, 10);
-    raytrace::ring cap(c1, R3::basis::Z, 0, 10);
+    raytrace::objects::cylinder shape(c0, 10, 10);
+    raytrace::objects::ring cap(c1, R3::basis::Z, 0, 10);
     //shape.material(&checkers);
     shape.material(&rubber);
     // cap.material(&checkers);
@@ -144,7 +145,7 @@ TEST_F(RenderTest, DISABLED_Cylinder) {
 }
 
 TEST_F(RenderTest, DISABLED_Cone) {
-    raytrace::cone shape(R3::origin, 10, 20);
+    raytrace::objects::cone shape(R3::origin, 10, 20);
     //shape.material(&checkers);
     shape.material(&rubber);
     add_object(&shape);
@@ -153,9 +154,9 @@ TEST_F(RenderTest, DISABLED_Cone) {
 
 TEST_F(RenderTest, DISABLED_Ring) {
     R3::vector up{{1,1,3}};
-    raytrace::ring shape1(look_at, up, 5, 10);
-    raytrace::ring shape2(look_at, -up, 5, 10);
-    checkers2.mapper(std::bind(&raytrace::ring::map, &shape1, std::placeholders::_1));
+    raytrace::objects::ring shape1(look_at, up, 5, 10);
+    raytrace::objects::ring shape2(look_at, -up, 5, 10);
+    checkers2.mapper(std::bind(&raytrace::objects::ring::map, &shape1, std::placeholders::_1));
     shape1.material(&checkers2);
     shape2.material(&checkers2);
     //shape1.material(&rubber);
@@ -169,8 +170,8 @@ TEST_F(RenderTest, DISABLED_Triangle) {
     R3::point A(10, 0, 10);
     R3::point B(0,  0, 13);
     R3::point C(0, 10, 10);
-    raytrace::triangle shape1(A, B, C);
-    raytrace::triangle shape2(C, B, A);
+    raytrace::objects::triangle shape1(A, B, C);
+    raytrace::objects::triangle shape2(C, B, A);
     shape1.material(&rubber);
     shape2.material(&rubber);
     add_object(&shape1);
@@ -181,7 +182,7 @@ TEST_F(RenderTest, DISABLED_Triangle) {
 TEST_F(RenderTest, DISABLED_Square) {
     square shape1(look_at, R3::basis::Z, 16, 16);
     square shape2(look_at,-R3::basis::Z, 16, 16);
-    checkers2.mapper(std::bind(&raytrace::square::map, &shape1, std::placeholders::_1));
+    checkers2.mapper(std::bind(&raytrace::objects::square::map, &shape1, std::placeholders::_1));
     shape1.material(&checkers2);
     shape2.material(&checkers2);
     add_object(&shape1);
@@ -237,27 +238,27 @@ TEST_F(RenderTest, DISABLED_QuadraticHyperboloid) {
 }
 
 TEST_F(RenderTest, DISABLED_InclusiveOverlap) {
-    raytrace::sphere s0(R3::point(5, 0, 10), 10);
-    raytrace::sphere s1(R3::point(-5, 0, 10), 10);
-    raytrace::overlap shape(s0, s1, overlap::type::inclusive);
+    raytrace::objects::sphere s0(R3::point(5, 0, 10), 10);
+    raytrace::objects::sphere s1(R3::point(-5, 0, 10), 10);
+    raytrace::objects::overlap shape(s0, s1, overlap::type::inclusive);
     shape.material(&plastic);
     add_object(&shape);
     render_all("inclusive");
 }
 
 TEST_F(RenderTest, DISABLED_SubtractiveOverlap) {
-    raytrace::sphere s0(R3::point(5, 0, 10), 10);
-    raytrace::sphere s1(R3::point(-5, 0, 10), 10);
-    raytrace::overlap shape(s1, s0, overlap::type::subtractive);
+    raytrace::objects::sphere s0(R3::point(5, 0, 10), 10);
+    raytrace::objects::sphere s1(R3::point(-5, 0, 10), 10);
+    raytrace::objects::overlap shape(s1, s0, overlap::type::subtractive);
     shape.material(&plastic);
     add_object(&shape);
     render_all("subtractive_spheres");
 }
 
 TEST_F(RenderTest, DISABLED_AdditiveOverlap) {
-    raytrace::sphere s0(R3::point(5, 0, 10), 10);
-    raytrace::sphere s1(R3::point(-5, 0, 10), 10);
-    raytrace::overlap shape(s1, s0, overlap::type::additive);
+    raytrace::objects::sphere s0(R3::point(5, 0, 10), 10);
+    raytrace::objects::sphere s1(R3::point(-5, 0, 10), 10);
+    raytrace::objects::overlap shape(s1, s0, overlap::type::additive);
     shape.material(&plastic);
     shape.position(raytrace::point(7,7,7)); // the benifit is that the objects are grouped now...
     add_object(&shape);
@@ -266,9 +267,9 @@ TEST_F(RenderTest, DISABLED_AdditiveOverlap) {
 
 TEST_F(RenderTest, DISABLED_SubtractiveOverlap2) {
     constexpr bool debug = false;
-    raytrace::cuboid outer_box(R3::point(0, 0, 10), 10, 10, 10);
-    raytrace::cuboid inner_box(R3::point(0, 0, 10), 20, 5, 5);
-    raytrace::overlap shape(outer_box, inner_box, overlap::type::subtractive);
+    raytrace::objects::cuboid outer_box(R3::point(0, 0, 10), 10, 10, 10);
+    raytrace::objects::cuboid inner_box(R3::point(0, 0, 10), 20, 5, 5);
+    raytrace::objects::overlap shape(outer_box, inner_box, overlap::type::subtractive);
     inner_box.rotation(iso::degrees(0), iso::degrees(0), iso::degrees(45));
     if constexpr (not debug) {
         // FIXME there are a lot of single hit returns from cuboids so it's hard to reason about
@@ -287,7 +288,7 @@ TEST_F(RenderTest, DISABLED_SubtractiveOverlap2) {
 TEST_F(RenderTest, DISABLED_SphereSpotLight) {
     raytrace::ray r0(raytrace::point(-30, 0, 30), -R3::basis::Z);
     raytrace::spot spot0(r0, colors::white, 1E3, iso::degrees{45});
-    raytrace::sphere shape(look_at, 10);
+    raytrace::objects::sphere shape(look_at, 10);
     shape.material(&checkers2);
     add_object(&shape);
     add_light(&spot0);
@@ -295,7 +296,7 @@ TEST_F(RenderTest, DISABLED_SphereSpotLight) {
 }
 
 TEST_F(RenderTest, DISABLED_SphereBunchOfSpecks) {
-    raytrace::sphere shape(look_at, 5);
+    raytrace::objects::sphere shape(look_at, 5);
     shape.material(&checkers2);
     add_object(&shape);
     // create a 20x20 grid of specks above the sphere

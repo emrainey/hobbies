@@ -8,9 +8,10 @@
 #include "geometry/gtest_helper.hpp"
 #include "raytrace/gtest_helper.hpp"
 
-using namespace raytrace;
-
 TEST(ConeTest, RayIntersection) {
+    using namespace raytrace;
+    using namespace raytrace::objects;
+
     raytrace::point C(0, 0, 0);
     cone cone0(C, 1.0, 1.0);
 
@@ -45,10 +46,11 @@ TEST(ConeTest, RayIntersection) {
 }
 
 TEST(ConeTest, Normals) {
+    using namespace raytrace;
+    using namespace raytrace::objects;
+
     raytrace::point C(0, 0, 0);
-
     cylinder cyl1(C, 1.0, 1.0);
-
     raytrace::point p0( 1, 0, 1);
     raytrace::point p1( 0, 1, 1);
     raytrace::point p2(-1, 0,-1);
@@ -64,6 +66,9 @@ TEST(ConeTest, Normals) {
 }
 
 TEST(ConeTest, Mapping) {
+    using namespace raytrace;
+    using namespace raytrace::objects;
+
     raytrace::point C(0, 0, 0);
     element_type h2 = 1.0;
     element_type r = 1.0;

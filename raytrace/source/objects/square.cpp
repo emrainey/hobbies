@@ -2,6 +2,7 @@
 #include "raytrace/objects/square.hpp"
 
 namespace raytrace {
+namespace objects {
 
 using namespace linalg;
 using namespace linalg::operators;
@@ -9,7 +10,7 @@ using namespace geometry;
 using namespace geometry::operators;
 
 square::square(const point& C, const vector& N, element_type hh, element_type hw)
-    : raytrace::plane(C, N, 1.0)
+    : raytrace::objects::plane(C, N, 1.0)
     , m_points()
     {
     m_points[0] = raytrace::point(-hw, -hh, 0);
@@ -45,4 +46,5 @@ image::point square::map(const point& object_surface_point) const {
     return image::point(object_surface_point.x / m_surface_scale, object_surface_point.y / m_surface_scale);
 }
 
+} // namespace objects
 } // namespace raytrace

@@ -4,8 +4,9 @@
 #include "raytrace/objects/plane.hpp"
 
 namespace raytrace {
+namespace objects {
 /** A plane bounded by an inner and outer radius */
-class ring : public raytrace::plane {
+class ring : public raytrace::objects::plane {
 public:
     /**
      * Constructs a ring
@@ -21,8 +22,8 @@ private:
     element_type m_inner_radius2; ///< Squared Inner Radius
     element_type m_outer_radius2; ///< Squared Outer Radius
 };
-
+}
 /** Returns the plane in which the three points we co-planar */
-geometry::plane as_plane(const ring& tri);
+geometry::plane as_plane(const objects::ring& tri);
 
 }

@@ -63,12 +63,12 @@ int main(int argc, char *argv[]) {
     vector up = R3::basis::Z;
     vector down = -R3::basis::Z;
 
-    raytrace::plane ground(R3::origin, up, 1.0);
-    plain plain_green(colors::green, ambient::dim, colors::green, smoothness::barely, roughness::loose);
+    raytrace::objects::plane ground(R3::origin, up, 1.0);
+    mediums::plain plain_green(colors::green, ambient::dim, colors::green, smoothness::barely, roughness::loose);
     ground.material(&plain_green);
 
     raytrace::point sphere_center(40, 40, 10);
-    raytrace::sphere test_sphere(sphere_center, 10);
+    raytrace::objects::sphere test_sphere(sphere_center, 10);
 
     // define the light
     beam sunlight(raytrace::vector{-2, 2, -1}, colors::white, 1E11);
@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
         //scene.background = colors::black;
 
         // define some surfaces
-        plain testsurface(color_choices[ambient_color_index], ambient_scale, color_choices[diffuse_color_index], smoothiness, tightness);
+        mediums::plain testsurface(color_choices[ambient_color_index], ambient_scale, color_choices[diffuse_color_index], smoothiness, tightness);
         test_sphere.material(&testsurface);
 
         // add the objects to the scene.

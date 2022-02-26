@@ -34,17 +34,17 @@ public:
         , look_from(35, 0, 20)
         , look_at(0, 0, 0)
         , grid(1.0, colors::dark_olive_green, colors::yellow)
-        , glass(refractive_index::glass, 0.88)
+        , glass(mediums::refractive_index::glass, 0.88)
         , info(10.0, iso::radians(iso::pi/4))
         , x0(raytrace::point(info.separation, 0, 5), info.radius)
         , x1(raytrace::point(-info.separation, 0, 5), info.radius)
-        , convex_lens(x0, x1, overlap::type::inclusive)
+        , convex_lens(x0, x1, objects::overlap::type::inclusive)
         , ground(R3::origin, R3::basis::Z, 1000, 1000)
         , sunlight(raytrace::vector{-2, 2, -1}, colors::white, 1E11)
         , prick(raytrace::point(0, 0, 12), colors::dim_grey, 1E3)
     {
         // reduce the volumetric point to a planar point
-        grid.mapper(std::bind(&raytrace::square::map, &ground, std::placeholders::_1));
+        grid.mapper(std::bind(&raytrace::objects::square::map, &ground, std::placeholders::_1));
 
         x0.material(&glass);
         x1.material(&glass);
@@ -87,13 +87,13 @@ public:
 protected:
     raytrace::point look_from;
     raytrace::point look_at;
-    raytrace::grid grid;
-    raytrace::transparent glass;
+    raytrace::mediums::grid grid;
+    raytrace::mediums::transparent glass;
     ConvexLensData info;
-    raytrace::sphere x0;
-    raytrace::sphere x1;
-    raytrace::overlap convex_lens;
-    raytrace::square ground;
+    raytrace::objects::sphere x0;
+    raytrace::objects::sphere x1;
+    raytrace::objects::overlap convex_lens;
+    raytrace::objects::square ground;
     raytrace::beam sunlight;
     raytrace::speck prick;
 };

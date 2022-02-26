@@ -2,7 +2,7 @@
 #include "raytrace/objects/torus.hpp"
 
 namespace raytrace {
-
+namespace objects {
 using namespace linalg;
 using namespace linalg::operators;
 using namespace geometry;
@@ -127,4 +127,5 @@ void torus::print(const char str[]) const {
     std::cout << str << " torus @" << this << " " << position() << " Inner Radius" << m_tube_radius << " Ring Radius:" << m_ring_radius << std::endl;
 }
 
-}
+} // namespace objects
+} // namespace raytrace

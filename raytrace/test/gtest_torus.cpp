@@ -8,9 +8,10 @@
 #include "geometry/gtest_helper.hpp"
 #include "raytrace/gtest_helper.hpp"
 
-using namespace raytrace;
-
 TEST(TorusTest, RayIntersection) {
+    using namespace raytrace;
+    using namespace raytrace::objects;
+
     element_type r = 2.0;
     element_type t = 1.0;
     raytrace::point C(0, 0, 0);
@@ -68,6 +69,9 @@ TEST(TorusTest, RayIntersection) {
 }
 
 TEST(TorusTest, Normals) {
+    using namespace raytrace;
+    using namespace raytrace::objects;
+
     element_type r = 2;
     element_type t = 1;
     raytrace::point C(0, 0, 0);
@@ -109,6 +113,9 @@ TEST(TorusTest, Normals) {
 }
 
 TEST(TorusTest, Mapping) {
+    using namespace raytrace;
+    using namespace raytrace::objects;
+
     element_type r = 2;
     element_type t = 1;
     raytrace::point C(0, 0, 0);

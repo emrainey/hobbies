@@ -17,22 +17,21 @@ public:
         : world()
         , look_from(35, 35, 35)
         , look_at(0, 0,0)
-        , steel(colors::grey, smoothness::polished, roughness::loose)
         , block(raytrace::point(0, 0, 2), 8, 8, 2)
         , cutout(raytrace::point(0, 0, 6), 4)
-        , base(block, cutout, raytrace::overlap::type::subtractive) // cutout from block
+        , base(block, cutout, raytrace::objects::overlap::type::subtractive) // cutout from block
         , floater(raytrace::point(0, 0, 6), 2.7)
         , cutout2(raytrace::point(0, 0, -15), 20)
-        , final_base(base, cutout2, raytrace::overlap::type::inclusive) // cutout2 from base
+        , final_base(base, cutout2, raytrace::objects::overlap::type::inclusive) // cutout2 from base
         , ground(R3::origin, R3::basis::Z, 1)
         , sunlight(raytrace::vector{-2, 2, -1}, colors::white, 1E11)
         , prick(raytrace::point(0, 0, 3), colors::dim_grey, 1E3)
     {
-        block.material(&steel);
-        cutout.material(&steel);
-        cutout2.material(&steel);
-        floater.material(&steel);
-        ground.material(&steel);
+        block.material(&metals::chrome);
+        cutout.material(&metals::chrome);
+        cutout2.material(&metals::chrome);
+        floater.material(&metals::chrome);
+        ground.material(&metals::chrome);
     }
 
     ~DesktoyWorld() {}
@@ -72,14 +71,13 @@ public:
 protected:
     raytrace::point look_from;
     raytrace::point look_at;
-    raytrace::metal steel;
-    raytrace::cuboid block;
-    raytrace::sphere cutout;
-    raytrace::overlap base;
-    raytrace::sphere floater;
-    raytrace::sphere cutout2;
-    raytrace::overlap final_base;
-    raytrace::plane ground;
+    raytrace::objects::cuboid block;
+    raytrace::objects::sphere cutout;
+    raytrace::objects::overlap base;
+    raytrace::objects::sphere floater;
+    raytrace::objects::sphere cutout2;
+    raytrace::objects::overlap final_base;
+    raytrace::objects::plane ground;
     raytrace::beam sunlight;
     raytrace::speck prick;
 };

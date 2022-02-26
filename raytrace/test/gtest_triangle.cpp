@@ -7,12 +7,13 @@
 #include "raytrace/gtest_helper.hpp"
 
 using namespace raytrace;
+using namespace raytrace::objects;
 
 TEST(TriangleTest, PlaneParallelTriangle) {
     raytrace::point A(0.0, 0.0, 0.0);
     raytrace::point B(1.0, 1.0, 0.0);
     raytrace::point C(-1.0, 1.0, 0.0);
-    raytrace::triangle D(A, B, C);
+    raytrace::objects::triangle D(A, B, C);
     geometry::plane E = as_plane(D);
     vector F{{0.0, 0.0, 1.0 }};  // +Z
     vector G = E.unormal();
@@ -22,11 +23,10 @@ TEST(TriangleTest, PlaneParallelTriangle) {
 }
 
 TEST(TriangleTest, RayIntersection) {
-    using namespace raytrace;
     raytrace::point A(1, 0, 0);
     raytrace::point B(-1,-1,0);
     raytrace::point C(0, 1, 0);
-    triangle T(A, B, C);
+    raytrace::objects::triangle T(A, B, C);
     ray r0(raytrace::point(0.5, 0.5, 1), vector{{0, 0, -1}});
 
     geometry::intersection ir0T = T.intersect(r0);

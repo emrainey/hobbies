@@ -22,13 +22,13 @@ public:
         , toy_ball(raytrace::point(-20, -20, 2.0), 2.0)
         , floor(R3::origin, R3::basis::Z, 100, 100)
         , ikea_checkers(0.1, colors::blue, colors::yellow, colors::red, colors::magenta, colors::green, colors::cyan, colors::black, colors::white)
-        , schott_glass(raytrace::refractive_index::glass, 0.3)
+        , schott_glass(raytrace::mediums::refractive_index::glass, 0.3)
         , red_plastic(colors::white, ambient::dim, colors::red, smoothness::barely, roughness::tight)
         , sunlight(raytrace::vector{-2, 2, -1}, colors::white, 1E11)
         , backlight(raytrace::point(-10, -10, 12), colors::white, 1E3)
         , frontlight(raytrace::point(10, 10, 12), colors::white, 1E3)
         {
-            ikea_checkers.mapper(std::bind(&raytrace::square::map, &floor, std::placeholders::_1));
+            ikea_checkers.mapper(std::bind(&raytrace::objects::square::map, &floor, std::placeholders::_1));
             floor.material(&ikea_checkers);
             glass_ball.material(&schott_glass);
             //glass_cube.material(&schott_glass);
@@ -71,13 +71,13 @@ public:
 protected:
     raytrace::point look_from;
     raytrace::point look_at;
-    raytrace::sphere glass_ball;
-    //raytrace::cuboid glass_cube;
-    raytrace::sphere toy_ball;
-    raytrace::square floor;
-    raytrace::checkerboard ikea_checkers;
-    raytrace::transparent schott_glass;
-    raytrace::plain red_plastic;
+    raytrace::objects::sphere glass_ball;
+    //raytrace::objects::cuboid glass_cube;
+    raytrace::objects::sphere toy_ball;
+    raytrace::objects::square floor;
+    raytrace::mediums::checkerboard ikea_checkers;
+    raytrace::mediums::transparent schott_glass;
+    raytrace::mediums::plain red_plastic;
     beam sunlight;
     raytrace::speck backlight;
     raytrace::speck frontlight;

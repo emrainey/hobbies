@@ -1,7 +1,7 @@
 #include <raytrace/objects/paraboloid.hpp>
 
 namespace raytrace {
-
+namespace objects {
 paraboloid::paraboloid(const point &center, element_type a, element_type b, element_type f)
     : quadratic(center)
     {
@@ -13,4 +13,5 @@ paraboloid::paraboloid(const point &center, element_type a, element_type b, elem
     }};
 }
 
+} // namespace objects
 } // namespace raytrace

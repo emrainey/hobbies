@@ -5,7 +5,7 @@
 #include "raytrace/objects/object.hpp"
 
 namespace raytrace {
-
+namespace objects {
 /** The simple pyramid which follows z = height - |x| - |y| */
 class pyramid : public object {
 public:
@@ -26,5 +26,5 @@ public:
 protected:
     double m_height; //!< The height of the pyramid above 0 in Z.
 };
-
+}
 }

@@ -1,7 +1,7 @@
 #include <raytrace/objects/ellipticalcone.hpp>
 
 namespace raytrace {
-
+namespace objects {
 ellipticalcone::ellipticalcone(const point &center, element_type a, element_type b)
     : quadratic(center)
     {
@@ -13,4 +13,5 @@ ellipticalcone::ellipticalcone(const point &center, element_type a, element_type
     }};
 }
 
+} // namespace objects
 } // namespace raytrace

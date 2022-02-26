@@ -4,7 +4,7 @@
 #include <linalg/linalg.hpp>
 #include "raytrace/objects/plane.hpp"
 namespace raytrace {
-
+namespace objects {
 /** A square limit on a plane */
 class square : public plane {
 public:
@@ -25,8 +25,8 @@ public:
 private:
     std::array<raytrace::point, 2> m_points;
 };
-
+}
 /** Returns the plane in which the three points we co-planar */
-geometry::plane as_plane(const square& sq);
+geometry::plane as_plane(const objects::square& sq);
 
 }

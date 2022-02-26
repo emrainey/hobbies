@@ -11,6 +11,8 @@
 
 TEST(CuboidTest, Normals) {
     using namespace raytrace;
+    using namespace raytrace::objects;
+
     raytrace::point P(0,0,0);
     cuboid c0(P, 1.0, 1.0, 1.0);
 
@@ -35,6 +37,8 @@ TEST(CuboidTest, Normals) {
 
 TEST(CuboidTest, IntersectionMissed) {
     using namespace raytrace;
+    using namespace raytrace::objects;
+
     raytrace::point P(0,0,0);
     cuboid c0(P, 1.0, 1.0, 1.0);
     raytrace::point Q(2.0, 2.0, 2.0);
@@ -47,6 +51,8 @@ TEST(CuboidTest, IntersectionMissed) {
 
 TEST(CuboidTest, IntersectionHitX) {
     using namespace raytrace;
+    using namespace raytrace::objects;
+
     raytrace::point P(0,0,0);
     cuboid c0(P, 1.0, 1.0, 1.0);
     raytrace::point Q(2.0, 0.75, 0.25);
@@ -62,6 +68,8 @@ TEST(CuboidTest, IntersectionHitX) {
 
 TEST(CuboidTest, IntersectionMassXY) {
     using namespace raytrace;
+    using namespace raytrace::objects;
+
     raytrace::point P(7, 22, -19);
     element_type w = 0.5; // the half-width of the cuboid
     cuboid c0(P, w, w, w);
@@ -83,6 +91,8 @@ TEST(CuboidTest, IntersectionMassXY) {
 
 TEST(CuboidTest, IntersectionsOnSurface) {
     using namespace raytrace;
+    using namespace raytrace::objects;
+
     raytrace::point center( 0, 0, 0);
     element_type w = 2.0;
     cuboid c0(center, w, w, w);

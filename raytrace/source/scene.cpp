@@ -4,7 +4,7 @@
 
 namespace raytrace {
 
-scene::intersect_set::intersect_set(element_type d, const geometry::intersection& i, const object *o)
+scene::intersect_set::intersect_set(element_type d, const geometry::intersection& i, const objects::object *o)
     : distance(d)
     , intersector(i)
     , objptr(o) {}
@@ -32,7 +32,7 @@ scene::~scene() {
     m_lights.clear();
 }
 
-void scene::add_object(const object *obj) {
+void scene::add_object(const objects::object *obj) {
     m_objects.push_back(obj);
 }
 
@@ -67,7 +67,7 @@ scene::intersect_set scene::nearest_object(const ray& world_ray,
                                            const intersect_list& intersections,
                                            const object_list& objects) {
     basal::exception::throw_unless(intersections.size() == objects.size(), __FILE__, __LINE__, "Lists must match!");
-    const object* closest_object = nullptr;
+    const objects::object* closest_object = nullptr;
     element_type closest_distance2 = std::numeric_limits<element_type>::max();
     geometry::intersection closest_intersection;
     for (size_t i = 0; i < intersections.size(); i++) {
@@ -119,7 +119,7 @@ color scene::trace(const ray& world_ray, const medium& media, size_t reflection_
     if (get_type(nearest.intersector) == IntersectionType::Point) {
         assert(nearest.objptr != nullptr);
         // temporary for not using pointer.
-        const object& obj = *nearest.objptr;
+        const objects::object& obj = *nearest.objptr;
         // temporary for the object's medium
         const medium& medium = obj.material();
         // the intersection point in world space
@@ -236,7 +236,7 @@ color scene::trace(const ray& world_ray, const medium& media, size_t reflection_
                         // FIXME this is incorrect as we're only considering if the object is inline with the light, not if it's out of line!
                         if (object_is_transparent) {
                             // convenience reference
-                            const raytrace::object &obj = *nearest.objptr;
+                            const raytrace::objects::object &obj = *nearest.objptr;
                             // convenience reference
                             const raytrace::medium &mat = obj.material();
                             // trace another ray through the object

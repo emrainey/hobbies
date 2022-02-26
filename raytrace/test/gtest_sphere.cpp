@@ -13,7 +13,7 @@ using namespace raytrace;
 
 TEST(SphereTest, NormalReflection) {
     raytrace::point C(1,1,1);
-    raytrace::sphere s0(C, 1.0);
+    raytrace::objects::sphere s0(C, 1.0);
     raytrace::point P(0, 1, 1);
     ASSERT_TRUE(s0.surface(P));
     vector N = s0.normal(P);
@@ -27,7 +27,7 @@ TEST(SphereTest, NormalReflection) {
 }
 
 TEST(SphereTest, Mapping) {
-    raytrace::sphere s0(raytrace::point(1,1,1), 1.0);
+    raytrace::objects::sphere s0(raytrace::point(1,1,1), 1.0);
 
     raytrace::point surface_points[] = {
         raytrace::point( 1, 0, 0),
@@ -54,7 +54,7 @@ TEST(SphereTest, Mapping) {
 TEST(SphereTest, IntersectionsFromRays) {
     // should not be at origin
     raytrace::point C(-3, -3, -3);
-    raytrace::sphere S(C, 3);
+    raytrace::objects::sphere S(C, 3);
 
     // there are several types of intersections
     // No intersection
@@ -139,16 +139,16 @@ TEST(SphereTest, Refraction) {
         iso::radians exit_interior_angle;
         iso::radians exit_exterior_angle;
     } params[] = {
-        {refractive_index::water, iso::radians{0}, iso::radians{0}, iso::radians{0}, iso::radians{0}},
-        {refractive_index::water, iso::radians{iso::pi/12}, iso::radians{0.19540396}, iso::radians{0.12900853}, iso::radians{0.2617994}},
-        {refractive_index::water, iso::radians{iso::pi/6}, iso::radians{0.38449794}, iso::radians{0.24539709}, iso::radians{0.52359879}},
+        {mediums::refractive_index::water, iso::radians{0}, iso::radians{0}, iso::radians{0}, iso::radians{0}},
+        {mediums::refractive_index::water, iso::radians{iso::pi/12}, iso::radians{0.19540396}, iso::radians{0.12900853}, iso::radians{0.2617994}},
+        {mediums::refractive_index::water, iso::radians{iso::pi/6}, iso::radians{0.38449794}, iso::radians{0.24539709}, iso::radians{0.52359879}},
     };
     for (auto& param : params) {
         element_type eta = param.eta;
         element_type entry_y = std::cos(param.entry_exterior_angle.value);
         element_type entry_z = std::sin(param.entry_exterior_angle.value);
-        raytrace::sphere shape(R3::origin, 1.0);
-        raytrace::transparent med(eta, 0.0);
+        raytrace::objects::sphere shape(R3::origin, 1.0);
+        raytrace::mediums::transparent med(eta, 0.0);
         shape.material(&med);
         raytrace::vector incident{0, -1, 0};
         raytrace::ray shot{raytrace::point(0, 2, entry_z), incident};

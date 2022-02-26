@@ -5,6 +5,7 @@
 #include "raytrace/objects/object.hpp"
 
 namespace raytrace {
+namespace objects {
 /** A Cone object with an outward facing normal */
 class cone : public object {
 public:
@@ -36,4 +37,5 @@ private:
     iso::radians m_angle;
 };
 
-}
+} // namespace objects
+} // namespace raytrace

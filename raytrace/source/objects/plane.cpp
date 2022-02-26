@@ -2,7 +2,7 @@
 #include "raytrace/objects/plane.hpp"
 
 namespace raytrace {
-
+namespace objects {
 using namespace linalg;
 using namespace linalg::operators;
 using namespace geometry;
@@ -63,4 +63,5 @@ void plane::print(const char str[]) const {
     std::cout << str << " Plane @" << this << " " << position() << " Normal " << normal(position()) << std::endl;
 }
 
+} // namespace objects
 } // namespace raytrace

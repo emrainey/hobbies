@@ -9,7 +9,7 @@
 #include "raytrace/objects/object.hpp"
 
 namespace raytrace {
-
+namespace objects {
 /** A six sided rectangar (in a 3D sense) object (cuboid). */
 class cuboid : public object {
 public:
@@ -44,7 +44,9 @@ protected:
     static const vector m_normals[6];
 };
 
-/** Print in stream for cuboid */
-std::ostream& operator<<(std::ostream& os, const cuboid& c);
+} // namespace objects
 
-}
+/** Print in stream for cuboid */
+std::ostream& operator<<(std::ostream& os, const objects::cuboid& c);
+
+} // namespace raytrace

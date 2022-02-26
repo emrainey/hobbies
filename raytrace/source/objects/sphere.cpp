@@ -3,6 +3,7 @@
 #include "raytrace/objects/sphere.hpp"
 
 namespace raytrace {
+namespace objects {
 
 using namespace linalg;
 using namespace linalg::operators;
@@ -59,4 +60,5 @@ void sphere::print(const char str[]) const  {
     std::cout  << str << " Sphere @" << this << " " << position() << " Radius " << radius << std::endl;
 }
 
+} // namespace objects
 } // namespace raytrace

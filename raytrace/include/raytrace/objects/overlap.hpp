@@ -1,7 +1,7 @@
 #include "raytrace/objects/object.hpp"
 
 namespace raytrace {
-
+namespace objects {
 /** The mechanism by which one object can overlap another and modify ray results with normals.
  * @see overlap::type
  */
@@ -44,5 +44,5 @@ protected:
     const object& m_B;
     const type m_type;
 };
-
+}
 }

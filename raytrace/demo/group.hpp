@@ -25,7 +25,7 @@ public:
     }
 
 protected:
-    std::vector<raytrace::object *> m_objects;
+    std::vector<objects::object *> m_objects;
 };
 
 }

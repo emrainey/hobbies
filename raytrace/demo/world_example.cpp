@@ -10,6 +10,7 @@
 #include "world.hpp"
 
 using namespace raytrace;
+using namespace raytrace::objects;
 
 class ExampleWorld : public world {
 public:
@@ -64,16 +65,16 @@ public:
         , sunlight(raytrace::vector{-2, 2, -1}, colors::white, 1E11)
         {
         // assign materials in the body of the constructor!
-        ikea_checkers.mapper(std::bind(&raytrace::sphere::map, &s2, std::placeholders::_1));
+        ikea_checkers.mapper(std::bind(&raytrace::objects::sphere::map, &s2, std::placeholders::_1));
         s2.material(&ikea_checkers);
-        //grid1.mapper(std::bind(&raytrace::sphere::map, &s2, std::placeholders::_1));
+        //grid1.mapper(std::bind(&raytrace::objects::sphere::map, &s2, std::placeholders::_1));
         //s2.material(&grid1);
         ring0.material(&plain_blue);
         ring1.material(&plain_blue);
-        bw_marble.mapper(std::bind(&raytrace::cylinder::map, &cyl1, std::placeholders::_1));
+        bw_marble.mapper(std::bind(&raytrace::objects::cylinder::map, &cyl1, std::placeholders::_1));
         cyl1.material(&bw_marble);
         cap.material(&plain_yellow);
-        //polka_dots.mapper(std::bind(&raytrace::cuboid::map, &c0, std::placeholders::_1));
+        //polka_dots.mapper(std::bind(&raytrace::objects::cuboid::map, &c0, std::placeholders::_1));
         c0.material(&polka_dots);
         ground.material(&plain_green);
         tri0.material(&plain_cyan);
@@ -154,7 +155,7 @@ protected:
     element_type r0r1;
     element_type r0r2;
     raytrace::point pos0;
-    raytrace::sphere s2;
+    raytrace::objects::sphere s2;
     ring ring0;
     ring ring1;
     raytrace::point pos1;
@@ -164,7 +165,7 @@ protected:
     raytrace::point po2;
     cuboid c0;
     raytrace::point pos3;
-    raytrace::plane ground;
+    raytrace::objects::plane ground;
     raytrace::point pos5;
     raytrace::point pos6;
     raytrace::point pos7;

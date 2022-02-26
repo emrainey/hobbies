@@ -2,7 +2,7 @@
 #include "raytrace/objects/cylinder.hpp"
 
 namespace raytrace {
-
+namespace objects {
 using namespace linalg::operators;
 
 cylinder::cylinder(const point& C, element_type half_height, element_type radius)
@@ -84,4 +84,5 @@ void cylinder::print(const char str[]) const {
     std::cout << str << " cylinder @" << this << " " << position() << " 1/2H" << m_half_height << " Radius:" << m_radius << std::endl;
 }
 
-}
+} // namespace objects
+} // namespace raytrace

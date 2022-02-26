@@ -10,7 +10,7 @@
 #include "raytrace/objects/object.hpp"
 
 namespace raytrace {
-
+namespace objects {
 /** A user defined object which uses a 4x4 matrix to solve the surface normal and intersection interface
  * using a quadratic solver. Can be used to make spheres, elliptoids, hyperboloids (saddles), etc.
  */
@@ -41,5 +41,5 @@ protected:
     // The Coefficient Matrix form of Q from Graphic Gems Vol 3 for Quadratic Surfaces.
     raytrace::matrix m_coefficients;
 };
-
-} // namespace quadratic
+} // namespace objects
+} // namespace raytrace

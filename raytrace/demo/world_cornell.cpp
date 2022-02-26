@@ -15,12 +15,11 @@ public:
     cornell_box()
         : look_from(-220, 0, 80)
         , look_at(0, 0, 80)
-        , steel(colors::grey, smoothness::polished, roughness::loose)
         , plain_white(colors::white, ambient::none, colors::white, smoothness::none, roughness::tight)
         , plain_red(colors::red, ambient::none, colors::red,  smoothness::none, roughness::tight)
         , plain_blue(colors::blue, ambient::none, colors::blue, smoothness::none, roughness::tight)
         , marble0(0.128283, 0.2, 32.0, colors::black, colors::yellow)
-        , glass(refractive_index::glass, 0.9)
+        , glass(mediums::refractive_index::glass, 0.9)
         , wall0(raytrace::point(0, 80, 80), -R3::basis::Y, 1.0) // left
         , wall1(raytrace::point(0, -80, 80), R3::basis::Y, 1.0) // right
         , wall2(raytrace::point(80, 0, 80), -R3::basis::X, 1.0) // back
@@ -36,10 +35,10 @@ public:
         wall3.material(&plain_white);
         wall4.material(&plain_white);
         box.rotation(iso::degrees(0), iso::degrees(0), iso::degrees(35));
-        marble0.mapper(std::bind(&cuboid::map, &box, std::placeholders::_1)); // allows 2D mapping on the cube
+        marble0.mapper(std::bind(&objects::cuboid::map, &box, std::placeholders::_1)); // allows 2D mapping on the cube
         // box.material(&marble0);
         box.material(&glass);
-        ball.material(&steel);
+        ball.material(&metals::stainless);
     }
 
     raytrace::point& looking_from() override {
@@ -58,7 +57,7 @@ public:
         return std::string("world_cornell.tga");
     }
 
-    raytrace::color background(const raytrace::ray&) const override {
+    color background(const raytrace::ray&) const override {
         return colors::black;
     }
 
@@ -76,19 +75,18 @@ public:
 protected:
     raytrace::point look_from;
     raytrace::point look_at;
-    metal steel;
-    plain plain_white;
-    plain plain_red;
-    plain plain_blue;
-    marble marble0;
-    transparent glass;
-    raytrace::plane wall0;
-    raytrace::plane wall1;
-    raytrace::plane wall2;
-    raytrace::plane wall3;
-    raytrace::plane wall4;
-    cuboid box;
-    raytrace::sphere ball;
+    mediums::plain plain_white;
+    mediums::plain plain_red;
+    mediums::plain plain_blue;
+    mediums::marble marble0;
+    mediums::transparent glass;
+    objects::plane wall0;
+    objects::plane wall1;
+    objects::plane wall2;
+    objects::plane wall3;
+    objects::plane wall4;
+    objects::cuboid box;
+    objects::sphere ball;
     speck toplight;
 };
 

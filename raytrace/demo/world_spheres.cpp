@@ -11,7 +11,7 @@
 
 using namespace raytrace;
 
-void subspheres(std::vector<raytrace::sphere *>& spheres, const raytrace::point& center, double R, size_t depth) {
+void subspheres(std::vector<raytrace::objects::sphere *>& spheres, const raytrace::point& center, double R, size_t depth) {
     if (depth > 0) {
         // adding 28 spheres of
         double radius = R / 6.0;
@@ -22,7 +22,7 @@ void subspheres(std::vector<raytrace::sphere *>& spheres, const raytrace::point&
                     if (iso::equivalent(x, 0.0) and iso::equivalent(y, 0.0) and iso::equivalent(z, 0.0)) {
                         continue;
                     }
-                    spheres.push_back(new raytrace::sphere(center + R3::vector{{ x, y, z}}, radius));
+                    spheres.push_back(new raytrace::objects::sphere(center + R3::vector{{ x, y, z}}, radius));
                     subspheres(spheres, spheres.back()->position(), R/3.0, depth - 1);
                 }
             }
@@ -37,16 +37,15 @@ public:
         //, look_at(0, 0, 0)
         , look_from(-10, 6.66, 20)
         , look_at(3, 0, 6)
-        , steel(colors::grey, smoothness::polished, roughness::loose)
         , spheres()
         , sunlight(raytrace::vector{-2, 2, -1}, colors::white, 1E11)
         , specks()
     {
         raytrace::point center = look_at;
-        spheres.push_back(new raytrace::sphere(center, 6));
+        spheres.push_back(new raytrace::objects::sphere(center, 6));
         subspheres(spheres, center, 12.0, 2);
         for (auto & s : spheres) {
-            s->material(&steel);
+            s->material(&metals::stainless);
         }
         specks.push_back(new speck(raytrace::point(80, 120, 80), colors::white, 1E11));
         specks.push_back(new speck(raytrace::point(80, 40, 80), colors::white, 1E11));
@@ -96,8 +95,7 @@ public:
 protected:
     raytrace::point look_from;
     raytrace::point look_at;
-    raytrace::metal steel;
-    std::vector<raytrace::sphere *> spheres;
+    std::vector<raytrace::objects::sphere *> spheres;
     beam sunlight;
     std::vector<raytrace::speck *>specks;
 };

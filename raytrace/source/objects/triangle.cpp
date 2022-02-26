@@ -2,6 +2,7 @@
 #include "raytrace/objects/triangle.hpp"
 
 namespace raytrace {
+namespace objects {
 
 using namespace linalg;
 using namespace linalg::operators;
@@ -76,7 +77,9 @@ const std::array<point, 3>& triangle::points() const {
     return m_points;
 }
 
-geometry::plane as_plane(const triangle& tri) {
+} // namespace objects
+
+geometry::plane as_plane(const objects::triangle& tri) {
     return tri; // now a triangle is a special plane
 }
 

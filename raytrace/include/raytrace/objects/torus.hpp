@@ -3,7 +3,7 @@
 #include "raytrace/objects/object.hpp"
 
 namespace raytrace {
-
+namespace objects {
 /** The Classical Donut */
 class torus : public object {
 public:
@@ -27,5 +27,5 @@ private:
     element_type m_ring_radius;
     element_type m_tube_radius;
 };
-
+}
 }

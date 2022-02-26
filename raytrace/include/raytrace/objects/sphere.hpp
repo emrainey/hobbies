@@ -5,7 +5,7 @@
 #include "raytrace/objects/object.hpp"
 
 namespace raytrace {
-
+namespace objects {
 /** The Classical Roundy Boi */
 class sphere : public geometry::R3::sphere, public object {
 public:
@@ -29,5 +29,5 @@ public:
     /** @copydoc basal::printable::print */
     void print(const char str[]) const override;
 };
-
+}
 }

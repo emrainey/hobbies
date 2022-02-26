@@ -2,7 +2,7 @@
 #include "raytrace/objects/cone.hpp"
 
 namespace raytrace {
-
+namespace objects {
 cone::cone(const point& C, iso::radians angle)
     : object(C, 2, true) // 2 collisions, closed (infinite)
     , m_bottom_radius(0.0)
@@ -117,4 +117,5 @@ void cone::print(const char str[]) const {
     std::cout << str << " cone @" << this << " " << position() << " Height" << m_height << " Radius:" << m_bottom_radius << " Angle:" << m_angle.value << std::endl;
 }
 
-}
+} // namespace objects
+} // namespace raytrace

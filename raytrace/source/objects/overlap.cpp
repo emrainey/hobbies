@@ -4,7 +4,7 @@
 #include "raytrace/objects/overlap.hpp"
 
 namespace raytrace {
-
+namespace objects {
 using namespace linalg::operators;
 
 overlap::overlap(const object& A, const object& B, overlap::type type) : m_A(A), m_B(B), m_type(type) {}
@@ -170,4 +170,5 @@ void overlap::print(const char str[]) const {
     m_B.print(str);
 }
 
+} // namespace objects
 } // namespace raytrace

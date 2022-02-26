@@ -11,19 +11,19 @@
 
 using namespace raytrace;
 
-using mat = const metal;
+using mat = const mediums::metal;
 
 const raytrace::mediums::metal* my_metals[] = {
     &raytrace::metals::aluminum, &raytrace::metals::brass, &raytrace::metals::bronze, &raytrace::metals::chrome, &raytrace::metals::copper,
     &raytrace::metals::gold, &raytrace::metals::silver, &raytrace::metals::stainless, &raytrace::metals::steel, &raytrace::metals::tin
 };
 
-void subspheres(std::vector<raytrace::sphere *>& spheres, const raytrace::point& center, double R, double sR, size_t limit) {
+void subspheres(std::vector<raytrace::objects::sphere *>& spheres, const raytrace::point& center, double R, double sR, size_t limit) {
     for (size_t s = 0; s < limit; s++) {
         R3::point pnt = mapping::golden_ratio_mapper(s, limit);
         R3::vector dir = pnt - R3::origin;
         pnt = pnt + (dir * R); // move the point out from the origin by R
-        spheres.push_back(new raytrace::sphere(pnt, sR));
+        spheres.push_back(new raytrace::objects::sphere(pnt, sR));
     }
 }
 
@@ -50,7 +50,7 @@ public:
         , specks()
     {
         raytrace::point center = look_at;
-        spheres.push_back(new raytrace::sphere(center, 4.5));
+        spheres.push_back(new raytrace::objects::sphere(center, 4.5));
         subspheres(spheres, center, 6, 1.2, number_of_spheres);
         materials(mats, spheres.size());
         for (size_t s = 0; s < number_of_spheres; s++) {
@@ -111,7 +111,7 @@ protected:
     raytrace::point look_from;
     raytrace::point look_at;
     size_t number_of_spheres;
-    std::vector<raytrace::sphere *> spheres;
+    std::vector<raytrace::objects::sphere *> spheres;
     std::vector<mat *> mats;
     beam sunlight;
     std::vector<raytrace::speck *>specks;

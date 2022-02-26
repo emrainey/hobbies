@@ -5,6 +5,7 @@
 #include "raytrace/objects/object.hpp"
 
 namespace raytrace {
+namespace objects {
 /** Constructs a 1 sided infinite plane */
 class plane : public geometry::plane, public object {
 public:
@@ -27,5 +28,5 @@ public:
 protected:
     element_type m_surface_scale;
 };
-
+}
 }

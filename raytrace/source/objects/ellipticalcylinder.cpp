@@ -1,7 +1,7 @@
 #include <raytrace/objects/ellipticalcylinder.hpp>
 
 namespace raytrace {
-
+namespace objects {
 ellipticalcylinder::ellipticalcylinder(const point &center, element_type a, element_type b)
     : quadratic(center)
     {
@@ -13,4 +13,5 @@ ellipticalcylinder::ellipticalcylinder(const point &center, element_type a, elem
     }};
 }
 
+} // namespace objects
 } // namespace raytrace

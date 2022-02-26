@@ -2,6 +2,7 @@
 #include "raytrace/objects/quadratic.hpp"
 
 namespace raytrace {
+namespace objects {
 
 quadratic::quadratic(const point &center)
     : object(center, 2, true) // 2 collisions, closed surface (CHECK)
@@ -88,4 +89,5 @@ std::ostream& operator<<(std::ostream& os, const quadratic& q) {
     return os;
 }
 
+} // namespace objects
 } // namespace raytrace

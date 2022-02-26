@@ -16,7 +16,7 @@ using background_mapper = std::function<color(const ray&)>;
 /** A Class to hold all the components needed to render a scene */
 class scene : public basal::printable {
 public:
-    using object_list = std::vector<const object*>;
+    using object_list = std::vector<const objects::object*>;
     using light_list = std::vector<const light*>;
     using intersect_list = std::vector<geometry::intersection>;
 
@@ -26,7 +26,7 @@ public:
      */
     struct intersect_set {
         /** Simple Constructor */
-        explicit intersect_set(element_type d, const geometry::intersection& i, const object *o);
+        explicit intersect_set(element_type d, const geometry::intersection& i, const objects::object *o);
         // Default Copy
         explicit intersect_set(const intersect_set&) = default;
         // No move construct
@@ -43,7 +43,7 @@ public:
         /** The intersection information */
         geometry::intersection intersector;
         /** The pointer to the const object of *closest* intersection */
-        const object* objptr;
+        const objects::object* objptr;
     };
 
     /** Constructor */
@@ -109,7 +109,7 @@ public:
     void set_background_mapper(background_mapper bgm);
 
     /** Adds an object to the scene */
-    void add_object(const object *obj);
+    void add_object(const objects::object *obj);
 
     /** Adds a light to the scene */
     void add_light(const light *lit);

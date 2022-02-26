@@ -2,6 +2,7 @@
 #include "raytrace/objects/ring.hpp"
 
 namespace raytrace {
+namespace objects {
 
 using namespace linalg;
 using namespace linalg::operators;
@@ -9,7 +10,7 @@ using namespace geometry;
 using namespace geometry::operators;
 
 ring::ring(const point& C, const vector& N, element_type inner, element_type outer)
-    : raytrace::plane(C, N, outer)
+    : raytrace::objects::plane(C, N, outer)
     , m_inner_radius2(inner * inner)
     , m_outer_radius2(outer * outer)
     {}
@@ -39,4 +40,5 @@ void ring::print(const char str[]) const {
     std::cout << str << " ring @" << this << " " << object_<3>::position() << " " << m_normal << " Radii (Squared):" << m_inner_radius2 << ", " << m_outer_radius2 << std::endl;
 }
 
+} // namespace objects
 } // namespace raytrace

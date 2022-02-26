@@ -8,6 +8,7 @@
 #include "raytrace/objects/object.hpp"
 
 namespace raytrace {
+namespace objects {
 /** A cylinder with an outward facing normal */
 class cylinder : public object {
 public:
@@ -39,4 +40,5 @@ private:
     element_type m_radius;
 };
 
-}
+} // namespace objects
+} // namespace raytrace

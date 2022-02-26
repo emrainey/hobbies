@@ -10,12 +10,13 @@
 #include "geometry/gtest_helper.hpp"
 #include "raytrace/gtest_helper.hpp"
 
-using namespace raytrace;
-
 TEST(Plane2Test, Intersections) {
+    using namespace raytrace;
+    using namespace raytrace::objects;
+
     raytrace::point C(0, 0, -1);
     vector up = R3::basis::Z;
-    raytrace::plane PL(C, up, 1.0);
+    raytrace::objects::plane PL(C, up, 1.0);
 
     raytrace::ray r0(raytrace::point(1, 1, 1), vector{{ 1, 1, 1}});
     raytrace::ray r1(raytrace::point(1, 1, 1), vector{{-1,-1,-1}});
@@ -40,8 +41,11 @@ TEST(Plane2Test, Intersections) {
 }
 
 TEST(Plane2Test, SandwichRays) {
-    raytrace::plane P0(raytrace::point(0,0,10), vector{{0,0,-1}}, 1.0);
-    raytrace::plane P1(raytrace::point(0,0,-10), vector{{0,0,1}}, 1.0);
+    using namespace raytrace;
+    using namespace raytrace::objects;
+
+    raytrace::objects::plane P0(raytrace::point(0,0,10), vector{{0,0,-1}}, 1.0);
+    raytrace::objects::plane P1(raytrace::point(0,0,-10), vector{{0,0,1}}, 1.0);
     ray r0(raytrace::point(0,0,0), vector{{1,0,1}});
     ray r1(raytrace::point(0,0,0), vector{{1,0,-1}});
 

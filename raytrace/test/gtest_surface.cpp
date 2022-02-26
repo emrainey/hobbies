@@ -29,7 +29,7 @@ TEST(SurfaceTest, ShinySurface) {
 TEST(SurfaceTest, CheckboardDifuse) {
     using namespace raytrace;
     image img(480, 480);
-    raytrace::checkerboard board(6.0, colors::red, colors::green);
+    raytrace::mediums::checkerboard board(6.0, colors::red, colors::green);
     img.generate_each([&](const image::point& p1) {
         raytrace::point p2(p1.x / img.width, p1.y / img.height, 0.0);
         return board.diffuse(p2);

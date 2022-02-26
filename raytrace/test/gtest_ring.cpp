@@ -9,10 +9,11 @@
 #include "geometry/gtest_helper.hpp"
 #include "raytrace/gtest_helper.hpp"
 
-using namespace raytrace;
-using namespace linalg;
 
 TEST(RingTest, RayIntersection) {
+    using namespace raytrace;
+    using namespace raytrace::objects;
+
     raytrace::point C(0,0,0);
     vector N{{0,0,1}};
     ring R(C, N, 0.1, 10.0);

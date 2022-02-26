@@ -1,7 +1,7 @@
 #include <raytrace/objects/hyperboloid.hpp>
 
 namespace raytrace {
-
+namespace objects {
 hyperboloid::hyperboloid(const point &center, element_type a, element_type b, element_type c)
     : quadratic(center)
     {
@@ -13,4 +13,5 @@ hyperboloid::hyperboloid(const point &center, element_type a, element_type b, el
     }};
 }
 
+} // namespace objects
 } // namespace raytrace

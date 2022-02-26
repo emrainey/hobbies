@@ -2,7 +2,7 @@
 #include "raytrace/objects/cuboid.hpp"
 
 namespace raytrace {
-
+namespace objects {
 const vector cuboid::m_normals[6] = {
      R3::basis::X,
     -R3::basis::X,
@@ -178,7 +178,9 @@ void cuboid::print(const char name[]) const {
     std::cout << name << " " << *this << std::endl;
 }
 
-std::ostream& operator<<(std::ostream& os, const cuboid& c) {
+} // namespace objects
+
+std::ostream& operator<<(std::ostream& os, const objects::cuboid& c) {
     os << " Cube " << c.position() << ", Half-Widths {" << c.x_half_width << "," << c.y_half_width << "," << c.z_half_width << "}";
     return os;
 }

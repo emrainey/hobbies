@@ -7,7 +7,7 @@
 #include "raytrace/laws.hpp"
 
 namespace raytrace {
-
+namespace objects {
 constexpr bool can_ray_origin_be_collision = true;
 
 using namespace linalg;
@@ -202,5 +202,5 @@ protected:
 
 /** In Raytracing we only consider 3D objects */
 using object = object_<dimensions>;
-
-} // namespace object
+} // namespace objects
+} // namespace raytrace

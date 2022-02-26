@@ -1,7 +1,7 @@
 #include <raytrace/objects/ellipsoid.hpp>
 
 namespace raytrace {
-
+namespace objects {
 ellipsoid::ellipsoid(const point &center, element_type a, element_type b, element_type c)
     : quadratic(center)
     {
@@ -13,4 +13,5 @@ ellipsoid::ellipsoid(const point &center, element_type a, element_type b, elemen
     }};
 }
 
+} // namespace objects
 } // namespace raytrace

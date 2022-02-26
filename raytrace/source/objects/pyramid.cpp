@@ -3,6 +3,7 @@
 #include "raytrace/objects/pyramid.hpp"
 
 namespace raytrace {
+namespace objects {
 
 using namespace linalg;
 using namespace linalg::operators;
@@ -92,4 +93,5 @@ void pyramid::print(const char str[]) const  {
     std::cout  << str << " Pyramid @" << this << " " << position() << " Height " << m_height << std::endl;
 }
 
+} // namespace objects
 } // namespace raytrace

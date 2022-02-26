@@ -72,13 +72,13 @@ protected:
     beam sunrays;
     speck inner_light;
     raytrace::point center;
-    raytrace::ring ringA;
-    raytrace::ring ringB;
-    raytrace::ring ringC;
-    raytrace::ring ringD;
-    raytrace::ring ringE;
-    raytrace::ring ringF;
-    raytrace::sphere planet;
+    raytrace::objects::ring ringA;
+    raytrace::objects::ring ringB;
+    raytrace::objects::ring ringC;
+    raytrace::objects::ring ringD;
+    raytrace::objects::ring ringE;
+    raytrace::objects::ring ringF;
+    raytrace::objects::sphere planet;
 };
 
 // declare a single instance and return the reference to it

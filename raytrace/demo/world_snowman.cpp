@@ -107,7 +107,7 @@ public:
         hat_top.material(&plum);
         for (int i = 0; i <= 10; i++) {
             //lights.push_back(new bulb(raytrace::point(i - 5, 0, 15), 1.0, colors::white, 1E11, 4));
-            //lights.push_back(new speck(raytrace::point(i - 5, 0, 15), colors::white, 5));
+            //lights.push_back(new lights::speck(raytrace::point(i - 5, 0, 15), colors::white, 5));
         }
         // move the nose into the right orientation
         nose.rotation(iso::degrees(270), iso::degrees(0), iso::degrees(0));
@@ -229,9 +229,9 @@ protected:
     Tree tree11;
     Tree tree12;
     // the lights
-    //std::vector<raytrace::bulb *>lights;
-    std::vector<raytrace::speck *>lights;
-    raytrace::beam moonlight;
+    //std::vector<raytrace::lights::bulb *>lights;
+    std::vector<raytrace::lights::speck *>lights;
+    raytrace::lights::beam moonlight;
 };
 
 // declare a single instance and return the reference to it

@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
     raytrace::objects::sphere test_sphere(sphere_center, 10);
 
     // define the light
-    beam sunlight(raytrace::vector{-2, 2, -1}, colors::white, 1E11);
+    lights::beam sunlight(raytrace::vector{-2, 2, -1}, colors::white, 1E11);
 
     do {
         // tiny image, simple camera placement

@@ -87,7 +87,7 @@ protected:
     objects::plane wall4;
     objects::cuboid box;
     objects::sphere ball;
-    speck toplight;
+    lights::speck toplight;
 };
 
 // declare a single instance and return the reference to it

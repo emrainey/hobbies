@@ -7,7 +7,10 @@
 #include "raytrace/laws.hpp"
 
 namespace raytrace {
+/** The namespace to contain all (spatial) objects */
 namespace objects {
+
+/** A flag to control if origin collisions are counted */
 constexpr bool can_ray_origin_be_collision = true;
 
 using namespace linalg;

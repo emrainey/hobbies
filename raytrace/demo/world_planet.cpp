@@ -2,6 +2,8 @@
 #include "world.hpp"
 
 using namespace raytrace;
+using namespace raytrace::objects;
+using namespace raytrace::lights;
 using namespace raytrace::colors;
 using namespace raytrace::operators;
 
@@ -69,16 +71,16 @@ public:
 protected:
     raytrace::point look_from;
     raytrace::point look_at;
-    beam sunrays;
-    speck inner_light;
+    lights::beam sunrays;
+    lights::speck inner_light;
     raytrace::point center;
-    raytrace::objects::ring ringA;
-    raytrace::objects::ring ringB;
-    raytrace::objects::ring ringC;
-    raytrace::objects::ring ringD;
-    raytrace::objects::ring ringE;
-    raytrace::objects::ring ringF;
-    raytrace::objects::sphere planet;
+    objects::ring ringA;
+    objects::ring ringB;
+    objects::ring ringC;
+    objects::ring ringD;
+    objects::ring ringE;
+    objects::ring ringF;
+    objects::sphere planet;
 };
 
 // declare a single instance and return the reference to it

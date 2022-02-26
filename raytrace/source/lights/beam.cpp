@@ -1,6 +1,7 @@
 #include "raytrace/lights/beam.hpp"
 
 namespace raytrace {
+namespace lights {
 
 using namespace linalg::operators;
 
@@ -29,9 +30,11 @@ void beam::print(const char str[]) const {
     std::cout << str << " beam @" << this << " from: " << m_world_source << ", distance: " << m_distance << " " << m_color << std::endl;
 }
 
-std::ostream& operator<<(std::ostream& os, const beam& l) {
+} // namespace lights
+
+std::ostream& operator<<(std::ostream& os, const lights::beam& l) {
     os << " beam " << l.incident(geometry::R3::origin, 0) << " " << l.color_at(geometry::R3::origin);
     return os;
 }
 
-}
+} // namespace raytrace

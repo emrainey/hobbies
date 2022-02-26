@@ -47,10 +47,10 @@ public:
         for (auto & s : spheres) {
             s->material(&metals::stainless);
         }
-        specks.push_back(new speck(raytrace::point(80, 120, 80), colors::white, 1E11));
-        specks.push_back(new speck(raytrace::point(80, 40, 80), colors::white, 1E11));
-        specks.push_back(new speck(raytrace::point(40, 80, 80), colors::white, 1E11));
-        specks.push_back(new speck(raytrace::point(120, 80, 80), colors::white, 1E11));
+        specks.push_back(new lights::speck(raytrace::point(80, 120, 80), colors::white, 1E11));
+        specks.push_back(new lights::speck(raytrace::point(80, 40, 80), colors::white, 1E11));
+        specks.push_back(new lights::speck(raytrace::point(40, 80, 80), colors::white, 1E11));
+        specks.push_back(new lights::speck(raytrace::point(120, 80, 80), colors::white, 1E11));
     }
 
     ~SpheresWorld() {
@@ -96,8 +96,8 @@ protected:
     raytrace::point look_from;
     raytrace::point look_at;
     std::vector<raytrace::objects::sphere *> spheres;
-    beam sunlight;
-    std::vector<raytrace::speck *>specks;
+    lights::beam sunlight;
+    std::vector<raytrace::lights::speck *>specks;
 };
 
 // declare a single instance and return the reference to it

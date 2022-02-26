@@ -11,6 +11,7 @@
 
 using namespace raytrace;
 using namespace raytrace::objects;
+using namespace raytrace::lights;
 
 class ExampleWorld : public world {
 public:

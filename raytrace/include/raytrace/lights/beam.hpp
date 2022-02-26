@@ -2,9 +2,9 @@
 
 #include "raytrace/lights/light.hpp"
 #include "raytrace/entity.hpp"
-#include <basal/printable.hpp>
-namespace raytrace {
 
+namespace raytrace {
+namespace lights {
 /** A beam of light, directionalized light to simulate parallel rays from the sun. */
 class beam : public light {
 public:
@@ -30,7 +30,9 @@ protected:
     element_type m_distance;
 };
 
-/** Helper to print specks of light */
-std::ostream& operator<<(std::ostream& os, const beam& l);
+} // namespace lights
 
-}
+/** Helper to print specks of light */
+std::ostream& operator<<(std::ostream& os, const lights::beam& l);
+
+} // namespace raytrace

@@ -5,6 +5,8 @@
 #include <basal/printable.hpp>
 namespace raytrace {
 
+/** The namespace to contain all light objects */
+namespace lights {
 /**
  * An interface to all light types in the system which is used to determine the color contribution at some surface point.
  * @note Color is being used as a stand-in for a power-spectrum graph.
@@ -47,4 +49,5 @@ protected:
     size_t m_samples;
 };
 
-}
+} // namespace lights
+} // namespace raytrace

@@ -2,8 +2,10 @@
 
 #include "raytrace/lights/light.hpp"
 #include "raytrace/entity.hpp"
-#include <basal/printable.hpp>
+
 namespace raytrace {
+
+namespace lights {
 
 /** A uniform diffuse light surface with fall-off obeying the inverse square law */
 class bulb : public light, public entity {
@@ -24,7 +26,9 @@ protected:
     const element_type m_radius;
 };
 
-/** Helper to print bulbs of light */
-std::ostream& operator<<(std::ostream& os, const bulb& l);
+} // namespace lights
 
-}
+/** Helper to print bulbs of light */
+std::ostream& operator<<(std::ostream& os, const lights::bulb& l);
+
+} // namespace raytrace

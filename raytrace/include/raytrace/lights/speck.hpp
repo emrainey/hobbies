@@ -2,9 +2,10 @@
 
 #include "raytrace/lights/light.hpp"
 #include "raytrace/entity.hpp"
-#include <basal/printable.hpp>
+
 namespace raytrace {
 
+namespace lights {
 /** A point light with fall-off obeying the inverse square law */
 class speck : public light, public entity {
 public:
@@ -22,7 +23,9 @@ public:
     void print(const char str[]) const override;
 };
 
-/** Helper to print specks of light */
-std::ostream& operator<<(std::ostream& os, const speck& l);
+} // namespace lights
 
-}
+/** Helper to print specks of light */
+std::ostream& operator<<(std::ostream& os, const lights::speck& l);
+
+} // namespace raytrace

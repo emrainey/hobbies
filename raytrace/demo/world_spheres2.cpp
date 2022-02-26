@@ -56,10 +56,10 @@ public:
         for (size_t s = 0; s < number_of_spheres; s++) {
             spheres[s]->material(mats[s]);
         }
-        //specks.push_back(new speck(raytrace::point(80, 120, 80), colors::white, 1E11));
-        //specks.push_back(new speck(raytrace::point(80, 40, 80), colors::white, 1E11));
-        //specks.push_back(new speck(raytrace::point(40, 80, 80), colors::white, 1E11));
-        //specks.push_back(new speck(raytrace::point(120, 80, 80), colors::white, 1E11));
+        //specks.push_back(new lights::speck(raytrace::point(80, 120, 80), colors::white, 1E11));
+        //specks.push_back(new lights::speck(raytrace::point(80, 40, 80), colors::white, 1E11));
+        //specks.push_back(new lights::speck(raytrace::point(40, 80, 80), colors::white, 1E11));
+        //specks.push_back(new lights::speck(raytrace::point(120, 80, 80), colors::white, 1E11));
     }
 
     ~Spheres2World() {
@@ -113,8 +113,8 @@ protected:
     size_t number_of_spheres;
     std::vector<raytrace::objects::sphere *> spheres;
     std::vector<mat *> mats;
-    beam sunlight;
-    std::vector<raytrace::speck *>specks;
+    lights::beam sunlight;
+    std::vector<raytrace::lights::speck *>specks;
 };
 
 // declare a single instance and return the reference to it

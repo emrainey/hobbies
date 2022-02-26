@@ -67,7 +67,7 @@ public:
         }
     }
 
-    void add_light(const light *ptr) {
+    void add_light(const lights::light *ptr) {
         for (size_t i = 0; i < number_of_scenes; i++) {
             scenes[i]->add_light(ptr);
         }
@@ -95,9 +95,9 @@ protected:
     mediums::plain rubber;
     mediums::metal steel;
     mediums::dots polka;
-    beam beam_of_light;
-    speck inner_light;
-    R3::point look_at;
+    lights::beam beam_of_light;
+    lights::speck inner_light;
+    raytrace::point look_at;
     raytrace::objects::plane plane0;
     std::vector<scene*> scenes;
 };
@@ -287,7 +287,7 @@ TEST_F(RenderTest, DISABLED_SubtractiveOverlap2) {
 
 TEST_F(RenderTest, DISABLED_SphereSpotLight) {
     raytrace::ray r0(raytrace::point(-30, 0, 30), -R3::basis::Z);
-    raytrace::spot spot0(r0, colors::white, 1E3, iso::degrees{45});
+    raytrace::lights::spot spot0(r0, colors::white, 1E3, iso::degrees{45});
     raytrace::objects::sphere shape(look_at, 10);
     shape.material(&checkers2);
     add_object(&shape);
@@ -300,11 +300,11 @@ TEST_F(RenderTest, DISABLED_SphereBunchOfSpecks) {
     shape.material(&checkers2);
     add_object(&shape);
     // create a 20x20 grid of specks above the sphere
-    std::vector<raytrace::speck*> specks;
+    std::vector<raytrace::lights::speck*> specks;
     for (size_t i = 0; i < 20; i++) {
         for (size_t j = 0; j < 20; j++) {
             raytrace::point pnt((i * 20.0) - 200.0, (j * 20.0) - 200.0, 2000.0);
-            specks.push_back(new raytrace::speck(pnt, colors::white, 1E3));
+            specks.push_back(new raytrace::lights::speck(pnt, colors::white, 1E3));
             add_light(specks.back());
         }
     }

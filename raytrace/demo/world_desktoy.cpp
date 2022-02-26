@@ -78,8 +78,8 @@ protected:
     raytrace::objects::sphere cutout2;
     raytrace::objects::overlap final_base;
     raytrace::objects::plane ground;
-    raytrace::beam sunlight;
-    raytrace::speck prick;
+    raytrace::lights::beam sunlight;
+    raytrace::lights::speck prick;
 };
 
 // declare a single instance and return the reference to it

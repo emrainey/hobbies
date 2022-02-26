@@ -10,6 +10,7 @@
 
 using namespace raytrace;
 using namespace raytrace::objects;
+using namespace raytrace::lights;
 
 class MonochromeWorld : public world {
 public:

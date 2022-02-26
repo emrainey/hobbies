@@ -94,8 +94,8 @@ protected:
     raytrace::objects::sphere x1;
     raytrace::objects::overlap convex_lens;
     raytrace::objects::square ground;
-    raytrace::beam sunlight;
-    raytrace::speck prick;
+    raytrace::lights::beam sunlight;
+    raytrace::lights::speck prick;
 };
 
 // declare a single instance and return the reference to it

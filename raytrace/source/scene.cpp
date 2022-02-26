@@ -36,7 +36,7 @@ void scene::add_object(const objects::object *obj) {
     m_objects.push_back(obj);
 }
 
-void scene::add_light(const light *lit) {
+void scene::add_light(const lights::light *lit) {
     m_lights.push_back(lit);
 }
 
@@ -181,7 +181,7 @@ color scene::trace(const ray& world_ray, const medium& media, size_t reflection_
             statistics::get().shadow_rays++;
             for (auto& light_ : m_lights) {
                 // convenience variable
-                const light& scene_light = *light_;
+                const lights::light& scene_light = *light_;
                 // the samples for this light
                 std::vector<color> surface_color_samples(scene_light.number_of_samples()); // should initialize to all black
                 // for each sample, get the color

@@ -3,6 +3,7 @@
 #include "raytrace/laws.hpp"
 
 namespace raytrace {
+namespace lights {
 
 using namespace linalg::operators;
 
@@ -46,9 +47,11 @@ void bulb::print(const char str[]) const {
     std::cout << str << " bulb:" << m_samples << " @" << this << " " << position() << ", " << m_color << std::endl;
 }
 
-std::ostream& operator<<(std::ostream& os, const bulb& l) {
+} // namespace lights
+
+std::ostream& operator<<(std::ostream& os, const lights::bulb& l) {
     os << " bulb:" << l.number_of_samples() << " " << l.position() << ", " << l.color_at(l.position());
     return os;
 }
 
-}
+} // namespace raytrace

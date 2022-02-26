@@ -1,7 +1,7 @@
 #include "raytrace/lights/speck.hpp"
 
 namespace raytrace {
-
+namespace lights {
 using namespace linalg::operators;
 
 speck::speck(const point& P, const color& C, element_type intensity)
@@ -33,9 +33,11 @@ void speck::print(const char str[]) const {
     std::cout << str << " speck @" << this << " " << position() << ", " << m_color << std::endl;
 }
 
-std::ostream& operator<<(std::ostream& os, const speck& l) {
+} // namespace lights
+
+std::ostream& operator<<(std::ostream& os, const lights::speck& l) {
     os << " speck " << l.position() << ", " << l.color_at(l.position());
     return os;
 }
 
-}
+} // namespace raytrace

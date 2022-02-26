@@ -1,7 +1,7 @@
 #include "raytrace/lights/spot.hpp"
 
 namespace raytrace {
-
+namespace lights {
 spot::spot(const raytrace::ray& r, const raytrace::color& C, element_type intensity, const iso::degrees& incoming_angle)
     : light(C, intensity, 1)
     , entity(r.location())
@@ -49,9 +49,11 @@ void spot::print(const char str[]) const {
     std::cout << str << " spot @" << this << " pointing: " << m_direction << ", " << m_color << std::endl;
 }
 
-std::ostream& operator<<(std::ostream& os, const spot& l) {
+} // namespace lights
+
+std::ostream& operator<<(std::ostream& os, const lights::spot& l) {
     os << " spot " << l.incident(geometry::R3::origin, 0) << " " << l.color_at(geometry::R3::origin);
     return os;
 }
 
-}
+} // namespace raytrace

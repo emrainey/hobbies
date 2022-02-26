@@ -17,7 +17,7 @@ using background_mapper = std::function<color(const ray&)>;
 class scene : public basal::printable {
 public:
     using object_list = std::vector<const objects::object*>;
-    using light_list = std::vector<const light*>;
+    using light_list = std::vector<const lights::light*>;
     using intersect_list = std::vector<geometry::intersection>;
 
     /**
@@ -112,7 +112,7 @@ public:
     void add_object(const objects::object *obj);
 
     /** Adds a light to the scene */
-    void add_light(const light *lit);
+    void add_light(const lights::light *lit);
 
     /** Removes all objects and lights from a scene */
     void clear();

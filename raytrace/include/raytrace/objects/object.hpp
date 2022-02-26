@@ -1,7 +1,7 @@
 #pragma once
 
 #include "basal/basal.hpp"
-#include "raytrace/medium.hpp"
+#include "raytrace/mediums/medium.hpp"
 #include "raytrace/mediums/plain.hpp"
 #include "raytrace/entity.hpp"
 #include "raytrace/laws.hpp"
@@ -49,13 +49,13 @@ public:
         m_medium = nullptr;
     }
 
-    /** Gives a read-only version of the surface of the object */
+    /** Gives a read-only version of the medium of the object */
     const medium& material() const {
         basal::exception::throw_if(m_medium == nullptr, __FILE__, __LINE__, "Can not request a nullptr.");
         return *m_medium;
     }
 
-    /** Sets the material to the given parameter surface */
+    /** Sets the material to the given parameter medium */
     virtual void material(const medium* new_medium) {
         basal::exception::throw_if(new_medium == nullptr, __FILE__, __LINE__, "Can not set a nullptr to material()");
         m_medium = new_medium;
@@ -186,6 +186,8 @@ public:
     virtual inline bool is_closed_surface() const {
         return m_closed_surface;
     }
+
+    //virtual bool is_surface_point(const raytrace::point& world_point) = 0;
 
 protected:
     /** The maximum number of collisions with the surface of this object */

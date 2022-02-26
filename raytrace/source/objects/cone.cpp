@@ -1,7 +1,5 @@
-
-
-#include "raytrace/cone.hpp"
 #include <iostream>
+#include "raytrace/objects/cone.hpp"
 
 namespace raytrace {
 

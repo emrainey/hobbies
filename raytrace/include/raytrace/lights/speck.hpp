@@ -1,6 +1,6 @@
 #pragma once
 
-#include "raytrace/light.hpp"
+#include "raytrace/lights/light.hpp"
 #include "raytrace/entity.hpp"
 #include <basal/printable.hpp>
 namespace raytrace {

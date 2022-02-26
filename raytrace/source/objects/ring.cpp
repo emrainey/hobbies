@@ -1,5 +1,5 @@
 #include <iostream>
-#include "raytrace/ring.hpp"
+#include "raytrace/objects/ring.hpp"
 
 namespace raytrace {
 

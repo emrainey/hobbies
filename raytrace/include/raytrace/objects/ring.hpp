@@ -1,9 +1,7 @@
 #pragma once
 
 #include <array>
-
-#include "raytrace/object.hpp"
-#include "raytrace/plane.hpp"
+#include "raytrace/objects/plane.hpp"
 
 namespace raytrace {
 /** A plane bounded by an inner and outer radius */

@@ -1,4 +1,4 @@
-#include <raytrace/ellipsoid.hpp>
+#include <raytrace/objects/ellipsoid.hpp>
 
 namespace raytrace {
 

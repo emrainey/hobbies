@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
-#include "raytrace/overlap.hpp"
+#include "raytrace/objects/overlap.hpp"
 
 namespace raytrace {
 

@@ -1,4 +1,4 @@
-#include <raytrace/paraboloid.hpp>
+#include <raytrace/objects/paraboloid.hpp>
 
 namespace raytrace {
 

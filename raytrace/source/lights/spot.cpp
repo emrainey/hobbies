@@ -1,4 +1,4 @@
-#include "raytrace/spot.hpp"
+#include "raytrace/lights/spot.hpp"
 
 namespace raytrace {
 

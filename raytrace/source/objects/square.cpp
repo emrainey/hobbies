@@ -1,5 +1,5 @@
 #include <iostream>
-#include "raytrace/square.hpp"
+#include "raytrace/objects/square.hpp"
 
 namespace raytrace {
 

@@ -1,4 +1,4 @@
-#include <raytrace/ellipticalcylinder.hpp>
+#include <raytrace/objects/ellipticalcylinder.hpp>
 
 namespace raytrace {
 

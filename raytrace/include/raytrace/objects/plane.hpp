@@ -2,7 +2,7 @@
 
 #include <linalg/linalg.hpp>
 #include "geometry/geometry.hpp"
-#include "raytrace/object.hpp"
+#include "raytrace/objects/object.hpp"
 
 namespace raytrace {
 /** Constructs a 1 sided infinite plane */

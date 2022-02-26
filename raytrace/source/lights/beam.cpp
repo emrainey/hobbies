@@ -1,4 +1,4 @@
-#include "raytrace/beam.hpp"
+#include "raytrace/lights/beam.hpp"
 
 namespace raytrace {
 

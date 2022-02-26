@@ -1,5 +1,5 @@
 #include <iostream>
-#include "raytrace/torus.hpp"
+#include "raytrace/objects/torus.hpp"
 
 namespace raytrace {
 

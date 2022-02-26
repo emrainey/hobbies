@@ -1,4 +1,4 @@
-#include <raytrace/ellipticalcone.hpp>
+#include <raytrace/objects/ellipticalcone.hpp>
 
 namespace raytrace {
 

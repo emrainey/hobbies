@@ -1,5 +1,5 @@
 
-#include "raytrace/cuboid.hpp"
+#include "raytrace/objects/cuboid.hpp"
 
 namespace raytrace {
 

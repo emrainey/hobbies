@@ -1,6 +1,6 @@
 
 #include <iostream>
-#include "raytrace/pyramid.hpp"
+#include "raytrace/objects/pyramid.hpp"
 
 namespace raytrace {
 

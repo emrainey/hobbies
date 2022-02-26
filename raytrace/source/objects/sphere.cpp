@@ -1,6 +1,6 @@
 
 #include <iostream>
-#include "raytrace/sphere.hpp"
+#include "raytrace/objects/sphere.hpp"
 
 namespace raytrace {
 

@@ -1,4 +1,4 @@
-#include <raytrace/hyperboloid.hpp>
+#include <raytrace/objects/hyperboloid.hpp>
 
 namespace raytrace {
 

@@ -2,7 +2,8 @@
 
 #include <array>
 #include <linalg/linalg.hpp>
-#include "raytrace/plane.hpp"
+#include "raytrace/objects/plane.hpp"
+
 namespace raytrace {
 /** A three point polygon which uses the convex "inner" rules to find the intersection and not the plane intersection rules */
 class triangle : public plane {

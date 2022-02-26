@@ -4,7 +4,7 @@
 #include <basal/printable.hpp>
 #include <iso/degrees.hpp>
 #include "raytrace/types.hpp"
-#include "raytrace/object.hpp"
+#include "raytrace/objects/object.hpp"
 #include "raytrace/image.hpp"
 
 using namespace basal;

@@ -1,4 +1,4 @@
-#include "raytrace/bulb.hpp"
+#include "raytrace/lights/bulb.hpp"
 #include "raytrace/mapping.hpp"
 #include "raytrace/laws.hpp"
 

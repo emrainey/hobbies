@@ -1,6 +1,6 @@
 #pragma once
 
-#include "raytrace/quadratic.hpp"
+#include "raytrace/objects/quadratic.hpp"
 
 namespace raytrace {
 

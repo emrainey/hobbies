@@ -1,5 +1,5 @@
 #include <iostream>
-#include "raytrace/cylinder.hpp"
+#include "raytrace/objects/cylinder.hpp"
 
 namespace raytrace {
 

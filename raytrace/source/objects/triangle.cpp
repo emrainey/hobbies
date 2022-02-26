@@ -1,5 +1,5 @@
 #include <iostream>
-#include "raytrace/triangle.hpp"
+#include "raytrace/objects/triangle.hpp"
 
 namespace raytrace {
 

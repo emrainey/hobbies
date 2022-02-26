@@ -32,6 +32,9 @@ done
 
 # The local install location to test the build
 INSTALL_ROOT=`pwd`/install
+if [[ ${CLEAN} -eq 1 ]]; then
+    rm -rf ${INSTALL_ROOT}
+fi
 mkdir -p ${INSTALL_ROOT}
 
 BRANCH=main
@@ -61,7 +64,7 @@ for pkg in "${PKGS[@]}"; do
             -DCMAKE_PREFIX_PATH:PATH=${INSTALL_ROOT} \
             -DCMAKE_VERBOSE_MAKEFILE:BOOL=${VERBOSE} \
             -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE \
-            -DCMAKE_BUILD_TYPE:STRING=Release 
+            -DCMAKE_BUILD_TYPE:STRING=Release
             #-DCMAKE_C_COMPILER:FILEPATH=/usr/bin/clang \
             #-DCMAKE_CXX_COMPILER:FILEPATH=/usr/bin/clang++
         cmake --build $pkg/build -j${JOBS}

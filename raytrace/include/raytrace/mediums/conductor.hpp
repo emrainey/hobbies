@@ -1,5 +1,5 @@
 #pragma once
-#include "raytrace/medium.hpp"
+#include "raytrace/mediums/medium.hpp"
 
 namespace raytrace {
 

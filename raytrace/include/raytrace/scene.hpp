@@ -3,8 +3,8 @@
 #include "raytrace/color.hpp"
 #include "raytrace/image.hpp"
 #include "raytrace/camera.hpp"
-#include "raytrace/light.hpp"
-#include "raytrace/object.hpp"
+#include "raytrace/lights/light.hpp"
+#include "raytrace/objects/object.hpp"
 #include "raytrace/mediums/transparent.hpp"
 #include <basal/printable.hpp>
 

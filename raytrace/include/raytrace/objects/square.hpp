@@ -2,7 +2,7 @@
 
 #include <array>
 #include <linalg/linalg.hpp>
-#include "raytrace/plane.hpp"
+#include "raytrace/objects/plane.hpp"
 namespace raytrace {
 
 /** A square limit on a plane */

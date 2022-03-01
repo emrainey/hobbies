@@ -22,14 +22,8 @@ void transparent::radiosity(
         element_type& reflected,
         element_type& transmitted
     ) const {
-    constexpr static bool use_schlicks_approx = false;
     emitted = 0.0;
-    if constexpr (use_schlicks_approx) {
-        // FIXME this isn't actually fully correct.
-        reflected = laws::schlicks(refractive_index, m_refractive_index, incident_angle);
-    } else {
-        reflected = laws::fresnel(refractive_index, m_refractive_index, incident_angle, transmitted_angle);
-    }
+    reflected = laws::fresnel(refractive_index, m_refractive_index, incident_angle, transmitted_angle);
     transmitted = 1.0 - reflected;
 }
 

@@ -288,7 +288,7 @@ namespace colors {
 
     // metallic colors
     constexpr color aluminum(0.91, 0.91, 0.91);
-    constexpr color brass(1.0, 0,85, 0.37);
+    constexpr color brass(1.0, 0.85, 0.37);
     constexpr color bronze(0.47, 0.34, 0.18);
     constexpr color chrome(0.8, 0.93, 1.0);
     constexpr color copper(0.7784315, 0.48681375, 0.1336275);

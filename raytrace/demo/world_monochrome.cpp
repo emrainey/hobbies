@@ -7,6 +7,7 @@
 
 #include <raytrace/raytrace.hpp>
 #include "world.hpp"
+#include <functional>
 
 using namespace raytrace;
 using namespace raytrace::objects;
@@ -15,11 +16,12 @@ using namespace raytrace::lights;
 class MonochromeWorld : public world {
 public:
     MonochromeWorld()
-        : light_subsamples(1)
+        : light_subsamples(20)
         , look_from(5, -20, 20)
         , look_at(0, 0, 0)
         , plain_white(colors::white, mediums::ambient::none, colors::white, mediums::smoothness::none, roughness::tight)
-        , ground(raytrace::origin, R3::basis::Z, 1)
+        , griders(0.1, colors::blue, colors::yellow, colors::red, colors::magenta, colors::green, colors::cyan, colors::black, colors::white)
+        , floor(R3::origin, R3::basis::Z, 100, 100)
         , light0(raytrace::point(-5, 0, 10), 1, colors::white, 10, light_subsamples)
         , light1(raytrace::point(-4, 0, 10), 1, colors::white, 10, light_subsamples)
         , light2(raytrace::point(-3, 0, 10), 1, colors::white, 10, light_subsamples)
@@ -42,11 +44,13 @@ public:
         //, cyl(cylint, cylbox, overlap::type::inclusive)
         , cyl(raytrace::point(-2, 3, 2), 2, 1) // cylinder
         , cap(raytrace::point(-2, 3, 4), R3::basis::Z, 0, 1)
-        , t0(raytrace::point(1, 5, 0.4), 0.6, 0.4)
+        , t0(raytrace::point(3, 7, 0.5), 1.4, 0.5)
         , cb0(raytrace::point(7, -2, 1), 1, 1, 1)
         {
             // assign surfaces and materials
-            ground.material(&plain_white);
+            floor.material(&plain_white);
+            griders.mapper(std::bind(&objects::square::map, &floor, std::placeholders::_1));
+            //floor.material(&griders);
             s1.material(&mediums::metals::stainless);
             s2.material(&mediums::metals::stainless);
             s3.material(&mediums::metals::stainless);
@@ -75,6 +79,7 @@ public:
     }
 
     raytrace::color background(const raytrace::ray& world_ray) const override {
+        // this creates a gradient from top to bottom
         iso::radians A = angle(R3::basis::Z, world_ray.direction());
         element_type B = A.value / iso::pi;
         return color(0.8 * B, 0.8 * B, 0.8 * B);
@@ -94,7 +99,7 @@ public:
         scene.add_light(&light9);
         scene.add_light(&light10);
         // add the objects to the scene.
-        scene.add_object(&ground);
+        scene.add_object(&floor);
         scene.add_object(&s1);
         scene.add_object(&s2);
         scene.add_object(&s3);
@@ -109,7 +114,8 @@ protected:
     raytrace::point look_from;
     raytrace::point look_at;
     mediums::plain plain_white;
-    raytrace::objects::plane ground;
+    mediums::checkerboard griders;
+    raytrace::objects::square floor;
     bulb light0;
     bulb light1;
     bulb light2;

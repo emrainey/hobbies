@@ -25,12 +25,21 @@ color medium::diffuse(const raytrace::point& volumetric_point __attribute__((unu
 
 color medium::specular(const raytrace::point& volumetric_point, element_type scaling, const color& light_color) const {
     using namespace operators;
-    // phong model
-    return std::pow(scaling, specular_tightness(volumetric_point)) * light_color;
+    // phong model?
+    if (scaling > 0) {
+        return std::pow(scaling, specular_tightness(volumetric_point)) * light_color;
+    } else {
+        return colors::black;
+    }
 }
 
 element_type medium::specular_tightness(const raytrace::point& volumetric_point __attribute__((unused))) const {
     return m_tightness;
+}
+
+color medium::bounced(const raytrace::point& volumetic_point __attribute__((unused)), const color& incoming) const {
+    // just return incoming
+    return incoming;
 }
 
 element_type medium::smoothness(const raytrace::point& volumetric_point __attribute__((unused))) const {

@@ -9,6 +9,10 @@ namespace mediums {
 class conductor : public medium {
 public:
     conductor();
+
+    // bounced light will be altered by conductors
+    color bounced(const raytrace::point& volumetic_point, const color& incoming) const override;
+
     virtual ~conductor() = default;
 };
 

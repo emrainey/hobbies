@@ -31,7 +31,7 @@ class LensWorld : public world {
 public:
     LensWorld()
         : world()
-        , look_from(35, 0, 20)
+        , look_from(15, 0, 11)
         , look_at(0, 0, 0)
         , grid(1.0, colors::dark_olive_green, colors::yellow)
         , glass(mediums::refractive_index::glass, 0.88)
@@ -45,7 +45,7 @@ public:
     {
         // reduce the volumetric point to a planar point
         grid.mapper(std::bind(&raytrace::objects::square::map, &ground, std::placeholders::_1));
-
+        look_at = raytrace::point(0, 0, info.radius);
         x0.material(&glass);
         x1.material(&glass);
         convex_lens.material(&glass); // should assign all submaterials too? we assume const refs so it can't.

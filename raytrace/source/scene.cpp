@@ -227,7 +227,7 @@ color scene::trace(const ray& world_ray, const mediums::medium& media, size_t re
                         color diffuse_light = medium.diffuse(object_surface_point);
                         element_type specular_scaling = dot(normalized_light_direction, world_reflection.direction());
                         //basal::exception::throw_unless(within_inclusive(-1.0, specular_scaling, 1.0), __FILE__, __LINE__, "Must be within bounds");
-                        color specular_light = (specular_scaling > 0) ? medium.specular(object_surface_point, specular_scaling, raw_light_color) : colors::black;
+                        color specular_light = medium.specular(object_surface_point, specular_scaling, raw_light_color);
                         // blend the light color and the surface color together
                         surface_color_samples[sample_index] = (diffuse_light * incident_light);
                         // don't use color + color as that "blends", use accumulate for specular light.
@@ -269,7 +269,7 @@ color scene::trace(const ray& world_ray, const mediums::medium& media, size_t re
                         statistics::get().bounced_rays++;
 
                         // find out what the reflection adds to this
-                        color bounced_color = trace(world_reflection, media, reflection_depth - 1, recursive_contribution * smoothness);
+                        color bounced_color = medium.bounced(world_surface_point, trace(world_reflection, media, reflection_depth - 1, recursive_contribution * smoothness));
 
                         // somehow interpolate the two based on how much of a smooth mirror this medium is.
                         reflected_color = interpolate(bounced_color, surface_properties_color, smoothness);
@@ -280,6 +280,7 @@ color scene::trace(const ray& world_ray, const mediums::medium& media, size_t re
                 }
             } else {
                 // no more reflections so it's only surface properties!
+                // FIXME for metals this seems wrong as the color should be altering the light.
                 reflected_color = surface_properties_color;
             }
         }

@@ -5,9 +5,9 @@
  * @copyright Copyright 2019 (C). Erik Rainey.
  */
 
-#include <opencv2/opencv.hpp>
-#include <linalg/linalg.hpp>
 #include <geometry/geometry.hpp>
+#include <linalg/linalg.hpp>
+#include <opencv2/opencv.hpp>
 
 /** OpenCV to \ref linalg or \ref fourcc conversion namespace */
 namespace linalg {
@@ -37,4 +37,4 @@ inline cv::Point_<double> convert(const geometry::R2::point& a) {
     return cv::Point_<double>(a.x, a.y);
 }
 
-}
+}  // namespace linalg

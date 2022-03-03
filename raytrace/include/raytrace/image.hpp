@@ -1,11 +1,11 @@
 #pragma once
 
-#include <optional>
-#include <functional>
-
 #include <basal/exception.hpp>
-#include <linalg/linalg.hpp>
 #include <fourcc/image.hpp>
+#include <functional>
+#include <linalg/linalg.hpp>
+#include <optional>
+
 #include "raytrace/color.hpp"
 
 namespace raytrace {
@@ -13,7 +13,7 @@ namespace raytrace {
 /** The subclass of a sRGB interface to a fourcc::image in 24bit RGB */
 class image : public fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8> {
 public:
-    image() = delete; // No default construction
+    image() = delete;  // No default construction
 
     /** The general constructor.
      * @throw Can throw an exception if the height or width is odd.
@@ -40,14 +40,14 @@ public:
      * @param number_of_samples The number of samples per pixel.
      * @param opt_func The optional renderer callback
      * @param mask The mask image to use
-     * @param mask_threshold Used to do adaptive anti-aliasing. If the mask pixel is above the threshold value, then it will attempt to recompute. If 255, anti-aliasing is disabled.
+     * @param mask_threshold Used to do adaptive anti-aliasing. If the mask pixel is above the threshold value, then it
+     will attempt to recompute. If 255, anti-aliasing is disabled.
 
      */
-    void generate_each(subsampler sub_func,
-                        size_t number_of_samples = 1,
-                        std::optional<rendered_line> opt_func = std::nullopt,
-                        fourcc::image<uint8_t, fourcc::pixel_format::Y8>* mask = nullptr,
-                        uint8_t mask_threshold = AAA_MASK_DISABLED);
+    void generate_each(subsampler sub_func, size_t number_of_samples = 1,
+                       std::optional<rendered_line> opt_func = std::nullopt,
+                       fourcc::image<uint8_t, fourcc::pixel_format::Y8>* mask = nullptr,
+                       uint8_t mask_threshold = AAA_MASK_DISABLED);
 
     /** Returns the image pixel at the point (rounded raster coordinates) */
     fourcc::rgb8& at(const point& p);
@@ -62,4 +62,4 @@ public:
     constexpr static uint8_t AAA_MASK_ENABLED = 0u;
 };
 
-} // namespace raytrace
+}  // namespace raytrace

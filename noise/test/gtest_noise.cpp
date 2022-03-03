@@ -1,10 +1,10 @@
 
 #include <gtest/gtest.h>
-#include <noise/noise.hpp>
-#include <fourcc/image.hpp>
-#include <basal/basal.hpp>
-#include <vector>
 
+#include <basal/basal.hpp>
+#include <fourcc/image.hpp>
+#include <noise/noise.hpp>
+#include <vector>
 
 TEST(NoiseTest, PadTest) {
     noise::pad p0;
@@ -64,7 +64,7 @@ TEST(NoiseTest, RandomTest) {
     noise::vector seed{{1.0, 1.0}};
     srandom(time(nullptr));
     // test the range generated
-    for (double s = -100.0; s < 100.0; s+=(2.0 * double(rand())/RAND_MAX)) {
+    for (double s = -100.0; s < 100.0; s += (2.0 * double(rand()) / RAND_MAX)) {
         noise::vector vec{{s, 0.0}};
         double r = noise::random(vec, seed, 283.23982);
         // printf("r=%lf\n", r);
@@ -89,11 +89,8 @@ TEST(NoiseTest, PadImage) {
 
 class NoiseImageTest : public ::testing::Test {
 public:
-    NoiseImageTest()
-        : Test()
-        , pad()
-        , image(1024, 1024)
-        {}
+    NoiseImageTest() : Test(), pad(), image(1024, 1024) {
+    }
 
     void SetUp() {
         pad.generate();
@@ -103,6 +100,7 @@ public:
     void TearDown() {
         image.save(image_name.c_str());
     }
+
 protected:
     noise::pad pad;
     std::string image_name;
@@ -154,7 +152,6 @@ TEST_F(NoiseImageTest, Turbulence) {
     });
     image_name = "noise_image_turbulence.ppm";
 }
-
 
 TEST_F(NoiseImageTest, TurbulenceSin) {
     double size = 9.0;

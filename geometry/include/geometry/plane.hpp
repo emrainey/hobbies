@@ -5,10 +5,10 @@
  * @copyright Copyright 2019 (C) Erik Rainey.
  */
 
+#include "geometry/line.hpp"
+#include "geometry/point.hpp"
 #include "geometry/types.hpp"
 #include "geometry/vector.hpp"
-#include "geometry/point.hpp"
-#include "geometry/line.hpp"
 
 namespace geometry {
 /**
@@ -49,6 +49,7 @@ protected:
     coefficients_t eq;
     /** The scaling factor between the equation variables and the normal (magnitude) */
     element_type m_magnitude;
+
 public:
     /** Constant reference to the internal \ref vector normal */
     const R3::vector &normal = m_normal;
@@ -97,7 +98,7 @@ public:
     R3::vector unormal() const;
 
     /** Returns a const reference to the coefficients */
-    const coefficients_t & coefficient() const;
+    const coefficients_t &coefficient() const;
 
     virtual void print(const char name[]) const;
 
@@ -110,7 +111,7 @@ public:
     /** Returns the dihedral angle */
     element_type angle(const plane &P) const;
 
-    friend std::ostream& operator<<(std::ostream& os, const plane& p);
+    friend std::ostream &operator<<(std::ostream &os, const plane &p);
 };
 
 inline bool parallel(const plane &a, const plane &b) {
@@ -118,12 +119,12 @@ inline bool parallel(const plane &a, const plane &b) {
 }
 
 namespace operators {
-    /** Determines if the planes are parallel */
-    inline bool operator||(const plane &a, const plane& b) {
-        return parallel(a, b);
-    }
+/** Determines if the planes are parallel */
+inline bool operator||(const plane &a, const plane &b) {
+    return parallel(a, b);
 }
+}  // namespace operators
 
-std::ostream& operator<<(std::ostream& os, const plane& p);
+std::ostream &operator<<(std::ostream &os, const plane &p);
 
-} // namespace geometry
+}  // namespace geometry

@@ -17,11 +17,10 @@ inner::inner(layer::type _type, size_t inputs, size_t num)
     , last_delta(num, inputs)
     , last_bias(num, 1)
     , delta_weights(num, inputs)
-    , delta_biases(num, 1)
-    {
-    weights.random(-1.0,1.0);
-    biases.random(0.0,0.1);
-    //biases.fill(1.0);
+    , delta_biases(num, 1) {
+    weights.random(-1.0, 1.0);
+    biases.random(0.0, 0.1);
+    // biases.fill(1.0);
     delta.zero();
     zeta.zero();
     rms.zero();
@@ -61,18 +60,17 @@ inner::inner(inner&& other) : layer(other.layer_type, other.values.rows) {
     delta_weights = std::move(other.delta_weights);
 }
 
-inner::~inner() {}
+inner::~inner() {
+}
 
 inner& inner::operator=(const inner& other) {
     // have to be the same size!
-    basal::exception::throw_if(other.values.rows != values.rows or
-                            other.weights.rows != weights.rows or
-                            other.weights.cols != weights.cols or
-                            other.biases.rows != biases.rows or
-                            other.biases.cols != biases.cols or
-                            other.delta_biases.rows != delta_biases.rows or
-                            other.delta_weights.cols != delta_weights.cols or
-                            other.delta_weights.rows != delta_weights.rows, __FILE__, __LINE__);
+    basal::exception::throw_if(other.values.rows != values.rows or other.weights.rows != weights.rows or
+                                   other.weights.cols != weights.cols or other.biases.rows != biases.rows or
+                                   other.biases.cols != biases.cols or other.delta_biases.rows != delta_biases.rows or
+                                   other.delta_weights.cols != delta_weights.cols or
+                                   other.delta_weights.rows != delta_weights.rows,
+                               __FILE__, __LINE__);
     type = other.type;
     values = other.values;
     weights = other.weights;
@@ -90,14 +88,12 @@ inner& inner::operator=(const inner& other) {
 
 inner& inner::operator=(inner&& other) {
     // have to be the same size!
-    basal::exception::throw_if(other.values.rows != values.rows or
-                            other.weights.rows != weights.rows or
-                            other.weights.cols != weights.cols or
-                            other.biases.rows != biases.rows or
-                            other.biases.cols != biases.cols or
-                            other.delta_biases.rows != delta_biases.rows or
-                            other.delta_weights.cols != delta_weights.cols or
-                            other.delta_weights.rows != delta_weights.rows, __FILE__, __LINE__);
+    basal::exception::throw_if(other.values.rows != values.rows or other.weights.rows != weights.rows or
+                                   other.weights.cols != weights.cols or other.biases.rows != biases.rows or
+                                   other.biases.cols != biases.cols or other.delta_biases.rows != delta_biases.rows or
+                                   other.delta_weights.cols != delta_weights.cols or
+                                   other.delta_weights.rows != delta_weights.rows,
+                               __FILE__, __LINE__);
     type = other.type;
     values = std::move(other.values);
     weights = std::move(other.weights);
@@ -135,7 +131,6 @@ matrix inner::activation(matrix& in) {
     return m;
 }
 
-
 matrix inner::activation_derivative(matrix& in) {
     matrix m(in.rows, in.cols);
     switch (type) {
@@ -146,7 +141,7 @@ matrix inner::activation_derivative(matrix& in) {
             m = relu_deriv(in);
             break;
         case activation_type::Tanh:
-            m =  tanh_deriv(in);
+            m = tanh_deriv(in);
             break;
     }
     return m;
@@ -162,7 +157,8 @@ void inner::forward(layer& other) {
 }
 
 void inner::backward(layer& other, double alpha, double gamma) {
-    basal::exception::throw_unless(layer_type == layer::type::output or layer_type == layer::type::hidden, __FILE__, __LINE__);
+    basal::exception::throw_unless(layer_type == layer::type::output or layer_type == layer::type::hidden, __FILE__,
+                                   __LINE__);
 
     // counts first to prevent divide by zero
     count++;
@@ -171,12 +167,12 @@ void inner::backward(layer& other, double alpha, double gamma) {
     // hidden layers need to have their computed
     // input layers do not have a delta (and are not handled here)
     if (other.layer_type == layer::type::hidden) {
-        nn::inner &prev = dynamic_cast<nn::inner&>(other);
+        nn::inner& prev = dynamic_cast<nn::inner&>(other);
         // (W^T*δ) * σ'(z)
         prev.delta = hadamard(weights.T() * delta, activation_derivative(prev.zeta));
     }
-    //pairwise::multiply(other.values.T(), delta);
-    // (δ*v^T)
+    // pairwise::multiply(other.values.T(), delta);
+    //  (δ*v^T)
     linalg::matrix dW = delta * other.values.T();
     delta_weights += (alpha * dW) + (gamma * last_delta);
     last_delta = dW;
@@ -204,4 +200,4 @@ void inner::update(void) {
     }
 }
 
-}
+}  // namespace nn

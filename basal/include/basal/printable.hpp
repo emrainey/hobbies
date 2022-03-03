@@ -1,8 +1,9 @@
 #pragma once
 
-#include <string>
 #include <inttypes.h>
+
 #include <iostream>
+#include <string>
 
 #ifndef PRIz
 #if defined(__x86_64__)
@@ -16,7 +17,7 @@ namespace basal {
 class printable {
 public:
     /*! Character Array printing mechanism */
-    virtual void print(const char []) const = 0;
+    virtual void print(const char[]) const = 0;
 
     /*! String printing mechanism. */
     inline void print(std::string str) const {
@@ -25,8 +26,8 @@ public:
 
 protected:
     /*! Virtual deconstructor */
-    virtual ~printable() {}
+    virtual ~printable() {
+    }
 };
 
-} // namespace basal
-
+}  // namespace basal

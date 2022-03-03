@@ -1,15 +1,16 @@
 
-#include <dlfcn.h>
-#include <functional>
-#include "basal/basal.hpp"
 #include "basal/module.hpp"
+
+#include <dlfcn.h>
+
+#include <functional>
+
+#include "basal/basal.hpp"
 
 namespace basal {
 
-module::module(const char name[])
-    : handle(nullptr)
-    {
-    static const char * const formats[] = {
+module::module(const char name[]) : handle(nullptr) {
+    static const char* const formats[] = {
         "%s",
 #if defined(__APPLE__)
         "lib%s.dylib",
@@ -35,7 +36,8 @@ module::module(const char name[])
     printf("Loaded into %p handle\r\n", handle);
 }
 
-module::module(module&& other) : handle(std::move(other.handle)) {}
+module::module(module&& other) : handle(std::move(other.handle)) {
+}
 
 module& module::operator=(module&& other) {
     handle = std::move(other.handle);
@@ -47,9 +49,8 @@ module::~module() {
     handle = nullptr;
 }
 
-
 bool module::is_loaded() const {
-    return not (handle == nullptr);
+    return not(handle == nullptr);
 }
 
-} // namespace module
+}  // namespace basal

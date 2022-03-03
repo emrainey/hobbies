@@ -1,23 +1,23 @@
-#include <iostream>
 #include "raytrace/objects/cone.hpp"
+
+#include <iostream>
 
 namespace raytrace {
 namespace objects {
 cone::cone(const point& C, iso::radians angle)
-    : object(C, 2, true) // 2 collisions, closed (infinite)
+    : object(C, 2, true)  // 2 collisions, closed (infinite)
     , m_bottom_radius(0.0)
     , m_height(0.0)
-    , m_angle(angle)
-    {
-        throw_exception_if(m_angle >= iso::radians(iso::pi/2), "Angle %lf is too large", m_angle.value);
-    }
+    , m_angle(angle) {
+    throw_exception_if(m_angle >= iso::radians(iso::pi / 2), "Angle %lf is too large", m_angle.value);
+}
 
 cone::cone(const point& C, element_type bottom_radius, element_type height)
-    : object(C, 2, false) // 2 collisions, not closed
+    : object(C, 2, false)  // 2 collisions, not closed
     , m_bottom_radius(bottom_radius)
     , m_height(height)
-    , m_angle(std::atan2(bottom_radius,height))
-    {}
+    , m_angle(std::atan2(bottom_radius, height)) {
+}
 
 vector cone::normal(const point& world_surface_point) const {
     point object_surface_point = reverse_transform(world_surface_point);
@@ -43,7 +43,7 @@ vector cone::normal(const point& world_surface_point) const {
         N[2] = object_surface_point.z > 0 ? -radius : radius;
     }
     N.normalize();
-    return vector(N); // copy constructor output
+    return vector(N);  // copy constructor output
 }
 
 hits cone::collisions_along(const ray& object_ray) const {
@@ -74,11 +74,11 @@ hits cone::collisions_along(const ray& object_ray) const {
     element_type h = m_height;
     element_type br = m_bottom_radius;
     element_type f = std::tan(m_angle.value);
-    element_type s = basal::equals_zero(h) ? 1.0/(f*f) : (h * h) / (br * br);
+    element_type s = basal::equals_zero(h) ? 1.0 / (f * f) : (h * h) / (br * br);
     element_type z_h = z - h;
-    element_type a = s*(i*i + j*j) - k*k;
-    element_type b = 2*(s*(i*x + j*y) - k*z_h);
-    element_type c = s*(x*x + y*y) - z_h*z_h;
+    element_type a = s * (i * i + j * j) - k * k;
+    element_type b = 2 * (s * (i * x + j * y) - k * z_h);
+    element_type c = s * (x * x + y * y) - z_h * z_h;
     auto roots = linalg::quadratic_roots(a, b, c);
     element_type t0 = std::get<0>(roots);
     element_type t1 = std::get<1>(roots);
@@ -106,16 +106,17 @@ image::point cone::map(const point& object_surface_point) const {
     // theta goes from +pi to -pi we want to map -pi to 1.0 and + pi to zero
     element_type v = 0.0;
     if (polar.y >= 0) {
-        v = 0.5 - (polar.y / (+2.0*iso::pi));
+        v = 0.5 - (polar.y / (+2.0 * iso::pi));
     } else {
-        v = 0.5 + (polar.y / (-2.0*iso::pi));
+        v = 0.5 + (polar.y / (-2.0 * iso::pi));
     }
     return image::point(u, v);
 }
 
 void cone::print(const char str[]) const {
-    std::cout << str << " cone @" << this << " " << position() << " Height" << m_height << " Radius:" << m_bottom_radius << " Angle:" << m_angle.value << std::endl;
+    std::cout << str << " cone @" << this << " " << position() << " Height" << m_height << " Radius:" << m_bottom_radius
+              << " Angle:" << m_angle.value << std::endl;
 }
 
-} // namespace objects
-} // namespace raytrace
+}  // namespace objects
+}  // namespace raytrace

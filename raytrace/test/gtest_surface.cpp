@@ -1,12 +1,11 @@
-#include <vector>
-
-#include <basal/basal.hpp>
 #include <gtest/gtest.h>
 
+#include <basal/basal.hpp>
 #include <raytrace/raytrace.hpp>
+#include <vector>
 
-#include "linalg/gtest_helper.hpp"
 #include "geometry/gtest_helper.hpp"
+#include "linalg/gtest_helper.hpp"
 #include "raytrace/gtest_helper.hpp"
 
 TEST(SurfaceTest, ShinySurface) {
@@ -40,7 +39,7 @@ TEST(SurfaceTest, CheckboardDifuse) {
 TEST(SurfaceTest, MarbleWeirdSurface) {
     using namespace raytrace;
     image img(512, 512);
-    mediums::marble weird(13*iso::pi/19, 0.032, 72.9828302, colors::black, colors::white);
+    mediums::marble weird(13 * iso::pi / 19, 0.032, 72.9828302, colors::black, colors::white);
     img.generate_each([&](const image::point& p1) {
         raytrace::point p2(p1.x / img.width, p1.y / img.height, 0.0);
         return weird.diffuse(p2);
@@ -102,7 +101,7 @@ TEST(FunctionTest, RandomNoise) {
     using namespace raytrace;
     image img(480, 480);
     element_type s = 1.0;
-    palette pal; // not really used
+    palette pal;  // not really used
     img.generate_each([&](const image::point& p1) {
         image::point p2(s * p1.x / img.width, s * p1.y / img.height);
         return functions::pseudo_random_noise(p2, pal);

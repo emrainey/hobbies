@@ -11,15 +11,17 @@
  */
 #undef RENDER_TO_CONSOLE
 
-#include <raytrace/raytrace.hpp>
-#include <basal/options.hpp>
-#include <basal/module.hpp>
-#include "world.hpp"
-#include <functional>
-#include <thread>
-#include <chrono>
-#include <iomanip>
 #include <ncurses.h>
+
+#include <basal/module.hpp>
+#include <basal/options.hpp>
+#include <chrono>
+#include <functional>
+#include <iomanip>
+#include <raytrace/raytrace.hpp>
+#include <thread>
+
+#include "world.hpp"
 
 using namespace std::placeholders;
 
@@ -33,29 +35,26 @@ struct Parameters {
     size_t mask_threshold;
 };
 
-enum class State : char {
+enum class State : char
+{
     MENU = 'm',
     DRAW = 'd'
 };
 
 // QQVGA, QVGA, VGA, XGA, HD, UWGA, 4K
-size_t dimensions[][2] = {{160,120}, {320,240}, {640,480}, {1024,768}, {1920,1080}, {2560,1440}, {3840, 2160}};
+size_t dimensions[][2] = {{160, 120}, {320, 240}, {640, 480}, {1024, 768}, {1920, 1080}, {2560, 1440}, {3840, 2160}};
 
 class Console {
 public:
-    Console()
-        : m_width(0)
-        , m_height(0)
-        , m_buffer{0}
-    {
+    Console() : m_width(0), m_height(0), m_buffer{0} {
         // initialize
         initscr();
         raw();  // we'll get the characters for Ctrl+C too
         start_color();
-        keypad(stdscr, TRUE); // use Fn keys
-        noecho(); // don't echo input
+        keypad(stdscr, TRUE);  // use Fn keys
+        noecho();              // don't echo input
         // get screen details
-        getmaxyx(stdscr,m_height,m_width);
+        getmaxyx(stdscr, m_height, m_width);
         wborder(stdscr, '|', '|', '-', '-', '+', '+', '+', '+');
 
         init_pair(INFO_PAIR, COLOR_WHITE, COLOR_BLACK);
@@ -97,7 +96,7 @@ public:
         move(row, m_width - rb - 1);
         addch(']');
         attroff(COLOR_PAIR(PROGRESS_PAIR));
-        //refresh();
+        // refresh();
     }
 
     void refresh() {
@@ -111,7 +110,7 @@ public:
         va_end(list);
         move(y, x);
         printw(m_buffer);
-        //refresh();
+        // refresh();
     }
 
     void wait_for_input(std::function<void(int)> func) {
@@ -128,6 +127,7 @@ public:
     int get_height() const {
         return m_height;
     }
+
 protected:
     int m_width;
     int m_height;
@@ -136,14 +136,15 @@ protected:
     static const int PROGRESS_PAIR = 2;
 };
 
-#define my_assert(condition, statement) { \
-    if ((condition) == false) { \
-        printf("%s failed, %s\n", #condition, statement); \
-        exit(-1); \
-    } \
-}
+#define my_assert(condition, statement)                       \
+    {                                                         \
+        if ((condition) == false) {                           \
+            printf("%s failed, %s\n", #condition, statement); \
+            exit(-1);                                         \
+        }                                                     \
+    }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
     Parameters params;
     bool verbose = false;
     bool should_quit = false;
@@ -162,7 +163,8 @@ int main(int argc, char *argv[]) {
         {"-f", "--fov", 55.0, "Field of View in Degrees"},
         {"-v", "--verbose", false, "Enables showing the early debugging"},
         {"-m", "--module", std::string(""), "Module to load"},
-        {"-a", "--aaa", (size_t)raytrace::image::AAA_MASK_DISABLED, "Adaptive Anti-Aliasing Threshold value (255 disables)"},
+        {"-a", "--aaa", (size_t)raytrace::image::AAA_MASK_DISABLED,
+         "Adaptive Anti-Aliasing Threshold value (255 disables)"},
     };
 
     basal::options::process(opts, argc, argv);
@@ -201,17 +203,15 @@ int main(int argc, char *argv[]) {
     auto progress_bar = [&]() -> void {
         while (running) {
             size_t count = 0;
-            std::for_each(completed.begin(), completed.end(),
-                [&](bool p) -> bool {
-                    count += (p?1:0);
-                    return p;
-                }
-            );
+            std::for_each(completed.begin(), completed.end(), [&](bool p) -> bool {
+                count += (p ? 1 : 0);
+                return p;
+            });
             double percentage = 100.0 * count / completed.size();
             bool done = (count == completed.size());
             if (state == State::MENU) {
-                size_t h = console.get_height() - 2; // account for border
-                console.print(h-1, 2, " >> PROGRESS [ %0.3lf %%]", done ? 100.0 : percentage);
+                size_t h = console.get_height() - 2;  // account for border
+                console.print(h - 1, 2, " >> PROGRESS [ %0.3lf %%]", done ? 100.0 : percentage);
                 console.progress(h, percentage);
 
                 console.print(9, 2, "GEOMETRY");
@@ -238,9 +238,7 @@ int main(int argc, char *argv[]) {
         }
     };
 
-    auto row_notifier = [&](size_t row_index, bool is_complete) -> void {
-        completed[row_index] = is_complete;
-    };
+    auto row_notifier = [&](size_t row_index, bool is_complete) -> void { completed[row_index] = is_complete; };
 
 #if defined(RENDER_TO_CONSOLE)
     raytrace::scene scene(console.get_height() * 2, console.get_width(), iso::degrees(params.fov));
@@ -259,14 +257,16 @@ int main(int argc, char *argv[]) {
     do {
         if (state == State::MENU) {
             console.print(1, 2, "RAYTRACE by Erik Rainey. Loaded module %s", params.module.c_str());
-            console.print(2, 2, "CONSOLE {%dx%d}, IMAGE {%zux%zu} RGB8" , console.get_width(), console.get_height(), params.width, params.height);
-            console.print(3, 2, "SUBSAMPLES: %zu, REFLECTIONS: %zu ANTI-ALIAS MASK: %zu", params.subsamples, params.reflections, params.mask_threshold);
+            console.print(2, 2, "CONSOLE {%dx%d}, IMAGE {%zux%zu} RGB8", console.get_width(), console.get_height(),
+                          params.width, params.height);
+            console.print(3, 2, "SUBSAMPLES: %zu, REFLECTIONS: %zu ANTI-ALIAS MASK: %zu", params.subsamples,
+                          params.reflections, params.mask_threshold);
             console.print(4, 2, "CAMERA FROM {%0.3lf,%0.3lf,%0.3lf} AT {%0.3lf,%0.3lf,%0.3lf} FOV=%0.2lf",
-                world.looking_from().x, world.looking_from().y, world.looking_from().z,
-                world.looking_at().x, world.looking_at().y, world.looking_at().z,
-                params.fov);
+                          world.looking_from().x, world.looking_from().y, world.looking_from().z, world.looking_at().x,
+                          world.looking_at().y, world.looking_at().z, params.fov);
             console.print(5, 2, "#LIGHTS %zu #OBJECTS %zu", scene.number_of_lights(), scene.number_of_objects());
-            //console.print(6, 2, "START TIME: %s, RENDERING TIME: %0.3lf secs", std::ctime(&start_time), diff.count());
+            // console.print(6, 2, "START TIME: %s, RENDERING TIME: %0.3lf secs", std::ctime(&start_time),
+            // diff.count());
 #if defined(RENDER_TO_CONSOLE)
             console.print(7, 2, "Commands: (r)ender, (m)enu, (d)raw, (q)uit");
 #else
@@ -276,9 +276,9 @@ int main(int argc, char *argv[]) {
         }
 #if defined(RENDER_TO_CONSOLE)
         else if (state == State::DRAW) {
-            printf("\e[s\e[?25l"); // save cursor?
-            printf("\e[u"); // clear screen?
-            for (size_t y = 0; y < scene.view.capture.height; y+=2) {
+            printf("\e[s\e[?25l");  // save cursor?
+            printf("\e[u");         // clear screen?
+            for (size_t y = 0; y < scene.view.capture.height; y += 2) {
                 for (size_t x = 0; x < scene.view.capture.width; x++) {
                     fourcc::rgb8 top = scene.view.capture.at(y + 0, x);
                     fourcc::rgb8 btm = scene.view.capture.at(y + 1, x);
@@ -290,7 +290,7 @@ int main(int argc, char *argv[]) {
         }
 #endif
         // wait for input
-        console.wait_for_input([&](int input){
+        console.wait_for_input([&](int input) {
             switch (input) {
                 case KEY_F(1):
                     // show function menu instead?
@@ -301,9 +301,10 @@ int main(int argc, char *argv[]) {
                     char time_string[256];
                     std::strftime(time_string, dimof(time_string), "%A %c", std::localtime(&start_time));
                     console.print(6, 2, "START TIME: %s, RENDERING TIME: ??? secs", time_string);
-                    std::thread bar_thread(progress_bar); // thread starts
+                    std::thread bar_thread(progress_bar);  // thread starts
                     try {
-                        scene.render(world.output_filename(), params.subsamples, params.reflections, row_notifier, params.mask_threshold);
+                        scene.render(world.output_filename(), params.subsamples, params.reflections, row_notifier,
+                                     params.mask_threshold);
                     } catch (const basal::exception& e) {
                         std::cout << "Caught basal::exception in scene.render()! " << std::endl;
                         std::cout << "What:" << e.what() << " Why:" << e.why() << " Where:" << e.where() << std::endl;
@@ -312,7 +313,7 @@ int main(int argc, char *argv[]) {
                     }
                     diff = std::chrono::steady_clock::now() - start;
                     running = false;
-                    bar_thread.join(); // thread stop
+                    bar_thread.join();  // thread stop
                     console.print(6, 2, "START TIME: %s, RENDERING TIME: %0.3lf secs", time_string, diff.count());
                     break;
                 }
@@ -320,7 +321,7 @@ int main(int argc, char *argv[]) {
                 case 'd':
                     if (has_colors()) {
                         state = State::DRAW;
-                        //console.clear();
+                        // console.clear();
                         endwin();
                     } else {
                         console.print(10, 0, "Console can not render image!");

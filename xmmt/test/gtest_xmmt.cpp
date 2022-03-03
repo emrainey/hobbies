@@ -1,15 +1,16 @@
 #include <gtest/gtest.h>
-#include <vector>
-#include <chrono>
 
-#include "xmmt/xmmt.hpp"
+#include <chrono>
+#include <vector>
+
 #include "xmmt/xmat.hpp"
+#include "xmmt/xmmt.hpp"
 
 TEST(XMMTTest, Indexing) {
     using namespace intel;
-    xmmt4 v{{1.0, 0.4,-0.8, 3.14}};
-    EXPECT_DOUBLE_EQ( 1.0, v.c.x);
-    EXPECT_DOUBLE_EQ( 0.4, v.c.y);
+    xmmt4 v{{1.0, 0.4, -0.8, 3.14}};
+    EXPECT_DOUBLE_EQ(1.0, v.c.x);
+    EXPECT_DOUBLE_EQ(0.4, v.c.y);
     EXPECT_DOUBLE_EQ(-0.8, v.c.z);
     EXPECT_DOUBLE_EQ(3.14, v.c.w);
 
@@ -38,7 +39,7 @@ TEST(XMMTTest, DotPerf) {
     }
     auto diff = std::chrono::steady_clock::now() - start;
     double rate = (double(number_of_ops) / (diff.count() / 1E9)) / 1E6;
-    std::cout << "dots rate:" << rate << " M-dots/sec, Period: " << diff.count()/1E9 << " sec" << std::endl;
+    std::cout << "dots rate:" << rate << " M-dots/sec, Period: " << diff.count() / 1E9 << " sec" << std::endl;
 }
 
 TEST(XMMTTest, Cross) {
@@ -49,14 +50,14 @@ TEST(XMMTTest, Cross) {
     std::cout << "uv " << uv << std::endl;
     EXPECT_DOUBLE_EQ(29.52, uv.c.x);
     EXPECT_DOUBLE_EQ(-40.8, uv.c.y);
-    EXPECT_DOUBLE_EQ( 12.9, uv.c.z);
+    EXPECT_DOUBLE_EQ(12.9, uv.c.z);
 
-    xmmt3 x{{1,0,0}};
-    xmmt3 y{{0,1,0}};
-    xmmt3 z{{0,0,1}};
-    ASSERT_TRUE(z == cross(x,y));
-    ASSERT_TRUE(y == cross(z,x));
-    ASSERT_TRUE(x == cross(y,z));
+    xmmt3 x{{1, 0, 0}};
+    xmmt3 y{{0, 1, 0}};
+    xmmt3 z{{0, 0, 1}};
+    ASSERT_TRUE(z == cross(x, y));
+    ASSERT_TRUE(y == cross(z, x));
+    ASSERT_TRUE(x == cross(y, z));
 }
 
 TEST(XMMTTest, CrossPerf) {
@@ -71,7 +72,7 @@ TEST(XMMTTest, CrossPerf) {
     }
     auto diff = std::chrono::steady_clock::now() - start;
     double rate = (double(number_of_ops) / (diff.count() / 1E9)) / 1E6;
-    std::cout << "cross rate:" << rate << " M-cross/sec, Period: " << diff.count()/1E9 << " sec" << std::endl;
+    std::cout << "cross rate:" << rate << " M-cross/sec, Period: " << diff.count() / 1E9 << " sec" << std::endl;
 }
 TEST(XMMTTest, ParallelAdd) {
     using namespace intel;
@@ -79,9 +80,9 @@ TEST(XMMTTest, ParallelAdd) {
     xmmt4 b{{14.0, 3.6, 7.8, 3.33}};
     xmmt4 c = a + b;
     std::cout << c << std::endl;
-    EXPECT_DOUBLE_EQ( 15.0, c[0]);
-    EXPECT_DOUBLE_EQ(  9.4, c[1]);
-    EXPECT_DOUBLE_EQ( 17.0, c[2]);
+    EXPECT_DOUBLE_EQ(15.0, c[0]);
+    EXPECT_DOUBLE_EQ(9.4, c[1]);
+    EXPECT_DOUBLE_EQ(17.0, c[2]);
     EXPECT_DOUBLE_EQ(-6.67, c[3]);
 }
 
@@ -91,7 +92,7 @@ TEST(XMMTTest, ParallelMult) {
     xmmt4 b{{14.0, 3.6, 7.8, 3.33}};
     xmmt4 c = a * b;
     std::cout << c << std::endl;
-    EXPECT_DOUBLE_EQ( 14.0, c[0]);
+    EXPECT_DOUBLE_EQ(14.0, c[0]);
     EXPECT_DOUBLE_EQ(20.88, c[1]);
     EXPECT_DOUBLE_EQ(71.76, c[2]);
     EXPECT_DOUBLE_EQ(-33.3, c[3]);
@@ -99,16 +100,16 @@ TEST(XMMTTest, ParallelMult) {
 
 TEST(XMATTest, ConstructionAndIndexing) {
     using namespace intel;
-    xmat_<3, 3> m3 = {{1,2,3,4,5,6,7,8,9}};
-    EXPECT_DOUBLE_EQ(1, m3.at(0,0));
-    EXPECT_DOUBLE_EQ(2, m3.at(0,1));
-    EXPECT_DOUBLE_EQ(3, m3.at(0,2));
-    EXPECT_DOUBLE_EQ(4, m3.at(1,0));
-    EXPECT_DOUBLE_EQ(5, m3.at(1,1));
-    EXPECT_DOUBLE_EQ(6, m3.at(1,2));
-    EXPECT_DOUBLE_EQ(7, m3.at(2,0));
-    EXPECT_DOUBLE_EQ(8, m3.at(2,1));
-    EXPECT_DOUBLE_EQ(9, m3.at(2,2));
+    xmat_<3, 3> m3 = {{1, 2, 3, 4, 5, 6, 7, 8, 9}};
+    EXPECT_DOUBLE_EQ(1, m3.at(0, 0));
+    EXPECT_DOUBLE_EQ(2, m3.at(0, 1));
+    EXPECT_DOUBLE_EQ(3, m3.at(0, 2));
+    EXPECT_DOUBLE_EQ(4, m3.at(1, 0));
+    EXPECT_DOUBLE_EQ(5, m3.at(1, 1));
+    EXPECT_DOUBLE_EQ(6, m3.at(1, 2));
+    EXPECT_DOUBLE_EQ(7, m3.at(2, 0));
+    EXPECT_DOUBLE_EQ(8, m3.at(2, 1));
+    EXPECT_DOUBLE_EQ(9, m3.at(2, 2));
 
     EXPECT_DOUBLE_EQ(1, m3[0][0]);
     EXPECT_DOUBLE_EQ(2, m3[0][1]);
@@ -120,34 +121,32 @@ TEST(XMATTest, ConstructionAndIndexing) {
     EXPECT_DOUBLE_EQ(8, m3[2][1]);
     EXPECT_DOUBLE_EQ(9, m3[2][2]);
 
-    m3.at(0,0) = 42.0; // assignment
-    EXPECT_DOUBLE_EQ(42.0, m3.at(0,0));
+    m3.at(0, 0) = 42.0;  // assignment
+    EXPECT_DOUBLE_EQ(42.0, m3.at(0, 0));
 }
-
 
 TEST(XMATTest, Operators2x2) {
     using namespace intel;
-    xmat_<2, 2> m0 = {{1,2,3,4}};
-    xmat_<2, 2> m1 = {{1,2,3,4}};
+    xmat_<2, 2> m0 = {{1, 2, 3, 4}};
+    xmat_<2, 2> m1 = {{1, 2, 3, 4}};
 
-    m1 *= 7.0; // scalar
+    m1 *= 7.0;  // scalar
     for (size_t j = 0; j < m0.rows; j++) {
         for (size_t i = 0; i < m0.cols; i++) {
-            EXPECT_DOUBLE_EQ(m0.at(j,i) * 7.0, m1.at(j,i));
+            EXPECT_DOUBLE_EQ(m0.at(j, i) * 7.0, m1.at(j, i));
         }
     }
 }
 
-
 TEST(XMATTest, Operators3x3) {
     using namespace intel;
-    xmat_<3, 3> m0 = {{1,2,3,4,5,6,7,8,9}};
-    xmat_<3, 3> m1 = {{1,2,3,4,5,6,7,8,9}};
+    xmat_<3, 3> m0 = {{1, 2, 3, 4, 5, 6, 7, 8, 9}};
+    xmat_<3, 3> m1 = {{1, 2, 3, 4, 5, 6, 7, 8, 9}};
 
-    m1 *= 2.0; // scalar
+    m1 *= 2.0;  // scalar
     for (size_t j = 0; j < m0.rows; j++) {
         for (size_t i = 0; i < m0.cols; i++) {
-            EXPECT_DOUBLE_EQ(m0.at(j,i) * 2.0, m1.at(j,i));
+            EXPECT_DOUBLE_EQ(m0.at(j, i) * 2.0, m1.at(j, i));
         }
     }
 
@@ -155,21 +154,20 @@ TEST(XMATTest, Operators3x3) {
     m2 += m0;
     for (size_t j = 0; j < m0.rows; j++) {
         for (size_t i = 0; i < m0.cols; i++) {
-            EXPECT_DOUBLE_EQ(m0.at(j,i) + m1.at(j,i), m2.at(j,i));
+            EXPECT_DOUBLE_EQ(m0.at(j, i) + m1.at(j, i), m2.at(j, i));
         }
     }
 }
 
 TEST(XMATTest, Operators4x4) {
     using namespace intel;
-    xmat_<4, 4> m0 = {{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16}};
-    xmat_<4, 4> m1 = {{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16}};
+    xmat_<4, 4> m0 = {{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}};
+    xmat_<4, 4> m1 = {{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}};
 
-    m1 *= 3.0; // scalar
+    m1 *= 3.0;  // scalar
     for (size_t j = 0; j < m0.rows; j++) {
         for (size_t i = 0; i < m0.cols; i++) {
-            EXPECT_DOUBLE_EQ(m0.at(j,i) * 3.0, m1.at(j,i));
+            EXPECT_DOUBLE_EQ(m0.at(j, i) * 3.0, m1.at(j, i));
         }
     }
 }
-

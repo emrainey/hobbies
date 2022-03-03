@@ -28,7 +28,8 @@ public:
     constexpr static const size_t dimensions = DIM;
 
     /** The default constructor */
-    vector_() : data() {}
+    vector_() : data() {
+    }
 
     vector_(size_t len, DATA_TYPE in[]) : vector_() {
         basal::exception::throw_if(len == 0, __FILE__, __LINE__);
@@ -43,9 +44,7 @@ public:
     vector_(std::initializer_list<DATA_TYPE> a) : vector_() {
         basal::exception::throw_unless(dimensions == a.size(), __FILE__, __LINE__);
         size_t r = 0;
-        for (auto iter = a.begin();
-             r < a.size() and iter != a.end();
-             r++, iter++) {
+        for (auto iter = a.begin(); r < a.size() and iter != a.end(); r++, iter++) {
             data[r] = *iter;
         }
     }
@@ -116,7 +115,7 @@ public:
     inline DATA_TYPE quadrance() const {
         DATA_TYPE sum = 0.0;
         for (size_t i = 0; i < dimensions; i++) {
-            sum += data[i]*data[i];
+            sum += data[i] * data[i];
         }
         return sum;
     }
@@ -191,7 +190,7 @@ public:
     }
 
     /** Creates a scaled vector orthogonal to the parameter vector */
-    vector_ project_orthogonal(vector_& a) const{
+    vector_ project_orthogonal(vector_& a) const {
         vector_ c(*this);
         c -= project_along(a);
         return vector_(c);
@@ -218,18 +217,17 @@ public:
     /** Computes the spread of two vectors.
      * \see https://en.wikipedia.org/wiki/Rational_trigonometry#Spread
      */
-    friend DATA_TYPE spread(const vector_ &a, const vector_ &b) noexcept(false) {
+    friend DATA_TYPE spread(const vector_& a, const vector_& b) noexcept(false) {
         basal::exception::throw_unless(a.dimensions >= 2 && a.dimensions < 5, __FILE__, __LINE__, "Must be 2d to 4d");
         // we assume the vectors cross at origin
         // must find the perpendicular line from a to b.
         if (a.dimensions == 2) {
-            return (a[0]*b[1] - b[0]*a[1])/(Q(a)*Q(b));
+            return (a[0] * b[1] - b[0] * a[1]) / (Q(a) * Q(b));
         } else {
-            element_type d = dot(a,b);
-            return 1.0 - ((d*d) / (Q(a)*Q(b)));
+            element_type d = dot(a, b);
+            return 1.0 - ((d * d) / (Q(a) * Q(b)));
         }
     }
-
 
     /** Equality operator of two vector */
     friend bool operator==(const vector_& a, const vector_& b) {
@@ -257,7 +255,7 @@ public:
     }
 
     friend inline vector_ division(const vector_& a, DATA_TYPE b) {
-        return multiply(a, 1.0/b);
+        return multiply(a, 1.0 / b);
     }
 
     friend inline vector_ multiply(DATA_TYPE b, const vector_& a) {
@@ -322,52 +320,52 @@ inline bool orthogonal(const vector_<DATA_TYPE, DIMS>& a, const vector_<DATA_TYP
 }
 
 namespace operators {
-    /** Tests if two vectors are orthagonal */
-    template <typename DATA_TYPE, size_t DIMS>
-    inline bool operator|(const vector_<DATA_TYPE, DIMS>& a, const vector_<DATA_TYPE, DIMS>& b) {
-        return orthogonal(a, b);
-    }
-
-    template <typename DATA_TYPE, size_t DIMS>
-    inline vector_<DATA_TYPE, DIMS> operator*(const matrix& A, const vector_<DATA_TYPE, DIMS>&b) {
-        return multiply(A, b);
-    }
-
-    template <typename DATA_TYPE, size_t DIMS>
-    inline vector_<DATA_TYPE, DIMS> operator+(const vector_<DATA_TYPE, DIMS>& a, const vector_<DATA_TYPE, DIMS>& b) {
-        return addition(a, b);
-    }
-
-    template <typename DATA_TYPE, size_t DIMS>
-    inline vector_<DATA_TYPE, DIMS> operator-(const vector_<DATA_TYPE, DIMS>& a, const vector_<DATA_TYPE, DIMS>& b) {
-        return subtraction(a, b);
-    }
-
-    template <typename DATA_TYPE, size_t DIMS>
-    inline vector_<DATA_TYPE, DIMS> operator*(const vector_<DATA_TYPE, DIMS>& a, element_type b) {
-        return multiply(a, b);
-    }
-
-    template <typename DATA_TYPE, size_t DIMS>
-    inline vector_<DATA_TYPE, DIMS> operator*(element_type b, const vector_<DATA_TYPE, DIMS>& a) {
-        return multiply(a, b);
-    }
-
-    template <typename DATA_TYPE, size_t DIMS>
-    inline vector_<DATA_TYPE, DIMS> operator/(const vector_<DATA_TYPE, DIMS>& a, element_type b) {
-        return division(a, b);
-    }
-
-    template <typename DATA_TYPE, size_t DIMS>
-    inline vector_<DATA_TYPE, DIMS> operator/(element_type b, const vector_<DATA_TYPE, DIMS>& a) {
-        return division(a, b);
-    }
-
-    template <typename DATA_TYPE, size_t DIMS>
-    inline vector_<DATA_TYPE, DIMS> operator-(const vector_<DATA_TYPE, DIMS>& a) {
-        return negation(a);
-    }
+/** Tests if two vectors are orthagonal */
+template <typename DATA_TYPE, size_t DIMS>
+inline bool operator|(const vector_<DATA_TYPE, DIMS>& a, const vector_<DATA_TYPE, DIMS>& b) {
+    return orthogonal(a, b);
 }
+
+template <typename DATA_TYPE, size_t DIMS>
+inline vector_<DATA_TYPE, DIMS> operator*(const matrix& A, const vector_<DATA_TYPE, DIMS>& b) {
+    return multiply(A, b);
+}
+
+template <typename DATA_TYPE, size_t DIMS>
+inline vector_<DATA_TYPE, DIMS> operator+(const vector_<DATA_TYPE, DIMS>& a, const vector_<DATA_TYPE, DIMS>& b) {
+    return addition(a, b);
+}
+
+template <typename DATA_TYPE, size_t DIMS>
+inline vector_<DATA_TYPE, DIMS> operator-(const vector_<DATA_TYPE, DIMS>& a, const vector_<DATA_TYPE, DIMS>& b) {
+    return subtraction(a, b);
+}
+
+template <typename DATA_TYPE, size_t DIMS>
+inline vector_<DATA_TYPE, DIMS> operator*(const vector_<DATA_TYPE, DIMS>& a, element_type b) {
+    return multiply(a, b);
+}
+
+template <typename DATA_TYPE, size_t DIMS>
+inline vector_<DATA_TYPE, DIMS> operator*(element_type b, const vector_<DATA_TYPE, DIMS>& a) {
+    return multiply(a, b);
+}
+
+template <typename DATA_TYPE, size_t DIMS>
+inline vector_<DATA_TYPE, DIMS> operator/(const vector_<DATA_TYPE, DIMS>& a, element_type b) {
+    return division(a, b);
+}
+
+template <typename DATA_TYPE, size_t DIMS>
+inline vector_<DATA_TYPE, DIMS> operator/(element_type b, const vector_<DATA_TYPE, DIMS>& a) {
+    return division(a, b);
+}
+
+template <typename DATA_TYPE, size_t DIMS>
+inline vector_<DATA_TYPE, DIMS> operator-(const vector_<DATA_TYPE, DIMS>& a) {
+    return negation(a);
+}
+}  // namespace operators
 
 /** Printing Operator */
 template <typename DATA_TYPE, size_t DIMS>
@@ -382,65 +380,65 @@ std::ostream& operator<<(std::ostream& os, const vector_<DATA_TYPE, DIMS>& vec) 
 
 /** 2D Space */
 namespace R2 {
-    using vector = vector_<element_type, 2>;
+using vector = vector_<element_type, 2>;
 
-    static const vector null{{0.0, 0.0}};
-    static const vector nan{{std::nan(""),std::nan("")}};
-    /** Predefine the axis vectors to prevent constant redefinitions in tests and other code */
-    namespace basis {
-        static const vector X{{1.0, 0.0}};
-        static const vector Y{{0.0, 1.0}};
-    }
-}
+static const vector null{{0.0, 0.0}};
+static const vector nan{{std::nan(""), std::nan("")}};
+/** Predefine the axis vectors to prevent constant redefinitions in tests and other code */
+namespace basis {
+static const vector X{{1.0, 0.0}};
+static const vector Y{{0.0, 1.0}};
+}  // namespace basis
+}  // namespace R2
 
 /** 3D Space */
 namespace R3 {
-    using vector = vector_<element_type, 3>;
+using vector = vector_<element_type, 3>;
 
-    static const vector null{{0.0, 0.0, 0.0}};
-    static const vector nan{{std::nan(""),std::nan(""),std::nan("")}};
-    /** Predefine the axis vectors to prevent constant redefinitions in tests and other code */
-    namespace basis {
-        static const vector X{{1.0, 0.0, 0.0}};
-        static const vector Y{{0.0, 1.0, 0.0}};
-        static const vector Z{{0.0, 0.0, 1.0}};
-    }
+static const vector null{{0.0, 0.0, 0.0}};
+static const vector nan{{std::nan(""), std::nan(""), std::nan("")}};
+/** Predefine the axis vectors to prevent constant redefinitions in tests and other code */
+namespace basis {
+static const vector X{{1.0, 0.0, 0.0}};
+static const vector Y{{0.0, 1.0, 0.0}};
+static const vector Z{{0.0, 0.0, 1.0}};
+}  // namespace basis
 
-    /** Returns a new vector which is the cross Product of two vectors (only for 3,4 DIM). Copy parameter form. */
-    vector cross(const vector& a, const vector& b) noexcept(false);
+/** Returns a new vector which is the cross Product of two vectors (only for 3,4 DIM). Copy parameter form. */
+vector cross(const vector& a, const vector& b) noexcept(false);
 
-    /** Tests if two vectors are parallel */
-    bool parallel(const vector& a, const vector& b);
+/** Tests if two vectors are parallel */
+bool parallel(const vector& a, const vector& b);
 
-    /** Rotates a vector v around the axis vector k by theta radians. */
-    vector rodrigues(const vector& k, const vector& v, iso::radians theta);
+/** Rotates a vector v around the axis vector k by theta radians. */
+vector rodrigues(const vector& k, const vector& v, iso::radians theta);
 
-    /** Computes the triple product of three vectors */
-    element_type triple(const vector& u, const vector& v, const vector& w) noexcept(false);
-}
+/** Computes the triple product of three vectors */
+element_type triple(const vector& u, const vector& v, const vector& w) noexcept(false);
+}  // namespace R3
 
 /** 4D Space */
 namespace R4 {
-    using vector = vector_<element_type, 4>;
+using vector = vector_<element_type, 4>;
 
-    static const vector null{{0.0, 0.0, 0.0, 0.0}};
-    static const vector nan{{std::nan(""),std::nan(""),std::nan(""),std::nan("")}};
-    /** Predefine the axis vectors to prevent constant redefinitions in tests and other code */
-    namespace basis {
-        static const vector X{{1.0, 0.0, 0.0, 0.0}};
-        static const vector Y{{0.0, 1.0, 0.0, 0.0}};
-        static const vector Z{{0.0, 0.0, 1.0, 0.0}};
-        static const vector W{{0.0, 0.0, 0.0, 1.0}};
-    }
-}
+static const vector null{{0.0, 0.0, 0.0, 0.0}};
+static const vector nan{{std::nan(""), std::nan(""), std::nan(""), std::nan("")}};
+/** Predefine the axis vectors to prevent constant redefinitions in tests and other code */
+namespace basis {
+static const vector X{{1.0, 0.0, 0.0, 0.0}};
+static const vector Y{{0.0, 1.0, 0.0, 0.0}};
+static const vector Z{{0.0, 0.0, 1.0, 0.0}};
+static const vector W{{0.0, 0.0, 0.0, 1.0}};
+}  // namespace basis
+}  // namespace R4
 
 namespace operators {
-    /** Tests if two vectors are parallel */
-    template <typename DATA_TYPE, size_t DIMS>
-    inline bool operator||(const vector_<DATA_TYPE, DIMS>& a, const vector_<DATA_TYPE, DIMS>& b) {
-        static_assert(DIMS == 3, "Can only compute parallelism in 3D");
-        return R3::parallel(a, b);
-    }
+/** Tests if two vectors are parallel */
+template <typename DATA_TYPE, size_t DIMS>
+inline bool operator||(const vector_<DATA_TYPE, DIMS>& a, const vector_<DATA_TYPE, DIMS>& b) {
+    static_assert(DIMS == 3, "Can only compute parallelism in 3D");
+    return R3::parallel(a, b);
 }
+}  // namespace operators
 
-} // namespace geometry
+}  // namespace geometry

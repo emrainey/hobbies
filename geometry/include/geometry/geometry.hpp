@@ -5,17 +5,17 @@
  * @copyright Copyright 2020 (C) Erik Rainey.
  */
 
-#include <limits>
-
 #include <basal/exception.hpp>
+#include <limits>
 
 /** The Geometry Namespace */
 namespace geometry {
-    // Enforce the IEEE-754 compliance
-    static_assert(std::numeric_limits<double>::is_iec559, "Platform must be IEEE-754 formatted.");
-}
+// Enforce the IEEE-754 compliance
+static_assert(std::numeric_limits<double>::is_iec559, "Platform must be IEEE-754 formatted.");
+}  // namespace geometry
 
-#include "geometry/types.hpp" // <-- linalg comes in here
+// clang-format off
+#include "geometry/types.hpp"  // <-- linalg comes in here
 #include "geometry/point.hpp"
 #include "geometry/vector.hpp"
 #include "geometry/line.hpp"
@@ -24,4 +24,4 @@ namespace geometry {
 #include "geometry/sphere.hpp"
 #include "geometry/intersection.hpp"
 #include "geometry/extra_math.hpp"
-
+// clang-format on

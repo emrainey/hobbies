@@ -6,16 +6,17 @@
  * @copyright Copyright 2019 (C) Erik Rainey.
  */
 
-#include "neuralnet/matrix.hpp"
 #include "neuralnet/layer.hpp"
+#include "neuralnet/matrix.hpp"
 
 namespace nn {
 
 /** The enumerations of the activeation types for inner layers */
-enum class activation_type : int {
-    Sigmoid,    //!< Uses a sigmoid activation
-    RELU,       //!< Uses a RELU activation (fastest)
-    Tanh,       //!< Uses a (faster than Sigmoid) hyperbolic tangent function */
+enum class activation_type : int
+{
+    Sigmoid,  //!< Uses a sigmoid activation
+    RELU,     //!< Uses a RELU activation (fastest)
+    Tanh,     //!< Uses a (faster than Sigmoid) hyperbolic tangent function */
 };
 
 /** Common definition of a non-input layer */
@@ -50,7 +51,7 @@ public:
     /**
      * During forward propagation, the other layer is the lower layer
      */
-    virtual void forward(layer& other) override ;
+    virtual void forward(layer& other) override;
 
     /**
      * During backwards propagation, the other layer is the lower layer.
@@ -69,16 +70,16 @@ public:
      */
     virtual void reset(void);
 
-    activation_type type;   ///< The type of activation function to use.
-    linalg::matrix weights; ///< The weights of all inputs.
-    linalg::matrix biases;  ///< The biases to apply to each input.
-    linalg::matrix delta;   ///< The matrix which holds the computed error times the slope of the activation
-    linalg::matrix zeta;    ///< The weighted inputs plus biases.
-    linalg::matrix rms;     ///< The root mean square of the errors (after update)
+    activation_type type;    ///< The type of activation function to use.
+    linalg::matrix weights;  ///< The weights of all inputs.
+    linalg::matrix biases;   ///< The biases to apply to each input.
+    linalg::matrix delta;    ///< The matrix which holds the computed error times the slope of the activation
+    linalg::matrix zeta;     ///< The weighted inputs plus biases.
+    linalg::matrix rms;      ///< The root mean square of the errors (after update)
     size_t count;
-    linalg::matrix last_delta; ///< The previous delta matrix
-    linalg::matrix last_bias;  ///< The previous bias matrix
-    linalg::matrix delta_weights;    ///< This holds the instantaneous change in weights
-    linalg::matrix delta_biases;     ///< This holds the instantaneous change in biases
+    linalg::matrix last_delta;     ///< The previous delta matrix
+    linalg::matrix last_bias;      ///< The previous bias matrix
+    linalg::matrix delta_weights;  ///< This holds the instantaneous change in weights
+    linalg::matrix delta_biases;   ///< This holds the instantaneous change in biases
 };
-}
+}  // namespace nn

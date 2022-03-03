@@ -7,23 +7,25 @@
  */
 
 #include <raytrace/raytrace.hpp>
+
 #include "world.hpp"
 
 using namespace raytrace;
 
-void subspheres(std::vector<raytrace::objects::sphere *>& spheres, const raytrace::point& center, double R, size_t depth) {
+void subspheres(std::vector<raytrace::objects::sphere*>& spheres, const raytrace::point& center, double R,
+                size_t depth) {
     if (depth > 0) {
         // adding 28 spheres of
         double radius = R / 6.0;
-        for (double z = -R; z <= R; z+=R) {
-            for (double y = -R; y <= R; y+=R) {
-                for (double x = -R; x <= R; x+=R) {
+        for (double z = -R; z <= R; z += R) {
+            for (double y = -R; y <= R; y += R) {
+                for (double x = -R; x <= R; x += R) {
                     // if all are zero, continue
                     if (iso::equivalent(x, 0.0) and iso::equivalent(y, 0.0) and iso::equivalent(z, 0.0)) {
                         continue;
                     }
-                    spheres.push_back(new raytrace::objects::sphere(center + R3::vector{{ x, y, z}}, radius));
-                    subspheres(spheres, spheres.back()->position(), R/3.0, depth - 1);
+                    spheres.push_back(new raytrace::objects::sphere(center + R3::vector{{x, y, z}}, radius));
+                    subspheres(spheres, spheres.back()->position(), R / 3.0, depth - 1);
                 }
             }
         }
@@ -39,12 +41,11 @@ public:
         , look_at(3, 0, 6)
         , spheres()
         , sunlight(raytrace::vector{-2, 2, -1}, colors::white, 1E11)
-        , specks()
-    {
+        , specks() {
         raytrace::point center = look_at;
         spheres.push_back(new raytrace::objects::sphere(center, 6));
         subspheres(spheres, center, 12.0, 2);
-        for (auto & s : spheres) {
+        for (auto& s : spheres) {
             s->material(&mediums::metals::stainless);
         }
         specks.push_back(new lights::speck(raytrace::point(80, 120, 80), colors::white, 1E11));
@@ -95,9 +96,9 @@ public:
 protected:
     raytrace::point look_from;
     raytrace::point look_at;
-    std::vector<raytrace::objects::sphere *> spheres;
+    std::vector<raytrace::objects::sphere*> spheres;
     lights::beam sunlight;
-    std::vector<raytrace::lights::speck *>specks;
+    std::vector<raytrace::lights::speck*> specks;
 };
 
 // declare a single instance and return the reference to it
@@ -105,4 +106,3 @@ world* get_world() {
     static SpheresWorld my_world;
     return &my_world;
 }
-

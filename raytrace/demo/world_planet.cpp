@@ -1,4 +1,5 @@
 #include <raytrace/raytrace.hpp>
+
 #include "world.hpp"
 
 using namespace raytrace;
@@ -22,8 +23,7 @@ public:
         , ringD(center, R3::basis::Z, 14.0, 14.2)
         , ringE(center, R3::basis::Z, 14.5, 14.7)
         , ringF(center, R3::basis::Z, 15.0, 16.7)
-        , planet(center, 7.5)
-        {
+        , planet(center, 7.5) {
         planet.material(&mediums::metals::stainless);
         ringA.material(&mediums::metals::stainless);
         ringB.material(&mediums::metals::stainless);
@@ -57,7 +57,7 @@ public:
     }
 
     void add_to(scene& scene) override {
-        //scene.add_light(&inner_light);
+        // scene.add_light(&inner_light);
         scene.add_light(&sunrays);
         scene.add_object(&planet);
         scene.add_object(&ringA);

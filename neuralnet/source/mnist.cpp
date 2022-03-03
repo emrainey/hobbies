@@ -13,10 +13,11 @@ mnist::mnist(std::string indexes, std::string images, uint32_t limit)
     , width(0)
     , height(0)
     , images()
-    , limit(limit)
-    { }
+    , limit(limit) {
+}
 
-mnist::~mnist() {}
+mnist::~mnist() {
+}
 
 bool mnist::load() {
     fimages = fopen(image_file.c_str(), "rb+");
@@ -48,7 +49,8 @@ bool mnist::load() {
     tmp = __builtin_bswap32(tmp);
     num_entries = __builtin_bswap32(num_entries);
     if (tmp == num_entries) {
-        printf("Loading %u (limit %u) entries!...", num_entries, limit); fflush(stdout);
+        printf("Loading %u (limit %u) entries!...", num_entries, limit);
+        fflush(stdout);
     } else {
         printf("Num of Entries mismatch! %u vs %u\n", num_entries, tmp);
         return false;
@@ -62,8 +64,8 @@ bool mnist::load() {
     width = __builtin_bswap32(width);
     height = __builtin_bswap32(height);
     if (width != dim || height != dim) {
-            printf("Failed to load image size correctly!\n");
-            return false;
+        printf("Failed to load image size correctly!\n");
+        return false;
     }
     labels.resize(num_entries * sizeof(uint8_t));
     images.resize(num_entries * sizeof(image));
@@ -80,7 +82,8 @@ bool mnist::load() {
     }
     fclose(findexes);
     fclose(fimages);
-    printf("Complete!\n"); fflush(stdout);
+    printf("Complete!\n");
+    fflush(stdout);
     return true;
 }
 
@@ -115,4 +118,4 @@ uint8_t mnist::get_label(size_t index) {
     }
 }
 
-} // namespace nn
+}  // namespace nn

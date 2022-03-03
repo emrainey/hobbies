@@ -2,6 +2,7 @@
 
 #include <array>
 #include <linalg/linalg.hpp>
+
 #include "raytrace/objects/plane.hpp"
 namespace raytrace {
 namespace objects {
@@ -11,7 +12,7 @@ public:
     /**
      * Constructs a square from two half width/heights and a normal
      */
-    square(const point& C,  const raytrace::vector& N, element_type half_height, element_type half_width);
+    square(const point& C, const raytrace::vector& N, element_type half_height, element_type half_width);
     virtual ~square() = default;
 
     /** @copydoc raytrace::object::collisions_along */
@@ -22,11 +23,12 @@ public:
 
     /** @copydoc raytrace::object::map */
     image::point map(const point& object_surface_point) const override;
+
 private:
     std::array<raytrace::point, 2> m_points;
 };
-}
+}  // namespace objects
 /** Returns the plane in which the three points we co-planar */
 geometry::plane as_plane(const objects::square& sq);
 
-}
+}  // namespace raytrace

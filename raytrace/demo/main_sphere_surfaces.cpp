@@ -6,9 +6,9 @@
  * @copyright Copyright (c) 2021
  */
 
+#include <linalg/trackbar.hpp>
 #include <opencv2/opencv.hpp>
 #include <raytrace/raytrace.hpp>
-#include <linalg/trackbar.hpp>
 
 size_t width = 640;
 size_t height = 480;
@@ -21,13 +21,11 @@ double ambient_scale = 0.1;
 size_t diffuse_color_index = 0;
 double smoothiness = mediums::smoothness::polished;
 double tightness = mediums::roughness::tight;
-color color_choices[] = {
-    colors::white, colors::red, colors::green, colors::blue,
-    colors::cyan, colors::magenta, colors::yellow, colors::black
-};
+color color_choices[] = {colors::white, colors::red,     colors::green,  colors::blue,
+                         colors::cyan,  colors::magenta, colors::yellow, colors::black};
 constexpr size_t number_of_colors = dimof(color_choices);
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
     using namespace raytrace;
     bool show_bar = true;
     if (argc > 1) {
@@ -47,24 +45,26 @@ int main(int argc, char *argv[]) {
     cv::Mat render_image(height, width, CV_8UC3);
     cv::namedWindow(windowName, cv::WINDOW_AUTOSIZE);
 
-    linalg::Trackbar<size_t> trackbar_diff_color("Diffuse Color", windowName, 0u, diffuse_color_index, number_of_colors, 1u, &diffuse_color_index);
-    linalg::Trackbar<size_t> trackbar_amb_color("Ambient Color", windowName, 0u, ambient_color_index, number_of_colors, 1u, &ambient_color_index);
+    linalg::Trackbar<size_t> trackbar_diff_color("Diffuse Color", windowName, 0u, diffuse_color_index, number_of_colors,
+                                                 1u, &diffuse_color_index);
+    linalg::Trackbar<size_t> trackbar_amb_color("Ambient Color", windowName, 0u, ambient_color_index, number_of_colors,
+                                                1u, &ambient_color_index);
     linalg::Trackbar trackbar_amb_scale("Ambient Scale", windowName, 0.0, ambient_scale, 1.0, 0.1, &ambient_scale);
     linalg::Trackbar trackbar_smoothness("Smoothness", windowName, 0.0, smoothiness, 1.0, 0.1, &smoothiness);
     linalg::Trackbar trackbar_tightness("Tightness", windowName, 0.0, tightness, 100.0, 5.0, &tightness);
 
-
     double move_unit = 5.0;
     raytrace::point look_from(0, 0, 60);
     vector looking{{0.8, 0.8, -1}};
-    //looking.normalize();
+    // looking.normalize();
     raytrace::point look_at = look_from + looking;
 
     vector up = R3::basis::Z;
     vector down = -R3::basis::Z;
 
     raytrace::objects::plane ground(R3::origin, up, 1.0);
-    mediums::plain plain_green(colors::green, mediums::ambient::dim, colors::green, mediums::smoothness::barely, mediums::roughness::loose);
+    mediums::plain plain_green(colors::green, mediums::ambient::dim, colors::green, mediums::smoothness::barely,
+                               mediums::roughness::loose);
     ground.material(&plain_green);
 
     raytrace::point sphere_center(40, 40, 10);
@@ -77,10 +77,11 @@ int main(int argc, char *argv[]) {
         // tiny image, simple camera placement
         scene scene(height, width, fov);
         scene.view.move_to(look_from, look_at);
-        //scene.background = colors::black;
+        // scene.background = colors::black;
 
         // define some surfaces
-        mediums::plain testsurface(color_choices[ambient_color_index], ambient_scale, color_choices[diffuse_color_index], smoothiness, tightness);
+        mediums::plain testsurface(color_choices[ambient_color_index], ambient_scale,
+                                   color_choices[diffuse_color_index], smoothiness, tightness);
         test_sphere.material(&testsurface);
 
         // add the objects to the scene.
@@ -90,7 +91,7 @@ int main(int argc, char *argv[]) {
 
         scene.print("Scene");
         if (should_render) {
-            render_image.setTo(cv::Scalar(128,128,128));
+            render_image.setTo(cv::Scalar(128, 128, 128));
             cv::imshow(windowName, render_image);
             (void)cv::waitKey(1);
             printf("Starting Render (depth=%zu, samples=%zu)...\r\n", reflection_depth, subsamples);
@@ -106,17 +107,31 @@ int main(int argc, char *argv[]) {
             printf("Ambient Scale: %lf Reflectivity: %lf Roughness: %lf\r\n", ambient_scale, smoothiness, tightness);
             printf("Render Complete!\r\n");
         }
-        int key = cv::waitKey(0) & 0x00FFFFFF;// wait for keypress
+        int key = cv::waitKey(0) & 0x00FFFFFF;  // wait for keypress
         printf("Pressed key %d\n", key);
         switch (key) {
-            case 27: // [fall-through]
-            case 'q': should_quit = true; break;  // ESC or q
-            case 13: should_render = true; break;  // (CR) ENTER
-            case 'w': look_at.x += move_unit; break;
-            case 's': look_at.x -= move_unit; break;
-            case 'a': look_at.y += move_unit; break;
-            case 'd': look_at.y -= move_unit; break;
-            case 'f': fov = iso::degrees(60); break;
+            case 27:  // [fall-through]
+            case 'q':
+                should_quit = true;
+                break;  // ESC or q
+            case 13:
+                should_render = true;
+                break;  // (CR) ENTER
+            case 'w':
+                look_at.x += move_unit;
+                break;
+            case 's':
+                look_at.x -= move_unit;
+                break;
+            case 'a':
+                look_at.y += move_unit;
+                break;
+            case 'd':
+                look_at.y -= move_unit;
+                break;
+            case 'f':
+                fov = iso::degrees(60);
+                break;
         }
     } while (not should_quit);
 }

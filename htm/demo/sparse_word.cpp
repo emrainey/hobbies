@@ -20,9 +20,9 @@ int main(int argc, char *argv[]) {
     s5.print();
     htm::sparse_word<256> s6 = s3 & s4;
     s6.print();
-    htm::sparse_word<6> u1{{1,3,4}};
+    htm::sparse_word<6> u1{{1, 3, 4}};
     u1.print();
-    htm::sparse_word<7> u2{{3,5}};
+    htm::sparse_word<7> u2{{3, 5}};
     u2.print();
     htm::sparse_word<13> u3 = u1 << u2;
     u3.print();
@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
     for (uint32_t i = 0; i < width; i++) {
         htm::sparse_word<width> u5 = htm::scalar_encoder<width>(i, 3);
         char namepath[50];
-        snprintf(namepath,sizeof(namepath),"scalar_encoding_%u_of_%u.pgm", i, width);
+        snprintf(namepath, sizeof(namepath), "scalar_encoding_%u_of_%u.pgm", i, width);
         u5.to_image(namepath);
     }
     {

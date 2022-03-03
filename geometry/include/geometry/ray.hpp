@@ -1,9 +1,10 @@
 #pragma once
 
-#include "geometry/point.hpp"
-#include "geometry/line.hpp"
-#include "geometry/vector.hpp"
 #include <basal/printable.hpp>
+
+#include "geometry/line.hpp"
+#include "geometry/point.hpp"
+#include "geometry/vector.hpp"
 
 namespace geometry {
 
@@ -13,6 +14,7 @@ using namespace geometry::operators;
 template <size_t DIMS>
 class ray_ : public basal::printable {
     static_assert(2 <= DIMS and DIMS <= 4, "Must be either 2 to 4 dimensional");
+
 public:
     using point = point_<DIMS>;
     using vector = vector_<element_type, DIMS>;
@@ -21,16 +23,12 @@ public:
     constexpr static size_t dimensions = DIMS;
 
     /** Default constructor */
-    explicit ray_()
-        : m_location()
-        , m_direction()
-        {}
+    explicit ray_() : m_location(), m_direction() {
+    }
 
     /** Parameter Costructor */
-    explicit ray_(const point &s, const vector& v)
-        : m_location(s)
-        , m_direction(v)
-        {}
+    explicit ray_(const point& s, const vector& v) : m_location(s), m_direction(v) {
+    }
 
     /** Destructor */
     ~ray_() = default;
@@ -61,7 +59,7 @@ public:
         return m_location + (t * m_direction);
     }
 
-    point closest(const R3::point &p) const {
+    point closest(const R3::point& p) const {
         R3::vector side = p - location();
         element_type t = dot(side, direction()) / direction().quadrance();
         return distance_along(t);
@@ -94,8 +92,7 @@ ray_<DIMS> cross(const ray_<DIMS>& a, const ray_<DIMS>& b) {
 
 template <size_t DIMS>
 bool equality(const ray_<DIMS>& a, const ray_<DIMS>& b) {
-    return     a.location() == b.location()
-            and b.direction() == b.direction();
+    return a.location() == b.location() and b.direction() == b.direction();
 }
 
 template <size_t DIMS>
@@ -118,43 +115,42 @@ ray_<DIMS> addition(const ray_<DIMS>& r, const vector_<element_type, DIMS>& v) {
 }
 
 namespace operators {
-    /** Equality Operator */
-    template <size_t DIMS>
-    inline bool operator==(const ray_<DIMS>& a, const ray_<DIMS>& b) {
-        return equality(a, b);
-    }
-
-    /** Inequality operator */
-    template <size_t DIMS>
-    inline bool operator!=(const ray_<DIMS>& a, const ray_<DIMS>& b) {
-        return inequality(a, b);
-    }
-
-    /** Multiply Operator */
-    template <size_t DIMS>
-    inline ray_<DIMS> operator*(const linalg::matrix& m, const ray_<DIMS>& r) {
-        return multiply(m, r);
-    }
-
-    /** Addition Operator. Add the vector to the point, does change the direction of the ray */
-    template <size_t DIMS>
-    inline ray_<DIMS> operator+(const ray_<DIMS>& r, const vector_<element_type, DIMS>& v) {
-        return addition(r, v);
-    }
+/** Equality Operator */
+template <size_t DIMS>
+inline bool operator==(const ray_<DIMS>& a, const ray_<DIMS>& b) {
+    return equality(a, b);
 }
 
+/** Inequality operator */
+template <size_t DIMS>
+inline bool operator!=(const ray_<DIMS>& a, const ray_<DIMS>& b) {
+    return inequality(a, b);
+}
+
+/** Multiply Operator */
+template <size_t DIMS>
+inline ray_<DIMS> operator*(const linalg::matrix& m, const ray_<DIMS>& r) {
+    return multiply(m, r);
+}
+
+/** Addition Operator. Add the vector to the point, does change the direction of the ray */
+template <size_t DIMS>
+inline ray_<DIMS> operator+(const ray_<DIMS>& r, const vector_<element_type, DIMS>& v) {
+    return addition(r, v);
+}
+}  // namespace operators
 
 namespace R2 {
-    using ray = ray_<dimensions>;
+using ray = ray_<dimensions>;
 }
 
 namespace R3 {
-    using ray = ray_<dimensions>;
+using ray = ray_<dimensions>;
 
-    /** Returns a line which is co-linear to the ray */
-    inline R3::line as_line(const ray& r) {
-        return R3::line(r.direction(), r.location());
-    }
+/** Returns a line which is co-linear to the ray */
+inline R3::line as_line(const ray& r) {
+    return R3::line(r.direction(), r.location());
 }
+}  // namespace R3
 
-}
+}  // namespace geometry

@@ -1,10 +1,9 @@
 #pragma once
 
-#include <iostream>
 #include <basal/printable.hpp>
-
-#include <linalg/linalg.hpp>
 #include <geometry/geometry.hpp>
+#include <iostream>
+#include <linalg/linalg.hpp>
 
 #include "raytrace/objects/object.hpp"
 
@@ -25,7 +24,7 @@ public:
     /** @copydoc raytrace::object::normal */
     vector normal(const point& world_surface_point) const override;
     /** @copydoc raytrace::object::intersect */
-    //geometry::intersection intersect(const ray& world_ray) const override;
+    // geometry::intersection intersect(const ray& world_ray) const override;
     /** @copydoc raytrace::object::collision_along */
     hits collisions_along(const ray& object_ray) const override;
     /** @copydoc raytrace::object::map */
@@ -36,17 +35,18 @@ public:
     const element_type& x_half_width;
     const element_type& y_half_width;
     const element_type& z_half_width;
+
 protected:
     // The half-width sizes for x,y,z
     element_type m_half_widths[3];
-    point  m_faces[6];
+    point m_faces[6];
     // These don't change with any particular instance
     static const vector m_normals[6];
 };
 
-} // namespace objects
+}  // namespace objects
 
 /** Print in stream for cuboid */
 std::ostream& operator<<(std::ostream& os, const objects::cuboid& c);
 
-} // namespace raytrace
+}  // namespace raytrace

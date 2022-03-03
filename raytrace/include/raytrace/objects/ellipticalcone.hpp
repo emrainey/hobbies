@@ -9,5 +9,5 @@ public:
     ellipticalcone(const point &center, element_type a, element_type b);
     ~ellipticalcone() = default;
 };
-}
-} // namespace raytrace
+}  // namespace objects
+}  // namespace raytrace

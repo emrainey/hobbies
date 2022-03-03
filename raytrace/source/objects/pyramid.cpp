@@ -1,6 +1,7 @@
 
-#include <iostream>
 #include "raytrace/objects/pyramid.hpp"
+
+#include <iostream>
 
 namespace raytrace {
 namespace objects {
@@ -10,22 +11,18 @@ using namespace linalg::operators;
 using namespace geometry;
 using namespace geometry::operators;
 
-pyramid::pyramid(const point& base, double height)
-    : object(base, 2)
-    {}
+pyramid::pyramid(const point& base, double height) : object(base, 2) {
+}
 
 vector pyramid::normal(const point& world_surface_point) const {
     point object_surface_point = reverse_transform(world_surface_point);
-    vector object_surface_normal{{
-        object_surface_point.x >= 0 ? 1.0 : -1.0,
-        object_surface_point.y >= 0 ? 1.0 : -1.0,
-        1.0
-    }};
+    vector object_surface_normal{
+        {object_surface_point.x >= 0 ? 1.0 : -1.0, object_surface_point.y >= 0 ? 1.0 : -1.0, 1.0}};
     return forward_transform(object_surface_normal.normalized());
 }
 
 inline bool is_positive(element_type p, element_type d, element_type t) {
-    return ((p + d*t) > 0);
+    return ((p + d * t) > 0);
 }
 
 hits pyramid::collisions_along(const ray& object_ray) const {
@@ -54,10 +51,10 @@ hits pyramid::collisions_along(const ray& object_ray) const {
     // 0 = h - a*px - b*py - pz - t*(a*dx + b+dy + dz)
     // t = (h - a*px - b*py - pz) / (a*dx + b+dy + dz)
     element_type denoms[4] = {
-        dx + dy + dz, // a = 1, b = 1
-        dy - dx + dz, // a =-1, b = 1
-        dx - dy + dz, // a = 1, b =-1
-        dz - dx - dy, // a =-1, b =-1
+        dx + dy + dz,  // a = 1, b = 1
+        dy - dx + dz,  // a =-1, b = 1
+        dx - dy + dz,  // a = 1, b =-1
+        dz - dx - dy,  // a =-1, b =-1
     };
     element_type t[] = {
         // a = 1, b = 1
@@ -70,9 +67,9 @@ hits pyramid::collisions_along(const ray& object_ray) const {
         basal::equals_zero(denoms[3]) ? std::nan("") : (h + px + py - pz) / (denoms[3]),
     };
     bool usable[4] = {
-            is_positive(px, dx, t[0]) and     is_positive(py, dy, t[0]),
-        not is_positive(px, dx, t[1]) and     is_positive(py, dy, t[1]),
-            is_positive(px, dx, t[2]) and not is_positive(py, dy, t[2]),
+        is_positive(px, dx, t[0]) and is_positive(py, dy, t[0]),
+        not is_positive(px, dx, t[1]) and is_positive(py, dy, t[1]),
+        is_positive(px, dx, t[2]) and not is_positive(py, dy, t[2]),
         not is_positive(px, dx, t[3]) and not is_positive(py, dy, t[3]),
     };
     for (size_t i = 0; i < 4; i++) {
@@ -86,12 +83,12 @@ hits pyramid::collisions_along(const ray& object_ray) const {
 }
 
 image::point pyramid::map(const point& object_surface_point) const {
-    return image::point(0, 0); // no mapping for now
+    return image::point(0, 0);  // no mapping for now
 }
 
-void pyramid::print(const char str[]) const  {
-    std::cout  << str << " Pyramid @" << this << " " << position() << " Height " << m_height << std::endl;
+void pyramid::print(const char str[]) const {
+    std::cout << str << " Pyramid @" << this << " " << position() << " Height " << m_height << std::endl;
 }
 
-} // namespace objects
-} // namespace raytrace
+}  // namespace objects
+}  // namespace raytrace

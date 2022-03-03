@@ -9,5 +9,5 @@ public:
     ellipsoid(const point &center, element_type a, element_type b, element_type c);
     ~ellipsoid() = default;
 };
-} // namespace objects
-} // namespace raytrace
+}  // namespace objects
+}  // namespace raytrace

@@ -1,13 +1,13 @@
-#include <tuple>
-#include <cassert>
 #include "raytrace/scene.hpp"
+
+#include <cassert>
+#include <tuple>
 
 namespace raytrace {
 
-scene::intersect_set::intersect_set(element_type d, const geometry::intersection& i, const objects::object *o)
-    : distance(d)
-    , intersector(i)
-    , objptr(o) {}
+scene::intersect_set::intersect_set(element_type d, const geometry::intersection& i, const objects::object* o)
+    : distance(d), intersector(i), objptr(o) {
+}
 
 static constexpr bool debug = false;
 static constexpr bool enforce_ranges = true;
@@ -24,19 +24,19 @@ scene::scene(size_t image_height, size_t image_width, iso::degrees field_of_view
     , adaptive_reflection_threshhold(art)
     , m_objects()
     , m_lights()
-    , m_background([](const raytrace::ray&) { return colors::black; })
-    {}
+    , m_background([](const raytrace::ray&) { return colors::black; }) {
+}
 
 scene::~scene() {
     m_objects.clear();
     m_lights.clear();
 }
 
-void scene::add_object(const objects::object *obj) {
+void scene::add_object(const objects::object* obj) {
     m_objects.push_back(obj);
 }
 
-void scene::add_light(const lights::light *lit) {
+void scene::add_light(const lights::light* lit) {
     m_lights.push_back(lit);
 }
 
@@ -63,8 +63,7 @@ scene::intersect_list scene::find_intersections(const ray& world_ray, const obje
     return intersections;
 }
 
-scene::intersect_set scene::nearest_object(const ray& world_ray,
-                                           const intersect_list& intersections,
+scene::intersect_set scene::nearest_object(const ray& world_ray, const intersect_list& intersections,
                                            const object_list& objects) {
     basal::exception::throw_unless(intersections.size() == objects.size(), __FILE__, __LINE__, "Lists must match!");
     const objects::object* closest_object = nullptr;
@@ -106,7 +105,8 @@ scene::intersect_set scene::nearest_object(const ray& world_ray,
     return intersect_set(std::sqrt(closest_distance2), closest_intersection, closest_object);
 }
 
-color scene::trace(const ray& world_ray, const mediums::medium& media, size_t reflection_depth, double recursive_contribution) {
+color scene::trace(const ray& world_ray, const mediums::medium& media, size_t reflection_depth,
+                   double recursive_contribution) {
     using namespace operators;
 
     // finds all the intersections with the objects
@@ -130,7 +130,8 @@ color scene::trace(const ray& world_ray, const mediums::medium& media, size_t re
         // find the normal on the surface at that point
         vector world_surface_normal = obj.normal(world_surface_point);
         if constexpr (enforce_ranges) {
-            basal::exception::throw_unless(basal::equals(world_surface_normal.magnitude(), 1.0), __FILE__, __LINE__, "Must be normalized");
+            basal::exception::throw_unless(basal::equals(world_surface_normal.magnitude(), 1.0), __FILE__, __LINE__,
+                                           "Must be normalized");
         }
         // if this is true, we've collided with something from the inside or the "backside"
         bool inside_out = (dot(world_surface_normal, world_ray.direction()) > 0);
@@ -138,9 +139,12 @@ color scene::trace(const ray& world_ray, const mediums::medium& media, size_t re
         // compute the reflection vector
         ray world_reflection = obj.reflection(world_ray, world_surface_point);
         // compute the refracted vector
-        ray world_refraction = obj.refraction(world_ray, world_surface_point, media.refractive_index(object_surface_point), medium.refractive_index(object_surface_point));
+        ray world_refraction =
+            obj.refraction(world_ray, world_surface_point, media.refractive_index(object_surface_point),
+                           medium.refractive_index(object_surface_point));
 
-        basal::exception::throw_if(dot(world_ray.direction(), world_refraction.direction()) < 0, __FILE__, __LINE__, "Refracted ray should not be opposites");
+        basal::exception::throw_if(dot(world_ray.direction(), world_refraction.direction()) < 0, __FILE__, __LINE__,
+                                   "Refracted ray should not be opposites");
 
         // today we get the surface's reflectivity at this texture point
         // (which means the surface could be like a film of mirror with bits flaking off)
@@ -152,26 +156,29 @@ color scene::trace(const ray& world_ray, const mediums::medium& media, size_t re
         color surface_color, emitted_color, reflected_color, transmitted_color;
 
         // compute the incident angle of the reflection vector
-        iso::radians incident_angle = geometry::angle((inside_out ? -world_surface_normal : world_surface_normal), world_ray.direction());
+        iso::radians incident_angle =
+            geometry::angle((inside_out ? -world_surface_normal : world_surface_normal), world_ray.direction());
 
         // compute the transmitted angle of the refraction vector
-        iso::radians transmitted_angle = geometry::angle((inside_out ? -world_surface_normal : world_surface_normal), world_refraction.direction());
+        iso::radians transmitted_angle =
+            geometry::angle((inside_out ? -world_surface_normal : world_surface_normal), world_refraction.direction());
 
         /*********************************************************************/
 
-        // get the light components, emission, reflection and refraction (diffraction, phosporescense and fluorescence not computed)
-        medium.radiosity(object_surface_point,
-                         media.refractive_index(object_surface_point),
-                         incident_angle, transmitted_angle,
+        // get the light components, emission, reflection and refraction (diffraction, phosporescense and fluorescence
+        // not computed)
+        medium.radiosity(object_surface_point, media.refractive_index(object_surface_point), incident_angle,
+                         transmitted_angle,
                          // outputs
                          emissivity, reflectivity, transparency);
 
-        if (emissivity > 0) { // the medium is emitting light
+        if (emissivity > 0) {  // the medium is emitting light
             // TODO light sources which emit light
             emitted_color = colors::black;
             // surface_color += ???
         }
-        if (reflectivity > 0.0) { // on the very last depth call we still have to return the surface color, just no more casts
+        if (reflectivity >
+            0.0) {  // on the very last depth call we still have to return the surface color, just no more casts
             // find the *reflected* medium color from all lights (without blocked paths)
             // The set of colors from each light source (including ambient)
             std::vector<color> surface_colors;
@@ -183,7 +190,8 @@ color scene::trace(const ray& world_ray, const mediums::medium& media, size_t re
                 // convenience variable
                 const lights::light& scene_light = *light_;
                 // the samples for this light
-                std::vector<color> surface_color_samples(scene_light.number_of_samples()); // should initialize to all black
+                std::vector<color> surface_color_samples(
+                    scene_light.number_of_samples());  // should initialize to all black
                 // for each sample, get the color
                 for (size_t sample_index = 0; sample_index < scene_light.number_of_samples(); sample_index++) {
                     statistics::get().sampled_rays++;
@@ -210,7 +218,8 @@ color scene::trace(const ray& world_ray, const mediums::medium& media, size_t re
                         point_farther_than_light = (nearest.distance > light_direction.norm());
                         if (nearest.objptr != nullptr) {
                             // FIXME is a refractive object so it must be transparent?
-                            //object_is_transparent = (nearest.objptr->material().refractive_index(world_surface_point) > 0.0);
+                            // object_is_transparent = (nearest.objptr->material().refractive_index(world_surface_point)
+                            // > 0.0);
                         }
                     }
                     bool not_in_shadow = (no_intersection or point_farther_than_light or object_is_transparent);
@@ -222,32 +231,37 @@ color scene::trace(const ray& world_ray, const mediums::medium& media, size_t re
                         // relationship with the normal of the medium this will be
                         // some fractional component from -1.0 to 1.0 since both input vectors are normalized.
                         element_type incident_scaling = dot(normalized_light_direction, world_surface_normal);
-                        //basal::exception::throw_unless(within_inclusive(-1.0, incident_scaling, 1.0), __FILE__, __LINE__, "Must be within bounds");
-                        color incident_light = (incident_scaling > 0.0) ? incident_scaling * raw_light_color : colors::black;
+                        // basal::exception::throw_unless(within_inclusive(-1.0, incident_scaling, 1.0), __FILE__,
+                        // __LINE__, "Must be within bounds");
+                        color incident_light =
+                            (incident_scaling > 0.0) ? incident_scaling * raw_light_color : colors::black;
                         color diffuse_light = medium.diffuse(object_surface_point);
                         element_type specular_scaling = dot(normalized_light_direction, world_reflection.direction());
-                        //basal::exception::throw_unless(within_inclusive(-1.0, specular_scaling, 1.0), __FILE__, __LINE__, "Must be within bounds");
+                        // basal::exception::throw_unless(within_inclusive(-1.0, specular_scaling, 1.0), __FILE__,
+                        // __LINE__, "Must be within bounds");
                         color specular_light = medium.specular(object_surface_point, specular_scaling, raw_light_color);
                         // blend the light color and the surface color together
                         surface_color_samples[sample_index] = (diffuse_light * incident_light);
                         // don't use color + color as that "blends", use accumulate for specular light.
                         surface_color_samples[sample_index] += specular_light;
                         // now add the transmitted light if the object was transparent
-                        // FIXME this is incorrect as we're only considering if the object is inline with the light, not if it's out of line!
+                        // FIXME this is incorrect as we're only considering if the object is inline with the light, not
+                        // if it's out of line!
                         if (object_is_transparent) {
                             // convenience reference
-                            const raytrace::objects::object &obj = *nearest.objptr;
+                            const raytrace::objects::object& obj = *nearest.objptr;
                             // convenience reference
-                            const raytrace::mediums::medium &mat = obj.material();
+                            const raytrace::mediums::medium& mat = obj.material();
                             // trace another ray through the object
-                            surface_color_samples[sample_index] += trace(world_ray, mat, reflection_depth - 1, recursive_contribution);
+                            surface_color_samples[sample_index] +=
+                                trace(world_ray, mat, reflection_depth - 1, recursive_contribution);
                         }
                     } else {
                         statistics::get().point_in_shadow++;
                     }
                 }
                 // blend or accumulate? all the surface samples from this light (could be all black)
-                //color surface_color = color::accumulate_samples(surface_color_samples);
+                // color surface_color = color::accumulate_samples(surface_color_samples);
                 color surface_color = color::blend_samples(surface_color_samples);
                 surface_colors.push_back(surface_color);
             }
@@ -264,12 +278,14 @@ color scene::trace(const ray& world_ray, const mediums::medium& media, size_t re
                         statistics::get().saved_ray_traces += reflection_depth;
                         // just use the surface color
                         reflected_color = surface_properties_color;
-                    } else { // only cast the ray if it's more than zero
+                    } else {  // only cast the ray if it's more than zero
                         // this ray was bounced off an object
                         statistics::get().bounced_rays++;
 
                         // find out what the reflection adds to this
-                        color bounced_color = medium.bounced(world_surface_point, trace(world_reflection, media, reflection_depth - 1, recursive_contribution * smoothness));
+                        color bounced_color = medium.bounced(
+                            world_surface_point,
+                            trace(world_reflection, media, reflection_depth - 1, recursive_contribution * smoothness));
 
                         // somehow interpolate the two based on how much of a smooth mirror this medium is.
                         reflected_color = interpolate(bounced_color, surface_properties_color, smoothness);
@@ -286,7 +302,8 @@ color scene::trace(const ray& world_ray, const mediums::medium& media, size_t re
         }
         if (reflection_depth > 0 and transparency > 0.0 and not world_refraction.direction().is_zero()) {
             // find the dropoff of the medium we're *in* given the distance
-            element_type dropoff = medium.absorbance(nearest.distance); //< FIXME this needs to be lifted out of this clause for haze to work
+            element_type dropoff = medium.absorbance(
+                nearest.distance);  //< FIXME this needs to be lifted out of this clause for haze to work
             element_type transmitted_scaling = 1.0 - dropoff;
             if (transmitted_scaling > 0.0) {
                 if (recursive_contribution < adaptive_reflection_threshhold) {
@@ -298,7 +315,8 @@ color scene::trace(const ray& world_ray, const mediums::medium& media, size_t re
                     // this ray was transmitted through the new medium
                     statistics::get().transmitted_rays++;
                     // get the colors from the transmitted light
-                    transmitted_color = trace(world_refraction, medium, reflection_depth - 1, recursive_contribution * transmitted_scaling);
+                    transmitted_color = trace(world_refraction, medium, reflection_depth - 1,
+                                              recursive_contribution * transmitted_scaling);
                     // now scale that transmitted_color via the dropoff
                     transmitted_color.scale(transmitted_scaling);
                 }
@@ -311,20 +329,16 @@ color scene::trace(const ray& world_ray, const mediums::medium& media, size_t re
         // blend that reflected color with the transmitted color
         surface_color = interpolate(transmitted_color, reflected_color, transparency);
         // TODO now add emitted color
-        //surface_color += emitted_color;
+        // surface_color += emitted_color;
         return surface_color;
-    } else { // if (get_type(closest_intersection) == geometry::intersectionType::None) {
+    } else {  // if (get_type(closest_intersection) == geometry::intersectionType::None) {
         // return the background as the ray didn't hit anything.
         return m_background(world_ray);
     }
 }
 
-void scene::render(std::string filename,
-                   size_t number_of_samples,
-                   size_t reflection_depth,
-                   std::optional<image::rendered_line> row_notifier,
-                   uint8_t aaa_mask_threshold,
-                   bool filter_capture) {
+void scene::render(std::string filename, size_t number_of_samples, size_t reflection_depth,
+                   std::optional<image::rendered_line> row_notifier, uint8_t aaa_mask_threshold, bool filter_capture) {
     bool adaptive_antialiasing = aaa_mask_threshold != raytrace::image::AAA_MASK_DISABLED;
     if constexpr (debug) {
         view.print("Camera Info:\n");
@@ -338,7 +352,8 @@ void scene::render(std::string filename,
         return trace(world_ray, mediums::vaccum, reflection_depth);
     };
     // if we're doing adaptive anti-aliasing we only shoot 1 ray at first and then compute a constrast mask later
-    view.capture.generate_each(tracer, adaptive_antialiasing ? 1 : number_of_samples, row_notifier, &view.mask, image::AAA_MASK_DISABLED);
+    view.capture.generate_each(tracer, adaptive_antialiasing ? 1 : number_of_samples, row_notifier, &view.mask,
+                               image::AAA_MASK_DISABLED);
     // if the threshold is not disabled, then compute the extra pixels based on the mask
     if (aaa_mask_threshold < image::AAA_MASK_DISABLED) {
         // reset all rendered lines
@@ -380,4 +395,4 @@ void scene::set_background_mapper(background_mapper mapper) {
     }
 }
 
-}
+}  // namespace raytrace

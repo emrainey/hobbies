@@ -5,12 +5,13 @@
  * @version 0.1
  * @date 2020-05-24
  * @copyright Copyright (c) 2020
- * @note Creates a noise image in a fourcc::image, then transfoms to a cv::Mat to render. Installs a callback for keystrokes to allow tuning of the perlin noise seeds.
+ * @note Creates a noise image in a fourcc::image, then transfoms to a cv::Mat to render. Installs a callback for
+ * keystrokes to allow tuning of the perlin noise seeds.
  */
 
-#include <opencv2/opencv.hpp>
-#include <noise/noise.hpp>
 #include <fourcc/image.hpp>
+#include <noise/noise.hpp>
+#include <opencv2/opencv.hpp>
 
 constexpr int width = 320;
 constexpr int height = 240;
@@ -29,7 +30,7 @@ double scale = 128.0;
 noise::pad map;
 
 void generate_noise_image(void) {
-    noise_image.for_each([&](int y, int x, fourcc::rgb8& pixel) {
+    noise_image.for_each([&](int y, int x, fourcc::rgb8 &pixel) {
         noise::point pnt(x, y);
         double n = noise::turbulentsin(pnt, x_scale, y_scale, power, size, scale, map);
         printf("x,y={%lf, %lf} = %lf\n", pnt.x, pnt.y, n);
@@ -40,7 +41,7 @@ void generate_noise_image(void) {
 }
 
 void copy_to_cv_image(void) {
-    noise_image.for_each([&](int y, int x, fourcc::rgb8& pixel) {
+    noise_image.for_each([&](int y, int x, fourcc::rgb8 &pixel) {
         render_image.at<cv::Vec3b>(y, x)[0] = pixel.r;
         render_image.at<cv::Vec3b>(y, x)[1] = pixel.g;
         render_image.at<cv::Vec3b>(y, x)[2] = pixel.b;
@@ -96,15 +97,24 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
             should_render = false;
         }
         cv::imshow(windowName, render_image);
-        int key = cv::waitKey(0) & 0x00FFFFFF;// wait for key-press
+        int key = cv::waitKey(0) & 0x00FFFFFF;  // wait for key-press
         printf("Pressed key %d\n", key);
         switch (key) {
-            case 27: // [fall-through]
-            case 'q': should_quit = true; break;  // ESC or q
-            case 13: should_render = true; break;  // (CR) ENTER
-            case '[': scale -= 1.0; break;
-            case ']': scale += 1.0; break;
-            default: break;
+            case 27:  // [fall-through]
+            case 'q':
+                should_quit = true;
+                break;  // ESC or q
+            case 13:
+                should_render = true;
+                break;  // (CR) ENTER
+            case '[':
+                scale -= 1.0;
+                break;
+            case ']':
+                scale += 1.0;
+                break;
+            default:
+                break;
         }
     } while (not should_quit);
     return 0;

@@ -1,13 +1,13 @@
 /**
  * @file
  * This is an auto-generated header for iso::radians.
- * 
+ *
  * @note See README on re-generation.
  * @copyright Copyright 2022.
  */
 #pragma once
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 
 #include "iso/measurement.hpp"
 
@@ -16,7 +16,7 @@ namespace iso {
 
 /** A structure used to hold the postfix for radians */
 struct suffix_type_rad {
-    constexpr static const char *suffix = "rad";
+    constexpr static const char* suffix = "rad";
 };
 
 /**
@@ -42,7 +42,7 @@ public:
     /** Destructor */
     ~radians() = default;
     /** Const Copy Assignment */
-    radians& operator=(const radians &other) noexcept;
+    radians& operator=(const radians& other) noexcept;
     /** Copy Assignment */
     radians& operator=(radians& other) noexcept;
     /** Move Assignment */
@@ -72,25 +72,25 @@ public:
 };
 
 namespace operators {
-    /** Addition operator */
-    radians operator+(const radians& A, const radians& B);
-    /** Subtraction operator */
-    radians operator-(const radians& A, const radians& B);
-    /** Left Scaling Operator */
-    radians operator*(const radians& A, double factor);
-    /** Right Scaling Operator */
-    radians operator*(double factor, const radians& A);
-    /** Inverse Scaling Operator */
-    radians operator/(const radians& A, double factor);
-}
+/** Addition operator */
+radians operator+(const radians& A, const radians& B);
+/** Subtraction operator */
+radians operator-(const radians& A, const radians& B);
+/** Left Scaling Operator */
+radians operator*(const radians& A, double factor);
+/** Right Scaling Operator */
+radians operator*(double factor, const radians& A);
+/** Inverse Scaling Operator */
+radians operator/(const radians& A, double factor);
+}  // namespace operators
 
 namespace literals {
-    /** Literal Double, Quote Operator */
-    radians operator""_rad(long double value);
-    /** Literal Int, Quote Operator */
-    radians operator""_rad(unsigned long long value);
-    /** Literal String, Quote Operator */
-    iso::radians operator""_rad(const char a[]);
-}
+/** Literal Double, Quote Operator */
+radians operator""_rad(long double value);
+/** Literal Int, Quote Operator */
+radians operator""_rad(unsigned long long value);
+/** Literal String, Quote Operator */
+iso::radians operator""_rad(const char a[]);
+}  // namespace literals
 
-}
+}  // namespace iso

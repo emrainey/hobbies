@@ -14,6 +14,6 @@ public:
     color diffuse(const raytrace::point& volumetric_point) const final;
 };
 
-} // namespace mediums
+}  // namespace mediums
 
-} // namespace raytrace
+}  // namespace raytrace

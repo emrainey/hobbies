@@ -2,9 +2,9 @@
 
 // forward declaration
 template <typename TYPE>
-static void on_trackbar_callback(int value, void * instance);
+static void on_trackbar_callback(int value, void *instance);
 
-namespace linalg { // will be part of linalg-utils eventually
+namespace linalg {  // will be part of linalg-utils eventually
 
 template <typename TYPE>
 class Trackbar {
@@ -18,10 +18,10 @@ public:
         , m_max(max)
         , m_value(def)
         , m_update(update)
-        , m_gradations((max - min)/step)
-        {
+        , m_gradations((max - min) / step) {
         int default_value = (m_def - m_min) / m_step;
-        cv::createTrackbar(m_my_name, m_parent, nullptr, m_gradations, on_trackbar_callback<TYPE>, reinterpret_cast<void*>(this));
+        cv::createTrackbar(m_my_name, m_parent, nullptr, m_gradations, on_trackbar_callback<TYPE>,
+                           reinterpret_cast<void *>(this));
         int minPos = 0, maxPos = m_gradations;
         cv::setTrackbarMin(m_my_name, m_parent, minPos);
         cv::setTrackbarMax(m_my_name, m_parent, maxPos);
@@ -66,11 +66,11 @@ private:
     size_t m_gradations;
 };
 
-} // namespace linalg
+}  // namespace linalg
 
 template <typename TYPE>
-static void on_trackbar_callback(int value, void * instance) {
-    linalg::Trackbar<TYPE> * trackbar = reinterpret_cast<linalg::Trackbar<TYPE> *>(instance);
+static void on_trackbar_callback(int value, void *instance) {
+    linalg::Trackbar<TYPE> *trackbar = reinterpret_cast<linalg::Trackbar<TYPE> *>(instance);
     if (trackbar) {
         trackbar->callback(value);
     }

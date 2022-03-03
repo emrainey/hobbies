@@ -7,6 +7,7 @@
  */
 
 #include <raytrace/raytrace.hpp>
+
 #include "world.hpp"
 
 using namespace raytrace;
@@ -35,24 +36,24 @@ public:
         , look_at(0, 0, 0)
         , grid(1.0, colors::dark_olive_green, colors::yellow)
         , glass(mediums::refractive_index::glass, 0.88)
-        , info(10.0, iso::radians(iso::pi/4))
+        , info(10.0, iso::radians(iso::pi / 4))
         , x0(raytrace::point(info.separation, 0, 5), info.radius)
         , x1(raytrace::point(-info.separation, 0, 5), info.radius)
         , convex_lens(x0, x1, objects::overlap::type::inclusive)
         , ground(R3::origin, R3::basis::Z, 1000, 1000)
         , sunlight(raytrace::vector{-2, 2, -1}, colors::white, 1E11)
-        , prick(raytrace::point(0, 0, 12), colors::dim_grey, 1E3)
-    {
+        , prick(raytrace::point(0, 0, 12), colors::dim_grey, 1E3) {
         // reduce the volumetric point to a planar point
         grid.mapper(std::bind(&raytrace::objects::square::map, &ground, std::placeholders::_1));
         look_at = raytrace::point(0, 0, info.radius);
         x0.material(&glass);
         x1.material(&glass);
-        convex_lens.material(&glass); // should assign all submaterials too? we assume const refs so it can't.
+        convex_lens.material(&glass);  // should assign all submaterials too? we assume const refs so it can't.
         ground.material(&grid);
     }
 
-    ~LensWorld() {}
+    ~LensWorld() {
+    }
 
     raytrace::point& looking_from() override {
         return look_from;
@@ -75,10 +76,10 @@ public:
     }
 
     void add_to(scene& scene) override {
-        //scene.add_object(&base);
+        // scene.add_object(&base);
         scene.add_object(&convex_lens);
-        //scene.add_object(&x0);
-        //scene.add_object(&x1);
+        // scene.add_object(&x0);
+        // scene.add_object(&x1);
         scene.add_object(&ground);
         scene.add_light(&sunlight);
         scene.add_light(&prick);
@@ -103,4 +104,3 @@ world* get_world() {
     static LensWorld my_world;
     return &my_world;
 }
-

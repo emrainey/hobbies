@@ -1,10 +1,10 @@
 #pragma once
 
 #include "basal/basal.hpp"
-#include "raytrace/mediums/medium.hpp"
-#include "raytrace/mediums/plain.hpp"
 #include "raytrace/entity.hpp"
 #include "raytrace/laws.hpp"
+#include "raytrace/mediums/medium.hpp"
+#include "raytrace/mediums/plain.hpp"
 
 namespace raytrace {
 /** The namespace to contain all (spatial) objects */
@@ -19,28 +19,26 @@ using namespace raytrace::mediums;
 
 /** A template for wrapping the concept of an object, which can have a surface and material properties. */
 template <size_t DIMS>
-class object_ : public entity_<DIMS>, public basal::printable {
+class object_
+    : public entity_<DIMS>
+    , public basal::printable {
 public:
-    object_()
-        : entity_<DIMS>()
-        , m_max_collisions(0)
-        , m_closed_surface(false)
-        , m_medium(&mediums::dull)
-        {}
+    object_() : entity_<DIMS>(), m_max_collisions(0), m_closed_surface(false), m_medium(&mediums::dull) {
+    }
 
     object_(const point& center, size_t collisions, bool closed = false)
         : entity_<DIMS>(center)
         , m_max_collisions(collisions)
         , m_closed_surface(collisions > 1 ? closed : false)
-        , m_medium(&mediums::dull)
-        {}
+        , m_medium(&mediums::dull) {
+    }
 
     object_(point&& center, size_t collisions, bool closed = false)
         : entity_<DIMS>(std::move(center))
         , m_max_collisions(collisions)
         , m_closed_surface(collisions > 1 ? closed : false)
-        , m_medium(&mediums::dull)
-        {}
+        , m_medium(&mediums::dull) {
+    }
 
     // Removing copy constructor stops us from using std::vectors or other STL objects
     object_(const object_&) = delete;
@@ -66,8 +64,8 @@ public:
 
     /** Computes the reflection vector at the surface point P given the incident vector I */
     vector reflection(const vector& I, const point& P) const {
-        vector N = normal(P); // MAYBE (Optim) should we already have calculated the normal at this point already?
-        vector nI = I.normalized(); // MAYBE (Optim) shouldn't this already be normalized?
+        vector N = normal(P);  // MAYBE (Optim) should we already have calculated the normal at this point already?
+        vector nI = I.normalized();  // MAYBE (Optim) shouldn't this already be normalized?
         vector R = laws::reflection(N, nI);
         if (m_medium) {
             R = R + m_medium->perturbation(P);
@@ -87,8 +85,8 @@ public:
      * @param nu2 Material Refractivity Index
      */
     vector refraction(const vector& I, const point& P, element_type nu1, element_type nu2) const {
-        vector N = normal(P); // MAYBE (Optim) should we already have calculated the normal at this point already?
-        vector nI = I.normalized(); // MAYBE (Optim) shouldn't this already be normalized?
+        vector N = normal(P);  // MAYBE (Optim) should we already have calculated the normal at this point already?
+        vector nI = I.normalized();  // MAYBE (Optim) shouldn't this already be normalized?
         // if the Incident and the Normal have a positive dot then they are not arranged properly
         if (dot(N, I) > 0) {
             return laws::snell(-N, nI, nu1, nu2);
@@ -108,7 +106,8 @@ public:
     }
 
     /**
-     * Returns the normal to the surface given an world space point which is presumed to be the collision point, thus on the surface.
+     * Returns the normal to the surface given an world space point which is presumed to be the collision point, thus on
+     * the surface.
      * @param world_surface_point The point on the object to use.
      * @warning It is assumed that the point given is an intersection point.
      * @retval R3::null indicates that the point is not on the surface.
@@ -128,7 +127,8 @@ public:
      */
     virtual intersection intersect(const ray& world_ray) const {
         /// @note While we could be pedantic about having a unit normal, it doesn't really stop us from working.
-        // basal::exception::throw_unless(basal::equals(world_ray.direction().quadrance(), 1.0), __FILE__, __LINE__, "The ray must have a unit vector");
+        // basal::exception::throw_unless(basal::equals(world_ray.direction().quadrance(), 1.0), __FILE__, __LINE__,
+        // "The ray must have a unit vector");
 
         ray object_ray = entity_<DIMS>::reverse_transform(world_ray);
         // get the set of all collisions with the object
@@ -146,7 +146,7 @@ public:
                         const vector N = normal(world_ray.location());
                         const vector& I = world_ray.direction();
                         element_type d = dot(N, I);
-                        if (d < 0) { // the ray points "into" the material so it's a collision
+                        if (d < 0) {  // the ray points "into" the material so it's a collision
                             // however if the material is transparent, that's ok and it should not count as a collision
                             if (m_medium and m_medium->refractive_index(world_ray.location()) > 0.0) {
                                 continue;
@@ -185,12 +185,13 @@ public:
         return m_max_collisions;
     }
 
-    /** Return true if the object is a closed surface. Within the raytracer a closed surface can never show the "inside surface" */
+    /** Return true if the object is a closed surface. Within the raytracer a closed surface can never show the "inside
+     * surface" */
     virtual inline bool is_closed_surface() const {
         return m_closed_surface;
     }
 
-    //virtual bool is_surface_point(const raytrace::point& world_point) = 0;
+    // virtual bool is_surface_point(const raytrace::point& world_point) = 0;
 
 protected:
     /** The maximum number of collisions with the surface of this object */
@@ -198,12 +199,12 @@ protected:
     /** Some objects may return more than 1 collisions but are not closed surfaces */
     const bool m_closed_surface;
     /** The pointer to the medium to use */
-    const raytrace::mediums::medium *m_medium;
+    const raytrace::mediums::medium* m_medium;
     /** The std::bind or used to reference the instance of the mapping function */
     std::function<geometry::R2::point(const geometry::R3::point&)> m_bound_map;
 };
 
 /** In Raytracing we only consider 3D objects */
 using object = object_<dimensions>;
-} // namespace objects
-} // namespace raytrace
+}  // namespace objects
+}  // namespace raytrace

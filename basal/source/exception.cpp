@@ -4,24 +4,21 @@
 #if defined(__linux__) || defined(__APPLE__)
 #include <execinfo.h>
 #endif
-#include <cstdarg>
+#include <cxxabi.h>
+#include <unistd.h>
+
 #include <csignal>
+#include <cstdarg>
 #include <cstdlib>
 #include <cstring>
-#include <unistd.h>
-#include <cxxabi.h>
 
 constexpr static bool support_backtrace = false;
 constexpr static bool debug = false;
 
 namespace basal {
 exception::exception(std::string desc, std::string loc, std::size_t line)
-         : std::exception()
-         , description(desc)
-         , location(loc)
-         , line_number(line)
-         {
-#if defined(__linux__) || defined(__APPLE__)             
+    : std::exception(), description(desc), location(loc), line_number(line) {
+#if defined(__linux__) || defined(__APPLE__)
     if (support_backtrace) {
         size = backtrace(stack.data(), stack.size());
         // print out all the frames to stderr
@@ -52,8 +49,7 @@ exception::exception(std::string desc, std::string loc, std::size_t line)
                     begin_offset[0] |= 0;
 
                     int status;
-                    char* ret = abi::__cxa_demangle(begin_name,
-                                    funcname, &funcnamesize, &status);
+                    char *ret = abi::__cxa_demangle(begin_name, funcname, &funcnamesize, &status);
                     if (status == 0) {
                         description.append("\t");
                         description.append(ret);
@@ -63,7 +59,7 @@ exception::exception(std::string desc, std::string loc, std::size_t line)
                         description.append(begin_name);
                         description.append(" (normal)\n");
                     }
-                    free (funcname);
+                    free(funcname);
                     funcname = nullptr;
                 }
             }
@@ -72,19 +68,20 @@ exception::exception(std::string desc, std::string loc, std::size_t line)
     } else {
         description.append("Backtraces disabled\n");
     }
-#else 
+#else
     description.append("Backtraces not supported\n");
-#endif    
+#endif
 }
 
-exception::~exception() {}
+exception::~exception() {
+}
 
 const char *exception::why() const {
     return description.c_str();
 }
 
 const char *exception::where() const {
-    static char buffer[256+20] = {0};
+    static char buffer[256 + 20] = {0};
     snprintf(buffer, sizeof(buffer), "%s:%zu", location.c_str(), line_number);
     return buffer;
 }
@@ -96,14 +93,14 @@ void exception::throw_if(bool condition, const char loc[], std::size_t line, con
             fprintf(stdout, "ABORT=%s\n", value);
             std::string state(value);
             if (state == "1" || state == "true") {
-                std::abort(); // lldb or gdb should catch
+                std::abort();  // lldb or gdb should catch
             }
         } else {
             fprintf(stdout, "Use ABORT=1 in env to cause an std::abort\n");
         }
         char buffer[1024];
         va_list list;
-        va_start(list,fmt);
+        va_start(list, fmt);
         vsnprintf(buffer, sizeof(buffer), fmt, list);
         va_end(list);
         throw basal::exception(buffer, loc, line);
@@ -116,29 +113,28 @@ void exception::throw_if(bool condition, const char loc[], std::size_t line) noe
         if (value) {
             fprintf(stdout, "ABORT=%s\n", value);
             std::string state(value);
-            if (state == "1" || state == "true")
-                std::abort(); // lldb or gdb should catch
+            if (state == "1" || state == "true") std::abort();  // lldb or gdb should catch
         } else {
             fprintf(stdout, "Use ABORT=1 in env to cause an std::abort\n");
         }
-        throw basal::exception("basal::exception", loc , line);
+        throw basal::exception("basal::exception", loc, line);
     }
 }
 
-void exception::throw_unless(bool condition, const char loc[], std::size_t line, const char fmt[], ...) noexcept(false) {
+void exception::throw_unless(bool condition, const char loc[], std::size_t line, const char fmt[],
+                             ...) noexcept(false) {
     if (not condition) {
         const char *value = std::getenv("ABORT");
         if (value) {
             fprintf(stdout, "ABORT=%s\n", value);
             std::string state(value);
-            if (state == "1" || state == "true")
-                std::abort(); // lldb or gdb should catch
+            if (state == "1" || state == "true") std::abort();  // lldb or gdb should catch
         } else {
             fprintf(stdout, "Use ABORT=1 in env to cause an std::abort\n");
         }
         char buffer[1024];
         va_list list;
-        va_start(list,fmt);
+        va_start(list, fmt);
         vsnprintf(buffer, sizeof(buffer), fmt, list);
         va_end(list);
         fprintf(stdout, "%s", buffer);
@@ -152,8 +148,7 @@ void exception::throw_unless(bool condition, const char loc[], std::size_t line)
         if (value) {
             fprintf(stdout, "ABORT=%s\n", value);
             std::string state(value);
-            if (state == "1" || state == "true")
-                std::abort(); // lldb or gdb should catch
+            if (state == "1" || state == "true") std::abort();  // lldb or gdb should catch
         } else {
             fprintf(stdout, "Use ABORT=1 in env to cause an std::abort\n");
         }
@@ -169,7 +164,8 @@ void assert_if_thrown(const char statement[], std::function<void(void) noexcept(
     } catch (const basal::exception &me) {
         fprintf(stderr,
                 "ERROR: Unexpected math exception!\n"
-                "Why: %s\nWhere: %s\n", me.why(), me.where());
+                "Why: %s\nWhere: %s\n",
+                me.why(), me.where());
         exit(-1);
     } catch (...) {
         fprintf(stderr, "ERROR: Unexpected unknown exception!\n");
@@ -184,11 +180,10 @@ void assert_if_not_thrown(const char statement[], std::function<void(void) noexc
         fprintf(stderr, "ERROR: %s did not throw an exception\n", statement);
         exit(-1);
     } catch (const basal::exception &me) {
-        fprintf(stdout, "%s threw Exception! Success: %s\nWhere: %s\n",
-                statement, me.why(), me.where());
+        fprintf(stdout, "%s threw Exception! Success: %s\nWhere: %s\n", statement, me.why(), me.where());
     } catch (...) {
         fprintf(stdout, "%s threw unknown exception! Success?\n", statement);
     }
 }
 
-}
+}  // namespace basal

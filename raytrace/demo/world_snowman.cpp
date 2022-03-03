@@ -7,8 +7,9 @@
  */
 
 #include <raytrace/raytrace.hpp>
-#include "world.hpp"
+
 #include "group.hpp"
+#include "world.hpp"
 
 using namespace raytrace;
 
@@ -19,8 +20,7 @@ public:
         , leaves(colors::forest_green, 0.0, colors::forest_green, 0.01, 100)
         , bark(colors::brown, 0.0, colors::brown, 0.01, 100)
         , body(raytrace::point(0.0, 0.0, 3.0), 3, 6)
-        , trunk(raytrace::point(0, 0, 2.5), 2.5, 0.8)
-    {
+        , trunk(raytrace::point(0, 0, 2.5), 2.5, 0.8) {
         m_objects.push_back(&body);
         m_objects.push_back(&trunk);
         body.material(&leaves);
@@ -28,7 +28,9 @@ public:
         auto by = base - R3::origin;
         move_by(by);
     }
-    ~Tree() {}
+    ~Tree() {
+    }
+
 protected:
     raytrace::mediums::plain leaves;
     raytrace::mediums::plain bark;
@@ -42,9 +44,12 @@ public:
         : world()
         , look_from(-20, 14, 5.5)
         , look_at(0, 0, 5.5)
-        , snow(colors::white, mediums::ambient::dim, colors::white, mediums::smoothness::none, mediums::roughness::tight)
-        , red_eyes(colors::red, mediums::ambient::glowy, colors::red, mediums::smoothness::none, mediums::roughness::tight)
-        , carrot(colors::orange, mediums::ambient::dim, colors::orange, mediums::smoothness::none, mediums::roughness::tight)
+        , snow(colors::white, mediums::ambient::dim, colors::white, mediums::smoothness::none,
+               mediums::roughness::tight)
+        , red_eyes(colors::red, mediums::ambient::glowy, colors::red, mediums::smoothness::none,
+                   mediums::roughness::tight)
+        , carrot(colors::orange, mediums::ambient::dim, colors::orange, mediums::smoothness::none,
+                 mediums::roughness::tight)
         , plum(colors::plum, mediums::ambient::none, colors::plum, mediums::smoothness::none, mediums::roughness::loose)
         , ground(raytrace::point(0, 0, 0), R3::basis::Z, 1)
         , sn_btm(raytrace::point(0, 0, 2), 2.5)
@@ -80,8 +85,7 @@ public:
         , tree11(raytrace::point(7, -1, 0))
         , tree12(raytrace::point(4, -3, 0))
         , moonlight(R3::vector{{-1, -1, -1}}, colors::silver, 1E3)
-        , lights()
-    {
+        , lights() {
         ground.material(&snow);
         sn_btm.material(&mediums::metals::stainless);
         sn_mid.material(&mediums::metals::stainless);
@@ -105,8 +109,8 @@ public:
         hat_ribbon.material(&red_eyes);
         hat_top.material(&plum);
         for (int i = 0; i <= 10; i++) {
-            //lights.push_back(new lights::bulb(raytrace::point(i - 5, 0, 15), 1.0, colors::white, 1E11, 4));
-            //lights.push_back(new lights::speck(raytrace::point(i - 5, 0, 15), colors::white, 5));
+            // lights.push_back(new lights::bulb(raytrace::point(i - 5, 0, 15), 1.0, colors::white, 1E11, 4));
+            // lights.push_back(new lights::speck(raytrace::point(i - 5, 0, 15), colors::white, 5));
         }
         // move the nose into the right orientation
         nose.rotation(iso::degrees(270), iso::degrees(0), iso::degrees(0));
@@ -227,8 +231,8 @@ protected:
     Tree tree11;
     Tree tree12;
     // the lights
-    //std::vector<raytrace::lights::bulb *>lights;
-    std::vector<raytrace::lights::speck *>lights;
+    // std::vector<raytrace::lights::bulb *>lights;
+    std::vector<raytrace::lights::speck*> lights;
     raytrace::lights::beam moonlight;
 };
 
@@ -237,4 +241,3 @@ world* get_world() {
     static SnowmanWorld my_world;
     return &my_world;
 }
-

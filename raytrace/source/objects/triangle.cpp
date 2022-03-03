@@ -1,5 +1,6 @@
-#include <iostream>
 #include "raytrace/objects/triangle.hpp"
+
+#include <iostream>
 
 namespace raytrace {
 namespace objects {
@@ -10,9 +11,7 @@ using namespace geometry;
 using namespace geometry::operators;
 
 triangle::triangle(const R3::point& A, const R3::point& B, const R3::point& C)
-    : plane(centroid(A, B, C), R3::cross(A-B, C-B).normalized(), 1.0)
-    , m_points()
-    {
+    : plane(centroid(A, B, C), R3::cross(A - B, C - B).normalized(), 1.0), m_points() {
     m_points[0] = A;
     m_points[1] = B;
     m_points[2] = C;
@@ -70,17 +69,18 @@ intersection triangle::intersect(const ray& world_ray) const {
 }
 
 void triangle::print(const char str[]) const {
-    std::cout << str << " Triangle @" << this << " " << m_points[0] << "," << m_points[1] << "," << m_points[2] << std::endl;
+    std::cout << str << " Triangle @" << this << " " << m_points[0] << "," << m_points[1] << "," << m_points[2]
+              << std::endl;
 }
 
 const std::array<point, 3>& triangle::points() const {
     return m_points;
 }
 
-} // namespace objects
+}  // namespace objects
 
 geometry::plane as_plane(const objects::triangle& tri) {
-    return tri; // now a triangle is a special plane
+    return tri;  // now a triangle is a special plane
 }
 
-} // namespace raytrace
+}  // namespace raytrace

@@ -1,12 +1,11 @@
 #pragma once
 
-#include <cstddef>
-#include <initializer_list>
-
 #include <emmintrin.h>
 #include <immintrin.h>
 
 #include <basal/exception.hpp>
+#include <cstddef>
+#include <initializer_list>
 
 namespace intel {
 
@@ -24,22 +23,36 @@ public:
     constexpr static size_t rows = ROWS;
     constexpr static size_t cols = COLS;
     constexpr static size_t align_size = 16;
-    //static_assert(1 < rows and rows < 5, "Must have between 1 and 5 exclusive rows");
+    // static_assert(1 < rows and rows < 5, "Must have between 1 and 5 exclusive rows");
     static_assert(1 < cols and cols < 9, "Must have between 2 to 8 columns (inclusive)");
+
 private:
     /** Each row is a 8 element, so it will have the required alignment (16) */
     union {
         __m512d m512[1];
         __m256d m256[2];
         __m128d m128[4];
-        double  m064[8];
+        double m064[8];
     } data[rows];
+
 public:
-    xmat_() { zero(); }
-    xmat_(const xmat_& o) : xmat_() { copy_from(o); }
-    xmat_(xmat_&& o) : xmat_() { copy_from(o); }
-    xmat_& operator=(const xmat_& o) { copy_from(o); return (*this); }
-    xmat_& operator=(xmat_& o) { copy_from(o); return (*this); }
+    xmat_() {
+        zero();
+    }
+    xmat_(const xmat_& o) : xmat_() {
+        copy_from(o);
+    }
+    xmat_(xmat_&& o) : xmat_() {
+        copy_from(o);
+    }
+    xmat_& operator=(const xmat_& o) {
+        copy_from(o);
+        return (*this);
+    }
+    xmat_& operator=(xmat_& o) {
+        copy_from(o);
+        return (*this);
+    }
     virtual ~xmat_() = default;
 
     /** Zeros the whole structure, even parts "outside" the established area, but within max allocation */
@@ -71,7 +84,7 @@ public:
     }
 
     inline xmat_(std::initializer_list<double> list) {
-        basal::exception::throw_if(list.size() != rows*cols, __FILE__, __LINE__, "Not exact number of elements");
+        basal::exception::throw_if(list.size() != rows * cols, __FILE__, __LINE__, "Not exact number of elements");
         auto iter = list.begin();
         for (size_t j = 0; j < rows; j++) {
             for (size_t i = 0; i < cols; i++) {
@@ -90,18 +103,22 @@ public:
         return data[j].m064[i];
     }
 
-    inline double *operator[](size_t index) { return &data[index].m064[0]; }
+    inline double* operator[](size_t index) {
+        return &data[index].m064[0];
+    }
 
-    inline const double *operator[](size_t index) const { return &data[index].m064[0]; }
+    inline const double* operator[](size_t index) const {
+        return &data[index].m064[0];
+    }
 
     inline xmat_ operator*(const double b) {
-        xmat_ C = (*this); // copy
+        xmat_ C = (*this);  // copy
         C *= b;
         return C;
     }
 
     inline xmat_ operator/(const double b) {
-        xmat_ C = (*this); // copy
+        xmat_ C = (*this);  // copy
         C /= b;
         return C;
     }
@@ -231,14 +248,14 @@ public:
 };
 
 template <size_t ROWS0, size_t COLS0, size_t COLS1>
-xmat_<ROWS0, COLS1> operator*(const xmat_<ROWS0, COLS0> &a, const xmat_<COLS0, COLS1>& b) {
+xmat_<ROWS0, COLS1> operator*(const xmat_<ROWS0, COLS0>& a, const xmat_<COLS0, COLS1>& b) {
     xmat_<ROWS0, COLS1> C;
     for (size_t j = 0; j < C.rows; j++) {
         for (size_t i = 0; i < C.cols; i++) {
             if constexpr (a.cols == 2) {
                 alignas(16) union {
                     __m128d m128;
-                    double  m064[2];
+                    double m064[2];
                 } c;
                 // take from b's columns not rows
                 c.m064[0] = b.data[0].m064[i];
@@ -251,7 +268,7 @@ xmat_<ROWS0, COLS1> operator*(const xmat_<ROWS0, COLS0> &a, const xmat_<COLS0, C
     return C;
 }
 
-    //TODO xmat_ operator/(const xmat_& b); // same as multiply by inverse
+// TODO xmat_ operator/(const xmat_& b); // same as multiply by inverse
 
 template <size_t ROWS, size_t COLS>
 xmat_<ROWS, COLS> operator+(const xmat_<ROWS, COLS>& a, const xmat_<ROWS, COLS>& b) {
@@ -283,4 +300,4 @@ xmat_<ROWS, COLS> operator-(const xmat_<ROWS, COLS>& a, const xmat_<ROWS, COLS>&
     return C;
 }
 
-}
+}  // namespace intel

@@ -1,5 +1,6 @@
 
 #include <gtest/gtest.h>
+
 #include <raytrace/raytrace.hpp>
 
 using namespace raytrace;

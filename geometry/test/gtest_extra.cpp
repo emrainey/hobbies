@@ -1,9 +1,11 @@
 #include <gtest/gtest.h>
-#include <geometry/geometry.hpp>
+
 #include <basal/basal.hpp>
-#include <vector>
-#include <tuple>
 #include <chrono>
+#include <geometry/geometry.hpp>
+#include <tuple>
+#include <vector>
+
 #include "geometry/gtest_helper.hpp"
 
 using namespace linalg;
@@ -11,12 +13,12 @@ using namespace linalg::operators;
 using namespace geometry;
 
 TEST(GeomExtraTests, ClosestPointsFromSkewLines) {
-    R3::line L1{{1, 0, 0, 90,-1, 0}};
-    R3::line L2{{0, 0, 1,  1, 1, 70}};
+    R3::line L1{{1, 0, 0, 90, -1, 0}};
+    R3::line L2{{0, 0, 1, 1, 1, 70}};
 
     ASSERT_TRUE(skew(L1, L2));
 
-    point P1{{1,-1, 0}};
+    point P1{{1, -1, 0}};
     point P2{{1, 1, 0}};
 
     auto points = closest_points_from_skew_lines(L1, L2);
@@ -31,11 +33,11 @@ TEST(GeomExtraTests, RotationAroundAxis) {
     double sin_t = std::sin(theta.value);
 
     // rotation around Z (in the XY plane)
-    matrix _Rxy{ {{cos_t, -sin_t, 0}, {sin_t, cos_t, 0}, {0, 0, 1}} };
+    matrix _Rxy{{{cos_t, -sin_t, 0}, {sin_t, cos_t, 0}, {0, 0, 1}}};
     // rotation around Y in the xz plane
-    matrix _Rxz{ {{cos_t, 0, sin_t}, {0, 1, 0}, {-sin_t, 0, cos_t}} };
+    matrix _Rxz{{{cos_t, 0, sin_t}, {0, 1, 0}, {-sin_t, 0, cos_t}}};
     // rotation around x in the yz plane
-    matrix _Ryz{ {{1, 0, 0}, {0, cos_t, -sin_t}, {0, sin_t, cos_t}} };
+    matrix _Ryz{{{1, 0, 0}, {0, cos_t, -sin_t}, {0, sin_t, cos_t}}};
 
     matrix Rxy = rotation(R3::basis::Z, theta);
     ASSERT_MATRIX_EQ(_Rxy, Rxy);
@@ -63,9 +65,7 @@ TEST(GeomExtraTests, RotationMatch) {
     const iso::radians theta(iso::tau / 4);
     matrix rz = rotation(R3::basis::Z, theta);
     // this rotates around Z
-    matrix R2z{{{0.0, -1.0, 0.0},
-                {1.0,  0.0, 0.0},
-                {0.0,  0.0, 1.0}}};
+    matrix R2z{{{0.0, -1.0, 0.0}, {1.0, 0.0, 0.0}, {0.0, 0.0, 1.0}}};
     matrix x{{{1}, {0}, {0}}};
     matrix rzx = rz * x;
     matrix y{{{0}, {1}, {0}}};
@@ -76,7 +76,7 @@ TEST(GeomExtraTests, RotationMatch) {
 TEST(GeomExtraTests, RotationOfVectors) {
     R3::vector v0{{0, 0, 1}};
 
-    iso::radians phi(iso::pi/2);
+    iso::radians phi(iso::pi / 2);
     linalg::matrix r1 = geometry::rotation(R3::basis::Z, -phi);
     linalg::matrix r2 = geometry::rotation(R3::basis::Y, phi);
     linalg::matrix rot(r2 * r1);
@@ -92,7 +92,7 @@ TEST(GeomExtraTests, RotationOfVectors) {
     ASSERT_VECTOR_EQ(R3::basis::X, v3);
 
     v0 = R3::vector{{1, 1, 1}};
-    R3::vector v4{{1, -1,  1}};
+    R3::vector v4{{1, -1, 1}};
     R3::vector v5{{1, -1, -1}};
     v1 = r1 * v0;
     ASSERT_VECTOR_EQ(v4, v1);
@@ -113,7 +113,7 @@ TEST(GeomExtraTests, DotPerf) {
     }
     auto diff = std::chrono::steady_clock::now() - start;
     double rate = (double(number_of_ops) / (diff.count() / 1E9)) / 1E6;
-    std::cout << "dots rate:" << rate << " M-dots/sec, Period: " << diff.count()/1E9 << " sec" << std::endl;
+    std::cout << "dots rate:" << rate << " M-dots/sec, Period: " << diff.count() / 1E9 << " sec" << std::endl;
 }
 
 TEST(GeomExtraTests, CrossPerf) {
@@ -127,18 +127,18 @@ TEST(GeomExtraTests, CrossPerf) {
     }
     auto diff = std::chrono::steady_clock::now() - start;
     double rate = (double(number_of_ops) / (diff.count() / 1E9)) / 1E6;
-    std::cout << "cross rate:" << rate << " M-cross/sec, Period: " << diff.count()/1E9 << " sec" << std::endl;
+    std::cout << "cross rate:" << rate << " M-cross/sec, Period: " << diff.count() / 1E9 << " sec" << std::endl;
 }
 
 TEST(MappingTests, CartesianToSphericalTest) {
     std::vector<std::tuple<geometry::R3::point, geometry::R3::point>> combos = {
-        std::make_tuple(geometry::R3::point(0, 0, 1),geometry::R3::point(1, 0, 0)),
-        std::make_tuple(geometry::R3::point(1, 0, 0),geometry::R3::point(1, 0, iso::pi/2)),
-        std::make_tuple(geometry::R3::point(0, 1, 0),geometry::R3::point(1,iso::pi/2, iso::pi/2)),
-        std::make_tuple(geometry::R3::point(0, 0,-1),geometry::R3::point(1, 0, iso::pi)),
-        std::make_tuple(geometry::R3::point(0,-1, 0),geometry::R3::point(1,-iso::pi/2, iso::pi/2)),
+        std::make_tuple(geometry::R3::point(0, 0, 1), geometry::R3::point(1, 0, 0)),
+        std::make_tuple(geometry::R3::point(1, 0, 0), geometry::R3::point(1, 0, iso::pi / 2)),
+        std::make_tuple(geometry::R3::point(0, 1, 0), geometry::R3::point(1, iso::pi / 2, iso::pi / 2)),
+        std::make_tuple(geometry::R3::point(0, 0, -1), geometry::R3::point(1, 0, iso::pi)),
+        std::make_tuple(geometry::R3::point(0, -1, 0), geometry::R3::point(1, -iso::pi / 2, iso::pi / 2)),
     };
-    for (auto & params : combos) {
+    for (auto& params : combos) {
         geometry::R3::point cartesian = std::get<0>(params);
         geometry::R3::point spherical = std::get<1>(params);
         geometry::R3::point new_point = cartesian_to_spherical(cartesian);

@@ -1,7 +1,8 @@
 #pragma once
 
-#include <linalg/linalg.hpp>
 #include <geometry/geometry.hpp>
+#include <linalg/linalg.hpp>
+
 #include "raytrace/objects/object.hpp"
 
 namespace raytrace {
@@ -31,11 +32,12 @@ public:
     image::point map(const point& object_surface_point) const override;
     /** @copydoc basal::printable::print */
     void print(const char str[]) const override;
+
 private:
     element_type m_bottom_radius;
     element_type m_height;
     iso::radians m_angle;
 };
 
-} // namespace objects
-} // namespace raytrace
+}  // namespace objects
+}  // namespace raytrace

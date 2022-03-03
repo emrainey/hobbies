@@ -1,13 +1,14 @@
 
 #include <gtest/gtest.h>
-#include <geometry/geometry.hpp>
+
 #include <basal/basal.hpp>
+#include <geometry/geometry.hpp>
 #include <vector>
+
 #include "geometry/gtest_helper.hpp"
 
 using namespace geometry;
 using namespace geometry::operators;
-
 
 TEST(RayTests, RayCross) {
     R3::ray a(R3::origin, R3::basis::X);

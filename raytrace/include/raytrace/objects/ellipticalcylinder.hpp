@@ -9,5 +9,5 @@ public:
     ellipticalcylinder(const point &center, element_type a, element_type b);
     ~ellipticalcylinder() = default;
 };
-}
-} // namespace raytrace
+}  // namespace objects
+}  // namespace raytrace

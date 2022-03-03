@@ -1,28 +1,29 @@
 
-#include <cmath>
 #include <cassert>
-#include <geometry/plane.hpp>
+#include <cmath>
 #include <geometry/extra_math.hpp>
+#include <geometry/plane.hpp>
 
 namespace geometry {
 
 using namespace geometry::operators;
 
 element_type coefficients_t::x() {
-    return -d/a;
+    return -d / a;
 }
 element_type coefficients_t::y() {
-    return -d/b;
+    return -d / b;
 }
 element_type coefficients_t::z() {
-    return -d/c;
+    return -d / c;
 }
 
-plane::plane(const R3::vector &on, const R3::point &op) : plane(op, on) {}
+plane::plane(const R3::vector &on, const R3::point &op) : plane(op, on) {
+}
 
-plane::plane(const R3::point &op, const R3::vector &on)
-    : m_normal(on), m_center_point(op), normal(m_normal){
-    basal::exception::throw_unless(!basal::equals_zero(m_normal.norm()), __FILE__, __LINE__, "The magnitude of the normal can't be zero");
+plane::plane(const R3::point &op, const R3::vector &on) : m_normal(on), m_center_point(op), normal(m_normal) {
+    basal::exception::throw_unless(!basal::equals_zero(m_normal.norm()), __FILE__, __LINE__,
+                                   "The magnitude of the normal can't be zero");
     eq.a = m_normal[0];
     eq.b = m_normal[1];
     eq.c = m_normal[2];
@@ -36,7 +37,7 @@ plane::plane(const std::vector<element_type> &list) : plane(list[0], list[1], li
 }
 
 plane::plane(element_type a, element_type b, element_type c, element_type d)
-    : m_normal{{a,b,c}}, m_center_point(3), normal(m_normal) {
+    : m_normal{{a, b, c}}, m_center_point(3), normal(m_normal) {
     // before we normalize, we solve for the point
     // normal line through the origin
     R3::line l(m_normal, geometry::R3::origin);
@@ -64,10 +65,11 @@ plane::plane(const R3::point &a, const R3::point &b, const R3::point &c)
     eq.a = m_normal[0];
     eq.b = m_normal[1];
     eq.c = m_normal[2];
-    basal::exception::throw_unless(!basal::equals_zero(m_normal.norm()), __FILE__, __LINE__, "The magnitude of the normal can't be zero");
+    basal::exception::throw_unless(!basal::equals_zero(m_normal.norm()), __FILE__, __LINE__,
+                                   "The magnitude of the normal can't be zero");
     eq.d = -dot(m_normal, b);
     m_magnitude = m_normal.norm();
-    m_normal.normalize(); // hessian form requires n to be normalized
+    m_normal.normalize();  // hessian form requires n to be normalized
 }
 
 plane::plane(const plane &other)
@@ -75,16 +77,16 @@ plane::plane(const plane &other)
     , m_center_point(other.m_center_point)
     , eq(other.eq)
     , m_magnitude(other.m_magnitude)
-    , normal(m_normal)
-    {}
+    , normal(m_normal) {
+}
 
 plane::plane(plane &&other)
     : m_normal(std::move(other.m_normal))
     , m_center_point(std::move(other.m_center_point))
     , eq(std::move(other.eq))
     , m_magnitude(other.m_magnitude)
-    , normal(m_normal)
-    {}
+    , normal(m_normal) {
+}
 
 plane &plane::operator=(const plane &other) {
     m_normal = other.normal;
@@ -103,12 +105,12 @@ plane &plane::operator=(plane &&other) {
 }
 
 R3::vector plane::unormal() const {
-    return R3::vector{ {eq.a, eq.b, eq.c} };
+    return R3::vector{{eq.a, eq.b, eq.c}};
 }
 
 element_type plane::distance(const R3::point &a) const {
     R3::vector n_{{eq.a, eq.b, eq.c}};
-    element_type top = dot(n_,a) + eq.d;
+    element_type top = dot(n_, a) + eq.d;
     return top / n_.norm();
 }
 
@@ -120,7 +122,7 @@ bool plane::parallel(const plane &a) const {
 
 bool plane::perpendicular(const plane &a) const {
     using namespace operators;
-    return (m_normal | a.normal); // check for orthogonal
+    return (m_normal | a.normal);  // check for orthogonal
 }
 
 void plane::print(const char name[]) const {
@@ -128,12 +130,11 @@ void plane::print(const char name[]) const {
 }
 
 bool plane::contains(const R3::point &pt) const {
-
     constexpr bool use_vector_method = false;
     constexpr bool use_equation_method = true;  // seems like the fewest steps
     constexpr bool use_distance_method = false;
-    double value = 1.0; // checking for equals to zero so initialize to nonzero
-    //static_assert(use_distance_method or use_equation_method or use_vector_method, "Only one should be active");
+    double value = 1.0;  // checking for equals to zero so initialize to nonzero
+    // static_assert(use_distance_method or use_equation_method or use_vector_method, "Only one should be active");
 
     // determine if pt is in the plane by the vector method, the equation method and the distance method
     if constexpr (use_vector_method) {
@@ -149,7 +150,7 @@ bool plane::contains(const R3::point &pt) const {
 
     if constexpr (use_equation_method) {
         // solve the equation with this point and it must be zero
-         value = pt.x*eq.a + pt.y*eq.b + pt.z*eq.c + eq.d;
+        value = pt.x * eq.a + pt.y * eq.b + pt.z * eq.c + eq.d;
     } else {
         value = 1.0;
     }
@@ -174,7 +175,7 @@ bool plane::contains(const R3::line &l) const {
     return (contains(p1) && contains(p2));
 }
 
-const struct coefficients_t & plane::coefficient() const {
+const struct coefficients_t &plane::coefficient() const {
     return eq;
 }
 
@@ -187,7 +188,8 @@ bool plane::operator==(const plane &other) const {
     return normals && points;
     // they don't have to have the same points.
     // they don't have to have d == d they can be |d| == |d|
-    //return (equals(eq.d,other.eq.d) && (m_center_point == other.m_center_point) && (m_normal || other.m_normal)); // the normal could be negative?
+    // return (equals(eq.d,other.eq.d) && (m_center_point == other.m_center_point) && (m_normal || other.m_normal)); //
+    // the normal could be negative?
 }
 
 bool plane::operator!=(const plane &other) const {
@@ -198,12 +200,10 @@ element_type plane::angle(const plane &P) const {
     return acos(dot(m_normal, P.normal));
 }
 
-std::ostream& operator<<(std::ostream& os, const plane& p) {
-    os << "plane(" << p.coefficient().a << "x+" << \
-                      p.coefficient().b << "y+" << \
-                      p.coefficient().c << "z+" << \
-                      p.coefficient().d << "=0)";
+std::ostream &operator<<(std::ostream &os, const plane &p) {
+    os << "plane(" << p.coefficient().a << "x+" << p.coefficient().b << "y+" << p.coefficient().c << "z+"
+       << p.coefficient().d << "=0)";
     return os;
 }
 
-}
+}  // namespace geometry

@@ -5,9 +5,10 @@
  * @copyright Copyright (c) 2021
  */
 
-#include <raytrace/raytrace.hpp>
-#include "world.hpp"
 #include <functional>
+#include <raytrace/raytrace.hpp>
+
+#include "world.hpp"
 
 using namespace raytrace;
 using namespace raytrace::objects;
@@ -20,46 +21,46 @@ public:
         , look_from(5, -20, 20)
         , look_at(0, 0, 0)
         , plain_white(colors::white, mediums::ambient::none, colors::white, mediums::smoothness::none, roughness::tight)
-        , griders(0.1, colors::blue, colors::yellow, colors::red, colors::magenta, colors::green, colors::cyan, colors::black, colors::white)
+        , griders(0.1, colors::blue, colors::yellow, colors::red, colors::magenta, colors::green, colors::cyan,
+                  colors::black, colors::white)
         , floor(R3::origin, R3::basis::Z, 100, 100)
         , light0(raytrace::point(-5, 0, 10), 1, colors::white, 10, light_subsamples)
         , light1(raytrace::point(-4, 0, 10), 1, colors::white, 10, light_subsamples)
         , light2(raytrace::point(-3, 0, 10), 1, colors::white, 10, light_subsamples)
         , light3(raytrace::point(-2, 0, 10), 1, colors::white, 10, light_subsamples)
         , light4(raytrace::point(-1, 0, 10), 1, colors::white, 10, light_subsamples)
-        , light5(raytrace::point( 0, 0, 10), 1, colors::white, 10, light_subsamples)
-        , light6(raytrace::point( 1, 0, 10), 1, colors::white, 10, light_subsamples)
-        , light7(raytrace::point( 2, 0, 10), 1, colors::white, 10, light_subsamples)
-        , light8(raytrace::point( 3, 0, 10), 1, colors::white, 10, light_subsamples)
-        , light9(raytrace::point( 4, 0, 10), 1, colors::white, 10, light_subsamples)
+        , light5(raytrace::point(0, 0, 10), 1, colors::white, 10, light_subsamples)
+        , light6(raytrace::point(1, 0, 10), 1, colors::white, 10, light_subsamples)
+        , light7(raytrace::point(2, 0, 10), 1, colors::white, 10, light_subsamples)
+        , light8(raytrace::point(3, 0, 10), 1, colors::white, 10, light_subsamples)
+        , light9(raytrace::point(4, 0, 10), 1, colors::white, 10, light_subsamples)
         , light10(raytrace::point(5, 0, 10), 1, colors::white, 10, light_subsamples)
         , s1(raytrace::point(4, 2, 1), 1)
         //, s1(raytrace::point(4, 2, 1), 1, 0.8, 0.6)
-        , s2(raytrace::point(-4,-2, 2), 2)
+        , s2(raytrace::point(-4, -2, 2), 2)
         , s3(raytrace::point(1, -5, 3), 3)
-        , c1(raytrace::point(6, 3, 0), 1, 4) // cone
+        , c1(raytrace::point(6, 3, 0), 1, 4)  // cone
         //, cylint(raytrace::point(-2, 3, 2), 2, 1) // cylinder
         //, cylint(raytrace::point(-2, 3, 2), 1, 1) // cylinder
         //, cylbox(raytrace::point(-2, 3, 2), 1, 1, 2)
         //, cyl(cylint, cylbox, overlap::type::inclusive)
-        , cyl(raytrace::point(-2, 3, 2), 2, 1) // cylinder
+        , cyl(raytrace::point(-2, 3, 2), 2, 1)  // cylinder
         , cap(raytrace::point(-2, 3, 4), R3::basis::Z, 0, 1)
         , t0(raytrace::point(3, 7, 0.5), 1.4, 0.5)
-        , cb0(raytrace::point(7, -2, 1), 1, 1, 1)
-        {
-            // assign surfaces and materials
-            floor.material(&plain_white);
-            griders.mapper(std::bind(&objects::square::map, &floor, std::placeholders::_1));
-            //floor.material(&griders);
-            s1.material(&mediums::metals::stainless);
-            s2.material(&mediums::metals::stainless);
-            s3.material(&mediums::metals::stainless);
-            c1.material(&mediums::metals::stainless);
-            cyl.material(&mediums::metals::stainless);
-            cap.material(&mediums::metals::stainless);
-            t0.material(&mediums::metals::stainless);
-            cb0.material(&mediums::metals::stainless);
-            cb0.rotation(iso::degrees(0), iso::degrees(0), iso::degrees(15));
+        , cb0(raytrace::point(7, -2, 1), 1, 1, 1) {
+        // assign surfaces and materials
+        floor.material(&plain_white);
+        griders.mapper(std::bind(&objects::square::map, &floor, std::placeholders::_1));
+        // floor.material(&griders);
+        s1.material(&mediums::metals::stainless);
+        s2.material(&mediums::metals::stainless);
+        s3.material(&mediums::metals::stainless);
+        c1.material(&mediums::metals::stainless);
+        cyl.material(&mediums::metals::stainless);
+        cap.material(&mediums::metals::stainless);
+        t0.material(&mediums::metals::stainless);
+        cb0.material(&mediums::metals::stainless);
+        cb0.rotation(iso::degrees(0), iso::degrees(0), iso::degrees(15));
     }
 
     raytrace::point& looking_from() override {
@@ -109,6 +110,7 @@ public:
         scene.add_object(&t0);
         scene.add_object(&cb0);
     }
+
 protected:
     element_type light_subsamples;
     raytrace::point look_from;
@@ -128,14 +130,14 @@ protected:
     bulb light9;
     bulb light10;
     raytrace::objects::sphere s1;
-    //ellipsoid s1;
+    // ellipsoid s1;
     raytrace::objects::sphere s2;
     raytrace::objects::sphere s3;
     cone c1;
     cylinder cyl;
-    //ellipticalcylinder cylint;
-    //cuboid   cylbox;
-    //overlap  cyl;
+    // ellipticalcylinder cylint;
+    // cuboid   cylbox;
+    // overlap  cyl;
     ring cap;
     torus t0;
     cuboid cb0;

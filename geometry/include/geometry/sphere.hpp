@@ -5,9 +5,9 @@
  * @copyright Copyright 2019 (C) Erik Rainey.
  */
 
-#include <geometry/types.hpp>
-#include <geometry/point.hpp>
 #include <geometry/line.hpp>
+#include <geometry/point.hpp>
+#include <geometry/types.hpp>
 
 namespace geometry {
 
@@ -21,6 +21,7 @@ class sphere {
 protected:
     /** The radius of the sphere */
     element_type m_radius;
+
 public:
     const element_type &radius = m_radius;
 
@@ -34,7 +35,7 @@ public:
     /** D-tor */
     virtual ~sphere() = default;
     /** Copy Assign */
-    sphere &operator=(const sphere& s);
+    sphere &operator=(const sphere &s);
     /** Move Assign */
     sphere &operator=(sphere &&s);
 
@@ -48,9 +49,9 @@ public:
     virtual bool surface(const R3::point &object_point) const;
 
     /** Returns a point in polar representation of the object point */
-    R3::point cart_to_polar(const R3::point& object_point) const;
+    R3::point cart_to_polar(const R3::point &object_point) const;
 };
 
-} // namespace R3
+}  // namespace R3
 
-} // namespace geometry
+}  // namespace geometry

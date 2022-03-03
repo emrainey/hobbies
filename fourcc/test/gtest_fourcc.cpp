@@ -1,11 +1,12 @@
 #include <gtest/gtest.h>
+
 #include <fourcc/image.hpp>
 
 using namespace fourcc;
 
 TEST(FourccTest, Bars) {
     image<rgb8, pixel_format::RGB8> img(480, 640);
-    img.for_each([](size_t y, size_t x, rgb8& pixel){
+    img.for_each([](size_t y, size_t x, rgb8& pixel) {
         if (x < 60) {
             pixel.r = 255;
             pixel.g = 0;

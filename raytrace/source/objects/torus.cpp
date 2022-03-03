@@ -1,5 +1,6 @@
-#include <iostream>
 #include "raytrace/objects/torus.hpp"
+
+#include <iostream>
 
 namespace raytrace {
 namespace objects {
@@ -9,11 +10,11 @@ using namespace geometry;
 using namespace geometry::operators;
 
 torus::torus(const point& C, element_type ring_radius, element_type tube_radius)
-    : object(C, 4, true) // up to 4 collisions, closed surface
+    : object(C, 4, true)  // up to 4 collisions, closed surface
     , m_ring_radius(ring_radius)
-    , m_tube_radius(tube_radius)
-    {
-    basal::exception::throw_if(tube_radius > ring_radius, __FILE__, __LINE__, "Self-intersecting torus, tube must be smaller than ring radius");
+    , m_tube_radius(tube_radius) {
+    basal::exception::throw_if(tube_radius > ring_radius, __FILE__, __LINE__,
+                               "Self-intersecting torus, tube must be smaller than ring radius");
 }
 
 vector torus::normal(const point& world_surface_point) const {
@@ -30,7 +31,7 @@ vector torus::normal(const point& world_surface_point) const {
     raytrace::vector N = object_surface_point - ring_point;
     N.normalize();
     raytrace::vector world_N = forward_transform(N);
-    return vector(world_N); // copy constructor output
+    return vector(world_N);  // copy constructor output
 }
 
 hits torus::collisions_along(const ray& object_ray) const {
@@ -42,10 +43,12 @@ hits torus::collisions_along(const ray& object_ray) const {
         // formulate the torus equation (sqrt(x*x + y*y) + R)^2 +z*z = r*r into a quartic equation of t
         // given each x y z is a line equation (x => x + ti)
         // ((x_ti)^2 + (y+tj)^2 + q^2 + (z+tk)^2 - r^2)^2 = 4q^2((x+ti)^2 + (y+tj)^2)
-        // @see https://www.wolframalpha.com/input/?i=FullSimplify+%28%28x%2Bti%29%5E2%2B%28y%2Btj%29%5E2+%2B+q%5E2+%2B+%28z%2Btk%29%5E2+-+r%5E2%29%5E2%3D4q%5E2%28%28x%2Bti%29%5E2+%2B+%28y%2Btj%29%5E2%29+
+        // @see
+        // https://www.wolframalpha.com/input/?i=FullSimplify+%28%28x%2Bti%29%5E2%2B%28y%2Btj%29%5E2+%2B+q%5E2+%2B+%28z%2Btk%29%5E2+-+r%5E2%29%5E2%3D4q%5E2%28%28x%2Bti%29%5E2+%2B+%28y%2Btj%29%5E2%29+
         // in order to solve this, we have to have a quartic root solver, which is quite complex.
         // first break down line components into x,y,z & i,j,k
-        // also, I refined the equations from http://blog.marcinchwedczuk.pl/ray-tracing-torus (they had simplified versions which I think were better than those I dervied)
+        // also, I refined the equations from http://blog.marcinchwedczuk.pl/ray-tracing-torus (they had simplified
+        // versions which I think were better than those I dervied)
         element_type x = object_ray.location().x;
         element_type y = object_ray.location().y;
         element_type z = object_ray.location().z;
@@ -63,7 +66,7 @@ hits torus::collisions_along(const ray& object_ray) const {
         element_type kz = k * z;
         element_type qq = q * q;
         element_type rr = r * r;
-        //element_type qq_rr = qq - rr;
+        // element_type qq_rr = qq - rr;
         element_type rr_qq = rr + qq;
         element_type xx = x * x;
         element_type yy = y * y;
@@ -77,30 +80,29 @@ hits torus::collisions_along(const ray& object_ray) const {
         element_type a = ii_jj_kk * ii_jj_kk;
         // t^3 terms: 4*t^3(xi^3 + yj^3 + zk^3 + i^2(j+k) + j^2(i+k) + k^2(j+i))
         // simplified: 4*ii_jj_kk*ix_jy_kz
-        element_type b = 4.0*ii_jj_kk*ix_jy_kz;
+        element_type b = 4.0 * ii_jj_kk * ix_jy_kz;
         // t^2 terms: 2*(i^2(q^2-r^2) + j^2(q^2-r^2) + k^2(q^2-r^2)
         //               + x^2(3i^2+j^2+k^) + y^2(i^2+3j^2+k^2) + z^2(i^2+j^+3k^2)
         //               + 4(ijxy + ikxz + jkyz))
         // simplified: 2*ii_jj_kk*(xx_yy_zz+rr_qq) +
         //             4*ix_jy_kz*ix_jy_kz + 4*qq*kk
-        element_type c = 2.0*ii_jj_kk*xx_yy_zz_rr_qq +
-                            4.0*ix_jy_kz*ix_jy_kz;
+        element_type c = 2.0 * ii_jj_kk * xx_yy_zz_rr_qq + 4.0 * ix_jy_kz * ix_jy_kz;
         // t^1 terms: 4*(ix(q^2-r^2)+jy(q^2-r^2)+kz(q^2-r^2) + ix^3 + jy^3 + kz^3
         //               + x^2(jy+kz) + y^2(ix+kz) + z^2(ix+jy))
         // simplified: 4*(xx_yy_zz - rr_qq)*ix_jy_kz + 8.0*qq*kz
-        element_type d = 4.0*xx_yy_zz_rr_qq*ix_jy_kz;
+        element_type d = 4.0 * xx_yy_zz_rr_qq * ix_jy_kz;
         // t^0 terms; q^4 + r^4 + x^4 + y^4 + z^4
         //            + 2q^2(x^2+y^2+z^2) - 2r^2(q^2+x^2+y^2+z^2)
         //            + 2(x^2y^2 + x^2z^2 + y^2z^2)
         // simplified: (xx_yy_zz - rr_qq)(xx_yy_zz - rr_qq) - 4*qq*(rr - zz)
-        element_type e = xx_yy_zz_rr_qq*xx_yy_zz_rr_qq;
+        element_type e = xx_yy_zz_rr_qq * xx_yy_zz_rr_qq;
         // corrections from the other side of the squaring
-        //c -= 4*qq*(ii + jj);
-        c += 4.0*qq*kk;
+        // c -= 4*qq*(ii + jj);
+        c += 4.0 * qq * kk;
         // d -= 8*qq*(ix + jy);
-        d += 8.0*qq*kz;
+        d += 8.0 * qq * kz;
         // e -= 4*qq*(xx + yy);
-        e -= 4*qq*(rr - zz);
+        e -= 4 * qq * (rr - zz);
         // now the terms are in the format needed (ax^4+bx^3+cx^2+dx+e = 0)
         auto roots = quartic_roots(a, b, c, d, e);
         element_type r0 = std::get<0>(roots);
@@ -124,8 +126,9 @@ image::point torus::map(const point& object_surface_point __attribute__((unused)
 }
 
 void torus::print(const char str[]) const {
-    std::cout << str << " torus @" << this << " " << position() << " Inner Radius" << m_tube_radius << " Ring Radius:" << m_ring_radius << std::endl;
+    std::cout << str << " torus @" << this << " " << position() << " Inner Radius" << m_tube_radius
+              << " Ring Radius:" << m_ring_radius << std::endl;
 }
 
-} // namespace objects
-} // namespace raytrace
+}  // namespace objects
+}  // namespace raytrace

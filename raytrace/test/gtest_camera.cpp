@@ -1,8 +1,9 @@
 #include <gtest/gtest.h>
+
 #include <raytrace/raytrace.hpp>
 
-#include "linalg/gtest_helper.hpp"
 #include "geometry/gtest_helper.hpp"
+#include "linalg/gtest_helper.hpp"
 #include "raytrace/gtest_helper.hpp"
 
 using namespace raytrace;
@@ -13,12 +14,10 @@ using namespace linalg;
 
 class CameraTest : public ::testing::Test {
 public:
-    CameraTest()
-        : image_height(2)
-        , image_width(2)
-        , field_of_view(90)
-        {}
-    ~CameraTest() {}
+    CameraTest() : image_height(2), image_width(2), field_of_view(90) {
+    }
+    ~CameraTest() {
+    }
 
     void SetUp() {
         m_camera = std::make_unique<raytrace::camera>(image_height, image_width, field_of_view);
@@ -43,11 +42,7 @@ TEST_F(CameraTest, DefaultAttributesTest) {
     raytrace::vector camera_up = R3::basis::Z;
     raytrace::point look_at(1.0, 0.0, 0.0);
     raytrace::point look_from = geometry::R3::origin;
-    const linalg::matrix camera_intrinsics{{
-        { 1,  0, -1},
-        { 0,  1, -1},
-        { 0,  0,  1}
-    }};
+    const linalg::matrix camera_intrinsics{{{1, 0, -1}, {0, 1, -1}, {0, 0, 1}}};
 
     // the default camera point is the origin
     ASSERT_POINT_EQ(m_camera.get()->position(), look_from);
@@ -68,11 +63,7 @@ TEST_F(CameraTest, AttributesTest) {
     raytrace::vector camera_up{{-2.0, -10.0, 26.0}};
     double f = camera_forward.magnitude();
     // approximately correct
-    const linalg::matrix camera_intrinsics{{
-        { f,  0, -f},
-        { 0,  f, -f},
-        { 0,  0,  f}
-    }};
+    const linalg::matrix camera_intrinsics{{{f, 0, -f}, {0, f, -f}, {0, 0, f}}};
 
     // move the camera position.
     m_camera.get()->position(look_from);
@@ -94,22 +85,18 @@ TEST_F(CameraTest, CastingRays) {
     m_camera.get()->print("Default");
 
     try {
-        iso::degrees rs[] = {
-            iso::degrees(0.0),
-            iso::degrees(0.0),
-            iso::degrees(0.0)
-        };
+        iso::degrees rs[] = {iso::degrees(0.0), iso::degrees(0.0), iso::degrees(0.0)};
         m_camera.get()->rotation(rs[0], rs[1], rs[2]);
         ASSERT_TRUE(m_camera.get()->rotation() == linalg::matrix::identity(3, 3));
 
         constexpr const size_t count = 4;
-        image::point points[count] = {
-            image::point(0.5,0.5), image::point(1.5,0.5),
-            image::point(0.5,1.5), image::point(1.5,1.5)
-        };
+        image::point points[count] = {image::point(0.5, 0.5), image::point(1.5, 0.5), image::point(0.5, 1.5),
+                                      image::point(1.5, 1.5)};
         ray rays[count] = {
-            m_camera.get()->cast(points[0]), m_camera.get()->cast(points[1]),
-            m_camera.get()->cast(points[2]), m_camera.get()->cast(points[3]),
+            m_camera.get()->cast(points[0]),
+            m_camera.get()->cast(points[1]),
+            m_camera.get()->cast(points[2]),
+            m_camera.get()->cast(points[3]),
         };
         for (size_t i = 0; i < count; i++) {
             std::cout << "Cast Ray[" << i << "] = " << rays[i] << std::endl;
@@ -117,8 +104,10 @@ TEST_F(CameraTest, CastingRays) {
 
         // casted rays should be in a YZ plane at X==1.
         raytrace::point world_ray_locations[] = {
-            raytrace::point(1, 0.5,  0.5), raytrace::point(1, -0.5,  0.5),
-            raytrace::point(1, 0.5, -0.5), raytrace::point(1, -0.5, -0.5),
+            raytrace::point(1, 0.5, 0.5),
+            raytrace::point(1, -0.5, 0.5),
+            raytrace::point(1, 0.5, -0.5),
+            raytrace::point(1, -0.5, -0.5),
         };
         for (size_t i = 0; i < count; i++) {
             ASSERT_TRUE(rays[i].location() == world_ray_locations[i]);
@@ -145,7 +134,7 @@ TEST(CameraTest2, CodedImage) {
 
     cam.capture.generate_each([&](const image::point& img_point) -> color {
         const ray world_ray = cam.cast(img_point);
-        const raytrace::point wrp = world_ray.location(); // just copy
+        const raytrace::point wrp = world_ray.location();  // just copy
         if (wrp.y > 0) {
             if (wrp.z > 0) {
                 return colors::green;

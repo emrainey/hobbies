@@ -1,13 +1,13 @@
 /**
  * @file
  * This is an auto-generated header for iso::turns.
- * 
+ *
  * @note See README on re-generation.
  * @copyright Copyright 2022.
  */
 #pragma once
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 
 #include "iso/measurement.hpp"
 
@@ -16,7 +16,7 @@ namespace iso {
 
 /** A structure used to hold the postfix for turns */
 struct suffix_type_Tau {
-    constexpr static const char *suffix = "Tau";
+    constexpr static const char* suffix = "Tau";
 };
 
 /**
@@ -42,7 +42,7 @@ public:
     /** Destructor */
     ~turns() = default;
     /** Const Copy Assignment */
-    turns& operator=(const turns &other) noexcept;
+    turns& operator=(const turns& other) noexcept;
     /** Copy Assignment */
     turns& operator=(turns& other) noexcept;
     /** Move Assignment */
@@ -72,25 +72,25 @@ public:
 };
 
 namespace operators {
-    /** Addition operator */
-    turns operator+(const turns& A, const turns& B);
-    /** Subtraction operator */
-    turns operator-(const turns& A, const turns& B);
-    /** Left Scaling Operator */
-    turns operator*(const turns& A, double factor);
-    /** Right Scaling Operator */
-    turns operator*(double factor, const turns& A);
-    /** Inverse Scaling Operator */
-    turns operator/(const turns& A, double factor);
-}
+/** Addition operator */
+turns operator+(const turns& A, const turns& B);
+/** Subtraction operator */
+turns operator-(const turns& A, const turns& B);
+/** Left Scaling Operator */
+turns operator*(const turns& A, double factor);
+/** Right Scaling Operator */
+turns operator*(double factor, const turns& A);
+/** Inverse Scaling Operator */
+turns operator/(const turns& A, double factor);
+}  // namespace operators
 
 namespace literals {
-    /** Literal Double, Quote Operator */
-    turns operator""_Tau(long double value);
-    /** Literal Int, Quote Operator */
-    turns operator""_Tau(unsigned long long value);
-    /** Literal String, Quote Operator */
-    iso::turns operator""_Tau(const char a[]);
-}
+/** Literal Double, Quote Operator */
+turns operator""_Tau(long double value);
+/** Literal Int, Quote Operator */
+turns operator""_Tau(unsigned long long value);
+/** Literal String, Quote Operator */
+iso::turns operator""_Tau(const char a[]);
+}  // namespace literals
 
-}
+}  // namespace iso

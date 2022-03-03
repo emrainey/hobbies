@@ -17,11 +17,12 @@ public:
     virtual ~dots() = default;
 
     color diffuse(const raytrace::point& volumetric_point) const final;
+
 protected:
     element_type m_repeat;
     color m_dot, m_background;
 };
 
-} // namespace mediums
+}  // namespace mediums
 
-} // namespace raytrace
+}  // namespace raytrace

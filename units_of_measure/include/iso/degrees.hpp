@@ -1,13 +1,13 @@
 /**
  * @file
  * This is an auto-generated header for iso::degrees.
- * 
+ *
  * @note See README on re-generation.
  * @copyright Copyright 2022.
  */
 #pragma once
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 
 #include "iso/measurement.hpp"
 
@@ -16,7 +16,7 @@ namespace iso {
 
 /** A structure used to hold the postfix for degrees */
 struct suffix_type_d {
-    constexpr static const char *suffix = "d";
+    constexpr static const char* suffix = "d";
 };
 
 /**
@@ -42,7 +42,7 @@ public:
     /** Destructor */
     ~degrees() = default;
     /** Const Copy Assignment */
-    degrees& operator=(const degrees &other) noexcept;
+    degrees& operator=(const degrees& other) noexcept;
     /** Copy Assignment */
     degrees& operator=(degrees& other) noexcept;
     /** Move Assignment */
@@ -72,25 +72,25 @@ public:
 };
 
 namespace operators {
-    /** Addition operator */
-    degrees operator+(const degrees& A, const degrees& B);
-    /** Subtraction operator */
-    degrees operator-(const degrees& A, const degrees& B);
-    /** Left Scaling Operator */
-    degrees operator*(const degrees& A, double factor);
-    /** Right Scaling Operator */
-    degrees operator*(double factor, const degrees& A);
-    /** Inverse Scaling Operator */
-    degrees operator/(const degrees& A, double factor);
-}
+/** Addition operator */
+degrees operator+(const degrees& A, const degrees& B);
+/** Subtraction operator */
+degrees operator-(const degrees& A, const degrees& B);
+/** Left Scaling Operator */
+degrees operator*(const degrees& A, double factor);
+/** Right Scaling Operator */
+degrees operator*(double factor, const degrees& A);
+/** Inverse Scaling Operator */
+degrees operator/(const degrees& A, double factor);
+}  // namespace operators
 
 namespace literals {
-    /** Literal Double, Quote Operator */
-    degrees operator""_d(long double value);
-    /** Literal Int, Quote Operator */
-    degrees operator""_d(unsigned long long value);
-    /** Literal String, Quote Operator */
-    iso::degrees operator""_d(const char a[]);
-}
+/** Literal Double, Quote Operator */
+degrees operator""_d(long double value);
+/** Literal Int, Quote Operator */
+degrees operator""_d(unsigned long long value);
+/** Literal String, Quote Operator */
+iso::degrees operator""_d(const char a[]);
+}  // namespace literals
 
-}
+}  // namespace iso

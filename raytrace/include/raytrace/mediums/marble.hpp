@@ -12,6 +12,7 @@ public:
     virtual ~marble() = default;
 
     color diffuse(const raytrace::point& volumetric_point) const final;
+
 protected:
     color m_dark, m_light;
     noise::vector m_seed;
@@ -19,6 +20,6 @@ protected:
     element_type m_scale;
 };
 
-} // namespace mediums
+}  // namespace mediums
 
-} // namespace raytrace
+}  // namespace raytrace

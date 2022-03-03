@@ -1,13 +1,13 @@
 /**
  * @file
  * This is an auto-generated header for iso::hertz.
- * 
+ *
  * @note See README on re-generation.
  * @copyright Copyright 2022.
  */
 #pragma once
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 
 #include "iso/measurement.hpp"
 
@@ -16,7 +16,7 @@ namespace iso {
 
 /** A structure used to hold the postfix for hertz */
 struct suffix_type_Hz {
-    constexpr static const char *suffix = "Hz";
+    constexpr static const char* suffix = "Hz";
 };
 
 /**
@@ -42,7 +42,7 @@ public:
     /** Destructor */
     ~hertz() = default;
     /** Const Copy Assignment */
-    hertz& operator=(const hertz &other) noexcept;
+    hertz& operator=(const hertz& other) noexcept;
     /** Copy Assignment */
     hertz& operator=(hertz& other) noexcept;
     /** Move Assignment */
@@ -72,25 +72,25 @@ public:
 };
 
 namespace operators {
-    /** Addition operator */
-    hertz operator+(const hertz& A, const hertz& B);
-    /** Subtraction operator */
-    hertz operator-(const hertz& A, const hertz& B);
-    /** Left Scaling Operator */
-    hertz operator*(const hertz& A, double factor);
-    /** Right Scaling Operator */
-    hertz operator*(double factor, const hertz& A);
-    /** Inverse Scaling Operator */
-    hertz operator/(const hertz& A, double factor);
-}
+/** Addition operator */
+hertz operator+(const hertz& A, const hertz& B);
+/** Subtraction operator */
+hertz operator-(const hertz& A, const hertz& B);
+/** Left Scaling Operator */
+hertz operator*(const hertz& A, double factor);
+/** Right Scaling Operator */
+hertz operator*(double factor, const hertz& A);
+/** Inverse Scaling Operator */
+hertz operator/(const hertz& A, double factor);
+}  // namespace operators
 
 namespace literals {
-    /** Literal Double, Quote Operator */
-    hertz operator""_Hz(long double value);
-    /** Literal Int, Quote Operator */
-    hertz operator""_Hz(unsigned long long value);
-    /** Literal String, Quote Operator */
-    iso::hertz operator""_Hz(const char a[]);
-}
+/** Literal Double, Quote Operator */
+hertz operator""_Hz(long double value);
+/** Literal Int, Quote Operator */
+hertz operator""_Hz(unsigned long long value);
+/** Literal String, Quote Operator */
+iso::hertz operator""_Hz(const char a[]);
+}  // namespace literals
 
-}
+}  // namespace iso

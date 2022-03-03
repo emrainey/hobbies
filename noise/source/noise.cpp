@@ -10,17 +10,17 @@ using namespace geometry::operators;
 constexpr bool debug = false;
 
 double sequence_pseudorandom1(uint32_t x) {
-    x = (x << 13) ^ x; // XOR with shifted version of itself
-    return (1.0 - ( (x * (x * x * 61051 + 3166613) + 5915587277) & 0x7FFFFFFF) / 1073741824.0);
+    x = (x << 13) ^ x;  // XOR with shifted version of itself
+    return (1.0 - ((x * (x * x * 61051 + 3166613) + 5915587277) & 0x7FFFFFFF) / 1073741824.0);
 }
 
 vector convert_to_seed(iso::radians r) {
-    return vector{{std::cos(r.value), std::sin(r.value) }};
+    return vector{{std::cos(r.value), std::sin(r.value)}};
 }
 
 vector generate_seed() {
-    double d = (double)rand() / RAND_MAX; // 0.0 to 1.0
-    iso::radians r((2.0 * iso::pi * d) - iso::pi); // -pi to +pi
+    double d = (double)rand() / RAND_MAX;           // 0.0 to 1.0
+    iso::radians r((2.0 * iso::pi * d) - iso::pi);  // -pi to +pi
     return convert_to_seed(r);
 }
 
@@ -53,41 +53,44 @@ double random(const vector& vec, const vector& seeds, double gain) {
 
 double perlin(const point& pnt, double scale, const vector& seeds, double gain) {
     // converts a point into a normalized space ideally (all dims are 0-1)
-    noise::point uv_s = floor(pnt * (1.0/scale));
+    noise::point uv_s = floor(pnt * (1.0 / scale));
     // this point should be the fractional part of uv between 0.0 and 1.0 in each dimension
-    noise::point uv = fract(pnt * (1.0/scale));
+    noise::point uv = fract(pnt * (1.0 / scale));
     // the corners of the norminalized area
     noise::point corners[4] = {
-        point(0.0, 0.0), point(1.0, 0.0),
-        point(0.0, 1.0), point(1.0, 1.0),
+        point(0.0, 0.0),
+        point(1.0, 0.0),
+        point(0.0, 1.0),
+        point(1.0, 1.0),
     };
     // find the distance from each corner to the point in the normalize coorindate system
     noise::vector distance[4] = {
-        uv - corners[0], uv - corners[1],
-        uv - corners[2], uv - corners[3],
+        uv - corners[0],
+        uv - corners[1],
+        uv - corners[2],
+        uv - corners[3],
     };
     // the feed vectors to index the randomness
-    noise::vector feed[4] = {
-        uv_s + corners[0], uv_s + corners[1],
-        uv_s + corners[2], uv_s + corners[3]
-    };
+    noise::vector feed[4] = {uv_s + corners[0], uv_s + corners[1], uv_s + corners[2], uv_s + corners[3]};
     // procedurally generate 4 "random" numbers between 0 and 1.0
     double rnds[4] = {
-        random(feed[0], seeds, gain), random(feed[1], seeds, gain),
-        random(feed[2], seeds, gain), random(feed[3], seeds, gain),
+        random(feed[0], seeds, gain),
+        random(feed[1], seeds, gain),
+        random(feed[2], seeds, gain),
+        random(feed[3], seeds, gain),
     };
     size_t idx[4] = {0};
     for (size_t i = 0; i < 4; i++) {
         idx[i] = static_cast<size_t>(std::floor(rnds[i] * 2.0) + 2.0);
     };
     // The set of 2d perlin noise gradients
-    vector gradients[4] = {
-        vector{{-1, -1}}, vector{{1, -1}}, vector{{-1, 1}}, vector{{1, 1}}
-    };
+    vector gradients[4] = {vector{{-1, -1}}, vector{{1, -1}}, vector{{-1, 1}}, vector{{1, 1}}};
     // these are now considered as weights in the interpolation between the four corners
     double weights[4] = {
-        dot(gradients[idx[0]], distance[0]), dot(gradients[idx[1]], distance[1]),
-        dot(gradients[idx[2]], distance[2]), dot(gradients[idx[3]], distance[3]),
+        dot(gradients[idx[0]], distance[0]),
+        dot(gradients[idx[1]], distance[1]),
+        dot(gradients[idx[2]], distance[2]),
+        dot(gradients[idx[3]], distance[3]),
     };
     // now do an interpolation between the 4 weights using the normalized point as the alpha
     double top = noise::interpolate(weights[0], weights[1], fade(uv.x));
@@ -104,17 +107,17 @@ double smooth(const point& pnt, const pad& map) {
     size_t x1 = static_cast<size_t>(base.x) % map.dimensions;
     size_t y1 = static_cast<size_t>(base.y) % map.dimensions;
 
-    //neighbor values
+    // neighbor values
     size_t x2 = (static_cast<size_t>(base.x) + map.dimensions - 1) % map.dimensions;
     size_t y2 = (static_cast<size_t>(base.y) + map.dimensions - 1) % map.dimensions;
 
     if constexpr (debug) {
-        printf("b={%lf,%lf} f={%lf,%lf} x1,y1={%zu,%zu} x2,y2={%zu,%zu}\n",
-            base.x, base.y, frat.x, frat.y, x1, y1, x2, y2);
+        printf("b={%lf,%lf} f={%lf,%lf} x1,y1={%zu,%zu} x2,y2={%zu,%zu}\n", base.x, base.y, frat.x, frat.y, x1, y1, x2,
+               y2);
         printf("noise: %lf, %lf, %lf, %lf\n", map.at(y1, x1), map.at(y1, x2), map.at(y2, x1), map.at(y2, x2));
     }
 
-    //smooth the noise with bilinear interpolation
+    // smooth the noise with bilinear interpolation
     double value = 0.0;
     value += frat.x * frat.y * map.at(y1, x1);
     value += (1 - frat.x) * frat.y * map.at(y1, x2);
@@ -126,10 +129,10 @@ double smooth(const point& pnt, const pad& map) {
 double turbulence(const point& pnt, double size, double scale, const pad& map) {
     double value = 0.0, initialSize = size;
     while (size >= 1.0) {
-        point pnt2(pnt); // copy
-        pnt2 *= 1.0/size;
+        point pnt2(pnt);  // copy
+        pnt2 *= 1.0 / size;
         if constexpr (debug) {
-            printf("pnt={%lf, %lf}, pnt2={%lf, %lf} scale=%lf\n", pnt.x, pnt.y, pnt2.x, pnt2.y, 1.0/size);
+            printf("pnt={%lf, %lf}, pnt2={%lf, %lf} scale=%lf\n", pnt.x, pnt.y, pnt2.x, pnt2.y, 1.0 / size);
         }
         value += smooth(pnt2, map) * size;
         size /= 2.0;
@@ -145,5 +148,4 @@ double turbulentsin(const point& pnt, double xs, double ys, double power, double
     return scale * fabs(sin(xyValue * M_PI));
 }
 
-
-} //namespace noise
+}  // namespace noise

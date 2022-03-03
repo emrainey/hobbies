@@ -1,17 +1,17 @@
 #include <gtest/gtest.h>
-#include <geometry/geometry.hpp>
+
 #include <basal/basal.hpp>
+#include <geometry/geometry.hpp>
+
 #include "geometry/gtest_helper.hpp"
 
 using namespace geometry;
 using namespace geometry::operators;
 
-
 TEST(IntersectionTest, Constructions) {
-
     point P{{4, 42, -9}};
     point R{{-1, -0.7, iso::pi}};
-    point Q{{-90, 4, 72.0/3}};
+    point Q{{-90, 4, 72.0 / 3}};
     R3::vector N{{3, 4, 5}};
 
     intersection i0;
@@ -45,12 +45,11 @@ TEST(IntersectionTest, Constructions) {
 }
 
 TEST(IntersectionTest, GeneralIntersections) {
-
     point pt1{{2, 3, 4}};
     point pt2{{2, 3, 5}};
     point pt3{{1, 1, 1}};
     R3::vector nn_z = -R3::basis::Z;
-    //print_this(nn_z);
+    // print_this(nn_z);
     plane xy(pt1, R3::basis::Z);
     plane xz(pt1, R3::basis::Y);
     plane yz(pt1, R3::basis::X);
@@ -77,9 +76,9 @@ TEST(IntersectionTest, GeneralIntersections) {
 
     intersection ilxyz = intersects(lx, yz2);
     ASSERT_TRUE(get_type(ilxyz) == IntersectionType::Point);
-    point lx_yz2 = lx.solve(1.0); // where it aught to intersect
-    //print_this(lx_yz2);
-    //print_this(ilxyz.pt);
+    point lx_yz2 = lx.solve(1.0);  // where it aught to intersect
+    // print_this(lx_yz2);
+    // print_this(ilxyz.pt);
     ASSERT_TRUE(basal::equals_zero(yz2.distance(lx_yz2)));
     ASSERT_TRUE(as_point(ilxyz) == lx_yz2);
     ASSERT_TRUE(as_point(ilxyz) == lx_yz2);
@@ -92,7 +91,6 @@ TEST(IntersectionTest, GeneralIntersections) {
 }
 
 TEST(IntersectionTest, PointDirectlyOnLine) {
-
     point P{{0, 4, 7}};
     R3::vector V{{4, -2, -28}};
     R3::line L(V, P);
@@ -100,7 +98,6 @@ TEST(IntersectionTest, PointDirectlyOnLine) {
 }
 
 TEST(IntersectionTest, SkewLines) {
-
     R3::line L1{{-1, 0, 0, 0, 0, 1}};
     R3::line L2{{1, 1, 0, 0, 0, 0}};
     intersection iL1L2 = intersects(L1, L2);
@@ -108,7 +105,6 @@ TEST(IntersectionTest, SkewLines) {
 }
 
 TEST(IntersectionTest, PlaneLine) {
-
     plane P1(2, 3, 4, 1);
     // 2x + 3y + 4z + 1 = 0
     R3::line L1{{-1, 1, 4, 0, 3, 5}};
@@ -122,11 +118,11 @@ TEST(IntersectionTest, PlaneLine) {
     point pl1 = as_point(ip1l1);
     // a negative value for t indicates the intersection is backwards
     // from the direction of the R3::line from it's constructor
-    point pl2 = L1.solve(-30.0/17.0);
+    point pl2 = L1.solve(-30.0 / 17.0);
     ASSERT_POINT_EQ(pl2, pl1);
     // find an intersection that should be in the plane
-    R3::vector U{{0,0,1}};
-    R3::vector J = R3::cross(U, P1.normal); // parallel to the plane
+    R3::vector U{{0, 0, 1}};
+    R3::vector J = R3::cross(U, P1.normal);  // parallel to the plane
     R3::line L2(J, L1.solve(0.0));
     // should not intersect at all
     intersection ip1l2 = intersects(P1, L2);
@@ -142,7 +138,7 @@ TEST(IntersectionTest, PlaneLine) {
 
     R3::line L4{{2, 0, 0, -1, 0, 0}};
     plane XZ(1, 0, 0, 0);
-    point O{{0,0,0}};
+    point O{{0, 0, 0}};
     intersection iL4XZ = intersects(XZ, L4);
     ASSERT_EQ(IntersectionType::Point, get_type(iL4XZ));
     ASSERT_POINT_EQ(O, as_point(iL4XZ));
@@ -164,7 +160,7 @@ TEST(IntersectionTest, PlaneLine) {
     ASSERT_EQ(IntersectionType::Point, get_type(iL7XY));
     ASSERT_POINT_EQ(xy0, as_point(iL6XY));
 
-    R3::line L8{{1, 0, 1, 0, 0 ,0}};
+    R3::line L8{{1, 0, 1, 0, 0, 0}};
     plane XY2(0, 0, -1, 7);
     intersection iL8XY2 = intersects(XY2, L8);
     ASSERT_EQ(IntersectionType::Point, get_type(iL8XY2));
@@ -199,7 +195,7 @@ TEST(IntersectionTest, LineLine) {
     ASSERT_TRUE(ai == a);
     ASSERT_TRUE(bi == b);
     intersection ab = intersects(a, b);
-    //print_this(ab);
+    // print_this(ab);
     ASSERT_TRUE(get_type(ab) == IntersectionType::Point);
     point c{{9, 23.0 / 2, 4}};
     ASSERT_POINT_EQ(c, as_point(ab));
@@ -239,7 +235,6 @@ TEST(IntersectionTest, LineLine) {
 }
 
 TEST(IntersectionTest, PlanePlane) {
-
     point p1{{3, 5, 7}};
     point p2{{4, 6, 2}};
     R3::vector n1{{1, 1, 1}};
@@ -249,8 +244,8 @@ TEST(IntersectionTest, PlanePlane) {
     intersection iP1P2 = intersects(P1, P2);
     ASSERT_TRUE(get_type(iP1P2) == IntersectionType::Line);
     R3::line p1p2{{5, -6, 1, 0, 15, 0}};
-    //print_this(p1p2);
-    //print_this(as_line(iP1P2));
+    // print_this(p1p2);
+    // print_this(as_line(iP1P2));
     ASSERT_TRUE(as_line(iP1P2) == p1p2);
     ASSERT_TRUE(P1.contains(p1p2.solve(0.0)));
     ASSERT_TRUE(P2.contains(p1p2.solve(0.0)));
@@ -287,8 +282,8 @@ TEST(IntersectionTest, SphereOffCenterNonOrigin) {
 }
 
 TEST(IntersectionTest, SphereCenter) {
-    point p1{ {15, 15, 15} };
-    R3::vector n{ {-1, -1, -1} };
+    point p1{{15, 15, 15}};
+    R3::vector n{{-1, -1, -1}};
     R3::sphere s1(5.0);
     R3::line l1(p1, n);
     // this should pass through the center
@@ -319,7 +314,7 @@ TEST(IntersectionTest, SphereCenter) {
 
 TEST(IntersectionTest, SphereNone) {
     R3::sphere s1(5.0);
-    R3::line l3(point{{72,42,99}},point{{73,42,99}});
+    R3::line l3(point{{72, 42, 99}}, point{{73, 42, 99}});
     // this should not intersect at all.
     intersection iss1l3 = intersects(s1, l3);
     ASSERT_EQ(IntersectionType::None, get_type(iss1l3));
@@ -327,7 +322,7 @@ TEST(IntersectionTest, SphereNone) {
 
 TEST(IntersectionTest, SphereInside) {
     R3::sphere s1(5.0);
-    R3::line l3(point{{1,1,1}},point{{2,2,1}});
+    R3::line l3(point{{1, 1, 1}}, point{{2, 2, 1}});
     // this will intersect with two points which both point away from the zero
     intersection iss1l3 = intersects(s1, l3);
     ASSERT_EQ(IntersectionType::Points, get_type(iss1l3));

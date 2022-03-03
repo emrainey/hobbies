@@ -1,13 +1,15 @@
 #pragma once
 
-#include "raytrace/lights/light.hpp"
 #include "raytrace/entity.hpp"
+#include "raytrace/lights/light.hpp"
 
 namespace raytrace {
 
 namespace lights {
 /** A point light with fall-off obeying the inverse square law */
-class speck : public light, public entity {
+class speck
+    : public light
+    , public entity {
 public:
     speck(const point& P, const raytrace::color& C, element_type intensity);
     speck(point&& P, const raytrace::color& C, element_type intensity);
@@ -23,9 +25,9 @@ public:
     void print(const char str[]) const override;
 };
 
-} // namespace lights
+}  // namespace lights
 
 /** Helper to print specks of light */
 std::ostream& operator<<(std::ostream& os, const lights::speck& l);
 
-} // namespace raytrace
+}  // namespace raytrace

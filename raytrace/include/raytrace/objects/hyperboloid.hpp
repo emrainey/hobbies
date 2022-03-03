@@ -10,5 +10,5 @@ public:
     hyperboloid(const point &center, element_type a, element_type b, element_type c);
     ~hyperboloid() = default;
 };
-}
-} // namespace raytrace
+}  // namespace objects
+}  // namespace raytrace

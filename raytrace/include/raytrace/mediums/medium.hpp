@@ -6,9 +6,9 @@
 
 #include "raytrace/color.hpp"
 #include "raytrace/image.hpp"
-#include "raytrace/types.hpp"
 #include "raytrace/mapping.hpp"
 #include "raytrace/mediums/functions.hpp"
+#include "raytrace/types.hpp"
 
 namespace raytrace {
 
@@ -24,14 +24,16 @@ public:
     /** The default destructor */
     virtual ~medium() = default;
 
-    /** Returns the overall ambient color, post-scaled. This is a stand-in for light in a scene the bounces around diffusely */
+    /** Returns the overall ambient color, post-scaled. This is a stand-in for light in a scene the bounces around
+     * diffusely */
     virtual color ambient(const raytrace::point& volumetric_point) const;
 
     /** Within reflection, given the uv point of the surface, returns a diffuse color */
     virtual color diffuse(const raytrace::point& volumetric_point) const;
 
     /** Within reflection, given the uv point of the surface, returns a specular color */
-    virtual color specular(const raytrace::point& volumetric_point, element_type scaling, const color& light_color) const;
+    virtual color specular(const raytrace::point& volumetric_point, element_type scaling,
+                           const color& light_color) const;
 
     /** Returns the overall tightness the specular highlight (K) */
     virtual element_type specular_tightness(const raytrace::point& volumetric_point) const;
@@ -58,13 +60,9 @@ public:
      * @param[out] reflected The scalar value of the reflectivity component of the surface.
      * @param[out] transmitted The scalar value of the transmitted component of the surface.
      */
-    virtual void radiosity(const raytrace::point& volumetric_point,
-                           element_type refractive_index,
-                           const iso::radians& incident_angle,
-                           const iso::radians& transmitted_angle,
-                           element_type& emitted,
-                           element_type& reflected,
-                           element_type& transmitted) const;
+    virtual void radiosity(const raytrace::point& volumetric_point, element_type refractive_index,
+                           const iso::radians& incident_angle, const iso::radians& transmitted_angle,
+                           element_type& emitted, element_type& reflected, element_type& transmitted) const;
 
     /**
      * Return the refractive index of the medium at a point
@@ -91,7 +89,8 @@ protected:
     color m_ambient;
     /** The color of the diffuse light reflected from the material */
     color m_diffuse;
-    /** The tightness of the specular highlight (lower is larger, higher is smaller) on a power scale with regards to specular highlights on the phong model */
+    /** The tightness of the specular highlight (lower is larger, higher is smaller) on a power scale with regards to
+     * specular highlights on the phong model */
     element_type m_tightness;
     /**
      * The smoothness of the surface, i.e. how much of a coherent mirror does it form?
@@ -99,30 +98,31 @@ protected:
      * 1.0 means it's a perfect mirror
      */
     element_type m_smoothness;
-    /** The proportion of incoming light which is reflected versus transmitted 1 = (R + T). If 0, then all is reflected, if 1 then all is transmitted */
+    /** The proportion of incoming light which is reflected versus transmitted 1 = (R + T). If 0, then all is reflected,
+     * if 1 then all is transmitted */
     element_type m_transmissivity;
     /** This material's refractive index */
     element_type m_refractive_index;
     /** Electrical Permissivity */
-    //element_type m_permissivity;
+    // element_type m_permissivity;
     /** Magnetic Permeability */
-    //element_type m_permeability;
+    // element_type m_permeability;
     mapping::reducer m_reducing_map;
 };
 
 /** This is a namespace of constants to use on mediums for smoothness to get a sense of what to expect */
 namespace smoothness {
-    /** This medium will not reflect *any* light and will only have diffuse and ambient components */
-    constexpr element_type none = 0.0;
-    /** There's barely any reflections */
-    constexpr element_type barely = 0.0625;
-    /** The medium will have a small bit of reflections in it */
-    constexpr element_type small = 0.2;
-    /** The medium will be very reflective like a polished metal */
-    constexpr element_type polished = 0.7;
-    /** The medium will *only* reflect light and will not have any ambient or diffuse components */
-    constexpr element_type mirror = 1.0;
-}
+/** This medium will not reflect *any* light and will only have diffuse and ambient components */
+constexpr element_type none = 0.0;
+/** There's barely any reflections */
+constexpr element_type barely = 0.0625;
+/** The medium will have a small bit of reflections in it */
+constexpr element_type small = 0.2;
+/** The medium will be very reflective like a polished metal */
+constexpr element_type polished = 0.7;
+/** The medium will *only* reflect light and will not have any ambient or diffuse components */
+constexpr element_type mirror = 1.0;
+}  // namespace smoothness
 
 /**
  * A namespace of constants to describe the scale of ambient emissions from a medium
@@ -130,19 +130,19 @@ namespace smoothness {
  * have any light from the scene but we need to see details.
  */
 namespace ambient {
-    constexpr element_type none = 0.0;
-    constexpr element_type dim = 0.1;
-    constexpr element_type glowy = 0.4;
-}
+constexpr element_type none = 0.0;
+constexpr element_type dim = 0.1;
+constexpr element_type glowy = 0.4;
+}  // namespace ambient
 
 /**
  * A namespace of constants to describe the "roughness" of the surface in regards to specular highlights.
  * Lower values result in larger spots. Higher values result in tighter spots.
  */
 namespace roughness {
-    constexpr element_type tight = 100.0;
-    constexpr element_type loose = 20.0;
-}
+constexpr element_type tight = 100.0;
+constexpr element_type loose = 20.0;
+}  // namespace roughness
 
-} // namespace mediums
-} // namespace raytrace
+}  // namespace mediums
+}  // namespace raytrace

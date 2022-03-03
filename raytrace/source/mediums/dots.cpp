@@ -4,12 +4,7 @@ namespace raytrace {
 
 namespace mediums {
 
-dots::dots(element_type r, color dot, color background)
-    : opaque()
-    , m_repeat(r)
-    , m_dot(dot)
-    , m_background(background)
-    {
+dots::dots(element_type r, color dot, color background) : opaque(), m_repeat(r), m_dot(dot), m_background(background) {
     m_ambient = colors::white;
     m_ambient_scale = mediums::ambient::dim;
 }
@@ -26,6 +21,6 @@ color dots::diffuse(const raytrace::point& volumetric_point) const {
     }
 }
 
-} // namespace mediums
+}  // namespace mediums
 
-} // namespace raytrace
+}  // namespace raytrace

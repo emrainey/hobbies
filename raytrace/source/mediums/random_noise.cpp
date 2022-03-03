@@ -1,14 +1,13 @@
 
-#include <noise/noise.hpp>
 #include "raytrace/mediums/random_noise.hpp"
+
+#include <noise/noise.hpp>
 
 namespace raytrace {
 
 namespace mediums {
 
-random_noise::random_noise()
-    : opaque()
-    {
+random_noise::random_noise() : opaque() {
     m_ambient = colors::white;
     m_ambient_scale = mediums::ambient::dim;
 }
@@ -19,6 +18,6 @@ color random_noise::diffuse(const raytrace::point& volumetric_point) const {
     return functions::pseudo_random_noise(p, pal);
 }
 
-} // namespace mediums
+}  // namespace mediums
 
-} // namespace raytrace
+}  // namespace raytrace

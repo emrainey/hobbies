@@ -7,6 +7,7 @@
  */
 
 #include <raytrace/raytrace.hpp>
+
 #include "world.hpp"
 
 using namespace raytrace;
@@ -14,34 +15,29 @@ using namespace raytrace;
 using mat = const mediums::metal;
 
 const raytrace::mediums::metal* my_metals[] = {
-    &raytrace::mediums::metals::aluminum,
-    &raytrace::mediums::metals::brass,
-    &raytrace::mediums::metals::bronze,
-    &raytrace::mediums::metals::chrome,
-    &raytrace::mediums::metals::copper,
-    &raytrace::mediums::metals::gold,
-    &raytrace::mediums::metals::silver,
-    &raytrace::mediums::metals::stainless,
-    &raytrace::mediums::metals::steel,
-    &raytrace::mediums::metals::tin
-};
+    &raytrace::mediums::metals::aluminum, &raytrace::mediums::metals::brass,     &raytrace::mediums::metals::bronze,
+    &raytrace::mediums::metals::chrome,   &raytrace::mediums::metals::copper,    &raytrace::mediums::metals::gold,
+    &raytrace::mediums::metals::silver,   &raytrace::mediums::metals::stainless, &raytrace::mediums::metals::steel,
+    &raytrace::mediums::metals::tin};
 
-void subspheres(std::vector<raytrace::objects::sphere *>& spheres, const raytrace::point& center, double R, double sR, size_t limit) {
+void subspheres(std::vector<raytrace::objects::sphere*>& spheres, const raytrace::point& center, double R, double sR,
+                size_t limit) {
     for (size_t s = 0; s < limit; s++) {
         R3::point pnt = mapping::golden_ratio_mapper(s, limit);
         R3::vector dir = pnt - R3::origin;
-        pnt = pnt + (dir * R); // move the point out from the origin by R
+        pnt = pnt + (dir * R);  // move the point out from the origin by R
         spheres.push_back(new raytrace::objects::sphere(pnt, sR));
     }
 }
 
-void materials(std::vector<mat *>& mats, size_t limits) {
+void materials(std::vector<mat*>& mats, size_t limits) {
     for (size_t m = 0; m < limits; m++) {
         // various metals?
         int r = rand() % dimof(my_metals);
         mats.push_back(my_metals[r]);
         // plain (plastic?)
-        //mats.push_back(new plain(colors::white, mediums::ambient::none, color::random(), mediums::smoothness::barely, roughness::tight));
+        // mats.push_back(new plain(colors::white, mediums::ambient::none, color::random(), mediums::smoothness::barely,
+        // roughness::tight));
     }
 }
 
@@ -55,8 +51,7 @@ public:
         , spheres()
         , mats()
         , sunlight(raytrace::vector{-2, 2, -1}, colors::white, 1E11)
-        , specks()
-    {
+        , specks() {
         raytrace::point center = look_at;
         spheres.push_back(new raytrace::objects::sphere(center, 4.5));
         subspheres(spheres, center, 6, 1.2, number_of_spheres);
@@ -64,10 +59,10 @@ public:
         for (size_t s = 0; s < number_of_spheres; s++) {
             spheres[s]->material(mats[s]);
         }
-        //specks.push_back(new lights::speck(raytrace::point(80, 120, 80), colors::white, 1E11));
-        //specks.push_back(new lights::speck(raytrace::point(80, 40, 80), colors::white, 1E11));
-        //specks.push_back(new lights::speck(raytrace::point(40, 80, 80), colors::white, 1E11));
-        //specks.push_back(new lights::speck(raytrace::point(120, 80, 80), colors::white, 1E11));
+        // specks.push_back(new lights::speck(raytrace::point(80, 120, 80), colors::white, 1E11));
+        // specks.push_back(new lights::speck(raytrace::point(80, 40, 80), colors::white, 1E11));
+        // specks.push_back(new lights::speck(raytrace::point(40, 80, 80), colors::white, 1E11));
+        // specks.push_back(new lights::speck(raytrace::point(120, 80, 80), colors::white, 1E11));
     }
 
     ~Spheres2World() {
@@ -119,10 +114,10 @@ protected:
     raytrace::point look_from;
     raytrace::point look_at;
     size_t number_of_spheres;
-    std::vector<raytrace::objects::sphere *> spheres;
-    std::vector<mat *> mats;
+    std::vector<raytrace::objects::sphere*> spheres;
+    std::vector<mat*> mats;
     lights::beam sunlight;
-    std::vector<raytrace::lights::speck *>specks;
+    std::vector<raytrace::lights::speck*> specks;
 };
 
 // declare a single instance and return the reference to it
@@ -130,4 +125,3 @@ world* get_world() {
     static Spheres2World my_world;
     return &my_world;
 }
-

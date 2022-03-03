@@ -1,21 +1,20 @@
 
-#include <vector>
 #include <gtest/gtest.h>
+
 #include <basal/basal.hpp>
-
 #include <raytrace/raytrace.hpp>
+#include <vector>
 
-#include "linalg/gtest_helper.hpp"
 #include "geometry/gtest_helper.hpp"
+#include "linalg/gtest_helper.hpp"
 #include "raytrace/gtest_helper.hpp"
-
 
 TEST(RingTest, RayIntersection) {
     using namespace raytrace;
     using namespace raytrace::objects;
 
-    raytrace::point C(0,0,0);
-    vector N{{0,0,1}};
+    raytrace::point C(0, 0, 0);
+    vector N{{0, 0, 1}};
     ring R(C, N, 0.1, 10.0);
 
     ray r0(raytrace::point(0.5, 0.5, 1), vector{{0, 0, -1}});

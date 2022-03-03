@@ -1,13 +1,14 @@
 #include <gtest/gtest.h>
+
 #include <raytrace/raytrace.hpp>
 
-#include "linalg/gtest_helper.hpp"
 #include "geometry/gtest_helper.hpp"
+#include "linalg/gtest_helper.hpp"
 #include "raytrace/gtest_helper.hpp"
 
 using namespace raytrace;
 using namespace raytrace::objects;
-//using namespace raytrace::lights;
+// using namespace raytrace::lights;
 using namespace raytrace::colors;
 using namespace raytrace::operators;
 
@@ -25,21 +26,20 @@ public:
         , polka(13, colors::cyan, colors::blue)
         //, beam_of_light(R3::point(20, 0, 21), colors::white, 1E3)
         , beam_of_light(raytrace::vector{-20, 0, -21}, colors::white, 1E3)
-        , inner_light(raytrace::point(0,0,10), colors::white, 1E11)
+        , inner_light(raytrace::point(0, 0, 10), colors::white, 1E11)
         , look_at(0, 0, 10)
         , plane0(R3::point(0, 0, 0), R3::basis::Z, 1.0)
-        , scenes()
-        {}
+        , scenes() {
+    }
 
-    ~RenderTest() {}
+    ~RenderTest() {
+    }
 
     void SetUp() {
         element_type r = 40;
-        raytrace::point look_froms[] = {
-            raytrace::point( r*cos(0), r*sin(0), 40),
-            raytrace::point( r*cos(iso::pi/4), r*sin(iso::pi/4), 40),
-            raytrace::point( r*cos(iso::pi/2), r*sin(iso::pi/2), 40)
-        };
+        raytrace::point look_froms[] = {raytrace::point(r * cos(0), r * sin(0), 40),
+                                        raytrace::point(r * cos(iso::pi / 4), r * sin(iso::pi / 4), 40),
+                                        raytrace::point(r * cos(iso::pi / 2), r * sin(iso::pi / 2), 40)};
         plane0.material(&plastic);
         for (size_t i = 0; i < number_of_scenes; i++) {
             scenes.push_back(new scene(image_height, image_width, field_of_view));
@@ -78,7 +78,7 @@ public:
 
         for (size_t i = 0; i < number_of_scenes; i++) {
             char buffer[len];
-            snprintf(buffer,len,"rendertest_%s_%zu.ppm", name, i);
+            snprintf(buffer, len, "rendertest_%s_%zu.ppm", name, i);
             scenes[i]->print(buffer);
             scenes[i]->render(buffer, 1, 2);
         }
@@ -99,7 +99,7 @@ protected:
     lights::speck inner_light;
     raytrace::point look_at;
     raytrace::objects::plane plane0;
-    std::vector<scene*> scenes;
+    std::vector<scene *> scenes;
 };
 
 TEST_F(RenderTest, DISABLED_Sphere) {
@@ -123,8 +123,8 @@ TEST_F(RenderTest, DISABLED_Cube) {
     iso::degrees ry(0);
     iso::degrees rz(45);
     shape.rotation(rx, ry, rz);
-    //shape.material(&checkers);
-    //shape.material(&rubber);
+    // shape.material(&checkers);
+    // shape.material(&rubber);
     shape.material(&polka);
     add_object(&shape);
     render_all("cuboid");
@@ -135,7 +135,7 @@ TEST_F(RenderTest, DISABLED_Cylinder) {
     R3::point c1(0, 0, 20);
     raytrace::objects::cylinder shape(c0, 10, 10);
     raytrace::objects::ring cap(c1, R3::basis::Z, 0, 10);
-    //shape.material(&checkers);
+    // shape.material(&checkers);
     shape.material(&rubber);
     // cap.material(&checkers);
     cap.material(&rubber);
@@ -146,21 +146,21 @@ TEST_F(RenderTest, DISABLED_Cylinder) {
 
 TEST_F(RenderTest, DISABLED_Cone) {
     raytrace::objects::cone shape(R3::origin, 10, 20);
-    //shape.material(&checkers);
+    // shape.material(&checkers);
     shape.material(&rubber);
     add_object(&shape);
     render_all("cone");
 }
 
 TEST_F(RenderTest, DISABLED_Ring) {
-    R3::vector up{{1,1,3}};
+    R3::vector up{{1, 1, 3}};
     raytrace::objects::ring shape1(look_at, up, 5, 10);
     raytrace::objects::ring shape2(look_at, -up, 5, 10);
     checkers2.mapper(std::bind(&raytrace::objects::ring::map, &shape1, std::placeholders::_1));
     shape1.material(&checkers2);
     shape2.material(&checkers2);
-    //shape1.material(&rubber);
-    //shape2.material(&rubber);
+    // shape1.material(&rubber);
+    // shape2.material(&rubber);
     add_object(&shape1);
     add_object(&shape2);
     render_all("ring");
@@ -168,7 +168,7 @@ TEST_F(RenderTest, DISABLED_Ring) {
 
 TEST_F(RenderTest, DISABLED_Triangle) {
     R3::point A(10, 0, 10);
-    R3::point B(0,  0, 13);
+    R3::point B(0, 0, 13);
     R3::point C(0, 10, 10);
     raytrace::objects::triangle shape1(A, B, C);
     raytrace::objects::triangle shape2(C, B, A);
@@ -181,7 +181,7 @@ TEST_F(RenderTest, DISABLED_Triangle) {
 
 TEST_F(RenderTest, DISABLED_Square) {
     square shape1(look_at, R3::basis::Z, 16, 16);
-    square shape2(look_at,-R3::basis::Z, 16, 16);
+    square shape2(look_at, -R3::basis::Z, 16, 16);
     checkers2.mapper(std::bind(&raytrace::objects::square::map, &shape1, std::placeholders::_1));
     shape1.material(&checkers2);
     shape2.material(&checkers2);
@@ -260,7 +260,7 @@ TEST_F(RenderTest, DISABLED_AdditiveOverlap) {
     raytrace::objects::sphere s1(R3::point(-5, 0, 10), 10);
     raytrace::objects::overlap shape(s1, s0, overlap::type::additive);
     shape.material(&plastic);
-    shape.position(raytrace::point(7,7,7)); // the benifit is that the objects are grouped now...
+    shape.position(raytrace::point(7, 7, 7));  // the benifit is that the objects are grouped now...
     add_object(&shape);
     render_all("additive");
 }
@@ -300,7 +300,7 @@ TEST_F(RenderTest, DISABLED_SphereBunchOfSpecks) {
     shape.material(&checkers2);
     add_object(&shape);
     // create a 20x20 grid of specks above the sphere
-    std::vector<raytrace::lights::speck*> specks;
+    std::vector<raytrace::lights::speck *> specks;
     for (size_t i = 0; i < 20; i++) {
         for (size_t j = 0; j < 20; j++) {
             raytrace::point pnt((i * 20.0) - 200.0, (j * 20.0) - 200.0, 2000.0);

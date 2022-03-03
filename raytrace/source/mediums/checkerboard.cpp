@@ -4,11 +4,7 @@ namespace raytrace {
 
 namespace mediums {
 
-checkerboard::checkerboard(element_type repeat, color dark, color light)
-    : opaque()
-    , m_repeat(repeat)
-    , m_pal(2)
-    {
+checkerboard::checkerboard(element_type repeat, color dark, color light) : opaque(), m_repeat(repeat), m_pal(2) {
     m_ambient = colors::white;
     m_ambient_scale = mediums::ambient::none;
     m_smoothness = mediums::smoothness::barely;
@@ -22,29 +18,21 @@ checkerboard::checkerboard(element_type repeat, color dark, color light)
     m_pal[7] = light;
 }
 
-checkerboard::checkerboard(element_type repeat,
-                           color q1_dark, color q1_light,
-                           color q2_dark, color q2_light,
-                           color q3_dark, color q3_light,
-                           color q4_dark, color q4_light)
-    : opaque()
-    , m_repeat(repeat)
-    , m_pal(8)
-    {
-        m_ambient = colors::white;
-        m_ambient_scale = mediums::ambient::none;
-        m_smoothness = mediums::smoothness::barely;
-        m_pal[0] = q1_dark;
-        m_pal[1] = q1_light;
-        m_pal[2] = q2_dark;
-        m_pal[3] = q2_light;
-        m_pal[4] = q3_dark;
-        m_pal[5] = q3_light;
-        m_pal[6] = q4_dark;
-        m_pal[7] = q4_light;
-
-    }
-
+checkerboard::checkerboard(element_type repeat, color q1_dark, color q1_light, color q2_dark, color q2_light,
+                           color q3_dark, color q3_light, color q4_dark, color q4_light)
+    : opaque(), m_repeat(repeat), m_pal(8) {
+    m_ambient = colors::white;
+    m_ambient_scale = mediums::ambient::none;
+    m_smoothness = mediums::smoothness::barely;
+    m_pal[0] = q1_dark;
+    m_pal[1] = q1_light;
+    m_pal[2] = q2_dark;
+    m_pal[3] = q2_light;
+    m_pal[4] = q3_dark;
+    m_pal[5] = q3_light;
+    m_pal[6] = q4_dark;
+    m_pal[7] = q4_light;
+}
 
 color checkerboard::diffuse(const raytrace::point& volumetric_point) const {
     if (m_reducing_map) {
@@ -56,6 +44,6 @@ color checkerboard::diffuse(const raytrace::point& volumetric_point) const {
     }
 }
 
-} // namespace mediums
+}  // namespace mediums
 
-} // namespace raytrace
+}  // namespace raytrace

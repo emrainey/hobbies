@@ -1,8 +1,8 @@
 
-#include <algorithm>
-#include <linalg/utils.hpp>
 #include "neuralnet/network.hpp"
 
+#include <algorithm>
+#include <linalg/utils.hpp>
 
 namespace nn {
 
@@ -12,7 +12,8 @@ std::vector<size_t> convert(std::initializer_list<int> list) {
     return v;
 }
 
-network::network() : layers() {}
+network::network() : layers() {
+}
 
 network::network(std::initializer_list<size_t> list) : layers() {
     std::vector<size_t> v = list;
@@ -25,15 +26,15 @@ network::network(std::vector<size_t> list) : layers() {
 
 void network::create(std::vector<size_t> list) {
     for (size_t i = 0; i < list.size(); i++) {
-        if (i == 0) { // first element
+        if (i == 0) {  // first element
             printf("Creating input of %zu nodes\n", list[i]);
             layers.push_back(new input(list[i]));
-        } else if (i == (list.size() - 1)) { // last element
+        } else if (i == (list.size() - 1)) {  // last element
             printf("Creating output of %zu nodes\n", list[i]);
-            layers.push_back(new output(list[i-1], list[i]));
+            layers.push_back(new output(list[i - 1], list[i]));
         } else {
             printf("Creating hidden of %zu nodes\n", list[i]);
-            layers.push_back(new hidden(list[i-1], list[i]));
+            layers.push_back(new hidden(list[i - 1], list[i]));
         }
     }
 }
@@ -41,13 +42,13 @@ void network::create(std::vector<size_t> list) {
 network::~network() {
     for (auto& ptr : layers) {
         if (ptr->isa(layer::type::input)) {
-            input *tmp = dynamic_cast<input*>(ptr);
+            input* tmp = dynamic_cast<input*>(ptr);
             delete tmp;
         } else if (ptr->isa(layer::type::hidden)) {
-            hidden *tmp = dynamic_cast<hidden*>(ptr);
+            hidden* tmp = dynamic_cast<hidden*>(ptr);
             delete tmp;
         } else if (ptr->isa(layer::type::output)) {
-            output *tmp = dynamic_cast<output*>(ptr);
+            output* tmp = dynamic_cast<output*>(ptr);
             delete tmp;
         }
     }
@@ -57,18 +58,18 @@ void network::forward() {
     int index = -1;
     for_each([&](layer& _layer) {
         if (_layer.isa(layer::type::input)) {
-            //printf("i");
+            // printf("i");
             _layer.forward();
         } else if (_layer.isa(layer::type::hidden)) {
-            //printf("h");
+            // printf("h");
             _layer.forward(get(index));
         } else if (_layer.isa(layer::type::output)) {
-            //printf("o");
+            // printf("o");
             _layer.forward(get(index));
         }
         index++;
     });
-    //printf(">");
+    // printf(">");
 }
 
 void network::backward(double alpha, double gamma) {
@@ -78,9 +79,9 @@ void network::backward(double alpha, double gamma) {
         if (_layer.isa(layer::type::input)) {
             _layer.backward();
         } else if (_layer.isa(layer::type::hidden)) {
-            _layer.backward(get(index-1), alpha, gamma);
+            _layer.backward(get(index - 1), alpha, gamma);
         } else if (_layer.isa(layer::type::output)) {
-            _layer.backward(get(index-1), alpha, gamma);
+            _layer.backward(get(index - 1), alpha, gamma);
         }
     }
 }
@@ -90,7 +91,7 @@ network& network::operator<<(layer& lay) {
     return (*this);
 }
 
-network& network::operator<<(layer&& lay) { // r-value or move
+network& network::operator<<(layer&& lay) {  // r-value or move
     layers.push_back(&lay);
     return (*this);
 }
@@ -136,7 +137,6 @@ void network::reset(void) {
     });
 }
 
-
 static cv::Scalar black(0);
 
 static void print(cv::Mat& img, cv::Point& pt, const char fmt[], ...) {
@@ -151,16 +151,13 @@ static void print(cv::Mat& img, cv::Point& pt, const char fmt[], ...) {
     int fontFace = cv::FONT_HERSHEY_SCRIPT_SIMPLEX;
     std::string str(buffer);
     cv::Size sz = cv::getTextSize(str, fontFace, scl, thickness, &baseline);
-    baseline += thickness; // why?
-    cv::Point textOrg((img.cols - sz.width)/2,
-                      (img.rows + sz.height)/2);
+    baseline += thickness;  // why?
+    cv::Point textOrg((img.cols - sz.width) / 2, (img.rows + sz.height) / 2);
     cv::putText(img, str, pt, fontFace, scl, black, thickness, 8, false);
 }
 
 static cv::Size compute_complete_dimensions(std::vector<std::vector<cv::Mat>>& images,
-                                        std::vector<std::vector<cv::Rect>>& rects,
-                                        int min_height,
-                                        int border) {
+                                            std::vector<std::vector<cv::Rect>>& rects, int min_height, int border) {
     int ix = 0;
     int width = 0;
     int height = min_height - 2 * border;
@@ -190,22 +187,20 @@ static cv::Size compute_complete_dimensions(std::vector<std::vector<cv::Mat>>& i
                 rects[lidx].push_back(cv::Rect(ix, border, scale_factor * img.cols, scale_factor * img.rows));
             } else {
                 // just the normal sizes
-                rects[lidx].push_back(cv::Rect(ix, hy - images[lidx][idx].rows/2,
-                                      images[lidx][idx].cols,
-                                      images[lidx][idx].rows));
+                rects[lidx].push_back(
+                    cv::Rect(ix, hy - images[lidx][idx].rows / 2, images[lidx][idx].cols, images[lidx][idx].rows));
             }
-            //std::cout << "Rect[" << lidx << "][" << idx << "]=" << rects[lidx][idx] << std::endl;
-            width += rects[lidx][idx].width + 2*border;
+            // std::cout << "Rect[" << lidx << "][" << idx << "]=" << rects[lidx][idx] << std::endl;
+            width += rects[lidx][idx].width + 2 * border;
             ix += rects[lidx][idx].width + border;
         }
     }
     cv::Size sz(width, height + 2 * border);
     // now verify that all rectangles fit in the image.
-    cv::Rect rect(cv::Point(0,0), sz);
+    cv::Rect rect(cv::Point(0, 0), sz);
     for (size_t lidx = 0; lidx < images.size(); lidx++) {
         for (size_t idx = 0; idx < images[lidx].size(); idx++) {
-            if (not rect.contains(rects[lidx][idx].tl()) or
-                not rect.contains(rects[lidx][idx].br())) {
+            if (not rect.contains(rects[lidx][idx].tl()) or not rect.contains(rects[lidx][idx].br())) {
                 printf("ERROR! Rect[%zu][%zu] is not contained!\n", lidx, idx);
             }
         }
@@ -217,16 +212,16 @@ static void jetImage() {
     static bool showJetImage = false;
     if (showJetImage) return;
     showJetImage = true;
-    double high  = 1.5;
+    double high = 1.5;
     double low = -high;
     int width = (2.0 * high) * 100;
     printf("Jet Image is %d across\n", width);
     linalg::matrix values(1, width);
     values.for_each([&](size_t y, size_t x, double& v) {
         y |= 0;
-        v = ((double)x / width); // 0.0 to 1.0
-        v *= (2.0 * high); // 0.0 to 3.0
-        v += low; // -1.5 to 1.5
+        v = ((double)x / width);  // 0.0 to 1.0
+        v *= (2.0 * high);        // 0.0 to 3.0
+        v += low;                 // -1.5 to 1.5
         // should go from lower to high
     });
     cv::Mat bar = linalg::convert(values, CV_8UC3);
@@ -235,7 +230,7 @@ static void jetImage() {
     cv::Mat scaled(200, width * 3, CV_8UC3);
     cv::Point origin;
     cv::Rect rect(origin, tophalf);
-    scaled = cv::Scalar(255,255,255);
+    scaled = cv::Scalar(255, 255, 255);
     cv::resize(bar, scaled(rect), rect.size(), 0.0, 0.0, cv::INTER_NEAREST);
     print(scaled, btmRow, "Jet Image Scale, %lf to %lf", low, high);
     cv::imshow("Color Scale", scaled);
@@ -246,8 +241,8 @@ void network::visualize(std::chrono::milliseconds delay) {
     const char windowName[] = "Network";
     if (get(0).values.rows > 16) {
         std::vector<std::vector<std::string>> names(layers.size());
-        std::vector<std::vector<cv::Rect>> rects(layers.size()); // the desired, not actual rectangles.
-        std::vector<std::vector<cv::Mat>> images(layers.size()); // the array of arrays of images.
+        std::vector<std::vector<cv::Rect>> rects(layers.size());  // the desired, not actual rectangles.
+        std::vector<std::vector<cv::Mat>> images(layers.size());  // the array of arrays of images.
         for (size_t lidx = 0; lidx < layers.size(); lidx++) {
             if (layers[lidx]->isa(layer::type::input)) {
                 nn::input& in = as_input(lidx);
@@ -281,14 +276,14 @@ void network::visualize(std::chrono::milliseconds delay) {
         cv::Size sz = compute_complete_dimensions(images, rects, min_height, border);
         // size_t width = sz.width;
         size_t height = sz.height;
-        //std::cout << windowName << "=" << sz << std::endl;
+        // std::cout << windowName << "=" << sz << std::endl;
         cv::Mat img(sz, CV_8UC3);
         // fill with white.
-        img = cv::Scalar(255,255,255);
+        img = cv::Scalar(255, 255, 255);
         for (size_t lidx = 0, ix = 0; lidx < images.size(); lidx++) {
             for (size_t idx = 0; idx < images[lidx].size(); idx++) {
                 ix += border;
-                cv::Point pt(ix, border/2);
+                cv::Point pt(ix, border / 2);
                 print(img, pt, "%s", names[lidx][idx].c_str());
                 cv::Size _sz = rects[lidx][idx].size();
                 cv::resize(images[lidx][idx], img(rects[lidx][idx]), _sz, 0, 0, cv::INTER_NEAREST);
@@ -296,7 +291,7 @@ void network::visualize(std::chrono::milliseconds delay) {
             }
             // separator
             cv::Point top(ix, 0), btm(ix, height - 1);
-            cv::line(img, top, btm, cv::Scalar(0,0,0), 1, 8, 0);
+            cv::line(img, top, btm, cv::Scalar(0, 0, 0), 1, 8, 0);
         }
         cv::imshow(windowName, img);
     } else {
@@ -304,27 +299,25 @@ void network::visualize(std::chrono::milliseconds delay) {
         size_t scaling = 270;
         size_t width = 2 * scaling * layers.size();
         size_t height = 0;
-        for_each([&](layer& _layer) {
-            height = (height < _layer.values.rows ? _layer.values.rows : height);
-        });
+        for_each([&](layer& _layer) { height = (height < _layer.values.rows ? _layer.values.rows : height); });
         height *= scaling;
         cv::Mat img(height, width, CV_8UC1);
-        img = 255; // white
+        img = 255;  // white
         // organized as layers (outer) then columns node_ptr[l][n]
-        std::vector<std::vector<cv::Point>> node_pts(layers.size()); // start with # layers
+        std::vector<std::vector<cv::Point>> node_pts(layers.size());  // start with # layers
         size_t x = 0, y = 0;
         for (size_t l = 0; l < layers.size(); l++) {
-            x = 2*l*scaling + scaling/2;
+            x = 2 * l * scaling + scaling / 2;
             for (size_t n = 0; n < layers[l]->values.rows; n++) {
-                y = n*scaling + scaling/2;
-                cv::Point pt(x,y);
+                y = n * scaling + scaling / 2;
+                cv::Point pt(x, y);
                 node_pts[l].push_back(pt);
-                cv::circle(img, pt, scaling/3, black, 1, 8, 0);
+                cv::circle(img, pt, scaling / 3, black, 1, 8, 0);
                 print(img, pt, "v=%0.3lf", layers[l]->values[n][0]);
                 if (layers[l]->layer_type != layer::type::input) {
-                    cv::Point b0 = pt + cv::Point(0, scaling/3);
-                    cv::Point B0 = pt + cv::Point(0, scaling/6);
-                    cv::Point z0 = pt - cv::Point(0, scaling/6);
+                    cv::Point b0 = pt + cv::Point(0, scaling / 3);
+                    cv::Point B0 = pt + cv::Point(0, scaling / 6);
+                    cv::Point z0 = pt - cv::Point(0, scaling / 6);
                     nn::inner& in = as_inner(l);
                     print(img, b0, "b=%0.3lf", in.biases[n][0]);
                     print(img, B0, "B=%0.3lf", in.beta[n][0]);
@@ -334,11 +327,11 @@ void network::visualize(std::chrono::milliseconds delay) {
         }
         for (size_t l = 1; l < node_pts.size(); l++) {
             for (size_t n = 0; n < node_pts[l].size(); n++) {
-                for (size_t n_1 = 0; n_1 < node_pts[l-1].size(); n_1++) {
+                for (size_t n_1 = 0; n_1 < node_pts[l - 1].size(); n_1++) {
                     cv::Point a = node_pts[l][n];
-                    cv::Point b = node_pts[l-1][n_1];
+                    cv::Point b = node_pts[l - 1][n_1];
                     cv::line(img, a, b, black, 1, 8, 0);
-                    cv::Point hf = a - (a - b)/4;
+                    cv::Point hf = a - (a - b) / 4;
                     cv::Point dw = hf + cv::Point(0, 20);
                     nn::inner& in = as_inner(l);
                     print(img, hf, "W=%0.3lf", in.weights[n][n_1]);
@@ -346,7 +339,7 @@ void network::visualize(std::chrono::milliseconds delay) {
                 }
             }
         }
-        nn::output& out = as_output(node_pts.size()-1);
+        nn::output& out = as_output(node_pts.size() - 1);
         cv::Point br(width - scaling, height - 20);
         print(img, br, "RMS=%07lf", out.rms_value);
         cv::imshow(windowName, img);
@@ -382,4 +375,4 @@ inner& network::as_inner(size_t i) noexcept(false) {
     return dynamic_cast<inner&>(get(i));
 }
 
-} // namespace nn
+}  // namespace nn

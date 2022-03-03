@@ -1,16 +1,18 @@
 
 #include <gtest/gtest.h>
-#include <linalg/linalg.hpp>
+
 #include <basal/basal.hpp>
+#include <linalg/linalg.hpp>
 #include <vector>
+
 #include "linalg/gtest_helper.hpp"
 
 TEST(MatrixTest, NormalConstructions) {
     using namespace linalg;
-    matrix m0(2,2);
-    matrix m1(3,3);
-    matrix m2(4,4);
-    matrix m3(5,5);
+    matrix m0(2, 2);
+    matrix m1(3, 3);
+    matrix m2(4, 4);
+    matrix m3(5, 5);
 }
 
 TEST(MatrixTest, InvalidConstructors) {
@@ -21,7 +23,7 @@ TEST(MatrixTest, InvalidConstructors) {
 
 TEST(MatrixTest, ListInitializer) {
     using namespace linalg;
-    matrix m{{ {1,2}, {3,4} }};
+    matrix m{{{1, 2}, {3, 4}}};
     ASSERT_EQ(2, m.cols);
     ASSERT_EQ(2, m.rows);
     ASSERT_DOUBLE_EQ(1, m[0][0]);
@@ -32,7 +34,7 @@ TEST(MatrixTest, ListInitializer) {
 
 TEST(MatrixTest, ArrayConstructor) {
     using namespace linalg;
-    double a1[] = {1,2,3,4};
+    double a1[] = {1, 2, 3, 4};
     matrix m2a(2, 2, a1);
     ASSERT_EQ(2, m2a.cols);
     ASSERT_EQ(2, m2a.rows);
@@ -44,7 +46,7 @@ TEST(MatrixTest, ArrayConstructor) {
     // only the row accessor has a throw, the other is just a double[]
     ASSERT_THROW(m2a[7][1] += 0.0, basal::exception);
 
-    double a2[2][2] = {{5,6}, {7,8}};
+    double a2[2][2] = {{5, 6}, {7, 8}};
     matrix m2(a2);
     ASSERT_EQ(2, m2.cols);
     ASSERT_EQ(2, m2.rows);
@@ -53,7 +55,7 @@ TEST(MatrixTest, ArrayConstructor) {
     ASSERT_DOUBLE_EQ(7, m2[1][0]);
     ASSERT_DOUBLE_EQ(8, m2[1][1]);
 
-    double a3[3][3] = {{1,2,3},{4,5,6},{7,8,9}};
+    double a3[3][3] = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
     matrix m3(a3);
     ASSERT_EQ(3, m3.cols);
     ASSERT_EQ(3, m3.rows);
@@ -67,7 +69,7 @@ TEST(MatrixTest, ArrayConstructor) {
     ASSERT_DOUBLE_EQ(8, m3[2][1]);
     ASSERT_DOUBLE_EQ(9, m3[2][2]);
 
-    double a4[4][4] = {{1,2,3,4},{5,6,7,8},{9,0,1,2},{3,4,5,6}};
+    double a4[4][4] = {{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 0, 1, 2}, {3, 4, 5, 6}};
     matrix m4(a4);
     ASSERT_DOUBLE_EQ(1, m4[0][0]);
     ASSERT_DOUBLE_EQ(2, m4[0][1]);
@@ -92,7 +94,7 @@ TEST(MatrixTest, ArrayConstructor) {
 
 TEST(MatrixTest, CopyConstructor) {
     using namespace linalg;
-    matrix m{{ {1,2}, {3,4} }};
+    matrix m{{{1, 2}, {3, 4}}};
     matrix n(m);
     ASSERT_EQ(2, n.cols);
     ASSERT_EQ(2, n.rows);
@@ -104,7 +106,7 @@ TEST(MatrixTest, CopyConstructor) {
 
 TEST(MatrixTest, MoveConstructor) {
     using namespace linalg;
-    matrix m{{ {1,2}, {3,4} }};
+    matrix m{{{1, 2}, {3, 4}}};
     matrix n(std::move(m));
     ASSERT_EQ(2, n.cols);
     ASSERT_EQ(2, n.rows);
@@ -116,7 +118,7 @@ TEST(MatrixTest, MoveConstructor) {
 
 TEST(MatrixTest, CopyAssignment) {
     using namespace linalg;
-    matrix m{{ {1,2}, {3,4} }};
+    matrix m{{{1, 2}, {3, 4}}};
     matrix n = m;
     ASSERT_EQ(2, n.cols);
     ASSERT_EQ(2, n.rows);
@@ -133,7 +135,7 @@ TEST(MatrixTest, CopyAssignment) {
 
 TEST(MatrixTest, MoveAssignment) {
     using namespace linalg;
-    matrix m{{ {1,2}, {3,4} }};
+    matrix m{{{1, 2}, {3, 4}}};
     matrix n = std::move(m);
     ASSERT_EQ(2, n.cols);
     ASSERT_EQ(2, n.rows);
@@ -145,15 +147,9 @@ TEST(MatrixTest, MoveAssignment) {
 
 TEST(MatrixTest, EqualityAndInEquality) {
     using namespace linalg;
-    matrix m{{{ 4,  6, 9},
-              {-8, 11, 1},
-              { 0, -3, 4}}};
-    matrix n{{{ 4,  6, 9},
-              {-8, 11, 1},
-              { 0, -3, 4}}};
-    matrix o{{{ 1,  2, 3},
-              {-8, 11, 1},
-              { 0, -3, 4}}};
+    matrix m{{{4, 6, 9}, {-8, 11, 1}, {0, -3, 4}}};
+    matrix n{{{4, 6, 9}, {-8, 11, 1}, {0, -3, 4}}};
+    matrix o{{{1, 2, 3}, {-8, 11, 1}, {0, -3, 4}}};
     ASSERT_TRUE(m == n);
     ASSERT_FALSE(m == o);
     ASSERT_TRUE(m != o);
@@ -164,24 +160,22 @@ TEST(MatrixTest, EqualityAndInEquality) {
 
 TEST(MatrixTest, Indexing) {
     using namespace linalg;
-    const matrix m{ {{ 1, 2, 3},
-                     { 4, 5, 6},
-                     { 7, 8, 9}} };
+    const matrix m{{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}};
     matrix n(m);
-    ASSERT_THROW(m.at(-1, -1),basal::exception);
+    ASSERT_THROW(m.at(-1, -1), basal::exception);
     ASSERT_THROW(m.at(0, 0), basal::exception);
     // The at() notation is 1-based
-    ASSERT_DOUBLE_EQ(1.0, m.at(1,1));
+    ASSERT_DOUBLE_EQ(1.0, m.at(1, 1));
     ASSERT_DOUBLE_EQ(6.0, m(1, 2));
     ASSERT_DOUBLE_EQ(7.0, m.index(6));
     ASSERT_DOUBLE_EQ(8.0, m[2][1]);
-    ASSERT_DOUBLE_EQ(9.0, m.index(2,2));
+    ASSERT_DOUBLE_EQ(9.0, m.index(2, 2));
     // The at() notation is 1-based
-    ASSERT_DOUBLE_EQ(1.0, n.at(1,1));
+    ASSERT_DOUBLE_EQ(1.0, n.at(1, 1));
     ASSERT_DOUBLE_EQ(6.0, n(1, 2));
     ASSERT_DOUBLE_EQ(7.0, n.index(6));
     ASSERT_DOUBLE_EQ(8.0, n[2][1]);
-    ASSERT_DOUBLE_EQ(9.0, n.index(2,2));
+    ASSERT_DOUBLE_EQ(9.0, n.index(2, 2));
 
     n.zero();
     ASSERT_DOUBLE_EQ(0.0, n[2][2]);
@@ -212,60 +206,48 @@ TEST(MatrixTest, StaticMethods) {
 TEST(MatrixTest, ClassOperators) {
     using namespace linalg;
     using namespace linalg::operators;
-    matrix A{ {{1,2},
-               {3,4}} };
-    matrix A2{{{2,2},
-               {2,2}} };
+    matrix A{{{1, 2}, {3, 4}}};
+    matrix A2{{{2, 2}, {2, 2}}};
     A += A2;
-    matrix B{ {{3,4},
-               {5,6}} };
+    matrix B{{{3, 4}, {5, 6}}};
     ASSERT_MATRIX_EQ(B, A);
     B -= A2;
-    matrix C{ {{1,2},
-               {3,4}} };
+    matrix C{{{1, 2}, {3, 4}}};
     ASSERT_MATRIX_EQ(C, B);
     C *= 2.0;
-    matrix D{ {{2,4},
-               {6,8}} };
+    matrix D{{{2, 4}, {6, 8}}};
     ASSERT_MATRIX_EQ(D, C);
     D /= 2.0;
-    matrix E{ {{1,2},
-               {3,4}} };
+    matrix E{{{1, 2}, {3, 4}}};
     ASSERT_MATRIX_EQ(E, D);
     B *= A2;
-    matrix F{ {{6, 6}, {14, 14}} };
+    matrix F{{{6, 6}, {14, 14}}};
     ASSERT_MATRIX_EQ(F, B);
-    matrix G{ {{1,2},
-               {3,4}} };
+    matrix G{{{1, 2}, {3, 4}}};
     E /= G;
-    matrix I = matrix::identity(2,2);
+    matrix I = matrix::identity(2, 2);
     ASSERT_MATRIX_EQ(I, E);
 }
 
 TEST(MatrixTest, NamespaceOperators) {
     using namespace linalg;
     using namespace linalg::operators;
-    matrix A{ {{1,2},
-               {3,4}} };
-    matrix B{ {{5,6},
-               {7,8}} };
-    matrix C{ {{6,8},
-               {10,12} }};
+    matrix A{{{1, 2}, {3, 4}}};
+    matrix B{{{5, 6}, {7, 8}}};
+    matrix C{{{6, 8}, {10, 12}}};
     matrix ApB = A + B;
     ASSERT_MATRIX_EQ(C, ApB);
-    matrix D{ {{4,4},
-               {4,4}} };
+    matrix D{{{4, 4}, {4, 4}}};
     matrix B_A = B - A;
     ASSERT_MATRIX_EQ(D, B_A);
-    matrix E{ {{19, 22},
-               {43, 50}}};
+    matrix E{{{19, 22}, {43, 50}}};
     matrix AB = A * B;
     ASSERT_MATRIX_EQ(E, AB);
-    matrix Bi{ {{-4,3},{7/2,-5/2}} };
-    matrix F{ {{3,-2},{2,-1}} };
+    matrix Bi{{{-4, 3}, {7 / 2, -5 / 2}}};
+    matrix F{{{3, -2}, {2, -1}}};
     matrix AdB = A / B;
     ASSERT_MATRIX_EQ(F, AdB);
-    matrix G{ {{15,18},{21,24}} };
+    matrix G{{{15, 18}, {21, 24}}};
     matrix Bm3 = B * 3.0;
     matrix Bd3 = Bm3 / 3.0;
     ASSERT_MATRIX_EQ(G, Bm3);
@@ -282,11 +264,9 @@ TEST(MatrixTest, Inverse) {
 
 TEST(MatrixTest, Invertible) {
     using namespace linalg;
-    matrix A{{{1, 0, 1},
-              {1, 1, 0},
-              {0, 1, 1}}};
+    matrix A{{{1, 0, 1}, {1, 1, 0}, {0, 1, 1}}};
     ASSERT_TRUE(A.invertible());
-    matrix D{{{2},{1}}};
+    matrix D{{{2}, {1}}};
     ASSERT_THROW(D.inverse(), basal::exception);
 }
 
@@ -294,13 +274,9 @@ TEST(MatrixTest, Transpose) {
     using namespace linalg;
     using namespace linalg::operators;
 
-    matrix m{{{ 4,  6, 9},
-              {-8, 11, 1},
-              { 0, -3, 4}}};
-    matrix mT{{{4, -8, 0},
-               {6, 11, -3},
-               {9, 1, 4}}};
-    matrix mI = matrix::identity(3,3);
+    matrix m{{{4, 6, 9}, {-8, 11, 1}, {0, -3, 4}}};
+    matrix mT{{{4, -8, 0}, {6, 11, -3}, {9, 1, 4}}};
+    matrix mI = matrix::identity(3, 3);
     ASSERT_TRUE(m != mT);
     ASSERT_FALSE(m == mT);
     ASSERT_TRUE(m.T() == mT);
@@ -313,13 +289,9 @@ TEST(MatrixTest, TransposeRules) {
     using namespace linalg;
     using namespace linalg::operators;
 
-    matrix A{{{1, 2, 3},
-              {0, -4, 1},
-              {0, 3, -1}}};
+    matrix A{{{1, 2, 3}, {0, -4, 1}, {0, 3, -1}}};
     matrix B = matrix::random(3, 3, 1.0, 10.0);
-    matrix C{{{1, 4, 7},
-              {3, 0, 5},
-              {-1, 9, 11}}};
+    matrix C{{{1, 4, 7}, {3, 0, 5}, {-1, 9, 11}}};
     double r = iso::tau / 2;
     // A = A^T^T
     ASSERT_TRUE(A == A.T().T());
@@ -352,8 +324,8 @@ TEST(MatrixTest, SingleAssignment) {
     using namespace linalg::operators;
 
     matrix mZ = matrix::zeros(3, 3);
-    matrix ones(3, 3); // empty
-    ones = 1.0; // Single Assignment to all elements
+    matrix ones(3, 3);  // empty
+    ones = 1.0;         // Single Assignment to all elements
     ASSERT_TRUE(mZ == (ones - ones));
 }
 
@@ -361,12 +333,8 @@ TEST(MatrixTest, Determinants) {
     using namespace linalg;
     using namespace linalg::operators;
 
-    matrix A{{{1, 2, 3},
-              {0, -4, 1},
-              {0, 3, -1}}};
-    matrix C{{{1, 4, 7},
-              {3, 0, 5},
-              {-1, 9, 11}}};
+    matrix A{{{1, 2, 3}, {0, -4, 1}, {0, 3, -1}}};
+    matrix C{{{1, 4, 7}, {3, 0, 5}, {-1, 9, 11}}};
     matrix D{{{8}}};
     matrix zD = D.inverse();
     ASSERT_DOUBLE_EQ(8.0, D.determinant());
@@ -384,9 +352,7 @@ TEST(MatrixTest, Determinants) {
 
 TEST(MatrixTest, Cofactors) {
     using namespace linalg;
-    matrix C{{{1, 4, 7},
-              {3, 0, 5},
-              {-1, 9, 11}}};
+    matrix C{{{1, 4, 7}, {3, 0, 5}, {-1, 9, 11}}};
     ASSERT_DOUBLE_EQ(13.0, C.minor(1, 2));
     ASSERT_DOUBLE_EQ(-13.0, C.cofactor(1, 2));
 }
@@ -395,9 +361,7 @@ TEST(MatrixTest, NonSingularRules) {
     using namespace linalg;
     using namespace linalg::operators;
 
-    matrix A{{{1, 2, 3},
-              {0, -4, 1},
-              {0, 3, -1}}};
+    matrix A{{{1, 2, 3}, {0, -4, 1}, {0, 3, -1}}};
     matrix mI = matrix::identity(3, 3);
     ASSERT_FALSE(A.singular());
     ASSERT_FALSE(A.degenerate());
@@ -412,12 +376,8 @@ TEST(MatrixTest, NonSingularRules) {
 
 TEST(MatrixTest, Adjugate) {
     using namespace linalg;
-    matrix E{{{-3, 2, -5},
-              {-1, 0, -2},
-              {3, -4, 1}}};
-    matrix _E{{{-8, 18, -4},
-               {-5, 12, -1},
-               {4, -6, 2}}};
+    matrix E{{{-3, 2, -5}, {-1, 0, -2}, {3, -4, 1}}};
+    matrix _E{{{-8, 18, -4}, {-5, 12, -1}, {4, -6, 2}}};
     ASSERT_TRUE(E.adjugate() == _E);
 }
 
@@ -433,16 +393,14 @@ TEST(MatrixTest, SingularRules) {
 
 TEST(MatrixTest, Orthgonal) {
     using namespace linalg;
-    matrix I = matrix::identity(3,3);
+    matrix I = matrix::identity(3, 3);
     ASSERT_TRUE(I.orthagonal());
 }
 
 TEST(MatrixTest, FileWriting) {
     using namespace linalg;
     std::string path = "./m.bin";
-    matrix m{{{ 4,  6, 9},
-              {-8, 11, 1},
-              { 0, -3, 4}}};
+    matrix m{{{4, 6, 9}, {-8, 11, 1}, {0, -3, 4}}};
     m.print("old m ");
     ASSERT_TRUE(m.to_file(path));
     matrix n = matrix::from_file(path);
@@ -452,38 +410,33 @@ TEST(MatrixTest, FileWriting) {
 
 TEST(MatrixTest, PairwiseMultiply) {
     using namespace linalg;
-    matrix A{ {{1,3,5}} };
-    matrix B{ {{2},{4},{6}} };
+    matrix A{{{1, 3, 5}}};
+    matrix B{{{2}, {4}, {6}}};
     matrix C = pairwise::multiply(A, B);
-    matrix D{ {{2, 6, 10}, {4, 12, 20}, {6, 18, 30}} };
+    matrix D{{{2, 6, 10}, {4, 12, 20}, {6, 18, 30}}};
     ASSERT_TRUE(C == D);
 }
 
 TEST(MatrixTest, PairwiseMultiplyThrow) {
     using namespace linalg;
-    matrix A{ {{1,3,5}} };
-    matrix B{ {{2,4},
-            {4,6}} };
+    matrix A{{{1, 3, 5}}};
+    matrix B{{{2, 4}, {4, 6}}};
     ASSERT_THROW(pairwise::multiply(A, B), basal::exception);
 }
 
 TEST(MatrixTest, HammardOperation) {
     using namespace linalg;
-    matrix A{ {{1},{3},{5}} };
-    matrix B{ {{7},{9},{6}} };
+    matrix A{{{1}, {3}, {5}}};
+    matrix B{{{7}, {9}, {6}}};
     matrix C = hadamard(A, B);
-    matrix D{ {{7},{27},{30}} };
+    matrix D{{{7}, {27}, {30}}};
     ASSERT_TRUE(C == D);
 }
 
 TEST(MatrixTest, RuleOfSarrus) {
     using namespace linalg;
-    matrix A{ {{1, 2, 3},
-                {4, 5, 6},
-                {7, 8, 9}} };
-    matrix B{ {{1, 2, 3, 1, 2},
-                {4, 5, 6, 4, 5},
-                {7, 8, 9, 7, 8}} };
+    matrix A{{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}};
+    matrix B{{{1, 2, 3, 1, 2}, {4, 5, 6, 4, 5}, {7, 8, 9, 7, 8}}};
     ASSERT_TRUE(A.rule_of_sarrus() == B);
     ASSERT_THROW(B.rule_of_sarrus(), basal::exception);
 }
@@ -496,27 +449,16 @@ TEST(MatrixTest, NullspaceIdentity) {
 
 TEST(MatrixTest, NullspaceMatrix) {
     using namespace linalg;
-    matrix A{ {{ 1,  0, -3,  0,  2, -8},
-               { 0,  1,  5,  0, -1,  4},
-               { 0,  0,  0,  1,  7, -9},
-               { 0,  0,  0,  0,  0,  0}} };
+    matrix A{{{1, 0, -3, 0, 2, -8}, {0, 1, 5, 0, -1, 4}, {0, 0, 0, 1, 7, -9}, {0, 0, 0, 0, 0, 0}}};
     auto pc = A.pivots();
     ASSERT_TRUE(pc.size() == 3);
     auto fv = A.frees();
     ASSERT_TRUE(fv.size() == 3);
     matrix B = A.nullspace();
-    matrix C{ {{ 3, -2,  8},
-               {-5,  1, -4},
-               { 1,  0,  0},
-               { 0, -7,  9},
-               { 0,  1,  0},
-               { 0,  0,  1}} };
+    matrix C{{{3, -2, 8}, {-5, 1, -4}, {1, 0, 0}, {0, -7, 9}, {0, 1, 0}, {0, 0, 1}}};
     ASSERT_MATRIX_EQ(B, C);
     matrix D = A.basis();
-    matrix E{ {{1, 0, 0},
-               {0, 1, 0},
-               {0, 0, 1},
-               {0, 0, 0}} };
+    matrix E{{{1, 0, 0}, {0, 1, 0}, {0, 0, 1}, {0, 0, 0}}};
     ASSERT_MATRIX_EQ(D, E);
 }
 
@@ -542,61 +484,43 @@ TEST(MatrixTest, Joinery) {
 TEST(MatrixTest, AssignIntoRowCol) {
     using namespace linalg;
 
-    matrix A{ {{1, 2, 3},
-               {4, 5, 6},
-               {7, 8, 9}} };
-    matrix A_c1{ {{2}, {5}, {8}} };
+    matrix A{{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}};
+    matrix A_c1{{{2}, {5}, {8}}};
     matrix a_c1 = A.col(1);
     ASSERT_TRUE(a_c1 == A_c1);
-    matrix A_r1{ {{4, 5, 6}} };
+    matrix A_r1{{{4, 5, 6}}};
     matrix a_r1 = A.row(1);
     ASSERT_TRUE(a_r1 == A_r1);
     matrix B = matrix::zeros(2, 2);
-    matrix C{ {{0, 0, 3},
-               {0, 0, 6},
-               {7, 8, 9}} };
+    matrix C{{{0, 0, 3}, {0, 0, 6}, {7, 8, 9}}};
     matrix D = A;
     B.assignInto(A, 0, 0);
     ASSERT_TRUE(C == A);
-    matrix E{ {{1, 2, 3},
-               {4, 0, 0},
-               {7, 0, 0}} };
+    matrix E{{{1, 2, 3}, {4, 0, 0}, {7, 0, 0}}};
     B.assignInto(D, 1, 1);
     ASSERT_TRUE(D == E);
 }
 
 TEST(MatrixTest, Nullspace) {
     using namespace linalg;
-    matrix A{{{2, 3, 5},
-                {-4, 2, 3}}};
-    matrix Arref{{{1, 0, 1.0 / 16},
-                    {0, 1, 13.0 / 8}}};
+    matrix A{{{2, 3, 5}, {-4, 2, 3}}};
+    matrix Arref{{{1, 0, 1.0 / 16}, {0, 1, 13.0 / 8}}};
     ASSERT_TRUE(A.rref() == Arref);
-    matrix B{{{1, 2, 3, 4, 5},
-                {2, 5, 8, 11, 14},
-                {1, 3, 5, 8, 11},
-                {4, 10, 16, 23, 30}}};
-    matrix Brref{{{1, 0, -1, 0, 1},
-                    {0, 1, 2, 0, -2},
-                    {0, 0, 0, 1, 2},
-                    {0, 0, 0, 0, 0}}};
+    matrix B{{{1, 2, 3, 4, 5}, {2, 5, 8, 11, 14}, {1, 3, 5, 8, 11}, {4, 10, 16, 23, 30}}};
+    matrix Brref{{{1, 0, -1, 0, 1}, {0, 1, 2, 0, -2}, {0, 0, 0, 1, 2}, {0, 0, 0, 0, 0}}};
     ASSERT_MATRIX_EQ(Brref, B.rref());
     matrix C = B.nullspace();
-    //print_this(C);
+    // print_this(C);
     matrix N{{{1, -1}, {-2, 2}, {1, 0}, {0, -2}, {0, 1}}};
     ASSERT_MATRIX_EQ(N, C);
 }
 
 TEST(MatrixTest, Pivots) {
     using namespace linalg;
-    matrix A{{{1, 3, 1, 9},
-                {1, 1, -1, 1},
-                {3, 11, 5, 35}}};
-    //print_this(A);
-    matrix B{{{1, 0, -2, -3},
-                {0, 1, 1, 4},
-                {0, 0, 0, 0}}};
-    //print_this(B);
+    matrix A{{{1, 3, 1, 9}, {1, 1, -1, 1}, {3, 11, 5, 35}}};
+    // print_this(A);
+    matrix B{{{1, 0, -2, -3}, {0, 1, 1, 4}, {0, 0, 0, 0}}};
+    // print_this(B);
     ASSERT_MATRIX_EQ(B, A.escheloned().reduced());
     std::vector<size_t> pivots = B.pivots();
     for (auto& p : pivots) {
@@ -616,38 +540,28 @@ TEST(MatrixTest, EigenVectors) {
     using namespace linalg::operators;
 
     // find eigenvector of matrix then test
-    matrix A{ {{3, 2, 2},
-               {2, 3,-2}} };
-    matrix AAT = A*A.T();
-    matrix f{ {{25},{9}} };
+    matrix A{{{3, 2, 2}, {2, 3, -2}}};
+    matrix AAT = A * A.T();
+    matrix f{{{25}, {9}}};
     ASSERT_MATRIX_EQ(f, AAT.eigenvalues());
 }
 
 TEST(MatrixTest, Rank) {
     using namespace linalg;
-    matrix A{ {{ 1,  2,  1},
-               {-2, -3,  1},
-               { 3,  5,  0}} };
+    matrix A{{{1, 2, 1}, {-2, -3, 1}, {3, 5, 0}}};
     ASSERT_EQ(2, A.rank());
 }
 
 TEST(MatrixTest, Triangular) {
     using namespace linalg;
     matrix mI = matrix::identity(5, 5);
-    matrix A{ {{1, 2, 3},
-               {0, -4, 1},
-               {0, 3, -1}} };
-    matrix D{ {{1, 0, 0},
-               {0, 9, 0},
-               {0, 0, 0}} };
+    matrix A{{{1, 2, 3}, {0, -4, 1}, {0, 3, -1}}};
+    matrix D{{{1, 0, 0}, {0, 9, 0}, {0, 0, 0}}};
     ASSERT_TRUE(D.diagonal());
     ASSERT_TRUE(mI.diagonal());
     ASSERT_FALSE(A.diagonal());
     ASSERT_TRUE(D.triangular());
-    matrix E{ {{7, 0, 0, 0},
-               {9, 1, 0, 0},
-               {-1, 2, 4, 0},
-               {5, 6, 1, 1}} };
+    matrix E{{{7, 0, 0, 0}, {9, 1, 0, 0}, {-1, 2, 4, 0}, {5, 6, 1, 1}}};
     ASSERT_TRUE(E.lower_triangular());
     ASSERT_TRUE(E.T().upper_triangular());
     ASSERT_TRUE(E.inverse().lower_triangular());
@@ -656,15 +570,15 @@ TEST(MatrixTest, Triangular) {
 
 TEST(MatrixTest, DISABLED_SVD) {
     /*! This uses data from:
-    * <ul>
-    * <li>Elementary Linear Algebra by Howard Anton and Chris Rorres, aka. ELA</li>
-    * <li>Wolfram Math World</li>
-    * <li>Wikipedia</li>
-    */
+     * <ul>
+     * <li>Elementary Linear Algebra by Howard Anton and Chris Rorres, aka. ELA</li>
+     * <li>Wolfram Math World</li>
+     * <li>Wikipedia</li>
+     */
     using namespace linalg;
     using namespace linalg::operators;
 
-    matrix A{ {{3,2,2},{2,3,-2}} };
+    matrix A{{{3, 2, 2}, {2, 3, -2}}};
     matrix AAT = A * A.T();
     matrix ATA = A.T() * A;
     matrix e1 = AAT.eigenvalues();
@@ -677,26 +591,17 @@ TEST(MatrixTest, PLU) {
     using namespace linalg;
     using namespace linalg::operators;
 
-    matrix M{ {{ 0, 3, 0, 0, 9},
-               { 0, 0, 0, 0, 0},
-               { 0, 0, 4,-3, 1},
-               { 0, 0, 0, 0, 0},
-               { 0, 0, 0,-5, 8},
-               { 0, 7, 3, 0, 2},
-               { 0, 0, 0, 0, 0}} };
-    matrix N{ {{ 0, 2, 8,-7},
-               { 2,-2, 4, 0},
-               {-3, 4,-2,-5}} };
-    matrix N_rre{ {{ 1, 0, 6, 0},
-                   { 0, 1, 4, 0},
-                   { 0, 0, 0, 1}} };
-    matrix O{ {{3,2,2,3,1},
-               {6,4,4,6,2},
-               {9,6,6,9,1}} };
-    matrix A{ {{1, 2, 3, 4},
-               {5, 6, 7, 8},
-               {1,-1, 2, 3},
-               {2, 1, 1, 2}} };
+    matrix M{{{0, 3, 0, 0, 9},
+              {0, 0, 0, 0, 0},
+              {0, 0, 4, -3, 1},
+              {0, 0, 0, 0, 0},
+              {0, 0, 0, -5, 8},
+              {0, 7, 3, 0, 2},
+              {0, 0, 0, 0, 0}}};
+    matrix N{{{0, 2, 8, -7}, {2, -2, 4, 0}, {-3, 4, -2, -5}}};
+    matrix N_rre{{{1, 0, 6, 0}, {0, 1, 4, 0}, {0, 0, 0, 1}}};
+    matrix O{{{3, 2, 2, 3, 1}, {6, 4, 4, 6, 2}, {9, 6, 6, 9, 1}}};
+    matrix A{{{1, 2, 3, 4}, {5, 6, 7, 8}, {1, -1, 2, 3}, {2, 1, 1, 2}}};
     A.print("A");
     matrix P(4, 4);
     matrix L(4, 4);
@@ -705,6 +610,6 @@ TEST(MatrixTest, PLU) {
     P.print("P");
     L.print("L");
     U.print("U");
-    ASSERT_MATRIX_EQ(A, (L*U));
-    ASSERT_MATRIX_EQ((P*A), (L*U));
+    ASSERT_MATRIX_EQ(A, (L * U));
+    ASSERT_MATRIX_EQ((P * A), (L * U));
 }

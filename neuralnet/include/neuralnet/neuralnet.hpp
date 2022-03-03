@@ -11,4 +11,3 @@ namespace nn {}
 #include "neuralnet/matrix.hpp"
 #include "neuralnet/mnist.hpp"
 #include "neuralnet/network.hpp"
-

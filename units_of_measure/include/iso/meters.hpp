@@ -1,13 +1,13 @@
 /**
  * @file
  * This is an auto-generated header for iso::meters.
- * 
+ *
  * @note See README on re-generation.
  * @copyright Copyright 2022.
  */
 #pragma once
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 
 #include "iso/measurement.hpp"
 
@@ -16,7 +16,7 @@ namespace iso {
 
 /** A structure used to hold the postfix for meters */
 struct suffix_type_m {
-    constexpr static const char *suffix = "m";
+    constexpr static const char* suffix = "m";
 };
 
 /**
@@ -42,7 +42,7 @@ public:
     /** Destructor */
     ~meters() = default;
     /** Const Copy Assignment */
-    meters& operator=(const meters &other) noexcept;
+    meters& operator=(const meters& other) noexcept;
     /** Copy Assignment */
     meters& operator=(meters& other) noexcept;
     /** Move Assignment */
@@ -72,25 +72,25 @@ public:
 };
 
 namespace operators {
-    /** Addition operator */
-    meters operator+(const meters& A, const meters& B);
-    /** Subtraction operator */
-    meters operator-(const meters& A, const meters& B);
-    /** Left Scaling Operator */
-    meters operator*(const meters& A, double factor);
-    /** Right Scaling Operator */
-    meters operator*(double factor, const meters& A);
-    /** Inverse Scaling Operator */
-    meters operator/(const meters& A, double factor);
-}
+/** Addition operator */
+meters operator+(const meters& A, const meters& B);
+/** Subtraction operator */
+meters operator-(const meters& A, const meters& B);
+/** Left Scaling Operator */
+meters operator*(const meters& A, double factor);
+/** Right Scaling Operator */
+meters operator*(double factor, const meters& A);
+/** Inverse Scaling Operator */
+meters operator/(const meters& A, double factor);
+}  // namespace operators
 
 namespace literals {
-    /** Literal Double, Quote Operator */
-    meters operator""_m(long double value);
-    /** Literal Int, Quote Operator */
-    meters operator""_m(unsigned long long value);
-    /** Literal String, Quote Operator */
-    iso::meters operator""_m(const char a[]);
-}
+/** Literal Double, Quote Operator */
+meters operator""_m(long double value);
+/** Literal Int, Quote Operator */
+meters operator""_m(unsigned long long value);
+/** Literal String, Quote Operator */
+iso::meters operator""_m(const char a[]);
+}  // namespace literals
 
-}
+}  // namespace iso

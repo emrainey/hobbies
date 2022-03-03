@@ -1,14 +1,12 @@
-#include <cassert>
 #include <basal/listable.hpp>
+#include <cassert>
 
 namespace basal {
 
-listable::listable() noexcept : _next(nullptr), _prev(nullptr) {}
+listable::listable() noexcept : _next(nullptr), _prev(nullptr) {
+}
 
-listable::listable(listable&& other) noexcept
-    : _next(other._next)
-    , _prev(other._prev)
-    {
+listable::listable(listable&& other) noexcept : _next(other._next), _prev(other._prev) {
     if (_next) {
         _next->_prev = this;
         other._next = nullptr;
@@ -55,7 +53,7 @@ listable& listable::operator=(listable&& other) noexcept {
     return (*this);
 }
 
-void listable::insert_prev(listable *obj) noexcept {
+void listable::insert_prev(listable* obj) noexcept {
     if (obj) {
         // no nullptr deref!
         obj->_prev = _prev;
@@ -68,7 +66,7 @@ void listable::insert_prev(listable *obj) noexcept {
     }
 }
 
-void listable::insert_next(listable *obj) noexcept {
+void listable::insert_next(listable* obj) noexcept {
     if (obj) {
         obj->_next = _next;
         if (_next) {
@@ -80,4 +78,4 @@ void listable::insert_next(listable *obj) noexcept {
     }
 }
 
-};
+};  // namespace basal

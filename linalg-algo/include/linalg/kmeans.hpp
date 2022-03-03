@@ -5,8 +5,8 @@
  * @copyright Copyright 2019 (C) Erik Rainey.
  */
 
-#include <linalg/linalg.hpp>
 #include <geometry/geometry.hpp>
+#include <linalg/linalg.hpp>
 #include <vector>
 
 /** The K-Means algorithm namespace */
@@ -16,13 +16,15 @@ namespace linalg {
 class kmeans {
 public:
     /** An enumeration to describe how to initialize the initial points */
-    enum InitialMethod : int {
-        RandomPoints, ///< Use a random assignment of values.
+    enum InitialMethod : int
+    {
+        RandomPoints,  ///< Use a random assignment of values.
     };
 
     /** An enumeration to describe how to iterate over the points */
-    enum IterationMethod : int {
-        EuclideanDistance, ///< Use the euclidean distance
+    enum IterationMethod : int
+    {
+        EuclideanDistance,  ///< Use the euclidean distance
     };
 
     /** Constructs from a set of 2 points */
@@ -49,7 +51,7 @@ public:
     /** Returns the list of indexes (associates which point is in which cluster) */
     const std::vector<size_t> &indexes() const;
 
-    private:
+private:
     /** The vector of external points, P long */
     std::vector<geometry::R2::point> &m_points;
 
@@ -58,7 +60,6 @@ public:
 
     /** The internal vector of cluster assignment, P long */
     std::vector<size_t> m_cluster_assignment;
-
 };
 
-}
+}  // namespace linalg

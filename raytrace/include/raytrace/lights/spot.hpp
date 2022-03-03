@@ -1,13 +1,16 @@
 #pragma once
 
-#include "raytrace/lights/light.hpp"
 #include "raytrace/entity.hpp"
+#include "raytrace/lights/light.hpp"
 
 namespace raytrace {
 
 namespace lights {
-/** A Spot light is a speck (point light) with a limiting angle of incoming ray angle. This still obeys the inverse square law for fall-off. */
-class spot : public light, public entity {
+/** A Spot light is a speck (point light) with a limiting angle of incoming ray angle. This still obeys the inverse
+ * square law for fall-off. */
+class spot
+    : public light
+    , public entity {
 public:
     spot(const raytrace::ray& r, const raytrace::color& C, element_type intensity, const iso::degrees& incoming_angle);
     spot(raytrace::ray&& r, const raytrace::color& C, element_type intensity, const iso::degrees& incoming_angle);
@@ -29,9 +32,9 @@ protected:
     iso::degrees m_incoming_angle;
 };
 
-} // namespace lights
+}  // namespace lights
 
 /** Helper to print specks of light */
 std::ostream& operator<<(std::ostream& os, const lights::spot& l);
 
-} // namespace raytrace
+}  // namespace raytrace

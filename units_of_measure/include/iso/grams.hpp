@@ -1,13 +1,13 @@
 /**
  * @file
  * This is an auto-generated header for iso::grams.
- * 
+ *
  * @note See README on re-generation.
  * @copyright Copyright 2022.
  */
 #pragma once
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 
 #include "iso/measurement.hpp"
 
@@ -16,7 +16,7 @@ namespace iso {
 
 /** A structure used to hold the postfix for grams */
 struct suffix_type_g {
-    constexpr static const char *suffix = "g";
+    constexpr static const char* suffix = "g";
 };
 
 /**
@@ -42,7 +42,7 @@ public:
     /** Destructor */
     ~grams() = default;
     /** Const Copy Assignment */
-    grams& operator=(const grams &other) noexcept;
+    grams& operator=(const grams& other) noexcept;
     /** Copy Assignment */
     grams& operator=(grams& other) noexcept;
     /** Move Assignment */
@@ -72,25 +72,25 @@ public:
 };
 
 namespace operators {
-    /** Addition operator */
-    grams operator+(const grams& A, const grams& B);
-    /** Subtraction operator */
-    grams operator-(const grams& A, const grams& B);
-    /** Left Scaling Operator */
-    grams operator*(const grams& A, double factor);
-    /** Right Scaling Operator */
-    grams operator*(double factor, const grams& A);
-    /** Inverse Scaling Operator */
-    grams operator/(const grams& A, double factor);
-}
+/** Addition operator */
+grams operator+(const grams& A, const grams& B);
+/** Subtraction operator */
+grams operator-(const grams& A, const grams& B);
+/** Left Scaling Operator */
+grams operator*(const grams& A, double factor);
+/** Right Scaling Operator */
+grams operator*(double factor, const grams& A);
+/** Inverse Scaling Operator */
+grams operator/(const grams& A, double factor);
+}  // namespace operators
 
 namespace literals {
-    /** Literal Double, Quote Operator */
-    grams operator""_g(long double value);
-    /** Literal Int, Quote Operator */
-    grams operator""_g(unsigned long long value);
-    /** Literal String, Quote Operator */
-    iso::grams operator""_g(const char a[]);
-}
+/** Literal Double, Quote Operator */
+grams operator""_g(long double value);
+/** Literal Int, Quote Operator */
+grams operator""_g(unsigned long long value);
+/** Literal String, Quote Operator */
+iso::grams operator""_g(const char a[]);
+}  // namespace literals
 
-}
+}  // namespace iso

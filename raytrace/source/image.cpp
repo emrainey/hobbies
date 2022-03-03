@@ -1,18 +1,19 @@
-#include <random>
-#include <vector>
-#include <thread>
-#include <chrono>
-#include "basal/exception.hpp"
 #include "raytrace/image.hpp"
+
+#include <chrono>
+#include <random>
+#include <thread>
+#include <vector>
+
+#include "basal/exception.hpp"
 
 namespace raytrace {
 
 #define is_odd(x) (x & 1)
 
-image::image(size_t h, size_t w)
-    : fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8>(h, w)
-    {
-    basal::exception::throw_if(is_odd(height) or is_odd(width), __FILE__, __LINE__, "Height %d and Width %d must be even", height, width);
+image::image(size_t h, size_t w) : fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8>(h, w) {
+    basal::exception::throw_if(is_odd(height) or is_odd(width), __FILE__, __LINE__,
+                               "Height %d and Width %d must be even", height, width);
 }
 
 fourcc::rgb8& image::at(size_t y, size_t x) {
@@ -25,16 +26,13 @@ fourcc::rgb8& image::at(const image::point& p) {
     return fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8>::at(y, x);
 }
 
-void image::generate_each(subsampler get_color,
-                     size_t number_of_samples,
-                     std::optional<rendered_line> row_notifier,
-                     fourcc::image<uint8_t, fourcc::pixel_format::Y8>* mask,
-                     uint8_t mask_threshold) {
+void image::generate_each(subsampler get_color, size_t number_of_samples, std::optional<rendered_line> row_notifier,
+                          fourcc::image<uint8_t, fourcc::pixel_format::Y8>* mask, uint8_t mask_threshold) {
     std::default_random_engine generator;
     std::uniform_real_distribution<element_type> distribution(-0.5, 0.5);
     auto delta = std::bind(distribution, generator);
 
-    #pragma omp parallel for shared(data, delta, get_color)
+#pragma omp parallel for shared(data, delta, get_color)
     for (size_t y = 0; y < height; y++) {
         for (size_t x = 0; x < width; x++) {
             if (mask and (mask->at(y, x) < mask_threshold)) {
@@ -64,4 +62,4 @@ void image::generate_each(subsampler get_color,
     }
 }
 
-} // namespace raytrace
+}  // namespace raytrace

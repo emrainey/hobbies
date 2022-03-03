@@ -1,10 +1,11 @@
 #include <gtest/gtest.h>
-#include <raytrace/raytrace.hpp>
+
 #include <basal/basal.hpp>
+#include <raytrace/raytrace.hpp>
 #include <vector>
 
-#include "linalg/gtest_helper.hpp"
 #include "geometry/gtest_helper.hpp"
+#include "linalg/gtest_helper.hpp"
 #include "raytrace/gtest_helper.hpp"
 
 TEST(SceneTest, ObjectIntersections) {
@@ -12,9 +13,9 @@ TEST(SceneTest, ObjectIntersections) {
     using namespace raytrace::objects;
 
     // define a single object
-    raytrace::objects::sphere s0(raytrace::point(0,0,0), 2);
+    raytrace::objects::sphere s0(raytrace::point(0, 0, 0), 2);
     // define a ray
-    ray r0(raytrace::point(0,0,5),vector{{0,0,-1}});
+    ray r0(raytrace::point(0, 0, 5), vector{{0, 0, -1}});
     // define the object list
     scene::object_list objects;
     objects.push_back(&s0);
@@ -25,7 +26,7 @@ TEST(SceneTest, ObjectIntersections) {
     // that is a point
     ASSERT_EQ(geometry::IntersectionType::Point, get_type(list[0]));
     // that point is at 0,0,2
-    raytrace::point truth(0,0,2);
+    raytrace::point truth(0, 0, 2);
     ASSERT_POINT_EQ(truth, as_point(list[0]));
 }
 
@@ -34,8 +35,8 @@ TEST(SceneTest, NearestObjectIntersections) {
     using namespace raytrace::objects;
 
     // define several objects
-    raytrace::objects::sphere s0(raytrace::point(0,0,0), 2);
-    raytrace::objects::sphere s1(raytrace::point(0,3,0), 2);
+    raytrace::objects::sphere s0(raytrace::point(0, 0, 0), 2);
+    raytrace::objects::sphere s1(raytrace::point(0, 3, 0), 2);
     // define a ray
     ray r0(raytrace::point(0, -3, 0), vector{{0, 1, 0}});
     // define the object list
@@ -62,7 +63,7 @@ TEST(SceneTest, LowResSpheres) {
 
     // define an object
     raytrace::objects::sphere s0(raytrace::point(4, 0, 0), 0.50);
-    raytrace::objects::sphere s1(raytrace::point(4,-2, 0), 0.75);
+    raytrace::objects::sphere s1(raytrace::point(4, -2, 0), 0.75);
     raytrace::objects::sphere s2(raytrace::point(4, 2, 0), 0.25);
     iso::degrees fov(55);
     // tiny image, simple camera placement
@@ -81,4 +82,3 @@ TEST(SceneTest, LowResSpheres) {
 
     scene.render("low_res_sphere.ppm");
 }
-

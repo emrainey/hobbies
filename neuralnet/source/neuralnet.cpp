@@ -1,7 +1,9 @@
 
-#include <basal/options.hpp>
 #include "neuralnet/neuralnet.hpp"
+
 #include <unistd.h>
+
+#include <basal/options.hpp>
 
 using namespace linalg;
 
@@ -9,16 +11,15 @@ using namespace linalg;
 namespace local {
 constexpr double alpha = -0.25;
 constexpr double gamma = -0.9;
-}
+}  // namespace local
 
-int main(int argc, char *argv[]) {
-
+int main(int argc, char* argv[]) {
     std::string training_labels("train-labels-idx1-ubyte");
     std::string training_images("train-images-idx3-ubyte");
     std::string data_labels("t10k-labels-idx1-ubyte");
     std::string data_images("t10k-images-idx3-ubyte");
 
-     basal::options::config opts[] = {
+    basal::options::config opts[] = {
         {"-tl", "--train-labels", training_labels.c_str(), "Training Data Labels"},
         {"-ti", "--train-images", training_images.c_str(), "Training Data Images"},
         {"-dl", "--data-labels", data_labels.c_str(), "Data Labels"},
@@ -38,11 +39,11 @@ int main(int argc, char *argv[]) {
         net.set(nn::activation_type::Tanh);
 
         // Create some handles
-        nn::input&  in = net.as_input(0);
+        nn::input& in = net.as_input(0);
         nn::output& out = net.as_output(3);
 
         // these are the visualization images of the hidden layers
-        const char *named_i1 = "input";
+        const char* named_i1 = "input";
 
         basal::options::process(opts, argc, argv);
         basal::options::find(opts, "--train-labels", training_labels);
@@ -63,7 +64,8 @@ int main(int argc, char *argv[]) {
         const int minibatch = 2000;
 
         for (uint32_t r = 0; r < reps; r++) {
-            printf("Starting rep %u...\n", r); fflush(stdout);
+            printf("Starting rep %u...\n", r);
+            fflush(stdout);
             net.reset();
             for (uint32_t idx = 0; idx < learning.get_num_entries(); idx++) {
                 uint8_t answer = learning.get_label(idx);
@@ -89,7 +91,8 @@ int main(int argc, char *argv[]) {
         uint32_t misses = 0, hits = 0;
 
         for (uint32_t i = 0; i < testdata.get_num_entries(); i++) {
-            printf("Starting data item %u...", i); fflush(stdout);
+            printf("Starting data item %u...", i);
+            fflush(stdout);
             in.encode(testdata, i);
             cv::Mat inm = testdata.get_mat(i);
             cv::imshow(named_i1, inm);
@@ -102,8 +105,8 @@ int main(int argc, char *argv[]) {
             } else {
                 misses++;
             }
-            printf("Complete! %zu => %lf (hits=%u, misses=%u total=%u rate:%lf)\n",
-                    idx, value, hits, misses, i, float(hits+misses)/i);
+            printf("Complete! %zu => %lf (hits=%u, misses=%u total=%u rate:%lf)\n", idx, value, hits, misses, i,
+                   float(hits + misses) / i);
             fflush(stdout);
 
             out.values.T().print("output");
@@ -114,4 +117,3 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 }
-

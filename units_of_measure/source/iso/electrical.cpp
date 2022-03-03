@@ -23,5 +23,5 @@ amperes operator/(const watts &P, const volts &E) {
 amperes operator/(const volts &E, const ohms &R) {
     return amperes(E.value / R.value);
 }
-} // namespace operators
-} // namespace iso
+}  // namespace operators
+}  // namespace iso

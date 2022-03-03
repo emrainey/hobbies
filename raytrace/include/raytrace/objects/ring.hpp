@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+
 #include "raytrace/objects/plane.hpp"
 
 namespace raytrace {
@@ -18,12 +19,13 @@ public:
     hits collisions_along(const ray& object_ray) const override;
     /** @copydoc basal::printable::print */
     void print(const char str[]) const override;
+
 private:
-    element_type m_inner_radius2; ///< Squared Inner Radius
-    element_type m_outer_radius2; ///< Squared Outer Radius
+    element_type m_inner_radius2;  ///< Squared Inner Radius
+    element_type m_outer_radius2;  ///< Squared Outer Radius
 };
-}
+}  // namespace objects
 /** Returns the plane in which the three points we co-planar */
 geometry::plane as_plane(const objects::ring& tri);
 
-}
+}  // namespace raytrace

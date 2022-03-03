@@ -1,14 +1,16 @@
 #pragma once
 
-#include "raytrace/lights/light.hpp"
 #include "raytrace/entity.hpp"
+#include "raytrace/lights/light.hpp"
 
 namespace raytrace {
 
 namespace lights {
 
 /** A uniform diffuse light surface with fall-off obeying the inverse square law */
-class bulb : public light, public entity {
+class bulb
+    : public light
+    , public entity {
 public:
     bulb(const point& P, element_type radius, const raytrace::color& C, element_type intensity, size_t samples);
     bulb(point&& P, element_type radius, const raytrace::color& C, element_type intensity, size_t samples);
@@ -22,13 +24,14 @@ public:
 
     /** @copydoc basal::printable::print */
     void print(const char str[]) const override;
+
 protected:
     const element_type m_radius;
 };
 
-} // namespace lights
+}  // namespace lights
 
 /** Helper to print bulbs of light */
 std::ostream& operator<<(std::ostream& os, const lights::bulb& l);
 
-} // namespace raytrace
+}  // namespace raytrace

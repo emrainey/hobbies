@@ -1,8 +1,8 @@
 
-#include <cmath>
-#include <algorithm>
-
 #include "raytrace/color.hpp"
+
+#include <algorithm>
+#include <cmath>
 
 namespace raytrace {
 
@@ -40,9 +40,11 @@ fourcc::bgr8 color::to_bgr8() const {
     return pixel;
 }
 
-color::color(const color& other) : color(other.red(), other.green(), other.blue()) {}
+color::color(const color& other) : color(other.red(), other.green(), other.blue()) {
+}
 
-color::color(color&& other) : color(other.red(), other.green(), other.blue()) {}
+color::color(color&& other) : color(other.red(), other.green(), other.blue()) {
+}
 
 color& color::operator=(const color& other) {
     representation = other.representation;
@@ -123,15 +125,14 @@ color blend(const color& x, const color& y) {
 }
 
 color interpolate(const color& x, const color& y, element_type a) {
-    return color(gamma_interpolate(x.red(), y.red(), a),
-                 gamma_interpolate(x.green(), y.green(), a),
+    return color(gamma_interpolate(x.red(), y.red(), a), gamma_interpolate(x.green(), y.green(), a),
                  gamma_interpolate(x.blue(), y.blue(), a));
 }
 
 bool operator==(const color& a, const color& b) {
-    return     basal::equals(a.red(), b.red(), color::precision)
-           and basal::equals(a.green(), b.green(), color::precision)
-           and basal::equals(a.blue(), b.blue(), color::precision);
+    return basal::equals(a.red(), b.red(), color::precision) and
+           basal::equals(a.green(), b.green(), color::precision) and
+           basal::equals(a.blue(), b.blue(), color::precision);
 }
 
 color color::blend_samples(const std::vector<color>& subsamples) {
@@ -150,47 +151,47 @@ color color::blend_samples(const std::vector<color>& subsamples) {
 
 color color::accumulate_samples(const std::vector<color>& samples) {
     color tmp;
-    //tmp.to_space(color::space::logarithmic);
-    for (auto & sample : samples) {
+    // tmp.to_space(color::space::logarithmic);
+    for (auto& sample : samples) {
         color c = sample;
-        //c.to_space(color::space::logarithmic);
+        // c.to_space(color::space::logarithmic);
         tmp += c;
     }
-    //tmp.to_space(color::space::linear);
+    // tmp.to_space(color::space::linear);
     return tmp;
 }
 namespace jet {
 
 static double interpolate(double val, double y0, double x0, double y1, double x1) {
-    return (val-x0)*(y1-y0)/(x1-x0) + y0;
+    return (val - x0) * (y1 - y0) / (x1 - x0) + y0;
 }
 
-static double base( double val ) {
-    if ( val <= -0.75 )
+static double base(double val) {
+    if (val <= -0.75)
         return 0.0;
-    else if ( val <= -0.25 )
-        return interpolate( val, 0.0, -0.75, 1.0, -0.25 );
-    else if ( val <= 0.25 )
+    else if (val <= -0.25)
+        return interpolate(val, 0.0, -0.75, 1.0, -0.25);
+    else if (val <= 0.25)
         return 1.0;
-    else if ( val <= 0.75 )
-        return interpolate( val, 1.0, 0.25, 0.0, 0.75 );
+    else if (val <= 0.75)
+        return interpolate(val, 1.0, 0.25, 0.0, 0.75);
     else
         return 0.0;
 }
 
-static double red( double gray ) {
-    return base( gray - 0.5 );
+static double red(double gray) {
+    return base(gray - 0.5);
 }
 
-static double green( double gray ) {
-    return base( gray );
+static double green(double gray) {
+    return base(gray);
 }
 
-static double blue( double gray ) {
-    return base( gray + 0.5 );
+static double blue(double gray) {
+    return base(gray + 0.5);
 }
 
-}
+}  // namespace jet
 
 color color::jet(element_type value) {
     return color(jet::red(value), jet::green(value), jet::blue(value));
@@ -207,9 +208,7 @@ color color::greyscale(element_type d, element_type min, element_type max) {
 }
 
 color color::random() {
-    return color(basal::rand_range(0.0, 1.0),
-                 basal::rand_range(0.0, 1.0),
-                 basal::rand_range(0.0, 1.0));
+    return color(basal::rand_range(0.0, 1.0), basal::rand_range(0.0, 1.0), basal::rand_range(0.0, 1.0));
 }
 
 namespace operators {
@@ -219,13 +218,11 @@ color operator*(const color& a, const color& b) {
     c.simd_channels = _mm256_mul_pd(a.simd_channels, b.simd_channels);
     return c;
 #else
-    return color(a.red() * b.red(),
-                 a.green() * b.green(),
-                 a.blue() * b.blue());
+    return color(a.red() * b.red(), a.green() * b.green(), a.blue() * b.blue());
 #endif
 }
 
-}
+}  // namespace operators
 
 /**
  * Finds a nominal (max 1.0, min 0.0) response in a gaussian peak within a low to high range.
@@ -244,7 +241,7 @@ static element_type gaussian_peak(element_type x, element_type low, element_type
     element_type p = (low + high) / 2.0;
     element_type q = (high - low) / 2.0;
     element_type a = (x - p) / q;
-    return std::exp(-(a*a));
+    return std::exp(-(a * a));
 }
 
 color wavelength_to_color(iso::meters lambda) noexcept(false) {
@@ -252,12 +249,13 @@ color wavelength_to_color(iso::meters lambda) noexcept(false) {
 
     static const iso::meters near_infrared = 780E-9_m;
     static const iso::meters ultra_violet = 380E-9_m;
-    basal::exception::throw_unless(near_infrared >= lambda and lambda >= ultra_violet, __FILE__, __LINE__, "Must be in the visible range");
+    basal::exception::throw_unless(near_infrared >= lambda and lambda >= ultra_violet, __FILE__, __LINE__,
+                                   "Must be in the visible range");
     // we'll express lambda in nm now, so pull up from there
-    element_type s = gaussian_peak(lambda.value, 410E-9, 480E-9); // Peak at 445nm
-    element_type m = gaussian_peak(lambda.value, 500E-9, 590E-9); // Peak at 545nm
-    element_type l = gaussian_peak(lambda.value, 520E-9, 630E-9); // Peak at 575nm
+    element_type s = gaussian_peak(lambda.value, 410E-9, 480E-9);  // Peak at 445nm
+    element_type m = gaussian_peak(lambda.value, 500E-9, 590E-9);  // Peak at 545nm
+    element_type l = gaussian_peak(lambda.value, 520E-9, 630E-9);  // Peak at 575nm
     return color(l, m, s);
 }
 
-} // namespace raytrace
+}  // namespace raytrace

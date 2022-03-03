@@ -1,18 +1,18 @@
-#include <vector>
-#include <iostream>
-
 #include <gtest/gtest.h>
-#include <basal/basal.hpp>
-#include <raytrace/raytrace.hpp>
 
-#include "linalg/gtest_helper.hpp"
+#include <basal/basal.hpp>
+#include <iostream>
+#include <raytrace/raytrace.hpp>
+#include <vector>
+
 #include "geometry/gtest_helper.hpp"
+#include "linalg/gtest_helper.hpp"
 #include "raytrace/gtest_helper.hpp"
 
 using namespace raytrace;
 
 TEST(SphereTest, NormalReflection) {
-    raytrace::point C(1,1,1);
+    raytrace::point C(1, 1, 1);
     raytrace::objects::sphere s0(C, 1.0);
     raytrace::point P(0, 1, 1);
     ASSERT_TRUE(s0.surface(P));
@@ -27,13 +27,13 @@ TEST(SphereTest, NormalReflection) {
 }
 
 TEST(SphereTest, Mapping) {
-    raytrace::objects::sphere s0(raytrace::point(1,1,1), 1.0);
+    raytrace::objects::sphere s0(raytrace::point(1, 1, 1), 1.0);
 
     raytrace::point surface_points[] = {
-        raytrace::point( 1, 0, 0),
+        raytrace::point(1, 0, 0),
         raytrace::point(-1, 0, 0),
-        raytrace::point( 0, 1, 0),
-        raytrace::point( 0,-1, 0),
+        raytrace::point(0, 1, 0),
+        raytrace::point(0, -1, 0),
     };
     const size_t dimof_sp = dimof(surface_points);
     image::point uv_points_truth[] = {
@@ -64,28 +64,28 @@ TEST(SphereTest, IntersectionsFromRays) {
 
     raytrace::point A(3, -3, -3);
     raytrace::point B(1, -1, -1);
-    raytrace::point D(0, -3, -3); // on the surface
-    raytrace::point E(-3, 0, -3); // on the surface, but tangential
-    raytrace::point F(-1, 1,  2);
+    raytrace::point D(0, -3, -3);  // on the surface
+    raytrace::point E(-3, 0, -3);  // on the surface, but tangential
+    raytrace::point F(-1, 1, 2);
 
     // line through middle
     ray Amx(A, -R3::basis::X);
-    ray Apx(A,  R3::basis::X);
+    ray Apx(A, R3::basis::X);
     // off center
     ray Bmx(B, -R3::basis::X);
-    ray Bpx(B,  R3::basis::X);
+    ray Bpx(B, R3::basis::X);
     // on the surface
     ray Dmx(D, -R3::basis::X);
-    ray Dpx(D,  R3::basis::X);
+    ray Dpx(D, R3::basis::X);
     // tangential
     ray Emx(E, -R3::basis::X);
-    ray Epx(E,  R3::basis::X);
+    ray Epx(E, R3::basis::X);
     // no where near
     ray Fmx(F, -R3::basis::X);
-    ray Fpx(F,  R3::basis::X);
+    ray Fpx(F, R3::basis::X);
     // center outwards
     ray Gmx(C, -R3::basis::X);
-    ray Gpx(C,  R3::basis::X);
+    ray Gpx(C, R3::basis::X);
 
     geometry::intersection iSAmx = S.intersect(Amx);
     geometry::intersection iSApx = S.intersect(Apx);
@@ -130,7 +130,6 @@ TEST(SphereTest, IntersectionsFromRays) {
     ASSERT_EQ(geometry::IntersectionType::Point, geometry::get_type(iSGpx));
 }
 
-
 TEST(SphereTest, Refraction) {
     struct {
         element_type eta;
@@ -140,8 +139,10 @@ TEST(SphereTest, Refraction) {
         iso::radians exit_exterior_angle;
     } params[] = {
         {mediums::refractive_index::water, iso::radians{0}, iso::radians{0}, iso::radians{0}, iso::radians{0}},
-        {mediums::refractive_index::water, iso::radians{iso::pi/12}, iso::radians{0.19540396}, iso::radians{0.12900853}, iso::radians{0.2617994}},
-        {mediums::refractive_index::water, iso::radians{iso::pi/6}, iso::radians{0.38449794}, iso::radians{0.24539709}, iso::radians{0.52359879}},
+        {mediums::refractive_index::water, iso::radians{iso::pi / 12}, iso::radians{0.19540396},
+         iso::radians{0.12900853}, iso::radians{0.2617994}},
+        {mediums::refractive_index::water, iso::radians{iso::pi / 6}, iso::radians{0.38449794},
+         iso::radians{0.24539709}, iso::radians{0.52359879}},
     };
     for (auto& param : params) {
         element_type eta = param.eta;

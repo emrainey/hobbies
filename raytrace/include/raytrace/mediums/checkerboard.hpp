@@ -16,15 +16,17 @@ public:
     /**
      * Creates a per planar quadrant color set
      */
-    checkerboard(element_type repeat, color q1_dark, color q1_light, color q2_dark, color q2_light, color q3_dark, color q3_light, color q4_dark, color q4_light);
+    checkerboard(element_type repeat, color q1_dark, color q1_light, color q2_dark, color q2_light, color q3_dark,
+                 color q3_light, color q4_dark, color q4_light);
     virtual ~checkerboard() = default;
 
     color diffuse(const raytrace::point& volumetric_point) const final;
+
 protected:
     element_type m_repeat;
     palette m_pal;
 };
 
-} // namespace mediums
+}  // namespace mediums
 
-} // namespace raytrace
+}  // namespace raytrace

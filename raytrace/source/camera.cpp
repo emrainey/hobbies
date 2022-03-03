@@ -1,35 +1,35 @@
-#include <cassert>
 #include "raytrace/camera.hpp"
-#include "iso/radians.hpp"
-#include <linalg/linalg.hpp>
+
 #include <basal/exception.hpp>
+#include <cassert>
+#include <linalg/linalg.hpp>
+
+#include "iso/radians.hpp"
 
 // When true, enable printing some intermediate results in the math
 constexpr static bool debug = false;
 
 namespace raytrace {
 
-camera::camera(size_t image_height,
-               size_t image_width,
-               iso::degrees field_of_view)
+camera::camera(size_t image_height, size_t image_width, iso::degrees field_of_view)
     : entity()
     , capture(image_height, image_width)
     , mask(image_height, image_width)
     , m_intrinsics(matrix::identity(raytrace::dimensions, raytrace::dimensions))
-    , m_pixel_scale(1.0) // will be computed in a second
+    , m_pixel_scale(1.0)  // will be computed in a second
     , m_field_of_view(field_of_view)
     , m_world_look_at(1.0, 0.0, 0.0)
-    , m_world_look(m_world_look_at - m_world_position) // position starts at 0,0,0
+    , m_world_look(m_world_look_at - m_world_position)  // position starts at 0,0,0
     , m_world_up(R3::basis::Z)
     , m_world_left(R3::basis::Y) {
     // compute f so that pixel_scale will remain 1 at first.
     iso::radians rfov;
     iso::convert(rfov, m_field_of_view);
-    element_type f = (image_width / 2) / std::tan(rfov.value/2.0);
+    element_type f = (image_width / 2) / std::tan(rfov.value / 2.0);
     m_world_look_at.x = f;
 
     // the rotation from camera (+Z forward, -Y up) to world frame (+Z up, +X forward)
-    iso::radians phi(iso::pi/2);
+    iso::radians phi(iso::pi / 2);
     matrix r1 = geometry::rotation(R3::basis::Z, -phi);
     matrix r2 = geometry::rotation(R3::basis::Y, phi);
     m_camera_to_object_rotation = r2 * r1;
@@ -40,9 +40,7 @@ camera::camera(size_t image_height,
     // we can't move anything until the camera to world rotation has been computed, as we use it.
     move_to(m_world_position, m_world_look_at);
     // initialize it to all white
-    mask.for_each([](size_t, size_t, uint8_t& pixel) -> void {
-        pixel = image::AAA_MASK_DISABLED;
-    });
+    mask.for_each([](size_t, size_t, uint8_t& pixel) -> void { pixel = image::AAA_MASK_DISABLED; });
 }
 
 void camera::move_to(const point& look_from, const point& look_at) {
@@ -71,7 +69,9 @@ void camera::move_to(const point& look_from, const point& look_at) {
         std::cout << "World Left " << world_left << std::endl;
     }
     if (world_left.magnitude() == 0.0) {
-        throw basal::exception("Look and Up are co-linear, unable to cross. This camera assumes +Z is up in world coordinates", __FILE__, __LINE__);
+        throw basal::exception(
+            "Look and Up are co-linear, unable to cross. This camera assumes +Z is up in world coordinates", __FILE__,
+            __LINE__);
     }
     //==========================================================
     // now update the variables that we've passed the exceptions
@@ -89,26 +89,24 @@ void camera::move_to(const point& look_from, const point& look_at) {
     R3::point cartesian_world_point(m_world_look[0], m_world_look[1], m_world_look[2]);
     // (r, theta, phi)
     R3::point spherical_world_point = cartesian_to_spherical(cartesian_world_point);
-    iso::radians rx(0); // no barrel roll
-    iso::radians ry(spherical_world_point[2] - iso::pi/2); // phi with "level" at XY plane
-    iso::radians rz(spherical_world_point[1]); // theta
+    iso::radians rx(0);                                       // no barrel roll
+    iso::radians ry(spherical_world_point[2] - iso::pi / 2);  // phi with "level" at XY plane
+    iso::radians rz(spherical_world_point[1]);                // theta
     if constexpr (debug) {
         std::cout << "Rotation X (Barrel)" << rx.value << std::endl;
         std::cout << "Rotation Y (Tilt)" << ry.value << std::endl;
         std::cout << "Rotation Z (Pan)" << rz.value << std::endl;
     }
     // tilt can only be just shy of up or down
-    basal::exception::throw_unless(
-            (iso::pi > ry.value and ry.value > -iso::pi/2),
-            __FILE__, __LINE__,
-            " Tilt must be +PI/2 > %lf > -PI/2\r\n", ry.value);
+    basal::exception::throw_unless((iso::pi > ry.value and ry.value > -iso::pi / 2), __FILE__, __LINE__,
+                                   " Tilt must be +PI/2 > %lf > -PI/2\r\n", ry.value);
     // no rotation should ever be NaN
     assert(not std::isnan(rx.value) and not std::isnan(ry.value) and not std::isnan(rz.value));
     // move the camera's entity base class by these values
     rotation(rx, ry, rz);
 
     // update the intrinsics which converts the focal distance into scaling for pixel
-    iso::radians phi; // half of the field of view
+    iso::radians phi;  // half of the field of view
     iso::convert(phi, m_field_of_view * 0.5);
     element_type w = element_type(capture.width);
     element_type h = element_type(capture.height);
@@ -116,11 +114,12 @@ void camera::move_to(const point& look_from, const point& look_at) {
     m_intrinsics[0][0] = m_pixel_scale;
     m_intrinsics[1][1] = m_pixel_scale;
     m_intrinsics[2][2] = image_distance;
-    m_intrinsics[0][2] = -((w/2.0) * m_pixel_scale); // primary point x
-    m_intrinsics[1][2] = -((h/2.0) * m_pixel_scale); // primary point y
+    m_intrinsics[0][2] = -((w / 2.0) * m_pixel_scale);  // primary point x
+    m_intrinsics[1][2] = -((h / 2.0) * m_pixel_scale);  // primary point y
 
-    // now verify the look_at by casting a ray through the principal point and determine what t the look_at is at (should be zero).
-    image::point P(capture.width/2, capture.height/2);
+    // now verify the look_at by casting a ray through the principal point and determine what t the look_at is at
+    // (should be zero).
+    image::point P(capture.width / 2, capture.height / 2);
     ray world_ray = cast(P);
     // the point we're looking at had better be where this ray starts
     element_type t = std::nan("");
@@ -224,4 +223,4 @@ const matrix& camera::intrinsics() const {
     return m_intrinsics;
 }
 
-} // namespace raytrace
+}  // namespace raytrace

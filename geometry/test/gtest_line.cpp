@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
-#include <geometry/geometry.hpp>
+
 #include <basal/basal.hpp>
+#include <geometry/geometry.hpp>
+
 #include "geometry/gtest_helper.hpp"
 
 using namespace geometry;
@@ -16,17 +18,17 @@ TEST(LineTest, ConstructorsAndAssigns) {
     R3::line l2(p1, p2);
     ASSERT_TRUE(l1 == l2);
     ASSERT_TRUE(parallel(l1, l2));
-    R3::line l3{{1, 2, 3, 4, 5, 6}}; // v then p
+    R3::line l3{{1, 2, 3, 4, 5, 6}};  // v then p
     ASSERT_TRUE(l1 == l3);
 }
 
 TEST(LineTest, Distance) {
-    R3::vector v{{1,1,0}};
+    R3::vector v{{1, 1, 0}};
     R3::line l(geometry::R3::origin, v);
-    R3::point p(3,3,5);
-    R3::point q(-2,-3,0);
+    R3::point p(3, 3, 5);
+    R3::point q(-2, -3, 0);
     ASSERT_DOUBLE_EQ(5.0, l.distance(p));
-    ASSERT_DOUBLE_EQ( sqrt(2.0)/2, l.distance(q));
+    ASSERT_DOUBLE_EQ(sqrt(2.0) / 2, l.distance(q));
 }
 
 TEST(LineTest, Solves) {

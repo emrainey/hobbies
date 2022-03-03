@@ -26,7 +26,7 @@ point::point(const element_type a[], size_t len) noexcept(false) : point(len) {
 }
 
 /// Constructor from an initialization list {{}};
-point::point(const std::vector<element_type> &list) noexcept(false) : point(list.size()) {
+point::point(const std::vector<element_type>& list) noexcept(false) : point(list.size()) {
     if (m_data) {
         for (size_t i = 0; i < list.size(); i++) {
             m_data[i] = list[i];
@@ -40,9 +40,7 @@ point::point(const point& other) : point(other.dimensions) {
 }
 
 /// Move Constructor
-point::point(point&& other)
-    : m_data(std::move(other.m_data))
-    , dimensions(other.dimensions) {
+point::point(point&& other) : m_data(std::move(other.m_data)), dimensions(other.dimensions) {
     other.m_data = nullptr;
 }
 
@@ -53,14 +51,16 @@ point::~point() {
 
 /// Copy Assignment
 point& point::operator=(const point& other) noexcept(false) {
-    basal::exception::throw_unless(other.dimensions == dimensions, __FILE__, __LINE__, "Point dimensions (copy) must match point dimensions\n");
+    basal::exception::throw_unless(other.dimensions == dimensions, __FILE__, __LINE__,
+                                   "Point dimensions (copy) must match point dimensions\n");
     std::copy_n(other.m_data.get(), other.dimensions, m_data.get());
     return (*this);
 }
 
 /// Move Assignment
 point& point::operator=(point&& other) noexcept(false) {
-    basal::exception::throw_unless(other.dimensions == dimensions, __FILE__, __LINE__, "Point dimensions (move) must match point dimensions\n");
+    basal::exception::throw_unless(other.dimensions == dimensions, __FILE__, __LINE__,
+                                   "Point dimensions (move) must match point dimensions\n");
     m_data = std::move(other.m_data);
     return (*this);
 }
@@ -81,7 +81,7 @@ void point::print(const char name[]) const {
 std::ostream& operator<<(std::ostream& os, const point& p) {
     os << "point(";
     for (size_t r = 0; r < p.dimensions; r++) {
-        os << p[r] << (r==(p.dimensions-1)?"":", ");
+        os << p[r] << (r == (p.dimensions - 1) ? "" : ", ");
     }
     os << ")";
     return os;
@@ -122,7 +122,7 @@ point operator*(const linalg::matrix& a, const point& b) noexcept(false) {
 }
 
 bool operator!=(const point& a, const point& b) noexcept(false) {
-    return (not operator==(a,b));
+    return (not operator==(a, b));
 }
 
 bool operator==(point& a, point& b) noexcept(false) {
@@ -137,7 +137,7 @@ bool operator==(point& a, point& b) noexcept(false) {
     return equal;
 }
 
-} // namespace operators
+}  // namespace operators
 
 point multiply(const point& a, element_type s) noexcept(false) {
     point c(a);
@@ -150,7 +150,6 @@ point multiply(element_type s, const point& a) noexcept(false) {
     c *= s;
     return point(c);
 }
-
 
 namespace pairwise {
 
@@ -172,6 +171,6 @@ point divide(const point& a, const point& b) noexcept(false) {
     return point(c);
 }
 
-} // namespace pairwise
+}  // namespace pairwise
 
-} // namespace raytrace
+}  // namespace geometry

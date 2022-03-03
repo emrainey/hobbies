@@ -1,15 +1,17 @@
+#include "raytrace/objects/overlap.hpp"
+
+#include <algorithm>
 #include <iostream>
 #include <vector>
-#include <algorithm>
-#include "raytrace/objects/overlap.hpp"
 
 namespace raytrace {
 namespace objects {
 using namespace linalg::operators;
 
-overlap::overlap(const object& A, const object& B, overlap::type type) : m_A(A), m_B(B), m_type(type) {}
+overlap::overlap(const object& A, const object& B, overlap::type type) : m_A(A), m_B(B), m_type(type) {
+}
 
-vector  overlap::normal(const point& world_surface_point) const {
+vector overlap::normal(const point& world_surface_point) const {
     // normals are computed from points where the objects have a collision, this it should be a surface point.
     raytrace::point overlap_point = reverse_transform(world_surface_point);
     vector vA = m_A.normal(overlap_point);
@@ -36,12 +38,10 @@ hits overlap::collisions_along(const ray& overlap_ray) const {
 
     // early exit
     if (hitsA.size() == 0 and hitsB.size() == 0) {
-        return hits(); // empty
+        return hits();  // empty
     }
 
-    auto sorter = [](element_type a, element_type b) -> bool {
-        return (a < b);
-    };
+    auto sorter = [](element_type a, element_type b) -> bool { return (a < b); };
 
     // sort them individually so we can make some logical deductions later.
     std::sort(hitsA.begin(), hitsA.end(), sorter);
@@ -53,10 +53,8 @@ hits overlap::collisions_along(const ray& overlap_ray) const {
     std::sort(hitsAB.begin(), hitsAB.end(), sorter);
 
     // classify the type of colliders here
-    bool two_closed_simple_surfaces = (    m_A.max_collisions() == 2
-                                       and m_B.max_collisions() == 2
-                                       and m_A.is_closed_surface()
-                                       and m_B.is_closed_surface());
+    bool two_closed_simple_surfaces = (m_A.max_collisions() == 2 and m_B.max_collisions() == 2 and
+                                       m_A.is_closed_surface() and m_B.is_closed_surface());
 
     if (m_type == overlap::type::additive) {
         // remove the inner alternating hit from the hits lists
@@ -80,7 +78,7 @@ hits overlap::collisions_along(const ray& overlap_ray) const {
             if ((hitsAB[0] == hitsA[0] and hitsAB[1] == hitsB[0]) or
                 (hitsAB[0] == hitsB[0] and hitsAB[1] == hitsA[0])) {
                 // remove second and third (end is exclusive)
-                hitsAB.erase(hitsAB.begin()+1, hitsAB.end());
+                hitsAB.erase(hitsAB.begin() + 1, hitsAB.end());
                 return hitsAB;
             }
         }
@@ -89,11 +87,11 @@ hits overlap::collisions_along(const ray& overlap_ray) const {
         // B is the subtractive object. negate B's normals (done in the normal function)
         // if just [B0, B1] with no A, return empty
         if (hitsA.size() == 0) {
-            return hits(); // empty;
+            return hits();  // empty;
         }
         // if just [A0, A1] with no B hits, return that.
         if (hitsB.size() == 0) {
-            return hitsA; // should just have A items...
+            return hitsA;  // should just have A items...
         }
 
         if (two_closed_simple_surfaces) {
@@ -108,17 +106,17 @@ hits overlap::collisions_along(const ray& overlap_ray) const {
             }
             // if [B0, A0, A1, B1] then return empty
             if (hitsAB[0] == hitsB[0] and hitsAB[3] == hitsB[1]) {
-                return hits(); // empty
+                return hits();  // empty
             }
             // if [B0, A0, B1, A1] then return [B1, A1]
             if (hitsAB[0] == hitsB[0] and hitsAB[1] == hitsA[0]) {
-                return hits(hitsAB.begin()+2,hitsAB.end());
+                return hits(hitsAB.begin() + 2, hitsAB.end());
             }
             // if [A0, B0, B1, A1] then return all
             // if [A0, B0, A1, B1] then return [A0, B0]
             if (hitsAB[0] == hitsA[0] and hitsAB[1] == hitsB[0]) {
                 if (hitsAB[2] == hitsA[1]) {
-                    return hits(hitsAB.begin(), hitsAB.begin()+2);
+                    return hits(hitsAB.begin(), hitsAB.begin() + 2);
                 } else {
                     return hitsAB;
                 }
@@ -128,7 +126,7 @@ hits overlap::collisions_along(const ray& overlap_ray) const {
         // return inner hitsAB
         // if just [A0, A1] or [B0, B1] then return empty.
         if (hitsA.size() == 0 or hitsB.size() == 0) {
-            return hits(); // empty
+            return hits();  // empty
         }
         if (two_closed_simple_surfaces) {
             // if [A0, A1, B0, B1] return empty
@@ -136,7 +134,7 @@ hits overlap::collisions_along(const ray& overlap_ray) const {
             if (std::equal(hitsAB.begin(), hitsAB.begin() + hitsA.size(), hitsA.begin()) or
                 std::equal(hitsAB.begin(), hitsAB.begin() + hitsB.size(), hitsB.begin())) {
                 // if it starts with only hitsA or only hitsB
-                return hits(); // empty
+                return hits();  // empty
             }
             // if [A0, B0, A1, B1] then return [B0, A1]
             // if [B0, A0, B1, A1] then return [A0, B1]
@@ -145,7 +143,7 @@ hits overlap::collisions_along(const ray& overlap_ray) const {
             // if the first and second elements are from differnet objects...
             if ((hitsAB[0] == hitsA[0] and hitsAB[1] == hitsB[0]) or
                 (hitsAB[0] == hitsB[0] and hitsAB[1] == hitsA[0])) {
-                return hits(hitsAB.begin()+1, hitsAB.end()-1);
+                return hits(hitsAB.begin() + 1, hitsAB.end() - 1);
             }
         }
     } else if (m_type == overlap::type::exclusive) {
@@ -157,11 +155,11 @@ hits overlap::collisions_along(const ray& overlap_ray) const {
             return hitsA;
         }
     }
-    return hits(); // empty
+    return hits();  // empty
 }
 
 image::point overlap::map(const point& object_surface_point __attribute__((unused))) const {
-    image::point uv(0,0);
+    image::point uv(0, 0);
     return uv;
 }
 
@@ -170,5 +168,5 @@ void overlap::print(const char str[]) const {
     m_B.print(str);
 }
 
-} // namespace objects
-} // namespace raytrace
+}  // namespace objects
+}  // namespace raytrace

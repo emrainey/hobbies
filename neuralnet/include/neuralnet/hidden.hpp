@@ -16,4 +16,4 @@ public:
     /** Destructor */
     virtual ~hidden();
 };
-}
+}  // namespace nn

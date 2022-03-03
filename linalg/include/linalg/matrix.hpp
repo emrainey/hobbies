@@ -5,15 +5,14 @@
  * @copyright Copyright 2019 (C) Erik Rainey.
  */
 
+#include <basal/exception.hpp>
+#include <basal/printable.hpp>
+#include <cinttypes>
 #include <functional>
 #include <initializer_list>
-#include <vector>
-#include <limits>
 #include <iostream>
-#include <cinttypes>
-
-#include <basal/printable.hpp>
-#include <basal/exception.hpp>
+#include <limits>
+#include <vector>
 
 #include "linalg/types.hpp"
 
@@ -30,6 +29,7 @@ public:
     const size_t rows;
     /** The constant number of columns in the matrix */
     const size_t cols;
+
 protected:
     /** The size of the allocation in bytes */
     const size_t bytes;
@@ -48,6 +48,7 @@ protected:
 
     /** Protected child class constructor */
     matrix(size_t rows, size_t cols, bool allocate);
+
 public:
     /** A user defined constructor (which assumes at least a 1x1) */
     matrix(size_t rows = 3, size_t cols = 3);
@@ -67,11 +68,11 @@ public:
     /** Copy constructor */
     matrix(const matrix &a) noexcept(false);
     /** Move constructor */
-    matrix(matrix && a) noexcept(false);
+    matrix(matrix &&a) noexcept(false);
     /** Copy assignment */
     matrix &operator=(const matrix &a) noexcept(false);
     /** Move assignment */
-    matrix &operator=(matrix && a) noexcept(false);
+    matrix &operator=(matrix &&a) noexcept(false);
     /** Assignment operator, fills each matrix value with v */
     void operator=(const element_type v);
     /** Virtual Destructor */
@@ -99,44 +100,44 @@ public:
     matrix copy();
 
     /** zeros the matrix and returns a reference */
-    matrix& zero();
+    matrix &zero();
 
     /** Fills a matrix with a specific value */
-    matrix& fill(element_type v);
+    matrix &fill(element_type v);
 
     /** Fill a matrix with random values between the given parameters */
-    matrix& random(double min = 0.0, double max = 1.0, double p = 3.0);
+    matrix &random(double min = 0.0, double max = 1.0, double p = 3.0);
 
     /** Returns the trace of a matrix */
     element_type trace() const;
 
     /** Returns the value at the row and column. 0 based indexing. */
-    virtual element_type& index(      size_t idx)       noexcept(false);
+    virtual element_type &index(size_t idx) noexcept(false);
     /** Returns the value at the row and column. 0 based indexing. */
     virtual element_type index(const size_t idx) const noexcept(false);
 
     /** Returns the value at the row and column. 0 based indexing. */
-    virtual element_type& index(      size_t row,       size_t col)       noexcept(false);
+    virtual element_type &index(size_t row, size_t col) noexcept(false);
     /** Returns the value at the row and column. 0 based indexing. */
     virtual element_type index(const size_t row, const size_t col) const noexcept(false);
 
     /** Returns the value at the row and column. 0 based indexing. */
     element_type operator()(const size_t row, const size_t col) const noexcept(false);
     /** Returns the value at the row and column. 0 based indexing. */
-    element_type &operator()(     size_t row,       size_t col)       noexcept(false);
+    element_type &operator()(size_t row, size_t col) noexcept(false);
 
     /** Returns a pointer of a row which can be further indexed */
-    virtual const element_type * operator[](size_t idx) const noexcept(false);
+    virtual const element_type *operator[](size_t idx) const noexcept(false);
     /** Returns a const pointer to a const value row */
-    virtual       element_type * operator[](size_t idx)       noexcept(false);
+    virtual element_type *operator[](size_t idx) noexcept(false);
 
     /** This method uses a 1 based, not 0 based indexes */
-    virtual element_type &at(short r, short c)       noexcept(false);
+    virtual element_type &at(short r, short c) noexcept(false);
     /** This method uses a 1 based, not 0 based indexes */
     virtual element_type at(short r, short c) const noexcept(false);
 
     /** This method uses a 1 based, not 0 based indexes */
-    virtual element_type &at(letters i)       noexcept(false);
+    virtual element_type &at(letters i) noexcept(false);
     /** This method uses a 1 based, not 0 based indexes */
     virtual element_type at(letters i) const noexcept(false);
 
@@ -192,7 +193,7 @@ public:
      */
     matrix resize(size_t rs, size_t cs) noexcept(false);
 
-#undef minor // somewhere deep in Unix land this is used to make minor numbers
+#undef minor  // somewhere deep in Unix land this is used to make minor numbers
 
     /** Returns the determinant of the sub matrix */
     element_type minor(size_t number_of_rows, size_t number_of_columns) const;
@@ -205,7 +206,7 @@ public:
     /** Returns the tranpose of the comatrix */
     matrix adjugate() const;
     /** Modifies the matrix to be the negative version of the matrix */
-    matrix& negative();
+    matrix &negative();
     /** Returns the negative version of the matrix */
     virtual matrix negatived() const;
 
@@ -263,13 +264,13 @@ public:
     /** Computes the PLU decomposition of the matrix.
      * \return tuple of matricies.
      */
-    std::tuple<matrix,matrix,matrix> PLU() const noexcept(false);
+    std::tuple<matrix, matrix, matrix> PLU() const noexcept(false);
 
     /** For use with const methods */
-    typedef std::function<void(size_t,size_t,const element_type&)> const_coord_iterator;
+    typedef std::function<void(size_t, size_t, const element_type &)> const_coord_iterator;
 
     /** For use with non-const methods */
-    typedef std::function<void(size_t,size_t,element_type &)> ref_coord_iterator;
+    typedef std::function<void(size_t, size_t, element_type &)> ref_coord_iterator;
 
     /** For use with filling non-const methods */
     typedef std::function<void(const element_type &)> const_ref_iterator;
@@ -388,7 +389,7 @@ protected:
     matrix &sort_zero_rows();
 
     /** Sorts a specific column starting and ending at a specific row */
-    matrix &sort_leading_nonzero(size_t col, size_t i, size_t& j);
+    matrix &sort_leading_nonzero(size_t col, size_t i, size_t &j);
 };
 
 /** Add two matrix together */
@@ -407,109 +408,111 @@ matrix multiply(const matrix &a, const element_type r) noexcept(false);
 matrix multiply(const element_type r, const matrix &a) noexcept(false);
 
 namespace operators {
-    inline matrix operator+(const matrix &a, const matrix &b) noexcept(false) {
-        return addition(a, b);
-    }
-
-    inline matrix operator-(const matrix &a, const matrix &b) noexcept(false) {
-        return subtraction(a, b);
-    }
-
-    inline matrix operator*(const matrix &a, const matrix &b) noexcept(false) {
-        return multiply(a, b);
-    }
-
-    inline matrix operator*(const matrix &a, const element_type r) noexcept(false) {
-        return multiply(a, r);
-    }
-
-    inline matrix operator*(const element_type r, const matrix &a) noexcept(false) {
-        return multiply(a, r);
-    }
-
-    /** Divides a by b. This is equivalent to a*b^-1 */
-    inline matrix operator/(const matrix &a, const matrix &b) noexcept(false) {
-        matrix binv = const_cast<matrix&>(b).inverse();
-        return multiply(a, binv);
-    }
-
-    inline matrix operator/(const matrix &a, const element_type r) noexcept(false) {
-        return multiply(a, (1.0/r));
-    }
-
-    inline matrix operator/(const element_type r, const matrix &a) noexcept(false) {
-        return multiply(a, (1.0/r));
-    }
-
-    /** An easy mechanism to raise a matrix to a specific integer power */
-    matrix operator^(matrix &a, int p) noexcept(false);
-
-    /** The shortcut version of a power operation for specialized symbols like T (transpose) or H (hermitian). Specialized for conjoined operators */
-    matrix operator^(matrix &a, letters l) noexcept(false);
-
-    /** The shortcut version of a power operation for specialized symbols like T (transpose) or H (hermitian). Specialized for conjoined operators */
-    matrix operator^(const matrix &a, letters l) noexcept(false);
+inline matrix operator+(const matrix &a, const matrix &b) noexcept(false) {
+    return addition(a, b);
 }
+
+inline matrix operator-(const matrix &a, const matrix &b) noexcept(false) {
+    return subtraction(a, b);
+}
+
+inline matrix operator*(const matrix &a, const matrix &b) noexcept(false) {
+    return multiply(a, b);
+}
+
+inline matrix operator*(const matrix &a, const element_type r) noexcept(false) {
+    return multiply(a, r);
+}
+
+inline matrix operator*(const element_type r, const matrix &a) noexcept(false) {
+    return multiply(a, r);
+}
+
+/** Divides a by b. This is equivalent to a*b^-1 */
+inline matrix operator/(const matrix &a, const matrix &b) noexcept(false) {
+    matrix binv = const_cast<matrix &>(b).inverse();
+    return multiply(a, binv);
+}
+
+inline matrix operator/(const matrix &a, const element_type r) noexcept(false) {
+    return multiply(a, (1.0 / r));
+}
+
+inline matrix operator/(const element_type r, const matrix &a) noexcept(false) {
+    return multiply(a, (1.0 / r));
+}
+
+/** An easy mechanism to raise a matrix to a specific integer power */
+matrix operator^(matrix &a, int p) noexcept(false);
+
+/** The shortcut version of a power operation for specialized symbols like T (transpose) or H (hermitian). Specialized
+ * for conjoined operators */
+matrix operator^(matrix &a, letters l) noexcept(false);
+
+/** The shortcut version of a power operation for specialized symbols like T (transpose) or H (hermitian). Specialized
+ * for conjoined operators */
+matrix operator^(const matrix &a, letters l) noexcept(false);
+}  // namespace operators
 
 /** Joins the matricies horizontally, mxn and mxk to make a mx(n+k) matrix */
 matrix rowjoin(matrix &a, matrix &b) noexcept(false);
 
 namespace operators {
-    /** Same as rowjoin */
-    inline matrix operator|(matrix &a, matrix &b) noexcept(false) {
-        return rowjoin(a, b);
-    }
+/** Same as rowjoin */
+inline matrix operator|(matrix &a, matrix &b) noexcept(false) {
+    return rowjoin(a, b);
 }
+}  // namespace operators
 
 /** Joins the matricies vertically, mxn and kxn to make a (m+k)xn matrix. */
 matrix coljoin(const matrix &a, const matrix &b) noexcept(false);
 
 namespace operators {
-    /** Same as coljoin */
-    inline matrix operator||(const matrix &a, const matrix &b) noexcept(false) {
-        return coljoin(a, b);
-    }
+/** Same as coljoin */
+inline matrix operator||(const matrix &a, const matrix &b) noexcept(false) {
+    return coljoin(a, b);
 }
+}  // namespace operators
 
 namespace pairwise {
-    /**
-     * Takes a column matrix and a row matrix and makes a new matrix using these
-     * rules.
-     * A \op B = \[a, c, e\] \op \[ b| d| f\] = \[ a*b, c*b, e*b |
-     *                                             a*d, c*d, e*d |
-     *                                             a*f, c*f, e*f\]
-     * \code
-     * size_t A[1][3] = {{a,c,e}};
-     * size_t B[3][1] = {{b},{d},{f}};
-     * // output
-     * size_t C[3][3] = {{a*b,c*b,e*b},{a*d,c*d,e*d},{a*f,c*f,e*f}};
-     * \endcode
-     * \note A must be a row matrix
-     * \note B must be a col matrix
-     * \note There might be a better name for this but I don't know it.
-     */
-    matrix multiply(const matrix& a, const matrix& b) noexcept(false);
-}
+/**
+ * Takes a column matrix and a row matrix and makes a new matrix using these
+ * rules.
+ * A \op B = \[a, c, e\] \op \[ b| d| f\] = \[ a*b, c*b, e*b |
+ *                                             a*d, c*d, e*d |
+ *                                             a*f, c*f, e*f\]
+ * \code
+ * size_t A[1][3] = {{a,c,e}};
+ * size_t B[3][1] = {{b},{d},{f}};
+ * // output
+ * size_t C[3][3] = {{a*b,c*b,e*b},{a*d,c*d,e*d},{a*f,c*f,e*f}};
+ * \endcode
+ * \note A must be a row matrix
+ * \note B must be a col matrix
+ * \note There might be a better name for this but I don't know it.
+ */
+matrix multiply(const matrix &a, const matrix &b) noexcept(false);
+}  // namespace pairwise
 
 namespace rowwise {
-    /**
-     * Scales each row in the matrix a by the element in b (a column matrix).
-     * \code
-     *  // inputs
-     * size_t A[2][2] = {{a,b},{c,d}};
-     * size_t B[2][1] = {{e},{f}};
-     *  // result
-     * size_t C[2][2] = {{a*e,b*e},{c*f,d*f}};
-     * \endcode
-     */
-    matrix scale(const matrix& a, const matrix& b) noexcept(false);
-}
+/**
+ * Scales each row in the matrix a by the element in b (a column matrix).
+ * \code
+ *  // inputs
+ * size_t A[2][2] = {{a,b},{c,d}};
+ * size_t B[2][1] = {{e},{f}};
+ *  // result
+ * size_t C[2][2] = {{a*e,b*e},{c*f,d*f}};
+ * \endcode
+ */
+matrix scale(const matrix &a, const matrix &b) noexcept(false);
+}  // namespace rowwise
 
 /**
  * The element-wise multiplication of a matrix
  * @note a and b must have the same dimensions
  */
-matrix hadamard(const matrix& a, const matrix& b) noexcept(false);
+matrix hadamard(const matrix &a, const matrix &b) noexcept(false);
 
 // INLINE SHORTCUTS
 
@@ -546,7 +549,7 @@ inline element_type abs(const matrix &A) noexcept(false) {
 /** Computes the dot of two matrixes (not vectors) */
 inline element_type dot(const matrix &u, const matrix &v) noexcept(false) {
     using namespace operators;
-    return (v.T()*u).determinant();
+    return (v.T() * u).determinant();
 }
 
 /** Returns the nullspace of the matrix */
@@ -560,6 +563,6 @@ inline matrix kern(const matrix &A) noexcept(false) {
 }
 
 /** Prints the value of a matrix */
-std::ostream& operator<<(std::ostream& os, const matrix& m);
+std::ostream &operator<<(std::ostream &os, const matrix &m);
 
-} /* end of linalg */
+}  // namespace linalg

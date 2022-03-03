@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+
 #include <basal/basal.hpp>
 
 TEST(BasalTest, FloatCheck) {
@@ -6,7 +7,7 @@ TEST(BasalTest, FloatCheck) {
     ASSERT_FALSE(basal::equals(0.0125, 0.0124, 0.0001));
     ASSERT_FALSE(basal::equals(0.0125, 0.0124));
     ASSERT_TRUE(basal::equals(0.0125, 0.0125));
-    double value = 1.0/3.0;
+    double value = 1.0 / 3.0;
     ASSERT_TRUE(basal::equals(value * 3.0, 1.0));
 }
 

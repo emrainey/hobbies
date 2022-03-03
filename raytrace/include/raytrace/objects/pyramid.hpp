@@ -1,7 +1,8 @@
 #pragma once
 
-#include <linalg/linalg.hpp>
 #include <geometry/geometry.hpp>
+#include <linalg/linalg.hpp>
+
 #include "raytrace/objects/object.hpp"
 
 namespace raytrace {
@@ -23,8 +24,9 @@ public:
     image::point map(const point& object_surface_point) const override;
     /** @copydoc basal::printable::print */
     void print(const char str[]) const override;
+
 protected:
-    double m_height; //!< The height of the pyramid above 0 in Z.
+    double m_height;  //!< The height of the pyramid above 0 in Z.
 };
-}
-}
+}  // namespace objects
+}  // namespace raytrace

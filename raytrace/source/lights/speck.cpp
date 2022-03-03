@@ -4,15 +4,11 @@ namespace raytrace {
 namespace lights {
 using namespace linalg::operators;
 
-speck::speck(const point& P, const color& C, element_type intensity)
-    : light(C, intensity, 1)
-    , entity(P)
-    {}
+speck::speck(const point& P, const color& C, element_type intensity) : light(C, intensity, 1), entity(P) {
+}
 
-speck::speck(point&& P, const color& C, element_type intensity)
-    : light(C, intensity, 1)
-    , entity(std::move(P))
-    {}
+speck::speck(point&& P, const color& C, element_type intensity) : light(C, intensity, 1), entity(std::move(P)) {
+}
 
 element_type speck::intensity_at(const point& pnt) const {
     using namespace geometry::operators;
@@ -33,11 +29,11 @@ void speck::print(const char str[]) const {
     std::cout << str << " speck @" << this << " " << position() << ", " << m_color << std::endl;
 }
 
-} // namespace lights
+}  // namespace lights
 
 std::ostream& operator<<(std::ostream& os, const lights::speck& l) {
     os << " speck " << l.position() << ", " << l.color_at(l.position());
     return os;
 }
 
-} // namespace raytrace
+}  // namespace raytrace

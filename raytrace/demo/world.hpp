@@ -13,7 +13,7 @@ public:
     virtual std::string output_filename() const = 0;
     virtual raytrace::color background(const raytrace::ray&) const = 0;
     /** Adds all the objects and lights to the scene. */
-    virtual void add_to(raytrace::scene &scene) = 0;
+    virtual void add_to(raytrace::scene& scene) = 0;
 
 protected:
     virtual ~world() = default;
@@ -22,7 +22,7 @@ protected:
 /** A Function Type */
 using world_getter = world*();
 
-} // namespace raytrace
+}  // namespace raytrace
 
 /** The interface to get a world from a module */
 extern "C" raytrace::world* get_world();

@@ -15,11 +15,12 @@ public:
     virtual ~grid() = default;
 
     color diffuse(const raytrace::point& volumetric_point) const final;
+
 protected:
     element_type m_scale;
     color m_dark, m_light;
 };
 
-} // namespace mediums
+}  // namespace mediums
 
-} // namespace raytrace
+}  // namespace raytrace

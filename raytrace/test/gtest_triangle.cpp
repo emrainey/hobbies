@@ -1,8 +1,10 @@
 
 #include <gtest/gtest.h>
-#include <raytrace/raytrace.hpp>
+
 #include <basal/basal.hpp>
+#include <raytrace/raytrace.hpp>
 #include <vector>
+
 #include "geometry/gtest_helper.hpp"
 #include "raytrace/gtest_helper.hpp"
 
@@ -15,7 +17,7 @@ TEST(TriangleTest, PlaneParallelTriangle) {
     raytrace::point C(-1.0, 1.0, 0.0);
     raytrace::objects::triangle D(A, B, C);
     geometry::plane E = as_plane(D);
-    vector F{{0.0, 0.0, 1.0 }};  // +Z
+    vector F{{0.0, 0.0, 1.0}};  // +Z
     vector G = E.unormal();
 
     using namespace linalg::operators;
@@ -24,7 +26,7 @@ TEST(TriangleTest, PlaneParallelTriangle) {
 
 TEST(TriangleTest, RayIntersection) {
     raytrace::point A(1, 0, 0);
-    raytrace::point B(-1,-1,0);
+    raytrace::point B(-1, -1, 0);
     raytrace::point C(0, 1, 0);
     raytrace::objects::triangle T(A, B, C);
     ray r0(raytrace::point(0.5, 0.5, 1), vector{{0, 0, -1}});

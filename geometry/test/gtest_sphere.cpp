@@ -1,7 +1,9 @@
 #include <gtest/gtest.h>
-#include <geometry/geometry.hpp>
+
 #include <basal/basal.hpp>
+#include <geometry/geometry.hpp>
 #include <vector>
+
 #include "geometry/gtest_helper.hpp"
 
 using namespace linalg;
@@ -56,11 +58,11 @@ TEST(SphereTest, CartesianToPolar) {
     point sp__x = R3::origin - R3::basis::X;
 
     point p0 = s0.cart_to_polar(sp_x);
-    point p0_{{radius, 0, iso::pi/2}};
+    point p0_{{radius, 0, iso::pi / 2}};
     ASSERT_POINT_EQ(p0_, p0);
 
     point p1 = s0.cart_to_polar(sp_y);
-    point p1_{{radius, iso::tau/4, iso::pi/2}};
+    point p1_{{radius, iso::tau / 4, iso::pi / 2}};
     ASSERT_POINT_EQ(p1_, p1);
 
     point p2 = s0.cart_to_polar(sp_z);
@@ -68,6 +70,6 @@ TEST(SphereTest, CartesianToPolar) {
     ASSERT_POINT_EQ(p2_, p2);
 
     point p3 = s0.cart_to_polar(sp__x);
-    point p3_{{radius, iso::tau/2, iso::pi/2}};
+    point p3_{{radius, iso::tau / 2, iso::pi / 2}};
     ASSERT_POINT_EQ(p3_, p3);
 }

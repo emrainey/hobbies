@@ -1,13 +1,13 @@
 /**
  * @file
  * This is an auto-generated header for iso::volts.
- * 
+ *
  * @note See README on re-generation.
  * @copyright Copyright 2022.
  */
 #pragma once
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 
 #include "iso/measurement.hpp"
 
@@ -16,7 +16,7 @@ namespace iso {
 
 /** A structure used to hold the postfix for volts */
 struct suffix_type_V {
-    constexpr static const char *suffix = "V";
+    constexpr static const char* suffix = "V";
 };
 
 /**
@@ -42,7 +42,7 @@ public:
     /** Destructor */
     ~volts() = default;
     /** Const Copy Assignment */
-    volts& operator=(const volts &other) noexcept;
+    volts& operator=(const volts& other) noexcept;
     /** Copy Assignment */
     volts& operator=(volts& other) noexcept;
     /** Move Assignment */
@@ -72,25 +72,25 @@ public:
 };
 
 namespace operators {
-    /** Addition operator */
-    volts operator+(const volts& A, const volts& B);
-    /** Subtraction operator */
-    volts operator-(const volts& A, const volts& B);
-    /** Left Scaling Operator */
-    volts operator*(const volts& A, double factor);
-    /** Right Scaling Operator */
-    volts operator*(double factor, const volts& A);
-    /** Inverse Scaling Operator */
-    volts operator/(const volts& A, double factor);
-}
+/** Addition operator */
+volts operator+(const volts& A, const volts& B);
+/** Subtraction operator */
+volts operator-(const volts& A, const volts& B);
+/** Left Scaling Operator */
+volts operator*(const volts& A, double factor);
+/** Right Scaling Operator */
+volts operator*(double factor, const volts& A);
+/** Inverse Scaling Operator */
+volts operator/(const volts& A, double factor);
+}  // namespace operators
 
 namespace literals {
-    /** Literal Double, Quote Operator */
-    volts operator""_V(long double value);
-    /** Literal Int, Quote Operator */
-    volts operator""_V(unsigned long long value);
-    /** Literal String, Quote Operator */
-    iso::volts operator""_V(const char a[]);
-}
+/** Literal Double, Quote Operator */
+volts operator""_V(long double value);
+/** Literal Int, Quote Operator */
+volts operator""_V(unsigned long long value);
+/** Literal String, Quote Operator */
+iso::volts operator""_V(const char a[]);
+}  // namespace literals
 
-}
+}  // namespace iso

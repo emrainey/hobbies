@@ -1,13 +1,13 @@
 /**
  * @file
  * This is an auto-generated header for iso::newtons.
- * 
+ *
  * @note See README on re-generation.
  * @copyright Copyright 2022.
  */
 #pragma once
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 
 #include "iso/measurement.hpp"
 
@@ -16,7 +16,7 @@ namespace iso {
 
 /** A structure used to hold the postfix for newtons */
 struct suffix_type_N {
-    constexpr static const char *suffix = "N";
+    constexpr static const char* suffix = "N";
 };
 
 /**
@@ -42,7 +42,7 @@ public:
     /** Destructor */
     ~newtons() = default;
     /** Const Copy Assignment */
-    newtons& operator=(const newtons &other) noexcept;
+    newtons& operator=(const newtons& other) noexcept;
     /** Copy Assignment */
     newtons& operator=(newtons& other) noexcept;
     /** Move Assignment */
@@ -72,25 +72,25 @@ public:
 };
 
 namespace operators {
-    /** Addition operator */
-    newtons operator+(const newtons& A, const newtons& B);
-    /** Subtraction operator */
-    newtons operator-(const newtons& A, const newtons& B);
-    /** Left Scaling Operator */
-    newtons operator*(const newtons& A, double factor);
-    /** Right Scaling Operator */
-    newtons operator*(double factor, const newtons& A);
-    /** Inverse Scaling Operator */
-    newtons operator/(const newtons& A, double factor);
-}
+/** Addition operator */
+newtons operator+(const newtons& A, const newtons& B);
+/** Subtraction operator */
+newtons operator-(const newtons& A, const newtons& B);
+/** Left Scaling Operator */
+newtons operator*(const newtons& A, double factor);
+/** Right Scaling Operator */
+newtons operator*(double factor, const newtons& A);
+/** Inverse Scaling Operator */
+newtons operator/(const newtons& A, double factor);
+}  // namespace operators
 
 namespace literals {
-    /** Literal Double, Quote Operator */
-    newtons operator""_N(long double value);
-    /** Literal Int, Quote Operator */
-    newtons operator""_N(unsigned long long value);
-    /** Literal String, Quote Operator */
-    iso::newtons operator""_N(const char a[]);
-}
+/** Literal Double, Quote Operator */
+newtons operator""_N(long double value);
+/** Literal Int, Quote Operator */
+newtons operator""_N(unsigned long long value);
+/** Literal String, Quote Operator */
+iso::newtons operator""_N(const char a[]);
+}  // namespace literals
 
-}
+}  // namespace iso

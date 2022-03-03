@@ -1,10 +1,12 @@
 
-#include <cmath>
-#include <cassert>
-#include <basal/basal.hpp>
-#include "geometry/point.hpp"
-#include "geometry/line.hpp"
 #include "geometry/intersection.hpp"
+
+#include <basal/basal.hpp>
+#include <cassert>
+#include <cmath>
+
+#include "geometry/line.hpp"
+#include "geometry/point.hpp"
 
 namespace geometry {
 
@@ -17,7 +19,7 @@ const char *get_type_as_str(IntersectionType obj) {
     return names[basal::to_underlying(obj)];
 }
 
-IntersectionType get_type(const intersection& var) {
+IntersectionType get_type(const intersection &var) {
     if (std::holds_alternative<geometry::R3::point>(var)) {
         return IntersectionType::Point;
     } else if (std::holds_alternative<set_of_points>(var)) {
@@ -31,14 +33,14 @@ IntersectionType get_type(const intersection& var) {
     }
 }
 
-std::ostream& operator<<(std::ostream& os, const intersection& intersector) {
+std::ostream &operator<<(std::ostream &os, const intersection &intersector) {
     IntersectionType type = get_type(intersector);
     os << " Intersection Type: " << get_type_as_str(type) << std::endl;
     os << "\tIntersection => ";
     if (type == IntersectionType::Point) {
         os << as_point(intersector);
     } else if (type == IntersectionType::Points) {
-        for (auto& pnt : as_points(intersector)) {
+        for (auto &pnt : as_points(intersector)) {
             os << " " << pnt;
         }
     } else if (type == IntersectionType::Line) {
@@ -50,7 +52,7 @@ std::ostream& operator<<(std::ostream& os, const intersection& intersector) {
 }
 
 bool intersects(const point &pt, const R3::line &lin) {
-    if (pt == lin.position()) { // is it the point already on the line?
+    if (pt == lin.position()) {  // is it the point already on the line?
         return true;
     } else {
         // find the t which it does intersect or it will return false if it does not
@@ -60,38 +62,38 @@ bool intersects(const point &pt, const R3::line &lin) {
 }
 
 intersection intersects(const R3::line &L0, const R3::line &L1) {
-    //print_this(L0);
-    //print_this(L1);
-    if (L0 == L1) { // if same line
+    // print_this(L0);
+    // print_this(L1);
+    if (L0 == L1) {  // if same line
         return intersection(L1);
-    } else if (L0.position() == L1.position()) { // happen to have the same point
+    } else if (L0.position() == L1.position()) {  // happen to have the same point
         return intersection(L1.position());
-    } else if (L0 || L1) { // happen to be parallel
+    } else if (L0 || L1) {  // happen to be parallel
         return intersection();
-    } else if (skew(L0, L1)) { // skew lines
+    } else if (skew(L0, L1)) {  // skew lines
         return intersection();
     } else {
         // from http://mathworld.wolfram.com/Line-LineIntersection.html
         R3::vector v = L1.position() - L0.position();
         R3::vector a = R3::cross(v, L1.direction());
         R3::vector b = R3::cross(L0.direction(), L1.direction());
-        double s = dot(a,b) / b.quadrance(); // L0 variable
+        double s = dot(a, b) / b.quadrance();  // L0 variable
         return intersection(L0.solve(s));
     }
 }
 
 intersection intersects(const R3::line &l, const plane &P) {
     /// \see http://mathworld.wolfram.com/Line-PlaneIntersection.html
-    if (P.contains(l)) { // line is in the plane
+    if (P.contains(l)) {  // line is in the plane
         return intersection(l);
-    } else if (orthogonal(P.normal,l.direction())) { // parallel to plane
+    } else if (orthogonal(P.normal, l.direction())) {  // parallel to plane
         return intersection();
     } else {
         R3::point a = l.solve(0.0);
         R3::point b = l.solve(1.0);
         double da = P.distance(a);
         double db = P.distance(b);
-        double dd = (da > db ? da - db : db - da); // distance between the points
+        double dd = (da > db ? da - db : db - da);  // distance between the points
         double tn = 0.0;
         // the plane can be below, above or between the points.
         // sometimes these are very close to zero but not zero
@@ -105,7 +107,7 @@ intersection intersects(const R3::line &l, const plane &P) {
             if (da > db) {
                 tn = da / dd + 0.0;
             } else if (db > da) {
-                tn = 1.0 - db/dd;
+                tn = 1.0 - db / dd;
             }
         } else if (da > db) {
             // e.g. a = 27, b = 14
@@ -121,21 +123,20 @@ intersection intersects(const R3::line &l, const plane &P) {
 }
 
 intersection intersects(const plane &P1, const plane &P2) {
-    if (P1 == P2) { // same planes with opposite normals perhaps
+    if (P1 == P2) {  // same planes with opposite normals perhaps
         return intersection(P1);
-    } else if (P1 || P2) { // parallel
+    } else if (P1 || P2) {  // parallel
         return intersection();
     } else {
         R3::vector v = R3::cross(P1.unormal(), P2.unormal());
-        //print_this(v);
-        // this is the [n1n2]^T
+        // print_this(v);
+        //  this is the [n1n2]^T
         matrix mt{{{P1.coefficient().a, P1.coefficient().b, P1.coefficient().c},
                    {P2.coefficient().a, P2.coefficient().b, P2.coefficient().c}}};
-        matrix b{ {{-P1.coefficient().d},
-                   {-P2.coefficient().d}}};
+        matrix b{{{-P1.coefficient().d}, {-P2.coefficient().d}}};
         matrix mtb = rowjoin(mt, b);
         matrix nmtb = mtb.nullspace();
-        R3::point pt(-nmtb[0][1], -nmtb[1][1], -nmtb[2][1]); // pick value from nullspace
+        R3::point pt(-nmtb[0][1], -nmtb[1][1], -nmtb[2][1]);  // pick value from nullspace
         R3::line iline(v, pt);
         return intersection(iline);
     }
@@ -161,7 +162,7 @@ intersection intersects(const R3::sphere &S, const R3::line &l) noexcept(false) 
     } else {
         if constexpr (use_quadratic_roots) {
             R3::vector v = l.direction();
-            R3::point  p = l.position();
+            R3::point p = l.position();
             // x^2 + y^2 + z^2 = r^2
             // a = (vx^2 + vy^2 + vz^2)
             // b = (2vxpx + 2vypy + 2vzpz)
@@ -174,7 +175,7 @@ intersection intersects(const R3::sphere &S, const R3::line &l) noexcept(false) 
                 b += 2 * p[i] * v[i];
                 c += p[i] * p[i];
             }
-            c -= r*r;
+            c -= r * r;
             auto roots = quadratic_roots(a, b, c);
             element_type t0 = std::get<0>(roots);
             element_type t1 = std::get<1>(roots);
@@ -187,7 +188,7 @@ intersection intersects(const R3::sphere &S, const R3::line &l) noexcept(false) 
                 // single points don't concern us, so drop them.
                 return intersection();
             }
-        } else { // deduce geometrically
+        } else {  // deduce geometrically
             // there IS an intersection but there's two points!
             // more shortcuts
             R3::point R(3);
@@ -223,7 +224,7 @@ intersection intersects(const R3::sphere &S, const R3::line &l) noexcept(false) 
                 // C != P and d < r
                 // Solve for R and Q (the two sphere point intersections)
                 // distance from R/Q to P (c^2 - b^2 = a^2) where c is r and b is d
-                double m = sqrt(r*r - d*d);
+                double m = sqrt(r * r - d * d);
                 // vector from P to the zero point
                 R3::vector pz = Z0 - P;
                 double k = pz.norm();
@@ -235,14 +236,14 @@ intersection intersects(const R3::sphere &S, const R3::line &l) noexcept(false) 
                     Q = l.distance_along(+m);
                 } else if (k < m) {
                     // the zero point is in the sphere but not P, R, or Q
-                    R = l.distance_along(-u*(m - k));
-                    Q = l.distance_along(u*(k + m));
+                    R = l.distance_along(-u * (m - k));
+                    Q = l.distance_along(u * (k + m));
                 } else if (basal::equals(k, m)) {
                     // we'll call the one we're on R and the other Q
                     R = Z0;
-                    Q = l.distance_along(2*m*u);
+                    Q = l.distance_along(2 * m * u);
                     assert(S.surface(Q));
-                } else { // k > m
+                } else {  // k > m
                     // zero point is outside the sphere.
                     k *= u;
                     R = l.distance_along(k - m);
@@ -257,4 +258,4 @@ intersection intersects(const R3::sphere &S, const R3::line &l) noexcept(false) 
     }
 }
 
-}
+}  // namespace geometry

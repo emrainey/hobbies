@@ -1,11 +1,10 @@
 #pragma once
 
-#include <iostream>
-#include <vector>
-
 #include <basal/printable.hpp>
-#include <linalg/linalg.hpp>
 #include <geometry/geometry.hpp>
+#include <iostream>
+#include <linalg/linalg.hpp>
+#include <vector>
 
 #include "raytrace/objects/object.hpp"
 
@@ -26,13 +25,14 @@ public:
     /** @copydoc raytrace::object::normal */
     vector normal(const point& world_surface_point) const override;
     /** @copydoc raytrace::object::intersect */
-    //geometry::intersection intersect(const ray& world_ray) const override;
+    // geometry::intersection intersect(const ray& world_ray) const override;
     /** @copydoc raytrace::object::collisions_along */
     hits collisions_along(const ray& object_ray) const override;
     /** @copydoc raytrace::object::map */
     image::point map(const point& object_surface_point) const override;
     /** @copydoc basal::printable::print */
     void print(const char str[]) const override;
+
 protected:
     /** Print in stream for cuboid */
     friend std::ostream& operator<<(std::ostream& os, const quadratic& c);
@@ -41,5 +41,5 @@ protected:
     // The Coefficient Matrix form of Q from Graphic Gems Vol 3 for Quadratic Surfaces.
     raytrace::matrix m_coefficients;
 };
-} // namespace objects
-} // namespace raytrace
+}  // namespace objects
+}  // namespace raytrace

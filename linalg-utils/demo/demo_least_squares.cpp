@@ -1,31 +1,29 @@
 
-#include <linalg/linalg.hpp>
-#include <vector>
-#include <random>
 #include <ctime>
+#include <linalg/linalg.hpp>
 #include <opencv2/opencv.hpp>
+#include <random>
+#include <vector>
 
 using namespace linalg;
 using namespace linalg::operators;
 
-enum {
+enum
+{
     POINTS,
     LINES,
 };
 
 template <typename T>
-void plot(std::string name,
-          std::vector<T> &data,
-          matrix &beta,
-          matrix &domain) {
-    cv::Scalar blue(255,0,0);
-    cv::Scalar red(0,0,255);
-    cv::Scalar black(0,0,0);
+void plot(std::string name, std::vector<T> &data, matrix &beta, matrix &domain) {
+    cv::Scalar blue(255, 0, 0);
+    cv::Scalar red(0, 0, 255);
+    cv::Scalar black(0, 0, 0);
     int border = 20;
     int b2 = border >> 1;
     T x_min, y_min = x_min = std::numeric_limits<T>::max();
     T x_max, y_max = x_max = std::numeric_limits<T>::min();
-    for (auto & d : data) {
+    for (auto &d : data) {
         if (y_min > d) y_min = d;
         if (y_max < d) y_max = d;
     }
@@ -46,7 +44,7 @@ void plot(std::string name,
     printf("Window: %ux%u\n", window_size.width, window_size.height);
     cv::Mat img(window_size, CV_8UC3);
 
-    img = cv::Scalar::all(255); // clear the image with white
+    img = cv::Scalar::all(255);  // clear the image with white
     // where will the render offset be?
     int x_off = b2;
     int y_off = b2;
@@ -55,24 +53,24 @@ void plot(std::string name,
 
     // find x zero
     if (x_min > 0 || x_max < 0) {
-        x0 = x_off + (x_range)/2;
+        x0 = x_off + (x_range) / 2;
     } else {
         x0 = x_off + (0 - x_min);
     }
     // find y zero
     if (y_min > 0 || y_max < 0) {
         // this won't cross the zero line
-        y0 = y_off + (y_range)/2;
+        y0 = y_off + (y_range) / 2;
     } else {
         y0 = y_off + (0 - y_min);
     }
 
-    cv::Point y_top(x0, y0-(y_range/2));
-    cv::Point y_btm(x0, y0+(y_range/2));
+    cv::Point y_top(x0, y0 - (y_range / 2));
+    cv::Point y_btm(x0, y0 + (y_range / 2));
     cv::line(img, y_top, y_btm, blue, 2);
 
-    cv::Point x_left(x0-(x_range/2), y0);
-    cv::Point x_right(x0+(x_range/2), y0);
+    cv::Point x_left(x0 - (x_range / 2), y0);
+    cv::Point x_right(x0 + (x_range / 2), y0);
     cv::line(img, x_left, x_right, red, 2);
 
     for (size_t i = 0; i < domain.cols; i++) {
@@ -83,8 +81,8 @@ void plot(std::string name,
     }
 
     // find min,max domain intersections of the beta line
-    T y1 = beta.at(2,1) * x_min + beta.at(1,1);
-    T y2 = beta.at(2,1) * x_max + beta.at(1,1);
+    T y1 = beta.at(2, 1) * x_min + beta.at(1, 1);
+    T y2 = beta.at(2, 1) * x_max + beta.at(1, 1);
     printf("beta y1:%lf, y2:%lf\n", y1, y2);
     cv::Point beta_left(x0 + x_min, y0 - y1);
     cv::Point beta_right(x0 + x_max, y0 - y2);
@@ -115,7 +113,7 @@ double random_range(double min, double max) {
 std::vector<double> generate_random_linear_dataset(matrix &domain) {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_real_distribution<> num(-1.0,1.0);
+    std::uniform_real_distribution<> num(-1.0, 1.0);
     // slope
     double m = 2.0 * num(gen);
     // offset
@@ -126,8 +124,8 @@ std::vector<double> generate_random_linear_dataset(matrix &domain) {
     std::vector<double> data;
     domain.for_each([&](double &x) {
         double y = m * x + b;
-        std::uniform_real_distribution<> rnd(y-tolerance, y+tolerance);
-        //printf("%lf = m * %lf + b\n", y, x);
+        std::uniform_real_distribution<> rnd(y - tolerance, y + tolerance);
+        // printf("%lf = m * %lf + b\n", y, x);
         y = rnd(gen);
         data.push_back(y);
     });
@@ -140,18 +138,18 @@ void least_squares(std::vector<double> &dataset, matrix &beta, matrix &domain) {
     matrix X = matrix::ones(dataset.size(), 2);
     // copy the domain into the X matrix
     domain.T().assignInto(X, 0, 1);
-    beta = ((X^T)*X).inverse()*(X^T)*y;
+    beta = ((X ^ T) * X).inverse() * (X ^ T) * y;
 }
 
 int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused))) {
-    matrix domain(1,300); // generate a domain set
-    domain.for_each([](size_t row, size_t col, double &v){
+    matrix domain(1, 300);  // generate a domain set
+    domain.for_each([](size_t row, size_t col, double &v) {
         row |= 0;
         v = -150.0 + col;
     });
     // generate a random data set within bounds
     std::vector<double> dataset = generate_random_linear_dataset(domain);
-    //std::vector<double> smallset{{6,5,7,10}};
+    // std::vector<double> smallset{{6,5,7,10}};
     matrix beta(2, 1);
     least_squares(dataset, beta, domain);
     beta.print("beta");

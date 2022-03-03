@@ -1,13 +1,13 @@
 /**
  * @file
  * This is an auto-generated header for iso::watts.
- * 
+ *
  * @note See README on re-generation.
  * @copyright Copyright 2022.
  */
 #pragma once
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 
 #include "iso/measurement.hpp"
 
@@ -16,7 +16,7 @@ namespace iso {
 
 /** A structure used to hold the postfix for watts */
 struct suffix_type_W {
-    constexpr static const char *suffix = "W";
+    constexpr static const char* suffix = "W";
 };
 
 /**
@@ -42,7 +42,7 @@ public:
     /** Destructor */
     ~watts() = default;
     /** Const Copy Assignment */
-    watts& operator=(const watts &other) noexcept;
+    watts& operator=(const watts& other) noexcept;
     /** Copy Assignment */
     watts& operator=(watts& other) noexcept;
     /** Move Assignment */
@@ -72,25 +72,25 @@ public:
 };
 
 namespace operators {
-    /** Addition operator */
-    watts operator+(const watts& A, const watts& B);
-    /** Subtraction operator */
-    watts operator-(const watts& A, const watts& B);
-    /** Left Scaling Operator */
-    watts operator*(const watts& A, double factor);
-    /** Right Scaling Operator */
-    watts operator*(double factor, const watts& A);
-    /** Inverse Scaling Operator */
-    watts operator/(const watts& A, double factor);
-}
+/** Addition operator */
+watts operator+(const watts& A, const watts& B);
+/** Subtraction operator */
+watts operator-(const watts& A, const watts& B);
+/** Left Scaling Operator */
+watts operator*(const watts& A, double factor);
+/** Right Scaling Operator */
+watts operator*(double factor, const watts& A);
+/** Inverse Scaling Operator */
+watts operator/(const watts& A, double factor);
+}  // namespace operators
 
 namespace literals {
-    /** Literal Double, Quote Operator */
-    watts operator""_W(long double value);
-    /** Literal Int, Quote Operator */
-    watts operator""_W(unsigned long long value);
-    /** Literal String, Quote Operator */
-    iso::watts operator""_W(const char a[]);
-}
+/** Literal Double, Quote Operator */
+watts operator""_W(long double value);
+/** Literal Int, Quote Operator */
+watts operator""_W(unsigned long long value);
+/** Literal String, Quote Operator */
+iso::watts operator""_W(const char a[]);
+}  // namespace literals
 
-}
+}  // namespace iso

@@ -5,7 +5,7 @@ namespace raytrace {
 namespace mediums {
 
 conductor::conductor() : medium() {
-    m_transmissivity = 0.05; // all light is bounced, any transmitted light is absorbed immediately within nanometers
+    m_transmissivity = 0.05;  // all light is bounced, any transmitted light is absorbed immediately within nanometers
 }
 
 color conductor::bounced(const raytrace::point& volumetic_point, const color& incoming) const {
@@ -14,6 +14,6 @@ color conductor::bounced(const raytrace::point& volumetic_point, const color& in
     return m_diffuse * incoming;
 }
 
-} // namespace mediums
+}  // namespace mediums
 
-} // namespace raytrace
+}  // namespace raytrace

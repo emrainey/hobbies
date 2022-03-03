@@ -1,9 +1,10 @@
-#include <cassert>
 #include "geometry/extra_math.hpp"
+
+#include <cassert>
 
 namespace geometry {
 
-element_type dot(const R3::vector &a, const R3::point &b) {
+element_type dot(const R3::vector& a, const R3::point& b) {
     basal::exception::throw_unless(a.dimensions == b.dimensions, __FILE__, __LINE__, "");
     element_type d = 0.0;
     for (size_t i = 0; i < b.dimensions; i++) {
@@ -13,7 +14,8 @@ element_type dot(const R3::vector &a, const R3::point &b) {
 }
 
 point centroid(const point& A, const point& B, const point& C) {
-    basal::exception::throw_unless(A.dimensions == B.dimensions and B.dimensions == C.dimensions, __FILE__, __LINE__, "Must have same dimensionality");
+    basal::exception::throw_unless(A.dimensions == B.dimensions and B.dimensions == C.dimensions, __FILE__, __LINE__,
+                                   "Must have same dimensionality");
     point D(B.dimensions);
     for (size_t i = 0; i < D.dimensions; i++) {
         D[i] = (A[i] + B[i] + C[i]) / 3;
@@ -44,7 +46,7 @@ std::pair<point, point> closest_points_from_skew_lines(const R3::line& first, co
 R2::point cartesian_to_polar(const R2::point& cartesian_point) {
     element_type x = cartesian_point.x;
     element_type y = cartesian_point.y;
-    element_type r = sqrt(x*x + y*y);
+    element_type r = sqrt(x * x + y * y);
     element_type theta = std::atan2(y, x);
     return R2::point(r, theta);
 }
@@ -61,12 +63,11 @@ R3::point cartesian_to_spherical(const R3::point& cartesian_point) {
     element_type x = cartesian_point.x;
     element_type y = cartesian_point.y;
     element_type z = cartesian_point.z;
-    element_type r = sqrt(x*x + y*y + z*z);
+    element_type r = sqrt(x * x + y * y + z * z);
     element_type theta = atan2(y, x);
-    element_type phi = atan2(sqrt(x*x + y*y), z);
+    element_type phi = atan2(sqrt(x * x + y * y), z);
     return R3::point(r, theta, phi);
 }
-
 
 R3::point spherical_to_cartesian(const R3::point& spherical_point) {
     element_type radius = spherical_point.x;
@@ -83,12 +84,13 @@ linalg::matrix rotation(const R3::vector& axis, const iso::radians theta) {
     element_type b = axis[1];
     element_type c = axis[2];
     element_type o = 1.0;
-    element_type cos_t = std::sin(theta.value + iso::pi/2.0);
+    element_type cos_t = std::sin(theta.value + iso::pi / 2.0);
     element_type sin_t = std::sin(theta.value);
     element_type one_cos_t = o - cos_t;
-    linalg::matrix r{{{(a*a*one_cos_t)+(o*cos_t),(a*b*one_cos_t)-(c*sin_t),(a*c*one_cos_t)+(b*sin_t)},
-                      {(a*b*one_cos_t)+(c*sin_t),(b*b*one_cos_t)+(o*cos_t),(b*c*one_cos_t)-(a*sin_t)},
-                      {(a*c*one_cos_t)-(b*sin_t),(b*c*one_cos_t)+(a*sin_t),(c*c*one_cos_t)+(o*cos_t)}}};
+    linalg::matrix r{
+        {{(a * a * one_cos_t) + (o * cos_t), (a * b * one_cos_t) - (c * sin_t), (a * c * one_cos_t) + (b * sin_t)},
+         {(a * b * one_cos_t) + (c * sin_t), (b * b * one_cos_t) + (o * cos_t), (b * c * one_cos_t) - (a * sin_t)},
+         {(a * c * one_cos_t) - (b * sin_t), (b * c * one_cos_t) + (a * sin_t), (c * c * one_cos_t) + (o * cos_t)}}};
     return r;
 }
 
@@ -98,4 +100,4 @@ bool contained_within_aabb(const R3::point& P, const R3::point& min, const R3::p
            (min.z - basal::epsilon < P.z and P.z < max.z + basal::epsilon);
 }
 
-} // namespace geometry
+}  // namespace geometry

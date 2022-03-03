@@ -1,11 +1,11 @@
+#include <gtest/gtest.h>
+
+#include <basal/basal.hpp>
+#include <raytrace/raytrace.hpp>
 #include <vector>
 
-#include <gtest/gtest.h>
-#include <basal/basal.hpp>
-
-#include <raytrace/raytrace.hpp>
-#include "linalg/gtest_helper.hpp"
 #include "geometry/gtest_helper.hpp"
+#include "linalg/gtest_helper.hpp"
 #include "raytrace/gtest_helper.hpp"
 
 TEST(TorusTest, RayIntersection) {
@@ -17,27 +17,27 @@ TEST(TorusTest, RayIntersection) {
     raytrace::point C(0, 0, 0);
     torus shape(C, r, 1.0);
 
-    raytrace::point p0( r,  0,  t);
-    raytrace::point p1( 0,  r, -t);
-    raytrace::point p2(-r,  0, -t);
-    raytrace::point p3( 0, -r,  t);
+    raytrace::point p0(r, 0, t);
+    raytrace::point p1(0, r, -t);
+    raytrace::point p2(-r, 0, -t);
+    raytrace::point p3(0, -r, t);
 
-    raytrace::point p4( r+t,  0,  0);
-    raytrace::point p5( 0,  r+t,  0);
-    raytrace::point p6(-r-t,  0,  0);
-    raytrace::point p7( 0, -r-t,  0);
+    raytrace::point p4(r + t, 0, 0);
+    raytrace::point p5(0, r + t, 0);
+    raytrace::point p6(-r - t, 0, 0);
+    raytrace::point p7(0, -r - t, 0);
 
     ray r0(p0 + R3::basis::Z, -R3::basis::Z);
     geometry::intersection isect = shape.intersect(r0);
     ASSERT_EQ(geometry::IntersectionType::Point, get_type(isect));
     ASSERT_POINT_EQ(p0, as_point(isect));
 
-    ray r1(p1 + -1.0*R3::basis::Z, R3::basis::Z);
+    ray r1(p1 + -1.0 * R3::basis::Z, R3::basis::Z);
     isect = shape.intersect(r1);
     ASSERT_EQ(geometry::IntersectionType::Point, get_type(isect));
     ASSERT_POINT_EQ(p1, as_point(isect));
 
-    ray r2(p2 + -1.0*R3::basis::Z, R3::basis::Z);
+    ray r2(p2 + -1.0 * R3::basis::Z, R3::basis::Z);
     isect = shape.intersect(r2);
     ASSERT_EQ(geometry::IntersectionType::Point, get_type(isect));
     ASSERT_POINT_EQ(p2, as_point(isect));
@@ -57,12 +57,12 @@ TEST(TorusTest, RayIntersection) {
     ASSERT_EQ(geometry::IntersectionType::Point, get_type(isect));
     ASSERT_POINT_EQ(p5, as_point(isect));
 
-    ray r6(p6 + -1.0*R3::basis::X, R3::basis::X);
+    ray r6(p6 + -1.0 * R3::basis::X, R3::basis::X);
     isect = shape.intersect(r6);
     ASSERT_EQ(geometry::IntersectionType::Point, get_type(isect));
     ASSERT_POINT_EQ(p6, as_point(isect));
 
-    ray r7(p7 + -1.0*R3::basis::Y, R3::basis::Y);
+    ray r7(p7 + -1.0 * R3::basis::Y, R3::basis::Y);
     isect = shape.intersect(r7);
     ASSERT_EQ(geometry::IntersectionType::Point, get_type(isect));
     ASSERT_POINT_EQ(p7, as_point(isect));
@@ -77,15 +77,15 @@ TEST(TorusTest, Normals) {
     raytrace::point C(0, 0, 0);
     torus shape(C, r, t);
 
-    raytrace::point p0( r,  0,  t);
-    raytrace::point p1( 0,  r, -t);
-    raytrace::point p2(-r,  0, -t);
-    raytrace::point p3( 0, -r,  t);
+    raytrace::point p0(r, 0, t);
+    raytrace::point p1(0, r, -t);
+    raytrace::point p2(-r, 0, -t);
+    raytrace::point p3(0, -r, t);
 
-    raytrace::point p4( r+t,  0,  0);
-    raytrace::point p5( 0,  r+t,  0);
-    raytrace::point p6(-r-t,  0,  0);
-    raytrace::point p7( 0, -r-t,  0);
+    raytrace::point p4(r + t, 0, 0);
+    raytrace::point p5(0, r + t, 0);
+    raytrace::point p6(-r - t, 0, 0);
+    raytrace::point p7(0, -r - t, 0);
 
     raytrace::vector n0 = shape.normal(p0);
     raytrace::vector n1 = shape.normal(p1);
@@ -101,13 +101,13 @@ TEST(TorusTest, Normals) {
     raytrace::vector bny = -R3::basis::Y;
     raytrace::vector bnz = -R3::basis::Z;
 
-    ASSERT_VECTOR_EQ( R3::basis::Z, n0);
+    ASSERT_VECTOR_EQ(R3::basis::Z, n0);
     ASSERT_VECTOR_EQ(bnz, n1);
     ASSERT_VECTOR_EQ(bnz, n2);
-    ASSERT_VECTOR_EQ( R3::basis::Z, n3);
+    ASSERT_VECTOR_EQ(R3::basis::Z, n3);
 
-    ASSERT_VECTOR_EQ( R3::basis::X, n4);
-    ASSERT_VECTOR_EQ( R3::basis::Y, n5);
+    ASSERT_VECTOR_EQ(R3::basis::X, n4);
+    ASSERT_VECTOR_EQ(R3::basis::Y, n5);
     ASSERT_VECTOR_EQ(bnx, n6);
     ASSERT_VECTOR_EQ(bny, n7);
 }

@@ -10,5 +10,5 @@ public:
     paraboloid(const point &center, element_type a, element_type b, element_type f);
     ~paraboloid() = default;
 };
-}
-} // namespace raytrace
+}  // namespace objects
+}  // namespace raytrace

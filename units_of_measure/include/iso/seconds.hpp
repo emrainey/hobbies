@@ -1,13 +1,13 @@
 /**
  * @file
  * This is an auto-generated header for iso::seconds.
- * 
+ *
  * @note See README on re-generation.
  * @copyright Copyright 2022.
  */
 #pragma once
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 
 #include "iso/measurement.hpp"
 
@@ -16,7 +16,7 @@ namespace iso {
 
 /** A structure used to hold the postfix for seconds */
 struct suffix_type_sec {
-    constexpr static const char *suffix = "sec";
+    constexpr static const char* suffix = "sec";
 };
 
 /**
@@ -42,7 +42,7 @@ public:
     /** Destructor */
     ~seconds() = default;
     /** Const Copy Assignment */
-    seconds& operator=(const seconds &other) noexcept;
+    seconds& operator=(const seconds& other) noexcept;
     /** Copy Assignment */
     seconds& operator=(seconds& other) noexcept;
     /** Move Assignment */
@@ -72,25 +72,25 @@ public:
 };
 
 namespace operators {
-    /** Addition operator */
-    seconds operator+(const seconds& A, const seconds& B);
-    /** Subtraction operator */
-    seconds operator-(const seconds& A, const seconds& B);
-    /** Left Scaling Operator */
-    seconds operator*(const seconds& A, double factor);
-    /** Right Scaling Operator */
-    seconds operator*(double factor, const seconds& A);
-    /** Inverse Scaling Operator */
-    seconds operator/(const seconds& A, double factor);
-}
+/** Addition operator */
+seconds operator+(const seconds& A, const seconds& B);
+/** Subtraction operator */
+seconds operator-(const seconds& A, const seconds& B);
+/** Left Scaling Operator */
+seconds operator*(const seconds& A, double factor);
+/** Right Scaling Operator */
+seconds operator*(double factor, const seconds& A);
+/** Inverse Scaling Operator */
+seconds operator/(const seconds& A, double factor);
+}  // namespace operators
 
 namespace literals {
-    /** Literal Double, Quote Operator */
-    seconds operator""_sec(long double value);
-    /** Literal Int, Quote Operator */
-    seconds operator""_sec(unsigned long long value);
-    /** Literal String, Quote Operator */
-    iso::seconds operator""_sec(const char a[]);
-}
+/** Literal Double, Quote Operator */
+seconds operator""_sec(long double value);
+/** Literal Int, Quote Operator */
+seconds operator""_sec(unsigned long long value);
+/** Literal String, Quote Operator */
+iso::seconds operator""_sec(const char a[]);
+}  // namespace literals
 
-}
+}  // namespace iso

@@ -1,13 +1,13 @@
 /**
  * @file
  * This is an auto-generated header for iso::ohms.
- * 
+ *
  * @note See README on re-generation.
  * @copyright Copyright 2022.
  */
 #pragma once
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 
 #include "iso/measurement.hpp"
 
@@ -16,7 +16,7 @@ namespace iso {
 
 /** A structure used to hold the postfix for ohms */
 struct suffix_type_Ohm {
-    constexpr static const char *suffix = "Ohm";
+    constexpr static const char* suffix = "Ohm";
 };
 
 /**
@@ -42,7 +42,7 @@ public:
     /** Destructor */
     ~ohms() = default;
     /** Const Copy Assignment */
-    ohms& operator=(const ohms &other) noexcept;
+    ohms& operator=(const ohms& other) noexcept;
     /** Copy Assignment */
     ohms& operator=(ohms& other) noexcept;
     /** Move Assignment */
@@ -72,25 +72,25 @@ public:
 };
 
 namespace operators {
-    /** Addition operator */
-    ohms operator+(const ohms& A, const ohms& B);
-    /** Subtraction operator */
-    ohms operator-(const ohms& A, const ohms& B);
-    /** Left Scaling Operator */
-    ohms operator*(const ohms& A, double factor);
-    /** Right Scaling Operator */
-    ohms operator*(double factor, const ohms& A);
-    /** Inverse Scaling Operator */
-    ohms operator/(const ohms& A, double factor);
-}
+/** Addition operator */
+ohms operator+(const ohms& A, const ohms& B);
+/** Subtraction operator */
+ohms operator-(const ohms& A, const ohms& B);
+/** Left Scaling Operator */
+ohms operator*(const ohms& A, double factor);
+/** Right Scaling Operator */
+ohms operator*(double factor, const ohms& A);
+/** Inverse Scaling Operator */
+ohms operator/(const ohms& A, double factor);
+}  // namespace operators
 
 namespace literals {
-    /** Literal Double, Quote Operator */
-    ohms operator""_Ohm(long double value);
-    /** Literal Int, Quote Operator */
-    ohms operator""_Ohm(unsigned long long value);
-    /** Literal String, Quote Operator */
-    iso::ohms operator""_Ohm(const char a[]);
-}
+/** Literal Double, Quote Operator */
+ohms operator""_Ohm(long double value);
+/** Literal Int, Quote Operator */
+ohms operator""_Ohm(unsigned long long value);
+/** Literal String, Quote Operator */
+iso::ohms operator""_Ohm(const char a[]);
+}  // namespace literals
 
-}
+}  // namespace iso

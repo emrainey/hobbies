@@ -6,14 +6,14 @@
  */
 
 #include <array>
-#include <vector>
-#include <utility>
 #include <functional>
 #include <initializer_list>
+#include <utility>
+#include <vector>
 
+#include "geometry/point.hpp"
 #include "geometry/types.hpp"
 #include "geometry/vector.hpp"
-#include "geometry/point.hpp"
 
 namespace geometry {
 
@@ -25,6 +25,7 @@ protected:
     R3::vector m_udir;
     /** The point form which the vector is based */
     R3::point m_zero;
+
 public:
     /** Default Constructor is not supported */
     line() = delete;
@@ -63,10 +64,10 @@ public:
     element_type distance(const R3::point &p) const;
 
     /** Returns the direction of the line from the zero point */
-    const R3::vector& direction() const;
+    const R3::vector &direction() const;
 
     /** Returns the zero point of the line */
-    const R3::point& position() const;
+    const R3::point &position() const;
 
     /** Returns the closest point on the line to the point provided */
     R3::point closest(const R3::point &p) const;
@@ -87,6 +88,6 @@ inline bool operator||(const line &a, const line &b) {
 /** Determines if two lines are skew, ie. not intersected and not parallel */
 bool skew(const R3::line &i, const R3::line &j);
 
-}
+}  // namespace R3
 
-}
+}  // namespace geometry

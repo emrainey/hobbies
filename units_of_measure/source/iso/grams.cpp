@@ -1,39 +1,43 @@
 /**
  * @file
  * This is an auto-generated source for iso::grams.
- * 
+ *
  * @note See README on re-generation.
  * @copyright Copyright 2022.
  */
 #include "iso/grams.hpp"
 
 namespace iso {
-const char *const suffix_type_g::suffix;
+const char* const suffix_type_g::suffix;
 // default
-grams::grams() : measurement() {}
+grams::grams() : measurement() {
+}
 // explicit value
-grams::grams(double a) : measurement(a) {}
+grams::grams(double a) : measurement(a) {
+}
 // copy constructor
-grams::grams(const grams& other) : measurement(other) {}
+grams::grams(const grams& other) : measurement(other) {
+}
 // move constructor
-grams::grams(grams&& other) : measurement(std::move(other)) {}
+grams::grams(grams&& other) : measurement(std::move(other)) {
+}
 
-grams& grams::operator=(const grams &other) noexcept {
+grams& grams::operator=(const grams& other) noexcept {
     _value = other.value;
     return (*this);
 }
-grams& grams::operator=(grams &other) noexcept {
+grams& grams::operator=(grams& other) noexcept {
     _value = other.value;
     return (*this);
 }
-grams& grams::operator=(grams &&other) noexcept {
+grams& grams::operator=(grams&& other) noexcept {
     _value = other.value;
     return (*this);
 }
-bool grams::operator==(const grams &other) const {
+bool grams::operator==(const grams& other) const {
     return iso::equivalent(value, other.value);
 }
-bool grams::operator!=(const grams &other) const {
+bool grams::operator!=(const grams& other) const {
     return !operator==(other);
 }
 grams& grams::operator+=(const grams& other) {
@@ -68,32 +72,31 @@ bool grams::operator>=(const grams& other) const {
     return (_value >= other.value);
 }
 namespace operators {
-    grams operator+(const grams& A, const grams& B) {
-        return grams(A.value+B.value);
-    }
-    grams operator-(const grams& A, const grams& B) {
-        return grams(A.value-B.value);
-    }
-    grams operator*(const grams& A, double factor) {
-        return grams(A.value*factor);
-    }
-    grams operator*(double factor, const grams& A) {
-        return grams(A.value*factor);
-    }
-    grams operator/(const grams& A, double factor) {
-        return grams(A.value/factor);
-    }
+grams operator+(const grams& A, const grams& B) {
+    return grams(A.value + B.value);
 }
+grams operator-(const grams& A, const grams& B) {
+    return grams(A.value - B.value);
+}
+grams operator*(const grams& A, double factor) {
+    return grams(A.value * factor);
+}
+grams operator*(double factor, const grams& A) {
+    return grams(A.value * factor);
+}
+grams operator/(const grams& A, double factor) {
+    return grams(A.value / factor);
+}
+}  // namespace operators
 namespace literals {
-    iso::grams operator""_g(long double a) {
-        return iso::grams(a);
-    }
-    iso::grams operator""_g(unsigned long long a) {
-        return iso::grams(a);
-    }
-    iso::grams operator""_g(const char a[]) {
-        return iso::grams(atol(a));
-    }
-} // namespace literals
-} // namespace iso
-
+iso::grams operator""_g(long double a) {
+    return iso::grams(a);
+}
+iso::grams operator""_g(unsigned long long a) {
+    return iso::grams(a);
+}
+iso::grams operator""_g(const char a[]) {
+    return iso::grams(atol(a));
+}
+}  // namespace literals
+}  // namespace iso

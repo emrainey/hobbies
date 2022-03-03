@@ -1,8 +1,8 @@
 #pragma once
 
-#include "raytrace/types.hpp"
-#include "linalg/matrix.hpp"
 #include "geometry/extra_math.hpp"
+#include "linalg/matrix.hpp"
+#include "raytrace/types.hpp"
 
 namespace raytrace {
 
@@ -12,7 +12,8 @@ using namespace geometry;
 using namespace geometry::operators;
 
 /** Contains the internal attributes that 3D entities will need. Position, orientation, scaling */
-template <size_t DIMS> class entity_ {
+template <size_t DIMS>
+class entity_ {
 public:
     entity_()
         : m_world_position()
@@ -20,8 +21,8 @@ public:
         , m_inv_rotation(matrix::identity(DIMS, DIMS))
         , m_scaling{{1.0, 1.0, 1.0}}
         , m_transform(matrix::identity(DIMS + 1, DIMS + 1))
-        , m_inv_transform(matrix::identity(DIMS + 1, DIMS + 1))
-        {}
+        , m_inv_transform(matrix::identity(DIMS + 1, DIMS + 1)) {
+    }
 
     entity_(const point& position) : entity_() {
         m_world_position = position;
@@ -120,9 +121,9 @@ public:
 
     /** Finds the point in object space which maps to the given world space point */
     raytrace::point reverse_transform(const raytrace::point& world_point) const {
-        geometry::point_<4> w(world_point); // create homogenized point
-        geometry::point_<4> o(m_inv_transform * w); // 4x4 mult
-        return point(o[0], o[1], o[2]); // drop the last var
+        geometry::point_<4> w(world_point);          // create homogenized point
+        geometry::point_<4> o(m_inv_transform * w);  // 4x4 mult
+        return point(o[0], o[1], o[2]);              // drop the last var
     }
 
     /** Rotates the vector into the object space. */
@@ -141,16 +142,16 @@ public:
 protected:
     /** Creates the transform matrix and it's inverse */
     void compute_transforms() {
-        matrix t = matrix::identity(DIMS+1, DIMS+1);
+        matrix t = matrix::identity(DIMS + 1, DIMS + 1);
         t[0][3] = m_world_position.x;
         t[1][3] = m_world_position.y;
         t[2][3] = m_world_position.z;
-        matrix s = matrix::identity(DIMS+1, DIMS+1);
+        matrix s = matrix::identity(DIMS + 1, DIMS + 1);
         s[0][0] = m_scaling[0];
         s[1][1] = m_scaling[1];
         s[2][2] = m_scaling[2];
         // expand rotation to 4x4
-        matrix r = matrix::identity(DIMS+1, DIMS+1);
+        matrix r = matrix::identity(DIMS + 1, DIMS + 1);
         // copy the rotation into r at 0,0 to 2,2
         m_rotation.assignInto(r, 0, 0);
 
@@ -182,4 +183,4 @@ protected:
 /** Raytracing uses 3D entities */
 using entity = entity_<dimensions>;
 
-} // namespace raytrace
+}  // namespace raytrace

@@ -5,6 +5,7 @@
  */
 
 #include "linalg/matrix.hpp"
+
 #include "linalg/solvers.hpp"
 
 #if defined(__x86_64__)
@@ -16,7 +17,7 @@ namespace linalg {
 // ****************************************************************************
 // STATIC METHODS
 // ****************************************************************************
-static const char *g_filename = __FILE__;
+static const char* g_filename = __FILE__;
 
 matrix matrix::zeros(size_t rows, size_t cols) {
     return matrix(rows, cols).fill(0.0);
@@ -27,9 +28,7 @@ matrix matrix::ones(size_t rows, size_t cols) {
 }
 
 matrix matrix::identity(size_t rows, size_t cols) {
-    ref_coord_iterator iter = [](size_t r, size_t c, element_type& v) -> void {
-        v = (r == c ? 1.0 : 0.0);
-    };
+    ref_coord_iterator iter = [](size_t r, size_t c, element_type& v) -> void { v = (r == c ? 1.0 : 0.0); };
     return matrix(rows, cols).for_each(iter);
 }
 
@@ -45,16 +44,16 @@ matrix matrix::row(std::vector<element_type>& data) {
 // CTORS
 // ****************************************************************************
 
-matrix::matrix(size_t r, size_t c) : matrix(r, c, true) {}
+matrix::matrix(size_t r, size_t c) : matrix(r, c, true) {
+}
 
 matrix::matrix(size_t r, size_t c, bool allocate)
-        : rows(r)
-        , cols(c)
-        , bytes(static_cast<size_t>(rows * cols) * sizeof(element_type))
-        , external_memory(false)
-        , memory(nullptr)
-        , array(nullptr)
-    {
+    : rows(r)
+    , cols(c)
+    , bytes(static_cast<size_t>(rows * cols) * sizeof(element_type))
+    , external_memory(false)
+    , memory(nullptr)
+    , array(nullptr) {
     basal::exception::throw_unless(rows > 0, g_filename, __LINE__);
     basal::exception::throw_unless(cols > 0, g_filename, __LINE__);
     if (allocate && create(rows, cols, bytes)) {
@@ -68,32 +67,30 @@ matrix::matrix(size_t r, size_t c, bool allocate)
 }
 
 matrix::matrix(size_t rs, size_t cs, element_type mat[])
-        : rows(rs)
-        , cols(cs)
-        , bytes(static_cast<size_t>(rows * cols) * sizeof(element_type))
-        , external_memory(true)
-        , memory(mat)
-        , array(nullptr)
-    {
+    : rows(rs)
+    , cols(cs)
+    , bytes(static_cast<size_t>(rows * cols) * sizeof(element_type))
+    , external_memory(true)
+    , memory(mat)
+    , array(nullptr) {
     basal::exception::throw_unless(rows > 0, g_filename, __LINE__);
     basal::exception::throw_unless(cols > 0, g_filename, __LINE__);
     basal::exception::throw_unless(memory != nullptr, g_filename, __LINE__);
     // we still have to allocate an array of pointers when using external memory
-    array = static_cast<element_type **>(malloc(static_cast<size_t>(rows) * sizeof(element_type *)));
+    array = static_cast<element_type**>(malloc(static_cast<size_t>(rows) * sizeof(element_type*)));
     basal::exception::throw_unless(array != nullptr, g_filename, __LINE__);
     for (size_t r = 0; r < rows; r++) {
-        array[r] = &mat[r*cols];
+        array[r] = &mat[r * cols];
     }
 }
 
 matrix::matrix(const std::vector<std::vector<element_type>>& a)
-        : rows(static_cast<int>(a.size()))
-        , cols(static_cast<int>(a[0].size()))
-        , bytes(static_cast<size_t>(rows * cols) * sizeof(element_type))
-        , external_memory(false)
-        , memory(nullptr)
-        , array(nullptr)
-    {
+    : rows(static_cast<int>(a.size()))
+    , cols(static_cast<int>(a[0].size()))
+    , bytes(static_cast<size_t>(rows * cols) * sizeof(element_type))
+    , external_memory(false)
+    , memory(nullptr)
+    , array(nullptr) {
     if (create(rows, cols, bytes)) {
         for (size_t i = 0; array && i < rows; i++) {
             array[i] = &memory[i * cols];
@@ -108,13 +105,7 @@ matrix::matrix(const std::vector<std::vector<element_type>>& a)
 
 // copy constructor, shallow copy
 matrix::matrix(const matrix& other) noexcept(false)
-        : rows(other.rows)
-        , cols(other.cols)
-        , bytes(other.bytes)
-        , external_memory(false)
-        , memory(nullptr)
-        , array(nullptr)
-    {
+    : rows(other.rows), cols(other.cols), bytes(other.bytes), external_memory(false), memory(nullptr), array(nullptr) {
     if (create(rows, cols, bytes)) {
         memcpy(memory, other.memory, bytes);
         // copy row order
@@ -131,13 +122,12 @@ matrix::matrix(const matrix& other) noexcept(false)
 
 // move constructor, deep copy (transfer of ownership), no chaining constructor
 matrix::matrix(matrix&& other) noexcept(false)
-        : rows(other.rows)
-        , cols(other.cols)
-        , bytes(other.bytes)
-        , external_memory(other.external_memory)
-        , memory(nullptr)
-        , array(nullptr)
-    {
+    : rows(other.rows)
+    , cols(other.cols)
+    , bytes(other.bytes)
+    , external_memory(other.external_memory)
+    , memory(nullptr)
+    , array(nullptr) {
     basal::exception::throw_unless(this->rows == other.rows, g_filename, __LINE__, "Must be equal rows");
     basal::exception::throw_unless(this->cols == other.cols, g_filename, __LINE__, "Must be equal cols");
     memory = other.memory;
@@ -146,14 +136,19 @@ matrix::matrix(matrix&& other) noexcept(false)
     other.array = nullptr;
 }
 
-matrix::matrix(element_type m[2][2]) : matrix(2, 2, m[0]) {}
-matrix::matrix(element_type m[3][3]) : matrix(3, 3, m[0]) {}
-matrix::matrix(element_type m[4][4]) : matrix(4, 4, m[0]) {}
+matrix::matrix(element_type m[2][2]) : matrix(2, 2, m[0]) {
+}
+matrix::matrix(element_type m[3][3]) : matrix(3, 3, m[0]) {
+}
+matrix::matrix(element_type m[4][4]) : matrix(4, 4, m[0]) {
+}
 
 // copy assignment
-matrix& matrix::operator=(const matrix&  other) noexcept(false) {
-    basal::exception::throw_unless(this->rows == other.rows, g_filename, __LINE__, "Must match rows (copy constructor)");
-    basal::exception::throw_unless(this->cols == other.cols, g_filename, __LINE__, "Must match cols (copy constructor)");
+matrix& matrix::operator=(const matrix& other) noexcept(false) {
+    basal::exception::throw_unless(this->rows == other.rows, g_filename, __LINE__,
+                                   "Must match rows (copy constructor)");
+    basal::exception::throw_unless(this->cols == other.cols, g_filename, __LINE__,
+                                   "Must match cols (copy constructor)");
     if (this != &other) {
         memcpy(memory, other.memory, bytes);
         // copy row order by computing the pointer offsets
@@ -172,8 +167,10 @@ matrix& matrix::operator=(const matrix&  other) noexcept(false) {
 
 // move assignment
 matrix& matrix::operator=(matrix&& other) noexcept(false) {
-    basal::exception::throw_unless(this->rows == other.rows, g_filename, __LINE__, "Must match rows (move constructor)");
-    basal::exception::throw_unless(this->cols == other.cols, g_filename, __LINE__, "Must match cols (move constructor)");
+    basal::exception::throw_unless(this->rows == other.rows, g_filename, __LINE__,
+                                   "Must match rows (move constructor)");
+    basal::exception::throw_unless(this->cols == other.cols, g_filename, __LINE__,
+                                   "Must match cols (move constructor)");
     if (this != &other) {
         if (memory) {
 #if defined(__x86_64__)
@@ -210,15 +207,17 @@ matrix::~matrix() {
 bool matrix::create(size_t _rows, size_t _cols, size_t _bytes) {
     basal::exception::throw_unless(_rows == rows, g_filename, __LINE__, "Must allocate correct rows");
     basal::exception::throw_unless(_cols == cols, g_filename, __LINE__, "Must allocate correct cols");
-    basal::exception::throw_unless((_rows * _cols * sizeof(decltype(*memory))) <= _bytes, g_filename, __LINE__, "Not enough memory allocated");
+    basal::exception::throw_unless((_rows * _cols * sizeof(decltype(*memory))) <= _bytes, g_filename, __LINE__,
+                                   "Not enough memory allocated");
     basal::exception::throw_unless(memory == nullptr, g_filename, __LINE__, "Memory must be freed before allocation!");
 #if defined(__x86_64__)
-    memory = static_cast<element_type *>(_mm_malloc(_bytes, 16));
+    memory = static_cast<element_type*>(_mm_malloc(_bytes, 16));
 #else
-    memory = static_cast<element_type *>(malloc(_bytes));
+    memory = static_cast<element_type*>(malloc(_bytes));
 #endif
     basal::exception::throw_unless(memory != nullptr, g_filename, __LINE__);
-    basal::exception::throw_unless(array == nullptr, g_filename, __LINE__, "Array of rows must be free before allocation");
+    basal::exception::throw_unless(array == nullptr, g_filename, __LINE__,
+                                   "Array of rows must be free before allocation");
     array = new element_type*[_rows];
     basal::exception::throw_unless(array != nullptr, g_filename, __LINE__);
     return true;
@@ -279,9 +278,7 @@ matrix& matrix::for_each(ref_iterator functor) {
 }
 
 matrix& matrix::fill(element_type v) {
-    ref_iterator iter = [&](element_type& val) {
-        val = v;
-    };
+    ref_iterator iter = [&](element_type& val) { val = v; };
     return for_each(iter);
 }
 
@@ -295,7 +292,7 @@ element_type* matrix::operator[](size_t row) noexcept(false) {
     return array[row];
 }
 
-const element_type * matrix::operator[](size_t row) const noexcept(false) {
+const element_type* matrix::operator[](size_t row) const noexcept(false) {
     basal::exception::throw_unless(row < rows, g_filename, __LINE__);
     return array[row];
 }
@@ -313,14 +310,14 @@ element_type matrix::index(const size_t row, const size_t col) const noexcept(fa
 }
 
 element_type& matrix::index(size_t idx) noexcept(false) {
-    basal::exception::throw_unless(idx < (rows*cols), g_filename, __LINE__);
+    basal::exception::throw_unless(idx < (rows * cols), g_filename, __LINE__);
     size_t row = idx / cols;
     size_t col = idx % cols;
     return array[row][col];
 }
 
 element_type matrix::index(const size_t idx) const noexcept(false) {
-    basal::exception::throw_unless(idx < (rows*cols), g_filename, __LINE__);
+    basal::exception::throw_unless(idx < (rows * cols), g_filename, __LINE__);
     size_t row = idx / cols;
     size_t col = idx % cols;
     return array[row][col];
@@ -341,23 +338,28 @@ element_type matrix::operator()(const size_t row, const size_t col) const noexce
 element_type& matrix::at(short _r, short _c) noexcept(false) {
     size_t r = static_cast<size_t>(_r);
     size_t c = static_cast<size_t>(_c);
-    basal::exception::throw_unless(0 < r && r <= rows, g_filename, __LINE__, "1's based counting, must be within bounds");
-    basal::exception::throw_unless(0 < c && c <= cols, g_filename, __LINE__, "1's based counting, must be within bounds");
-    return array[r-1][c-1];
+    basal::exception::throw_unless(0 < r && r <= rows, g_filename, __LINE__,
+                                   "1's based counting, must be within bounds");
+    basal::exception::throw_unless(0 < c && c <= cols, g_filename, __LINE__,
+                                   "1's based counting, must be within bounds");
+    return array[r - 1][c - 1];
 }
 
 element_type matrix::at(short _r, short _c) const noexcept(false) {
     size_t r = static_cast<size_t>(_r);
     size_t c = static_cast<size_t>(_c);
-    basal::exception::throw_unless(0 < r && r <= rows, g_filename, __LINE__, "1's based counting, must be within bounds");
-    basal::exception::throw_unless(0 < c && c <= cols, g_filename, __LINE__, "1's based counting, must be within bounds");
-    return array[r-1][c-1];
+    basal::exception::throw_unless(0 < r && r <= rows, g_filename, __LINE__,
+                                   "1's based counting, must be within bounds");
+    basal::exception::throw_unless(0 < c && c <= cols, g_filename, __LINE__,
+                                   "1's based counting, must be within bounds");
+    return array[r - 1][c - 1];
 }
 
 element_type& matrix::at(letters i) noexcept(false) {
     short idx = basal::to_underlying(i);
     size_t index = static_cast<size_t>(idx > 0 ? idx : 0);
-    basal::exception::throw_unless(0 < index && index <= (rows * cols), g_filename, __LINE__, "1's based counting, must be within bounds");
+    basal::exception::throw_unless(0 < index && index <= (rows * cols), g_filename, __LINE__,
+                                   "1's based counting, must be within bounds");
     size_t r = (index - 1) / cols;
     size_t c = (index - 1) % cols;
     return array[r][c];
@@ -366,16 +368,19 @@ element_type& matrix::at(letters i) noexcept(false) {
 element_type matrix::at(letters i) const noexcept(false) {
     short idx = basal::to_underlying(i);
     size_t index = static_cast<size_t>(idx > 0 ? idx : 0);
-    basal::exception::throw_unless(0 < index && index <= (rows * cols), g_filename, __LINE__, "1's based counting, must be within bounds");
+    basal::exception::throw_unless(0 < index && index <= (rows * cols), g_filename, __LINE__,
+                                   "1's based counting, must be within bounds");
     size_t r = (index - 1) / cols;
     size_t c = (index - 1) % cols;
     return array[r][c];
 }
 
 void matrix::assignInto(matrix& dst, size_t start_row, size_t start_col) {
-    basal::exception::throw_unless(start_row + rows <= dst.rows, g_filename, __LINE__, "Not enough destination space for rows");
-    basal::exception::throw_unless(start_col + cols <= dst.cols, g_filename, __LINE__, "Not enough destination space for columns");
-    ref_coord_iterator iter = [&](size_t row, size_t col, element_type& v){
+    basal::exception::throw_unless(start_row + rows <= dst.rows, g_filename, __LINE__,
+                                   "Not enough destination space for rows");
+    basal::exception::throw_unless(start_col + cols <= dst.cols, g_filename, __LINE__,
+                                   "Not enough destination space for columns");
+    ref_coord_iterator iter = [&](size_t row, size_t col, element_type& v) {
         dst[start_row + row][start_col + col] = v;
     };
     for_each(iter);
@@ -385,8 +390,7 @@ bool matrix::operator==(const matrix& a) const {
     basal::exception::throw_unless(a.rows == rows && a.cols == cols, g_filename, __LINE__, "Must be equal dimensions");
     bool match = true;
     const_coord_iterator iter = [&](size_t r, size_t c, element_type v) {
-        if (!basal::equals(a[r][c],v))
-            match = false;
+        if (!basal::equals(a[r][c], v)) match = false;
     };
     for_each(iter);
     return match;
@@ -396,20 +400,19 @@ bool matrix::operator!=(const matrix& a) const {
     basal::exception::throw_unless(a.rows == rows && a.cols == cols, g_filename, __LINE__, "Must be equal dimensions");
     bool match = true;
     const_coord_iterator iter = [&](size_t r, size_t c, element_type v) {
-        if (!basal::equals(a[r][c],v))
-            match = false;
+        if (!basal::equals(a[r][c], v)) match = false;
     };
     for_each(iter);
     return !match;
 }
 
 matrix& matrix::operator*=(const element_type a) {
-    ref_iterator iter = [&](element_type& v){ v *= a; };
+    ref_iterator iter = [&](element_type& v) { v *= a; };
     return for_each(iter);
 }
 
 matrix& matrix::operator/=(const element_type a) {
-    ref_iterator iter = [&](element_type& v){ v /= a; };
+    ref_iterator iter = [&](element_type& v) { v /= a; };
     return for_each(iter);
 }
 
@@ -427,12 +430,10 @@ element_type matrix::trace() const {
 }
 
 matrix matrix::transpose() const {
-    matrix AT(cols, rows); // create new matrix.
+    matrix AT(cols, rows);  // create new matrix.
     // NOTE a generic inplace transpose is nearly impossible.
     // this will iterator ourselves, not the AT matrix.
-    const_coord_iterator iter = [&](size_t r, size_t c, element_type v){
-        AT[c][r] = v;
-    };
+    const_coord_iterator iter = [&](size_t r, size_t c, element_type v) { AT[c][r] = v; };
     for_each(iter);
     return AT;
 }
@@ -441,7 +442,7 @@ matrix matrix::T() const {
     return transpose();
 }
 
-matrix& matrix::negative(){
+matrix& matrix::negative() {
     operator*=(-1.0);
     return (*this);
 }
@@ -471,15 +472,14 @@ bool matrix::orthagonal() const {
     using namespace operators;
 
     // Q^T*Q == Q*Q^T == I
-    matrix qtq = T()*(*this);
-    matrix qqt = (*this)*T();
+    matrix qtq = T() * (*this);
+    matrix qqt = (*this) * T();
     matrix I = matrix::identity(rows, cols);
     return qtq == qqt && qqt == I;
 }
 
 bool matrix::invertible() const {
-    if (rows == cols && !basal::equals_zero(determinant()))
-        return true;
+    if (rows == cols && !basal::equals_zero(determinant())) return true;
     return false;
 }
 
@@ -544,9 +544,8 @@ matrix matrix::eigenvalues() const noexcept(false) {
         element_type b = -trace();
         element_type c = determinant();
         auto roots = quadratic_roots(a, b, c);
-        return matrix{ {{std::get<0>(roots)},
-                        {std::get<1>(roots)}} };
-    } else { // if (rows == 3) {
+        return matrix{{{std::get<0>(roots)}, {std::get<1>(roots)}}};
+    } else {  // if (rows == 3) {
         // solve the determinant
 
         // fail for now
@@ -557,7 +556,8 @@ matrix matrix::eigenvalues() const noexcept(false) {
 }
 
 matrix matrix::inverse() const noexcept(false) {
-    basal::exception::throw_unless(rows == cols, g_filename, __LINE__, "Must be a square matrix"); // no inverses for non square matrix
+    basal::exception::throw_unless(rows == cols, g_filename, __LINE__,
+                                   "Must be a square matrix");  // no inverses for non square matrix
     matrix m(rows, cols);
     element_type det = determinant();
     basal::exception::throw_unless(det != 0.0, g_filename, __LINE__, "Matrix is singular, not invertible");
@@ -591,8 +591,10 @@ matrix matrix::sub(size_t nrow, size_t ncol) const {
 }
 
 matrix matrix::subset(size_t row, size_t col, size_t nrows, size_t ncols) const noexcept(false) {
-    basal::exception::throw_unless(nrows + row <= rows, g_filename, __LINE__, "Subset rows request is larger than parent");
-    basal::exception::throw_unless(ncols + col <= cols, g_filename, __LINE__, "Subset cols request is larger than parent");
+    basal::exception::throw_unless(nrows + row <= rows, g_filename, __LINE__,
+                                   "Subset rows request is larger than parent");
+    basal::exception::throw_unless(ncols + col <= cols, g_filename, __LINE__,
+                                   "Subset cols request is larger than parent");
     matrix m(nrows, ncols);
     for (size_t r = row, mr = 0; r < rows && mr < m.rows; r++, mr++) {
         for (size_t c = col, mc = 0; c < cols && mc < m.cols; c++, mc++) {
@@ -602,34 +604,31 @@ matrix matrix::subset(size_t row, size_t col, size_t nrows, size_t ncols) const 
     return m;
 }
 
-matrix matrix::resize(size_t rs, size_t cs) noexcept(false){
-	basal::exception::throw_unless((rs*cs) == (rows*cols), g_filename, __LINE__, "Must have same number of elements");
-	matrix _new(rs, cs);
-	for (size_t idx = 0; idx < rows*cols; idx++) {
-		_new.index(idx) = index(idx);
-	}
-	return _new;
+matrix matrix::resize(size_t rs, size_t cs) noexcept(false) {
+    basal::exception::throw_unless((rs * cs) == (rows * cols), g_filename, __LINE__,
+                                   "Must have same number of elements");
+    matrix _new(rs, cs);
+    for (size_t idx = 0; idx < rows * cols; idx++) {
+        _new.index(idx) = index(idx);
+    }
+    return _new;
 }
 
 element_type matrix::minor(size_t nrow, size_t ncol) const {
-    return sub(nrow,ncol).determinant();
+    return sub(nrow, ncol).determinant();
 }
 
 element_type matrix::cofactor(size_t nrow, size_t ncol) const {
-    return minor(nrow, ncol) * pow(-1.0,(nrow+1)+(ncol+1));
+    return minor(nrow, ncol) * pow(-1.0, (nrow + 1) + (ncol + 1));
 }
 
 matrix matrix::minors() const {
-    ref_coord_iterator iter = [&](size_t r, size_t c, element_type& v){
-        v = minor(r, c);
-    };
+    ref_coord_iterator iter = [&](size_t r, size_t c, element_type& v) { v = minor(r, c); };
     return matrix(rows, cols).for_each(iter);
 }
 
 matrix matrix::comatrix() const {
-    ref_coord_iterator iter = [&](size_t r, size_t c, element_type& v){
-        v = cofactor(r,c);
-    };
+    ref_coord_iterator iter = [&](size_t r, size_t c, element_type& v) { v = cofactor(r, c); };
     return matrix(rows, cols).for_each(iter);
 }
 
@@ -643,17 +642,17 @@ element_type matrix::determinant() const noexcept(false) {
     statistics::get().matrix_determinants++;
     if (rows == 1) {
         // identity
-        det = at(1,1);
+        det = at(1, 1);
     } else if (rows == 2) {
-        //fprintf(stdout, "det shortcut! ad-bc\n");
-        det = at(1,1)*at(2,2) - at(1,2)*at(2,1);
+        // fprintf(stdout, "det shortcut! ad-bc\n");
+        det = at(1, 1) * at(2, 2) - at(1, 2) * at(2, 1);
     } else if (rows == 3) {
-        //fprintf(stdout, "Sarrus's rule\n");
-        det = at(1,1)*(at(2,2)*at(3,3) - at(3,2)*at(2,3)) -
-              at(1,2)*(at(3,3)*at(2,1) - at(2,3)*at(3,1)) +
-              at(1,3)*(at(2,1)*at(3,2) - at(3,1)*at(2,2));
+        // fprintf(stdout, "Sarrus's rule\n");
+        det = at(1, 1) * (at(2, 2) * at(3, 3) - at(3, 2) * at(2, 3)) -
+              at(1, 2) * (at(3, 3) * at(2, 1) - at(2, 3) * at(3, 1)) +
+              at(1, 3) * (at(2, 1) * at(3, 2) - at(3, 1) * at(2, 2));
     } else {
-        //fprintf(stdout, "Co-factors method\n");
+        // fprintf(stdout, "Co-factors method\n");
         for (size_t c = 0; c < cols; c++) {
             det += cofactor(0, c) * array[0][c];
         }
@@ -664,12 +663,10 @@ element_type matrix::determinant() const noexcept(false) {
 matrix matrix::random(size_t rows, size_t cols, double min, double max, double p) {
     matrix R(rows, cols);
     std::uniform_real_distribution<element_type> unif(min, max);
-    //std::default_random_engine re;
+    // std::default_random_engine re;
     std::random_device rd;
     std::mt19937 gen(rd());
-    ref_iterator iter = [&](element_type& v) {
-        v = std::ceil(unif(gen) * std::pow(10.0, p)) / std::pow(10.0, p);
-    };
+    ref_iterator iter = [&](element_type& v) { v = std::ceil(unif(gen) * std::pow(10.0, p)) / std::pow(10.0, p); };
     return R.for_each(iter);
 }
 
@@ -677,9 +674,7 @@ matrix& matrix::random(double min, double max, double p) {
     std::uniform_real_distribution<element_type> unif(min, max);
     std::random_device rd;
     std::mt19937 gen(rd());
-    ref_iterator iter = [&](element_type& v) {
-        v = std::ceil(unif(gen) * std::pow(10.0, p)) / std::pow(10.0, p);
-    };
+    ref_iterator iter = [&](element_type& v) { v = std::ceil(unif(gen) * std::pow(10.0, p)) / std::pow(10.0, p); };
     return for_each(iter);
 }
 
@@ -687,9 +682,7 @@ matrix& matrix::random(double min, double max, double p) {
 matrix& matrix::operator+=(const matrix& a) {
     basal::exception::throw_unless(a.rows == rows, g_filename, __LINE__);
     basal::exception::throw_unless(a.cols == cols, g_filename, __LINE__);
-    ref_coord_iterator iter = [&](size_t r, size_t c, element_type& v) {
-        v += a[r][c];
-    };
+    ref_coord_iterator iter = [&](size_t r, size_t c, element_type& v) { v += a[r][c]; };
     return for_each(iter);
 }
 
@@ -697,20 +690,18 @@ matrix& matrix::operator+=(const matrix& a) {
 matrix& matrix::operator-=(const matrix& a) {
     basal::exception::throw_unless(a.rows == rows, g_filename, __LINE__);
     basal::exception::throw_unless(a.cols == cols, g_filename, __LINE__);
-    ref_coord_iterator iter = [&](size_t r, size_t c, element_type& v) {
-        v -= a[r][c];
-    };
+    ref_coord_iterator iter = [&](size_t r, size_t c, element_type& v) { v -= a[r][c]; };
     return for_each(iter);
 }
 
 void matrix::print(const char name[]) const {
     fprintf(stdout, "%p = %s[%" PRIz "][%" PRIz "] = {\n", (void*)memory, name, rows, cols);
     for (size_t r = 0; r < rows; r++) {
-        fprintf(stdout,"\t{");
+        fprintf(stdout, "\t{");
         for (size_t c = 0; c < cols; c++) {
-            fprintf(stdout, "%0.3lf%s", array[r][c], (c==(cols-1)?"},":", "));
+            fprintf(stdout, "%0.3lf%s", array[r][c], (c == (cols - 1) ? "}," : ", "));
         }
-        fprintf(stdout, "%s", (r==(rows-1)?"\n};\n":"\n"));
+        fprintf(stdout, "%s", (r == (rows - 1) ? "\n};\n" : "\n"));
     }
 }
 
@@ -719,9 +710,9 @@ std::ostream& operator<<(std::ostream& os, const matrix& m) {
     for (size_t r = 0; r < m.rows; r++) {
         os << "\t{";
         for (size_t c = 0; c < m.cols; c++) {
-            os << m[r][c] << (c==(m.cols-1)?"},":", ");
+            os << m[r][c] << (c == (m.cols - 1) ? "}," : ", ");
         }
-        os << (r==(m.rows-1)?"\n};\n":"\n");
+        os << (r == (m.rows - 1) ? "\n};\n" : "\n");
     }
     return os;
 }
@@ -775,7 +766,7 @@ void matrix::row_sub(size_t row_dst, size_t row_src, element_type a) {
 matrix& matrix::operator*=(const matrix& a) {
     using namespace operators;
     matrix m = (*this) * a;  // create new matrix
-    (*this) = m; // copy assignment
+    (*this) = m;             // copy assignment
     return *this;
 }
 
@@ -825,20 +816,21 @@ bool matrix::elem_is_zero(size_t r, size_t c) const {
 
 matrix& matrix::sort_zero_rows() {
     // push zeroes to the bottom.
-    for (size_t r = 0, lr = rows-1; r <= rows && r < lr; /*no inc*/) {
+    for (size_t r = 0, lr = rows - 1; r <= rows && r < lr; /*no inc*/) {
         bool zr = row_is_zero(r);
         bool zlr = row_is_zero(lr);
-        if (zr && zlr) { // if both zero, move lr up try again
+        if (zr && zlr) {  // if both zero, move lr up try again
             lr--;
             continue;
-        } else if (zr && !zlr) { // swap and move both idx
+        } else if (zr && !zlr) {  // swap and move both idx
             row_swap(r++, lr--);
             continue;
-        } else if (!zr && zlr) { // move both idx
-            r++; lr--;
+        } else if (!zr && zlr) {  // move both idx
+            r++;
+            lr--;
             continue;
-        } else if (!zr && !zlr) { // move down a row
-            r++; /* leave lr */
+        } else if (!zr && !zlr) {  // move down a row
+            r++;                   /* leave lr */
             continue;
         }
     }
@@ -876,14 +868,12 @@ void matrix::PLU(matrix& P, matrix& L, matrix& U) const noexcept(false) {
     U = std::get<2>(plu);
 }
 
-std::tuple<matrix,matrix,matrix> matrix::PLU() const noexcept(false) {
+std::tuple<matrix, matrix, matrix> matrix::PLU() const noexcept(false) {
     basal::exception::throw_unless(rows == cols, g_filename, __LINE__, "PLU only allowed on square matrix");
     matrix P = matrix::identity(rows, cols);
     matrix L = matrix::identity(rows, cols);
-    matrix U(*this); // copy
-    for (size_t c = 0, r = 0, lr = (U.rows - 1);
-         c < U.cols && r < U.rows;
-         c++) {
+    matrix U(*this);  // copy
+    for (size_t c = 0, r = 0, lr = (U.rows - 1); c < U.cols && r < U.rows; c++) {
         if (U.col_is_zero(c, r)) {
             continue;
         }
@@ -905,7 +895,7 @@ std::tuple<matrix,matrix,matrix> matrix::PLU() const noexcept(false) {
         }
         for (size_t ir = r + 1; ir < U.rows; ir++) {
             if (!basal::equals_zero(U[ir][c])) {
-                element_type v = U[ir][c]/U[r][c];
+                element_type v = U[ir][c] / U[r][c];
                 // printf("L[%u][%u] = %E\n", ir, c, v);
                 L[ir][c] = v;
                 U.row_sub(ir, r, v);
@@ -914,7 +904,7 @@ std::tuple<matrix,matrix,matrix> matrix::PLU() const noexcept(false) {
         r++;
         lr = (rows - 1);
     }
-    return std::make_tuple(P,L,U);
+    return std::make_tuple(P, L, U);
 }
 
 matrix matrix::escheloned(size_t stop_col) const {
@@ -923,21 +913,19 @@ matrix matrix::escheloned(size_t stop_col) const {
 }
 
 matrix& matrix::eschelon(size_t stop_col) {
-    for (size_t c = 0, r = 0, lr = (rows - 1);
-         c < stop_col && r < rows;
-         c++) {
+    for (size_t c = 0, r = 0, lr = (rows - 1); c < stop_col && r < rows; c++) {
         // if the column is zero (from this row down)
         if (col_is_zero(c, r)) {
             // skip the column
             continue;
         }
-        sort_leading_nonzero(c, r, lr); // in this column
+        sort_leading_nonzero(c, r, lr);  // in this column
         // printf("Pivot: %E\n", array[r][c]);
         // r aught to be on the pivot then
-        row_scale(r, 1.0/array[r][c]);
+        row_scale(r, 1.0 / array[r][c]);
         for (size_t i = r + 1; i < rows; i++) {
             if (!basal::equals_zero(array[i][c])) {
-                row_scale(i, -1.0/array[i][c]);
+                row_scale(i, -1.0 / array[i][c]);
                 row_add(i, r, 1.0);
             }
         }
@@ -985,14 +973,14 @@ matrix& matrix::reduce(size_t stop_row) {
 }
 
 matrix matrix::reduced(size_t stop_row) const {
-    matrix a(*this); // copy constructor
+    matrix a(*this);  // copy constructor
     return a.reduce(stop_row);
 }
 
 std::vector<size_t> matrix::leading_nonzero(size_t stop_col) const {
     std::vector<size_t> lnz(rows);
     // initialize to zero rows
-    for (auto&  i : lnz) {
+    for (auto& i : lnz) {
         i = std::numeric_limits<size_t>::max();
     }
     if (stop_col > cols) {
@@ -1010,7 +998,7 @@ std::vector<size_t> matrix::leading_nonzero(size_t stop_col) const {
 }
 
 std::vector<size_t> matrix::pivots() const {
-    std::vector<size_t> lnz = leading_nonzero(); // get the locations PER ROW
+    std::vector<size_t> lnz = leading_nonzero();  // get the locations PER ROW
     // same as lnz but don't mention -1
     std::vector<size_t> pc;
     for (auto& c : lnz) {
@@ -1029,11 +1017,11 @@ std::vector<size_t> matrix::frees() const {
         i = std::numeric_limits<size_t>::max();
     }
     // now get the pivots and modify the fvi to show which are not the pivots
-    std::vector<size_t> pvc = pivots(); // e.g. {0,1,3}
+    std::vector<size_t> pvc = pivots();  // e.g. {0,1,3}
     // clear the pivots and leave the
     for (auto& c : pvc) {
         fvi[c] = 0;
-    } // e.g. {0, 0, SIZE_T_MAX, 0, ...}
+    }  // e.g. {0, 0, SIZE_T_MAX, 0, ...}
     std::vector<size_t> fvc;
     for (size_t c = 0; c < cols; c++) {
         if (fvi[c] >= cols) {
@@ -1049,19 +1037,17 @@ std::vector<bool> matrix::is_pivots() const {
     // get the pivots
     auto pv = pivots();
     // set the pivot columns
-    for (auto& c : pv)  {
+    for (auto& c : pv) {
         bpv[c] = true;
     }
     return bpv;
 }
 
 size_t matrix::rank() const {
-    matrix A = escheloned().reduce(); // produce the the reduced row eschelon format
+    matrix A = escheloned().reduce();  // produce the the reduced row eschelon format
     // now count the number of non-zero rows
     size_t rank = 0;
-    A.for_each_row([&](size_t r){
-        rank += A.row_is_zero(r) ? 0 : 1;
-    });
+    A.for_each_row([&](size_t r) { rank += A.row_is_zero(r) ? 0 : 1; });
     return rank;
 }
 
@@ -1092,13 +1078,13 @@ matrix matrix::nullspace() const noexcept(false) {
         matrix C = A.col(c).negative();
         // assign into B matrix
         for (size_t br = 0, cr = 0; br < B.rows; br++) {
-            if (br != c) { // variable is not the free vraible in this column
-                if (bpv[br] == true) // variable is not a free variable in another column
+            if (br != c) {            // variable is not the free vraible in this column
+                if (bpv[br] == true)  // variable is not a free variable in another column
                     B[br][nf] = C[cr++][0];
                 else
-                    B[br][nf] = 0.0; // column is a free variable in another column
+                    B[br][nf] = 0.0;  // column is a free variable in another column
             } else if (br == c) {
-                B[br][nf] = 1; // column is the free variable in this spot
+                B[br][nf] = 1;  // column is the free variable in this spot
             }
         }
         nf++;
@@ -1111,53 +1097,54 @@ namespace operators {
 
 matrix operator^(matrix& a, int p) noexcept(false) {
     if (p == 0) {
-        return matrix::identity(a.rows,a.cols);
+        return matrix::identity(a.rows, a.cols);
     } else if (p == 1) {
         return matrix(a);
     } else if (p == -1) {
         return a.inverse();
     } else if (p > 1) {
-        return (a^(p-1)) * a;
-    } else { // if (p < -1) {
+        return (a ^ (p - 1)) * a;
+    } else {  // if (p < -1) {
         if ((std::abs(p) & 1) == 1) {
             return a.inverse();
         } else {
-            return matrix(a); // copy
+            return matrix(a);  // copy
         }
     }
 }
 
 matrix operator^(matrix& a, letters l) noexcept(false) {
-    basal::exception::throw_unless(l == letters::T, g_filename, __LINE__, "Special transpose semantics require value of letter");
+    basal::exception::throw_unless(l == letters::T, g_filename, __LINE__,
+                                   "Special transpose semantics require value of letter");
     if (l == letters::T)
-        return a.T(); // can't easily mark with basal::oper_e without incurring copy
+        return a.T();  // can't easily mark with basal::oper_e without incurring copy
     else
         return matrix::identity(a.rows, a.cols);
 }
 
 matrix operator^(const matrix& a, letters l) noexcept(false) {
-    matrix b(a); // const copy
+    matrix b(a);  // const copy
     return operator^(b, l);
 }
 
-}
+}  // namespace operators
 
 matrix addition(const matrix& a, const matrix& b) noexcept(false) {
-    //a.print("a");
-    //b.print("b");
+    // a.print("a");
+    // b.print("b");
     basal::exception::throw_unless(a.rows == b.rows, g_filename, __LINE__);
     basal::exception::throw_unless(a.cols == b.cols, g_filename, __LINE__);
-    matrix c(a); // copy constructor
-    c += b; // class +=
-    return c; // returns a full object?
+    matrix c(a);  // copy constructor
+    c += b;       // class +=
+    return c;     // returns a full object?
 }
 
 matrix subtraction(const matrix& a, const matrix& b) noexcept(false) {
     basal::exception::throw_unless(a.rows == b.rows, g_filename, __LINE__);
     basal::exception::throw_unless(a.cols == b.cols, g_filename, __LINE__);
-    matrix c(a); // copy constructor
-    c -= b; // class +=
-    return c; // returns a full object?
+    matrix c(a);  // copy constructor
+    c -= b;       // class +=
+    return c;     // returns a full object?
 }
 
 matrix multiply(const matrix& a, const matrix& b) noexcept(false) {
@@ -1169,7 +1156,7 @@ matrix multiply(const matrix& a, const matrix& b) noexcept(false) {
             m[r][c] = 0.0;
             for (size_t i = 0; i < a.cols; i++) {
                 m[r][c] += (a[r][i] * b[i][c]);
-                //printf("m[%u][%u] = %lf += (%lf * %lf)\n", r, c, m[r][c], a[r][i], b[i][c]);
+                // printf("m[%u][%u] = %lf += (%lf * %lf)\n", r, c, m[r][c], a[r][i], b[i][c]);
             }
         }
     }
@@ -1177,7 +1164,7 @@ matrix multiply(const matrix& a, const matrix& b) noexcept(false) {
 }
 
 matrix multiply(const matrix& a, const element_type r) noexcept(false) {
-    matrix m(a); //copy
+    matrix m(a);  // copy
     return m *= r;
 }
 
@@ -1189,30 +1176,25 @@ matrix hadamard(const matrix& a, const matrix& b) noexcept(false) {
     basal::exception::throw_unless(a.rows == b.rows, g_filename, __LINE__);
     basal::exception::throw_unless(a.cols == b.cols, g_filename, __LINE__);
     matrix c(a.rows, b.cols);
-    return c.for_each([&](size_t y, size_t x, element_type& v){
-        v = a[y][x] * b[y][x];
-    });
+    return c.for_each([&](size_t y, size_t x, element_type& v) { v = a[y][x] * b[y][x]; });
 }
 
 namespace pairwise {
 matrix multiply(const matrix& A, const matrix& B) noexcept(false) {
-    basal::exception::throw_unless(A.rows == 1 and B.cols == 1, g_filename, __LINE__, "A[%dx%d] (pair) B[%dx%d]", A.rows, A.cols, B.rows, B.cols);
+    basal::exception::throw_unless(A.rows == 1 and B.cols == 1, g_filename, __LINE__, "A[%dx%d] (pair) B[%dx%d]",
+                                   A.rows, A.cols, B.rows, B.cols);
     matrix C(B.rows, A.cols);
-    return C.for_each([&](size_t y, size_t x, element_type& v) {
-        v = A[0][x] * B[y][0];
-    });
+    return C.for_each([&](size_t y, size_t x, element_type& v) { v = A[0][x] * B[y][0]; });
 }
-}
+}  // namespace pairwise
 
 namespace rowwise {
-    matrix scale(const matrix& a, const matrix& b) noexcept(false) {
-        basal::exception::throw_unless(b.cols == 1, g_filename, __LINE__, "Must be a column matrix (%u)", b.cols);
-        matrix m(a.rows, a.cols);
-        return m.for_each([&](size_t y, size_t x, element_type& v) {
-            v = a[y][x] * b[y][0];
-        });
-    }
+matrix scale(const matrix& a, const matrix& b) noexcept(false) {
+    basal::exception::throw_unless(b.cols == 1, g_filename, __LINE__, "Must be a column matrix (%u)", b.cols);
+    matrix m(a.rows, a.cols);
+    return m.for_each([&](size_t y, size_t x, element_type& v) { v = a[y][x] * b[y][0]; });
 }
+}  // namespace rowwise
 
 void swap(matrix& a, matrix& b) noexcept(false) {
     basal::exception::throw_unless(a.rows == b.rows, g_filename, __LINE__);
@@ -1225,13 +1207,13 @@ void swap(matrix& a, matrix& b) noexcept(false) {
 
 matrix rowjoin(matrix& a, matrix& b) noexcept(false) {
     basal::exception::throw_unless(a.rows == b.rows, g_filename, __LINE__, "To join, the number of rows must be equal");
-    matrix::ref_coord_iterator iter = [&](size_t r, size_t c, element_type& v){
+    matrix::ref_coord_iterator iter = [&](size_t r, size_t c, element_type& v) {
         if (c < a.cols)
             v = a[r][c];
         else
-            v = b[r][c-a.cols];
+            v = b[r][c - a.cols];
     };
-    return matrix(a.rows, a.cols+b.cols).for_each(iter);
+    return matrix(a.rows, a.cols + b.cols).for_each(iter);
 }
 
 matrix coljoin(const matrix& a, const matrix& b) noexcept(false) {
@@ -1240,34 +1222,32 @@ matrix coljoin(const matrix& a, const matrix& b) noexcept(false) {
         if (r < a.rows)
             v = a[r][c];
         else
-            v = b[r-a.rows][c];
+            v = b[r - a.rows][c];
     };
     return matrix(a.rows + b.rows, a.cols).for_each(iter);
 }
 
 matrix matrix::rule_of_sarrus() noexcept(false) {
     basal::exception::throw_if(rows != cols, g_filename, __LINE__, "Must be a square matrix");
-    matrix sub = subset(0, 0, rows, cols-1);
+    matrix sub = subset(0, 0, rows, cols - 1);
     return rowjoin(*this, sub);
 }
 
 bool matrix::to_file(std::string path) const {
-    FILE *fp = fopen(path.c_str(), "wb+");
+    FILE* fp = fopen(path.c_str(), "wb+");
     if (fp) {
         size_t elem = 0;
         elem += fwrite(&rows, sizeof(rows), 1, fp);
         elem += fwrite(&cols, sizeof(cols), 1, fp);
-        for_each([&](const element_type &v) {
-            elem += fwrite(&v, sizeof(v), 1, fp);
-        });
+        for_each([&](const element_type& v) { elem += fwrite(&v, sizeof(v), 1, fp); });
         fclose(fp);
-        return (elem == (rows*cols)+2);
+        return (elem == (rows * cols) + 2);
     }
     return false;
 }
 
 matrix matrix::from_file(std::string path) {
-    FILE *fp = fopen(path.c_str(), "rb+");
+    FILE* fp = fopen(path.c_str(), "rb+");
     if (fp) {
         size_t rows, cols;
         size_t elem = 0;
@@ -1285,7 +1265,6 @@ matrix matrix::from_file(std::string path) {
     return matrix();
 }
 
-
 // ****************************************************************************
-} // End of the namespace
+}  // namespace linalg
 // ****************************************************************************

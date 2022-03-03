@@ -29,9 +29,9 @@ using texture_color_map = std::function<raytrace::color(const image::point& p, c
 using texture_scalar_map = std::function<raytrace::color(const image::point&)>;
 
 /**
- * A volumetric color map takes an raytrace::point (R3) (x,y,z) and fmods it into the range of [0.0, 1.0) to make a pattern
- * and a set of colors as a palette and produces a color. Each map may take it's own number
- * of colors in the palette.
+ * A volumetric color map takes an raytrace::point (R3) (x,y,z) and fmods it into the range of [0.0, 1.0) to make a
+ * pattern and a set of colors as a palette and produces a color. Each map may take it's own number of colors in the
+ * palette.
  * @param p A point in unit R3 space (or repeated)
  * @param pal The palette of colors to chose from.
  */
@@ -70,7 +70,7 @@ color checkerboard(const raytrace::point& p, const palette& pal);
 /** Randomly generates a color for each pixel (palette is unused) */
 color pseudo_random_noise(const image::point& p, const palette& pal);
 
-} // namespace functions
+}  // namespace functions
 
 namespace tuning {
 class prn_parameters {
@@ -98,7 +98,6 @@ public:
 // the structure used with pseudo random noise
 extern prn_parameters pseudo_random_noise_params;
 
-} // namespace tuning
+}  // namespace tuning
 
-
-} // namespace raytrace
+}  // namespace raytrace

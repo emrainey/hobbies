@@ -50,5 +50,5 @@ iso::watts operator""_mW(long double a) {
 iso::watts operator""_mW(const char a[]) {
     return iso::watts(atol(a) * SI::prefix::milli);
 }
-} // namespace literals
-} // namespace iso
+}  // namespace literals
+}  // namespace iso

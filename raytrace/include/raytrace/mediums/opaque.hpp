@@ -11,6 +11,6 @@ public:
     opaque();
     virtual ~opaque() = default;
 };
-} // namespace mediums
+}  // namespace mediums
 
-} // namespace raytrace
+}  // namespace raytrace

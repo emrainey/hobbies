@@ -5,14 +5,15 @@
  * @copyright Copyright (c) 2021
  */
 
+#include <basal/module.hpp>
+#include <basal/options.hpp>
+#include <functional>
+#include <linalg/trackbar.hpp>
 #include <opencv2/opencv.hpp>
 #include <raytrace/raytrace.hpp>
-#include <basal/options.hpp>
-#include <basal/module.hpp>
-#include "world.hpp"
-#include <functional>
 #include <thread>
-#include <linalg/trackbar.hpp>
+
+#include "world.hpp"
 
 using namespace std::placeholders;
 
@@ -27,7 +28,7 @@ struct Parameters {
 };
 
 // QQVGA, QVGA, VGA, XGA, HD, UWGA, 4K
-size_t dimensions[][2] = {{160,120}, {320,240}, {640,480}, {1024,768}, {1920,1080}, {2560,1440}, {3840, 2160}};
+size_t dimensions[][2] = {{160, 120}, {320, 240}, {640, 480}, {1024, 768}, {1920, 1080}, {2560, 1440}, {3840, 2160}};
 
 void on_dimension_change(int index, void *cookie) {
     Parameters *param = reinterpret_cast<Parameters *>(cookie);
@@ -58,12 +59,13 @@ void on_fov_change(int value, void *cookie) {
     }
 };
 
-#define my_assert(condition, statement) { \
-    if ((condition) == false) { \
-        printf("%s failed, %s\n", #condition, statement); \
-        exit(-1); \
-    } \
-}
+#define my_assert(condition, statement)                       \
+    {                                                         \
+        if ((condition) == false) {                           \
+            printf("%s failed, %s\n", #condition, statement); \
+            exit(-1);                                         \
+        }                                                     \
+    }
 
 int main(int argc, char *argv[]) {
     Parameters params;
@@ -81,7 +83,8 @@ int main(int argc, char *argv[]) {
         {"-f", "--fov", 55.0, "Field of View in Degrees"},
         {"-v", "--verbose", false, "Enables showing the early debugging"},
         {"-m", "--module", std::string(""), "Module to load"},
-        {"-a", "--aaa", (size_t)raytrace::image::AAA_MASK_DISABLED, "Adaptive Anti-Aliasing Threshold value (255 disables)"},
+        {"-a", "--aaa", (size_t)raytrace::image::AAA_MASK_DISABLED,
+         "Adaptive Anti-Aliasing Threshold value (255 disables)"},
     };
 
     basal::options::process(opts, argc, argv);
@@ -95,7 +98,6 @@ int main(int argc, char *argv[]) {
     my_assert(basal::options::find(opts, "--module", params.module), "Must choose a module to load");
     my_assert(basal::options::find(opts, "--aaa", params.mask_threshold), "Must be get value");
 
-
     basal::module mod(params.module.c_str());
     my_assert(mod.is_loaded(), "Must have loaded module");
 
@@ -104,7 +106,7 @@ int main(int argc, char *argv[]) {
     my_assert(get_world != nullptr, "Must find module to load");
 
     // creates a local reference to the object
-    raytrace::world& world = *get_world();
+    raytrace::world &world = *get_world();
 
     // the render image
     cv::namedWindow(world.window_name(), cv::WINDOW_AUTOSIZE);
@@ -120,13 +122,16 @@ int main(int argc, char *argv[]) {
 
     std::cout << "ρ=" << radius << ", Θ=" << theta << ", Φ=" << phi << std::endl;
 
-    linalg::Trackbar<double> trackbar_theta("Camera Theta", world.window_name(), -iso::pi, theta, iso::pi, iso::pi/8, &theta);
-    linalg::Trackbar<double> trackbar_phi("Camera Phi", world.window_name(), 0, phi, iso::pi, iso::pi/16, &phi);
+    linalg::Trackbar<double> trackbar_theta("Camera Theta", world.window_name(), -iso::pi, theta, iso::pi, iso::pi / 8,
+                                            &theta);
+    linalg::Trackbar<double> trackbar_phi("Camera Phi", world.window_name(), 0, phi, iso::pi, iso::pi / 16, &phi);
     radius = (world.looking_from() - world.looking_at()).magnitude();
     linalg::Trackbar<double> trackbar_radius("Camera Radius", world.window_name(), 1.0, radius, 100.0, 5.0, &radius);
     linalg::Trackbar<size_t> trackbar_dim("Dimensions", world.window_name(), 1u, 1u, dimof(dimensions), 1u);
-    linalg::Trackbar<size_t> trackbar_subsamples("Subsamples", world.window_name(), 1, params.subsamples, 16, 1, &params.subsamples);
-    linalg::Trackbar<size_t> trackbar_reflect("Reflections", world.window_name(), 0, params.reflections, 10, 1, &params.reflections);
+    linalg::Trackbar<size_t> trackbar_subsamples("Subsamples", world.window_name(), 1, params.subsamples, 16, 1,
+                                                 &params.subsamples);
+    linalg::Trackbar<size_t> trackbar_reflect("Reflections", world.window_name(), 0, params.reflections, 10, 1,
+                                              &params.reflections);
     linalg::Trackbar<double> trackbar_fov("FOV", world.window_name(), 10, params.fov, 90, 5, &params.fov);
 
     do {
@@ -143,7 +148,7 @@ int main(int argc, char *argv[]) {
         double z = radius * std::cos(phi);
 
         raytrace::vector diff{x, y, z};
-        raytrace::point  from = world.looking_at() + diff;
+        raytrace::point from = world.looking_at() + diff;
         std::cout << "Look From: " << from << std::endl;
         std::cout << "Look At: " << world.looking_at() << " (Towards)" << std::endl;
 
@@ -159,7 +164,6 @@ int main(int argc, char *argv[]) {
             scene.print(world.window_name().c_str());
         }
         if (should_render) {
-
             // The completion data will be stored in here, a bool per line.
             std::vector<bool> completed(params.height);
             std::fill(completed.begin(), completed.end(), false);
@@ -176,23 +180,20 @@ int main(int argc, char *argv[]) {
                         fprintf(stdout, "]");
                     } else {
                         size_t count = 0;
-                        std::for_each(completed.begin(), completed.end(),
-                            [&](bool p) -> bool {
-                                count += (p?1:0);
-                                return p;
-                            }
-                        );
+                        std::for_each(completed.begin(), completed.end(), [&](bool p) -> bool {
+                            count += (p ? 1 : 0);
+                            return p;
+                        });
                         double percentage = 100.0 * count / completed.size();
                         bool done = (count == completed.size());
-                        fprintf(stdout, "\r[ %0.3lf %%] rays cast: %zu dots: %zu cross: %zu intersects: %zu bounced: %zu transmitted: %zu %s ",
-                            done ? 100.0 : percentage,
-                            raytrace::statistics::get().cast_rays_from_camera,
-                            geometry::statistics::get().dot_operations,
-                            geometry::statistics::get().cross_products,
-                            raytrace::statistics::get().intersections_with_objects,
-                            raytrace::statistics::get().bounced_rays,
-                            raytrace::statistics::get().transmitted_rays,
-                            done ? "\r\n" : "");
+                        fprintf(stdout,
+                                "\r[ %0.3lf %%] rays cast: %zu dots: %zu cross: %zu intersects: %zu bounced: %zu "
+                                "transmitted: %zu %s ",
+                                done ? 100.0 : percentage, raytrace::statistics::get().cast_rays_from_camera,
+                                geometry::statistics::get().dot_operations, geometry::statistics::get().cross_products,
+                                raytrace::statistics::get().intersections_with_objects,
+                                raytrace::statistics::get().bounced_rays, raytrace::statistics::get().transmitted_rays,
+                                done ? "\r\n" : "");
                         // if (done) return;
                     }
                     fflush(stdout);
@@ -201,27 +202,24 @@ int main(int argc, char *argv[]) {
                 fprintf(stdout, "\r\n");
             };
 
-            auto row_notifier = [&](size_t row_index, bool is_complete) -> void {
-                completed[row_index] = is_complete;
-            };
+            auto row_notifier = [&](size_t row_index, bool is_complete) -> void { completed[row_index] = is_complete; };
 
-            render_image.setTo(cv::Scalar(128,128,128));
-            //if (params.mask_threshold < raytrace::image::AAA_MASK_DISABLED) {
-                mask_image.setTo(cv::Scalar(params.mask_threshold));
-                cv::imshow("mask", mask_image);
+            render_image.setTo(cv::Scalar(128, 128, 128));
+            // if (params.mask_threshold < raytrace::image::AAA_MASK_DISABLED) {
+            mask_image.setTo(cv::Scalar(params.mask_threshold));
+            cv::imshow("mask", mask_image);
             //}
             cv::imshow(world.window_name(), render_image);
             (void)cv::waitKey(1);
-            printf("Starting Render (depth=%zu, samples=%zu, aaa?=%s thresh=%zu)...\r\n",
-                params.reflections,
-                params.subsamples,
-                params.mask_threshold == raytrace::image::AAA_MASK_DISABLED ? "no":"yes",
-                params.mask_threshold);
+            printf("Starting Render (depth=%zu, samples=%zu, aaa?=%s thresh=%zu)...\r\n", params.reflections,
+                   params.subsamples, params.mask_threshold == raytrace::image::AAA_MASK_DISABLED ? "no" : "yes",
+                   params.mask_threshold);
 
-            std::thread bar_thread(progress_bar); // thread starts
+            std::thread bar_thread(progress_bar);  // thread starts
             try {
-                scene.render(world.output_filename(), params.subsamples, params.reflections, row_notifier, params.mask_threshold);
-            } catch (const basal::exception& e) {
+                scene.render(world.output_filename(), params.subsamples, params.reflections, row_notifier,
+                             params.mask_threshold);
+            } catch (const basal::exception &e) {
                 std::cout << "Caught basal::exception in scene.render()! " << std::endl;
                 std::cout << "What:" << e.what() << " Why:" << e.why() << " Where:" << e.where() << std::endl;
             } catch (...) {
@@ -230,11 +228,11 @@ int main(int argc, char *argv[]) {
             std::chrono::duration<double> diff = std::chrono::steady_clock::now() - start;
             std::this_thread::sleep_for(std::chrono::milliseconds(500));
             running = false;
-            bar_thread.join(); // thread stop
+            bar_thread.join();  // thread stop
 
             std::cout << "Image Rendered in " << diff.count() << " seconds" << std::endl;
 
-            scene.view.capture.for_each([&](size_t y, size_t x, const fourcc::rgb8& pixel) -> void {
+            scene.view.capture.for_each([&](size_t y, size_t x, const fourcc::rgb8 &pixel) -> void {
                 render_image.at<cv::Vec3b>(y, x)[0] = pixel.b;
                 render_image.at<cv::Vec3b>(y, x)[1] = pixel.g;
                 render_image.at<cv::Vec3b>(y, x)[2] = pixel.r;
@@ -242,27 +240,38 @@ int main(int argc, char *argv[]) {
             cv::imshow(world.window_name(), render_image);
             cv::imwrite("render_image.png", render_image);
 
-            //if (params.mask_threshold < raytrace::image::AAA_MASK_DISABLED) {
-                scene.view.mask.for_each([&](size_t y, size_t x, const uint8_t& pixel) -> void {
-                    mask_image.at<cv::Vec3b>(y, x)[0] = pixel;
-                    mask_image.at<cv::Vec3b>(y, x)[1] = pixel;
-                    mask_image.at<cv::Vec3b>(y, x)[2] = pixel;
-                });
-                cv::imshow("mask", mask_image);
+            // if (params.mask_threshold < raytrace::image::AAA_MASK_DISABLED) {
+            scene.view.mask.for_each([&](size_t y, size_t x, const uint8_t &pixel) -> void {
+                mask_image.at<cv::Vec3b>(y, x)[0] = pixel;
+                mask_image.at<cv::Vec3b>(y, x)[1] = pixel;
+                mask_image.at<cv::Vec3b>(y, x)[2] = pixel;
+            });
+            cv::imshow("mask", mask_image);
             //}
             should_render = false;
-
         }
-        int key = cv::waitKey(0) & 0x00FFFFFF;// wait for keypress
+        int key = cv::waitKey(0) & 0x00FFFFFF;  // wait for keypress
         printf("Pressed key %d\n", key);
         switch (key) {
-            case 27: // [fall-through]
-            case 'q': should_quit = true; break;  // ESC or q
-            case 13: should_render = true; break;  // (CR) ENTER
-            case 'w': world.looking_at().x += move_unit; break;
-            case 's': world.looking_at().x -= move_unit; break;
-            case 'a': world.looking_at().y += move_unit; break;
-            case 'd': world.looking_at().y -= move_unit; break;
+            case 27:  // [fall-through]
+            case 'q':
+                should_quit = true;
+                break;  // ESC or q
+            case 13:
+                should_render = true;
+                break;  // (CR) ENTER
+            case 'w':
+                world.looking_at().x += move_unit;
+                break;
+            case 's':
+                world.looking_at().x -= move_unit;
+                break;
+            case 'a':
+                world.looking_at().y += move_unit;
+                break;
+            case 'd':
+                world.looking_at().y -= move_unit;
+                break;
         }
     } while (not should_quit);
     return 0;

@@ -3,9 +3,11 @@
 
 namespace nn {
 
-input::input(size_t num) : layer(layer::type::input, num) {}
+input::input(size_t num) : layer(layer::type::input, num) {
+}
 
-input::~input() {}
+input::~input() {
+}
 
 void input::encode(mnist& db, size_t index) {
     mnist::image& img = db.get_image(index);
@@ -13,8 +15,8 @@ void input::encode(mnist& db, size_t index) {
         c |= 0;
         size_t ir = r / mnist::dim;
         size_t ic = r % mnist::dim;
-        v = double(img.data[ir][ic])/ 255.0;
+        v = double(img.data[ir][ic]) / 255.0;
     });
 }
 
-}
+}  // namespace nn

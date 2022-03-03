@@ -3,22 +3,17 @@
 namespace raytrace {
 namespace lights {
 spot::spot(const raytrace::ray& r, const raytrace::color& C, element_type intensity, const iso::degrees& incoming_angle)
-    : light(C, intensity, 1)
-    , entity(r.location())
-    , m_direction(r.direction())
-    , m_incoming_angle(incoming_angle)
-    {
-        basal::exception::throw_unless(incoming_angle.value > 0, __FILE__, __LINE__, "Must be positive angle.");
-    }
+    : light(C, intensity, 1), entity(r.location()), m_direction(r.direction()), m_incoming_angle(incoming_angle) {
+    basal::exception::throw_unless(incoming_angle.value > 0, __FILE__, __LINE__, "Must be positive angle.");
+}
 
 spot::spot(raytrace::ray&& r, const raytrace::color& C, element_type intensity, const iso::degrees& incoming_angle)
     : light(C, intensity, 1)
     , entity(std::move(r.location()))
     , m_direction(std::move(r.direction()))
-    , m_incoming_angle(std::move(incoming_angle))
-    {
-        basal::exception::throw_unless(incoming_angle.value > 0, __FILE__, __LINE__, "Must be positive angle.");
-    }
+    , m_incoming_angle(std::move(incoming_angle)) {
+    basal::exception::throw_unless(incoming_angle.value > 0, __FILE__, __LINE__, "Must be positive angle.");
+}
 
 element_type spot::intensity_at(const point& world_point) const {
     // with spotlights, we draw the direction vector differently.
@@ -30,8 +25,8 @@ element_type spot::intensity_at(const point& world_point) const {
     iso::convert(deg_angle, rad_angle);
     if (deg_angle <= m_incoming_angle) {
         element_type d = world_direction.magnitude();
-        if (basal::equals_zero(d)) { // prevent divide by zero
-            return m_intensity; // full intensity, not inf
+        if (basal::equals_zero(d)) {  // prevent divide by zero
+            return m_intensity;       // full intensity, not inf
         } else {
             // using square fall-off rule
             return m_intensity / (d * d);
@@ -49,11 +44,11 @@ void spot::print(const char str[]) const {
     std::cout << str << " spot @" << this << " pointing: " << m_direction << ", " << m_color << std::endl;
 }
 
-} // namespace lights
+}  // namespace lights
 
 std::ostream& operator<<(std::ostream& os, const lights::spot& l) {
     os << " spot " << l.incident(geometry::R3::origin, 0) << " " << l.color_at(geometry::R3::origin);
     return os;
 }
 
-} // namespace raytrace
+}  // namespace raytrace

@@ -1,13 +1,13 @@
 /**
  * @file
  * This is an auto-generated header for iso::amperes.
- * 
+ *
  * @note See README on re-generation.
  * @copyright Copyright 2022.
  */
 #pragma once
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 
 #include "iso/measurement.hpp"
 
@@ -16,7 +16,7 @@ namespace iso {
 
 /** A structure used to hold the postfix for amperes */
 struct suffix_type_A {
-    constexpr static const char *suffix = "A";
+    constexpr static const char* suffix = "A";
 };
 
 /**
@@ -42,7 +42,7 @@ public:
     /** Destructor */
     ~amperes() = default;
     /** Const Copy Assignment */
-    amperes& operator=(const amperes &other) noexcept;
+    amperes& operator=(const amperes& other) noexcept;
     /** Copy Assignment */
     amperes& operator=(amperes& other) noexcept;
     /** Move Assignment */
@@ -72,25 +72,25 @@ public:
 };
 
 namespace operators {
-    /** Addition operator */
-    amperes operator+(const amperes& A, const amperes& B);
-    /** Subtraction operator */
-    amperes operator-(const amperes& A, const amperes& B);
-    /** Left Scaling Operator */
-    amperes operator*(const amperes& A, double factor);
-    /** Right Scaling Operator */
-    amperes operator*(double factor, const amperes& A);
-    /** Inverse Scaling Operator */
-    amperes operator/(const amperes& A, double factor);
-}
+/** Addition operator */
+amperes operator+(const amperes& A, const amperes& B);
+/** Subtraction operator */
+amperes operator-(const amperes& A, const amperes& B);
+/** Left Scaling Operator */
+amperes operator*(const amperes& A, double factor);
+/** Right Scaling Operator */
+amperes operator*(double factor, const amperes& A);
+/** Inverse Scaling Operator */
+amperes operator/(const amperes& A, double factor);
+}  // namespace operators
 
 namespace literals {
-    /** Literal Double, Quote Operator */
-    amperes operator""_A(long double value);
-    /** Literal Int, Quote Operator */
-    amperes operator""_A(unsigned long long value);
-    /** Literal String, Quote Operator */
-    iso::amperes operator""_A(const char a[]);
-}
+/** Literal Double, Quote Operator */
+amperes operator""_A(long double value);
+/** Literal Int, Quote Operator */
+amperes operator""_A(unsigned long long value);
+/** Literal String, Quote Operator */
+iso::amperes operator""_A(const char a[]);
+}  // namespace literals
 
-}
+}  // namespace iso

@@ -11,8 +11,8 @@ medium::medium()
     , m_smoothness(mediums::smoothness::none)
     , m_transmissivity(0.0)
     , m_refractive_index(0.0)
-    , m_reducing_map(nullptr)
-    {}
+    , m_reducing_map(nullptr) {
+}
 
 color medium::ambient(const raytrace::point& volumetric_point __attribute__((unused))) const {
     using namespace operators;
@@ -49,10 +49,8 @@ element_type medium::smoothness(const raytrace::point& volumetric_point __attrib
 void medium::radiosity(const raytrace::point& volumetric_point __attribute__((unused)),
                        element_type refractive_index __attribute__((unused)),
                        const iso::radians& incident_angle __attribute__((unused)),
-                       const iso::radians& transmitted_angle __attribute__((unused)),
-                       element_type& emitted,
-                       element_type& reflected,
-                       element_type& transmitted) const {
+                       const iso::radians& transmitted_angle __attribute__((unused)), element_type& emitted,
+                       element_type& reflected, element_type& transmitted) const {
     emitted = 0;
     reflected = 1.0 - m_transmissivity;
     transmitted = m_transmissivity;
@@ -78,5 +76,5 @@ raytrace::vector medium::perturbation(const raytrace::point&) const {
     return geometry::R3::null;
 }
 
-} // namespace mediums
-} // namespace raytrace
+}  // namespace mediums
+}  // namespace raytrace

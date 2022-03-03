@@ -1,13 +1,16 @@
 #pragma once
 
 #include <linalg/linalg.hpp>
+
 #include "geometry/geometry.hpp"
 #include "raytrace/objects/object.hpp"
 
 namespace raytrace {
 namespace objects {
 /** Constructs a 1 sided infinite plane */
-class plane : public geometry::plane, public object {
+class plane
+    : public geometry::plane
+    , public object {
 public:
     /**
      * Constructs a plane from a point and a normal.
@@ -25,8 +28,9 @@ public:
     image::point map(const point& object_surface_point) const override;
     /** @copydoc basal::printable::print */
     void print(const char str[]) const override;
+
 protected:
     element_type m_surface_scale;
 };
-}
-}
+}  // namespace objects
+}  // namespace raytrace

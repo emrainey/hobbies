@@ -1,5 +1,6 @@
-#include <iostream>
 #include "raytrace/objects/ring.hpp"
+
+#include <iostream>
 
 namespace raytrace {
 namespace objects {
@@ -10,18 +11,16 @@ using namespace geometry;
 using namespace geometry::operators;
 
 ring::ring(const point& C, const vector& N, element_type inner, element_type outer)
-    : raytrace::objects::plane(C, N, outer)
-    , m_inner_radius2(inner * inner)
-    , m_outer_radius2(outer * outer)
-    {}
+    : raytrace::objects::plane(C, N, outer), m_inner_radius2(inner * inner), m_outer_radius2(outer * outer) {
+}
 
 hits ring::collisions_along(const ray& object_ray) const {
     hits ts;
     // is the ray parallel to the plane?
     const vector& N = m_normal;
     const vector& V = object_ray.direction();
-    element_type proj = dot(V, N); // if so the projection is zero
-    if (not basal::equals_zero(proj)) { // they collide *somewhere*
+    element_type proj = dot(V, N);       // if so the projection is zero
+    if (not basal::equals_zero(proj)) {  // they collide *somewhere*
         // get the vector of the center to the ray initial
         vector C = position() - object_ray.location();
         // t is the ratio of the projection of the arbitrary center vector divided by the projection ray
@@ -37,8 +36,9 @@ hits ring::collisions_along(const ray& object_ray) const {
 }
 
 void ring::print(const char str[]) const {
-    std::cout << str << " ring @" << this << " " << object_<3>::position() << " " << m_normal << " Radii (Squared):" << m_inner_radius2 << ", " << m_outer_radius2 << std::endl;
+    std::cout << str << " ring @" << this << " " << object_<3>::position() << " " << m_normal
+              << " Radii (Squared):" << m_inner_radius2 << ", " << m_outer_radius2 << std::endl;
 }
 
-} // namespace objects
-} // namespace raytrace
+}  // namespace objects
+}  // namespace raytrace

@@ -1,12 +1,13 @@
 #pragma once
 
+#include <basal/printable.hpp>
+
+#include "raytrace/camera.hpp"
 #include "raytrace/color.hpp"
 #include "raytrace/image.hpp"
-#include "raytrace/camera.hpp"
 #include "raytrace/lights/light.hpp"
-#include "raytrace/objects/object.hpp"
 #include "raytrace/mediums/transparent.hpp"
-#include <basal/printable.hpp>
+#include "raytrace/objects/object.hpp"
 
 namespace raytrace {
 
@@ -26,7 +27,7 @@ public:
      */
     struct intersect_set {
         /** Simple Constructor */
-        explicit intersect_set(element_type d, const geometry::intersection& i, const objects::object *o);
+        explicit intersect_set(element_type d, const geometry::intersection& i, const objects::object* o);
         // Default Copy
         explicit intersect_set(const intersect_set&) = default;
         // No move construct
@@ -50,7 +51,7 @@ public:
     scene() = delete;
 
     /** Configures the camera and image projection */
-    scene(size_t image_height, size_t image_width, iso::degrees field_of_view, double adaptive_threshhold = 1.0/32.0);
+    scene(size_t image_height, size_t image_width, iso::degrees field_of_view, double adaptive_threshhold = 1.0 / 32.0);
 
     /** Destructor */
     virtual ~scene();
@@ -82,7 +83,8 @@ public:
      *                               When it falls below a global limit, the reflection will not be considered.
      *                               @see adaptive_reflection_threshhold
      */
-    color trace(const ray& world_ray, const mediums::medium& media, size_t depth = 1, double recursive_contribution = 1.0);
+    color trace(const ray& world_ray, const mediums::medium& media, size_t depth = 1,
+                double recursive_contribution = 1.0);
 
     /**
      * Computes the scene and saves the camera image to a file
@@ -92,12 +94,9 @@ public:
      * @param func     The optional callback per pixel
      * @param show_bar Enables showing the progress bar
      */
-    void render(std::string filename,
-                size_t number_of_samples = 1,
-                size_t reflection_depth = 1,
+    void render(std::string filename, size_t number_of_samples = 1, size_t reflection_depth = 1,
                 std::optional<image::rendered_line> func = std::nullopt,
-                uint8_t mask_threshold = raytrace::image::AAA_MASK_DISABLED,
-                bool filter_capture = false);
+                uint8_t mask_threshold = raytrace::image::AAA_MASK_DISABLED, bool filter_capture = false);
 
     /** The limit for reflective contributions to the top level trace. */
     double adaptive_reflection_threshhold;
@@ -109,10 +108,10 @@ public:
     void set_background_mapper(background_mapper bgm);
 
     /** Adds an object to the scene */
-    void add_object(const objects::object *obj);
+    void add_object(const objects::object* obj);
 
     /** Adds a light to the scene */
-    void add_light(const lights::light *lit);
+    void add_light(const lights::light* lit);
 
     /** Removes all objects and lights from a scene */
     void clear();
@@ -137,4 +136,4 @@ protected:
     background_mapper m_background;
 };
 
-}
+}  // namespace raytrace

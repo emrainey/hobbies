@@ -1,7 +1,7 @@
 #pragma once
 
-#include "raytrace/lights/light.hpp"
 #include "raytrace/entity.hpp"
+#include "raytrace/lights/light.hpp"
 
 namespace raytrace {
 namespace lights {
@@ -30,9 +30,9 @@ protected:
     element_type m_distance;
 };
 
-} // namespace lights
+}  // namespace lights
 
 /** Helper to print specks of light */
 std::ostream& operator<<(std::ostream& os, const lights::beam& l);
 
-} // namespace raytrace
+}  // namespace raytrace

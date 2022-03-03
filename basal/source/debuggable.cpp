@@ -11,4 +11,4 @@ void debuggable::emit(const char fmt[], ...) const {
     va_end(list);
 }
 
-} // namespace basal
+}  // namespace basal

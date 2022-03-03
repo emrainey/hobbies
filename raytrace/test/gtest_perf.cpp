@@ -1,9 +1,10 @@
-#include <chrono>
 #include <gtest/gtest.h>
+
+#include <chrono>
 #include <raytrace/raytrace.hpp>
 
-#include "linalg/gtest_helper.hpp"
 #include "geometry/gtest_helper.hpp"
+#include "linalg/gtest_helper.hpp"
 #include "raytrace/gtest_helper.hpp"
 
 using namespace raytrace;
@@ -23,6 +24,7 @@ public:
         rate = (double(number_of_ops) / (diff.count() / 1E9)) / 1E6;
         std::cout << activity << " rate:" << rate << " per sec, Period: " << diff.count() << " nsec" << std::endl;
     }
+
 protected:
     static constexpr size_t number_of_ops = 10'000;
     std::chrono::time_point<std::chrono::steady_clock> start;
@@ -63,9 +65,7 @@ TEST_F(PerfCounter, IntersectionsRing) {
 
 TEST_F(PerfCounter, IntersectionsTriangle) {
     raytrace::ray r(raytrace::point(0, 0, 2), -R3::basis::Z);
-    raytrace::objects::triangle obj(raytrace::point(-1, 1, 0),
-                           raytrace::point(+1, 0, 0),
-                           raytrace::point(-1,-1, 0));
+    raytrace::objects::triangle obj(raytrace::point(-1, 1, 0), raytrace::point(+1, 0, 0), raytrace::point(-1, -1, 0));
     activity = std::string("triangle intersections");
     for (size_t count = 0; count < number_of_ops; count++) {
         geometry::intersection hit = obj.intersect(r);
@@ -146,10 +146,7 @@ TEST_F(PerfCounter, IntersectionsTorus4Hits) {
 TEST_F(PerfCounter, IntersectionsQuadratic) {
     raytrace::ray r(raytrace::point(2.0, 0, 0), -R3::basis::X);
     // a bowl sitting on the XY plane
-    matrix C{{{ 1.0, 0.0, 0.0, 0.0},
-              { 0.0, 1.0, 0.0, 0.0},
-              { 0.0, 0.0, 0.0,-2.0},
-              { 0.0, 0.0,-2.0, 0.0}}};
+    matrix C{{{1.0, 0.0, 0.0, 0.0}, {0.0, 1.0, 0.0, 0.0}, {0.0, 0.0, 0.0, -2.0}, {0.0, 0.0, -2.0, 0.0}}};
     raytrace::objects::quadratic obj(R3::origin, C);
     activity = std::string("quadratic surface intersections");
     for (size_t count = 0; count < number_of_ops; count++) {

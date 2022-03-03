@@ -12,6 +12,6 @@ public:
     virtual ~dielectric() = default;
 };
 
-} // namespace mediums
+}  // namespace mediums
 
-} // namespace raytrace
+}  // namespace raytrace

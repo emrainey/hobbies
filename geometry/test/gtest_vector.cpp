@@ -1,8 +1,10 @@
 
 #include <gtest/gtest.h>
-#include <linalg/linalg.hpp>
-#include <geometry/geometry.hpp>
+
 #include <basal/basal.hpp>
+#include <geometry/geometry.hpp>
+#include <linalg/linalg.hpp>
+
 #include "linalg/gtest_helper.hpp"
 
 using namespace geometry;
@@ -131,7 +133,7 @@ TEST(VectorTest, TemplateConstructors) {
     ASSERT_EQ(3, v3.dimensions);
     ASSERT_EQ(4, v4.dimensions);
 
-    ASSERT_THROW(R2::vector v1{1.0}, basal::exception); // the compiler may complain
+    ASSERT_THROW(R2::vector v1{1.0}, basal::exception);  // the compiler may complain
     // ASSERT_THROW(R2::vector v1{{1.0, 2.0, 3.0}}, basal::exception); // the compiler may catch this
 }
 
@@ -167,9 +169,9 @@ TEST(VectorTest, StaticsAndNegation) {
 
 TEST(VectorTest, AxisCross) {
     using namespace R3;
-    vector xy(cross(basis::X, basis::Y)); // Copy Construct
+    vector xy(cross(basis::X, basis::Y));  // Copy Construct
     ASSERT_VECTOR_EQ(basis::Z, xy);
-    xy = cross(basis::X, basis::Y); // Copy Assign
+    xy = cross(basis::X, basis::Y);  // Copy Assign
     ASSERT_VECTOR_EQ(basis::Z, xy);
     xy = cross(basis::X, vector{{0.0, 1.0, 0.0}});
     ASSERT_VECTOR_EQ(basis::Z, xy);
@@ -178,17 +180,16 @@ TEST(VectorTest, AxisCross) {
     xy = cross(vector{{1.0, 0.0, 0.0}}, vector{{0.0, 1.0, 0.0}});
     ASSERT_VECTOR_EQ(basis::Z, xy);
 
-    vector yz(cross(basis::Y, basis::Z)); // Copy Construct
+    vector yz(cross(basis::Y, basis::Z));  // Copy Construct
     ASSERT_VECTOR_EQ(basis::X, yz);
-    yz = cross(basis::Y, basis::Z); // Copy Assign
+    yz = cross(basis::Y, basis::Z);  // Copy Assign
     ASSERT_VECTOR_EQ(basis::X, yz);
 
-    vector zx(cross(basis::Z, basis::X)); // Copy Construct
+    vector zx(cross(basis::Z, basis::X));  // Copy Construct
     ASSERT_VECTOR_EQ(basis::Y, zx);
-    zx = cross(basis::Z, basis::X); // Copy Assign
+    zx = cross(basis::Z, basis::X);  // Copy Assign
     ASSERT_VECTOR_EQ(basis::Y, zx);
 }
-
 
 TEST(VectorTest, AxisDots) {
     using namespace R3;
@@ -236,7 +237,7 @@ TEST(VectorTest, DotMagAndAngle) {
     ASSERT_DOUBLE_EQ(110, Q(b));
     ASSERT_DOUBLE_EQ(sqrt(110), b.magnitude());
     iso::radians angle_ab = angle(a, b);
-    ASSERT_DOUBLE_EQ(std::acos(56.0/(sqrt(29.0)*sqrt(110.0))), angle_ab.value);
+    ASSERT_DOUBLE_EQ(std::acos(56.0 / (sqrt(29.0) * sqrt(110.0))), angle_ab.value);
 
     // FIXME (Gtest) Compute Spread Independently here, don't just repeat the code
     // ASSERT_DOUBLE_EQ(1.0 - ((56.0*56.0)/Q(a)*Q(b)), spread(a, b));
@@ -257,9 +258,9 @@ TEST(VectorTest, AdditionSubtraction) {
 
 TEST(VectorTest, Crosses) {
     using namespace R3;
-    vector a{{1,5,2}};
-    vector b{{-5,1,0}};
-    vector c{{-2,-10,26}};
+    vector a{{1, 5, 2}};
+    vector b{{-5, 1, 0}};
+    vector c{{-2, -10, 26}};
 
     ASSERT_VECTOR_EQ(b, cross(basis::Z, a));
     ASSERT_VECTOR_EQ(c, cross(a, cross(basis::Z, a)));
@@ -268,10 +269,10 @@ TEST(VectorTest, Crosses) {
 TEST(VectorTest, Rodrigues) {
     R3::vector v{{1, 0, 1}};
     R3::vector k{{0, 0, 1}};
-    iso::radians theta(iso::tau/2.0);
+    iso::radians theta(iso::tau / 2.0);
     R3::vector ground_truth{{-1, 0, 1}};
     R3::vector rod = R3::rodrigues(k, v, theta);
-    //print_this(rod);
+    // print_this(rod);
     ASSERT_VECTOR_EQ(ground_truth, R3::rodrigues(k, v, theta));
     // TODO (Gtest) Add more test cases here
 }
@@ -295,14 +296,14 @@ TEST(VectorTest, CauchySchwartz) {
     ASSERT_DOUBLE_EQ(iso::tau / 6.0, angle(u, v).value);
     // cauchy-schwartz inequality
     ASSERT_TRUE(dot(u, v) <= (u.norm() * v.norm()));
-    //triange inequality
+    // triange inequality
     ASSERT_TRUE((u + v).norm() <= (u.norm() + v.norm()));
 }
 
 TEST(VectorTest, TripleProduct) {
     R3::vector u{{3, -2, -5}};
-    R3::vector v{{1,  4, -4}};
-    R3::vector w{{0,  3,  2}};
+    R3::vector v{{1, 4, -4}};
+    R3::vector w{{0, 3, 2}};
     ASSERT_DOUBLE_EQ(49.0, R3::triple(u, v, w));
     ASSERT_DOUBLE_EQ(49.0, R3::triple(w, u, v));
     ASSERT_DOUBLE_EQ(49.0, R3::triple(v, w, u));
@@ -312,12 +313,12 @@ TEST(VectorTest, Angles) {
     R3::vector a{{1, 0, 1}};
 
     iso::radians A1 = angle(R3::basis::Z, R3::basis::Y);
-    ASSERT_DOUBLE_EQ(iso::pi/2, A1.value);
+    ASSERT_DOUBLE_EQ(iso::pi / 2, A1.value);
     iso::radians A2 = angle(R3::basis::Z, -R3::basis::Z);
     ASSERT_DOUBLE_EQ(iso::pi, A2.value);
     iso::radians A3 = angle(R3::basis::Z, R3::basis::Z);
     ASSERT_DOUBLE_EQ(0.0, A3.value);
 
     iso::radians A4 = angle(R3::basis::Z, a);
-    ASSERT_DOUBLE_EQ(iso::pi/4, A4.value);
+    ASSERT_DOUBLE_EQ(iso::pi / 4, A4.value);
 }

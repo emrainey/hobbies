@@ -1,4 +1,5 @@
 {
+	// cSpell: disable
 	"folders": [
 		{
 			"path": "basal"
@@ -14,7 +15,7 @@
 		},
 		{
 			"path": "noise",
-		}
+		},
 		{
 			"path": "linalg"
 		},
@@ -37,10 +38,29 @@
 			"path": "htm"
 		},
 		{
-			"path": "testing"
+			"path": "testing",
+			"name": "Conan Testing Folder"
 		}
 	],
+	"extensions": {
+		"recommendations": [
+			"ms-vscode.cmake-tools",
+			"fredericbonnet.cmake-test-adapter",
+			"matepek.vscode-catch2-test-adapter",
+			"ms-vscode.cpptools",
+			"samuelcolvin.jinjahtml",
+			"cheshirekow.cmake-format",
+			"disroop.conan",
+			"bbenoist.doxygen",
+			"oderwat.indent-rainbow",
+			"shd101wyy.markdown-preview-enhanced",
+			"davidanson.vscode-markdownlint",
+			"gruntfuggly.todo-tree",
+			"xaver.clang-format"
+		],
+	},
 	"settings": {
+		"editor.formatOnSave": true,
 		"cmake.autoSelectActiveFolder": true,
 		"cmake.installPrefix": "${workspaceFolder}/../install",
 		"cmake.configureOnOpen": false,
@@ -53,6 +73,8 @@
 			"**/*.js",
 			"**/*.xml"
 		],
+		"testExplorer.showOnRun": true,
+		"testMate.cpp.log.logpanel": true,
 		"testMate.cpp.debug.configTemplate": {
 			"type": "cppdbg",
 			"MIMode": "lldb",
@@ -60,9 +82,14 @@
 			"args": "${argsArray}",
 			"cwd": "${cwd}",
 			"env": "${envObj}",
+			"environment": "${envObjArray}",
 			"sourceFileMap": "${sourceFileMapObj}",
 			"externalConsole": false
 		},
-
+		"testMate.cpp.test.executables": "${workspaceFolder}/build/gtest_*",
+		"files.associations": {
+			"memory": "cpp",
+			"variant": "cpp"
+		}
 	}
 }

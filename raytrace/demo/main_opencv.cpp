@@ -87,8 +87,7 @@ int main(int argc, char *argv[]) {
          "Adaptive Anti-Aliasing Threshold value (255 disables)"},
     };
 
-    basal::options::process(opts, argc, argv);
-    basal::options::print(opts);
+    basal::options::process(dimof(opts), opts, argc, argv);
     my_assert(basal::options::find(opts, "--width", params.width), "Must have a width value");
     my_assert(basal::options::find(opts, "--height", params.height), "Must have a width value");
     my_assert(basal::options::find(opts, "--fov", params.fov), "Must have a FOV value");
@@ -97,6 +96,7 @@ int main(int argc, char *argv[]) {
     my_assert(basal::options::find(opts, "--reflections", params.reflections), "Must have some number of reflections");
     my_assert(basal::options::find(opts, "--module", params.module), "Must choose a module to load");
     my_assert(basal::options::find(opts, "--aaa", params.mask_threshold), "Must be get value");
+    basal::options::print(dimof(opts), opts);
 
     basal::module mod(params.module.c_str());
     my_assert(mod.is_loaded(), "Must have loaded module");

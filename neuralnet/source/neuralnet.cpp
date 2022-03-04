@@ -45,12 +45,12 @@ int main(int argc, char* argv[]) {
         // these are the visualization images of the hidden layers
         const char* named_i1 = "input";
 
-        basal::options::process(opts, argc, argv);
+        basal::options::process(basal::dimof(opts), opts, argc, argv);
         basal::options::find(opts, "--train-labels", training_labels);
         basal::options::find(opts, "--train-images", training_images);
         basal::options::find(opts, "--data-labels", data_labels);
         basal::options::find(opts, "--data-images", data_images);
-        basal::options::print(opts);
+        basal::options::print(basal::dimof(opts), opts);
 
         nn::mnist learning(training_labels, training_images, 6000);
         if (not learning.load()) {

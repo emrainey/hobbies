@@ -18,6 +18,7 @@ target_sources(hobbies-basal
         ${CMAKE_CURRENT_SOURCE_DIR}/source/debuggable.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/exception.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/listable.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/options.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/module.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/basal.cpp
 )

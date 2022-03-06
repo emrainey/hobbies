@@ -24,7 +24,9 @@ scene::scene(size_t image_height, size_t image_width, iso::degrees field_of_view
     , adaptive_reflection_threshhold(art)
     , m_objects()
     , m_lights()
-    , m_background([](const raytrace::ray&) { return colors::black; }) {
+    , m_background([](const raytrace::ray&) { return colors::black; })
+    , m_media(&mediums::vaccum)  // default to a vaccum
+{
 }
 
 scene::~scene() {
@@ -38,6 +40,12 @@ void scene::add_object(const objects::object* obj) {
 
 void scene::add_light(const lights::light* lit) {
     m_lights.push_back(lit);
+}
+
+void scene::add_media(const mediums::medium* media) {
+    if (media) {
+        m_media = media;
+    }
 }
 
 void scene::clear() {
@@ -109,6 +117,9 @@ color scene::trace(const ray& world_ray, const mediums::medium& media, size_t re
                    double recursive_contribution) {
     using namespace operators;
 
+    // this will store the final traced value for this call.
+    color traced_color;
+
     // finds all the intersections with the objects
     intersect_list intersections = find_intersections(world_ray, m_objects);
 
@@ -126,7 +137,6 @@ color scene::trace(const ray& world_ray, const mediums::medium& media, size_t re
         raytrace::point world_surface_point = as_point(nearest.intersector);
         // find produce the object surface point
         raytrace::point object_surface_point = obj.reverse_transform(world_surface_point);
-
         // find the normal on the surface at that point
         vector world_surface_normal = obj.normal(world_surface_point);
         if constexpr (enforce_ranges) {
@@ -301,40 +311,24 @@ color scene::trace(const ray& world_ray, const mediums::medium& media, size_t re
             }
         }
         if (reflection_depth > 0 and transparency > 0.0 and not world_refraction.direction().is_zero()) {
-            // find the dropoff of the medium we're *in* given the distance
-            element_type dropoff = medium.absorbance(
-                nearest.distance);  //< FIXME this needs to be lifted out of this clause for haze to work
-            element_type transmitted_scaling = 1.0 - dropoff;
-            if (transmitted_scaling > 0.0) {
-                if (recursive_contribution < adaptive_reflection_threshhold) {
-                    // due to the low contribution to the final color, we can disregard this.
-                    statistics::get().saved_ray_traces += reflection_depth;
-                    // just return black?
-                    transmitted_color = colors::black;
-                } else {
-                    // this ray was transmitted through the new medium
-                    statistics::get().transmitted_rays++;
-                    // get the colors from the transmitted light
-                    transmitted_color = trace(world_refraction, medium, reflection_depth - 1,
-                                              recursive_contribution * transmitted_scaling);
-                    // now scale that transmitted_color via the dropoff
-                    transmitted_color.scale(transmitted_scaling);
-                }
-            } else {
-                statistics::get().absorbed_rays++;
-                // not a transmissible medium, set that to black;
-                transmitted_color = colors::black;
-            }
+            // this ray was transmitted through the new medium
+            statistics::get().transmitted_rays++;
+            // get the colors from the transmitted light
+            transmitted_color = trace(world_refraction, medium, reflection_depth - 1, recursive_contribution);
+            // FIXME figure out how to diminish the recursive contribution by the dropoff in the media? maybe check it
+            // above?
         }
         // blend that reflected color with the transmitted color
         surface_color = interpolate(transmitted_color, reflected_color, transparency);
         // TODO now add emitted color
         // surface_color += emitted_color;
-        return surface_color;
+        // the media will absorb some of the light from that surface.
+        traced_color = media.absorbance(nearest.distance, surface_color);
     } else {  // if (get_type(closest_intersection) == geometry::intersectionType::None) {
         // return the background as the ray didn't hit anything.
-        return m_background(world_ray);
+        traced_color = media.absorbance(std::numeric_limits<element_type>::infinity(), m_background(world_ray));
     }
+    return traced_color;
 }
 
 void scene::render(std::string filename, size_t number_of_samples, size_t reflection_depth,
@@ -349,7 +343,7 @@ void scene::render(std::string filename, size_t number_of_samples, size_t reflec
         ray world_ray = view.cast(pnt);
 
         // trace the ray out to the world, starting from a vaccum
-        return trace(world_ray, mediums::vaccum, reflection_depth);
+        return trace(world_ray, *m_media, reflection_depth);
     };
     // if we're doing adaptive anti-aliasing we only shoot 1 ray at first and then compute a constrast mask later
     view.capture.generate_each(tracer, adaptive_antialiasing ? 1 : number_of_samples, row_notifier, &view.mask,

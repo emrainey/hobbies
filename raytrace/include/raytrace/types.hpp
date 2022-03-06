@@ -49,7 +49,7 @@ public:
     /** The count of the points in the shadow which don't have a color contribution */
     size_t point_in_shadow;
     /** The count of rays absorbed into a media */
-    size_t absorbed_rays;
+    size_t absorbed_rays;  // FIXME this will not accurately count until a per frequency method done.
 
     static statistics& get() {
         static statistics s;

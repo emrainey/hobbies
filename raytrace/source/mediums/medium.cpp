@@ -60,8 +60,8 @@ element_type medium::refractive_index(const raytrace::point& volumetric_point __
     return m_refractive_index;
 }
 
-element_type medium::absorbance(element_type distance __attribute__((unused))) const {
-    return 1.0;
+color medium::absorbance(element_type /*distance*/, const color& given_color) const {
+    return given_color;
 }
 
 mapping::reducer medium::mapper() const {

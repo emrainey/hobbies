@@ -70,8 +70,10 @@ public:
      */
     virtual element_type refractive_index(const raytrace::point& volumetric_point) const;
 
-    /** Returns how much light is absorbed by the medium during transmission for a given (unitless) distance. */
-    virtual element_type absorbance(element_type distance) const;
+    /** Returns the filtered color of the light as absorbed by the medium during
+     * transmission for a given (unitless) distance.
+     */
+    virtual color absorbance(element_type distance, const color& given_color) const;
 
     /** Returns the mapping function */
     mapping::reducer mapper() const;
@@ -107,6 +109,7 @@ protected:
     // element_type m_permissivity;
     /** Magnetic Permeability */
     // element_type m_permeability;
+    /** The mapping reduction function (if supplied) maps R3 to R2 for "surface mapping" */
     mapping::reducer m_reducing_map;
 };
 

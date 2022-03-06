@@ -13,10 +13,10 @@ class ArtWorld : public world {
 public:
     ArtWorld()
         : look_from(0, 50, 10)
-        , look_at(0, 0, 0)
+        , look_at(0, 0, 10)
         , sunrays(raytrace::vector{-20, 0, -21}, colors::white, 1E4)
         , floor(R3::origin, R3::basis::Z, 100.0, 100.0)
-        , pyramid(R3::origin, 10)
+        , pyramid(look_at, 10)
         , orb(raytrace::point(0, 0, 12), 2.0) {
         pyramid.material(&mediums::metals::stainless);
         orb.material(&mediums::metals::stainless);
@@ -46,6 +46,7 @@ public:
         iso::radians sky_angle = angle(R3::basis::Z, world_ray.direction());
         element_type scalar = sky_angle.value / iso::pi;
         return interpolate(colors::dark_slate_blue, colors::light_blue, scalar);
+        // return colors::black;
     }
 
     void add_to(scene& scene) override {
@@ -54,6 +55,7 @@ public:
         scene.add_object(&floor);
         scene.add_object(&pyramid);
         scene.add_object(&orb);
+        scene.add_media(&mediums::earth_atmosphere);
     }
 
 protected:

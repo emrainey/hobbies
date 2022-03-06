@@ -113,6 +113,9 @@ public:
     /** Adds a light to the scene */
     void add_light(const lights::light* lit);
 
+    /** Adds a media which the entire scene is set into */
+    void add_media(const mediums::medium* media);
+
     /** Removes all objects and lights from a scene */
     void clear();
 
@@ -134,6 +137,9 @@ protected:
 
     /** The Background mapper */
     background_mapper m_background;
+
+    /** The media which the scene starts in */
+    const mediums::medium* m_media;
 };
 
 }  // namespace raytrace

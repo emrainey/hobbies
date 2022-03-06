@@ -5,19 +5,21 @@
     "version": "0.2.0",
     "inputs": [
         {
-            "type":"pickString",
+            "type": "pickString",
             "id": "world_module",
             "description": "Which World Module to Load",
             "options": [
-                "libworld_cornell.dylib",
-                "libworld_desktoy.dylib",
-                "libworld_example.dylib",
-                "libworld_lenses.dylib",
-                "libworld_planet.dylib",
-                "libworld_snowman.dylib",
-                "libworld_spheres.dylib",
-                "libworld_spheres2.dylib",
-                "libworld_steel.dylib",
+                "world_art1",
+                "world_cornell",
+                "world_desktoy",
+                "world_example",
+                "world_glass",
+                "world_lenses",
+                "world_planet",
+                "world_snowman",
+                "world_spheres",
+                "world_spheres2",
+                "world_monochrome",
             ]
         }
     ],
@@ -58,7 +60,14 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/demo_curses",
-            "args": ["-m", "${input:world_module}", "-a", "128", "-b", "4"],
+            "args": [
+                "-m",
+                "${input:world_module}",
+                "-a",
+                "128",
+                "-b",
+                "4"
+            ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [
@@ -79,7 +88,14 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/demo_raytrace_loader",
-            "args": ["-m", "${input:world_module}", "-a", "128", "-b", "4"],
+            "args": [
+                "-m",
+                "${input:world_module}",
+                "-a",
+                "128",
+                "-b",
+                "4"
+            ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [

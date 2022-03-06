@@ -9,7 +9,7 @@ namespace mediums {
 class transparent : public dielectric {
 public:
     /** The medium's refractive index and fade factor */
-    transparent(element_type eta, element_type fade);
+    transparent(element_type eta, element_type fade, const color& diffuse);
     virtual ~transparent() = default;
 
     /** @copydoc medium::radiosity */
@@ -18,7 +18,7 @@ public:
                    element_type& reflected, element_type& transmitted) const override;
 
     /** @copydoc medium::absorbance */
-    element_type absorbance(element_type distance) const override;
+    color absorbance(element_type distance, const color& given_color) const override;
 
 protected:
     element_type m_fade;
@@ -51,10 +51,10 @@ inline double dispersion(double a1, double a2, double b1, double b2, double c1, 
 }  // namespace refractive_index
 
 /** The common vaccum, perfectly transparent with no fade */
-const transparent vaccum(refractive_index::vaccum, 0.0);
+const transparent vaccum(refractive_index::vaccum, 0.0, colors::white);
 
 /** The normal atmosphere on earth */
-const transparent earth_atmosphere(refractive_index::air, 0.04);
+const transparent earth_atmosphere(refractive_index::air, 0.004, colors::light_blue);
 
 }  // namespace mediums
 

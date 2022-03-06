@@ -18,8 +18,7 @@
 using namespace std::placeholders;
 
 struct Parameters {
-    size_t width;
-    size_t height;
+    size_t dim_index;
     size_t subsamples;
     size_t reflections;
     double fov;
@@ -29,35 +28,6 @@ struct Parameters {
 
 // QQVGA, QVGA, VGA, XGA, HD, UWGA, 4K
 size_t dimensions[][2] = {{160, 120}, {320, 240}, {640, 480}, {1024, 768}, {1920, 1080}, {2560, 1440}, {3840, 2160}};
-
-void on_dimension_change(int index, void *cookie) {
-    Parameters *param = reinterpret_cast<Parameters *>(cookie);
-    if (param) {
-        param->width = dimensions[index][0];
-        param->height = dimensions[index][1];
-    }
-};
-
-void on_subsampling_change(int value, void *cookie) {
-    Parameters *param = reinterpret_cast<Parameters *>(cookie);
-    if (param) {
-        param->subsamples = (double)value + 1;
-    }
-};
-
-void on_reflections_change(int value, void *cookie) {
-    Parameters *param = reinterpret_cast<Parameters *>(cookie);
-    if (param) {
-        param->reflections = (double)value + 1;
-    }
-};
-
-void on_fov_change(int value, void *cookie) {
-    Parameters *param = reinterpret_cast<Parameters *>(cookie);
-    if (param) {
-        param->fov = (double)value;
-    }
-};
 
 #define my_assert(condition, statement)                       \
     {                                                         \
@@ -76,8 +46,7 @@ int main(int argc, char *argv[]) {
     std::string module_name;
 
     basal::options::config opts[] = {
-        {"-w", "--width", (size_t)320, "Width of the image in pixels"},
-        {"-h", "--height", (size_t)240, "Height of the image in pixels"},
+        {"-d", "--dims", (size_t)1, "WxH Pairs"},
         {"-b", "--subsamples", (size_t)1, "Nubmer of subsamples"},
         {"-r", "--reflections", (size_t)4, "Reflection Depth"},
         {"-f", "--fov", 55.0, "Field of View in Degrees"},
@@ -88,8 +57,7 @@ int main(int argc, char *argv[]) {
     };
 
     basal::options::process(dimof(opts), opts, argc, argv);
-    my_assert(basal::options::find(opts, "--width", params.width), "Must have a width value");
-    my_assert(basal::options::find(opts, "--height", params.height), "Must have a width value");
+    my_assert(basal::options::find(opts, "--dims", params.dim_index), "Must have a width value");
     my_assert(basal::options::find(opts, "--fov", params.fov), "Must have a FOV value");
     my_assert(basal::options::find(opts, "--verbose", verbose), "Must be able to assign bool");
     my_assert(basal::options::find(opts, "--subsamples", params.subsamples), "Must have some number of subsamples");
@@ -127,7 +95,8 @@ int main(int argc, char *argv[]) {
     linalg::Trackbar<double> trackbar_phi("Camera Phi", world.window_name(), 0, phi, iso::pi, iso::pi / 16, &phi);
     radius = (world.looking_from() - world.looking_at()).magnitude();
     linalg::Trackbar<double> trackbar_radius("Camera Radius", world.window_name(), 1.0, radius, 100.0, 5.0, &radius);
-    linalg::Trackbar<size_t> trackbar_dim("Dimensions", world.window_name(), 1u, 1u, dimof(dimensions), 1u);
+    linalg::Trackbar<size_t> trackbar_dim("Dimensions", world.window_name(), 1u, params.dim_index, dimof(dimensions),
+                                          1u);
     linalg::Trackbar<size_t> trackbar_subsamples("Subsamples", world.window_name(), 1, params.subsamples, 16, 1,
                                                  &params.subsamples);
     linalg::Trackbar<size_t> trackbar_reflect("Reflections", world.window_name(), 0, params.reflections, 10, 1,
@@ -136,12 +105,12 @@ int main(int argc, char *argv[]) {
 
     do {
         int index = trackbar_dim.get();
-        params.width = dimensions[index][0];
-        params.height = dimensions[index][1];
+        size_t width = dimensions[params.dim_index][0];
+        size_t height = dimensions[params.dim_index][1];
 
         // what we're rendering into
-        cv::Mat render_image(params.height, params.width, CV_8UC3);
-        cv::Mat mask_image(params.height, params.width, CV_8UC3);
+        cv::Mat render_image(height, width, CV_8UC3);
+        cv::Mat mask_image(height, width, CV_8UC3);
 
         double x = radius * std::sin(phi) * std::cos(theta);
         double y = radius * std::sin(phi) * std::sin(theta);
@@ -153,7 +122,7 @@ int main(int argc, char *argv[]) {
         std::cout << "Look At: " << world.looking_at() << " (Towards)" << std::endl;
 
         // tiny image, simple camera placement
-        raytrace::scene scene(params.height, params.width, iso::degrees(params.fov));
+        raytrace::scene scene(height, width, iso::degrees(params.fov));
         raytrace::vector looking = (world.looking_at() - from).normalized();
         raytrace::point image_plane_principal_point = from + looking;
         std::cout << "Principal: " << image_plane_principal_point << std::endl;
@@ -165,7 +134,7 @@ int main(int argc, char *argv[]) {
         }
         if (should_render) {
             // The completion data will be stored in here, a bool per line.
-            std::vector<bool> completed(params.height);
+            std::vector<bool> completed(height);
             std::fill(completed.begin(), completed.end(), false);
             bool running = true;
             auto start = std::chrono::steady_clock::now();

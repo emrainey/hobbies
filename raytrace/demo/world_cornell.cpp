@@ -23,7 +23,7 @@ public:
         , plain_blue(colors::blue, mediums::ambient::none, colors::blue, mediums::smoothness::none,
                      mediums::roughness::tight)
         , marble0(0.128283, 0.2, 32.0, colors::black, colors::yellow)
-        , glass(mediums::refractive_index::glass, 0.9)
+        , glass(mediums::refractive_index::glass, 0.02, colors::gray)
         , wall0(raytrace::point(0, 80, 80), -R3::basis::Y, 1.0)  // left
         , wall1(raytrace::point(0, -80, 80), R3::basis::Y, 1.0)  // right
         , wall2(raytrace::point(80, 0, 80), -R3::basis::X, 1.0)  // back

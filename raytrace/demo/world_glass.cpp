@@ -12,19 +12,19 @@
 
 using namespace raytrace;
 
-class Example2World : public world {
+class GlassWorld : public world {
 public:
-    Example2World()
+    GlassWorld()
         : world()
-        , look_from(20, 20, 10)
-        , look_at(0, 0, 0)
+        , look_from(20, 20, 5)
+        , look_at(0, 0, 2.0)
         , glass_ball(raytrace::point(0, 0, 5.0), 5.0)
         //, glass_cube(raytrace::point(0, 10, 2), 2, 2, 2)
         , toy_ball(raytrace::point(-20, -20, 2.0), 2.0)
         , floor(R3::origin, R3::basis::Z, 100, 100)
         , ikea_checkers(0.1, colors::blue, colors::yellow, colors::red, colors::magenta, colors::green, colors::cyan,
                         colors::black, colors::white)
-        , schott_glass(mediums::refractive_index::glass, 0.3)
+        , schott_glass(mediums::refractive_index::glass, 0.04, colors::red)
         , red_plastic(colors::white, mediums::ambient::dim, colors::red, mediums::smoothness::barely,
                       mediums::roughness::tight)
         , sunlight(raytrace::vector{-2, 2, -1}, colors::white, 1E11)
@@ -38,7 +38,7 @@ public:
         toy_ball.material(&red_plastic);
     }
 
-    ~Example2World() = default;
+    ~GlassWorld() = default;
 
     raytrace::point& looking_from() override {
         return look_from;
@@ -87,6 +87,6 @@ protected:
 
 // declare a single instance and return the reference to it
 world* get_world() {
-    static Example2World my_world;
+    static GlassWorld my_world;
     return &my_world;
 }

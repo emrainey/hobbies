@@ -35,7 +35,7 @@ public:
         , look_from(15, 0, 11)
         , look_at(0, 0, 0)
         , grid(1.0, colors::dark_olive_green, colors::yellow)
-        , glass(mediums::refractive_index::glass, 0.88)
+        , glass(mediums::refractive_index::glass, 0.88, colors::dark_gray)
         , info(10.0, iso::radians(iso::pi / 4))
         , x0(raytrace::point(info.separation, 0, 5), info.radius)
         , x1(raytrace::point(-info.separation, 0, 5), info.radius)

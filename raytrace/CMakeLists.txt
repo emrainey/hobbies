@@ -109,7 +109,7 @@ endif()
 #################################
 set(DEMOS world_example world_spheres world_cornell
           world_desktoy world_monochrome world_snowman
-          world_lenses world_planet world_spheres2 world_example2
+          world_lenses world_planet world_spheres2 world_glass
           world_art1)
 
 foreach(demo IN LISTS DEMOS)

@@ -6,7 +6,9 @@ namespace raytrace {
 
 namespace mediums {
 
-transparent::transparent(element_type eta, element_type fade) : dielectric(), m_fade(basal::clamp(0.0, fade, 1.0)) {
+transparent::transparent(element_type eta, element_type fade, const color& diffuse)
+    : dielectric(), m_fade(basal::clamp(0.0, fade, 1.0)) {
+    m_diffuse = diffuse;
     m_smoothness = mediums::smoothness::mirror;  // no "surface colors"
     m_refractive_index = eta;
 }
@@ -20,8 +22,13 @@ void transparent::radiosity(const raytrace::point& volumetric_point __attribute_
     transmitted = 1.0 - reflected;
 }
 
-element_type transparent::absorbance(element_type distance) const {
-    return std::exp(-distance * m_fade);
+color transparent::absorbance(element_type distance, const color& given_color) const {
+    using namespace operators;
+    if (std::isinf(distance)) {
+        return given_color * m_diffuse;
+    }
+    element_type dropoff = std::exp(-distance * m_fade);
+    return given_color * interpolate(colors::white, m_diffuse, dropoff);
 }
 
 }  // namespace mediums

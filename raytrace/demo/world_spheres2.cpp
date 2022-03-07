@@ -32,12 +32,8 @@ void subspheres(std::vector<raytrace::objects::sphere*>& spheres, const raytrace
 
 void materials(std::vector<mat*>& mats, size_t limits) {
     for (size_t m = 0; m < limits; m++) {
-        // various metals?
         int r = rand() % dimof(my_metals);
         mats.push_back(my_metals[r]);
-        // plain (plastic?)
-        // mats.push_back(new plain(colors::white, mediums::ambient::none, color::random(), mediums::smoothness::barely,
-        // roughness::tight));
     }
 }
 
@@ -47,14 +43,14 @@ public:
         : world()
         , look_from(20, 0, 20)
         , look_at(0, 0, 0)
-        , number_of_spheres(64)
+        , number_of_spheres(128)
         , spheres()
         , mats()
         , sunlight(raytrace::vector{-2, 2, -1}, colors::white, 1E11)
         , specks() {
         raytrace::point center = look_at;
         spheres.push_back(new raytrace::objects::sphere(center, 4.5));
-        subspheres(spheres, center, 6, 1.2, number_of_spheres);
+        subspheres(spheres, center, 6, 0.4, number_of_spheres);
         materials(mats, spheres.size());
         for (size_t s = 0; s < number_of_spheres; s++) {
             spheres[s]->material(mats[s]);

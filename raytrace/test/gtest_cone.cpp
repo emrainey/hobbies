@@ -22,27 +22,31 @@ TEST(ConeTest, RayIntersection) {
 
     ray r0(p0, -R3::basis::X);
     raytrace::point i0(0.5, 0, 0.5);
-    geometry::intersection ir0cyl1 = cone0.intersect(r0);
-    ASSERT_EQ(geometry::IntersectionType::Point, get_type(ir0cyl1));
-    ASSERT_POINT_EQ(i0, as_point(ir0cyl1));
+    geometry::intersection ir0cone0 = cone0.intersect(r0);
+    ASSERT_EQ(geometry::IntersectionType::Point, get_type(ir0cone0));
+    ASSERT_POINT_EQ(i0, as_point(ir0cone0));
+    ASSERT_TRUE(cone0.is_surface_point(as_point(ir0cone0)));
 
     ray r1(p1, -R3::basis::Y);
     raytrace::point i1(0, 0.5, 0.5);
-    geometry::intersection ir1cyl1 = cone0.intersect(r1);
-    ASSERT_EQ(geometry::IntersectionType::Point, get_type(ir1cyl1));
-    ASSERT_POINT_EQ(i1, as_point(ir1cyl1));
+    geometry::intersection ir1cone0 = cone0.intersect(r1);
+    ASSERT_EQ(geometry::IntersectionType::Point, get_type(ir1cone0));
+    ASSERT_POINT_EQ(i1, as_point(ir1cone0));
+    ASSERT_TRUE(cone0.is_surface_point(as_point(ir1cone0)));
 
     ray r2(p2, R3::basis::X);
     raytrace::point i2(-0.5, 0, 0.5);
-    geometry::intersection ir2cyl1 = cone0.intersect(r2);
-    ASSERT_EQ(geometry::IntersectionType::Point, get_type(ir2cyl1));
-    ASSERT_POINT_EQ(i2, as_point(ir2cyl1));
+    geometry::intersection ir2cone0 = cone0.intersect(r2);
+    ASSERT_EQ(geometry::IntersectionType::Point, get_type(ir2cone0));
+    ASSERT_POINT_EQ(i2, as_point(ir2cone0));
+    ASSERT_TRUE(cone0.is_surface_point(as_point(ir2cone0)));
 
     ray r3(p3, R3::basis::Y);
     raytrace::point i3(0, -0.5, 0.5);
-    geometry::intersection ir3cyl1 = cone0.intersect(r3);
-    ASSERT_EQ(geometry::IntersectionType::Point, get_type(ir3cyl1));
-    ASSERT_POINT_EQ(i3, as_point(ir3cyl1));
+    geometry::intersection ir3cone0 = cone0.intersect(r3);
+    ASSERT_EQ(geometry::IntersectionType::Point, get_type(ir3cone0));
+    ASSERT_POINT_EQ(i3, as_point(ir3cone0));
+    ASSERT_TRUE(cone0.is_surface_point(as_point(ir3cone0)));
 }
 
 TEST(ConeTest, Normals) {

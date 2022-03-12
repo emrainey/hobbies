@@ -70,6 +70,21 @@ hits quadratic::collisions_along(const ray& object_ray) const {
     return ts;
 }
 
+bool quadratic::is_surface_point(const point& world_point) const {
+    point object_point = reverse_transform(world_point);
+    element_type x = object_point.x;
+    element_type y = object_point.y;
+    element_type z = object_point.z;
+    const raytrace::matrix& Q = m_coefficients;  // ease of reference
+    element_type a = Q(1, 1), b = Q(1, 2), c = Q(1, 3), d = Q(1, 4);
+    element_type e = Q(2, 2), f = Q(2, 3), g = Q(2, 4), h = Q(3, 3);
+    element_type i = Q(3, 4), j = Q(4, 4);
+
+    // ax2 +2bxy+2cxz+2dx+ey2 +2fyz+ 2gy + hz2 + 2iz +j=0,
+    return basal::equals_zero((a * x * x) + (2 * b * x * y) + (2 * c * x) + (2 * d * x) + (e * y * y) +
+                              (2 * f * y * z) + (2 * g * y) + (h * z * z) + (2 * i * z) + j);
+}
+
 image::point quadratic::map(const point& object_surface_point __attribute__((unused))) const {
     // map some range of object 3D points to some 2D u,v pair
     // isolate which axis this is on and return the forward_transformed normal

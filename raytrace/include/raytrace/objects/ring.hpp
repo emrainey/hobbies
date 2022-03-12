@@ -19,6 +19,7 @@ public:
     hits collisions_along(const ray& object_ray) const override;
     /** @copydoc basal::printable::print */
     void print(const char str[]) const override;
+    bool is_surface_point(const point& world_point) const override;
 
 private:
     element_type m_inner_radius2;  ///< Squared Inner Radius

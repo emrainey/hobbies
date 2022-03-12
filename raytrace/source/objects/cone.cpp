@@ -98,6 +98,14 @@ hits cone::collisions_along(const ray& object_ray) const {
     return ts;
 }
 
+bool cone::is_surface_point(const point& world_point) const {
+    point object_point = reverse_transform(world_point);
+    element_type x = object_point.x;
+    element_type y = object_point.y;
+    element_type z = object_point.z;
+    return basal::equals(z * z, (x * x) + (y * y));
+}
+
 image::point cone::map(const point& object_surface_point) const {
     geometry::point_<2> cartesian(object_surface_point[0], object_surface_point[1]);
     geometry::point_<2> polar = geometry::cartesian_to_polar(cartesian);

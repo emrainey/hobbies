@@ -38,7 +38,7 @@ hits plane::collisions_along(const ray& world_ray) const {
     // @note in object space, the center point is at the origin
     const vector& N = geometry::plane::normal;
     const vector& V = world_ray.direction();
-    const element_type proj = dot(V, N);  // if so the projection is zerp
+    const element_type proj = dot(V, N);  // if so the projection is zero
     if (not basal::equals_zero(proj)) {   // they collide *somewhere*
         const point& P = world_ray.location();
         // get the vector of the center to the ray initial
@@ -48,6 +48,12 @@ hits plane::collisions_along(const ray& world_ray) const {
         ts.push_back(t);
     }
     return ts;
+}
+
+bool plane::is_surface_point(const point& world_point) const {
+    point object_point = reverse_transform(world_point);
+    vector T = object_point - position();
+    return basal::equals_zero(dot(geometry::plane::normal, T));
 }
 
 image::point plane::map(const point& object_surface_point) const {

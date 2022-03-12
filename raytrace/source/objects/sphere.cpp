@@ -17,7 +17,7 @@ sphere::sphere(const point& c, double r)
 {
 }
 
-bool sphere::surface(const point& world_surface_point) const {
+bool sphere::is_surface_point(const point& world_surface_point) const {
     point object_surface_point = reverse_transform(world_surface_point);
     return geometry::R3::sphere::surface(object_surface_point);
 }

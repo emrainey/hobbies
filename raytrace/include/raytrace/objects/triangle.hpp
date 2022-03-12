@@ -24,6 +24,11 @@ public:
     /** @copydoc basal::printable::print */
     void print(const char str[]) const override;
 
+    bool is_surface_point(const point& world_point) const override;
+
+    /** Determines if a point on the plane is contained within the array of three points */
+    bool is_contained(const point& object_point) const;
+
     /** Returns a read-only reference to an array of 3 points */
     const std::array<point, 3>& points() const;
 

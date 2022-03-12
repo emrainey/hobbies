@@ -36,6 +36,13 @@ hits square::collisions_along(const ray& object_ray) const {
     return ts;
 }
 
+bool square::is_surface_point(const point& world_point) const {
+    point object_point = reverse_transform(world_point);
+    element_type x = object_point.x;
+    element_type y = object_point.y;
+    return linalg::within(m_points[0].x, x, m_points[1].x) and linalg::within(m_points[0].y, y, m_points[1].y);
+}
+
 void square::print(const char str[]) const {
     std::cout << str << " square @" << this << " " << object_<3>::position() << " " << m_normal << std::endl;
 }

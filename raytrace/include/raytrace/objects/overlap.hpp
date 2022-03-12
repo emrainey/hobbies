@@ -41,6 +41,8 @@ public:
         return m_A.is_closed_surface() and m_B.is_closed_surface();
     }
 
+    bool is_surface_point(const point& world_point) const override;
+
 protected:
     const object& m_A;
     const object& m_B;

@@ -19,8 +19,7 @@ public:
     virtual ~sphere() = default;
 
     /** @copydoc geometry::sphere::surface */
-    bool surface(const point& world_surface_point) const override;
-
+    bool is_surface_point(const point& world_surface_point) const override;
     /** @copydoc raytrace::object::normal */
     vector normal(const point& world_surface_point) const override;
     /** @copydoc raytrace::object::intersect */

@@ -158,6 +158,11 @@ hits overlap::collisions_along(const ray& overlap_ray) const {
     return hits();  // empty
 }
 
+bool overlap::is_surface_point(const point& world_point) const {
+    // based on which type determine how they overlap
+    return m_A.is_surface_point(world_point) or m_B.is_surface_point(world_point);
+}
+
 image::point overlap::map(const point& object_surface_point __attribute__((unused))) const {
     image::point uv(0, 0);
     return uv;

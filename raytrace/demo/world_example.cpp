@@ -90,8 +90,7 @@ public:
         // c0.rotation(iso::degrees(45), iso::degrees(45), iso::degrees(45));
     }
 
-    ~ExampleWorld() {
-    }
+    ~ExampleWorld() = default;
 
     raytrace::point& looking_from() override {
         return look_from;

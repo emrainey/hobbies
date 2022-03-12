@@ -82,6 +82,15 @@ hits pyramid::collisions_along(const ray& object_ray) const {
     return ts;
 }
 
+bool pyramid::is_surface_point(const point& world_point) const {
+    // follow z = h - |x| - |y|
+    point object_point = reverse_transform(world_point);
+    element_type x = object_point.x;
+    element_type y = object_point.y;
+    element_type z = object_point.z;
+    return basal::equals(z, m_height - std::abs(x) - std::abs(y));
+}
+
 image::point pyramid::map(const point& object_surface_point) const {
     return image::point(0, 0);  // no mapping for now
 }

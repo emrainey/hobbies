@@ -185,13 +185,16 @@ public:
         return m_max_collisions;
     }
 
-    /** Return true if the object is a closed surface. Within the raytracer a closed surface can never show the "inside
-     * surface" */
+    /** Return true if the object is a closed surface.
+     * Within the raytracer a closed surface can never show the "inside surface" */
     virtual inline bool is_closed_surface() const {
         return m_closed_surface;
     }
 
-    // virtual bool is_surface_point(const raytrace::point& world_point) = 0;
+    /** Given a world point verify that the point is on the surface of the object. */
+    virtual bool is_surface_point(const raytrace::point& world_point) const {
+        return false;  // override to correct
+    };
 
 protected:
     /** The maximum number of collisions with the surface of this object */

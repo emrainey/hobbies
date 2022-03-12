@@ -117,6 +117,19 @@ hits torus::collisions_along(const ray& object_ray) const {
     return ts;
 }
 
+bool torus::is_surface_point(const point& world_point) const {
+    // (sqrt(x*x + y*y) + R)^2 +z*z = r*r
+    point object_point = reverse_transform(world_point);
+    element_type x = object_point.x;
+    element_type y = object_point.y;
+    element_type z = object_point.z;
+    element_type R = m_tube_radius;
+    element_type r = m_ring_radius;
+    element_type sqrt_xx_yy = std::sqrt((x * x) + (y * y));
+    element_type sqrt_xx_yy_R_zz = ((sqrt_xx_yy + R) * (sqrt_xx_yy + R)) + (z * z);
+    return basal::equals(r * r, sqrt_xx_yy_R_zz);
+}
+
 image::point torus::map(const point& object_surface_point __attribute__((unused))) const {
     // FIXME (Torus) texture mapping a torus is hard but not impossible. define the mapping as a set of 2 angles,
     // one around the Z axis and another around the edge of the ring at that position.

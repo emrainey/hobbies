@@ -35,6 +35,14 @@ hits ring::collisions_along(const ray& object_ray) const {
     return ts;
 }
 
+bool ring::is_surface_point(const point& world_point) const {
+    point object_point = reverse_transform(world_point);
+    element_type x = object_point.x;
+    element_type y = object_point.y;
+    element_type dd = x * x + y * y;
+    return m_inner_radius2 <= dd and dd <= m_outer_radius2;
+}
+
 void ring::print(const char str[]) const {
     std::cout << str << " ring @" << this << " " << object_<3>::position() << " " << m_normal
               << " Radii (Squared):" << m_inner_radius2 << ", " << m_outer_radius2 << std::endl;

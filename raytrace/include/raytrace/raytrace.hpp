@@ -21,13 +21,14 @@ static_assert(std::numeric_limits<double>::is_iec559, "Platform must be IEEE-754
 #include "raytrace/mediums/conductor.hpp"
 #include "raytrace/mediums/dots.hpp"
 #include "raytrace/mediums/grid.hpp"
-#include "raytrace/mediums/marble.hpp"
 #include "raytrace/mediums/medium.hpp"
 #include "raytrace/mediums/metal.hpp"
 #include "raytrace/mediums/opaque.hpp"
+#include "raytrace/mediums/perlin.hpp"
 #include "raytrace/mediums/plain.hpp"
 #include "raytrace/mediums/random_noise.hpp"
 #include "raytrace/mediums/transparent.hpp"
+#include "raytrace/mediums/turbsin.hpp"
 
 // Objects
 #include "raytrace/objects/cone.hpp"

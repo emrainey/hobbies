@@ -82,7 +82,7 @@ protected:
     mediums::plain plain_white;
     mediums::plain plain_red;
     mediums::plain plain_blue;
-    mediums::marble marble0;
+    mediums::perlin marble0;
     mediums::transparent glass;
     objects::plane wall0;
     objects::plane wall1;

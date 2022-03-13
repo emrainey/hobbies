@@ -38,7 +38,8 @@ add_library(hobbies-raytrace SHARED
     ${CMAKE_CURRENT_SOURCE_DIR}/source/mediums/dots.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/mediums/checkerboard.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/mediums/grid.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/mediums/marble.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/mediums/perlin.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/mediums/turbsin.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/mediums/random_noise.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/cone.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/cuboid.cpp

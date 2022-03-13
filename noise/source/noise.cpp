@@ -143,8 +143,7 @@ double turbulence(const point& pnt, double size, double scale, const pad& map) {
 double turbulentsin(const point& pnt, double xs, double ys, double power, double size, double scale, const pad& map) {
     double x = pnt.x * xs / map.dimensions;
     double y = pnt.y * ys / map.dimensions;
-    double p = power * size;
-    double xyValue = x + y + p * turbulence(pnt, size, scale, map) / scale;
+    double xyValue = x + y + power * turbulence(pnt, size, scale, map) / scale;
     return scale * fabs(sin(xyValue * M_PI));
 }
 

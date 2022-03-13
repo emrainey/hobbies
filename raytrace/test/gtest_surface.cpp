@@ -39,7 +39,7 @@ TEST(SurfaceTest, CheckboardDifuse) {
 TEST(SurfaceTest, MarbleWeirdSurface) {
     using namespace raytrace;
     image img(512, 512);
-    mediums::marble weird(13 * iso::pi / 19, 0.032, 72.9828302, colors::black, colors::white);
+    mediums::perlin weird(13 * iso::pi / 19, 0.032, 72.9828302, colors::black, colors::white);
     img.generate_each([&](const image::point& p1) {
         raytrace::point p2(p1.x / img.width, p1.y / img.height, 0.0);
         return weird.diffuse(p2);

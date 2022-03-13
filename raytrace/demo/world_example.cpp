@@ -29,7 +29,7 @@ public:
         , plain_cyan(colors::white, mediums::ambient::none, colors::cyan, 0.2, 120.0)
         , ikea_checkers(5, colors::yellow, colors::blue)
         , polka_dots(0.333, colors::black, colors::white)
-        , bw_marble(13 * iso::pi / 72, 0.0497, 23.3, colors::black, colors::white)
+        , bw_marble(150.0, 300, 15.0, 32.0, colors::black, colors::white)
         , grid1(1, colors::black, colors::green)
         // sphere w/ ring
         , s2r(7.5)
@@ -148,7 +148,7 @@ protected:
     plain plain_cyan;
     checkerboard ikea_checkers;
     dots polka_dots;
-    marble bw_marble;
+    turbsin bw_marble;
     grid grid1;
     // sphere w/ ring
     element_type s2r;

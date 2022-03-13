@@ -5,11 +5,11 @@ namespace raytrace {
 
 namespace mediums {
 
-/** A perlin noise generated is used to simulate (poorly) a marble pattern */
-class marble : public opaque {
+/** A perlin noise generated is used to simulate (poorly) a perlin pattern */
+class perlin : public opaque {
 public:
-    marble(element_type seed, element_type scale, element_type gain, color dark, color light);
-    virtual ~marble() = default;
+    perlin(element_type seed, element_type scale, element_type gain, color dark, color light);
+    virtual ~perlin() = default;
 
     color diffuse(const raytrace::point& volumetric_point) const final;
 

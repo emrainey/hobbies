@@ -54,7 +54,7 @@ install(DIRECTORY include/doorgame
     PATTERN "*.hpp"
     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
 )
-install(FILES "cmake/Finddorgame.cmake" "cmake/doorgame-config.cmake"
+install(FILES "cmake/Finddoorgame.cmake" "cmake/doorgame-config.cmake"
     DESTINATION share/cmake/doorgame
 )
 ################

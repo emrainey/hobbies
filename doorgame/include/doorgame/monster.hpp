@@ -15,4 +15,6 @@ public:
 
 using Monsters = std::vector<Monster>;
 
-}
+using MonsterList = std::vector<size_t>;
+
+}  // namespace doorgame

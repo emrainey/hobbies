@@ -24,6 +24,7 @@ using TwoWayDoor = std::tuple<size_t, Direction, size_t, Direction>;
 // Either one way doors or two way doors
 using Door = std::variant<OneWayDoor, TwoWayDoor>;
 
+// A list of doors
 using Doors = std::vector<Door>;
 
 // An item is in a particular room

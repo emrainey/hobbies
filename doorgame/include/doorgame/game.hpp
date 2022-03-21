@@ -19,7 +19,7 @@ namespace doorgame {
 
 class Game {
 public:
-    Game();
+    Game(size_t start, size_t end, size_t num_rooms, Doors doorlist, Stuff stuff, MonsterList monsterlist);
     void process(std::pair<Action, Parameter> event);
     std::pair<Action, Parameter> ask_action();
     Targets get_targets();

@@ -8,34 +8,11 @@
 
 namespace doorgame {
 
-Game::Game() : start(0), player(start), monsters(), map(9, start, 8) {
-    // load the doors and the items
-    // +-+-+-+
-    // |0;1:2|
-    // +-+:+:+
-    // |3:4:5|
-    // +:+:+:+
-    // |6;7|8|
-    // +-+-+-+
-    Doors doors = {
-        std::make_tuple(0, Direction::East, 1),
-        std::make_tuple(1, Direction::East, 2, Direction::West),
-        std::make_tuple(1, Direction::South, 4, Direction::North),
-        std::make_tuple(2, Direction::South, 5, Direction::North),
-        std::make_tuple(3, Direction::East, 4, Direction::West),
-        std::make_tuple(3, Direction::South, 6, Direction::North),
-        std::make_tuple(4, Direction::South, 7, Direction::North),
-        std::make_tuple(4, Direction::East, 5, Direction::West),
-        std::make_tuple(5, Direction::South, 8, Direction::North),
-        std::make_tuple(7, Direction::West, 6),
-    };
-    Stuff stuff = {
-        std::make_tuple(Item::Torch, 0),
-        std::make_tuple(Item::Book, 1),
-        std::make_tuple(Item::Key, 4),
-    };
-    // put a monster in rooms
-    monsters.emplace_back(6);
+Game::Game(size_t start, size_t end, size_t num_rooms, Doors doors, Stuff stuff, MonsterList monsterlist)
+    : start(start), player(start), monsters(), map(num_rooms, start, end) {
+    for (auto& ml : monsterlist) {
+        monsters.push_back(ml);
+    }
     map.load(doors, stuff);
 }
 

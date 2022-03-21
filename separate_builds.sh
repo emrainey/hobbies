@@ -50,6 +50,7 @@ PKGS=(basal units_of_measure fourcc \
     raytrace \
     neuralnet \
     htm \
+    doorgame \
 )
 
 # Cycle over each package and build it

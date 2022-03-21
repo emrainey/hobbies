@@ -1,0 +1,77 @@
+cmake_minimum_required(VERSION 3.19)
+project(doorgame CXX)
+
+find_package(basal REQUIRED)
+
+# Build Everything with C++17 and full native optimizations
+set(CMAKE_CXX_STANDARD 17)
+enable_testing()
+
+add_library(hobbies-doorgame SHARED
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/animate.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/actions.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/directions.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/game.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/health.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/items.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/map.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/monster.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/parameters.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/player.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/storage.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/targets.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/room.cpp
+)
+target_link_libraries(hobbies-doorgame PUBLIC Basal::hobbies-basal)
+target_include_directories(hobbies-doorgame
+    PUBLIC
+        # Generated Tree
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
+        # Build Tree
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        # Install Tree
+        $<INSTALL_INTERFACE:include>
+)
+
+#####################
+# EXPORTS
+#####################
+
+# Declare installs and exports
+install(TARGETS hobbies-doorgame EXPORT DoorGameTargets
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+    RUNTIME DESTINATION bin
+    INCLUDES DESTINATION include
+)
+install(EXPORT DoorGameTargets
+    FILE DoorGameTargets.cmake
+    NAMESPACE DoorGame::
+    DESTINATION share/cmake/htm
+)
+install(DIRECTORY include/doorgame
+    DESTINATION include
+    PATTERN "*.hpp"
+    PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
+)
+install(FILES "cmake/Finddorgame.cmake" "cmake/doorgame-config.cmake"
+    DESTINATION share/cmake/doorgame
+)
+################
+# DEMOS
+################
+
+add_executable(demo_doorgame ${CMAKE_CURRENT_SOURCE_DIR}/demo/main.cpp)
+target_link_libraries(demo_doorgame hobbies-doorgame)
+
+#####################
+# Build Documentation
+#####################
+find_package(Doxygen)
+if (${Doxygen_FOUND})
+    set(DOXYGEN_GENERATE_HTML YES)
+    set(DOXYGEN_GENERATE_MAN NO)
+    doxygen_add_docs(hobbies-doorgame-docs
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/doorgame
+        COMMENT "DoorGame Doxygen")
+endif()

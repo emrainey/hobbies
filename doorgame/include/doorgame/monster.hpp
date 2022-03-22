@@ -10,7 +10,6 @@ class Monster
     , public Animate {
 public:
     Monster(size_t loc);
-    std::ostream& stream(std::ostream& os) const;
 };
 
 using Monsters = std::vector<Monster>;

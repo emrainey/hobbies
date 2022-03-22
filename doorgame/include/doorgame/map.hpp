@@ -43,7 +43,6 @@ public:
     bool is_done(Animate& object) const;
     bool move(Animate& object, Direction dir);
     bool load(Doors doors, Stuff stuff) noexcept(false);
-    std::ostream& stream(std::ostream& os) const;
 
 protected:
     std::vector<Room> m_rooms;

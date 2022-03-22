@@ -21,7 +21,8 @@ public:
     const Inventory& get_inventory() const;
     bool add(Item item);
     bool remove(Item item);
-    std::ostream& stream(std::ostream& os) const;
+    const Storage& as_storage() const;
+    Storage& as_storage();
 
 protected:
     Inventory inventory;

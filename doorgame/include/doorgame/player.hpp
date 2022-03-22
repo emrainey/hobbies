@@ -10,7 +10,6 @@ class Player
     , public Animate {
 public:
     Player(size_t loc);
-    std::ostream& stream(std::ostream& os) const;
 };
 
 }  // namespace doorgame

@@ -45,9 +45,12 @@ void Animate::give_healing(size_t amount) {
     }
 }
 
-std::ostream& Animate::stream(std::ostream& os) const {
-    os << "Health: " << m_health << " Location: Room " << m_location << " ";
-    return os;
+const Animate& Animate::as_animate() const {
+    return *this;
+}
+
+Animate& Animate::as_animate() {
+    return *this;
 }
 
 }  // namespace doorgame

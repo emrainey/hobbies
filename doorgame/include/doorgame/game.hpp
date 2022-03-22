@@ -14,19 +14,20 @@
 #include "doorgame/monster.hpp"
 #include "doorgame/parameters.hpp"
 #include "doorgame/player.hpp"
+#include "doorgame/view.hpp"
 
 namespace doorgame {
 
 class Game {
 public:
-    Game(size_t start, size_t end, size_t num_rooms, Doors doorlist, Stuff stuff, MonsterList monsterlist);
+    Game(View& view, size_t start, size_t end, size_t num_rooms, Doors doorlist, Stuff stuff, MonsterList monsterlist);
     void process(std::pair<Action, Parameter> event);
     std::pair<Action, Parameter> ask_action();
     Targets get_targets();
     void execute(void);
-    std::ostream& stream(std::ostream& os) const;
 
 protected:
+    View& view;
     size_t start;
     Player player;
     Monsters monsters;

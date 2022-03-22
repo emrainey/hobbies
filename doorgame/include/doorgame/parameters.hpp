@@ -11,6 +11,4 @@ namespace doorgame {
 
 using Parameter = std::variant<std::monostate, Direction, Item, Target>;
 
-std::ostream& operator<<(std::ostream& os, Parameter p);
-
 };  // namespace doorgame

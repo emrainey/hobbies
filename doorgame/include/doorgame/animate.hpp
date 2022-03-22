@@ -21,7 +21,8 @@ public:
     void take(Damage amount);
     void resurrect();
     void give_healing(size_t amount);
-    std::ostream& stream(std::ostream& os) const;
+    const Animate& as_animate() const;
+    Animate& as_animate();
 
 protected:
     Health m_health;

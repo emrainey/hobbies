@@ -1,4 +1,5 @@
 #include "doorgame/doorgame.hpp"
+#include "doorgame/streamview.hpp"
 
 using namespace doorgame;
 
@@ -32,7 +33,8 @@ MonsterList monsterlist = {6};
 
 int main(int argc __attribute__((unused)), char* argv[] __attribute__((unused))) {
     // TODO load some game from a file.
-    Game game(0, 8, 9, doors, stuff, monsterlist);
+    StreamView view;
+    Game game(view, 0, 8, 9, doors, stuff, monsterlist);
     game.execute();
     return 0;
 }

@@ -10,6 +10,7 @@ enable_testing()
 add_library(hobbies-doorgame SHARED
     ${CMAKE_CURRENT_SOURCE_DIR}/source/animate.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/actions.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/damages.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/directions.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/game.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/health.cpp
@@ -18,9 +19,10 @@ add_library(hobbies-doorgame SHARED
     ${CMAKE_CURRENT_SOURCE_DIR}/source/monster.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/parameters.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/player.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/room.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/storage.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/targets.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/room.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/streamview.cpp
 )
 target_link_libraries(hobbies-doorgame PUBLIC Basal::hobbies-basal)
 target_include_directories(hobbies-doorgame
@@ -61,8 +63,10 @@ install(FILES "cmake/Finddoorgame.cmake" "cmake/doorgame-config.cmake"
 # DEMOS
 ################
 
+find_package(Curses REQUIRED)
 add_executable(demo_doorgame ${CMAKE_CURRENT_SOURCE_DIR}/demo/main.cpp)
-target_link_libraries(demo_doorgame hobbies-doorgame)
+target_link_libraries(demo_doorgame PUBLIC hobbies-doorgame  ${CURSES_LIBRARIES})
+target_compile_definitions(demo_doorgame PUBLIC ${CURSES_CFLAGS})
 
 #####################
 # Build Documentation

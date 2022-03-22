@@ -1,5 +1,7 @@
 #include "doorgame/room.hpp"
 
+#include <basal/basal.hpp>
+
 namespace doorgame {
 
 constexpr static bool load_debug = true;
@@ -9,8 +11,8 @@ Room::Room(size_t id) : Storage(1), m_id(id), doors{id, id, id, id}, has_investi
 
 void Room::set_adjacent(size_t other_id, Direction d) {
     if constexpr (load_debug) {
-        std::cerr << "Connecting room " << m_id << " (" << this << ") to room " << other_id << " on the " << d
-                  << " direction" << std::endl;
+        fprintf(stderr, "Connecting room %zu (%p) to room %zu on the %c side\r\n", m_id, this, other_id,
+                basal::to_underlying(d));
     }
     if (d == Direction::North) {
         doors[0] = other_id;
@@ -37,34 +39,16 @@ size_t Room::get_adjacent(Direction d) {
     }
 }
 
-std::ostream& Room::stream(std::ostream& os) const {
-    os << "The doors in room " << m_id << " are ";
-    if (doors[0] != m_id) {
-        os << Direction::North << " (to room " << doors[0] << ") ";
-    }
-    if (doors[1] != m_id) {
-        os << Direction::South << " (to room " << doors[1] << ") ";
-    }
-    if (doors[2] != m_id) {
-        os << Direction::East << " (to room " << doors[2] << ") ";
-    }
-    if (doors[3] != m_id) {
-        os << Direction::West << " (to room " << doors[3] << ") ";
-    }
-    os << "." << std::endl;
-    if (has_investigated) {
-        return Storage::stream(os);
-    } else {
-        return os;
-    }
-}
-
 size_t Room::get_id() const {
     return m_id;
 }
 
 void Room::investigated() {
     has_investigated = true;
+}
+
+bool Room::is_investigated() const {
+    return has_investigated;
 }
 
 Directions Room::get_directions() const {

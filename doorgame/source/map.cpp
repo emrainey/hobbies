@@ -95,8 +95,4 @@ bool Map::load(Doors doors, Stuff stuff) noexcept(false) {
     return not problem;
 }
 
-std::ostream& Map::stream(std::ostream& os) const {
-    return os;
-}
-
 }  // namespace doorgame

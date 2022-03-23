@@ -16,7 +16,10 @@ enum class Item : char
     Nothing = 'n',
     Torch = 't',
     Key = 'k',
-    Book = 'b'
+    Book = 'b',
+    Sword = 's',
+    Potion = 'p',
+    Bomb = 'm'
 };
 
 using Items = std::vector<Item>;

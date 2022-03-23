@@ -14,7 +14,7 @@ namespace doorgame {
 enum class Target : char
 {
     None = 'n',
-    Self = 's',
+    Player = 'p',
     Room = 'r',
     Monster = 'm',
     Item = 'i'

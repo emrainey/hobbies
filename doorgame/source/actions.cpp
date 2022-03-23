@@ -3,7 +3,7 @@
 namespace doorgame {
 
 Actions valid_actions = {
-    Action::Nothing, Action::Move, Action::Investigate, Action::Pickup, Action::Attack, Action::Use, Action::Quit,
+    Action::Nothing, Action::Move, Action::Look, Action::Pickup, Action::Attack, Action::Use, Action::Quit,
 };
 
 bool is_valid(Action action) {

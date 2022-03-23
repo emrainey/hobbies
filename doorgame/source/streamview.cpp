@@ -5,6 +5,7 @@
 namespace doorgame {
 
 std::ostream& operator<<(std::ostream& os, Action a) {
+    // cSpell: disable
     switch (a) {
         case Action::Nothing:
             os << "[n]othing";
@@ -12,8 +13,8 @@ std::ostream& operator<<(std::ostream& os, Action a) {
         case Action::Move:
             os << "[m]ove";
             break;
-        case Action::Investigate:
-            os << "[i]nvestigate";
+        case Action::Look:
+            os << "[l]ook";
             break;
         case Action::Pickup:
             os << "[p]ickup";
@@ -31,6 +32,7 @@ std::ostream& operator<<(std::ostream& os, Action a) {
             os << "Unknown Action " << (char)a;
             break;
     }
+    // cSpell: enable
     return os;
 }
 
@@ -85,6 +87,7 @@ std::ostream& operator<<(std::ostream& os, Health value) {
 }
 
 std::ostream& operator<<(std::ostream& os, Direction d) {
+    // cSpell: disable
     switch (d) {
         case Direction::Here:
             os << "[h]ere";
@@ -105,10 +108,12 @@ std::ostream& operator<<(std::ostream& os, Direction d) {
             os << "Unknown Direction (" << (char)d << ") ";
             break;
     }
+    // cSpell: enable
     return os;
 }
 
 std::ostream& operator<<(std::ostream& os, Item i) {
+    // cSpell: disable
     switch (i) {
         case Item::Nothing:
             os << "[n]othing";
@@ -122,20 +127,31 @@ std::ostream& operator<<(std::ostream& os, Item i) {
         case Item::Book:
             os << "[b]ook";
             break;
+        case Item::Sword:
+            os << "[s]word";
+            break;
+        case Item::Potion:
+            os << "[p]otion";
+            break;
+        case Item::Bomb:
+            os << "bo[m]b";
+            break;
         default:
             os << "Unknown item (" << (char)i << ") ";
             break;
     }
+    // cSpell: enable
     return os;
 }
 
 std::ostream& operator<<(std::ostream& os, Target target) {
+    // cSpell: disable
     switch (target) {
         case Target::None:
             os << "[n]one";
             break;
-        case Target::Self:
-            os << "[s]elf";
+        case Target::Player:
+            os << "[p]layer";
             break;
         case Target::Room:
             os << "[r]oom";
@@ -149,6 +165,7 @@ std::ostream& operator<<(std::ostream& os, Target target) {
         default:
             os << "Unknown target type (" << basal::to_underlying(target) << ") ";
     }
+    // cSpell: enable
     return os;
 }
 
@@ -161,9 +178,12 @@ std::ostream& operator<<(std::ostream& os, Parameter p) {
     } else if (std::holds_alternative<Item>(p)) {
         Item i = std::get<2>(p);
         os << i;
-    } else if (std::holds_alternative<Target>(p)) {
-        Target t = std::get<3>(p);
-        os << t;
+    } else if (std::holds_alternative<Damage>(p)) {
+        Damage d = std::get<3>(p);
+        os << d;
+    } else if (std::holds_alternative<Health>(p)) {
+        Health h = std::get<4>(p);
+        os << h;
     }
     return os;
 }
@@ -171,19 +191,35 @@ std::ostream& operator<<(std::ostream& os, Parameter p) {
 StreamView::StreamView() {
 }
 
-void StreamView::attempt(Action action, Parameter param) {
-    std::cout << "Chose " << action << " and " << param << std::endl;
+void StreamView::attempt(Event event) {
+    Target subject = std::get<0>(event);
+    Action action = std::get<1>(event);
+    Target object = std::get<2>(event);
+    Parameter param = std::get<3>(event);
+
+    std::cout << subject << " chose " << action << " to " << object << " with/by " << param << std::endl;
     switch (action) {
         case Action::Attack: {
             // throw_exception_unless(std::holds_alternative<Target>(param), "Must have a Target");
-            Target target = std::get<3>(param);
-            std::cout << "You try to attack " << target << "." << std::endl;
+            if (subject == Target::Player) {
+                if (object == Target::Monster) {
+                    // Damage dmg = std::get<3>(param);
+                    std::cout << "You try to attack the " << object << "." << std::endl;
+                }
+            }
             break;
         }
         case Action::Use: {
-            // throw_exception_unless(std::holds_alternative<Item>(param), "Must have an Item");
-            Item item = std::get<2>(param);  // it has to be an Item
-            std::cout << "You tries to use " << item << "." << std::endl;
+            if (subject == Target::Player) {
+                if (object == Target::Item) {
+                    if (std::holds_alternative<Item>(param)) {
+                        Item item = std::get<2>(param);  // it has to be an Item
+                        std::cout << "You tries to use " << item << "." << std::endl;
+                    } else {
+                        // assert();
+                    }
+                }
+            }
             break;
         }
         default:
@@ -191,63 +227,86 @@ void StreamView::attempt(Action action, Parameter param) {
     }
 }
 
-void StreamView::complete(Action action, Parameter param, bool result) noexcept(false) {
-    switch (action) {
-        case Action::Attack: {
-            // throw_exception_unless(std::holds_alternative<Target>(param), "Must have a Target");
-            Target target = std::get<3>(param);
-            if (target == Target::None) {
-                std::cout << "You think twice and do not attack the heavy weight of tension in the air." << std::endl;
-            } else if (target == Target::Self) {
-                std::cout << "You have hurt yourself in your confusion!" << std::endl;
-            } else if (target == Target::Room) {
-                std::cout << "You flail about as if a spider was crawling on your neck." << std::endl;
-            } else if (target == Target::Monster) {
-                //
+void StreamView::complete(Event event, bool result) noexcept(false) {
+    Target subject = std::get<0>(event);
+    Action action = std::get<1>(event);
+    Target object = std::get<2>(event);
+    Parameter param = std::get<3>(event);
+
+    switch (subject) {
+        case Target::Player: {
+            switch (action) {
+                case Action::Attack: {
+                    // throw_exception_unless(std::holds_alternative<Target>(param), "Must have a Target");
+                    if (object == Target::None) {
+                        std::cout << "You think twice and do not attack the heavy weight of tension in the air."
+                                  << std::endl;
+                    } else if (object == Target::Player) {
+                        std::cout << "You have hurt yourself in your confusion!" << std::endl;
+                    } else if (object == Target::Room) {
+                        std::cout << "You flail about as if a spider was crawling on your neck." << std::endl;
+                    } else if (object == Target::Monster) {
+                        //
+                    }
+                    break;
+                }
+                case Action::Pickup: {
+                    // throw_exception_unless(std::holds_alternative<Item>(param), "Must have an Item");
+                    Item item = std::get<2>(param);
+                    std::cout << "You picked up " << item << std::endl;
+                    break;
+                }
+                case Action::Use: {
+                    if (object == Target::Item) {
+                        // throw_exception_unless(std::holds_alternative<Item>(param), "Must have an Item");
+                        Item item = std::get<2>(param);
+                        if (item == Item::Torch) {
+                            std::cout << "You have used a lit torch and can see the room better" << std::endl;
+                        } else if (item == Item::Book) {
+                            std::cout << "You have read a book about the amazing world of tax derivatives during the "
+                                         "middle-post modern era. You awake covered in sweat."
+                                      << std::endl;
+                        }
+                    }
+                    break;
+                }
+                case Action::Look: {
+                    if (object == Target::Room) {
+                        // throw_exception_unless(std::holds_alternative<Direction>(param), "Must have a Direction");
+                        Direction dir = std::get<1>(param);
+                        if (result) {
+                            std::cout << "You investigated " << dir << "." << std::endl;
+                        } else {
+                            std::cout << "You can not investigate " << dir << "." << std::endl;
+                        }
+                    }
+                    break;
+                }
+                case Action::Move: {
+                    if (object == Target::Player) {
+                        Direction dir = std::get<1>(param);
+                        if (result) {
+                            std::cout << "You moved " << dir << "." << std::endl;
+                        } else {
+                            std::cout << "You can not move " << dir << "." << std::endl;
+                        }
+                    }
+                    break;
+                }
+                case Action::Nothing:
+                    std::cout << "You stare at the walls, slowly drooling, in delight." << std::endl;
+                    break;
+                case Action::Quit:
+                    std::cout << "The darkness encases you. Your silent gasp is the last thing you hear." << std::endl;
+                    break;
             }
             break;
         }
-        case Action::Pickup: {
-            // throw_exception_unless(std::holds_alternative<Item>(param), "Must have an Item");
-            Item item = std::get<2>(param);
-            std::cout << "You picked up " << item << std::endl;
-        }
-        case Action::Use: {
-            // throw_exception_unless(std::holds_alternative<Item>(param), "Must have an Item");
-            Item item = std::get<2>(param);
-            if (item == Item::Torch) {
-                std::cout << "You have used a lit torch and can see the room better" << std::endl;
-            } else if (item == Item::Book) {
-                std::cout << "You have read a book about the amazing world of tax derivatives during the "
-                             "middle-post modern era. You awake covered in sweat."
-                          << std::endl;
-            }
-            break;
-        }
-        case Action::Investigate: {
-            // throw_exception_unless(std::holds_alternative<Direction>(param), "Must have a Direction");
-            Direction dir = std::get<1>(param);
-            if (result) {
-                std::cout << "You investigated " << dir << "." << std::endl;
-            } else {
-                std::cout << "You can not investigate " << dir << "." << std::endl;
-            }
-            break;
-        }
-        case Action::Move: {
-            Direction dir = std::get<1>(param);
-            if (result) {
-                std::cout << "You moved " << dir << "." << std::endl;
-            } else {
-                std::cout << "You can not move " << dir << "." << std::endl;
-            }
-            break;
-        }
-        case Action::Nothing:
-            std::cout << "You stare at the walls, slowly drooling, in delight." << std::endl;
-            break;
-        case Action::Quit:
-            std::cout << "The darkness encases you. Your silent gasp is the last thing you hear." << std::endl;
+        case Target::Item:
+        case Target::Room:
+        case Target::Monster:
+            // FIXME Monsters can Pickup/Use/Attack/Move
+        default:
             break;
     }
 }
@@ -337,9 +396,10 @@ Action StreamView::choose(const Actions& actions) {
 
 Damage StreamView::choose(const Damages& damages) {
     display(damages);
-    char c;
-    std::cin >> c;
-    Damage d = static_cast<Damage>(c);
+    std::string str_value;
+    std::cin >> str_value;
+    size_t value = std::stoul(str_value, nullptr, 10);
+    Damage d = static_cast<Damage>(value);
     // FIXME round up or down to nearest enum?
     return (is_valid(d) ? d : Damage::None);
 }

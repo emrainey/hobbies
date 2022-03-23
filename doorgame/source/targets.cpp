@@ -4,7 +4,7 @@
 
 namespace doorgame {
 
-Targets valid_targets = {Target::None, Target::Self, Target::Room, Target::Monster, Target::Item};
+Targets valid_targets = {Target::None, Target::Player, Target::Room, Target::Monster, Target::Item};
 
 bool is_valid(Target target) {
     for (auto t : valid_targets) {

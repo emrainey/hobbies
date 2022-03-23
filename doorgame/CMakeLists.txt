@@ -3,6 +3,7 @@ project(doorgame CXX)
 
 find_package(basal REQUIRED)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Build Everything with C++17 and full native optimizations
 set(CMAKE_CXX_STANDARD 17)
 enable_testing()

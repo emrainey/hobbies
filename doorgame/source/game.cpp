@@ -17,99 +17,129 @@ Game::Game(View& view, size_t start, size_t end, size_t num_rooms, Doors doors, 
     map.load(doors, stuff);
 }
 
-void Game::process(std::pair<Action, Parameter> event) {
-    Action action = std::get<0>(event);
-    Parameter param = std::get<1>(event);
+void Game::process(Event event) {
+    Target subject = std::get<0>(event);
+    Action action = std::get<1>(event);
+    Target object = std::get<2>(event);
+    Parameter param = std::get<3>(event);
+
     bool succeeded = false;
-    view.attempt(action, param);
-    switch (action) {
-        case Action::Move: {
-            // throw_exception_unless(std::holds_alternative<Direction>(param), "Must have a Direction");
-            Direction dir = std::get<1>(param);
-            succeeded = map.move(player, dir);
-            break;
-        }
-        case Action::Pickup: {
-            // throw_exception_unless(std::holds_alternative<Item>(param), "Must have an Item");
-            Item item = std::get<2>(param);
-            succeeded = player.add(item);
-            break;
-        }
-        case Action::Investigate: {
-            // throw_exception_unless(std::holds_alternative<Direction>(param), "Must have a Direction");
-            Direction dir = std::get<1>(param);
-            // the player investigates (looks) in a certain direction
-            size_t place;
-            if (map.get_adjacent(player, dir, place)) {
-                map[place].investigated();
-                succeeded = true;
+    view.attempt(event);
+    switch (subject) {
+        case Target::Player: {
+            switch (action) {
+                case Action::Move: {
+                    // throw_exception_unless(std::holds_alternative<Direction>(param), "Must have a Direction");
+                    Direction dir = std::get<1>(param);
+                    if (object == Target::Player) {
+                        succeeded = map.move(player, dir);
+                    } else {
+                        // FIXME get the monster from the room where the player is...
+                        succeeded = false;
+                    }
+                    break;
+                }
+                case Action::Pickup: {
+                    if (object == Target::Item) {
+                        // throw_exception_unless(std::holds_alternative<Item>(param), "Must have an Item");
+                        Item item = std::get<2>(param);
+                        succeeded = player.add(item);
+                    }
+                    break;
+                }
+                case Action::Look: {
+                    // throw_exception_unless(std::holds_alternative<Direction>(param), "Must have a Direction");
+                    Direction dir = std::get<1>(param);
+                    // the player investigates (looks) in a certain direction
+                    if (object == Target::Room) {
+                        size_t place;
+                        if (map.get_adjacent(player, dir, place)) {
+                            map[place].investigated();
+                            succeeded = true;
+                        }
+                    }
+                    break;
+                }
+                case Action::Attack: {
+                    // throw_exception_unless(std::holds_alternative<Target>(param), "Must have a Target");
+                    if (object == Target::Player) {
+                        Damage dmg = std::get<3>(param);
+                        player.take(dmg);
+                    } else if (object == Target::Item) {
+                        // break an object
+                    } else if (object == Target::Room) {
+                        Direction dir = std::get<1>(param);
+                        // break a door down?
+                    } else if (object == Target::Monster) {
+                        // FIXME is there a monster in this room?
+                    }
+                    break;
+                }
+                case Action::Use: {
+                    if (object == Target::Item) {
+                        // throw_exception_unless(std::holds_alternative<Item>(param), "Must have an Item");
+                        Item item = std::get<2>(param);
+                        if (item == Item::Torch) {
+                            map.get_room(player).investigated();
+                        } else if (item == Item::Book) {
+                            // nothing happens in game
+                        }
+                    }
+                    break;
+                }
+                case Action::Quit:
+                    is_playing = false;
+                    break;
+                case Action::Nothing:
+                    succeeded = true;
+                    [[fallthrough]];
+                default:
+                    break;
             }
             break;
         }
-        case Action::Attack: {
-            // throw_exception_unless(std::holds_alternative<Target>(param), "Must have a Target");
-            Target target = std::get<3>(param);
-            if (target == Target::Self) {
-                player.take(Damage::Sting);
-            } else if (target == Target::Room) {
-                // nothing happens yet
-            } else if (target == Target::Monster) {
-                // is there a monster in this room?
-            }
-            break;
-        }
-        case Action::Use: {
-            // throw_exception_unless(std::holds_alternative<Item>(param), "Must have an Item");
-            Item item = std::get<2>(param);
-            if (item == Item::Torch) {
-                map.get_room(player).investigated();
-            } else if (item == Item::Book) {
-                // nothing happens in game
-            }
-            break;
-        }
-        case Action::Quit:
-            is_playing = false;
-            break;
-        case Action::Nothing:
-            succeeded = true;
-            [[fallthrough]];
         default:
             break;
     }
-    view.complete(action, param, succeeded);
+    view.complete(event, succeeded);
 }
 
-std::pair<Action, Parameter> Game::ask_action() {
+Event Game::ask_event() {
     Action action = view.choose(valid_actions);
+    Target object = Target::None;
     Parameter param;  // starts empty
     switch (action) {
         case Action::Move:
+            object = Target::Player;
             param = view.choose(map.get_room(player).get_directions());
             break;
-        case Action::Investigate:
+        case Action::Look:
+            object = Target::Room;
             param = view.choose(map.get_room(player).get_directions());
             break;
         case Action::Pickup:
+            object = Target::Item;
             param = view.choose(map.get_room(player).get_inventory());
             break;
         case Action::Attack:
-            param = view.choose(get_targets());
+            object = view.choose(get_targets());
+            param = view.choose(valid_damages);
             break;
         case Action::Use:
+            object = Target::Item;
             param = view.choose(player.get_inventory());
             break;
         default:
             // nothing extra to ask
             break;
     }
-    return std::make_pair(action, param);
+    return std::make_tuple(Target::Player, action, object, param);
 }
 
 Targets Game::get_targets() {
     Targets targets;  // start empty
     targets.push_back(Target::None);
-    targets.push_back(Target::Self);
+    targets.push_back(Target::Player);
     targets.push_back(Target::Room);
     Room& room = map.get_room(player);
     if (room.get_inventory().size() > 0) {
@@ -127,7 +157,7 @@ void Game::execute(void) {
     while (is_playing) {
         view.display(player);
         view.display(map.get_room(player));
-        auto event = ask_action();
+        auto event = ask_event();
         process(event);
         if (map.is_done(player)) {
             is_playing = false;

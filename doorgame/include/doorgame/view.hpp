@@ -1,26 +1,21 @@
 #pragma once
 
-#include "doorgame/actions.hpp"
 #include "doorgame/animate.hpp"
-#include "doorgame/damages.hpp"
-#include "doorgame/directions.hpp"
-#include "doorgame/items.hpp"
+#include "doorgame/events.hpp"
 #include "doorgame/map.hpp"
 #include "doorgame/monster.hpp"
-#include "doorgame/parameters.hpp"
 #include "doorgame/player.hpp"
 #include "doorgame/room.hpp"
 #include "doorgame/storage.hpp"
-#include "doorgame/targets.hpp"
 
 namespace doorgame {
 /** The Input/Output Interface for the Game */
 class View {
 public:
     /** Called before an action completes (or is attempted) */
-    virtual void attempt(Action action, Parameter param) noexcept(false) = 0;
+    virtual void attempt(Event event) noexcept(false) = 0;
     /** Called after an action completes (but may have failed) */
-    virtual void complete(Action action, Parameter param, bool result) noexcept(false) = 0;
+    virtual void complete(Event event, bool result) noexcept(false) = 0;
 
     /** @{ Display a set of enumerable things */
     virtual void display(const Actions& actions) = 0;

@@ -7,8 +7,8 @@ namespace doorgame {
 class StreamView : public View {
 public:
     StreamView();
-    void attempt(Action action, Parameter param) noexcept(false) override;
-    void complete(Action action, Parameter param, bool result) noexcept(false) override;
+    void attempt(Event event) noexcept(false) override;
+    void complete(Event event, bool result) noexcept(false) override;
     void display(const Actions& actions) override;
     void display(const Damages& damages) override;
     void display(const Directions& directions) override;

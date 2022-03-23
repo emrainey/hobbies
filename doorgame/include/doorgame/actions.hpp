@@ -14,13 +14,13 @@ namespace doorgame {
 /** An enumeration of possible actions */
 enum class Action : char
 {
-    Nothing = 'n',      //!< Do nothing
-    Move = 'm',         //!< Move to another Room
-    Investigate = 'i',  //!< Investigate a Room
-    Pickup = 'p',       //!< Pickup an item from the Room
-    Attack = 'a',       //!< Attack a Target
-    Use = 'u',          //!< Use an item
-    Quit = 'q'          //!< Quit the game
+    Nothing = 'n',  //!< Do nothing
+    Move = 'm',     //!< Move to another Room
+    Look = 'l',     //!< Look around (gets more information)
+    Pickup = 'p',   //!< Pickup an item from the Room
+    Attack = 'a',   //!< Attack a Target
+    Use = 'u',      //!< Use an item
+    Quit = 'q'      //!< Quit the game
 };
 
 /** A set of actions */

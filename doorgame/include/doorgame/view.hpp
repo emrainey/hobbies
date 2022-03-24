@@ -26,10 +26,10 @@ public:
     /** @} */
 
     /** @{ Displays the state of an object */
-    virtual void display(const Animate& object) = 0;
-    // virtual void display(Game& game) = 0;
+    virtual void display(const Animate& object, std::string preface) = 0;
+    // virtual void display(const Game& game) = 0;
     virtual void display(const Room& room) = 0;
-    virtual void display(const Storage& storage) = 0;
+    virtual void display(const Storage& storage, std::string preface = "") = 0;
     virtual void display(const Map& map) = 0;
     virtual void display(const Player& player) = 0;
     virtual void display(const Monster& monster) = 0;

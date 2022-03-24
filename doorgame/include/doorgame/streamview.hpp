@@ -14,10 +14,10 @@ public:
     void display(const Directions& directions) override;
     void display(const Items& items) override;
     void display(const Targets& targets) override;
-    void display(const Animate& object) override;
-    // void display(Game& game) override;
+    void display(const Animate& object, std::string preface) override;
+    // void display(const Game& game) override;
     void display(const Room& room) override;
-    void display(const Storage& storage) override;
+    void display(const Storage& storage, std::string preface) override;
     void display(const Map& map) override;
     void display(const Player& player) override;
     void display(const Monster& monster) override;

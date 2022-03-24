@@ -4,6 +4,8 @@
 
 namespace doorgame {
 
+constexpr static bool debug_input = false;
+
 std::ostream& operator<<(std::ostream& os, Action a) {
     // cSpell: disable
     switch (a) {
@@ -196,8 +198,10 @@ void StreamView::attempt(Event event) {
     Action action = std::get<1>(event);
     Target object = std::get<2>(event);
     Parameter param = std::get<3>(event);
-
-    std::cout << subject << " chose " << action << " to " << object << " with/by " << param << std::endl;
+    if constexpr (debug_input) {
+        std::cout << "[DEBUG] " << subject << " chose " << action << " to " << object << " with/by " << param
+                  << std::endl;
+    }
     switch (action) {
         case Action::Attack: {
             // throw_exception_unless(std::holds_alternative<Target>(param), "Must have a Target");
@@ -219,6 +223,12 @@ void StreamView::attempt(Event event) {
                         // assert();
                     }
                 }
+            }
+            break;
+        }
+        case Action::Look: {
+            if (object == Target::Player) {
+                std::cout << "You look into your inventory and assess yourself." << std::endl;
             }
             break;
         }
@@ -271,13 +281,25 @@ void StreamView::complete(Event event, bool result) noexcept(false) {
                     break;
                 }
                 case Action::Look: {
+                    if (object == Target::Item) {
+                        Item item = std::get<2>(param);
+                        if (item == Item::Nothing) {
+                            std::cout << "You stare at your empty palms. Is this what madness is?" << std::endl;
+                        } else {
+                            std::cout << "It looks like any other " << item << " to you." << std::endl;
+                        }
+                    }
                     if (object == Target::Room) {
                         // throw_exception_unless(std::holds_alternative<Direction>(param), "Must have a Direction");
                         Direction dir = std::get<1>(param);
                         if (result) {
-                            std::cout << "You investigated " << dir << "." << std::endl;
+                            if (dir != Direction::Here) {
+                                std::cout << "You looked to the room " << dir << " of here." << std::endl;
+                            } else {
+                                std::cout << "You look around in the room." << std::endl;
+                            }
                         } else {
-                            std::cout << "You can not investigate " << dir << "." << std::endl;
+                            std::cout << "You can not look around " << dir << " of here." << std::endl;
                         }
                     }
                     break;
@@ -286,9 +308,13 @@ void StreamView::complete(Event event, bool result) noexcept(false) {
                     if (object == Target::Player) {
                         Direction dir = std::get<1>(param);
                         if (result) {
-                            std::cout << "You moved " << dir << "." << std::endl;
+                            if (dir == Direction::Here) {
+                                std::cout << "You wisely decide not to move from this room." << std::endl;
+                            } else {
+                                std::cout << "You moved " << dir << "." << std::endl;
+                            }
                         } else {
-                            std::cout << "You can not move " << dir << "." << std::endl;
+                            std::cout << "You can not move in that direction." << std::endl;
                         }
                     }
                     break;
@@ -311,6 +337,23 @@ void StreamView::complete(Event event, bool result) noexcept(false) {
     }
 }
 void StreamView::display(const Actions& actions) {
+    static int rando = 0;
+    static const int mod = 7;
+    switch (rando % mod) {
+        case 0:
+            std::cout << "You feel an imperative to leave this place." << std::endl;
+            break;
+        case 1:
+            std::cout << "You must find the exit." << std::endl;
+            break;
+        case 2:
+            std::cout << "The hairs on the back of your neck tingle with dread." << std::endl;
+            break;
+        default:
+            break;
+    }
+    // update random number
+    rando = rand();
     std::cout << "Actions: ";
     for (auto a : actions) {
         std::cout << a << " ";
@@ -345,14 +388,14 @@ void StreamView::display(const Targets& targets) {
     }
 }
 
-void StreamView::display(const Animate& object) {
-    std::cout << "Health: " << object.get_health() << ". Location is room " << object.location() << "." << std::endl;
+void StreamView::display(const Animate& object, std::string preface) {
+    std::cout << preface << " Health: " << object.get_health() << ". Location is room " << object.location() << "."
+              << std::endl;
 }
 
 void StreamView::display(const Player& player) {
-    std::cout << "Player:" << std::endl;
-    display(player.as_animate());
-    display(player.as_storage());
+    display(player.as_animate(), "Player");
+    display(player.as_storage(), "Player");
 }
 
 void StreamView::display(const Map& map) {
@@ -360,13 +403,12 @@ void StreamView::display(const Map& map) {
 }
 
 void StreamView::display(const Monster& monster) {
-    std::cout << "Monster:" << std::endl;
-    display(monster.as_animate());
-    display(monster.as_storage());
+    display(monster.as_animate(), "Monster");
+    display(monster.as_storage(), "Monster");
 }
 
-void StreamView::display(const Storage& storage) {
-    std::cout << "Inventory: ";
+void StreamView::display(const Storage& storage, std::string preface) {
+    std::cout << preface << " Inventory: ";
     for (auto& inv : storage.get_inventory()) {
         std::cout << inv << " ";
     }
@@ -381,7 +423,7 @@ void StreamView::display(const Room& room) {
     }
     std::cout << "." << std::endl;
     if (room.is_investigated()) {
-        display(room.as_storage());
+        display(room.as_storage(), "Room");
     }
 }
 

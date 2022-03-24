@@ -29,13 +29,14 @@ void Game::process(Event event) {
         case Target::Player: {
             switch (action) {
                 case Action::Move: {
-                    // throw_exception_unless(std::holds_alternative<Direction>(param), "Must have a Direction");
-                    Direction dir = std::get<1>(param);
                     if (object == Target::Player) {
-                        succeeded = map.move(player, dir);
-                    } else {
-                        // FIXME get the monster from the room where the player is...
-                        succeeded = false;
+                        // throw_exception_unless(std::holds_alternative<Direction>(param), "Must have a Direction");
+                        Direction dir = std::get<1>(param);
+                        if (dir == Direction::Here) {
+                            succeeded = true;
+                        } else {
+                            succeeded = map.move(player, dir);
+                        }
                     }
                     break;
                 }
@@ -49,14 +50,24 @@ void Game::process(Event event) {
                 }
                 case Action::Look: {
                     // throw_exception_unless(std::holds_alternative<Direction>(param), "Must have a Direction");
-                    Direction dir = std::get<1>(param);
                     // the player investigates (looks) in a certain direction
                     if (object == Target::Room) {
-                        size_t place;
-                        if (map.get_adjacent(player, dir, place)) {
-                            map[place].investigated();
+                        Direction dir = std::get<1>(param);
+                        if (dir == Direction::Here) {
+                            map.get_room(player).investigated();
+                            view.display(map.get_room(player));
                             succeeded = true;
+                        } else {
+                            size_t place;
+                            if (map.get_adjacent(player, dir, place)) {
+                                map[place].investigated();
+                                view.display(map[place]);
+                                succeeded = true;
+                            }
                         }
+                    }
+                    if (object == Target::Player) {
+                        view.display(player);
                     }
                     break;
                 }
@@ -114,8 +125,17 @@ Event Game::ask_event() {
             param = view.choose(map.get_room(player).get_directions());
             break;
         case Action::Look:
-            object = Target::Room;
-            param = view.choose(map.get_room(player).get_directions());
+            object = view.choose(get_targets());
+            if (object == Target::Room) {
+                if (map.get_room(player).is_investigated()) {
+                    param = view.choose(map.get_room(player).get_directions());
+                } else {
+                    param = Direction::Here;
+                }
+            } else if (object == Target::Item) {
+                // look at your own inventory?
+                param = view.choose(player.get_inventory());
+            }
             break;
         case Action::Pickup:
             object = Target::Item;
@@ -155,8 +175,6 @@ Targets Game::get_targets() {
 
 void Game::execute(void) {
     while (is_playing) {
-        view.display(player);
-        view.display(map.get_room(player));
         auto event = ask_event();
         process(event);
         if (map.is_done(player)) {

@@ -3,6 +3,7 @@
         {
             "name": "Mac",
             "includePath": [
+                "${workspaceFolder}/../basal/include/**",
                 "${workspaceFolder}/include/**"
             ],
             "defines": [],
@@ -11,7 +12,10 @@
             "intelliSenseMode": "macos-gcc-x64",
             "cStandard": "c99",
             "cppStandard": "c++17",
-            "compileCommands": "${workspaceFolder}/.vscode/compile_commands.json"
+            "compileCommands": "${workspaceFolder}/build/compile_commands.json",
+            "browse": {
+                "path": []
+            }
         }
     ],
     "version": 4

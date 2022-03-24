@@ -44,7 +44,7 @@ bool Map::move(Animate& object, Direction dir) {
     // from the current move in the direction
     size_t there = get_room(object).get_adjacent(dir);
     if (object.location() == there) {
-        return false;
+        return false;  // you're already here/there
     }
     object.location(there);
     return true;

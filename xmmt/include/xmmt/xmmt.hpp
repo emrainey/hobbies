@@ -112,16 +112,19 @@ public:
     xmm_(const xmm_& other) : pack_type(other.data) {
     }
 
-    // No move construct
-    xmm_(xmm_&&) = delete;
+    /** Move Construction is just a Copy */
+    xmm_(xmm_&& other) : pack_type(other.data) {
+    }
 
     /** Copy Assignment */
     xmm_& operator=(const xmm_& other) {
         pack_type::data = other.data;
     }
 
-    // No move assign
-    xmm_& operator=(xmm_&&) = delete;
+    /** Move Assignment is Copy Assignment */
+    xmm_& operator=(xmm_&& other) {
+        pack_type::data = other.data;
+    }
 
     /** Destructor */
     ~xmm_() = default;

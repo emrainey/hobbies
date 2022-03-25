@@ -42,6 +42,10 @@ public:
     virtual Item choose(const Items& items) = 0;
     virtual Target choose(const Targets& targets) = 0;
     /** @} */
+
+    virtual void greeting(void) = 0;
+    virtual void completed(void) = 0;
+    virtual void goodbye(void) = 0;
 };
 
 }  // namespace doorgame

@@ -26,6 +26,9 @@ public:
     Direction choose(const Directions& directions) override;
     Item choose(const Items& items) override;
     Target choose(const Targets& targets) override;
+    void greeting(void) override;
+    void completed(void) override;
+    void goodbye(void) override;
 };
 
 }  // namespace doorgame

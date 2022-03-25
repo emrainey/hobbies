@@ -44,7 +44,11 @@ void Game::process(Event event) {
                     if (object == Target::Item) {
                         // throw_exception_unless(std::holds_alternative<Item>(param), "Must have an Item");
                         Item item = std::get<2>(param);
-                        succeeded = player.add(item);
+                        // remove from room.
+                        if (map.get_room(player).remove(item)) {
+                            // add to player
+                            succeeded = player.add(item);
+                        }
                     }
                     break;
                 }
@@ -174,13 +178,16 @@ Targets Game::get_targets() {
 }
 
 void Game::execute(void) {
+    view.greeting();
     while (is_playing) {
         auto event = ask_event();
         process(event);
         if (map.is_done(player)) {
             is_playing = false;
+            view.completed();
         }
     }
+    view.goodbye();
 }
 
 }  // namespace doorgame

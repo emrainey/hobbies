@@ -285,6 +285,8 @@ void StreamView::complete(Event event, bool result) noexcept(false) {
                         Item item = std::get<2>(param);
                         if (item == Item::Nothing) {
                             std::cout << "You stare at your empty palms. Is this what madness is?" << std::endl;
+                        } else if (item == Item::Book) {
+                            std::cout << "The spine of the book is cracked and aged." << std::endl;
                         } else {
                             std::cout << "It looks like any other " << item << " to you." << std::endl;
                         }
@@ -323,6 +325,7 @@ void StreamView::complete(Event event, bool result) noexcept(false) {
                     std::cout << "You stare at the walls, slowly drooling, in delight." << std::endl;
                     break;
                 case Action::Quit:
+                    // premature end
                     std::cout << "The darkness encases you. Your silent gasp is the last thing you hear." << std::endl;
                     break;
             }
@@ -468,6 +471,28 @@ Target StreamView::choose(const Targets& targets) {
     std::cin >> c;
     Target t = static_cast<Target>(c);
     return (is_valid(t) ? t : Target::None);
+}
+
+void StreamView::greeting(void) {
+    std::cout << "▓█████▄  ▒█████   ▒█████   ██▀███    ▄████  ▄▄▄       ███▄ ▄███▓▓█████ " << std::endl;
+    std::cout << "▒██▀ ██▌▒██▒  ██▒▒██▒  ██▒▓██ ▒ ██▒ ██▒ ▀█▒▒████▄    ▓██▒▀█▀ ██▒▓█   ▀ " << std::endl;
+    std::cout << "░██   █▌▒██░  ██▒▒██░  ██▒▓██ ░▄█ ▒▒██░▄▄▄░▒██  ▀█▄  ▓██    ▓██░▒███   " << std::endl;
+    std::cout << "░▓█▄   ▌▒██   ██░▒██   ██░▒██▀▀█▄  ░▓█  ██▓░██▄▄▄▄██ ▒██    ▒██ ▒▓█  ▄ " << std::endl;
+    std::cout << "░▒████▓ ░ ████▓▒░░ ████▓▒░░██▓ ▒██▒░▒▓███▀▒ ▓█   ▓██▒▒██▒   ░██▒░▒████▒" << std::endl;
+    std::cout << " ▒▒▓  ▒ ░ ▒░▒░▒░ ░ ▒░▒░▒░ ░ ▒▓ ░▒▓░ ░▒   ▒  ▒▒   ▓▒█░░ ▒░   ░  ░░░ ▒░ ░" << std::endl;
+    std::cout << " ░ ▒  ▒   ░ ▒ ▒░   ░ ▒ ▒░   ░▒ ░ ▒░  ░   ░   ▒   ▒▒ ░░  ░      ░ ░ ░  ░" << std::endl;
+    std::cout << " ░ ░  ░ ░ ░ ░ ▒  ░ ░ ░ ▒    ░░   ░ ░ ░   ░   ░   ▒   ░      ░      ░   " << std::endl;
+    std::cout << "   ░        ░ ░      ░ ░     ░           ░       ░  ░       ░      ░  ░" << std::endl;
+    std::cout << " ░                                                                     " << std::endl;
+    std::cout << " AN ESCAPE FROM CARTESIAN TERROR" << std::endl;
+}
+
+void StreamView::completed(void) {
+    std::cout << "You see the light of a new day. Your nightmare has ended." << std::endl;
+}
+
+void StreamView::goodbye(void) {
+    std::cout << "" << std::endl;
 }
 
 }  // namespace doorgame

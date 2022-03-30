@@ -3,6 +3,8 @@ project(basal CXX)
 set(CMAKE_CXX_STANDARD 17)
 enable_testing()
 
+option(BUILD_SHARED_LIBS "Builds libraries as dynamic objects" OFF)
+
 add_library(native-optimized INTERFACE)
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU|Clang")
 target_compile_options(native-optimized INTERFACE -ggdb -march=native -mtune=native)
@@ -12,7 +14,7 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" AND CMAKE_SYSTEM_PROCESSOR STREQUAL
 target_compile_options(native-optimized INTERFACE /arch:AVX2)
 endif()
 
-add_library(hobbies-basal SHARED)
+add_library(hobbies-basal)
 target_sources(hobbies-basal
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/source/debuggable.cpp

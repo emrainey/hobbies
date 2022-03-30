@@ -39,18 +39,6 @@ void on_vec_b_update(int value, void *cookie __attribute__((unused))) {
     raytrace::tuning::pseudo_random_noise_params.theta_b = iso::radians(double(value) / 100.0);
 }
 
-void on_gain_update(int value, void *cookie __attribute__((unused))) {
-    // value is 0 to 1000
-    // divide by 10
-    raytrace::tuning::pseudo_random_noise_params.gain = double(value) / 10.0;
-}
-
-void on_radius_update(int value, void *cookie __attribute__((unused))) {
-    // value is 0 to 1000
-    // divide by 10
-    raytrace::tuning::pseudo_random_noise_params.radius = double(value) / 10.0;
-}
-
 int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused))) {
     bool should_quit = false;
     bool should_render = true;

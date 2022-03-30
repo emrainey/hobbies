@@ -3,12 +3,13 @@ project(doorgame CXX)
 
 find_package(basal REQUIRED)
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Build Everything with C++17 and full native optimizations
 set(CMAKE_CXX_STANDARD 17)
 enable_testing()
 
-add_library(hobbies-doorgame SHARED
+option(BUILD_SHARED_LIBS "Builds libraries as dynamic objects" OFF)
+
+add_library(hobbies-doorgame
     ${CMAKE_CURRENT_SOURCE_DIR}/source/animate.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/actions.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/damages.cpp

@@ -7,7 +7,9 @@ find_package(basal REQUIRED)
 set(CMAKE_CXX_STANDARD 17)
 enable_testing()
 
-add_library(hobbies-fourcc SHARED
+option(BUILD_SHARED_LIBS "Builds libraries as dynamic objects" OFF)
+
+add_library(hobbies-fourcc
     ${CMAKE_CURRENT_SOURCE_DIR}/source/image.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/convolve.cpp
 )

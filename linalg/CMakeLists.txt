@@ -9,7 +9,9 @@ find_package(fourcc REQUIRED)
 set(CMAKE_CXX_STANDARD 17)
 enable_testing()
 
-add_library(hobbies-linalg SHARED
+option(BUILD_SHARED_LIBS "Builds libraries as dynamic objects" OFF)
+
+add_library(hobbies-linalg
     ${CMAKE_CURRENT_SOURCE_DIR}/source/matrix.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/solvers.cpp
 )

@@ -13,8 +13,10 @@ find_package(geometry REQUIRED)
 set(CMAKE_CXX_STANDARD 17)
 enable_testing()
 
+option(BUILD_SHARED_LIBS "Builds libraries as dynamic objects" OFF)
+
 if (OpenCV_FOUND)
-add_library(hobbies-linalg-utils SHARED)
+add_library(hobbies-linalg-utils)
 target_sources(hobbies-linalg-utils
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/source/opencv.cpp

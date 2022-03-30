@@ -7,8 +7,11 @@ find_package(fourcc REQUIRED)
 set(CMAKE_CXX_STANDARD 17)
 enable_testing()
 
-add_library(hobbies-htm SHARED
+option(BUILD_SHARED_LIBS "Builds libraries as dynamic objects" OFF)
+
+add_library(hobbies-htm
     ${CMAKE_CURRENT_SOURCE_DIR}/source/encoders.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/frand.cpp
 )
 # target_link_libraries(hobbies-htm PUBLIC)
 target_include_directories(hobbies-htm

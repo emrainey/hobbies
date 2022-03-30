@@ -84,11 +84,8 @@ struct column {
     */
 };
 
-float frand() {
-    int r = rand();
-    float f = ((float)r) / (float)RAND_MAX;
-    return f;
-}
+/** Returns a random number between 0.0 and 1.0 inclusive */
+float frand();
 
 template <size_t W, size_t H>
 class network {

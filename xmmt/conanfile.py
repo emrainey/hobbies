@@ -18,16 +18,18 @@ class XMMTConan(ConanFile):
         self.cpp_info.build_modules["cmake_find_package"].append(f"cmake/{self.name}-config.cmake")
         self.cpp_info.build_modules["cmake_find_package"].append(f"cmake/Find{self.name}.cmake")
 
-    def package(self):
+    def _configure_cmake(self) -> CMake:
         cmake = CMake(self)
         cmake.definitions[f"CMAKE_PROJECT_{self.name}_INCLUDE"] = f"{self.build_folder}/conan_paths.cmake"
         cmake.configure()
+        return cmake
+
+    def package(self):
+        cmake = self._configure_cmake()
         cmake.install()
 
     def build(self):
-        cmake = CMake(self)
-        cmake.definitions[f"CMAKE_PROJECT_{self.name}_INCLUDE"] = f"{self.build_folder}/conan_paths.cmake"
-        cmake.configure()
+        cmake = self._configure_cmake()
         cmake.build()
         cmake.install()
         cmake.test()

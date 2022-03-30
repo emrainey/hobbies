@@ -16,7 +16,9 @@ find_package(xmmt REQUIRED)
 set(CMAKE_CXX_STANDARD 17)
 enable_testing()
 
-add_library(hobbies-raytrace SHARED
+option(BUILD_SHARED_LIBS "Builds libraries as dynamic objects" OFF)
+
+add_library(hobbies-raytrace
     ${CMAKE_CURRENT_SOURCE_DIR}/source/camera.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/color.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/image.cpp

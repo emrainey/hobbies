@@ -10,7 +10,9 @@ find_package(linalg-utils REQUIRED)
 set(CMAKE_CXX_STANDARD 17)
 enable_testing()
 
-add_library(hobbies-neuralnet SHARED
+option(BUILD_SHARED_LIBS "Builds libraries as dynamic objects" OFF)
+
+add_library(hobbies-neuralnet
     ${CMAKE_CURRENT_SOURCE_DIR}/source/hidden.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/inner.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/input.cpp

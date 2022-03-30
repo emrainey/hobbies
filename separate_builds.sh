@@ -7,6 +7,7 @@ JOBS=16
 VERBOSE=OFF
 RUN_TESTS=0
 USE_CONAN=0
+USE_SHARED_LIBS=OFF
 while [[ $# -gt 0 ]]; do
     case $1 in
         -rm)
@@ -24,6 +25,9 @@ while [[ $# -gt 0 ]]; do
         -c)
             USE_CONAN=1
         ;;
+        -dy)
+            USE_SHARED_LIBS=ON
+            ;;
         *)
         ;;
     esac
@@ -61,6 +65,8 @@ for pkg in "${PKGS[@]}"; do
         fi
         mkdir -p $pkg/build
         cmake -B $pkg/build -S $pkg \
+            -DBUILD_SHARED_LIBS=${USE_SHARED_LIBS} \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
             -DCMAKE_INSTALL_PREFIX:PATH=${INSTALL_ROOT} \
             -DCMAKE_PREFIX_PATH:PATH=${INSTALL_ROOT} \
             -DCMAKE_VERBOSE_MAKEFILE:BOOL=${VERBOSE} \
@@ -84,8 +90,13 @@ for pkg in "${PKGS[@]}"; do
 
         mkdir -p ${install_path} ${build_path} ${package_path}
 
+        shared=""
+        if [[ ${USE_SHARED_LIBS} == ON ]] && [[ ! ${pkg} == "xmmt" ]]; then
+            shared="--options shared=True"
+        fi
+
         # this installs the dependencies into a local folder
-        conan install $pkg -if ${build_path}
+        conan install $pkg -if ${build_path} ${shared}
         # this runs CMake config
         conan build $pkg --configure -bf ${build_path}
         # this actually builds

@@ -4,7 +4,9 @@ set(CMAKE_CXX_STANDARD 17)
 
 enable_testing()
 
-add_library(hobbies-uom SHARED
+option(BUILD_SHARED_LIBS "Builds libraries as dynamic objects" OFF)
+
+add_library(hobbies-uom
     # IEC
     "source/iec/prefix.cpp"
     # ISO

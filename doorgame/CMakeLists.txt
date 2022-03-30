@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.19)
-project(doorgame CXX)
+cmake_minimum_required(VERSION 3.20.0)
+project(doorgame LANGUAGES CXX VERSION 0.1.0)  # This must match the conanfile.py!
 
 find_package(basal REQUIRED)
 
@@ -36,6 +36,10 @@ target_include_directories(hobbies-doorgame
         # Install Tree
         $<INSTALL_INTERFACE:include>
 )
+set_target_properties(hobbies-doorgame PROPERTIES
+    VERSION ${PROJECT_VERSION}
+    SOVERSION ${PROJECT_VERSION_MAJOR}
+)
 
 #####################
 # EXPORTS
@@ -51,15 +55,15 @@ install(TARGETS hobbies-doorgame EXPORT DoorGameTargets
 install(EXPORT DoorGameTargets
     FILE DoorGameTargets.cmake
     NAMESPACE DoorGame::
-    DESTINATION share/cmake/htm
+    DESTINATION share/cmake/${PROJECT_NAME}
 )
-install(DIRECTORY include/doorgame
+install(DIRECTORY include/${PROJECT_NAME}
     DESTINATION include
     PATTERN "*.hpp"
     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
 )
-install(FILES "cmake/Finddoorgame.cmake" "cmake/doorgame-config.cmake"
-    DESTINATION share/cmake/doorgame
+install(FILES "cmake/Finddoorgame.cmake" "cmake/${PROJECT_NAME}-config.cmake"
+    DESTINATION share/cmake/${PROJECT_NAME}
 )
 ################
 # DEMOS

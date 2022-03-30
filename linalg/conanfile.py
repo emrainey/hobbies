@@ -2,14 +2,14 @@ from conans import ConanFile, CMake
 
 class LinAlgConan(ConanFile):
     name = "linalg"
-    version = "0.7"
+    version = "0.7.0" # This must match the CMakeLists.txt!
     settings = "os", "arch", "compiler", "build_type"
     description = "The Linear Algebra Library"
     generators = "cmake", "cmake_paths"
     requires = "gtest/1.8.1", \
-               "basal/0.5", \
-               "units_of_measure/0.7", \
-               "fourcc/0.7"
+               "basal/0.5.0", \
+               "units_of_measure/0.7.0", \
+               "fourcc/0.7.0"
 
     url = "http://github.com/emrainey/hobbies"
     homepage = "http://github.com/emrainey/hobbies"

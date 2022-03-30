@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.13)
-project(htm CXX)
+cmake_minimum_required(VERSION 3.20.0)
+project(htm LANGUAGES CXX VERSION 0.1.0)  # This must match the conanfile.py!
 
 find_package(fourcc REQUIRED)
 
@@ -23,7 +23,10 @@ target_include_directories(hobbies-htm
         # Install Tree
         $<INSTALL_INTERFACE:include>
 )
-
+set_target_properties(hobbies-htm PROPERTIES
+    VERSION ${PROJECT_VERSION}
+    SOVERSION ${PROJECT_VERSION_MAJOR}
+)
 #####################
 # EXPORTS
 #####################
@@ -38,15 +41,15 @@ install(TARGETS hobbies-htm EXPORT HTMTargets
 install(EXPORT HTMTargets
     FILE HTMTargets.cmake
     NAMESPACE HTM::
-    DESTINATION share/cmake/htm
+    DESTINATION share/cmake/${PROJECT_NAME}
 )
-install(DIRECTORY include/htm
+install(DIRECTORY include/${PROJECT_NAME}
     DESTINATION include
     PATTERN "*.hpp"
     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
 )
-install(FILES "cmake/Findhtm.cmake" "cmake/htm-config.cmake"
-    DESTINATION share/cmake/htm
+install(FILES "cmake/Find${PROJECT_NAME}.cmake" "cmake/${PROJECT_NAME}-config.cmake"
+    DESTINATION share/cmake/${PROJECT_NAME}
 )
 ################
 # DEMOS

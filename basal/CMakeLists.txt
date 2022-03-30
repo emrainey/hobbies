@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20.0)
-project(basal CXX)
+project(basal LANGUAGES CXX VERSION 0.5.0)  # This must match the conanfile.py!
 set(CMAKE_CXX_STANDARD 17)
 enable_testing()
 
@@ -33,6 +33,11 @@ target_include_directories(hobbies-basal PUBLIC
     $<INSTALL_INTERFACE:include>
 )
 target_link_libraries(hobbies-basal dl)
+set_target_properties(hobbies-basal PROPERTIES
+    VERSION ${PROJECT_VERSION}
+    SOVERSION ${PROJECT_VERSION_MAJOR}
+)
+
 
 # Declare installs and exports
 install(TARGETS hobbies-basal native-optimized EXPORT BasalTargets
@@ -44,24 +49,24 @@ install(TARGETS hobbies-basal native-optimized EXPORT BasalTargets
 install(EXPORT BasalTargets
     FILE BasalTargets.cmake
     NAMESPACE Basal::
-    DESTINATION share/cmake/basal
+    DESTINATION share/cmake/${PROJECT_NAME}
     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
 )
-install(DIRECTORY include/basal
+install(DIRECTORY include/${PROJECT_NAME}
     DESTINATION include
     PATTERN "*.hpp"
     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
 )
-install(FILES "cmake/Findbasal.cmake" "cmake/basal-config.cmake"
-    DESTINATION share/cmake/basal
+install(FILES "cmake/Find${PROJECT_NAME}.cmake" "cmake/${PROJECT_NAME}-config.cmake"
+    DESTINATION share/cmake/${PROJECT_NAME}
     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
 )
 #include(CMakePackageConfigHelpers)
-#write_basic_package_version_file("BasalConfigVersion.cmake"
-#    VERSION ${Basal_VERSION}
+#write_basic_package_version_file("${PROJECT_NAME}ConfigVersion.cmake"
+#    VERSION ${PROJECT_VERSION}
 #    COMPATIBILITY SameMajorVersion
 #)
-#install(FILES "cmake/Findbasal.cmake" "cmake/basal-config.cmake" "basalConfigVersion.cmake"
+#install(FILES "cmake/Find${PROJECT_NAME}.cmake" "cmake/${PROJECT_NAME}-config.cmake" "${PROJECT_NAME}ConfigVersion.cmake"
 #    DESTINATION share/cmake/basal
 #)
 

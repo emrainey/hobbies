@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20.0)
-project(units_of_measure CXX)
+project(units_of_measure LANGUAGES CXX VERSION 0.7.0)  # This must match the conanfile.py!
 set(CMAKE_CXX_STANDARD 17)
 
 enable_testing()
@@ -41,6 +41,10 @@ target_include_directories(hobbies-uom PUBLIC
     # Install Tree
     $<INSTALL_INTERFACE:include>
 )
+set_target_properties(hobbies-uom PROPERTIES
+    VERSION ${PROJECT_VERSION}
+    SOVERSION ${PROJECT_VERSION_MAJOR}
+)
 
 # Declare installs and exports
 install(TARGETS hobbies-uom EXPORT UnitsOfMeasureTargets
@@ -52,15 +56,15 @@ install(TARGETS hobbies-uom EXPORT UnitsOfMeasureTargets
 install(EXPORT UnitsOfMeasureTargets
     FILE UnitsOfMeasureTargets.cmake
     NAMESPACE UnitsOfMeasure::
-    DESTINATION share/cmake/units_of_measure
+    DESTINATION share/cmake/${PROJECT_NAME}
 )
 install(DIRECTORY include/iec include/iso include/si
     DESTINATION include
     PATTERN "*.hpp"
     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
 )
-install(FILES "cmake/Findunits_of_measure.cmake" "cmake/units_of_measure-config.cmake"
-    DESTINATION share/cmake/units_of_measure
+install(FILES "cmake/Findunits_of_measure.cmake" "cmake/${PROJECT_NAME}-config.cmake"
+    DESTINATION share/cmake/${PROJECT_NAME}
 )
 #####################################################
 # Unit Testing

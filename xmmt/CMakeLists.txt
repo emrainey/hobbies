@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20.0)
-project(xmmt CXX)
+project(xmmt LANGUAGES CXX VERSION 0.7.0)  # This must match the conanfile.py!
 
 find_package(basal REQUIRED)
 
@@ -32,15 +32,15 @@ install(TARGETS hobbies-xmmt EXPORT XmmtTargets
 install(EXPORT XmmtTargets
     FILE XmmtTargets.cmake
     NAMESPACE Xmmt::
-    DESTINATION share/cmake/xmmt
+    DESTINATION share/cmake/${PROJECT_NAME}
 )
-install(DIRECTORY include/xmmt
+install(DIRECTORY include/${PROJECT_NAME}
     DESTINATION include
     PATTERN "*.hpp"
     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
 )
-install(FILES "cmake/Findxmmt.cmake" "cmake/xmmt-config.cmake"
-    DESTINATION share/cmake/xmmt
+install(FILES "cmake/Find${PROJECT_NAME}.cmake" "cmake/${PROJECT_NAME}-config.cmake"
+    DESTINATION share/cmake/${PROJECT_NAME}
 )
 #####################
 # Googletests

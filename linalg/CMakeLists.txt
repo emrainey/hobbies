@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20.0)
-project(linalg CXX)
+project(linalg LANGUAGES CXX VERSION 0.7.0)  # This must match the conanfile.py!
 
 find_package(basal REQUIRED)
 find_package(units_of_measure REQUIRED)
@@ -25,6 +25,10 @@ target_include_directories(hobbies-linalg PUBLIC
     # Install Tree
     $<INSTALL_INTERFACE:include>
 )
+set_target_properties(hobbies-linalg PROPERTIES
+    VERSION ${PROJECT_VERSION}
+    SOVERSION ${PROJECT_VERSION_MAJOR}
+)
 
 #####################
 # EXPORTS
@@ -40,15 +44,15 @@ install(TARGETS hobbies-linalg EXPORT LinalgTargets
 install(EXPORT LinalgTargets
     FILE LinalgTargets.cmake
     NAMESPACE Linalg::
-    DESTINATION share/cmake/linalg
+    DESTINATION share/cmake/${PROJECT_NAME}
 )
-install(DIRECTORY include/linalg
+install(DIRECTORY include/${PROJECT_NAME}
     DESTINATION include
     PATTERN "*.hpp"
     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
 )
-install(FILES "cmake/Findlinalg.cmake" "cmake/linalg-config.cmake"
-    DESTINATION share/cmake/linalg
+install(FILES "cmake/Find${PROJECT_NAME}.cmake" "cmake/${PROJECT_NAME}-config.cmake"
+    DESTINATION share/cmake/${PROJECT_NAME}
 )
 #####################
 # Googletests

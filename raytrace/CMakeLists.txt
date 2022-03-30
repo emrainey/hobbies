@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20.0)
-project(raytrace CXX)
+project(raytrace LANGUAGES CXX VERSION 0.7.0)  # This must match the conanfile.py!
 
 find_package(OpenCV REQUIRED)
 find_package(OpenMP REQUIRED)
@@ -73,6 +73,10 @@ target_include_directories(hobbies-raytrace
        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
        # Install Tree
        $<INSTALL_INTERFACE:include>
+)
+set_target_properties(hobbies-raytrace PROPERTIES
+    VERSION ${PROJECT_VERSION}
+    SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
 ################
@@ -182,13 +186,13 @@ install(TARGETS hobbies-raytrace EXPORT RaytraceTargets
 install(EXPORT RaytraceTargets
     FILE RaytraceTargets.cmake
     NAMESPACE Raytrace::
-    DESTINATION share/cmake/raytrace
+    DESTINATION share/cmake/${PROJECT_NAME}
 )
-install(DIRECTORY include/raytrace
+install(DIRECTORY include/${PROJECT_NAME}
     DESTINATION include
     PATTERN "*.hpp"
     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
 )
-install(FILES "cmake/Findraytrace.cmake" "cmake/raytrace-config.cmake"
-    DESTINATION share/cmake/raytrace
+install(FILES "cmake/Find${PROJECT_NAME}.cmake" "cmake/${PROJECT_NAME}-config.cmake"
+    DESTINATION share/cmake/${PROJECT_NAME}
 )

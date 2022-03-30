@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20.0)
-project(fourcc CXX)
+project(fourcc LANGUAGES CXX VERSION 0.7.0)  # This must match the conanfile.py!
 
 find_package(basal REQUIRED)
 
@@ -23,6 +23,10 @@ target_include_directories(hobbies-fourcc
         $<INSTALL_INTERFACE:include>
 )
 target_link_libraries(hobbies-fourcc PUBLIC Basal::hobbies-basal Basal::native-optimized)
+set_target_properties(hobbies-fourcc PROPERTIES
+    VERSION ${PROJECT_VERSION}
+    SOVERSION ${PROJECT_VERSION_MAJOR}
+)
 
 #####################
 # EXPORTS
@@ -38,15 +42,17 @@ install(TARGETS hobbies-fourcc EXPORT FourccTargets
 install(EXPORT FourccTargets
     FILE FourccTargets.cmake
     NAMESPACE Fourcc::
-    DESTINATION share/cmake/fourcc
+    DESTINATION share/cmake/${PROJECT_NAME}
+    PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
 )
-install(DIRECTORY include/fourcc
+install(DIRECTORY include/${PROJECT_NAME}
     DESTINATION include
     PATTERN "*.hpp"
     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
 )
-install(FILES "cmake/Findfourcc.cmake" "cmake/fourcc-config.cmake"
-    DESTINATION share/cmake/fourcc
+install(FILES "cmake/Find${PROJECT_NAME}.cmake" "cmake/${PROJECT_NAME}-config.cmake"
+    DESTINATION share/cmake/${PROJECT_NAME}
+    PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
 )
 #####################
 # Unit Tests

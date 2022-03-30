@@ -40,6 +40,7 @@ if [[ ${CLEAN} -eq 1 ]]; then
     rm -rf ${INSTALL_ROOT}
 fi
 mkdir -p ${INSTALL_ROOT}
+export CONAN_TRACE_FILE=${INSTALL_ROOT}/conan_trace.log
 
 # Which packages to build in which order
 PKGS=(basal units_of_measure fourcc linalg geometry linalg-utils \

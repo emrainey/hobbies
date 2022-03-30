@@ -4,7 +4,7 @@ import os
 
 class UnitsOfMeasureConan(ConanFile):
     name = "units_of_measure"
-    version = "0.7"
+    version = "0.7.0"  # This must match the CMakeLists.txt!
     settings = "os", "arch", "compiler", "build_type"
     description = "A library for defining ISO/IEC standard units of measure"
     generators = "cmake", "cmake_paths"

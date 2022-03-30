@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20.0)
-project(linalg-algo CXX)
+project(linalg-algo LANGUAGES CXX VERSION 0.7.0)  # This must match the conanfile.py!
 
 find_package(OpenCV REQUIRED)
 find_package(basal REQUIRED)
@@ -32,7 +32,10 @@ target_include_directories(hobbies-linalg-algo
         # Install Tree
         $<INSTALL_INTERFACE:include>
 )
-
+set_target_properties(hobbies-linalg-algo PROPERTIES
+    VERSION ${PROJECT_VERSION}
+    SOVERSION ${PROJECT_VERSION_MAJOR}
+)
 #####################
 # EXPORTS
 #####################
@@ -47,15 +50,15 @@ install(TARGETS hobbies-linalg-algo EXPORT LinalgAlgoTargets
 install(EXPORT LinalgAlgoTargets
     FILE LinalgAlgoTargets.cmake
     NAMESPACE LinalgAlgo::
-    DESTINATION share/cmake/linalg-algo
+    DESTINATION share/cmake/${PROJECT_NAME}
 )
 install(DIRECTORY include/linalg
     DESTINATION include
     PATTERN "*.hpp"
     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
 )
-install(FILES "cmake/Findlinalg-algo.cmake" "cmake/linalg-algo-config.cmake"
-    DESTINATION share/cmake/linalg-algo
+install(FILES "cmake/Find${PROJECT_NAME}.cmake" "cmake/${PROJECT_NAME}-config.cmake"
+    DESTINATION share/cmake/${PROJECT_NAME}
 )
 
 #####################

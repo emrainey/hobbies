@@ -2,11 +2,11 @@ from conans import ConanFile, CMake
 
 class NeuralnetConan(ConanFile):
     name = "neuralnet"
-    version = "0.7"
+    version = "0.7.0" # This must match the CMakeLists.txt!
     settings = "os", "arch", "compiler", "build_type"
     description = "The Neural Network Library"
     generators = "cmake", "cmake_paths"
-    requires = "gtest/1.8.1", "opencv/4.5.3", "basal/0.5", "linalg/0.7", "linalg-utils/0.7"
+    requires = "gtest/1.8.1", "opencv/4.5.3", "basal/0.5.0", "linalg/0.7.0", "linalg-utils/0.7.0"
     url = "http://github.com/emrainey/hobbies"
     homepage = "http://github.com/emrainey/hobbies"
     license = 'Unlicense'

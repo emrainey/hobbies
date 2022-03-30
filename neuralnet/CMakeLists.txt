@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20.0)
-project(neuralnet CXX)
+project(neuralnet LANGUAGES CXX VERSION 0.7.0)  # This must match the conanfile.py!
 
 find_package(OpenCV REQUIRED)
 find_package(basal REQUIRED)
@@ -31,6 +31,10 @@ target_include_directories(hobbies-neuralnet
        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
        # Install Tree
        $<INSTALL_INTERFACE:include>
+)
+set_target_properties(hobbies-neuralnet PROPERTIES
+    VERSION ${PROJECT_VERSION}
+    SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
 #####################
@@ -71,13 +75,13 @@ install(TARGETS hobbies-neuralnet EXPORT NeuralnetTargets
 install(EXPORT NeuralnetTargets
     FILE NeuralnetTargets.cmake
     NAMESPACE Neuralnet::
-    DESTINATION share/cmake/neuralnet
+    DESTINATION share/cmake/${PROJECT_NAME}
 )
-install(DIRECTORY include/neuralnet
+install(DIRECTORY include/${PROJECT_NAME}
     DESTINATION include
     PATTERN "*.hpp"
     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
 )
-install(FILES "cmake/Findneuralnet.cmake" "cmake/neuralnet-config.cmake"
-    DESTINATION share/cmake/neuralnet
+install(FILES "cmake/Find${PROJECT_NAME}.cmake" "cmake/${PROJECT_NAME}-config.cmake"
+    DESTINATION share/cmake/${PROJECT_NAME}
 )

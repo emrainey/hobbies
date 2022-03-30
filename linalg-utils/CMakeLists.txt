@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20.0)
-project(linalg-utils CXX)
+project(linalg-utils LANGUAGES CXX VERSION 0.7.0)  # This must match the conanfile.py!
 
 find_package(OpenCV REQUIRED)
 find_package(GTest REQUIRED)
@@ -34,6 +34,10 @@ target_include_directories(hobbies-linalg-utils
         $<INSTALL_INTERFACE:include>
         ${OpenCV_INCLUDE_DIRS}
 )
+set_target_properties(hobbies-linalg-utils PROPERTIES
+    VERSION ${PROJECT_VERSION}
+    SOVERSION ${PROJECT_VERSION_MAJOR}
+)
 
 #####################
 # EXPORTS
@@ -49,15 +53,15 @@ install(TARGETS hobbies-linalg-utils EXPORT LinalgUtilsTargets
 install(EXPORT LinalgUtilsTargets
     FILE LinalgUtilsTargets.cmake
     NAMESPACE LinalgUtils::
-    DESTINATION share/cmake/linalg-utils
+    DESTINATION share/cmake/${PROJECT_NAME}
 )
 install(DIRECTORY include/linalg
     DESTINATION include
     PATTERN "*.hpp"
     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
 )
-install(FILES "cmake/Findlinalg-utils.cmake" "cmake/linalg-utils-config.cmake"
-    DESTINATION share/cmake/linalg-utils
+install(FILES "cmake/Find${PROJECT_NAME}.cmake" "cmake/${PROJECT_NAME}-config.cmake"
+    DESTINATION share/cmake/${PROJECT_NAME}
 )
 #####################
 # Demos

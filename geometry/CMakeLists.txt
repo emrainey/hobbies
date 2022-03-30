@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20.0)
-project(geometry CXX)
+project(geometry LANGUAGES CXX VERSION 0.7.0)  # This must match the conanfile.py!
 
 find_package(basal REQUIRED)
 find_package(units_of_measure REQUIRED)
@@ -34,6 +34,10 @@ target_include_directories(hobbies-geometry PUBLIC
     # Install Tree
     $<INSTALL_INTERFACE:include>
 )
+set_target_properties(hobbies-geometry PROPERTIES
+    VERSION ${PROJECT_VERSION}
+    SOVERSION ${PROJECT_VERSION_MAJOR}
+)
 
 #####################
 # EXPORTS
@@ -49,15 +53,15 @@ install(TARGETS hobbies-geometry EXPORT GeometryTargets
 install(EXPORT GeometryTargets
     FILE GeometryTargets.cmake
     NAMESPACE Geometry::
-    DESTINATION share/cmake/geometry
+    DESTINATION share/cmake/${PROJECT_NAME}
 )
-install(DIRECTORY include/geometry
+install(DIRECTORY include/${PROJECT_NAME}
     DESTINATION include
     PATTERN "*.hpp"
     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
 )
-install(FILES "cmake/Findgeometry.cmake" "cmake/geometry-config.cmake"
-    DESTINATION share/cmake/geometry
+install(FILES "cmake/Find${PROJECT_NAME}.cmake" "cmake/${PROJECT_NAME}-config.cmake"
+    DESTINATION share/cmake/${PROJECT_NAME}
 )
 #####################
 # Googletests

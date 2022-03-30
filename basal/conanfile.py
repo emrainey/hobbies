@@ -7,7 +7,7 @@ from conans import ConanFile, CMake
 
 class BasalConan(ConanFile):
     name = "basal"
-    version = "0.5"
+    version = "0.5.0" # This must match the CMakeLists.txt!
     settings = "os", "arch", "compiler", "build_type"
     description = "A simple library which extend base features"
     generators = "cmake", "cmake_paths"

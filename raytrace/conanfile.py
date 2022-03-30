@@ -47,5 +47,4 @@ class RaytraceConan(ConanFile):
     def build(self):
         cmake = self._configure_cmake()
         cmake.build()
-        cmake.install()
         cmake.test()

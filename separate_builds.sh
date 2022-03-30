@@ -41,21 +41,9 @@ if [[ ${CLEAN} -eq 1 ]]; then
 fi
 mkdir -p ${INSTALL_ROOT}
 
-BRANCH=main
-
 # Which packages to build in which order
-PKGS=(basal units_of_measure fourcc \
-    linalg \
-    geometry \
-    linalg-utils \
-    linalg-algo \
-    xmmt \
-    noise \
-    raytrace \
-    neuralnet \
-    htm \
-    doorgame \
-)
+PKGS=(basal units_of_measure fourcc linalg geometry linalg-utils \
+    linalg-algo xmmt noise raytrace neuralnet htm doorgame)
 
 # Cycle over each package and build it
 for pkg in "${PKGS[@]}"; do
@@ -66,7 +54,6 @@ for pkg in "${PKGS[@]}"; do
         mkdir -p $pkg/build
         cmake -B $pkg/build -S $pkg \
             -DBUILD_SHARED_LIBS=${USE_SHARED_LIBS} \
-            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
             -DCMAKE_INSTALL_PREFIX:PATH=${INSTALL_ROOT} \
             -DCMAKE_PREFIX_PATH:PATH=${INSTALL_ROOT} \
             -DCMAKE_VERBOSE_MAKEFILE:BOOL=${VERBOSE} \

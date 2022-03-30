@@ -15,7 +15,7 @@ TEST(SphereTest, NormalReflection) {
     raytrace::point C(1, 1, 1);
     raytrace::objects::sphere s0(C, 1.0);
     raytrace::point P(0, 1, 1);
-    ASSERT_TRUE(s0.surface(P));
+    ASSERT_TRUE(s0.is_surface_point(P));
     vector N = s0.normal(P);
     vector nx = -R3::basis::X;
     ASSERT_VECTOR_EQ(nx, N);

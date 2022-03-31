@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20.0)
 project(geometry LANGUAGES CXX VERSION 0.7.0)  # This must match the conanfile.py!
 
-find_package(basal REQUIRED)
+find_package(basal 0.5.0 REQUIRED)
 find_package(units_of_measure REQUIRED)
 find_package(linalg REQUIRED)
 

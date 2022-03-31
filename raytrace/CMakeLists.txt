@@ -4,7 +4,7 @@ project(raytrace LANGUAGES CXX VERSION 0.7.0)  # This must match the conanfile.p
 find_package(OpenCV REQUIRED)
 find_package(OpenMP REQUIRED)
 # find_package(ncurses REQUIRED) # should be installed in the system
-find_package(basal REQUIRED)
+find_package(basal 0.5.0 REQUIRED)
 find_package(units_of_measure REQUIRED)
 find_package(linalg REQUIRED)
 find_package(linalg-utils REQUIRED)

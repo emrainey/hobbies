@@ -57,18 +57,18 @@ install(DIRECTORY include/${PROJECT_NAME}
     PATTERN "*.hpp"
     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
 )
-install(FILES "cmake/Find${PROJECT_NAME}.cmake" "cmake/${PROJECT_NAME}-config.cmake"
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file("${PROJECT_NAME}-config-version.cmake"
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY SameMajorVersion
+)
+install(FILES
+        "cmake/Find${PROJECT_NAME}.cmake"
+        "cmake/${PROJECT_NAME}-config.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake"
     DESTINATION share/cmake/${PROJECT_NAME}
     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
 )
-#include(CMakePackageConfigHelpers)
-#write_basic_package_version_file("${PROJECT_NAME}ConfigVersion.cmake"
-#    VERSION ${PROJECT_VERSION}
-#    COMPATIBILITY SameMajorVersion
-#)
-#install(FILES "cmake/Find${PROJECT_NAME}.cmake" "cmake/${PROJECT_NAME}-config.cmake" "${PROJECT_NAME}ConfigVersion.cmake"
-#    DESTINATION share/cmake/basal
-#)
 
 # Unit Tests
 set(THREADS_PREFER_PTHREAD_FLAG ON)

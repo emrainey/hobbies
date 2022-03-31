@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20.0)
 project(doorgame LANGUAGES CXX VERSION 0.1.0)  # This must match the conanfile.py!
 
-find_package(basal REQUIRED)
+find_package(basal 0.5.0 REQUIRED)
 
 # Build Everything with C++17 and full native optimizations
 set(CMAKE_CXX_STANDARD 17)

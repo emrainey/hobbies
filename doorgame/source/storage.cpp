@@ -11,10 +11,11 @@ const Inventory& Storage::get_inventory() const {
 
 bool Storage::add(Item item) {
     // replace the first non-nothing item
-    auto slot = std::find(std::begin(inventory), std::end(inventory), Item::Nothing);
-    if (slot != std::end(inventory)) {
-        *slot = item;
-        return true;
+    for (auto& inv : inventory) {
+        if (inv == Item::Nothing) {
+            inv = item;
+            return true;
+        }
     }
     return false;
 }

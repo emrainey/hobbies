@@ -5,14 +5,18 @@ enable_testing()
 
 option(BUILD_SHARED_LIBS "Builds libraries as dynamic objects" OFF)
 
+add_library(enabled-warnings INTERFACE)
+target_compile_options(enabled-warnings INTERFACE
+    $<$<COMPILE_LANG_AND_ID:CXX,AppleClang,Clang,GNU>:$<BUILD_INTERFACE:-Wall -Wextra -Werror -pedantic>>
+)
+
+# Optimizes your objects for native builds (on the build side only)
 add_library(native-optimized INTERFACE)
-if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU|Clang")
-target_compile_options(native-optimized INTERFACE -ggdb -march=native -mtune=native)
-# add -pg above (might have problems in shared object environment w/ multiple symbols)
-# target_link_options(native-optimized INTERFACE -pg)
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" AND CMAKE_SYSTEM_PROCESSOR STREQUAL "x64_64")
-target_compile_options(native-optimized INTERFACE /arch:AVX2)
-endif()
+target_compile_options(native-optimized INTERFACE
+    $<$<COMPILE_LANG_AND_ID:CXX,AppleClang,Clang,GNU>:-ggdb -march=native -mtune=native>
+    $<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/arch:AVX2>
+)
+
 
 add_library(hobbies-basal)
 target_sources(hobbies-basal
@@ -32,15 +36,15 @@ target_include_directories(hobbies-basal PUBLIC
     # Install Tree
     $<INSTALL_INTERFACE:include>
 )
-target_link_libraries(hobbies-basal dl)
+target_link_libraries(hobbies-basal dl enabled-warnings)
 set_target_properties(hobbies-basal PROPERTIES
     VERSION ${PROJECT_VERSION}
     SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
-
 # Declare installs and exports
-install(TARGETS hobbies-basal native-optimized EXPORT BasalTargets
+install(TARGETS hobbies-basal enabled-warnings native-optimized
+    EXPORT BasalTargets
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
     RUNTIME DESTINATION bin

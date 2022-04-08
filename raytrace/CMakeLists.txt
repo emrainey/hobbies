@@ -117,7 +117,7 @@ endif()
 set(DEMOS world_example world_spheres world_cornell
           world_desktoy world_monochrome world_snowman
           world_lenses world_planet world_spheres2 world_glass
-          world_art1)
+          world_art1 world_outrun)
 
 foreach(demo IN LISTS DEMOS)
     add_library(${demo} SHARED ${CMAKE_CURRENT_SOURCE_DIR}/demo/${demo}.cpp)

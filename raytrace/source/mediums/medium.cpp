@@ -37,6 +37,10 @@ element_type medium::specular_tightness(const raytrace::point& volumetric_point 
     return m_tightness;
 }
 
+color medium::emissive(const raytrace::point& volumetric_point __attribute__((unused))) const {
+    return colors::black;
+}
+
 color medium::bounced(const raytrace::point& volumetic_point __attribute__((unused)), const color& incoming) const {
     // just return incoming
     return incoming;

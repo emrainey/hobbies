@@ -38,6 +38,9 @@ public:
     /** Returns the overall tightness the specular highlight (K) */
     virtual element_type specular_tightness(const raytrace::point& volumetric_point) const;
 
+    /** Returns the emitted light at the volumetric point */
+    virtual color emissive(const raytrace::point& volumetric_point) const;
+
     /** Returns the color bounced from the medium at a point, given an input color */
     virtual color bounced(const raytrace::point& volumetic_point, const color& incoming) const;
 

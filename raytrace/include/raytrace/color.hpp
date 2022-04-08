@@ -129,16 +129,27 @@ public:
 #if defined(USE_SIMD_INSTRUCTIONS)
         __m256d imm = _mm256_set1_pd(a);
         simd_channels = _mm256_mul_pd(simd_channels, imm);
-        imm = _mm256_set1_pd(1.0);
+#else
+        for (auto& c : channels) {
+            c *= a;
+        }
+#endif
+        clamp();
+    }
+
+    inline void clamp() {
+#if defined(USE_SIMD_INSTRUCTIONS)
+        __m256d imm = _mm256_set1_pd(1.0);
         simd_channels = _mm256_min_pd(imm, simd_channels);
         imm = _mm256_setzero_pd();
         simd_channels = _mm256_max_pd(imm, simd_channels);
 #else
         for (auto& c : channels) {
-            c = std::clamp(a * c, 0.0, 1.0);
+            c = std::clamp(c, 0.0, 1.0);
         }
 #endif
     }
+
     /** Scale Wrapper */
     inline color& operator*=(const element_type a) {
         scale(a);

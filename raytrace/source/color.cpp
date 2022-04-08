@@ -84,6 +84,7 @@ color& color::operator+=(const color& other) {
         channels[i] += other.channels[i];
     }
 #endif
+    clamp();
     return (*this);
 }
 

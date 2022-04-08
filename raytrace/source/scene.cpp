@@ -182,13 +182,13 @@ color scene::trace(const ray& world_ray, const mediums::medium& media, size_t re
                          // outputs
                          emissivity, reflectivity, transparency);
 
-        if (emissivity > 0) {  // the medium is emitting light
-            // TODO light sources which emit light
-            emitted_color = colors::black;
-            // surface_color += ???
+        // the medium is emitting light
+        if (emissivity > 0) {
+            // light sources which emit light
+            emitted_color = medium.emissive(object_surface_point) * emissivity;
         }
-        if (reflectivity >
-            0.0) {  // on the very last depth call we still have to return the surface color, just no more casts
+        // on the very last depth call we still have to return the surface color, just no more casts
+        if (reflectivity > 0.0) {
             // find the *reflected* medium color from all lights (without blocked paths)
             // The set of colors from each light source (including ambient)
             std::vector<color> surface_colors;
@@ -320,8 +320,8 @@ color scene::trace(const ray& world_ray, const mediums::medium& media, size_t re
         }
         // blend that reflected color with the transmitted color
         surface_color = interpolate(transmitted_color, reflected_color, transparency);
-        // TODO now add emitted color
-        // surface_color += emitted_color;
+        // now add emitted color
+        surface_color += emitted_color;  // this will clamp internally
         // the media will absorb some of the light from that surface.
         traced_color = media.absorbance(nearest.distance, surface_color);
     } else {  // if (get_type(closest_intersection) == geometry::intersectionType::None) {

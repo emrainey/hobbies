@@ -16,7 +16,7 @@ class Sun : public raytrace::mediums::opaque {
 public:
     Sun() : opaque() {
         m_ambient = colors::white;
-        m_ambient_scale = 0.25;
+        m_ambient_scale = 0.0;
         m_smoothness = smoothness::none;
         m_tightness = roughness::loose;
     }

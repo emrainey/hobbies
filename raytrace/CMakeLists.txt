@@ -80,6 +80,30 @@ set_target_properties(hobbies-raytrace PROPERTIES
 )
 
 ################
+# PyBind Interface
+################
+find_package(Python COMPONENTS Interpreter Development REQUIRED)
+find_package(pybind11 CONFIG REQUIRED)
+pybind11_add_module(pyraytrace SHARED
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/pybind/module.cpp
+)
+target_include_directories(pyraytrace
+    PUBLIC
+        # Generated Tree
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
+        # Build Tree
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        # Install Tree
+        $<INSTALL_INTERFACE:include>
+)
+target_link_libraries(pyraytrace
+    PUBLIC hobbies-raytrace Basal::hobbies-basal pybind11::pybind11
+)
+install(TARGETS pyraytrace
+    DESTINATION lib
+)
+
+################
 # DEMOS
 ################
 

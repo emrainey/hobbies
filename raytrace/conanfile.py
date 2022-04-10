@@ -8,6 +8,7 @@ class RaytraceConan(ConanFile):
     generators = "cmake", "cmake_paths"
     requires = "gtest/1.8.1", \
                "opencv/4.5.3", \
+               "pybind11/2.9.1" \
                "basal/0.5.0", \
                "units_of_measure/0.7.0", \
                "geometry/0.7.0", \

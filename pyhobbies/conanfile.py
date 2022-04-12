@@ -1,20 +1,13 @@
 from conans import ConanFile, CMake
 
-class RaytraceConan(ConanFile):
-    name = "raytrace"
+class PyHobbiesConan(ConanFile):
+    name = "pyhobbies"
     version = "0.7.0" # This must match the CMakeLists.txt!
     settings = "os", "arch", "compiler", "build_type"
-    description = "The Linear Algebra Library (and associated lower libraries)"
+    description = "The C++ Hobbies Python Interface"
     generators = "cmake", "cmake_paths"
-    requires = "gtest/1.8.1", \
-               "opencv/4.5.3", \
-               "basal/0.5.0", \
-               "units_of_measure/0.7.0", \
-               "geometry/0.7.0", \
-               "linalg/0.7.0", \
-               "linalg-utils/0.7.0", \
-               "noise/0.7.0", \
-               "xmmt/0.7.0"
+    requires = "pybind11/2.9.1", \
+               "raytrace/0.7.0"
 
     url = "http://github.com/emrainey/hobbies"
     homepage = "http://github.com/emrainey/hobbies"

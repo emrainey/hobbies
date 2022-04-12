@@ -1,0 +1,21 @@
+[build-system]
+# Minimum requirements for the build system to execute.
+requires = ["setuptools>=42", "wheel", "pybind11~=2.9.1", "cmake>=3.22.0"]  # PEP 508 specifications.
+build-backend = "setuptools.build_meta"
+
+[tool.isort]
+profile = "black"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = ["-ra", "--showlocals", "--strict-markers", "--strict-config"]
+xfail_strict = true
+filterwarnings = ["error"]
+testpaths = ["tests"]
+
+[tool.cibuildwheel]
+test-command = "pytest {project}/tests"
+test-extras = ["test"]
+test-skip = ["*universal2:arm64"]
+# Setuptools bug causes collision between pypy and cpython artifacts
+before-build = "rm -rf {project}/build"

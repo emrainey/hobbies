@@ -43,8 +43,10 @@ mkdir -p ${INSTALL_ROOT}
 export CONAN_TRACE_FILE=${INSTALL_ROOT}/conan_trace.log
 
 # Which packages to build in which order
+if [[ -z ${PKGS[@]} ]]; then
 PKGS=(basal units_of_measure fourcc linalg geometry linalg-utils \
-    linalg-algo xmmt noise raytrace neuralnet htm doorgame)
+    linalg-algo xmmt noise raytrace neuralnet htm doorgame pyhobbies)
+fi
 
 # Cycle over each package and build it
 for pkg in "${PKGS[@]}"; do
@@ -102,3 +104,11 @@ for pkg in "${PKGS[@]}"; do
         conan export-pkg $pkg --force -pf ${package_path} --profile default
     fi
 done
+
+if [[ ${USE_CONAN} -eq 0 ]]; then
+    # Install the Hobbies Python Module via CMake build to the User's Python Install
+    CMAKE_INSTALL_PREFIX=${INSTALL_ROOT} python3 -m pip install --user -e pyhobbies
+else
+    # otherwise you'll have to "install" the library to the PYTHONPATH?
+    echo "setup.py not supported through Conan yet"
+fi

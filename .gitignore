@@ -63,3 +63,6 @@ conaninfo.txt
 deactivate.*
 environment.*.env
 graph_info.json
+
+# Ignore Python Junk
+*.egg-info

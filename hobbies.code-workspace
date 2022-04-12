@@ -41,6 +41,9 @@
 			"path": "doorgame"
 		},
 		{
+			"path": "pyhobbies"
+		},
+		{
 			"path": "testing",
 			"name": "Conan Testing Folder"
 		}

@@ -39,6 +39,7 @@ target_include_directories(hobbies-doorgame
 set_target_properties(hobbies-doorgame PROPERTIES
     VERSION ${PROJECT_VERSION}
     SOVERSION ${PROJECT_VERSION_MAJOR}
+    POSITION_INDEPENDENT_CODE ON
 )
 
 #####################

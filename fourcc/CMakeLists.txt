@@ -26,6 +26,7 @@ target_link_libraries(hobbies-fourcc PUBLIC Basal::hobbies-basal Basal::enabled-
 set_target_properties(hobbies-fourcc PROPERTIES
     VERSION ${PROJECT_VERSION}
     SOVERSION ${PROJECT_VERSION_MAJOR}
+    POSITION_INDEPENDENT_CODE ON
 )
 
 #####################

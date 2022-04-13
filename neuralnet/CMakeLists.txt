@@ -35,6 +35,7 @@ target_include_directories(hobbies-neuralnet
 set_target_properties(hobbies-neuralnet PROPERTIES
     VERSION ${PROJECT_VERSION}
     SOVERSION ${PROJECT_VERSION_MAJOR}
+    POSITION_INDEPENDENT_CODE ON
 )
 
 #####################

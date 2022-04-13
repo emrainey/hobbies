@@ -78,4 +78,4 @@ void listable::insert_next(listable* obj) noexcept {
     }
 }
 
-};  // namespace basal
+}  // namespace basal

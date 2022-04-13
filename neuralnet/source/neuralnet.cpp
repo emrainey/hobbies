@@ -28,7 +28,7 @@ int main(int argc, char* argv[]) {
     try {
         constexpr const uint32_t num = nn::mnist::inputs;
         char path[256] = {0};
-        getcwd(path, sizeof(path));
+        (void)getcwd(path, sizeof(path));
         printf("Currently running in %s\n", path);
 
         // Create the network

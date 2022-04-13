@@ -77,6 +77,7 @@ target_include_directories(hobbies-raytrace
 set_target_properties(hobbies-raytrace PROPERTIES
     VERSION ${PROJECT_VERSION}
     SOVERSION ${PROJECT_VERSION_MAJOR}
+    POSITION_INDEPENDENT_CODE ON
 )
 
 ################

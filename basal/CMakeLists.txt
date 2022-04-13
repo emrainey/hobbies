@@ -40,6 +40,7 @@ target_link_libraries(hobbies-basal dl enabled-warnings)
 set_target_properties(hobbies-basal PROPERTIES
     VERSION ${PROJECT_VERSION}
     SOVERSION ${PROJECT_VERSION_MAJOR}
+    POSITION_INDEPENDENT_CODE ON
 )
 
 # Declare installs and exports

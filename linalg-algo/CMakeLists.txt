@@ -35,6 +35,7 @@ target_include_directories(hobbies-linalg-algo
 set_target_properties(hobbies-linalg-algo PROPERTIES
     VERSION ${PROJECT_VERSION}
     SOVERSION ${PROJECT_VERSION_MAJOR}
+    POSITION_INDEPENDENT_CODE ON
 )
 #####################
 # EXPORTS

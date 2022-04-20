@@ -1,7 +1,7 @@
 /**
  * @file
  * This is an auto-generated source for iso::seconds.
- *
+ * A measure of time
  * @note See README on re-generation.
  * @copyright Copyright 2022.
  */
@@ -10,19 +10,19 @@
 namespace iso {
 const char* const suffix_type_sec::suffix;
 // default
-seconds::seconds() : measurement() {
+seconds::seconds() : measurement{} {
 }
 // explicit value
-seconds::seconds(double a) : measurement(a) {
+seconds::seconds(double a) : measurement{a} {
 }
 // copy constructor
-seconds::seconds(const seconds& other) : measurement(other) {
+seconds::seconds(const seconds& other) : measurement{other} {
 }
 // move constructor
-seconds::seconds(seconds&& other) : measurement(std::move(other)) {
+seconds::seconds(seconds&& other) : measurement{std::move(other)} {
 }
 
-seconds& seconds::operator=(const seconds& other) noexcept {
+seconds& seconds::operator=(const seconds &other) noexcept {
     _value = other.value;
     return (*this);
 }
@@ -100,3 +100,4 @@ iso::seconds operator""_sec(const char a[]) {
 }
 }  // namespace literals
 }  // namespace iso
+

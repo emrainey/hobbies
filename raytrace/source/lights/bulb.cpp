@@ -9,11 +9,11 @@ namespace lights {
 using namespace linalg::operators;
 
 bulb::bulb(const point& P, element_type radius, const color& C, element_type intensity, size_t samples)
-    : light(C, intensity, samples), entity(P), m_radius(radius) {
+    : light{C, intensity, samples}, entity{P}, m_radius{radius} {
 }
 
 bulb::bulb(point&& P, element_type radius, const color& C, element_type intensity, size_t samples)
-    : light(C, intensity, samples), entity(std::move(P)), m_radius(radius) {
+    : light{C, intensity, samples}, entity{std::move(P)}, m_radius{radius} {
 }
 
 element_type bulb::intensity_at(const point& world_point) const {

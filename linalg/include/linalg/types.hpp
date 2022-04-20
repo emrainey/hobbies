@@ -47,7 +47,7 @@ public:
 
 protected:
     constexpr statistics()
-        : quadratic_roots(0), cubic_roots(0), quartic_roots(0), matrix_multiply(0), matrix_determinants(0) {
+        : quadratic_roots{0}, cubic_roots{0}, quartic_roots{0}, matrix_multiply{0}, matrix_determinants{0} {
     }
 };
 }  // namespace linalg

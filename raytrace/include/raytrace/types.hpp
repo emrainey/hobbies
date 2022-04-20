@@ -58,16 +58,16 @@ public:
 
 protected:
     constexpr statistics()
-        : cast_rays_from_camera(0)
-        , intersections_with_objects(0)
-        , bounced_rays(0)
-        , transmitted_rays(0)
-        , saved_ray_traces(0)
-        , shadow_rays(0)
-        , sampled_rays(0)
-        , color_sampled_rays(0)
-        , point_in_shadow(0)
-        , absorbed_rays(0) {
+        : cast_rays_from_camera{0}
+        , intersections_with_objects{0}
+        , bounced_rays{0}
+        , transmitted_rays{0}
+        , saved_ray_traces{0}
+        , shadow_rays{0}
+        , sampled_rays{0}
+        , color_sampled_rays{0}
+        , point_in_shadow{0}
+        , absorbed_rays{0} {
     }
 };
 }  // namespace raytrace

@@ -1,7 +1,7 @@
 /**
  * @file
  * This is an auto-generated source for iso::newtons.
- *
+ * A measure of force
  * @note See README on re-generation.
  * @copyright Copyright 2022.
  */
@@ -10,19 +10,19 @@
 namespace iso {
 const char* const suffix_type_N::suffix;
 // default
-newtons::newtons() : measurement() {
+newtons::newtons() : measurement{} {
 }
 // explicit value
-newtons::newtons(double a) : measurement(a) {
+newtons::newtons(double a) : measurement{a} {
 }
 // copy constructor
-newtons::newtons(const newtons& other) : measurement(other) {
+newtons::newtons(const newtons& other) : measurement{other} {
 }
 // move constructor
-newtons::newtons(newtons&& other) : measurement(std::move(other)) {
+newtons::newtons(newtons&& other) : measurement{std::move(other)} {
 }
 
-newtons& newtons::operator=(const newtons& other) noexcept {
+newtons& newtons::operator=(const newtons &other) noexcept {
     _value = other.value;
     return (*this);
 }
@@ -100,3 +100,4 @@ iso::newtons operator""_N(const char a[]) {
 }
 }  // namespace literals
 }  // namespace iso
+

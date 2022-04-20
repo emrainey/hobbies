@@ -5,16 +5,16 @@ namespace raytrace {
 namespace objects {
 
 quadratic::quadratic(const point& center)
-    : object(center, 2, true)  // 2 collisions, closed surface (CHECK)
-    , m_coefficients(4, 4)     // start zeroed
+    : object{center, 2, true}  // 2 collisions, closed surface (CHECK)
+    , m_coefficients{4, 4}     // start zeroed
 {
     basal::exception::throw_unless(m_coefficients.rows == 4 and m_coefficients.cols == 4, __FILE__, __LINE__,
                                    "Must be a 4x4");
 }
 
 quadratic::quadratic(const point& center, raytrace::matrix& C)
-    : object(center, 2, true)  // 2 collisions, closed surface (CHECK)
-    , m_coefficients(C) {
+    : object{center, 2, true}  // 2 collisions, closed surface (CHECK)
+    , m_coefficients{C} {
     basal::exception::throw_unless(m_coefficients.rows == 4 and m_coefficients.cols == 4, __FILE__, __LINE__,
                                    "Must be a 4x4");
 }

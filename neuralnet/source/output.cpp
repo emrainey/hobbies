@@ -7,7 +7,7 @@ using namespace linalg;
 using namespace linalg::operators;
 
 output::output(size_t prev, size_t num)
-    : inner(layer::type::output, prev, num), error(num, 1), error_value(0.0), rms_value(0.0) {
+    : inner{layer::type::output, prev, num}, error{num, 1}, error_value{0.0}, rms_value{0.0} {
 }
 
 output::~output() {
@@ -16,7 +16,7 @@ output::~output() {
 size_t output::infer_label(double& out) {
     double tmp = 0.0;
     size_t index = 0;
-    values.for_each([&](size_t y, size_t x, const double& v) {
+    values.for_each ([&](size_t y, size_t x, const double& v) {
         x |= 0;
         if (tmp < v) {
             tmp = v;

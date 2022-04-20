@@ -7,15 +7,15 @@ namespace objects {
 using namespace linalg::operators;
 
 cylinder::cylinder(const point& C, element_type half_height, element_type radius)
-    : object(C, 2, false)  // 2 collisions, not closed
-    , m_half_height(half_height)
-    , m_radius(radius) {
+    : object{C, 2, false}  // 2 collisions, not closed
+    , m_half_height{half_height}
+    , m_radius{radius} {
 }
 
 cylinder::cylinder(const point& base, const point& apex, element_type radius)
-    : object(base, 2, false)  // 2 collisions, not closed
-    , m_half_height(0.0)
-    , m_radius(radius) {
+    : object{base, 2, false}  // 2 collisions, not closed
+    , m_half_height{0.0}
+    , m_radius{radius} {
     R3::vector axis = apex - base;
     R3::vector semi = axis.normalized();
     m_half_height = axis.magnitude() / 2;

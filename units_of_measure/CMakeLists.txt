@@ -64,7 +64,7 @@ install(DIRECTORY include/iec include/iso include/si
     PATTERN "*.hpp"
     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
 )
-install(FILES "cmake/Findunits_of_measure.cmake" "cmake/${PROJECT_NAME}-config.cmake"
+install(FILES "cmake/Find${PROJECT_NAME}.cmake" "cmake/${PROJECT_NAME}-config.cmake"
     DESTINATION share/cmake/${PROJECT_NAME}
 )
 #####################################################

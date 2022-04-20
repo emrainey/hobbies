@@ -8,7 +8,8 @@
             "typename": "double",
             "scalevalue": "iso",
             "scaletype": "SI::prefix",
-            "postfix": "A"
+            "postfix": "A",
+            "comment": "A measure of current in electricity"
         },
         {
             "namespace": "iso",
@@ -16,7 +17,8 @@
             "typename": "double",
             "scalevalue": "iso",
             "scaletype": "SI::prefix",
-            "postfix": "d"
+            "postfix": "d",
+            "comment": "A measure of an angle"
         },
         {
             "namespace": "iso",
@@ -24,7 +26,8 @@
             "typename": "double",
             "scalevalue": "iso",
             "scaletype": "SI::prefix",
-            "postfix": "g"
+            "postfix": "g",
+            "comment": "A measurement of mass"
         },
         {
             "namespace": "iso",
@@ -32,7 +35,8 @@
             "typename": "double",
             "scalevalue": "iso",
             "scaletype": "SI::prefix",
-            "postfix": "Hz"
+            "postfix": "Hz",
+            "comment": "A measure of frequency"
         },
         {
             "namespace": "iso",
@@ -40,7 +44,8 @@
             "typename": "double",
             "scalevalue": "iso",
             "scaletype": "SI::prefix",
-            "postfix": "J"
+            "postfix": "J",
+            "comment": "A measure of energy"
         },
         {
             "namespace": "iso",
@@ -48,7 +53,8 @@
             "typename": "double",
             "scalevalue": "iso",
             "scaletype": "SI::prefix",
-            "postfix": "m"
+            "postfix": "m",
+            "comment": "A measure of distance"
         },
         {
             "namespace": "iso",
@@ -56,7 +62,8 @@
             "typename": "double",
             "scalevalue": "iso",
             "scaletype": "SI::prefix",
-            "postfix": "N"
+            "postfix": "N",
+            "comment": "A measure of force"
         },
         {
             "namespace": "iso",
@@ -64,7 +71,8 @@
             "typename": "double",
             "scalevalue": "iso",
             "scaletype": "SI::prefix",
-            "postfix": "Ohm"
+            "postfix": "Ohm",
+            "comment": "A measure of resistance to current"
         },
         {
             "namespace": "iso",
@@ -72,7 +80,8 @@
             "typename": "double",
             "scalevalue": "iso",
             "scaletype": "SI::prefix",
-            "postfix": "Pa"
+            "postfix": "Pa",
+            "comment": "A measure of pressure"
         },
         {
             "namespace": "iso",
@@ -80,7 +89,8 @@
             "typename": "double",
             "scalevalue": "iso",
             "scaletype": "SI::prefix",
-            "postfix": "rad"
+            "postfix": "rad",
+            "comment": "A measure of an angle"
         },
         {
             "namespace": "iso",
@@ -88,7 +98,8 @@
             "typename": "double",
             "scalevalue": "iso",
             "scaletype": "SI::prefix",
-            "postfix": "sec"
+            "postfix": "sec",
+            "comment": "A measure of time"
         },
         {
             "namespace": "iso",
@@ -96,7 +107,8 @@
             "typename": "double",
             "scalevalue": "iso",
             "scaletype": "SI::prefix",
-            "postfix": "Tau"
+            "postfix": "Tau",
+            "comment": "A measure of an angle"
         },
         {
             "namespace": "iso",
@@ -104,7 +116,8 @@
             "typename": "double",
             "scalevalue": "iso",
             "scaletype": "SI::prefix",
-            "postfix": "V"
+            "postfix": "V",
+            "comment": "A measure of the electrical potential"
         },
         {
             "namespace": "iso",
@@ -112,7 +125,8 @@
             "typename": "double",
             "scalevalue": "iso",
             "scaletype": "SI::prefix",
-            "postfix": "W"
+            "postfix": "W",
+            "comment": "A measure of electrical power"
         }
     ]
 }

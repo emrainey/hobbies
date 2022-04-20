@@ -10,7 +10,7 @@
 namespace doorgame {
 
 Game::Game(View& view, size_t start, size_t end, size_t num_rooms, Doors doors, Stuff stuff, MonsterList monsterlist)
-    : view(view), start(start), player(start), monsters(), map(num_rooms, start, end), is_playing(true) {
+    : view{view}, start{start}, player{start}, monsters{}, map{num_rooms, start, end}, is_playing{true} {
     for (auto& ml : monsterlist) {
         monsters.push_back(ml);
     }

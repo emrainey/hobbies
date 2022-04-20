@@ -1,7 +1,7 @@
 /**
  * @file
  * This is an auto-generated source for iso::grams.
- *
+ * A measurement of mass
  * @note See README on re-generation.
  * @copyright Copyright 2022.
  */
@@ -10,19 +10,19 @@
 namespace iso {
 const char* const suffix_type_g::suffix;
 // default
-grams::grams() : measurement() {
+grams::grams() : measurement{} {
 }
 // explicit value
-grams::grams(double a) : measurement(a) {
+grams::grams(double a) : measurement{a} {
 }
 // copy constructor
-grams::grams(const grams& other) : measurement(other) {
+grams::grams(const grams& other) : measurement{other} {
 }
 // move constructor
-grams::grams(grams&& other) : measurement(std::move(other)) {
+grams::grams(grams&& other) : measurement{std::move(other)} {
 }
 
-grams& grams::operator=(const grams& other) noexcept {
+grams& grams::operator=(const grams &other) noexcept {
     _value = other.value;
     return (*this);
 }
@@ -100,3 +100,4 @@ iso::grams operator""_g(const char a[]) {
 }
 }  // namespace literals
 }  // namespace iso
+

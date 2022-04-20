@@ -1,7 +1,7 @@
 /**
  * @file
  * This is an auto-generated source for iso::volts.
- *
+ * A measure of the electrical potential
  * @note See README on re-generation.
  * @copyright Copyright 2022.
  */
@@ -10,19 +10,19 @@
 namespace iso {
 const char* const suffix_type_V::suffix;
 // default
-volts::volts() : measurement() {
+volts::volts() : measurement{} {
 }
 // explicit value
-volts::volts(double a) : measurement(a) {
+volts::volts(double a) : measurement{a} {
 }
 // copy constructor
-volts::volts(const volts& other) : measurement(other) {
+volts::volts(const volts& other) : measurement{other} {
 }
 // move constructor
-volts::volts(volts&& other) : measurement(std::move(other)) {
+volts::volts(volts&& other) : measurement{std::move(other)} {
 }
 
-volts& volts::operator=(const volts& other) noexcept {
+volts& volts::operator=(const volts &other) noexcept {
     _value = other.value;
     return (*this);
 }
@@ -100,3 +100,4 @@ iso::volts operator""_V(const char a[]) {
 }
 }  // namespace literals
 }  // namespace iso
+

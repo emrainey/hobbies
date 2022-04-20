@@ -12,12 +12,12 @@ using namespace raytrace::operators;
 class ArtWorld : public world {
 public:
     ArtWorld()
-        : look_from(0, 50, 10)
-        , look_at(0, 0, 10)
-        , sunrays(raytrace::vector{-20, 0, -21}, colors::white, 1E4)
-        , floor(R3::origin, R3::basis::Z, 100.0, 100.0)
-        , pyramid(look_at, 10)
-        , orb(raytrace::point(0, 0, 12), 2.0) {
+        : look_from{0, 50, 10}
+        , look_at{0, 0, 10}
+        , sunrays{raytrace::vector{-20, 0, -21}, colors::white, 1E4}
+        , floor{R3::origin, R3::basis::Z, 100.0, 100.0}
+        , pyramid{look_at, 10}
+        , orb{raytrace::point(0, 0, 12), 2.0} {
         pyramid.material(&mediums::metals::stainless);
         orb.material(&mediums::metals::stainless);
         floor.material(&mediums::metals::stainless);

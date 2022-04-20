@@ -1,7 +1,7 @@
 /**
  * @file
  * This is an auto-generated source for iso::amperes.
- *
+ * A measure of current in electricity
  * @note See README on re-generation.
  * @copyright Copyright 2022.
  */
@@ -10,19 +10,19 @@
 namespace iso {
 const char* const suffix_type_A::suffix;
 // default
-amperes::amperes() : measurement() {
+amperes::amperes() : measurement{} {
 }
 // explicit value
-amperes::amperes(double a) : measurement(a) {
+amperes::amperes(double a) : measurement{a} {
 }
 // copy constructor
-amperes::amperes(const amperes& other) : measurement(other) {
+amperes::amperes(const amperes& other) : measurement{other} {
 }
 // move constructor
-amperes::amperes(amperes&& other) : measurement(std::move(other)) {
+amperes::amperes(amperes&& other) : measurement{std::move(other)} {
 }
 
-amperes& amperes::operator=(const amperes& other) noexcept {
+amperes& amperes::operator=(const amperes &other) noexcept {
     _value = other.value;
     return (*this);
 }
@@ -100,3 +100,4 @@ iso::amperes operator""_A(const char a[]) {
 }
 }  // namespace literals
 }  // namespace iso
+

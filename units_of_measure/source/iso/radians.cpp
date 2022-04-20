@@ -1,7 +1,7 @@
 /**
  * @file
  * This is an auto-generated source for iso::radians.
- *
+ * A measure of an angle
  * @note See README on re-generation.
  * @copyright Copyright 2022.
  */
@@ -10,19 +10,19 @@
 namespace iso {
 const char* const suffix_type_rad::suffix;
 // default
-radians::radians() : measurement() {
+radians::radians() : measurement{} {
 }
 // explicit value
-radians::radians(double a) : measurement(a) {
+radians::radians(double a) : measurement{a} {
 }
 // copy constructor
-radians::radians(const radians& other) : measurement(other) {
+radians::radians(const radians& other) : measurement{other} {
 }
 // move constructor
-radians::radians(radians&& other) : measurement(std::move(other)) {
+radians::radians(radians&& other) : measurement{std::move(other)} {
 }
 
-radians& radians::operator=(const radians& other) noexcept {
+radians& radians::operator=(const radians &other) noexcept {
     _value = other.value;
     return (*this);
 }
@@ -100,3 +100,4 @@ iso::radians operator""_rad(const char a[]) {
 }
 }  // namespace literals
 }  // namespace iso
+

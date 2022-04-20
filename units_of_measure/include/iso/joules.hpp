@@ -1,13 +1,13 @@
 /**
  * @file
  * This is an auto-generated header for iso::joules.
- *
+ * A measure of energy
  * @note See README on re-generation.
  * @copyright Copyright 2022.
  */
 #pragma once
-#include <cstddef>
 #include <cstdint>
+#include <cstddef>
 
 #include "iso/measurement.hpp"
 
@@ -16,7 +16,7 @@ namespace iso {
 
 /** A structure used to hold the postfix for joules */
 struct suffix_type_J {
-    constexpr static const char* suffix = "J";
+    constexpr static const char *suffix = "J";
 };
 
 /**
@@ -72,25 +72,25 @@ public:
 };
 
 namespace operators {
-/** Addition operator */
-joules operator+(const joules& A, const joules& B);
-/** Subtraction operator */
-joules operator-(const joules& A, const joules& B);
-/** Left Scaling Operator */
-joules operator*(const joules& A, double factor);
-/** Right Scaling Operator */
-joules operator*(double factor, const joules& A);
-/** Inverse Scaling Operator */
-joules operator/(const joules& A, double factor);
-}  // namespace operators
+    /** Addition operator */
+    joules operator+(const joules& A, const joules& B);
+    /** Subtraction operator */
+    joules operator-(const joules& A, const joules& B);
+    /** Left Scaling Operator */
+    joules operator*(const joules& A, double factor);
+    /** Right Scaling Operator */
+    joules operator*(double factor, const joules& A);
+    /** Inverse Scaling Operator */
+    joules operator/(const joules& A, double factor);
+}
 
 namespace literals {
-/** Literal Double, Quote Operator */
-joules operator""_J(long double value);
-/** Literal Int, Quote Operator */
-joules operator""_J(unsigned long long value);
-/** Literal String, Quote Operator */
-iso::joules operator""_J(const char a[]);
-}  // namespace literals
+    /** Literal Double, Quote Operator */
+    joules operator""_J(long double value);
+    /** Literal Int, Quote Operator */
+    joules operator""_J(unsigned long long value);
+    /** Literal String, Quote Operator */
+    iso::joules operator""_J(const char a[]);
+}
 
-}  // namespace iso
+}

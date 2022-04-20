@@ -1,13 +1,13 @@
 /**
  * @file
  * This is an auto-generated header for iso::ohms.
- *
+ * A measure of resistance to current
  * @note See README on re-generation.
  * @copyright Copyright 2022.
  */
 #pragma once
-#include <cstddef>
 #include <cstdint>
+#include <cstddef>
 
 #include "iso/measurement.hpp"
 
@@ -16,7 +16,7 @@ namespace iso {
 
 /** A structure used to hold the postfix for ohms */
 struct suffix_type_Ohm {
-    constexpr static const char* suffix = "Ohm";
+    constexpr static const char *suffix = "Ohm";
 };
 
 /**
@@ -72,25 +72,25 @@ public:
 };
 
 namespace operators {
-/** Addition operator */
-ohms operator+(const ohms& A, const ohms& B);
-/** Subtraction operator */
-ohms operator-(const ohms& A, const ohms& B);
-/** Left Scaling Operator */
-ohms operator*(const ohms& A, double factor);
-/** Right Scaling Operator */
-ohms operator*(double factor, const ohms& A);
-/** Inverse Scaling Operator */
-ohms operator/(const ohms& A, double factor);
-}  // namespace operators
+    /** Addition operator */
+    ohms operator+(const ohms& A, const ohms& B);
+    /** Subtraction operator */
+    ohms operator-(const ohms& A, const ohms& B);
+    /** Left Scaling Operator */
+    ohms operator*(const ohms& A, double factor);
+    /** Right Scaling Operator */
+    ohms operator*(double factor, const ohms& A);
+    /** Inverse Scaling Operator */
+    ohms operator/(const ohms& A, double factor);
+}
 
 namespace literals {
-/** Literal Double, Quote Operator */
-ohms operator""_Ohm(long double value);
-/** Literal Int, Quote Operator */
-ohms operator""_Ohm(unsigned long long value);
-/** Literal String, Quote Operator */
-iso::ohms operator""_Ohm(const char a[]);
-}  // namespace literals
+    /** Literal Double, Quote Operator */
+    ohms operator""_Ohm(long double value);
+    /** Literal Int, Quote Operator */
+    ohms operator""_Ohm(unsigned long long value);
+    /** Literal String, Quote Operator */
+    iso::ohms operator""_Ohm(const char a[]);
+}
 
-}  // namespace iso
+}

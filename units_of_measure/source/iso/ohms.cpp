@@ -1,7 +1,7 @@
 /**
  * @file
  * This is an auto-generated source for iso::ohms.
- *
+ * A measure of resistance to current
  * @note See README on re-generation.
  * @copyright Copyright 2022.
  */
@@ -10,19 +10,19 @@
 namespace iso {
 const char* const suffix_type_Ohm::suffix;
 // default
-ohms::ohms() : measurement() {
+ohms::ohms() : measurement{} {
 }
 // explicit value
-ohms::ohms(double a) : measurement(a) {
+ohms::ohms(double a) : measurement{a} {
 }
 // copy constructor
-ohms::ohms(const ohms& other) : measurement(other) {
+ohms::ohms(const ohms& other) : measurement{other} {
 }
 // move constructor
-ohms::ohms(ohms&& other) : measurement(std::move(other)) {
+ohms::ohms(ohms&& other) : measurement{std::move(other)} {
 }
 
-ohms& ohms::operator=(const ohms& other) noexcept {
+ohms& ohms::operator=(const ohms &other) noexcept {
     _value = other.value;
     return (*this);
 }
@@ -100,3 +100,4 @@ iso::ohms operator""_Ohm(const char a[]) {
 }
 }  // namespace literals
 }  // namespace iso
+

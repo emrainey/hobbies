@@ -12,16 +12,16 @@ constexpr static bool debug = false;
 namespace raytrace {
 
 camera::camera(size_t image_height, size_t image_width, iso::degrees field_of_view)
-    : entity()
-    , capture(image_height, image_width)
-    , mask(image_height, image_width)
-    , m_intrinsics(matrix::identity(raytrace::dimensions, raytrace::dimensions))
-    , m_pixel_scale(1.0)  // will be computed in a second
-    , m_field_of_view(field_of_view)
-    , m_world_look_at(1.0, 0.0, 0.0)
-    , m_world_look(m_world_look_at - m_world_position)  // position starts at 0,0,0
-    , m_world_up(R3::basis::Z)
-    , m_world_left(R3::basis::Y) {
+    : entity{}
+    , capture{image_height, image_width}
+    , mask{image_height, image_width}
+    , m_intrinsics{matrix::identity(raytrace::dimensions, raytrace::dimensions)}
+    , m_pixel_scale{1.0}  // will be computed in a second
+    , m_field_of_view{field_of_view}
+    , m_world_look_at{1.0, 0.0, 0.0}
+    , m_world_look{m_world_look_at - m_world_position}  // position starts at 0,0,0
+    , m_world_up{R3::basis::Z}
+    , m_world_left{R3::basis::Y} {
     // compute f so that pixel_scale will remain 1 at first.
     iso::radians rfov;
     iso::convert(rfov, m_field_of_view);

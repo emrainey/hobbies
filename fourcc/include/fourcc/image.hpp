@@ -24,7 +24,7 @@ static_assert(0x30303859 == four_character_code('Y', '8', '0', '0'), "Must be li
 /** Defines the RGB8 (24 bit) type of red, then green, then blue */
 struct alignas(uint8_t) rgb8 {
     /** Constructor */
-    constexpr rgb8() : r(0), g(0), b(0) {
+    constexpr rgb8() : r{0}, g{0}, b{0} {
     }
     uint8_t r;  //!< Red Component
     uint8_t g;  //!< Green Component
@@ -34,7 +34,7 @@ struct alignas(uint8_t) rgb8 {
 /** Defines the BGR8 (24 bit) type of blue, then green, then red */
 struct alignas(uint8_t) bgr8 {
     /** Constructor */
-    constexpr bgr8() : b(0), g(0), r(0) {
+    constexpr bgr8() : b{0}, g{0}, r{0} {
     }
     uint8_t b;  //!< Blue Component
     uint8_t g;  //!< Green Component
@@ -44,7 +44,7 @@ struct alignas(uint8_t) bgr8 {
 /** Defines the RGBA (32 bit) type of red, then green, then blue, then alpha */
 struct alignas(uint32_t) rgba {
     /** Constructor */
-    constexpr rgba() : r(0), g(0), b(0), a(0) {
+    constexpr rgba() : r{0}, g{0}, b{0}, a{0} {
     }
     uint8_t r;  //!< Red Component
     uint8_t g;  //!< Green Component
@@ -55,7 +55,7 @@ struct alignas(uint32_t) rgba {
 /** Defines the ABGR (32 bit) type of alpha, then blue, then green, then red */
 struct alignas(uint32_t) abgr {
     /** Constructor */
-    constexpr abgr() : a(0), b(0), g(0), r(0) {
+    constexpr abgr() : a{0}, b{0}, g{0}, r{0} {
     }
     uint8_t a;  //!< Alpha Component
     uint8_t b;  //!< Blue Component
@@ -66,7 +66,7 @@ struct alignas(uint32_t) abgr {
 /** Defines the 4:4:4 (non subsampled) single plane interleaved YUV format */
 struct alignas(uint8_t) iyu2 {
     /** Constructor */
-    constexpr iyu2() : u(0), y(0), v(0) {
+    constexpr iyu2() : u{0}, y{0}, v{0} {
     }
     uint8_t u;
     uint8_t y;
@@ -201,17 +201,17 @@ public:
     const pixel_format format;
 
     /// Default Constructor
-    image() : depth(1), width(0), height(0), planes(1), format(PIXEL_FORMAT), data() {
+    image() : depth{1}, width{0}, height{0}, planes{1}, format{PIXEL_FORMAT}, data{} {
     }
 
     /// Sized and typed constructor
     image(size_t h, size_t w)
-        : depth(depth_in_format(PIXEL_FORMAT))
-        , width(w)
-        , height(h)
-        , planes(planes_in_format(PIXEL_FORMAT))
-        , format(PIXEL_FORMAT)
-        , data(planes) {
+        : depth{depth_in_format(PIXEL_FORMAT)}
+        , width{w}
+        , height{h}
+        , planes{planes_in_format(PIXEL_FORMAT)}
+        , format{PIXEL_FORMAT}
+        , data{planes} {
         for (auto& plane : data) {
             // each unit is a PIXEL_TYPE
             plane.resize(width * height);
@@ -220,18 +220,19 @@ public:
 
     /// Copy constructor
     image(const image& other)
-        : depth(depth_in_format(PIXEL_FORMAT))
-        , width(other.width)
-        , height(other.height)
-        , planes(planes_in_format(PIXEL_FORMAT))
-        , format(PIXEL_FORMAT)
-        , data(planes) {
+        : depth{depth_in_format(PIXEL_FORMAT)}
+        , width{other.width}
+        , height{other.height}
+        , planes{planes_in_format(PIXEL_FORMAT)}
+        , format{PIXEL_FORMAT}
+        , data{planes} {
         for (auto& plane : data) {
             // each unit is a PIXEL_TYPE
             plane.resize(width * height);
         }
         // copy
-        for_each([&](size_t y, size_t x, PIXEL_TYPE& pixel) { pixel = other.at(y, x); });
+        for_each ([&](size_t y, size_t x, PIXEL_TYPE& pixel) { pixel = other.at(y, x); })
+            ;
     }
 
     /// Move constructor
@@ -257,7 +258,7 @@ public:
     using const_ref_pixel = std::function<void(const PIXEL_TYPE& pixel)>;
 
     /** Iterates over each pixel giving a mutable reference to the iterator */
-    image& for_each(coord_ref_pixel iter) {
+    image& for_each (coord_ref_pixel iter) {
         for (size_t p = 0; p < planes; p++) {
             // each plane in it's own buffer
             for (size_t y = 0; y < height; y++) {
@@ -271,7 +272,7 @@ public:
     }
 
     /** Iterates over each pixel giving a mutable reference to the iterator */
-    image& for_each(ref_pixel iter) {
+    image& for_each (ref_pixel iter) {
         for (size_t p = 0; p < planes; p++) {
             // each plane in it's own buffer
             for (size_t y = 0; y < height; y++) {
@@ -285,7 +286,7 @@ public:
     }
 
     /** Iterates over each pixel giving a const reference to the iterator */
-    void for_each(coord_const_ref_pixel iter) const {
+    void for_each (coord_const_ref_pixel iter) const {
         for (size_t p = 0; p < planes; p++) {
             // each plane in it's own buffer
             for (size_t y = 0; y < height; y++) {
@@ -298,7 +299,7 @@ public:
     }
 
     /** Iterates over each pixel giving a const reference to the iterator */
-    void for_each(const_ref_pixel iter) const {
+    void for_each (const_ref_pixel iter) const {
         for (size_t p = 0; p < planes; p++) {
             // each plane in it's own buffer
             for (size_t y = 0; y < height; y++) {

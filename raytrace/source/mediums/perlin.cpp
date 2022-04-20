@@ -5,7 +5,7 @@ namespace raytrace {
 namespace mediums {
 
 perlin::perlin(element_type seed, element_type scale, element_type gain, color dark, color light)
-    : opaque(), m_dark(dark), m_light(light), m_seed(), m_gain(gain), m_scale(scale) {
+    : opaque{}, m_dark{dark}, m_light{light}, m_seed{}, m_gain{gain}, m_scale{scale} {
     m_ambient = colors::white;
     m_ambient_scale = mediums::ambient::none;
     m_smoothness = mediums::smoothness::small;  // moderate polish

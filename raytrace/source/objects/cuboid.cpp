@@ -8,11 +8,11 @@ const vector cuboid::m_normals[6] = {
 };
 
 cuboid::cuboid(const point& center, element_type xhw, element_type yhw, element_type zhw)
-    : object(center, 2, true)  // max 2 collisions, closed surface
-    , x_half_width(m_half_widths[0])
-    , y_half_width(m_half_widths[1])
-    , z_half_width(m_half_widths[2])
-    , m_half_widths() {
+    : object{center, 2, true}  // max 2 collisions, closed surface
+    , x_half_width{m_half_widths[0]}
+    , y_half_width{m_half_widths[1]}
+    , z_half_width{m_half_widths[2]}
+    , m_half_widths{} {
     m_half_widths[0] = xhw;
     m_half_widths[1] = yhw;
     m_half_widths[2] = zhw;
@@ -28,11 +28,11 @@ cuboid::cuboid(const point& center, element_type xhw, element_type yhw, element_
 }
 
 cuboid::cuboid(point&& center, element_type xhw, element_type yhw, element_type zhw)
-    : object(std::move(center), 2, true)  // 2 collisions, closed surface
-    , x_half_width(m_half_widths[0])
-    , y_half_width(m_half_widths[1])
-    , z_half_width(m_half_widths[2])
-    , m_half_widths() {
+    : object{std::move(center), 2, true}  // 2 collisions, closed surface
+    , x_half_width{m_half_widths[0]}
+    , y_half_width{m_half_widths[1]}
+    , z_half_width{m_half_widths[2]}
+    , m_half_widths{} {
     m_half_widths[0] = xhw;
     m_half_widths[1] = yhw;
     m_half_widths[2] = zhw;

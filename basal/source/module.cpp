@@ -9,7 +9,7 @@
 
 namespace basal {
 
-module::module(const char name[]) : handle(nullptr) {
+module::module(const char name[]) : handle{nullptr} {
     static const char* const formats[]
         = { "%s",
 #if defined(__APPLE__)

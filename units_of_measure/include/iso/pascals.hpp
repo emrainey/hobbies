@@ -1,13 +1,13 @@
 /**
  * @file
  * This is an auto-generated header for iso::pascals.
- *
+ * A measure of pressure
  * @note See README on re-generation.
  * @copyright Copyright 2022.
  */
 #pragma once
-#include <cstddef>
 #include <cstdint>
+#include <cstddef>
 
 #include "iso/measurement.hpp"
 
@@ -16,7 +16,7 @@ namespace iso {
 
 /** A structure used to hold the postfix for pascals */
 struct suffix_type_Pa {
-    constexpr static const char* suffix = "Pa";
+    constexpr static const char *suffix = "Pa";
 };
 
 /**
@@ -72,25 +72,25 @@ public:
 };
 
 namespace operators {
-/** Addition operator */
-pascals operator+(const pascals& A, const pascals& B);
-/** Subtraction operator */
-pascals operator-(const pascals& A, const pascals& B);
-/** Left Scaling Operator */
-pascals operator*(const pascals& A, double factor);
-/** Right Scaling Operator */
-pascals operator*(double factor, const pascals& A);
-/** Inverse Scaling Operator */
-pascals operator/(const pascals& A, double factor);
-}  // namespace operators
+    /** Addition operator */
+    pascals operator+(const pascals& A, const pascals& B);
+    /** Subtraction operator */
+    pascals operator-(const pascals& A, const pascals& B);
+    /** Left Scaling Operator */
+    pascals operator*(const pascals& A, double factor);
+    /** Right Scaling Operator */
+    pascals operator*(double factor, const pascals& A);
+    /** Inverse Scaling Operator */
+    pascals operator/(const pascals& A, double factor);
+}
 
 namespace literals {
-/** Literal Double, Quote Operator */
-pascals operator""_Pa(long double value);
-/** Literal Int, Quote Operator */
-pascals operator""_Pa(unsigned long long value);
-/** Literal String, Quote Operator */
-iso::pascals operator""_Pa(const char a[]);
-}  // namespace literals
+    /** Literal Double, Quote Operator */
+    pascals operator""_Pa(long double value);
+    /** Literal Int, Quote Operator */
+    pascals operator""_Pa(unsigned long long value);
+    /** Literal String, Quote Operator */
+    iso::pascals operator""_Pa(const char a[]);
+}
 
-}  // namespace iso
+}

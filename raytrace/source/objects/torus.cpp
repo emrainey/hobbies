@@ -10,9 +10,9 @@ using namespace geometry;
 using namespace geometry::operators;
 
 torus::torus(const point& C, element_type ring_radius, element_type tube_radius)
-    : object(C, 4, true)  // up to 4 collisions, closed surface
-    , m_ring_radius(ring_radius)
-    , m_tube_radius(tube_radius) {
+    : object{C, 4, true}  // up to 4 collisions, closed surface
+    , m_ring_radius{ring_radius}
+    , m_tube_radius{tube_radius} {
     basal::exception::throw_if(tube_radius > ring_radius, __FILE__, __LINE__,
                                "Self-intersecting torus, tube must be smaller than ring radius");
 }

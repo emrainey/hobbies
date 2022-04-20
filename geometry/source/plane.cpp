@@ -57,7 +57,7 @@ plane::plane(element_type a, element_type b, element_type c, element_type d)
 }
 
 plane::plane(const R3::point &a, const R3::point &b, const R3::point &c)
-    : m_normal(), m_center_point(b), normal(m_normal) {
+    : m_normal{}, m_center_point{b}, normal{m_normal} {
     // we have to declare the vector as a 3 element object (above) so that the move assignment works.
     R3::vector ba = b - a;
     R3::vector ca = c - a;
@@ -73,19 +73,19 @@ plane::plane(const R3::point &a, const R3::point &b, const R3::point &c)
 }
 
 plane::plane(const plane &other)
-    : m_normal(other.m_normal)
-    , m_center_point(other.m_center_point)
-    , eq(other.eq)
-    , m_magnitude(other.m_magnitude)
-    , normal(m_normal) {
+    : m_normal{other.m_normal}
+    , m_center_point{other.m_center_point}
+    , eq{other.eq}
+    , m_magnitude{other.m_magnitude}
+    , normal{m_normal} {
 }
 
 plane::plane(plane &&other)
-    : m_normal(std::move(other.m_normal))
-    , m_center_point(std::move(other.m_center_point))
-    , eq(std::move(other.eq))
-    , m_magnitude(other.m_magnitude)
-    , normal(m_normal) {
+    : m_normal{std::move(other.m_normal)}
+    , m_center_point{std::move(other.m_center_point)}
+    , eq{std::move(other.eq)}
+    , m_magnitude{other.m_magnitude}
+    , normal{m_normal} {
 }
 
 plane &plane::operator=(const plane &other) {

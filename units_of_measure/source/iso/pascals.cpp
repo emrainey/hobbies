@@ -1,7 +1,7 @@
 /**
  * @file
  * This is an auto-generated source for iso::pascals.
- *
+ * A measure of pressure
  * @note See README on re-generation.
  * @copyright Copyright 2022.
  */
@@ -10,19 +10,19 @@
 namespace iso {
 const char* const suffix_type_Pa::suffix;
 // default
-pascals::pascals() : measurement() {
+pascals::pascals() : measurement{} {
 }
 // explicit value
-pascals::pascals(double a) : measurement(a) {
+pascals::pascals(double a) : measurement{a} {
 }
 // copy constructor
-pascals::pascals(const pascals& other) : measurement(other) {
+pascals::pascals(const pascals& other) : measurement{other} {
 }
 // move constructor
-pascals::pascals(pascals&& other) : measurement(std::move(other)) {
+pascals::pascals(pascals&& other) : measurement{std::move(other)} {
 }
 
-pascals& pascals::operator=(const pascals& other) noexcept {
+pascals& pascals::operator=(const pascals &other) noexcept {
     _value = other.value;
     return (*this);
 }
@@ -100,3 +100,4 @@ iso::pascals operator""_Pa(const char a[]) {
 }
 }  // namespace literals
 }  // namespace iso
+

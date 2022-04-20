@@ -31,23 +31,23 @@ public:
 class LensWorld : public world {
 public:
     LensWorld()
-        : world()
-        , look_from(30, 0, 22)
-        , look_at(0, 0, 0)
-        , grid(1.0, colors::dark_olive_green, colors::yellow)
-        , glass(mediums::refractive_index::glass, 0.22, colors::dark_gray)
-        , info(10.0, iso::radians(iso::pi / 4))
-        , x0(raytrace::point(info.separation, 0, 5), info.radius)
-        , x1(raytrace::point(-info.separation, 0, 5), info.radius)
-        , convex_lens(x0, x1, objects::overlap::type::inclusive)
-        , pyramid_center(10, 10, 10.1)
-        , pyramid_core(pyramid_center, 10.1)
-        , pyramid_bounds(pyramid_center, 5, 5, 10)
-        , pyramid_overlap(pyramid_core, pyramid_bounds, objects::overlap::type::inclusive)
-        , glass_donut(raytrace::point(10, -10, 3.5), 5.0, 2.5)
-        , ground(R3::origin, R3::basis::Z, 1000, 1000)
-        , sunlight(raytrace::vector{-2, 2, -1}, colors::white, 1E11)
-        , prick(raytrace::point(0, 0, 12), colors::dim_grey, 1E3) {
+        : world{}
+        , look_from{30, 0, 22}
+        , look_at{0, 0, 0}
+        , grid{1.0, colors::dark_olive_green, colors::yellow}
+        , glass{mediums::refractive_index::glass, 0.22, colors::dark_gray}
+        , info{10.0, iso::radians(iso::pi / 4)}
+        , x0{raytrace::point(info.separation, 0, 5), info.radius}
+        , x1{raytrace::point(-info.separation, 0, 5), info.radius}
+        , convex_lens{x0, x1, objects::overlap::type::inclusive}
+        , pyramid_center{10, 10, 10.1}
+        , pyramid_core{pyramid_center, 10.1}
+        , pyramid_bounds{pyramid_center, 5, 5, 10}
+        , pyramid_overlap{pyramid_core, pyramid_bounds, objects::overlap::type::inclusive}
+        , glass_donut{raytrace::point(10, -10, 3.5), 5.0, 2.5}
+        , ground{R3::origin, R3::basis::Z, 1000, 1000}
+        , sunlight{raytrace::vector{-2, 2, -1}, colors::white, 1E11}
+        , prick{raytrace::point(0, 0, 12), colors::dim_grey, 1E3} {
         // reduce the volumetric point to a planar point
         grid.mapper(std::bind(&raytrace::objects::square::map, &ground, std::placeholders::_1));
         look_at = raytrace::point(0, 0, info.radius);

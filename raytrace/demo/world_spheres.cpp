@@ -34,14 +34,13 @@ void subspheres(std::vector<raytrace::objects::sphere*>& spheres, const raytrace
 class SpheresWorld : public world {
 public:
     SpheresWorld()
-        : world()
-        //, look_from(-50, 50, 20)
-        //, look_at(0, 0, 0)
-        , look_from(-10, 6.66, 20)
-        , look_at(3, 0, 6)
-        , spheres()
-        , sunlight(raytrace::vector{-2, 2, -1}, colors::white, 1E11)
-        , specks() {
+        : world{}  //, look_from(-50, 50, 20)
+                   //, look_at(0, 0, 0)
+        , look_from{-10, 6.66, 20}
+        , look_at{3, 0, 6}
+        , spheres{}
+        , sunlight{raytrace::vector{-2, 2, -1}, colors::white, 1E11}
+        , specks{} {
         raytrace::point center = look_at;
         spheres.push_back(new raytrace::objects::sphere(center, 6));
         subspheres(spheres, center, 12.0, 2);

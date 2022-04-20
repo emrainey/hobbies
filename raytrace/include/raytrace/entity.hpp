@@ -16,12 +16,12 @@ template <size_t DIMS>
 class entity_ {
 public:
     entity_()
-        : m_world_position()
-        , m_rotation(matrix::identity(DIMS, DIMS))
-        , m_inv_rotation(matrix::identity(DIMS, DIMS))
+        : m_world_position{}
+        , m_rotation{matrix::identity(DIMS, DIMS)}
+        , m_inv_rotation{matrix::identity(DIMS, DIMS)}
         , m_scaling{{1.0, 1.0, 1.0}}
-        , m_transform(matrix::identity(DIMS + 1, DIMS + 1))
-        , m_inv_transform(matrix::identity(DIMS + 1, DIMS + 1)) {
+        , m_transform{matrix::identity(DIMS + 1, DIMS + 1)}
+        , m_inv_transform{matrix::identity(DIMS + 1, DIMS + 1)} {
     }
 
     entity_(const point& position) : entity_() {

@@ -28,16 +28,16 @@ public:
 
     object_(const point& center, size_t collisions, bool closed = false)
         : entity_<DIMS>(center)
-        , m_max_collisions(collisions)
-        , m_closed_surface(collisions > 1 ? closed : false)
-        , m_medium(&mediums::dull) {
+        , m_max_collisions{collisions}
+        , m_closed_surface{collisions > 1 ? closed : false}
+        , m_medium{&mediums::dull} {
     }
 
     object_(point&& center, size_t collisions, bool closed = false)
         : entity_<DIMS>(std::move(center))
-        , m_max_collisions(collisions)
-        , m_closed_surface(collisions > 1 ? closed : false)
-        , m_medium(&mediums::dull) {
+        , m_max_collisions{collisions}
+        , m_closed_surface{collisions > 1 ? closed : false}
+        , m_medium{&mediums::dull} {
     }
 
     // Removing copy constructor stops us from using std::vectors or other STL objects

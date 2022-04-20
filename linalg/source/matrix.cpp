@@ -48,12 +48,12 @@ matrix::matrix(size_t r, size_t c) : matrix(r, c, true) {
 }
 
 matrix::matrix(size_t r, size_t c, bool allocate)
-    : rows(r)
-    , cols(c)
-    , bytes(static_cast<size_t>(rows * cols) * sizeof(element_type))
-    , external_memory(false)
-    , memory(nullptr)
-    , array(nullptr) {
+    : rows{r}
+    , cols{c}
+    , bytes{static_cast<size_t>(rows * cols) * sizeof(element_type)}
+    , external_memory{false}
+    , memory{nullptr}
+    , array{nullptr} {
     basal::exception::throw_unless(rows > 0, g_filename, __LINE__);
     basal::exception::throw_unless(cols > 0, g_filename, __LINE__);
     if (allocate && create(rows, cols, bytes)) {
@@ -67,12 +67,12 @@ matrix::matrix(size_t r, size_t c, bool allocate)
 }
 
 matrix::matrix(size_t rs, size_t cs, element_type mat[])
-    : rows(rs)
-    , cols(cs)
-    , bytes(static_cast<size_t>(rows * cols) * sizeof(element_type))
-    , external_memory(true)
-    , memory(mat)
-    , array(nullptr) {
+    : rows{rs}
+    , cols{cs}
+    , bytes{static_cast<size_t>(rows * cols) * sizeof(element_type)}
+    , external_memory{true}
+    , memory{mat}
+    , array{nullptr} {
     basal::exception::throw_unless(rows > 0, g_filename, __LINE__);
     basal::exception::throw_unless(cols > 0, g_filename, __LINE__);
     basal::exception::throw_unless(memory != nullptr, g_filename, __LINE__);
@@ -85,12 +85,12 @@ matrix::matrix(size_t rs, size_t cs, element_type mat[])
 }
 
 matrix::matrix(const std::vector<std::vector<element_type>>& a)
-    : rows(static_cast<int>(a.size()))
-    , cols(static_cast<int>(a[0].size()))
-    , bytes(static_cast<size_t>(rows * cols) * sizeof(element_type))
-    , external_memory(false)
-    , memory(nullptr)
-    , array(nullptr) {
+    : rows{a.size()}
+    , cols{a[0].size()}
+    , bytes{static_cast<size_t>(rows * cols) * sizeof(element_type)}
+    , external_memory{false}
+    , memory{nullptr}
+    , array{nullptr} {
     if (create(rows, cols, bytes)) {
         for (size_t i = 0; array && i < rows; i++) {
             array[i] = &memory[i * cols];
@@ -105,7 +105,7 @@ matrix::matrix(const std::vector<std::vector<element_type>>& a)
 
 // copy constructor, shallow copy
 matrix::matrix(const matrix& other) noexcept(false)
-    : rows(other.rows), cols(other.cols), bytes(other.bytes), external_memory(false), memory(nullptr), array(nullptr) {
+    : rows{other.rows}, cols{other.cols}, bytes{other.bytes}, external_memory{false}, memory{nullptr}, array{nullptr} {
     if (create(rows, cols, bytes)) {
         memcpy(memory, other.memory, bytes);
         // copy row order
@@ -122,12 +122,12 @@ matrix::matrix(const matrix& other) noexcept(false)
 
 // move constructor, deep copy (transfer of ownership), no chaining constructor
 matrix::matrix(matrix&& other) noexcept(false)
-    : rows(other.rows)
-    , cols(other.cols)
-    , bytes(other.bytes)
-    , external_memory(other.external_memory)
-    , memory(nullptr)
-    , array(nullptr) {
+    : rows{other.rows}
+    , cols{other.cols}
+    , bytes{other.bytes}
+    , external_memory{other.external_memory}
+    , memory{nullptr}
+    , array{nullptr} {
     basal::exception::throw_unless(this->rows == other.rows, g_filename, __LINE__, "Must be equal rows");
     basal::exception::throw_unless(this->cols == other.cols, g_filename, __LINE__, "Must be equal cols");
     memory = other.memory;

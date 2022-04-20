@@ -1,7 +1,7 @@
 /**
  * @file
  * This is an auto-generated source for iso::degrees.
- *
+ * A measure of an angle
  * @note See README on re-generation.
  * @copyright Copyright 2022.
  */
@@ -10,19 +10,19 @@
 namespace iso {
 const char* const suffix_type_d::suffix;
 // default
-degrees::degrees() : measurement() {
+degrees::degrees() : measurement{} {
 }
 // explicit value
-degrees::degrees(double a) : measurement(a) {
+degrees::degrees(double a) : measurement{a} {
 }
 // copy constructor
-degrees::degrees(const degrees& other) : measurement(other) {
+degrees::degrees(const degrees& other) : measurement{other} {
 }
 // move constructor
-degrees::degrees(degrees&& other) : measurement(std::move(other)) {
+degrees::degrees(degrees&& other) : measurement{std::move(other)} {
 }
 
-degrees& degrees::operator=(const degrees& other) noexcept {
+degrees& degrees::operator=(const degrees &other) noexcept {
     _value = other.value;
     return (*this);
 }
@@ -100,3 +100,4 @@ iso::degrees operator""_d(const char a[]) {
 }
 }  // namespace literals
 }  // namespace iso
+

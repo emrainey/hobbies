@@ -1,7 +1,7 @@
 /**
  * @file
  * This is an auto-generated source for iso::watts.
- *
+ * A measure of electrical power
  * @note See README on re-generation.
  * @copyright Copyright 2022.
  */
@@ -10,19 +10,19 @@
 namespace iso {
 const char* const suffix_type_W::suffix;
 // default
-watts::watts() : measurement() {
+watts::watts() : measurement{} {
 }
 // explicit value
-watts::watts(double a) : measurement(a) {
+watts::watts(double a) : measurement{a} {
 }
 // copy constructor
-watts::watts(const watts& other) : measurement(other) {
+watts::watts(const watts& other) : measurement{other} {
 }
 // move constructor
-watts::watts(watts&& other) : measurement(std::move(other)) {
+watts::watts(watts&& other) : measurement{std::move(other)} {
 }
 
-watts& watts::operator=(const watts& other) noexcept {
+watts& watts::operator=(const watts &other) noexcept {
     _value = other.value;
     return (*this);
 }
@@ -100,3 +100,4 @@ iso::watts operator""_W(const char a[]) {
 }
 }  // namespace literals
 }  // namespace iso
+

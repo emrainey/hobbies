@@ -5,7 +5,7 @@ namespace raytrace {
 namespace mediums {
 
 turbsin::turbsin(element_type xs, element_type ys, element_type power, element_type size, color dark, color light)
-    : opaque(), m_pad(), m_dark(dark), m_light(light), m_xs(xs), m_ys(ys), m_power(power), m_size(size) {
+    : opaque{}, m_pad{}, m_dark{dark}, m_light{light}, m_xs{xs}, m_ys{ys}, m_power{power}, m_size{size} {
     m_ambient = colors::white;
     m_ambient_scale = mediums::ambient::none;
     m_smoothness = mediums::smoothness::small;  // moderate polish

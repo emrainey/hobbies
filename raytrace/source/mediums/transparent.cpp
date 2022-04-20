@@ -7,7 +7,7 @@ namespace raytrace {
 namespace mediums {
 
 transparent::transparent(element_type eta, element_type fade, const color& diffuse)
-    : dielectric(), m_fade(basal::clamp(0.0, fade, 1.0)) {
+    : dielectric{}, m_fade{basal::clamp(0.0, fade, 1.0)} {
     m_diffuse = diffuse;
     m_smoothness = mediums::smoothness::mirror;  // no "surface colors"
     m_refractive_index = eta;

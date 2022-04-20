@@ -1,7 +1,7 @@
 /**
  * @file
  * This is an auto-generated source for iso::turns.
- *
+ * A measure of an angle
  * @note See README on re-generation.
  * @copyright Copyright 2022.
  */
@@ -10,19 +10,19 @@
 namespace iso {
 const char* const suffix_type_Tau::suffix;
 // default
-turns::turns() : measurement() {
+turns::turns() : measurement{} {
 }
 // explicit value
-turns::turns(double a) : measurement(a) {
+turns::turns(double a) : measurement{a} {
 }
 // copy constructor
-turns::turns(const turns& other) : measurement(other) {
+turns::turns(const turns& other) : measurement{other} {
 }
 // move constructor
-turns::turns(turns&& other) : measurement(std::move(other)) {
+turns::turns(turns&& other) : measurement{std::move(other)} {
 }
 
-turns& turns::operator=(const turns& other) noexcept {
+turns& turns::operator=(const turns &other) noexcept {
     _value = other.value;
     return (*this);
 }
@@ -100,3 +100,4 @@ iso::turns operator""_Tau(const char a[]) {
 }
 }  // namespace literals
 }  // namespace iso
+

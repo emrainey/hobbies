@@ -1,7 +1,7 @@
 /**
  * @file
  * This is an auto-generated source for iso::hertz.
- *
+ * A measure of frequency
  * @note See README on re-generation.
  * @copyright Copyright 2022.
  */
@@ -10,19 +10,19 @@
 namespace iso {
 const char* const suffix_type_Hz::suffix;
 // default
-hertz::hertz() : measurement() {
+hertz::hertz() : measurement{} {
 }
 // explicit value
-hertz::hertz(double a) : measurement(a) {
+hertz::hertz(double a) : measurement{a} {
 }
 // copy constructor
-hertz::hertz(const hertz& other) : measurement(other) {
+hertz::hertz(const hertz& other) : measurement{other} {
 }
 // move constructor
-hertz::hertz(hertz&& other) : measurement(std::move(other)) {
+hertz::hertz(hertz&& other) : measurement{std::move(other)} {
 }
 
-hertz& hertz::operator=(const hertz& other) noexcept {
+hertz& hertz::operator=(const hertz &other) noexcept {
     _value = other.value;
     return (*this);
 }
@@ -100,3 +100,4 @@ iso::hertz operator""_Hz(const char a[]) {
 }
 }  // namespace literals
 }  // namespace iso
+

@@ -17,7 +17,7 @@ constexpr static bool debug = false;
 
 namespace basal {
 exception::exception(std::string desc, std::string loc, std::size_t line)
-    : std::exception(), description(desc), location(loc), line_number(line) {
+    : std::exception{}, description{desc}, location{loc}, line_number{line} {
 #if defined(__linux__) || defined(__APPLE__)
     if (support_backtrace) {
         size = backtrace(stack.data(), stack.size());

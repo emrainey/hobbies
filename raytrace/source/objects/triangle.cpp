@@ -11,7 +11,7 @@ using namespace geometry;
 using namespace geometry::operators;
 
 triangle::triangle(const R3::point& A, const R3::point& B, const R3::point& C)
-    : plane(centroid(A, B, C), R3::cross(A - B, C - B).normalized(), 1.0), m_points() {
+    : plane{centroid(A, B, C), R3::cross(A - B, C - B).normalized(), 1.0}, m_points{} {
     m_points[0] = A;
     m_points[1] = B;
     m_points[2] = C;

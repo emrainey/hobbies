@@ -17,7 +17,7 @@ layer::layer(const layer& other) : layer_type(m_type), values(other.values), bet
 }
 
 layer::layer(layer&& other)
-    : layer_type(m_type), values(std::move(other.values)), beta(std::move(other.beta)), m_type(other.m_type) {
+    : layer_type{m_type}, values{std::move(other.values)}, beta{std::move(other.beta)}, m_type{other.m_type} {
 }
 
 layer& layer::operator=(const layer& other) {

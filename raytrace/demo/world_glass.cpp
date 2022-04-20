@@ -15,21 +15,20 @@ using namespace raytrace;
 class GlassWorld : public world {
 public:
     GlassWorld()
-        : world()
-        , look_from(20, 20, 5)
-        , look_at(0, 0, 2.0)
-        , glass_ball(raytrace::point(0, 0, 5.0), 5.0)
-        //, glass_cube(raytrace::point(0, 10, 2), 2, 2, 2)
-        , toy_ball(raytrace::point(-20, -20, 2.0), 2.0)
-        , floor(R3::origin, R3::basis::Z, 100, 100)
-        , ikea_checkers(0.1, colors::blue, colors::yellow, colors::red, colors::magenta, colors::green, colors::cyan,
-                        colors::black, colors::white)
-        , schott_glass(mediums::refractive_index::glass, 0.04, colors::red)
-        , red_plastic(colors::white, mediums::ambient::dim, colors::red, mediums::smoothness::barely,
-                      mediums::roughness::tight)
-        , sunlight(raytrace::vector{-2, 2, -1}, colors::white, 1E11)
-        , backlight(raytrace::point(-10, -10, 12), colors::white, 1E3)
-        , frontlight(raytrace::point(10, 10, 12), colors::white, 1E3) {
+        : world{}
+        , look_from{20, 20, 5}
+        , look_at{0, 0, 2.0}
+        , glass_ball{raytrace::point(0, 0, 5.0), 5.0}  //, glass_cube(raytrace::point(0, 10, 2), 2, 2, 2)
+        , toy_ball{raytrace::point(-20, -20, 2.0), 2.0}
+        , floor{R3::origin, R3::basis::Z, 100, 100}
+        , ikea_checkers{0.1,           colors::blue, colors::yellow, colors::red,  colors::magenta,
+                        colors::green, colors::cyan, colors::black,  colors::white}
+        , schott_glass{mediums::refractive_index::glass, 0.04, colors::red}
+        , red_plastic{colors::white, mediums::ambient::dim, colors::red, mediums::smoothness::barely,
+                      mediums::roughness::tight}
+        , sunlight{raytrace::vector{-2, 2, -1}, colors::white, 1E11}
+        , backlight{raytrace::point(-10, -10, 12), colors::white, 1E3}
+        , frontlight{raytrace::point(10, 10, 12), colors::white, 1E3} {
         ikea_checkers.mapper(std::bind(&objects::square::map, &floor, std::placeholders::_1));
         floor.material(&ikea_checkers);
         glass_ball.material(&schott_glass);

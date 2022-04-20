@@ -1,7 +1,7 @@
 /**
  * @file
  * This is an auto-generated source for iso::joules.
- *
+ * A measure of energy
  * @note See README on re-generation.
  * @copyright Copyright 2022.
  */
@@ -10,19 +10,19 @@
 namespace iso {
 const char* const suffix_type_J::suffix;
 // default
-joules::joules() : measurement() {
+joules::joules() : measurement{} {
 }
 // explicit value
-joules::joules(double a) : measurement(a) {
+joules::joules(double a) : measurement{a} {
 }
 // copy constructor
-joules::joules(const joules& other) : measurement(other) {
+joules::joules(const joules& other) : measurement{other} {
 }
 // move constructor
-joules::joules(joules&& other) : measurement(std::move(other)) {
+joules::joules(joules&& other) : measurement{std::move(other)} {
 }
 
-joules& joules::operator=(const joules& other) noexcept {
+joules& joules::operator=(const joules &other) noexcept {
     _value = other.value;
     return (*this);
 }
@@ -100,3 +100,4 @@ iso::joules operator""_J(const char a[]) {
 }
 }  // namespace literals
 }  // namespace iso
+

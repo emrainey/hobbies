@@ -37,44 +37,44 @@ protected:
 public:
     /** Default Constructor */
     rate()
-        : _value(0)
-        , value(_value)
-        , _numerator(0.0)
-        , _denominator(1.0)
-        , numerator(_numerator)
-        , denominator(_denominator) {
+        : _value{0}
+        , value{_value}
+        , _numerator{0.0}
+        , _denominator{1.0}
+        , numerator{_numerator}
+        , denominator{_denominator} {
         snprintf(suffix, sizeof(suffix), "%s/%s", _numerator.get_suffix(), _denominator.get_suffix());
     }
 
     rate(const NumeratorType& num, const DenominatorType& denom)
-        : _value(0.0)
-        , value(_value)
-        , _numerator(num)
-        , _denominator(denom)
-        , numerator(_numerator)
-        , denominator(_denominator) {
+        : _value{0.0}
+        , value{_value}
+        , _numerator{num}
+        , _denominator{denom}
+        , numerator{_numerator}
+        , denominator{_denominator} {
         _value = reduce();
         snprintf(suffix, sizeof(suffix), "%s/%s", _numerator.get_suffix(), _denominator.get_suffix());
     }
 
     rate(double num, double denom)
-        : _value(0)
-        , value(_value)
-        , _numerator(num)
-        , _denominator(denom)
-        , numerator(_numerator)
-        , denominator(_denominator) {
+        : _value{0}
+        , value{_value}
+        , _numerator{num}
+        , _denominator{denom}
+        , numerator{_numerator}
+        , denominator{_denominator} {
         _value = reduce();
         snprintf(suffix, sizeof(suffix), "%s/%s", _numerator.get_suffix(), _denominator.get_suffix());
     }
 
     rate(const rate& other)
-        : _value(other.value)
-        , value(_value)
-        , _numerator(other.numerator)
-        , _denominator(other.denominator)
-        , numerator(_numerator)
-        , denominator(_denominator) {
+        : _value{other.value}
+        , value{_value}
+        , _numerator{other.numerator}
+        , _denominator{other.denominator}
+        , numerator{_numerator}
+        , denominator{_denominator} {
         std::strncpy(suffix, other.suffix, sizeof(suffix));
         suffix[sizeof(suffix) - 1] = '\0';
     }

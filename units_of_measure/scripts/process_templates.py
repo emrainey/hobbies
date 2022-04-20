@@ -55,6 +55,7 @@ def preprocess_json(json_file: str, outdir: str) -> int:
             output_filepath = os.path.join(
                 outdir, "source", unit["namespace"], f"{unit['classname']}.cpp"
             )
+            comment = unit["comment"] if "comment" in unit else ""
             preprocess_template(
                 namespace=unit["namespace"],
                 classname=unit["classname"],
@@ -62,6 +63,7 @@ def preprocess_json(json_file: str, outdir: str) -> int:
                 scale=unit["scalevalue"],
                 scaletype=unit["scaletype"],
                 postfix=unit["postfix"],
+                comment=comment,
                 input_filepath=json_data["source_template"],
                 output_filepath=output_filepath,
             )
@@ -75,6 +77,7 @@ def preprocess_json(json_file: str, outdir: str) -> int:
                 scale=unit["scalevalue"],
                 scaletype=unit["scaletype"],
                 postfix=unit["postfix"],
+                comment=comment,
                 input_filepath=json_data["header_template"],
                 output_filepath=output_filepath,
             )
@@ -89,6 +92,7 @@ def preprocess_template(
     postfix: str,
     input_filepath: str,
     output_filepath: str,
+    comment: str,
 ) -> bool:
     input_path = pathlib.Path(input_filepath).parent.absolute()
     print(
@@ -108,6 +112,7 @@ def preprocess_template(
         "scale": scale,
         "scaletype": scaletype,
         "postfix": postfix,
+        "comment": comment,
         "year": datetime.now().year,
     }
     output = template.render(**variables)
@@ -210,6 +215,7 @@ def main(args: List[str]) -> int:
             postfix=parsed.postfix,
             input_filepath=parsed.infile,
             output_filepath=parsed.outfile,
+            comment=parsed.comment
         )
 
 

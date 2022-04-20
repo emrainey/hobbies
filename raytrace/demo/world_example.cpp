@@ -17,53 +17,51 @@ using namespace raytrace::lights;
 class ExampleWorld : public world {
 public:
     ExampleWorld()
-        : world()
-        , look_from(0, 0, 60)
-        , look_at(60, 60, 0)
+        : world{}
+        , look_from{0, 0, 60}
+        , look_at{60, 60, 0}
         , tilt{{-0.2, +0.2, 1}}  // define some surfaces
-        , plain_green(colors::green, mediums::ambient::none, colors::green, 0.2, 100.0)
-        , plain_yellow(colors::yellow, mediums::ambient::none, colors::yellow, 0.2, 100.0)
-        , grey_checkers(9, colors::grey, colors::red)
-        , plain_blue(colors::white, mediums::ambient::none, colors::blue, 0.2, 100.0)
-        , plain_red(colors::white, mediums::ambient::none, colors::red, 0.2, 100.0)
-        , plain_cyan(colors::white, mediums::ambient::none, colors::cyan, 0.2, 120.0)
-        , ikea_checkers(5, colors::yellow, colors::blue)
-        , polka_dots(0.333, colors::black, colors::white)
-        , bw_marble(150.0, 300, 15.0, 32.0, colors::black, colors::white)
-        , grid1(1, colors::black, colors::green)
-        // sphere w/ ring
-        , s2r(7.5)
-        , r0r1(s2r + 2.0)
-        , r0r2(r0r1 + 9.0)
-        , pos0(60, 60, s2r)
-        , s2(pos0, s2r)
-        , ring0(pos0, tilt, r0r1, r0r2)
-        , ring1(pos0, -tilt, r0r1, r0r2)
-        , pos1(20, 80, 10)
-        , top(pos1 + R3::vector{{0, 0, 10}})
-        , cyl1(pos1, 10, 10)
-        , cap(top, R3::basis::Z, 0, 10)
-        , po2(80, 20, 7.5)
-        , c0(po2, 7.5, 7.5, 7.5)
-        , pos3(0, 0, 0)
-        , ground(pos3, R3::basis::Z, 5)
-        , pos5(80, 80, 30)
-        , pos6(90, 70, 0)
-        , pos7(70, 90, 0)
-        , tri0(pos5, pos6, pos7)
-        , tri1(pos7, pos6, pos5)
-        , pos8(60, 30, 20)
-        //, cone1(pos8, 7, 20)q
-        , cone1(pos8, iso::radians(iso::pi / 12))
-        , bounding_cone(raytrace::point(60, 30, 10), 10, 10, 10)
-        , cone2(cone1, bounding_cone, overlap::type::inclusive)
-        , pos9(30, 50, 10)
-        , torus1(pos9, 7, 2)
-        , blue_light(raytrace::point(80, 40, 40), colors::blue, 1E11)
-        , red_light(raytrace::point(40, 80, 40), colors::red, 1E11)
-        , green_light(raytrace::point(40, 40, 40), colors::green, 1E11)
-        , white_light(raytrace::point(20, 20, 20), colors::white, 1E11)
-        , sunlight(raytrace::vector{-2, 2, -1}, colors::white, 1E11) {
+        , plain_green{colors::green, mediums::ambient::none, colors::green, 0.2, 100.0}
+        , plain_yellow{colors::yellow, mediums::ambient::none, colors::yellow, 0.2, 100.0}
+        , grey_checkers{9, colors::grey, colors::red}
+        , plain_blue{colors::white, mediums::ambient::none, colors::blue, 0.2, 100.0}
+        , plain_red{colors::white, mediums::ambient::none, colors::red, 0.2, 100.0}
+        , plain_cyan{colors::white, mediums::ambient::none, colors::cyan, 0.2, 120.0}
+        , ikea_checkers{5, colors::yellow, colors::blue}
+        , polka_dots{0.333, colors::black, colors::white}
+        , bw_marble{150.0, 300, 15.0, 32.0, colors::black, colors::white}
+        , grid1{1, colors::black, colors::green}  // sphere w/ ring
+        , s2r{7.5}
+        , r0r1{s2r + 2.0}
+        , r0r2{r0r1 + 9.0}
+        , pos0{60, 60, s2r}
+        , s2{pos0, s2r}
+        , ring0{pos0, tilt, r0r1, r0r2}
+        , ring1{pos0, -tilt, r0r1, r0r2}
+        , pos1{20, 80, 10}
+        , top{pos1 + R3::vector{{0, 0, 10}}}
+        , cyl1{pos1, 10, 10}
+        , cap{top, R3::basis::Z, 0, 10}
+        , po2{80, 20, 7.5}
+        , c0{po2, 7.5, 7.5, 7.5}
+        , pos3{0, 0, 0}
+        , ground{pos3, R3::basis::Z, 5}
+        , pos5{80, 80, 30}
+        , pos6{90, 70, 0}
+        , pos7{70, 90, 0}
+        , tri0{pos5, pos6, pos7}
+        , tri1{pos7, pos6, pos5}
+        , pos8{60, 30, 20}  //, cone1(pos8, 7, 20)q
+        , cone1{pos8, iso::radians(iso::pi / 12)}
+        , bounding_cone{raytrace::point(60, 30, 10), 10, 10, 10}
+        , cone2{cone1, bounding_cone, overlap::type::inclusive}
+        , pos9{30, 50, 10}
+        , torus1{pos9, 7, 2}
+        , blue_light{raytrace::point(80, 40, 40), colors::blue, 1E11}
+        , red_light{raytrace::point(40, 80, 40), colors::red, 1E11}
+        , green_light{raytrace::point(40, 40, 40), colors::green, 1E11}
+        , white_light{raytrace::point(20, 20, 20), colors::white, 1E11}
+        , sunlight{raytrace::vector{-2, 2, -1}, colors::white, 1E11} {
         // assign materials in the body of the constructor!
         ikea_checkers.mapper(std::bind(&raytrace::objects::sphere::map, &s2, std::placeholders::_1));
         s2.material(&ikea_checkers);

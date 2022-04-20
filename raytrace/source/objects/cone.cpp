@@ -5,18 +5,18 @@
 namespace raytrace {
 namespace objects {
 cone::cone(const point& C, iso::radians angle)
-    : object(C, 2, true)  // 2 collisions, closed (infinite)
-    , m_bottom_radius(0.0)
-    , m_height(0.0)
-    , m_angle(angle) {
+    : object{C, 2, true}  // 2 collisions, closed (infinite)
+    , m_bottom_radius{0.0}
+    , m_height{0.0}
+    , m_angle{angle} {
     throw_exception_if(m_angle >= iso::radians(iso::pi / 2), "Angle %lf is too large", m_angle.value);
 }
 
 cone::cone(const point& C, element_type bottom_radius, element_type height)
-    : object(C, 2, false)  // 2 collisions, not closed
-    , m_bottom_radius(bottom_radius)
-    , m_height(height)
-    , m_angle(std::atan2(bottom_radius, height)) {
+    : object{C, 2, false}  // 2 collisions, not closed
+    , m_bottom_radius{bottom_radius}
+    , m_height{height}
+    , m_angle{std::atan2(bottom_radius, height)} {
 }
 
 vector cone::normal(const point& world_surface_point) const {

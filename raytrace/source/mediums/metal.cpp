@@ -5,9 +5,9 @@ namespace raytrace {
 namespace mediums {
 
 metal::metal(color diffuse, element_type smoothness, element_type tightness, element_type fuzz_scale)
-    : conductor()
-    , m_specularity(diffuse)  // metals (conductors) can alter the color of the light
-    , m_fuzz_scale(basal::clamp(0.0, fuzz_scale, 1.0)) {
+    : conductor{}
+    , m_specularity{diffuse}  // metals (conductors} can alter the color of the light
+    , m_fuzz_scale{basal::clamp(0.0, fuzz_scale, 1.0)} {
     m_smoothness = basal::clamp(0.0, smoothness, 1.0);
     m_diffuse = diffuse;
     m_tightness = tightness;

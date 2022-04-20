@@ -90,7 +90,7 @@ public:
     }
 
     constexpr explicit color(element_type _r, element_type _g, element_type _b, element_type _i = 1.0)
-        : channels(), representation(space::linear) {
+        : channels{}, representation{space::linear} {
         channels[0] = _r;
         channels[1] = _g;
         channels[2] = _b;

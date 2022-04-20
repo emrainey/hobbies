@@ -39,12 +39,12 @@ public:
     }
 
     compound(const double left, const double rght)
-        : _value(left * rght), value(_value), _first(left), _second(rght), first(_first), second(_second) {
+        : _value{left * rght}, value{_value}, _first{left}, _second{rght}, first{_first}, second{_second} {
         snprintf(suffix, sizeof(suffix), "%s%s", _first.get_suffix(), _second.get_suffix());
     }
 
     compound(const LeftType& f, const RightType& s)
-        : _value(0), value(_value), _first(f), _second(s), first(_first), second(_second) {
+        : _value{0}, value{_value}, _first{f}, _second{s}, first{_first}, second{_second} {
         _value = reduce();
         snprintf(suffix, sizeof(suffix), "%s%s", _first.get_suffix(), _second.get_suffix());
     }

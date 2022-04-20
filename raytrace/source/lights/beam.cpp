@@ -6,11 +6,11 @@ namespace lights {
 using namespace linalg::operators;
 
 beam::beam(const vector& v, const color& C, element_type distance)
-    : light(C, 1.0, 1), m_world_source(v), m_distance(distance) {
+    : light{C, 1.0, 1}, m_world_source{v}, m_distance{distance} {
 }
 
 beam::beam(raytrace::vector&& v, const color& C, element_type distance)
-    : light(C, 1.0, 1), m_world_source(std::move(v)), m_distance(distance) {
+    : light{C, 1.0, 1}, m_world_source{std::move(v)}, m_distance{distance} {
 }
 
 element_type beam::intensity_at(const point& pnt __attribute__((unused))) const {

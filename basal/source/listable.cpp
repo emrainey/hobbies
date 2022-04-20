@@ -3,10 +3,10 @@
 
 namespace basal {
 
-listable::listable() noexcept : _next(nullptr), _prev(nullptr) {
+listable::listable() noexcept : _next{nullptr}, _prev{nullptr} {
 }
 
-listable::listable(listable&& other) noexcept : _next(other._next), _prev(other._prev) {
+listable::listable(listable&& other) noexcept : _next{other._next}, _prev{other._prev} {
     if (_next) {
         _next->_prev = this;
         other._next = nullptr;

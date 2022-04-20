@@ -6,7 +6,7 @@
 namespace raytrace {
 
 scene::intersect_set::intersect_set(element_type d, const geometry::intersection& i, const objects::object* o)
-    : distance(d), intersector(i), objptr(o) {
+    : distance{d}, intersector{i}, objptr{o} {
 }
 
 static constexpr bool debug = false;
@@ -20,12 +20,12 @@ static constexpr bool use_specular_scaling = true;
 static constexpr bool use_grayscale_distance = false;
 
 scene::scene(size_t image_height, size_t image_width, iso::degrees field_of_view, double art)
-    : view(image_height, image_width, field_of_view)
-    , adaptive_reflection_threshhold(art)
-    , m_objects()
-    , m_lights()
-    , m_background([](const raytrace::ray&) { return colors::black; })
-    , m_media(&mediums::vaccum)  // default to a vaccum
+    : view{image_height, image_width, field_of_view}
+    , adaptive_reflection_threshhold{art}
+    , m_objects{}
+    , m_lights{}
+    , m_background{[](const raytrace::ray&) { return colors::black; }}
+    , m_media{&mediums::vaccum}  // default to a vaccum
 {
 }
 

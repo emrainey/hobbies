@@ -10,15 +10,15 @@ template <typename TYPE>
 class Trackbar {
 public:
     Trackbar(std::string my_name, std::string parent, TYPE min, TYPE def, TYPE max, TYPE step, TYPE *update = nullptr)
-        : m_parent(parent)
-        , m_my_name(my_name)
-        , m_step(step)
-        , m_min(min)
-        , m_def(def)
-        , m_max(max)
-        , m_value(def)
-        , m_update(update)
-        , m_gradations((max - min) / step) {
+        : m_parent{parent}
+        , m_my_name{my_name}
+        , m_step{step}
+        , m_min{min}
+        , m_def{def}
+        , m_max{max}
+        , m_value{def}
+        , m_update{update}
+        , m_gradations{(max - min) / step} {
         int default_value = (m_def - m_min) / m_step;
         cv::createTrackbar(m_my_name, m_parent, nullptr, m_gradations, on_trackbar_callback<TYPE>,
                            reinterpret_cast<void *>(this));

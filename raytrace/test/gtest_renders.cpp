@@ -23,11 +23,11 @@ public:
         , plastic{colors::cyan, mediums::ambient::none, colors::white, mediums::smoothness::small, roughness::tight}
         , rubber{colors::grey, mediums::ambient::none, colors::grey, mediums::smoothness::none, roughness::tight}
         , steel{colors::grey, mediums::smoothness::polished, roughness::tight}
-        , polka{13, colors::cyan, colors::blue}  //, beam_of_light(R3::point(20, 0, 21), colors::white, 1E3)
+        , polka{13, colors::cyan, colors::blue}  //, beam_of_light[R3::point{20, 0, 21}, colors::white, 1E3}
         , beam_of_light{raytrace::vector{-20, 0, -21}, colors::white, 1E3}
-        , inner_light{raytrace::point(0, 0, 10), colors::white, 1E11}
+        , inner_light{raytrace::point{0, 0, 10}, colors::white, 1E11}
         , look_at{0, 0, 10}
-        , plane0{R3::point(0, 0, 0), R3::basis::Z, 1.0}
+        , plane0{R3::point{0, 0, 0}, R3::basis::Z, 1.0}
         , scenes{} {
     }
 
@@ -36,12 +36,12 @@ public:
 
     void SetUp() {
         element_type r = 40;
-        raytrace::point look_froms[] = {raytrace::point(r * cos(0), r * sin(0), 40),
-                                        raytrace::point(r * cos(iso::pi / 4), r * sin(iso::pi / 4), 40),
-                                        raytrace::point(r * cos(iso::pi / 2), r * sin(iso::pi / 2), 40)};
+        raytrace::point look_froms[] = {raytrace::point{r * cos(0), r * sin(0), 40},
+                                        raytrace::point{r * cos(iso::pi / 4), r * sin(iso::pi / 4), 40},
+                                        raytrace::point{r * cos(iso::pi / 2), r * sin(iso::pi / 2), 40}};
         plane0.material(&plastic);
         for (size_t i = 0; i < number_of_scenes; i++) {
-            scenes.push_back(new scene(image_height, image_width, field_of_view));
+            scenes.push_back(new scene{image_height, image_width, field_of_view});
             vector look = look_at - look_froms[i];
             look.normalize();
             look *= 10;
@@ -84,7 +84,8 @@ public:
     }
 
 protected:
-    constexpr static size_t number_of_scenes = 3;
+    constexpr static size_t number_of_scenes{3ul};
+
     const size_t image_height;
     const size_t image_width;
     iso::degrees field_of_view;
@@ -259,7 +260,7 @@ TEST_F(RenderTest, DISABLED_AdditiveOverlap) {
     raytrace::objects::sphere s1{R3::point(-5, 0, 10), 10};
     raytrace::objects::overlap shape(s1, s0, overlap::type::additive);
     shape.material(&plastic);
-    shape.position(raytrace::point(7, 7, 7));  // the benifit is that the objects are grouped now...
+    shape.position(raytrace::point{7, 7, 7});  // the benifit is that the objects are grouped now...
     add_object(&shape);
     render_all("additive");
 }
@@ -285,7 +286,7 @@ TEST_F(RenderTest, DISABLED_SubtractiveOverlap2) {
 }
 
 TEST_F(RenderTest, DISABLED_SphereSpotLight) {
-    raytrace::ray r0{raytrace::point(-30, 0, 30), -R3::basis::Z};
+    raytrace::ray r0{raytrace::point{-30, 0, 30}, -R3::basis::Z};
     raytrace::lights::spot spot0(r0, colors::white, 1E3, iso::degrees{45});
     raytrace::objects::sphere shape(look_at, 10);
     shape.material(&checkers2);

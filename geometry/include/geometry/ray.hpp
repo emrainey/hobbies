@@ -23,11 +23,11 @@ public:
     constexpr static size_t dimensions = DIMS;
 
     /** Default constructor */
-    explicit ray_() : m_location(), m_direction() {
+    explicit ray_() : m_location{}, m_direction{} {
     }
 
     /** Parameter Costructor */
-    explicit ray_(const point& s, const vector& v) : m_location(s), m_direction(v) {
+    explicit ray_(const point& s, const vector& v) : m_location{s}, m_direction{v} {
     }
 
     /** Destructor */

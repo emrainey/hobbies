@@ -5,10 +5,10 @@
 
 namespace iso {
 // you can still have your own class with internal stuff
-feet::feet(double a) : measurement(a), _sixteenths(std::round(a * unit)), sixteenths(_sixteenths) {
+feet::feet(double a) : measurement{a}, _sixteenths(std::round(a * unit)), sixteenths{_sixteenths} {
 }
 
-feet::feet(const feet &other) : measurement(other.value), _sixteenths(other.value * unit), sixteenths(_sixteenths) {
+feet::feet(const feet &other) : measurement(other.value), _sixteenths(other.value * unit), sixteenths{_sixteenths} {
 }
 
 feet &feet::operator=(const feet &other) {

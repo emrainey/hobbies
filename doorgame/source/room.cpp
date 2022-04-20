@@ -6,7 +6,7 @@ namespace doorgame {
 
 constexpr static bool load_debug = false;
 
-Room::Room(size_t id) : Storage(1), m_id(id), doors{id, id, id, id}, has_investigated(false) {
+Room::Room(size_t id) : Storage{1}, m_id{id}, doors{id, id, id, id}, has_investigated{false} {
 }  // starts empty
 
 void Room::set_adjacent(size_t other_id, Direction d) {

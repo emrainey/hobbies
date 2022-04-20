@@ -34,7 +34,7 @@ protected:
     char suffix[10];
 
 public:
-    compound() : _value(0), value(_value), _first(0.0), _second(0.0), first(_first), second(_second) {
+    compound() : _value{0}, value{_value}, _first{0.0}, _second{0.0}, first{_first}, second{_second} {
         snprintf(suffix, sizeof(suffix), "%s%s", _first.get_suffix(), _second.get_suffix());
     }
 

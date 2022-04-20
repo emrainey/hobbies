@@ -5,7 +5,7 @@ namespace geometry {
 
 using namespace linalg::operators;
 
-point::point(const size_t d) : m_data(nullptr), dimensions(d) {
+point::point(const size_t d) : m_data{nullptr}, dimensions{d} {
     basal::exception::throw_if(dimensions > 4, __FILE__, __LINE__, "Small dimensionality for now");
     basal::exception::throw_if(dimensions == 0, __FILE__, __LINE__, "Must be larger than zero");
     m_data = std::make_unique<element_type[]>(dimensions);
@@ -17,7 +17,7 @@ point::point(const size_t d) : m_data(nullptr), dimensions(d) {
 }
 
 /// Constructor from a pointer to an array
-point::point(const element_type a[], size_t len) noexcept(false) : point(len) {
+point::point(const element_type a[], size_t len) noexcept(false) : point{len} {
     if (m_data) {
         for (size_t i = 0; i < dimensions; i++) {
             m_data[i] = a[i];

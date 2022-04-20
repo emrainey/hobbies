@@ -28,7 +28,7 @@ TEST(PointTest, ListInitializer) {
 
 TEST(PointTest, ArrayConstructor) {
     double _p[] = {1, 2, 3};
-    point *p = new point(_p, 3);
+    point *p = new point{_p, 3};
     ASSERT_DOUBLE_EQ(3, p->dimensions);
     delete p;
 }

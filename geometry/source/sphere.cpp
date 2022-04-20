@@ -10,7 +10,7 @@ using namespace operators;
 
 namespace R3 {
 
-sphere::sphere(element_type r) : m_radius(r) {
+sphere::sphere(element_type r) : m_radius{r} {
     basal::exception::throw_if(m_radius == 0.0, __FILE__, __LINE__, "Radius can't be zero");
 }
 sphere::sphere(const sphere &s) : sphere(s.radius) {

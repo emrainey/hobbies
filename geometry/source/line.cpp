@@ -8,15 +8,15 @@ namespace geometry {
 
 namespace R3 {
 
-line::line(const R3::vector &ov, const R3::point &op) : m_udir(ov), m_zero(op) {
+line::line(const R3::vector &ov, const R3::point &op) : m_udir{ov}, m_zero{op} {
     basal::exception::throw_if(m_udir.is_zero(), __FILE__, __LINE__, "Vector can not be zero length");
 }
 
-line::line(const R3::point &op, const R3::vector &ov) : m_udir(ov), m_zero(op) {
+line::line(const R3::point &op, const R3::vector &ov) : m_udir{ov}, m_zero{op} {
     basal::exception::throw_if(m_udir.is_zero(), __FILE__, __LINE__, "Vector can not be zero length");
 }
 
-line::line(const R3::point &a, const R3::point &b) : m_udir(a - b), m_zero(b) {
+line::line(const R3::point &a, const R3::point &b) : m_udir(a - b), m_zero{b} {
     basal::exception::throw_if(m_udir.is_zero(), __FILE__, __LINE__, "Points can not be the same");
 }
 

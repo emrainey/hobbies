@@ -17,8 +17,8 @@ TEST(Plane2Test, Intersections) {
     vector up = R3::basis::Z;
     raytrace::objects::plane PL{C, up, 1.0};
 
-    raytrace::ray r0{raytrace::point(1, 1, 1), vector{{1, 1, 1}}};
-    raytrace::ray r1{raytrace::point(1, 1, 1), vector{{-1, -1, -1}}};
+    raytrace::ray r0{raytrace::point{1, 1, 1}, vector{{1, 1, 1}}};
+    raytrace::ray r1{raytrace::point{1, 1, 1}, vector{{-1, -1, -1}}};
     raytrace::point A{-1, -1, -1};
     ray r2{C, up};
     ray r3{C, vector{{0, 0, -1}}};
@@ -43,10 +43,10 @@ TEST(Plane2Test, SandwichRays) {
     using namespace raytrace;
     using namespace raytrace::objects;
 
-    raytrace::objects::plane P0{raytrace::point(0, 0, 10), vector{{0, 0, -1}}, 1.0};
-    raytrace::objects::plane P1{raytrace::point(0, 0, -10), vector{{0, 0, 1}}, 1.0};
-    ray r0{raytrace::point(0, 0, 0), vector{{1, 0, 1}}};
-    ray r1{raytrace::point(0, 0, 0), vector{{1, 0, -1}}};
+    raytrace::objects::plane P0{raytrace::point{0, 0, 10}, vector{{0, 0, -1}}, 1.0};
+    raytrace::objects::plane P1{raytrace::point{0, 0, -10}, vector{{0, 0, 1}}, 1.0};
+    ray r0{raytrace::point{0, 0, 0}, vector{{1, 0, 1}}};
+    ray r1{raytrace::point{0, 0, 0}, vector{{1, 0, -1}}};
 
     raytrace::point p0{10, 0, 10};
     raytrace::point p1{10, 0, -10};

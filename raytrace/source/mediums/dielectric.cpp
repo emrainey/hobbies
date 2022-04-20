@@ -4,7 +4,7 @@ namespace raytrace {
 
 namespace mediums {
 
-dielectric::dielectric() : medium() {
+dielectric::dielectric() : medium{} {
 }
 
 }  // namespace mediums

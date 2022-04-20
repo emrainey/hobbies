@@ -15,7 +15,7 @@ public:
         : look_from{0, 50, 10}
         , look_at{8, 0, 0}
         , sunrays{raytrace::vector{-20, 0, -21}, colors::white, 1E4}
-        , inner_light{raytrace::point(0, 0, 80), colors::white, 1E12}
+        , inner_light{raytrace::point{0, 0, 80}, colors::white, 1E12}
         , center{0, 0, 0}
         , ringA{center, R3::basis::Z, 10.0, 11.8}
         , ringB{center, R3::basis::Z, 12.0, 12.2}

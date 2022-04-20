@@ -39,10 +39,10 @@ public:
     xmat_() {
         zero();
     }
-    xmat_(const xmat_& o) : xmat_() {
+    xmat_(const xmat_& o) : xmat_{} {
         copy_from(o);
     }
-    xmat_(xmat_&& o) : xmat_() {
+    xmat_(xmat_&& o) : xmat_{} {
         copy_from(o);
     }
     xmat_& operator=(const xmat_& o) {

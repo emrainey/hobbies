@@ -15,7 +15,7 @@ struct double2 {
 public:
     double2() : data(_mm_setzero_pd()) {
     }
-    double2(__m128d a) : data(a) {
+    double2(__m128d a) : data{a} {
     }
     constexpr static size_t alignment = 16;
     using parallel_type = __m128d;
@@ -39,7 +39,7 @@ struct double3 {
 public:
     double3() : data(_mm256_setzero_pd()) {
     }
-    double3(__m256d a) : data(a) {
+    double3(__m256d a) : data{a} {
     }
     constexpr static size_t alignment = 32;
     using parallel_type = __m256d;
@@ -63,7 +63,7 @@ struct double4 {
 public:
     double4() : data(_mm256_setzero_pd()) {
     }
-    double4(__m256d a) : data(a) {
+    double4(__m256d a) : data{a} {
     }
     constexpr static size_t alignment = 32;
     using parallel_type = __m256d;
@@ -101,11 +101,11 @@ protected:
     static_assert(2 <= dimensions and dimensions <= 4, "Must be larger than a single point but smaller than 5");
 
 public:
-    xmm_() : pack_type() {
+    xmm_() : pack_type{} {
     }
 
     /** Intrinsic Initializer */
-    xmm_(typename pack_type::parallel_type v) : pack_type(v) {
+    xmm_(typename pack_type::parallel_type v) : pack_type{v} {
     }
 
     /** Copy Constructor */
@@ -130,7 +130,7 @@ public:
     ~xmm_() = default;
 
     /** Initializer List Constructor */
-    xmm_(std::initializer_list<typename pack_type::element_type> list) : xmm_() {
+    xmm_(std::initializer_list<typename pack_type::element_type> list) : xmm_{} {
         size_t n = 0;
         for (auto it = list.begin(); it < list.end() and n < dimensions; it++, n++) {
             pack_type::datum[n] = *it;

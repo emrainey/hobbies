@@ -15,16 +15,16 @@ template <size_t BITS>
 class sparse_word {
 public:
     // start with a sparsity of 2%
-    sparse_word() : bits() {
+    sparse_word() : bits{} {
         bits.clear();
     }
-    sparse_word(const std::vector<uint16_t>& that) : bits() {
+    sparse_word(const std::vector<uint16_t>& that) : bits{} {
         bits.clear();
         bits = that;  // copy
         correct();
     }
     // sparse_word(const std::initializer_list& list) : sparse_word(std::vector(list)) {}
-    sparse_word(const dense_word<BITS>& dense) : bits() {
+    sparse_word(const dense_word<BITS>& dense) : bits{} {
         bits.clear();
         for (size_t b = 0; b < BITS; b++) {
             if (dense.test(b)) {

@@ -39,19 +39,19 @@ public:
     using type = UNIT_TYPE;
 
     /** Default Constructor */
-    measurement() : _value(0), value(_value), _suffix(SUFFIX_TYPE::suffix) {
+    measurement() : _value{0}, value{_value}, _suffix{SUFFIX_TYPE::suffix} {
     }
     /** Valued Constructor */
-    measurement(UNIT_TYPE v) : _value(v), value(_value), _suffix(SUFFIX_TYPE::suffix) {
+    measurement(UNIT_TYPE v) : _value{v}, value{_value}, _suffix{SUFFIX_TYPE::suffix} {
     }
     /** Const Copy Constructor */
-    measurement(const measurement& other) : _value(other.value), value(_value), _suffix(other._suffix) {
+    measurement(const measurement& other) : _value{other.value}, value{_value}, _suffix{other._suffix} {
     }
     /** Copy Constructor */
-    measurement(measurement& other) : _value(other.value), value(_value), _suffix(other._suffix) {
+    measurement(measurement& other) : _value{other.value}, value{_value}, _suffix{other._suffix} {
     }
     /** Move Constructor */
-    measurement(measurement&& other) : _value(other.value), value(_value), _suffix(std::move(other._suffix)) {
+    measurement(measurement&& other) : _value{other.value}, value{_value}, _suffix{std::move(other._suffix)} {
     }
     /** Destructor */
     virtual ~measurement() {

@@ -24,12 +24,12 @@ public:
         , m_inv_transform{matrix::identity(DIMS + 1, DIMS + 1)} {
     }
 
-    entity_(const point& position) : entity_() {
+    entity_(const point& position) : entity_{} {
         m_world_position = position;
         compute_transforms();
     }
 
-    entity_(point&& position) : entity_() {
+    entity_(point&& position) : entity_{} {
         m_world_position = std::move(position);
         compute_transforms();
     }

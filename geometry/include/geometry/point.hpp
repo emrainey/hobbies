@@ -146,22 +146,22 @@ public:
     element_type& x; /**< First dimensional reference */
     element_type& y; /**< Second dimensional reference */
     /** Custom empty constructor */
-    point_() : point(2), x(m_data[0]), y(m_data[1]) {
+    point_() : point{2}, x(m_data[0]), y(m_data[1]) {
     }
     /** Base type Constructor */
-    point_(const point& p) : point_() {
+    point_(const point& p) : point_{} {
         basal::exception::throw_unless(p.dimensions == 2, __FILE__, __LINE__, "Must match the number of dimensions");
         x = p[0];
         y = p[1];
     }
     /** Copy Constructor */
-    point_(const point_& other) : point_() {
+    point_(const point_& other) : point_{} {
         x = other.x;
         y = other.y;
     }
 
     /** Custom element_type input constructor */
-    explicit point_(element_type a, element_type b) : point_() {
+    explicit point_(element_type a, element_type b) : point_{} {
         x = a;
         y = b;
     }
@@ -206,29 +206,29 @@ public:
     element_type& y; /**< Second dimensional reference */
     element_type& z; /**< Third dimensional reference */
     /** Custom empty constructor */
-    point_() : point(3), x(m_data[0]), y(m_data[1]), z(m_data[2]) {
+    point_() : point{3}, x(m_data[0]), y(m_data[1]), z(m_data[2]) {
     }
     /** Custom Homogenizing Constructor */
-    point_(const point_<2>& p) : point_() {
+    point_(const point_<2>& p) : point_{} {
         x = p.x;
         y = p.y;
         z = 1.0;
     }
     /** Base type Constructor */
-    point_(const point& p) : point_() {
+    point_(const point& p) : point_{} {
         basal::exception::throw_unless(p.dimensions == 3, __FILE__, __LINE__, "Must match the number of dimensions");
         x = p[0];
         y = p[1];
         z = p[2];
     }
     /** Copy Constructor */
-    point_(const point_& other) : point_() {
+    point_(const point_& other) : point_{} {
         x = other.x;
         y = other.y;
         z = other.z;
     }
     /** Custom triple input constructor */
-    explicit point_(element_type a, element_type b, element_type c) : point_() {
+    explicit point_(element_type a, element_type b, element_type c) : point_{} {
         x = a;
         y = b;
         z = c;
@@ -283,17 +283,17 @@ public:
     element_type& z; /**< Third dimensional reference */
     element_type& w; /**< Fourth dimensional reference */
     /** Custom empty constructor */
-    point_() : point(4), x(m_data[0]), y(m_data[1]), z(m_data[2]), w(m_data[3]) {
+    point_() : point{4}, x(m_data[0]), y(m_data[1]), z(m_data[2]), w(m_data[3]) {
     }
     /** Custom Homogenizing Constructor */
-    point_(const point_<3>& p) : point_() {
+    point_(const point_<3>& p) : point_{} {
         x = p.x;
         y = p.y;
         z = p.z;
         w = 1.0;
     }
     /** Base type Constructor */
-    point_(const point& p) : point_() {
+    point_(const point& p) : point_{} {
         basal::exception::throw_unless(p.dimensions == 4, __FILE__, __LINE__, "Must match the number of dimensions");
         x = p[0];
         y = p[1];
@@ -301,14 +301,14 @@ public:
         w = p[3];
     }
     /** Copy Constructor */
-    point_(const point_& other) : point_() {
+    point_(const point_& other) : point_{} {
         x = other.x;
         y = other.y;
         z = other.z;
         w = other.w;
     }
     /** Custom triple input constructor */
-    explicit point_(element_type a, element_type b, element_type c, element_type d) : point_() {
+    explicit point_(element_type a, element_type b, element_type c, element_type d) : point_{} {
         x = a;
         y = b;
         z = c;

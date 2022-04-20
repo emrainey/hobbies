@@ -13,7 +13,7 @@ namespace basal {
 
 /** The bitfield definition of all known zones. */
 union zone_mask {
-    constexpr zone_mask() : all(0) {
+    constexpr zone_mask() : all{0} {
     }
     uint32_t all;  ///< the union of all zones below
     /// This struct of bits should follow the enumeration above.
@@ -33,11 +33,11 @@ protected:
     mutable zone_mask m_mask;
 
     /** Default Constructor */
-    constexpr debuggable() : m_mask() {
+    constexpr debuggable() : m_mask{} {
     }
 
     /** Protected Constructor */
-    constexpr debuggable(zone_mask zm) : m_mask(zm) {
+    constexpr debuggable(zone_mask zm) : m_mask{zm} {
     }
 
     /** Protected Destructor */

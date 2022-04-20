@@ -53,14 +53,14 @@ public:
         , tri1{pos7, pos6, pos5}
         , pos8{60, 30, 20}  //, cone1(pos8, 7, 20)q
         , cone1{pos8, iso::radians(iso::pi / 12)}
-        , bounding_cone{raytrace::point(60, 30, 10), 10, 10, 10}
+        , bounding_cone{raytrace::point{60, 30, 10}, 10, 10, 10}
         , cone2{cone1, bounding_cone, overlap::type::inclusive}
         , pos9{30, 50, 10}
         , torus1{pos9, 7, 2}
-        , blue_light{raytrace::point(80, 40, 40), colors::blue, 1E11}
-        , red_light{raytrace::point(40, 80, 40), colors::red, 1E11}
-        , green_light{raytrace::point(40, 40, 40), colors::green, 1E11}
-        , white_light{raytrace::point(20, 20, 20), colors::white, 1E11}
+        , blue_light{raytrace::point{80, 40, 40}, colors::blue, 1E11}
+        , red_light{raytrace::point{40, 80, 40}, colors::red, 1E11}
+        , green_light{raytrace::point{40, 40, 40}, colors::green, 1E11}
+        , white_light{raytrace::point{20, 20, 20}, colors::white, 1E11}
         , sunlight{raytrace::vector{-2, 2, -1}, colors::white, 1E11} {
         // assign materials in the body of the constructor!
         ikea_checkers.mapper(std::bind(&raytrace::objects::sphere::map, &s2, std::placeholders::_1));

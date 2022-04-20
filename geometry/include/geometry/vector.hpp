@@ -28,10 +28,10 @@ public:
     constexpr static const size_t dimensions = DIM;
 
     /** The default constructor */
-    vector_() : data() {
+    vector_() : data{} {
     }
 
-    vector_(size_t len, DATA_TYPE in[]) : vector_() {
+    vector_(size_t len, DATA_TYPE in[]) : vector_{} {
         basal::exception::throw_if(len == 0, __FILE__, __LINE__);
         basal::exception::throw_if(in == nullptr, __FILE__, __LINE__);
         basal::exception::throw_unless(len == dimensions, __FILE__, __LINE__);
@@ -41,7 +41,7 @@ public:
     }
 
     /** The initializer list constructor, should not be inferred. */
-    vector_(std::initializer_list<DATA_TYPE> a) : vector_() {
+    vector_(std::initializer_list<DATA_TYPE> a) : vector_{} {
         basal::exception::throw_unless(dimensions == a.size(), __FILE__, __LINE__);
         size_t r = 0;
         for (auto iter = a.begin(); r < a.size() and iter != a.end(); r++, iter++) {
@@ -50,12 +50,12 @@ public:
     }
 
     /** Copy Constructor */
-    vector_(const vector_& other) : vector_() {
+    vector_(const vector_& other) : vector_{} {
         memcpy(data, other.data, dimensions * sizeof(DATA_TYPE));
     }
 
     /** Move Constructor */
-    vector_(vector_&& other) : vector_() {
+    vector_(vector_&& other) : vector_{} {
         memcpy(data, other.data, dimensions * sizeof(DATA_TYPE));
     }
 

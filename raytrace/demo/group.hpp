@@ -6,7 +6,7 @@ namespace raytrace {
 
 class group {
 public:
-    group() : m_objects() {
+    group() : m_objects{} {
     }
 
     virtual ~group() = default;

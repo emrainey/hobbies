@@ -11,9 +11,9 @@ using namespace geometry;
 using namespace geometry::operators;
 
 square::square(const point& C, const vector& N, element_type hh, element_type hw)
-    : raytrace::objects::plane(C, N, 1.0), m_points() {
-    m_points[0] = raytrace::point(-hw, -hh, 0);
-    m_points[1] = raytrace::point(+hw, +hh, 0);
+    : raytrace::objects::plane(C, N, 1.0), m_points{} {
+    m_points[0] = raytrace::point{-hw, -hh, 0};
+    m_points[1] = raytrace::point{+hw, +hh, 0};
 }
 
 hits square::collisions_along(const ray& object_ray) const {

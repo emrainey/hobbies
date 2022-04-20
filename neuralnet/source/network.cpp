@@ -12,15 +12,15 @@ std::vector<size_t> convert(std::initializer_list<int> list) {
     return v;
 }
 
-network::network() : layers() {
+network::network() : layers{} {
 }
 
-network::network(std::initializer_list<size_t> list) : layers() {
+network::network(std::initializer_list<size_t> list) : layers{} {
     std::vector<size_t> v = list;
     create(v);
 }
 
-network::network(std::vector<size_t> list) : layers() {
+network::network(std::vector<size_t> list) : layers{} {
     create(list);
 }
 
@@ -28,13 +28,13 @@ void network::create(std::vector<size_t> list) {
     for (size_t i = 0; i < list.size(); i++) {
         if (i == 0) {  // first element
             printf("Creating input of %zu nodes\n", list[i]);
-            layers.push_back(new input(list[i]));
+            layers.push_back(new input{list[i]});
         } else if (i == (list.size() - 1)) {  // last element
             printf("Creating output of %zu nodes\n", list[i]);
-            layers.push_back(new output(list[i - 1], list[i]));
+            layers.push_back(new output{list[i - 1], list[i]});
         } else {
             printf("Creating hidden of %zu nodes\n", list[i]);
-            layers.push_back(new hidden(list[i - 1], list[i]));
+            layers.push_back(new hidden{list[i - 1], list[i]});
         }
     }
 }

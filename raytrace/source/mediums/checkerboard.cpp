@@ -4,7 +4,7 @@ namespace raytrace {
 
 namespace mediums {
 
-checkerboard::checkerboard(element_type repeat, color dark, color light) : opaque(), m_repeat(repeat), m_pal(8) {
+checkerboard::checkerboard(element_type repeat, color dark, color light) : opaque{}, m_repeat{repeat}, m_pal{8} {
     m_ambient = colors::white;
     m_ambient_scale = mediums::ambient::none;
     m_smoothness = mediums::smoothness::barely;

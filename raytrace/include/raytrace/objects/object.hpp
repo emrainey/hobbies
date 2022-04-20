@@ -23,7 +23,7 @@ class object_
     : public entity_<DIMS>
     , public basal::printable {
 public:
-    object_() : entity_<DIMS>(), m_max_collisions(0), m_closed_surface(false), m_medium(&mediums::dull) {
+    object_() : entity_<DIMS>(), m_max_collisions{0}, m_closed_surface{false}, m_medium(&mediums::dull) {
     }
 
     object_(const point& center, size_t collisions, bool closed = false)

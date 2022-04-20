@@ -7,7 +7,7 @@ namespace raytrace {
 
 namespace mediums {
 
-random_noise::random_noise() : opaque() {
+random_noise::random_noise() : opaque{} {
     m_ambient = colors::white;
     m_ambient_scale = mediums::ambient::dim;
 }

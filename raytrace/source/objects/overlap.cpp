@@ -8,7 +8,7 @@ namespace raytrace {
 namespace objects {
 using namespace linalg::operators;
 
-overlap::overlap(const object& A, const object& B, overlap::type type) : m_A(A), m_B(B), m_type(type) {
+overlap::overlap(const object& A, const object& B, overlap::type type) : m_A{A}, m_B{B}, m_type{type} {
 }
 
 vector overlap::normal(const point& world_surface_point) const {

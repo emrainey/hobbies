@@ -2,7 +2,7 @@
 
 namespace doorgame {
 
-Map::Map(size_t num, size_t start, size_t end) : m_rooms(), m_start(start), m_end(end) {
+Map::Map(size_t num, size_t start, size_t end) : m_rooms{}, m_start{start}, m_end{end} {
     for (size_t id = 0; id < num; id++) {
         m_rooms.emplace_back(id);
     }

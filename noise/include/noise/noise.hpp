@@ -82,7 +82,7 @@ template <typename T, size_t DIM>
 class pad_ {
 public:
     constexpr static size_t dimensions = DIM;
-    pad_() : values() {
+    pad_() : values{} {
         generate();
     }
 

@@ -21,7 +21,7 @@ element_type coefficients_t::z() {
 plane::plane(const R3::vector &on, const R3::point &op) : plane(op, on) {
 }
 
-plane::plane(const R3::point &op, const R3::vector &on) : m_normal(on), m_center_point(op), normal(m_normal) {
+plane::plane(const R3::point &op, const R3::vector &on) : m_normal{on}, m_center_point{op}, normal{m_normal} {
     basal::exception::throw_unless(!basal::equals_zero(m_normal.norm()), __FILE__, __LINE__,
                                    "The magnitude of the normal can't be zero");
     eq.a = m_normal[0];
@@ -37,7 +37,7 @@ plane::plane(const std::vector<element_type> &list) : plane(list[0], list[1], li
 }
 
 plane::plane(element_type a, element_type b, element_type c, element_type d)
-    : m_normal{{a, b, c}}, m_center_point(3), normal(m_normal) {
+    : m_normal{{a, b, c}}, m_center_point{3}, normal{m_normal} {
     // before we normalize, we solve for the point
     // normal line through the origin
     R3::line l{m_normal, geometry::R3::origin};

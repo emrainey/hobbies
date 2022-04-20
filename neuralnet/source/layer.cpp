@@ -5,15 +5,15 @@
 
 namespace nn {
 
-layer::layer() : layer_type(m_type), values(), beta(), m_type(type::input) {
+layer::layer() : layer_type{m_type}, values{}, beta{}, m_type(type::input) {
 }
 
-layer::layer(type _t, size_t num) : layer_type(m_type), values(num, 1), beta(num, 1), m_type(_t) {
+layer::layer(type _t, size_t num) : layer_type{m_type}, values(num, 1), beta(num, 1), m_type{_t} {
     values.zero();
     beta.zero();
 }
 
-layer::layer(const layer& other) : layer_type(m_type), values(other.values), beta(other.beta), m_type(other.m_type) {
+layer::layer(const layer& other) : layer_type{m_type}, values(other.values), beta(other.beta), m_type(other.m_type) {
 }
 
 layer::layer(layer&& other)

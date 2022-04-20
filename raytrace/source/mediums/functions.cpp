@@ -196,7 +196,7 @@ color pseudo_random_noise(const image::point& p, const palette& pal __attribute_
 
 namespace tuning {
 
-prn_parameters::prn_parameters() : _initialized(false) {
+prn_parameters::prn_parameters() : _initialized{false} {
     initialize();
 }
 

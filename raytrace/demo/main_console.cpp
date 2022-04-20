@@ -46,7 +46,7 @@ size_t dimensions[][2] = {{160, 120}, {320, 240}, {640, 480}, {1024, 768}, {1920
 
 class Console {
 public:
-    Console() : m_width(0), m_height(0), m_buffer{0} {
+    Console() : m_width{0}, m_height{0}, m_buffer{0} {
         // initialize
         initscr();
         raw();  // we'll get the characters for Ctrl+C too
@@ -203,7 +203,7 @@ int main(int argc, char* argv[]) {
     auto progress_bar = [&]() -> void {
         while (running) {
             size_t count = 0;
-            std::for_each(completed.begin(), completed.end(), [&](bool p) -> bool {
+            std::for_each (completed.begin(), completed.end(), [&](bool p) -> bool {
                 count += (p ? 1 : 0);
                 return p;
             });

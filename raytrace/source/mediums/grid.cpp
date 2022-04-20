@@ -4,7 +4,7 @@ namespace raytrace {
 
 namespace mediums {
 
-grid::grid(element_type scale, color dark, color light) : opaque(), m_scale(scale), m_dark(dark), m_light(light) {
+grid::grid(element_type scale, color dark, color light) : opaque{}, m_scale{scale}, m_dark{dark}, m_light{light} {
     m_ambient = colors::white;
     m_ambient_scale = mediums::ambient::dim;
 }

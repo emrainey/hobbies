@@ -55,10 +55,10 @@ public:
         for (size_t s = 0; s < number_of_spheres; s++) {
             spheres[s]->material(mats[s]);
         }
-        // specks.push_back(new lights::speck(raytrace::point(80, 120, 80), colors::white, 1E11));
-        // specks.push_back(new lights::speck(raytrace::point(80, 40, 80), colors::white, 1E11));
-        // specks.push_back(new lights::speck(raytrace::point(40, 80, 80), colors::white, 1E11));
-        // specks.push_back(new lights::speck(raytrace::point(120, 80, 80), colors::white, 1E11));
+        // specks.push_back(new lights::speck(raytrace::point{80, 120, 80}, colors::white, 1E11));
+        // specks.push_back(new lights::speck(raytrace::point{80, 40, 80}, colors::white, 1E11));
+        // specks.push_back(new lights::speck(raytrace::point{40, 80, 80}, colors::white, 1E11));
+        // specks.push_back(new lights::speck(raytrace::point{120, 80, 80}, colors::white, 1E11));
     }
 
     ~Spheres2World() {

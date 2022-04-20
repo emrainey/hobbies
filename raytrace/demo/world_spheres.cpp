@@ -47,10 +47,10 @@ public:
         for (auto& s : spheres) {
             s->material(&mediums::metals::stainless);
         }
-        specks.push_back(new lights::speck(raytrace::point(80, 120, 80), colors::white, 1E11));
-        specks.push_back(new lights::speck(raytrace::point(80, 40, 80), colors::white, 1E11));
-        specks.push_back(new lights::speck(raytrace::point(40, 80, 80), colors::white, 1E11));
-        specks.push_back(new lights::speck(raytrace::point(120, 80, 80), colors::white, 1E11));
+        specks.push_back(new lights::speck(raytrace::point{80, 120, 80}, colors::white, 1E11));
+        specks.push_back(new lights::speck(raytrace::point{80, 40, 80}, colors::white, 1E11));
+        specks.push_back(new lights::speck(raytrace::point{40, 80, 80}, colors::white, 1E11));
+        specks.push_back(new lights::speck(raytrace::point{120, 80, 80}, colors::white, 1E11));
     }
 
     ~SpheresWorld() {

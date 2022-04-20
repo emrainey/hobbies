@@ -32,7 +32,7 @@ cv::Mat render_image(height, width, CV_8UC3);
 
 void generate_noise_image(void) {
     noise_image.for_each ([&](int y, int x, fourcc::rgb8 &pixel) {
-        noise::point pnt{(double)x, (double)y};
+        noise::point pnt{double(x), double(y)};
         double n = noise::perlin(pnt, scale, seed, gain);
         pixel.r = n * 255;
         pixel.g = n * 255;

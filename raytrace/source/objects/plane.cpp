@@ -10,7 +10,7 @@ using namespace geometry;
 using namespace geometry::operators;
 
 plane::plane(const point& C, const vector& N, element_type surface_scale)
-    : geometry::plane(C, N), object(C, 1), m_surface_scale(surface_scale) {
+    : geometry::plane(C, N), object(C, 1), m_surface_scale{surface_scale} {
 }
 
 vector plane::normal(const point&) const {

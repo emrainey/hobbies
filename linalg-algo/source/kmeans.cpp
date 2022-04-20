@@ -6,7 +6,7 @@ using namespace linalg;
 using namespace geometry;
 
 namespace linalg {
-kmeans::kmeans(std::vector<geometry::R2::point>& points) : m_points(points), m_centroids(), m_cluster_assignment() {
+kmeans::kmeans(std::vector<geometry::R2::point>& points) : m_points{points}, m_centroids{}, m_cluster_assignment{} {
 }
 
 kmeans::~kmeans() {

@@ -27,13 +27,13 @@ TEST(SphereTest, NormalReflection) {
 }
 
 TEST(SphereTest, Mapping) {
-    raytrace::objects::sphere s0{raytrace::point(1, 1, 1), 1.0};
+    raytrace::objects::sphere s0{raytrace::point{1, 1, 1}, 1.0};
 
     raytrace::point surface_points[] = {
-        raytrace::point(1, 0, 0),
-        raytrace::point(-1, 0, 0),
-        raytrace::point(0, 1, 0),
-        raytrace::point(0, -1, 0),
+        raytrace::point{1, 0, 0},
+        raytrace::point{-1, 0, 0},
+        raytrace::point{0, 1, 0},
+        raytrace::point{0, -1, 0},
     };
     const size_t dimof_sp = dimof(surface_points);
     image::point uv_points_truth[] = {
@@ -152,7 +152,7 @@ TEST(SphereTest, Refraction) {
         raytrace::mediums::transparent med(eta, 0.0, colors::white);
         shape.material(&med);
         raytrace::vector incident{0, -1, 0};
-        raytrace::ray shot{raytrace::point(0, 2, entry_z), incident};
+        raytrace::ray shot{raytrace::point{0, 2, entry_z}, incident};
         std::cout << "Shot: " << shot << std::endl;
         //============ Entry
         auto entry_hit = shape.intersect(shot);

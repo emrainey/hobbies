@@ -40,7 +40,7 @@ public:
     }
 
 protected:
-    constexpr statistics() : dot_operations(0), cross_products(0) {
+    constexpr statistics() : dot_operations{0}, cross_products{0} {
     }
 };
 }  // namespace geometry

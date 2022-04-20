@@ -14,7 +14,7 @@ using namespace linalg;
 
 class CameraTest : public ::testing::Test {
 public:
-    CameraTest() : image_height(2), image_width(2), field_of_view(90) {
+    CameraTest() : image_height{2}, image_width{2}, field_of_view{90} {
     }
     ~CameraTest() {
     }
@@ -104,10 +104,10 @@ TEST_F(CameraTest, CastingRays) {
 
         // casted rays should be in a YZ plane at X==1.
         raytrace::point world_ray_locations[] = {
-            raytrace::point(1, 0.5, 0.5),
-            raytrace::point(1, -0.5, 0.5),
-            raytrace::point(1, 0.5, -0.5),
-            raytrace::point(1, -0.5, -0.5),
+            raytrace::point{1, 0.5, 0.5},
+            raytrace::point{1, -0.5, 0.5},
+            raytrace::point{1, 0.5, -0.5},
+            raytrace::point{1, -0.5, -0.5},
         };
         for (size_t i = 0; i < count; i++) {
             ASSERT_TRUE(rays[i].location() == world_ray_locations[i]);

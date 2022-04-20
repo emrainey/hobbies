@@ -14,7 +14,7 @@ constexpr color neon_pink(246.0 / 255, 1.0 / 255, 157.0 / 255);
 
 class Sun : public raytrace::mediums::opaque {
 public:
-    Sun() : opaque() {
+    Sun() : opaque{} {
         m_ambient = colors::white;
         m_ambient_scale = 0.0;
         m_smoothness = smoothness::none;
@@ -66,7 +66,7 @@ public:
         , grid{10.0, outrun::neon_pink, colors::black}
         , floor{R3::origin, R3::basis::Z, 100.0, 100.0}
         , sun_surface{}
-        , sun{raytrace::point(0, -300, 50), 100.0} {
+        , sun{raytrace::point{0, -300, 50}, 100.0} {
         grid.mapper(std::bind(&raytrace::objects::square::map, &floor, std::placeholders::_1));
         floor.material(&grid);
         sun.material(&sun_surface);

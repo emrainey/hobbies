@@ -25,13 +25,13 @@ bool parallel(const vector_<element_type, 3>& a, const vector_<element_type, 3>&
 vector rodrigues(const vector& k, const vector& v, iso::radians theta) {
     vector v_prj_k = dot(v, k) * k;
     vector v_rej_k = v - v_prj_k;
-    vector w(cross(k, v));
+    vector w{cross(k, v)};
     vector v_ort_rot = cos(theta.value) * v_rej_k + sin(theta.value) * cross(k, v_rej_k);
     return v_ort_rot + v_prj_k;
 }
 
 element_type triple(const vector& u, const vector& v, const vector& w) noexcept(false) {
-    vector vw(cross(v, w));
+    vector vw{cross(v, w)};
     return dot(u, vw);
 }
 

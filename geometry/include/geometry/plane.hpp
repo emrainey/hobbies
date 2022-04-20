@@ -27,15 +27,15 @@ typedef struct coefficients_t {
     /** Solves the value of x
      * \returns element_type
      */
-    element_type x();
+    element_type x(void);
     /** Solves the value of y
      * \returns element_type
      */
-    element_type y();
+    element_type y(void);
     /** Solves the value of z
      * \returns element_type
      */
-    element_type z();
+    element_type z(void);
 } coefficients_t;
 
 /** A N-dimensional plane */

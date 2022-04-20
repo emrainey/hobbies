@@ -57,7 +57,7 @@ radians& radians::operator/=(double factor) {
     return (*this);
 }
 radians radians::operator-() const {
-    return radians(-value);
+    return radians{-value};
 }
 bool radians::operator<(const radians& other) const {
     return (_value < other.value);
@@ -73,19 +73,19 @@ bool radians::operator>=(const radians& other) const {
 }
 namespace operators {
 radians operator+(const radians& A, const radians& B) {
-    return radians(A.value + B.value);
+    return radians{A.value + B.value};
 }
 radians operator-(const radians& A, const radians& B) {
-    return radians(A.value - B.value);
+    return radians{A.value - B.value};
 }
 radians operator*(const radians& A, double factor) {
-    return radians(A.value * factor);
+    return radians{A.value * factor};
 }
 radians operator*(double factor, const radians& A) {
-    return radians(A.value * factor);
+    return radians{A.value * factor};
 }
 radians operator/(const radians& A, double factor) {
-    return radians(A.value / factor);
+    return radians{A.value / factor};
 }
 }  // namespace operators
 namespace literals {

@@ -57,7 +57,7 @@ amperes& amperes::operator/=(double factor) {
     return (*this);
 }
 amperes amperes::operator-() const {
-    return amperes(-value);
+    return amperes{-value};
 }
 bool amperes::operator<(const amperes& other) const {
     return (_value < other.value);
@@ -73,19 +73,19 @@ bool amperes::operator>=(const amperes& other) const {
 }
 namespace operators {
 amperes operator+(const amperes& A, const amperes& B) {
-    return amperes(A.value + B.value);
+    return amperes{A.value + B.value};
 }
 amperes operator-(const amperes& A, const amperes& B) {
-    return amperes(A.value - B.value);
+    return amperes{A.value - B.value};
 }
 amperes operator*(const amperes& A, double factor) {
-    return amperes(A.value * factor);
+    return amperes{A.value * factor};
 }
 amperes operator*(double factor, const amperes& A) {
-    return amperes(A.value * factor);
+    return amperes{A.value * factor};
 }
 amperes operator/(const amperes& A, double factor) {
-    return amperes(A.value / factor);
+    return amperes{A.value / factor};
 }
 }  // namespace operators
 namespace literals {

@@ -153,12 +153,12 @@ void filter(image<rgb8, pixel_format::RGB8>& output, const image<rgb8, pixel_for
         output.at(y, 0) = input.at(y, 0);
         for (int x = 1; x < input.width - 1; x++) {
             int16_t sum = kernel[0] + kernel[1] + kernel[2];
-            int16_t r =
-                kernel[0] * input.at(y, x - 1).r + kernel[1] * input.at(y, x - 0).r + kernel[2] * input.at(y, x + 1).r;
-            int16_t g =
-                kernel[0] * input.at(y, x - 1).g + kernel[1] * input.at(y, x - 0).g + kernel[2] * input.at(y, x + 1).g;
-            int16_t b =
-                kernel[0] * input.at(y, x - 1).b + kernel[1] * input.at(y, x - 0).b + kernel[2] * input.at(y, x + 1).b;
+            int16_t r = kernel[0] * input.at(y, x - 1).r + kernel[1] * input.at(y, x - 0).r
+                        + kernel[2] * input.at(y, x + 1).r;
+            int16_t g = kernel[0] * input.at(y, x - 1).g + kernel[1] * input.at(y, x - 0).g
+                        + kernel[2] * input.at(y, x + 1).g;
+            int16_t b = kernel[0] * input.at(y, x - 1).b + kernel[1] * input.at(y, x - 0).b
+                        + kernel[2] * input.at(y, x + 1).b;
             output.at(y, x).r = uint8_t(clamp<int16_t>(r / (sum == 0 ? 1 : sum), 0, 255));
             output.at(y, x).g = uint8_t(clamp<int16_t>(g / (sum == 0 ? 1 : sum), 0, 255));
             output.at(y, x).b = uint8_t(clamp<int16_t>(b / (sum == 0 ? 1 : sum), 0, 255));

@@ -16,7 +16,7 @@ element_type dot(const R3::vector& a, const R3::point& b) {
 point centroid(const point& A, const point& B, const point& C) {
     basal::exception::throw_unless(A.dimensions == B.dimensions and B.dimensions == C.dimensions, __FILE__, __LINE__,
                                    "Must have same dimensionality");
-    point D(B.dimensions);
+    point D{B.dimensions};
     for (size_t i = 0; i < D.dimensions; i++) {
         D[i] = (A[i] + B[i] + C[i]) / 3;
     }
@@ -29,17 +29,17 @@ std::pair<point, point> closest_points_from_skew_lines(const R3::line& first, co
     // create another vector which is orthagonal to the first normal
     R3::vector N2 = R3::cross(second.direction(), N1);
     // we can make a plane at the second's location and find the intersection of the first with that plane
-    plane sP(N2, second.position());
+    plane sP{N2, second.position()};
     // the intersection will be point A
     intersection isPf = intersects(sP, first);
     assert(get_type(isPf) == IntersectionType::Point);
     // closest point on first to second
-    R3::point A(as_point(isPf));
+    R3::point A{as_point(isPf)};
     R3::vector N3 = R3::cross(first.direction(), N1);
-    plane fP(N3, first.position());
+    plane fP{N3, first.position()};
     intersection ifPs = intersects(fP, second);
     assert(get_type(ifPs) == IntersectionType::Point);
-    R3::point B(as_point(ifPs));
+    R3::point B{as_point(ifPs)};
     return std::make_pair(A, B);
 }
 
@@ -95,9 +95,9 @@ linalg::matrix rotation(const R3::vector& axis, const iso::radians theta) {
 }
 
 bool contained_within_aabb(const R3::point& P, const R3::point& min, const R3::point& max) {
-    return (min.x - basal::epsilon < P.x and P.x < max.x + basal::epsilon) and
-           (min.y - basal::epsilon < P.y and P.y < max.y + basal::epsilon) and
-           (min.z - basal::epsilon < P.z and P.z < max.z + basal::epsilon);
+    return (min.x - basal::epsilon < P.x and P.x < max.x + basal::epsilon)
+           and (min.y - basal::epsilon < P.y and P.y < max.y + basal::epsilon)
+           and (min.z - basal::epsilon < P.z and P.z < max.z + basal::epsilon);
 }
 
 }  // namespace geometry

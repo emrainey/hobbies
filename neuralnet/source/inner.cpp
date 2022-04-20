@@ -65,11 +65,11 @@ inner::~inner() {
 
 inner& inner::operator=(const inner& other) {
     // have to be the same size!
-    basal::exception::throw_if(other.values.rows != values.rows or other.weights.rows != weights.rows or
-                                   other.weights.cols != weights.cols or other.biases.rows != biases.rows or
-                                   other.biases.cols != biases.cols or other.delta_biases.rows != delta_biases.rows or
-                                   other.delta_weights.cols != delta_weights.cols or
-                                   other.delta_weights.rows != delta_weights.rows,
+    basal::exception::throw_if(other.values.rows != values.rows or other.weights.rows != weights.rows
+                                   or other.weights.cols != weights.cols or other.biases.rows != biases.rows
+                                   or other.biases.cols != biases.cols or other.delta_biases.rows != delta_biases.rows
+                                   or other.delta_weights.cols != delta_weights.cols
+                                   or other.delta_weights.rows != delta_weights.rows,
                                __FILE__, __LINE__);
     type = other.type;
     values = other.values;
@@ -88,11 +88,11 @@ inner& inner::operator=(const inner& other) {
 
 inner& inner::operator=(inner&& other) {
     // have to be the same size!
-    basal::exception::throw_if(other.values.rows != values.rows or other.weights.rows != weights.rows or
-                                   other.weights.cols != weights.cols or other.biases.rows != biases.rows or
-                                   other.biases.cols != biases.cols or other.delta_biases.rows != delta_biases.rows or
-                                   other.delta_weights.cols != delta_weights.cols or
-                                   other.delta_weights.rows != delta_weights.rows,
+    basal::exception::throw_if(other.values.rows != values.rows or other.weights.rows != weights.rows
+                                   or other.weights.cols != weights.cols or other.biases.rows != biases.rows
+                                   or other.biases.cols != biases.cols or other.delta_biases.rows != delta_biases.rows
+                                   or other.delta_weights.cols != delta_weights.cols
+                                   or other.delta_weights.rows != delta_weights.rows,
                                __FILE__, __LINE__);
     type = other.type;
     values = std::move(other.values);
@@ -114,7 +114,7 @@ void inner::set(activation_type _type) {
 }
 
 matrix inner::activation(matrix& in) {
-    matrix m(in.rows, in.cols);
+    matrix m{in.rows, in.cols};
     switch (type) {
         case activation_type::Sigmoid:
             m = sigmoid(in);
@@ -132,7 +132,7 @@ matrix inner::activation(matrix& in) {
 }
 
 matrix inner::activation_derivative(matrix& in) {
-    matrix m(in.rows, in.cols);
+    matrix m{in.rows, in.cols};
     switch (type) {
         case activation_type::Sigmoid:
             m = sigmoid_deriv(in);

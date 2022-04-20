@@ -91,7 +91,7 @@ void exception::throw_if(bool condition, const char loc[], std::size_t line, con
         const char *value = std::getenv("ABORT");
         if (value) {
             fprintf(stdout, "ABORT=%s\n", value);
-            std::string state(value);
+            std::string state{value};
             if (state == "1" || state == "true") {
                 std::abort();  // lldb or gdb should catch
             }
@@ -112,7 +112,7 @@ void exception::throw_if(bool condition, const char loc[], std::size_t line) noe
         const char *value = std::getenv("ABORT");
         if (value) {
             fprintf(stdout, "ABORT=%s\n", value);
-            std::string state(value);
+            std::string state{value};
             if (state == "1" || state == "true") std::abort();  // lldb or gdb should catch
         } else {
             fprintf(stdout, "Use ABORT=1 in env to cause an std::abort\n");
@@ -127,7 +127,7 @@ void exception::throw_unless(bool condition, const char loc[], std::size_t line,
         const char *value = std::getenv("ABORT");
         if (value) {
             fprintf(stdout, "ABORT=%s\n", value);
-            std::string state(value);
+            std::string state{value};
             if (state == "1" || state == "true") std::abort();  // lldb or gdb should catch
         } else {
             fprintf(stdout, "Use ABORT=1 in env to cause an std::abort\n");
@@ -147,7 +147,7 @@ void exception::throw_unless(bool condition, const char loc[], std::size_t line)
         const char *value = std::getenv("ABORT");
         if (value) {
             fprintf(stdout, "ABORT=%s\n", value);
-            std::string state(value);
+            std::string state{value};
             if (state == "1" || state == "true") std::abort();  // lldb or gdb should catch
         } else {
             fprintf(stdout, "Use ABORT=1 in env to cause an std::abort\n");

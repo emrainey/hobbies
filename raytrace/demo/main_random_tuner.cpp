@@ -104,10 +104,10 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
                 raytrace::tuning::pseudo_random_noise_params.initialize(true);
                 break;
             case '[':
-                raytrace::tuning::pseudo_random_noise_params.radius =
-                    (raytrace::tuning::pseudo_random_noise_params.radius > 0.125)
-                        ? raytrace::tuning::pseudo_random_noise_params.radius - 0.125
-                        : 0.125;
+                raytrace::tuning::pseudo_random_noise_params.radius
+                    = (raytrace::tuning::pseudo_random_noise_params.radius > 0.125)
+                          ? raytrace::tuning::pseudo_random_noise_params.radius - 0.125
+                          : 0.125;
                 trackbar_radius.set(raytrace::tuning::pseudo_random_noise_params.radius);
                 break;
             case ']':

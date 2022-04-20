@@ -192,21 +192,21 @@ public:
     }
 
     /** Allows each element to be changed */
-    using alteration_iterator =
-        std::function<typename pack_type::element_type(size_t, typename pack_type::element_type)>;
+    using alteration_iterator
+        = std::function<typename pack_type::element_type(size_t, typename pack_type::element_type)>;
 
     /** Only allows read acces of each element */
     using examination_iterator = std::function<void(size_t, typename pack_type::element_type)>;
 
     /** Iterator for changing values */
-    void for_each(alteration_iterator iter) {
+    void for_each (alteration_iterator iter) {
         for (size_t n = 0; n < dimensions; n++) {
             pack_type::datum[n] = iter(n, pack_type::datum[n]);
         }
     }
 
     /** Iterator for examining values */
-    void for_each(examination_iterator iter) const {
+    void for_each (examination_iterator iter) const {
         for (size_t n = 0; n < dimensions; n++) {
             iter(n, pack_type::datum[n]);
         }
@@ -318,7 +318,7 @@ public:
         if constexpr (pack_type::number_of_elements == 2) {
             __m128d tmp = _mm_mul_pd(a.data, b.data);
             tmp = _mm_hadd_pd(tmp, tmp);
-            xmm_ c(tmp);
+            xmm_ c{tmp};
             d = c[0];
         } else {
             __m256d t = _mm256_mul_pd(a.data, b.data);
@@ -326,7 +326,7 @@ public:
             __m256d h = _mm256_hadd_pd(t, z);
             t = _mm256_permute4x64_pd(h, 0xD8);
             h = _mm256_hadd_pd(t, z);
-            xmm_ c(h);
+            xmm_ c{h};
             d = c[0];
         }
         return d;

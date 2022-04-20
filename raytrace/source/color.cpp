@@ -131,9 +131,8 @@ color interpolate(const color& x, const color& y, element_type a) {
 }
 
 bool operator==(const color& a, const color& b) {
-    return basal::equals(a.red(), b.red(), color::precision) and
-           basal::equals(a.green(), b.green(), color::precision) and
-           basal::equals(a.blue(), b.blue(), color::precision);
+    return basal::equals(a.red(), b.red(), color::precision) and basal::equals(a.green(), b.green(), color::precision)
+           and basal::equals(a.blue(), b.blue(), color::precision);
 }
 
 color color::blend_samples(const std::vector<color>& subsamples) {

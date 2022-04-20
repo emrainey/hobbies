@@ -19,7 +19,7 @@ TEST(ImageTest, Basics) {
 
 TEST(ImageTest, IteratorsTest) {
     image img3(2, 2);
-    image::point p(0, 0);
+    image::point p{0, 0};
 
     img3.generate_each([&](const image::point&) -> color { return colors::red; });
     ASSERT_EQ(255, img3.at(p).r);
@@ -95,7 +95,7 @@ TEST(ImageTest, SubsamplingChecker) {
     double ratio = (image5.height / image6.height);
     image6.generate_each(
         [&](const image::point& p) -> color {
-            image::point n(p.x * ratio, p.y * ratio);
+            image::point n{p.x * ratio, p.y * ratio};
             double fx = std::floor(p.x);
             bool ix = (static_cast<int>(fx) & 1);
             double fy = std::floor(p.y);

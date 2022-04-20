@@ -57,7 +57,7 @@ volts& volts::operator/=(double factor) {
     return (*this);
 }
 volts volts::operator-() const {
-    return volts(-value);
+    return volts{-value};
 }
 bool volts::operator<(const volts& other) const {
     return (_value < other.value);
@@ -73,19 +73,19 @@ bool volts::operator>=(const volts& other) const {
 }
 namespace operators {
 volts operator+(const volts& A, const volts& B) {
-    return volts(A.value + B.value);
+    return volts{A.value + B.value};
 }
 volts operator-(const volts& A, const volts& B) {
-    return volts(A.value - B.value);
+    return volts{A.value - B.value};
 }
 volts operator*(const volts& A, double factor) {
-    return volts(A.value * factor);
+    return volts{A.value * factor};
 }
 volts operator*(double factor, const volts& A) {
-    return volts(A.value * factor);
+    return volts{A.value * factor};
 }
 volts operator/(const volts& A, double factor) {
-    return volts(A.value / factor);
+    return volts{A.value / factor};
 }
 }  // namespace operators
 namespace literals {

@@ -57,7 +57,7 @@ hertz& hertz::operator/=(double factor) {
     return (*this);
 }
 hertz hertz::operator-() const {
-    return hertz(-value);
+    return hertz{-value};
 }
 bool hertz::operator<(const hertz& other) const {
     return (_value < other.value);
@@ -73,19 +73,19 @@ bool hertz::operator>=(const hertz& other) const {
 }
 namespace operators {
 hertz operator+(const hertz& A, const hertz& B) {
-    return hertz(A.value + B.value);
+    return hertz{A.value + B.value};
 }
 hertz operator-(const hertz& A, const hertz& B) {
-    return hertz(A.value - B.value);
+    return hertz{A.value - B.value};
 }
 hertz operator*(const hertz& A, double factor) {
-    return hertz(A.value * factor);
+    return hertz{A.value * factor};
 }
 hertz operator*(double factor, const hertz& A) {
-    return hertz(A.value * factor);
+    return hertz{A.value * factor};
 }
 hertz operator/(const hertz& A, double factor) {
-    return hertz(A.value / factor);
+    return hertz{A.value / factor};
 }
 }  // namespace operators
 namespace literals {

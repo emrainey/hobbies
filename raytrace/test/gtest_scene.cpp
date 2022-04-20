@@ -13,9 +13,9 @@ TEST(SceneTest, ObjectIntersections) {
     using namespace raytrace::objects;
 
     // define a single object
-    raytrace::objects::sphere s0(raytrace::point(0, 0, 0), 2);
+    raytrace::objects::sphere s0{raytrace::point(0, 0, 0), 2};
     // define a ray
-    ray r0(raytrace::point(0, 0, 5), vector{{0, 0, -1}});
+    ray r0{raytrace::point(0, 0, 5), vector{{0, 0, -1}}};
     // define the object list
     scene::object_list objects;
     objects.push_back(&s0);
@@ -35,10 +35,10 @@ TEST(SceneTest, NearestObjectIntersections) {
     using namespace raytrace::objects;
 
     // define several objects
-    raytrace::objects::sphere s0(raytrace::point(0, 0, 0), 2);
-    raytrace::objects::sphere s1(raytrace::point(0, 3, 0), 2);
+    raytrace::objects::sphere s0{raytrace::point(0, 0, 0), 2};
+    raytrace::objects::sphere s1{raytrace::point(0, 3, 0), 2};
     // define a ray
-    ray r0(raytrace::point(0, -3, 0), vector{{0, 1, 0}});
+    ray r0{raytrace::point(0, -3, 0), vector{{0, 1, 0}}};
     // define the object list
     scene::object_list objects;
     objects.push_back(&s0);
@@ -62,9 +62,9 @@ TEST(SceneTest, LowResSpheres) {
     using namespace raytrace::objects;
 
     // define an object
-    raytrace::objects::sphere s0(raytrace::point(4, 0, 0), 0.50);
-    raytrace::objects::sphere s1(raytrace::point(4, -2, 0), 0.75);
-    raytrace::objects::sphere s2(raytrace::point(4, 2, 0), 0.25);
+    raytrace::objects::sphere s0{raytrace::point(4, 0, 0), 0.50};
+    raytrace::objects::sphere s1{raytrace::point(4, -2, 0), 0.75};
+    raytrace::objects::sphere s2{raytrace::point(4, 2, 0), 0.25};
     iso::degrees fov(55);
     // tiny image, simple camera placement
     scene scene(120, 180, fov);

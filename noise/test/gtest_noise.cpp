@@ -46,21 +46,21 @@ TEST(NoiseTest, Interpolate) {
 }
 
 TEST(NoiseTest, FloorTest) {
-    noise::point f1(1.7, 2.4);
+    noise::point f1{1.7, 2.4};
     noise::point f2 = noise::floor(f1);
     ASSERT_FLOAT_EQ(1.0, f2.x);
     ASSERT_FLOAT_EQ(2.0, f2.y);
 }
 
 TEST(NoiseTest, FractTest) {
-    noise::point f1(1.7, 2.4);
+    noise::point f1{1.7, 2.4};
     noise::point f3 = noise::fract(f1);
     ASSERT_FLOAT_EQ(0.7, f3.x);
     ASSERT_FLOAT_EQ(0.4, f3.y);
 }
 
 TEST(NoiseTest, RandomTest) {
-    // noise::point  ones(1.0, 1.0);
+    // noise::point ones{1.0, 1.0};
     noise::vector seed{{1.0, 1.0}};
     srandom(time(nullptr));
     // test the range generated
@@ -77,7 +77,7 @@ TEST(NoiseTest, PadImage) {
     noise::pad_<double, 128> pad;
     pad.generate();
     fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8> img(128, 128);
-    img.for_each([&](size_t y, size_t x, fourcc::rgb8& pixel) {
+    img.for_each ([&](size_t y, size_t x, fourcc::rgb8& pixel) {
         sum += pad.at(y, x);
         pixel.r = 255u * pad.at(y, x);
         pixel.g = 255u * pad.at(y, x);
@@ -89,7 +89,7 @@ TEST(NoiseTest, PadImage) {
 
 class NoiseImageTest : public ::testing::Test {
 public:
-    NoiseImageTest() : Test(), pad(), image(1024, 1024) {
+    NoiseImageTest() : Test{}, pad{}, image{1024, 1024} {
     }
 
     void SetUp() {
@@ -113,7 +113,7 @@ TEST_F(NoiseImageTest, RandomNoiseImage) {
     noise::vector vec_g{{29.81020393, 92.9283940}};
     noise::vector vec_b{{128.320293, 29.908293}};
     double gain = 2389.0283;
-    image.for_each([&](size_t y, size_t x, fourcc::rgb8& pixel) {
+    image.for_each ([&](size_t y, size_t x, fourcc::rgb8& pixel) {
         noise::vector vec{{double(x), double(y)}};
         double _r, r = noise::random(vec, vec_r, gain);
         double _g, g = noise::random(vec, vec_g, gain);
@@ -130,8 +130,8 @@ TEST_F(NoiseImageTest, PerlinNoiseImage) {
     noise::vector seeds{{8.20203, -9.745978}};
     double scale = 10.0;
     double gain = 245.4993546;
-    image.for_each([&](size_t y, size_t x, fourcc::rgb8& pixel) {
-        noise::point pnt(x, y);
+    image.for_each ([&](size_t y, size_t x, fourcc::rgb8& pixel) {
+        noise::point pnt{(double)x, (double)y};
         double p = noise::perlin(pnt, scale, seeds, gain);
         pixel.r = 255u * p;
         pixel.g = 255u * p;
@@ -143,8 +143,8 @@ TEST_F(NoiseImageTest, PerlinNoiseImage) {
 TEST_F(NoiseImageTest, Turbulence) {
     double size = 9.0;
     double scale = 1.0;
-    image.for_each([&](size_t y, size_t x, fourcc::rgb8& pixel) {
-        noise::point pnt(x, y);
+    image.for_each ([&](size_t y, size_t x, fourcc::rgb8& pixel) {
+        noise::point pnt{(double)x, (double)y};
         double value = noise::turbulence(pnt, size, scale, pad);
         pixel.r = 255u * value;
         pixel.g = 255u * value;
@@ -157,8 +157,8 @@ TEST_F(NoiseImageTest, TurbulenceSin) {
     double size = 9.0;
     double scale = 10.0;
     double xs = 3.0, ys = 3.0, power = 2.0;
-    image.for_each([&](size_t y, size_t x, fourcc::rgb8& pixel) {
-        noise::point pnt(x, y);
+    image.for_each ([&](size_t y, size_t x, fourcc::rgb8& pixel) {
+        noise::point pnt{(double)x, (double)y};
         double value = noise::turbulentsin(pnt, xs, ys, power, size, scale, pad);
         pixel.r = 255u * value;
         pixel.g = 255u * value;

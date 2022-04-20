@@ -12,13 +12,13 @@ using namespace geometry;
 using namespace geometry::operators;
 
 TEST(PointTest, NormalConstructions) {
-    point p1(1);
-    point p2(2);
-    point p3(3);
+    point p1{1};
+    point p2{2};
+    point p3{3};
 }
 
 TEST(PointTest, InvalidConstructors) {
-    ASSERT_THROW(point p(-1), basal::exception);
+    ASSERT_THROW(point p{-1}, basal::exception);
 }
 
 TEST(PointTest, ListInitializer) {
@@ -38,7 +38,7 @@ TEST(PointTest, VectorConstructor) {
     v.push_back(7);
     v.push_back(8);
     v.push_back(9);
-    point p(v);
+    point p{v};
     ASSERT_DOUBLE_EQ(3, p.dimensions);
 }
 
@@ -48,16 +48,16 @@ TEST(PointTest, Assignments) {
     ASSERT_DOUBLE_EQ(p1[0], p2[0]);
     ASSERT_DOUBLE_EQ(p1[1], p2[1]);
     ASSERT_DOUBLE_EQ(p1[2], p2[2]);
-    point p3(std::move(p2));  // move
+    point p3{std::move(p2)};  // move
     ASSERT_DOUBLE_EQ(p1[0], p3[0]);
     ASSERT_DOUBLE_EQ(p1[1], p3[1]);
     ASSERT_DOUBLE_EQ(p1[2], p3[2]);
 }
 
 TEST(PointTest, ClassOperators) {
-    R3::point p1(1, 2, 3);
+    R3::point p1{1, 2, 3};
     R3::vector p2{{4, 5, 6}};
-    R3::point p3(5, 7, 9);
+    R3::point p3{5, 7, 9};
 
     p1 += p2;
     ASSERT_DOUBLE_EQ(p3[0], p1.x);
@@ -71,8 +71,8 @@ TEST(PointTest, ClassOperators) {
 }
 
 TEST(PointTest, NamespaceOperators) {
-    R3::point p1(1, 2, 3);
-    R3::point p2(4, 5, 6);
+    R3::point p1{1, 2, 3};
+    R3::point p2{4, 5, 6};
     R3::vector v1{{5, 7, 9}};
 
     // vector between two points
@@ -106,7 +106,7 @@ TEST(PointTest, Templates) {
 
 TEST(PointTest, PointHomogenizing) {
     point_<2> u(2.3, 4.5);
-    R3::point v(u);  // homogenizing 2d->3d
+    R3::point v{u};  // homogenizing 2d->3d
     ASSERT_DOUBLE_EQ(2.3, v.x);
     ASSERT_DOUBLE_EQ(4.5, v.y);
     ASSERT_DOUBLE_EQ(1.0, v.z);
@@ -114,7 +114,7 @@ TEST(PointTest, PointHomogenizing) {
 
 TEST(PointTest, VectorToPoint) {
     R3::vector v1{{1, 2, 3}};
-    point p1(as_point(v1));  // CopyConstruct
+    point p1{as_point(v1)};  // CopyConstruct
     point p2{{1, 2, 3}};
     p1.print("p1");
     ASSERT_POINT_EQ(p2, p1);
@@ -133,7 +133,7 @@ TEST(PointTest, Scaling) {
 }
 
 TEST(PointTest, MatrixMult) {
-    matrix m1(matrix::ones(3, 3));
+    matrix m1{matrix::ones(3, 3)};
     point p1{{1, 2, 3}};
     p1.print("p1");
     point p2{{0, 0, 0}};

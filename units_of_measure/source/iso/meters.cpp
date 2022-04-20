@@ -57,7 +57,7 @@ meters& meters::operator/=(double factor) {
     return (*this);
 }
 meters meters::operator-() const {
-    return meters(-value);
+    return meters{-value};
 }
 bool meters::operator<(const meters& other) const {
     return (_value < other.value);
@@ -73,19 +73,19 @@ bool meters::operator>=(const meters& other) const {
 }
 namespace operators {
 meters operator+(const meters& A, const meters& B) {
-    return meters(A.value + B.value);
+    return meters{A.value + B.value};
 }
 meters operator-(const meters& A, const meters& B) {
-    return meters(A.value - B.value);
+    return meters{A.value - B.value};
 }
 meters operator*(const meters& A, double factor) {
-    return meters(A.value * factor);
+    return meters{A.value * factor};
 }
 meters operator*(double factor, const meters& A) {
-    return meters(A.value * factor);
+    return meters{A.value * factor};
 }
 meters operator/(const meters& A, double factor) {
-    return meters(A.value / factor);
+    return meters{A.value / factor};
 }
 }  // namespace operators
 namespace literals {

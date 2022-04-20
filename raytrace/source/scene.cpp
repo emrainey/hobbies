@@ -149,9 +149,9 @@ color scene::trace(const ray& world_ray, const mediums::medium& media, size_t re
         // compute the reflection vector
         ray world_reflection = obj.reflection(world_ray, world_surface_point);
         // compute the refracted vector
-        ray world_refraction =
-            obj.refraction(world_ray, world_surface_point, media.refractive_index(object_surface_point),
-                           medium.refractive_index(object_surface_point));
+        ray world_refraction
+            = obj.refraction(world_ray, world_surface_point, media.refractive_index(object_surface_point),
+                             medium.refractive_index(object_surface_point));
 
         basal::exception::throw_if(dot(world_ray.direction(), world_refraction.direction()) < 0, __FILE__, __LINE__,
                                    "Refracted ray should not be opposites");
@@ -166,12 +166,12 @@ color scene::trace(const ray& world_ray, const mediums::medium& media, size_t re
         color surface_color, emitted_color, reflected_color, transmitted_color;
 
         // compute the incident angle of the reflection vector
-        iso::radians incident_angle =
-            geometry::angle((inside_out ? -world_surface_normal : world_surface_normal), world_ray.direction());
+        iso::radians incident_angle
+            = geometry::angle((inside_out ? -world_surface_normal : world_surface_normal), world_ray.direction());
 
         // compute the transmitted angle of the refraction vector
-        iso::radians transmitted_angle =
-            geometry::angle((inside_out ? -world_surface_normal : world_surface_normal), world_refraction.direction());
+        iso::radians transmitted_angle = geometry::angle((inside_out ? -world_surface_normal : world_surface_normal),
+                                                         world_refraction.direction());
 
         /*********************************************************************/
 
@@ -243,8 +243,8 @@ color scene::trace(const ray& world_ray, const mediums::medium& media, size_t re
                         element_type incident_scaling = dot(normalized_light_direction, world_surface_normal);
                         // basal::exception::throw_unless(within_inclusive(-1.0, incident_scaling, 1.0), __FILE__,
                         // __LINE__, "Must be within bounds");
-                        color incident_light =
-                            (incident_scaling > 0.0) ? incident_scaling * raw_light_color : colors::black;
+                        color incident_light
+                            = (incident_scaling > 0.0) ? incident_scaling * raw_light_color : colors::black;
                         color diffuse_light = medium.diffuse(object_surface_point);
                         element_type specular_scaling = dot(normalized_light_direction, world_reflection.direction());
                         // basal::exception::throw_unless(within_inclusive(-1.0, specular_scaling, 1.0), __FILE__,
@@ -263,8 +263,8 @@ color scene::trace(const ray& world_ray, const mediums::medium& media, size_t re
                             // convenience reference
                             const raytrace::mediums::medium& mat = obj.material();
                             // trace another ray through the object
-                            surface_color_samples[sample_index] +=
-                                trace(world_ray, mat, reflection_depth - 1, recursive_contribution);
+                            surface_color_samples[sample_index]
+                                += trace(world_ray, mat, reflection_depth - 1, recursive_contribution);
                         }
                     } else {
                         statistics::get().point_in_shadow++;

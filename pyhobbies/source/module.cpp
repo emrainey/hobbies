@@ -21,8 +21,8 @@ PYBIND11_MODULE(pyhobbies, module) {
             .def("clamp", &raytrace::color::clamp)
             .def(
                 "__repr__", [](const raytrace::color& c) -> auto {
-                    return "<raytrace.color = R:" + std::to_string(c.red()) + " G:" + std::to_string(c.green()) +
-                           " B:" + std::to_string(c.blue()) + "'>";
+                    return "<raytrace.color = R:" + std::to_string(c.red()) + " G:" + std::to_string(c.green())
+                           + " B:" + std::to_string(c.blue()) + "'>";
                 });
         py::enum_<raytrace::color::space>(color, "space")
             .value("linear", raytrace::color::space::linear)

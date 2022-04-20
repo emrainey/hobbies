@@ -57,7 +57,7 @@ ohms& ohms::operator/=(double factor) {
     return (*this);
 }
 ohms ohms::operator-() const {
-    return ohms(-value);
+    return ohms{-value};
 }
 bool ohms::operator<(const ohms& other) const {
     return (_value < other.value);
@@ -73,19 +73,19 @@ bool ohms::operator>=(const ohms& other) const {
 }
 namespace operators {
 ohms operator+(const ohms& A, const ohms& B) {
-    return ohms(A.value + B.value);
+    return ohms{A.value + B.value};
 }
 ohms operator-(const ohms& A, const ohms& B) {
-    return ohms(A.value - B.value);
+    return ohms{A.value - B.value};
 }
 ohms operator*(const ohms& A, double factor) {
-    return ohms(A.value * factor);
+    return ohms{A.value * factor};
 }
 ohms operator*(double factor, const ohms& A) {
-    return ohms(A.value * factor);
+    return ohms{A.value * factor};
 }
 ohms operator/(const ohms& A, double factor) {
-    return ohms(A.value / factor);
+    return ohms{A.value / factor};
 }
 }  // namespace operators
 namespace literals {

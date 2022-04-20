@@ -13,15 +13,15 @@ TEST(CuboidTest, Normals) {
     using namespace raytrace;
     using namespace raytrace::objects;
 
-    raytrace::point P(0, 0, 0);
-    cuboid c0(P, 1.0, 1.0, 1.0);
+    raytrace::point P{0, 0, 0};
+    cuboid c0{P, 1.0, 1.0, 1.0};
 
-    raytrace::point pX(1, 0, 0);
-    raytrace::point nX(-1, 0, 0);
-    raytrace::point pY(0, 1, 0);
-    raytrace::point nY(0, -1, 0);
-    raytrace::point pZ(0, 0, 1);
-    raytrace::point nZ(0, 0, -1);
+    raytrace::point pX{1, 0, 0};
+    raytrace::point nX{-1, 0, 0};
+    raytrace::point pY{0, 1, 0};
+    raytrace::point nY{0, -1, 0};
+    raytrace::point pZ{0, 0, 1};
+    raytrace::point nZ{0, 0, -1};
 
     vector nx = -R3::basis::X;
     vector ny = -R3::basis::Y;
@@ -39,9 +39,9 @@ TEST(CuboidTest, IntersectionMissed) {
     using namespace raytrace;
     using namespace raytrace::objects;
 
-    raytrace::point P(0, 0, 0);
-    cuboid c0(P, 1.0, 1.0, 1.0);
-    raytrace::point Q(2.0, 2.0, 2.0);
+    raytrace::point P{0, 0, 0};
+    cuboid c0{P, 1.0, 1.0, 1.0};
+    raytrace::point Q{2.0, 2.0, 2.0};
     vector R{{1, 1, 0}};
 
     ray complete_miss(Q, R);
@@ -53,12 +53,12 @@ TEST(CuboidTest, IntersectionHitX) {
     using namespace raytrace;
     using namespace raytrace::objects;
 
-    raytrace::point P(0, 0, 0);
-    cuboid c0(P, 1.0, 1.0, 1.0);
-    raytrace::point Q(2.0, 0.75, 0.25);
+    raytrace::point P{0, 0, 0};
+    cuboid c0{P, 1.0, 1.0, 1.0};
+    raytrace::point Q{2.0, 0.75, 0.25};
     vector R{{-1, 0, 0}};
     ray hit0(Q, R);
-    raytrace::point h0(1.0, 0.75, 0.25);
+    raytrace::point h0{1.0, 0.75, 0.25};
 
     geometry::intersection ipx = c0.intersect(hit0);
     ASSERT_EQ(geometry::IntersectionType::Point, get_type(ipx));
@@ -70,20 +70,20 @@ TEST(CuboidTest, IntersectionMassXY) {
     using namespace raytrace;
     using namespace raytrace::objects;
 
-    raytrace::point P(7, 22, -19);
+    raytrace::point P{7, 22, -19};
     element_type w = 0.5;  // the half-width of the cuboid
-    cuboid c0(P, w, w, w);
+    cuboid c0{P, w, w, w};
     element_type u = 1.0 / 32.0;  // the testing step
 
     // in the XY plane
     for (element_type y = (-w + u + P.y); y < (w + P.y); y += u) {
         for (element_type x = (-w + u + P.x); x < (w + P.x); x += u) {
-            raytrace::point R(x, y, P.z + (2 * w));
+            raytrace::point R{x, y, P.z + (2 * w)};
             vector N{{0, 0, -1}};
-            ray W(R, N);
+            ray W{R, N};
             geometry::intersection I = c0.intersect(W);
             EXPECT_EQ(geometry::IntersectionType::Point, get_type(I)) << "At y=" << y << ", x=" << x << std::endl;
-            raytrace::point Q(x, y, P.z + w);
+            raytrace::point Q{x, y, P.z + w};
             EXPECT_TRUE(Q == as_point(I));
         }
     }
@@ -95,13 +95,13 @@ TEST(CuboidTest, IntersectionsOnSurface) {
 
     raytrace::point center(0, 0, 0);
     element_type w = 2.0;
-    cuboid c0(center, w, w, w);
-    raytrace::point A(w, 0, 0);
-    raytrace::point B(-w, 0, 0);
-    raytrace::point C(0, w, 0);
-    raytrace::point D(0, -w, 0);
-    raytrace::point E(0, 0, w);
-    raytrace::point F(0, 0, -w);
+    cuboid c0{center, w, w, w};
+    raytrace::point A{w, 0, 0};
+    raytrace::point B{-w, 0, 0};
+    raytrace::point C{0, w, 0};
+    raytrace::point D{0, -w, 0};
+    raytrace::point E{0, 0, w};
+    raytrace::point F{0, 0, -w};
 
     ray rA0(A, A - center);
     ray rB0(B, B - center);

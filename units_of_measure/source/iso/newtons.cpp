@@ -57,7 +57,7 @@ newtons& newtons::operator/=(double factor) {
     return (*this);
 }
 newtons newtons::operator-() const {
-    return newtons(-value);
+    return newtons{-value};
 }
 bool newtons::operator<(const newtons& other) const {
     return (_value < other.value);
@@ -73,19 +73,19 @@ bool newtons::operator>=(const newtons& other) const {
 }
 namespace operators {
 newtons operator+(const newtons& A, const newtons& B) {
-    return newtons(A.value + B.value);
+    return newtons{A.value + B.value};
 }
 newtons operator-(const newtons& A, const newtons& B) {
-    return newtons(A.value - B.value);
+    return newtons{A.value - B.value};
 }
 newtons operator*(const newtons& A, double factor) {
-    return newtons(A.value * factor);
+    return newtons{A.value * factor};
 }
 newtons operator*(double factor, const newtons& A) {
-    return newtons(A.value * factor);
+    return newtons{A.value * factor};
 }
 newtons operator/(const newtons& A, double factor) {
-    return newtons(A.value / factor);
+    return newtons{A.value / factor};
 }
 }  // namespace operators
 namespace literals {

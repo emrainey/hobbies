@@ -53,7 +53,7 @@ image::point sphere::map(const point& object_surface_point) const {
     element_type u = pol[1] / iso::tau;  // 0-theta-2pi
     u = (u < 0 ? 1.0 + u : u);
     element_type v = pol[2] / iso::pi;  // 0-phi-pi
-    image::point uv(u, v);
+    image::point uv{u, v};
     // std::cout << "R3: " << object_surface_point << " => R2: " << uv;
     return uv;
 }

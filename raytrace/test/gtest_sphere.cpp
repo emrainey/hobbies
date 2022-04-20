@@ -12,22 +12,22 @@
 using namespace raytrace;
 
 TEST(SphereTest, NormalReflection) {
-    raytrace::point C(1, 1, 1);
-    raytrace::objects::sphere s0(C, 1.0);
-    raytrace::point P(0, 1, 1);
+    raytrace::point C{1, 1, 1};
+    raytrace::objects::sphere s0{C, 1.0};
+    raytrace::point P{0, 1, 1};
     ASSERT_TRUE(s0.is_surface_point(P));
     vector N = s0.normal(P);
     vector nx = -R3::basis::X;
     ASSERT_VECTOR_EQ(nx, N);
     vector F{{1, 1, 0}};
     // reflect F at P using N inside
-    vector G(s0.reflection(F, P));
+    vector G{s0.reflection(F, P)};
     vector H{{-1, 1, 0}};
     ASSERT_VECTOR_EQ(H.normalized(), G);
 }
 
 TEST(SphereTest, Mapping) {
-    raytrace::objects::sphere s0(raytrace::point(1, 1, 1), 1.0);
+    raytrace::objects::sphere s0{raytrace::point(1, 1, 1), 1.0};
 
     raytrace::point surface_points[] = {
         raytrace::point(1, 0, 0),
@@ -53,8 +53,8 @@ TEST(SphereTest, Mapping) {
 
 TEST(SphereTest, IntersectionsFromRays) {
     // should not be at origin
-    raytrace::point C(-3, -3, -3);
-    raytrace::objects::sphere S(C, 3);
+    raytrace::point C{-3, -3, -3};
+    raytrace::objects::sphere S{C, 3};
 
     // there are several types of intersections
     // No intersection
@@ -62,11 +62,11 @@ TEST(SphereTest, IntersectionsFromRays) {
     // Non-Center
     // Tangent
 
-    raytrace::point A(3, -3, -3);
-    raytrace::point B(1, -1, -1);
-    raytrace::point D(0, -3, -3);  // on the surface
-    raytrace::point E(-3, 0, -3);  // on the surface, but tangential
-    raytrace::point F(-1, 1, 2);
+    raytrace::point A{3, -3, -3};
+    raytrace::point B{1, -1, -1};
+    raytrace::point D{0, -3, -3};  // on the surface
+    raytrace::point E{-3, 0, -3};  // on the surface, but tangential
+    raytrace::point F{-1, 1, 2};
 
     // line through middle
     ray Amx(A, -R3::basis::X);

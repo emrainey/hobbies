@@ -9,7 +9,7 @@ using namespace geometry;
 
 int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused))) {
     // std::default_random_engine re;
-    std::random_device rd;
+    std::random_device rd{};
     std::mt19937 gen(rd());
     std::uniform_real_distribution<double> unif(-120, 120);
     std::vector<std::normal_distribution<double>> distribs(8);
@@ -23,7 +23,7 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
         points[i].x = distribs[r](gen);
         points[i].y = distribs[r + 1](gen);
     }
-    kmeans km(points);
+    kmeans km{points};
     km.configure(4);
     std::vector<cv::Scalar> colors{{
         cv::Scalar(0, 255, 0, 0),   // Green

@@ -119,9 +119,9 @@ TEST_F(RenderTest, DISABLED_Pyramid) {
 
 TEST_F(RenderTest, DISABLED_Cube) {
     raytrace::objects::cuboid shape(look_at, 10, 10, 10);
-    iso::degrees rx(0);
-    iso::degrees ry(0);
-    iso::degrees rz(45);
+    iso::degrees rx{0};
+    iso::degrees ry{0};
+    iso::degrees rz{45};
     shape.rotation(rx, ry, rz);
     // shape.material(&checkers);
     // shape.material(&rubber);
@@ -131,8 +131,8 @@ TEST_F(RenderTest, DISABLED_Cube) {
 }
 
 TEST_F(RenderTest, DISABLED_Cylinder) {
-    R3::point c0(0, 0, 10);
-    R3::point c1(0, 0, 20);
+    R3::point c0{0, 0, 10};
+    R3::point c1{0, 0, 20};
     raytrace::objects::cylinder shape(c0, 10, 10);
     raytrace::objects::ring cap(c1, R3::basis::Z, 0, 10);
     // shape.material(&checkers);
@@ -167,9 +167,9 @@ TEST_F(RenderTest, DISABLED_Ring) {
 }
 
 TEST_F(RenderTest, DISABLED_Triangle) {
-    R3::point A(10, 0, 10);
-    R3::point B(0, 0, 13);
-    R3::point C(0, 10, 10);
+    R3::point A{10, 0, 10};
+    R3::point B{0, 0, 13};
+    R3::point C{0, 10, 10};
     raytrace::objects::triangle shape1(A, B, C);
     raytrace::objects::triangle shape2(C, B, A);
     shape1.material(&rubber);
@@ -238,8 +238,8 @@ TEST_F(RenderTest, DISABLED_QuadraticHyperboloid) {
 }
 
 TEST_F(RenderTest, DISABLED_InclusiveOverlap) {
-    raytrace::objects::sphere s0(R3::point(5, 0, 10), 10);
-    raytrace::objects::sphere s1(R3::point(-5, 0, 10), 10);
+    raytrace::objects::sphere s0{R3::point(5, 0, 10), 10};
+    raytrace::objects::sphere s1{R3::point(-5, 0, 10), 10};
     raytrace::objects::overlap shape(s0, s1, overlap::type::inclusive);
     shape.material(&plastic);
     add_object(&shape);
@@ -247,8 +247,8 @@ TEST_F(RenderTest, DISABLED_InclusiveOverlap) {
 }
 
 TEST_F(RenderTest, DISABLED_SubtractiveOverlap) {
-    raytrace::objects::sphere s0(R3::point(5, 0, 10), 10);
-    raytrace::objects::sphere s1(R3::point(-5, 0, 10), 10);
+    raytrace::objects::sphere s0{R3::point(5, 0, 10), 10};
+    raytrace::objects::sphere s1{R3::point(-5, 0, 10), 10};
     raytrace::objects::overlap shape(s1, s0, overlap::type::subtractive);
     shape.material(&plastic);
     add_object(&shape);
@@ -256,8 +256,8 @@ TEST_F(RenderTest, DISABLED_SubtractiveOverlap) {
 }
 
 TEST_F(RenderTest, DISABLED_AdditiveOverlap) {
-    raytrace::objects::sphere s0(R3::point(5, 0, 10), 10);
-    raytrace::objects::sphere s1(R3::point(-5, 0, 10), 10);
+    raytrace::objects::sphere s0{R3::point(5, 0, 10), 10};
+    raytrace::objects::sphere s1{R3::point(-5, 0, 10), 10};
     raytrace::objects::overlap shape(s1, s0, overlap::type::additive);
     shape.material(&plastic);
     shape.position(raytrace::point(7, 7, 7));  // the benifit is that the objects are grouped now...
@@ -286,7 +286,7 @@ TEST_F(RenderTest, DISABLED_SubtractiveOverlap2) {
 }
 
 TEST_F(RenderTest, DISABLED_SphereSpotLight) {
-    raytrace::ray r0(raytrace::point(-30, 0, 30), -R3::basis::Z);
+    raytrace::ray r0{raytrace::point(-30, 0, 30), -R3::basis::Z};
     raytrace::lights::spot spot0(r0, colors::white, 1E3, iso::degrees{45});
     raytrace::objects::sphere shape(look_at, 10);
     shape.material(&checkers2);

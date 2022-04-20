@@ -146,8 +146,8 @@ constexpr long double compute_pi(size_t digits) {
         for (long double j = i; j > 0; j -= 1.0) {
             denum *= 16.0;
         }
-        pi += ((4.0 / (8.0 * i + 1.0)) - (2.0 / (8.0 * i + 4.0)) - (1.0 / (8.0 * i + 5.0)) - (1.0 / (8.0 * i + 6.0))) /
-              denum;
+        pi += ((4.0 / (8.0 * i + 1.0)) - (2.0 / (8.0 * i + 4.0)) - (1.0 / (8.0 * i + 5.0)) - (1.0 / (8.0 * i + 6.0)))
+              / denum;
     }
     return pi;
 }

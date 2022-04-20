@@ -53,8 +53,8 @@ hits overlap::collisions_along(const ray& overlap_ray) const {
     std::sort(hitsAB.begin(), hitsAB.end(), sorter);
 
     // classify the type of colliders here
-    bool two_closed_simple_surfaces = (m_A.max_collisions() == 2 and m_B.max_collisions() == 2 and
-                                       m_A.is_closed_surface() and m_B.is_closed_surface());
+    bool two_closed_simple_surfaces = (m_A.max_collisions() == 2 and m_B.max_collisions() == 2
+                                       and m_A.is_closed_surface() and m_B.is_closed_surface());
 
     if (m_type == overlap::type::additive) {
         // remove the inner alternating hit from the hits lists
@@ -68,15 +68,15 @@ hits overlap::collisions_along(const ray& overlap_ray) const {
         if (two_closed_simple_surfaces) {
             // if [A0, A1, B0, B1] then return all
             // if [B0, B1, A0, A1] then return all
-            if (std::equal(hitsAB.begin(), hitsAB.begin() + hitsA.size(), hitsA.begin()) or
-                std::equal(hitsAB.begin(), hitsAB.begin() + hitsB.size(), hitsB.begin())) {
+            if (std::equal(hitsAB.begin(), hitsAB.begin() + hitsA.size(), hitsA.begin())
+                or std::equal(hitsAB.begin(), hitsAB.begin() + hitsB.size(), hitsB.begin())) {
                 // if it starts with only hitsA or only hitsB
                 return hitsAB;
             }
             // if [A0, B0, A1, B1] then return [A0, B1]
             // if [B0, A0, B1, A1] then return [B0, A1]
-            if ((hitsAB[0] == hitsA[0] and hitsAB[1] == hitsB[0]) or
-                (hitsAB[0] == hitsB[0] and hitsAB[1] == hitsA[0])) {
+            if ((hitsAB[0] == hitsA[0] and hitsAB[1] == hitsB[0])
+                or (hitsAB[0] == hitsB[0] and hitsAB[1] == hitsA[0])) {
                 // remove second and third (end is exclusive)
                 hitsAB.erase(hitsAB.begin() + 1, hitsAB.end());
                 return hitsAB;
@@ -131,8 +131,8 @@ hits overlap::collisions_along(const ray& overlap_ray) const {
         if (two_closed_simple_surfaces) {
             // if [A0, A1, B0, B1] return empty
             // if [B0, B1, A0, A1] return empty
-            if (std::equal(hitsAB.begin(), hitsAB.begin() + hitsA.size(), hitsA.begin()) or
-                std::equal(hitsAB.begin(), hitsAB.begin() + hitsB.size(), hitsB.begin())) {
+            if (std::equal(hitsAB.begin(), hitsAB.begin() + hitsA.size(), hitsA.begin())
+                or std::equal(hitsAB.begin(), hitsAB.begin() + hitsB.size(), hitsB.begin())) {
                 // if it starts with only hitsA or only hitsB
                 return hits();  // empty
             }
@@ -141,8 +141,8 @@ hits overlap::collisions_along(const ray& overlap_ray) const {
             // if [A0, B0, B1, A1] then return [B0, B1]
             // if [B0, A0, A1, B1] then return [A0, A1]
             // if the first and second elements are from differnet objects...
-            if ((hitsAB[0] == hitsA[0] and hitsAB[1] == hitsB[0]) or
-                (hitsAB[0] == hitsB[0] and hitsAB[1] == hitsA[0])) {
+            if ((hitsAB[0] == hitsA[0] and hitsAB[1] == hitsB[0])
+                or (hitsAB[0] == hitsB[0] and hitsAB[1] == hitsA[0])) {
                 return hits(hitsAB.begin() + 1, hitsAB.end() - 1);
             }
         }
@@ -164,7 +164,7 @@ bool overlap::is_surface_point(const point& world_point) const {
 }
 
 image::point overlap::map(const point& object_surface_point __attribute__((unused))) const {
-    image::point uv(0, 0);
+    image::point uv{0, 0};
     return uv;
 }
 

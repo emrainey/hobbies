@@ -137,8 +137,8 @@ bool operator!=(const line &a, const line &b) {
 }
 
 bool parallel(const line &a, const line &b) {
-    R3::vector an(a.direction().normalized());
-    R3::vector bn(b.direction().normalized());
+    R3::vector an{a.direction().normalized()};
+    R3::vector bn{b.direction().normalized()};
     return ((an == bn) || ((!an) == bn));
 }
 

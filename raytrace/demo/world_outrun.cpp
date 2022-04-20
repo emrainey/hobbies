@@ -37,8 +37,8 @@ public:
         if (scalar < 1.0) {
             return interpolate(colors::orange_red, colors::yellow, scalar);
         } else {
-            if ((1.0 < scalar and scalar <= 1.05) or (1.1 < scalar and scalar <= 1.15) or
-                (1.2 < scalar and scalar <= 1.25) or (1.3 < scalar and scalar <= 1.35)) {
+            if ((1.0 < scalar and scalar <= 1.05) or (1.1 < scalar and scalar <= 1.15)
+                or (1.2 < scalar and scalar <= 1.25) or (1.3 < scalar and scalar <= 1.35)) {
                 return colors::black;
             } else {
                 return interpolate(colors::red, colors::orange_red, 1.0 - scalar);

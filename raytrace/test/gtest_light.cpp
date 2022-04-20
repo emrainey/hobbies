@@ -19,15 +19,15 @@ TEST(LightTest, SpeckLightColor) {
     element_type scaling = 1.0 / diff.quadrance();
     ASSERT_FLOAT_EQ(scaling, light0.intensity_at(surface_point));
 
-    color C2(scaling, scaling, scaling);
+    color C2{scaling, scaling, scaling};
     ASSERT_TRUE(C2 == light0.color_at(surface_point));
 }
 
 TEST(LightTest, BeamLightColor) {
     raytrace::vector down = -geometry::R3::basis::Z;
 
-    raytrace::point p0(0, 0, 0);
-    raytrace::point p1(0, 0, -10);
+    raytrace::point p0{0, 0, 0};
+    raytrace::point p1{0, 0, -10};
 
     lights::beam light0(down, colors::white, 1E9);
 
@@ -40,7 +40,7 @@ TEST(LightTest, BeamLightColor) {
 TEST(LightTest, TriColorSpots) {
     raytrace::objects::sphere shape(raytrace::point(0, 0, 3), 3);
     raytrace::objects::plane floor(raytrace::point(0, 0, 0), R3::basis::Z, 1.0);
-    raytrace::point p0(10, 0, 50);
+    raytrace::point p0{10, 0, 50};
     raytrace::matrix rot120 = rotation(R3::basis::Z, iso::radians(2 * iso::pi / 3));
     raytrace::point p1 = rot120 * p0;
     raytrace::point p2 = rot120 * p1;

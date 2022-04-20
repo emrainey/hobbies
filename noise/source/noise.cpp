@@ -20,19 +20,19 @@ vector convert_to_seed(iso::radians r) {
 
 vector generate_seed() {
     double d = (double)rand() / RAND_MAX;           // 0.0 to 1.0
-    iso::radians r((2.0 * iso::pi * d) - iso::pi);  // -pi to +pi
+    iso::radians r{(2.0 * iso::pi * d) - iso::pi};  // -pi to +pi
     return convert_to_seed(r);
 }
 
 point floor(const point& pnt) {
-    return point(std::floor(pnt.x), std::floor(pnt.y));
+    return point{std::floor(pnt.x), std::floor(pnt.y)};
 }
 
 point fract(const point& pnt) {
     double _x, x = std::modf(pnt.x, &_x);
     double _y, y = std::modf(pnt.y, &_y);
     // _x and _y are thrown away intentionally
-    return point(x, y);
+    return point{x, y};
 }
 
 double random(const vector& vec, const vector& seeds, double gain) {
@@ -129,7 +129,7 @@ double smooth(const point& pnt, const pad& map) {
 double turbulence(const point& pnt, double size, double scale, const pad& map) {
     double value = 0.0, initialSize = size;
     while (size >= 1.0) {
-        point pnt2(pnt);  // copy
+        point pnt2{pnt};  // copy
         pnt2 *= 1.0 / size;
         if constexpr (debug) {
             printf("pnt={%lf, %lf}, pnt2={%lf, %lf} scale=%lf\n", pnt.x, pnt.y, pnt2.x, pnt2.y, 1.0 / size);

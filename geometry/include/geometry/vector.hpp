@@ -169,14 +169,14 @@ public:
 
     /** Normalizes the vector returns a copy */
     vector_ normalized() const noexcept(false) {
-        vector_ v(*this);
+        vector_ v{*this};
         v.normalize();
         return vector_(v);
     }
 
     /** Returns a negative copy of the vector_ */
     vector_ operator!() const {
-        vector_ v(*this);
+        vector_ v{*this};
         v *= -1.0;
         return vector_(v);
     }
@@ -184,14 +184,14 @@ public:
     /** Creates a scaled vector along the parameter vector */
     vector_ project_along(vector_& a) const {
         DATA_TYPE s = dot((*this), a) / a.quadrance();
-        vector_ b(a);
+        vector_ b{a};
         b *= s;
         return vector_(b);
     }
 
     /** Creates a scaled vector orthogonal to the parameter vector */
     vector_ project_orthogonal(vector_& a) const {
-        vector_ c(*this);
+        vector_ c{*this};
         c -= project_along(a);
         return vector_(c);
     }
@@ -249,7 +249,7 @@ public:
     }
 
     friend inline vector_ multiply(const vector_& a, DATA_TYPE b) {
-        vector_ c(a);
+        vector_ c{a};
         c *= b;
         return c;
     }
@@ -296,7 +296,7 @@ public:
     }
 
     friend vector_ negation(const vector_& a) {
-        vector_ b(a);
+        vector_ b{a};
         b *= -1.0;
         return vector_(b);
     }
@@ -309,7 +309,7 @@ protected:
 /** Computes the angle between two vectors in radians */
 template <typename DATA_TYPE, size_t DIMS>
 iso::radians angle(const vector_<DATA_TYPE, DIMS>& a, const vector_<DATA_TYPE, DIMS>& b) {
-    iso::radians r(acos(dot(a, b) / (a.norm() * b.norm())));
+    iso::radians r{acos(dot(a, b) / (a.norm() * b.norm()))};
     return r;
 }
 

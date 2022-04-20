@@ -136,7 +136,7 @@ intersection intersects(const plane &P1, const plane &P2) {
         matrix b{{{-P1.coefficient().d}, {-P2.coefficient().d}}};
         matrix mtb = rowjoin(mt, b);
         matrix nmtb = mtb.nullspace();
-        R3::point pt(-nmtb[0][1], -nmtb[1][1], -nmtb[2][1]);  // pick value from nullspace
+        R3::point pt{-nmtb[0][1], -nmtb[1][1], -nmtb[2][1]};  // pick value from nullspace
         R3::line iline(v, pt);
         return intersection(iline);
     }
@@ -191,8 +191,8 @@ intersection intersects(const R3::sphere &S, const R3::line &l) noexcept(false) 
         } else {  // deduce geometrically
             // there IS an intersection but there's two points!
             // more shortcuts
-            R3::point R(3);
-            R3::point Q(3);
+            R3::point R{3};
+            R3::point Q{3};
             R3::point C = R3::origin;
             R3::point Z0 = l.position();
 

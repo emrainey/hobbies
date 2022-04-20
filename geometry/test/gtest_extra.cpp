@@ -80,9 +80,9 @@ TEST(GeomExtraTests, RotationOfVectors) {
     linalg::matrix r1 = geometry::rotation(R3::basis::Z, -phi);
     linalg::matrix r2 = geometry::rotation(R3::basis::Y, phi);
     linalg::matrix rot(r2 * r1);
-    R3::vector v1;
-    R3::vector v2;
-    R3::vector v3;
+    R3::vector v1{};
+    R3::vector v2{};
+    R3::vector v3{};
 
     v1 = r1 * v0;
     ASSERT_VECTOR_EQ(v0, v1);

@@ -40,7 +40,7 @@ plane::plane(element_type a, element_type b, element_type c, element_type d)
     : m_normal{{a, b, c}}, m_center_point(3), normal(m_normal) {
     // before we normalize, we solve for the point
     // normal line through the origin
-    R3::line l(m_normal, geometry::R3::origin);
+    R3::line l{m_normal, geometry::R3::origin};
     eq.a = a;
     eq.b = b;
     eq.c = c;

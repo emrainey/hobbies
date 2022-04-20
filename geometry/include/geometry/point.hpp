@@ -192,7 +192,7 @@ public:
 
     /** Adding a vector to a point creates a new point */
     friend point operator+(const point_& a, const vector_<element_type, 2>& b) noexcept(false) {
-        point c(a);
+        point c{a};
         c += b;
         return point(c);
     }
@@ -261,14 +261,14 @@ public:
 
     /** Adding a vector to a point creates a new point */
     friend point operator+(const point_& a, const vector_<element_type, 3>& b) noexcept(false) {
-        point c(a);
+        point c{a};
         c += b;
         return point(c);
     }
 
     /** Adding a vector to a point creates a new point */
     friend point operator-(const point_& a, const vector_<element_type, 3>& b) noexcept(false) {
-        point c(a);
+        point c{a};
         c -= b;
         return point(c);
     }
@@ -343,7 +343,7 @@ public:
 
     /** Adding a vector to a point creates a new point */
     friend point operator+(const point_& a, const vector_<element_type, 4>& b) noexcept(false) {
-        point c(a);
+        point c{a};
         c += b;
         return point(c);
     }

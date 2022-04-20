@@ -112,7 +112,7 @@ bool operator==(const point& a, const point& b) noexcept(false) {
 
 point operator*(const linalg::matrix& a, const point& b) noexcept(false) {
     basal::exception::throw_unless(a.rows == b.dimensions, __FILE__, __LINE__, "");
-    point c(a.rows);
+    point c{a.rows};
     for (size_t y = 0; y < a.rows; y++) {
         for (size_t x = 0; x < a.cols; x++) {
             c[y] += a[y][x] * b[x];
@@ -140,13 +140,13 @@ bool operator==(point& a, point& b) noexcept(false) {
 }  // namespace operators
 
 point multiply(const point& a, element_type s) noexcept(false) {
-    point c(a);
+    point c{a};
     c *= s;
     return point(c);
 }
 
 point multiply(element_type s, const point& a) noexcept(false) {
-    point c(a);
+    point c{a};
     c *= s;
     return point(c);
 }
@@ -155,7 +155,7 @@ namespace pairwise {
 
 point multiply(const point& a, const point& b) noexcept(false) {
     basal::exception::throw_unless(a.dimensions == b.dimensions, __FILE__, __LINE__, "");
-    point c(a.dimensions);
+    point c{a.dimensions};
     for (size_t n = 0; n < a.dimensions; n++) {
         c[n] = a[n] * b[n];
     }
@@ -164,7 +164,7 @@ point multiply(const point& a, const point& b) noexcept(false) {
 
 point divide(const point& a, const point& b) noexcept(false) {
     basal::exception::throw_unless(a.dimensions == b.dimensions, __FILE__, __LINE__, "");
-    point c(a.dimensions);
+    point c{a.dimensions};
     for (size_t n = 0; n < a.dimensions; n++) {
         c[n] = a[n] / b[n];
     }

@@ -90,8 +90,8 @@ TEST_F(CameraTest, CastingRays) {
         ASSERT_TRUE(m_camera.get()->rotation() == linalg::matrix::identity(3, 3));
 
         constexpr const size_t count = 4;
-        image::point points[count] = {image::point(0.5, 0.5), image::point(1.5, 0.5), image::point(0.5, 1.5),
-                                      image::point(1.5, 1.5)};
+        image::point points[count]
+            = {image::point(0.5, 0.5), image::point(1.5, 0.5), image::point(0.5, 1.5), image::point(1.5, 1.5)};
         ray rays[count] = {
             m_camera.get()->cast(points[0]),
             m_camera.get()->cast(points[1]),

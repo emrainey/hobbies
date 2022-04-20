@@ -57,7 +57,7 @@ pascals& pascals::operator/=(double factor) {
     return (*this);
 }
 pascals pascals::operator-() const {
-    return pascals(-value);
+    return pascals{-value};
 }
 bool pascals::operator<(const pascals& other) const {
     return (_value < other.value);
@@ -73,19 +73,19 @@ bool pascals::operator>=(const pascals& other) const {
 }
 namespace operators {
 pascals operator+(const pascals& A, const pascals& B) {
-    return pascals(A.value + B.value);
+    return pascals{A.value + B.value};
 }
 pascals operator-(const pascals& A, const pascals& B) {
-    return pascals(A.value - B.value);
+    return pascals{A.value - B.value};
 }
 pascals operator*(const pascals& A, double factor) {
-    return pascals(A.value * factor);
+    return pascals{A.value * factor};
 }
 pascals operator*(double factor, const pascals& A) {
-    return pascals(A.value * factor);
+    return pascals{A.value * factor};
 }
 pascals operator/(const pascals& A, double factor) {
-    return pascals(A.value / factor);
+    return pascals{A.value / factor};
 }
 }  // namespace operators
 namespace literals {

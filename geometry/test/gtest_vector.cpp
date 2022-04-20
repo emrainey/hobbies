@@ -18,7 +18,7 @@ TEST(VectorTest, DefaultConstructor) {
 
 TEST(VectorTest, ArrayConstructor) {
     double a[] = {1.0, 2.0, 3.0};
-    R3::vector v(3, a);
+    R3::vector v{3, a};
     ASSERT_EQ(3, v.dimensions);
 
     // indexing
@@ -169,7 +169,7 @@ TEST(VectorTest, StaticsAndNegation) {
 
 TEST(VectorTest, AxisCross) {
     using namespace R3;
-    vector xy(cross(basis::X, basis::Y));  // Copy Construct
+    vector xy{cross(basis::X, basis::Y)};  // Copy Construct
     ASSERT_VECTOR_EQ(basis::Z, xy);
     xy = cross(basis::X, basis::Y);  // Copy Assign
     ASSERT_VECTOR_EQ(basis::Z, xy);
@@ -180,12 +180,12 @@ TEST(VectorTest, AxisCross) {
     xy = cross(vector{{1.0, 0.0, 0.0}}, vector{{0.0, 1.0, 0.0}});
     ASSERT_VECTOR_EQ(basis::Z, xy);
 
-    vector yz(cross(basis::Y, basis::Z));  // Copy Construct
+    vector yz{cross(basis::Y, basis::Z)};  // Copy Construct
     ASSERT_VECTOR_EQ(basis::X, yz);
     yz = cross(basis::Y, basis::Z);  // Copy Assign
     ASSERT_VECTOR_EQ(basis::X, yz);
 
-    vector zx(cross(basis::Z, basis::X));  // Copy Construct
+    vector zx{cross(basis::Z, basis::X)};  // Copy Construct
     ASSERT_VECTOR_EQ(basis::Y, zx);
     zx = cross(basis::Z, basis::X);  // Copy Assign
     ASSERT_VECTOR_EQ(basis::Y, zx);
@@ -282,7 +282,7 @@ TEST(VectorTest, Projection) {
     R3::vector a{{4, -1, 2}};
     R3::vector proj_w1 = u.project_along(a);
     R3::vector proj_w2 = u.project_orthogonal(a);
-    iso::radians r(angle(proj_w1, proj_w2));
+    iso::radians r{angle(proj_w1, proj_w2)};
     iso::degrees d;
     iso::convert(d, r);
     ASSERT_DOUBLE_EQ(90.0, d.value);

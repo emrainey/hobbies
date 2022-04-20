@@ -18,27 +18,27 @@ TEST(IntersectionTest, Constructions) {
     ASSERT_EQ(IntersectionType::None, get_type(i0));
     ASSERT_EQ(0, i0.index());
 
-    intersection i1(P);
+    intersection i1{P};
     ASSERT_EQ(IntersectionType::Point, get_type(i1));
     ASSERT_EQ(1, i1.index());
     ASSERT_TRUE(P == as_point(i1));
 
     set_of_points sop = {R, Q};
-    intersection i2(sop);
+    intersection i2{sop};
     ASSERT_EQ(IntersectionType::Points, get_type(i2));
     ASSERT_EQ(2, i2.index());
     ASSERT_THROW(as_point(i2), std::bad_variant_access);
     ASSERT_TRUE(R == as_points(i2)[0]);
     ASSERT_TRUE(Q == as_points(i2)[1]);
 
-    R3::line L(P, N);
-    intersection i3(L);
+    R3::line L{P, N};
+    intersection i3{L};
     ASSERT_EQ(IntersectionType::Line, get_type(i3));
     ASSERT_EQ(3, i3.index());
     ASSERT_TRUE(L == as_line(i3));
 
-    plane A(N, P);
-    intersection i4(A);
+    plane A{N, P};
+    intersection i4{A};
     ASSERT_EQ(IntersectionType::Plane, get_type(i4));
     ASSERT_EQ(4, i4.index());
     ASSERT_TRUE(A == as_plane(i4));
@@ -50,16 +50,16 @@ TEST(IntersectionTest, GeneralIntersections) {
     point pt3{{1, 1, 1}};
     R3::vector nn_z = -R3::basis::Z;
     // print_this(nn_z);
-    plane xy(pt1, R3::basis::Z);
-    plane xz(pt1, R3::basis::Y);
-    plane yz(pt1, R3::basis::X);
+    plane xy{pt1, R3::basis::Z};
+    plane xz{pt1, R3::basis::Y};
+    plane yz{pt1, R3::basis::X};
     plane xy2(pt2, R3::basis::Z);
     plane xy3(pt2, nn_z);
     plane yz2(pt2, R3::basis::X);
     R3::line x_axis(pt1, R3::basis::X);
     R3::line y_axis(pt1, R3::basis::Y);
     R3::line z_axis(pt1, R3::basis::Z);
-    R3::line lx(pt3, R3::basis::X);
+    R3::line lx{pt3, R3::basis::X};
     intersection ixyxy2 = intersects(xy, xy2);
     ASSERT_TRUE(get_type(ixyxy2) == IntersectionType::None);
 
@@ -93,7 +93,7 @@ TEST(IntersectionTest, GeneralIntersections) {
 TEST(IntersectionTest, PointDirectlyOnLine) {
     point P{{0, 4, 7}};
     R3::vector V{{4, -2, -28}};
-    R3::line L(V, P);
+    R3::line L{V, P};
     ASSERT_TRUE(intersects(P, L));
 }
 
@@ -105,7 +105,7 @@ TEST(IntersectionTest, SkewLines) {
 }
 
 TEST(IntersectionTest, PlaneLine) {
-    plane P1(2, 3, 4, 1);
+    plane P1{2, 3, 4, 1};
     // 2x + 3y + 4z + 1 = 0
     R3::line L1{{-1, 1, 4, 0, 3, 5}};
     // (-1, 1, 4)*t + (0, 3, 5)
@@ -123,12 +123,12 @@ TEST(IntersectionTest, PlaneLine) {
     // find an intersection that should be in the plane
     R3::vector U{{0, 0, 1}};
     R3::vector J = R3::cross(U, P1.normal);  // parallel to the plane
-    R3::line L2(J, L1.solve(0.0));
+    R3::line L2{J, L1.solve(0.0)};
     // should not intersect at all
     intersection ip1l2 = intersects(P1, L2);
     ASSERT_EQ(IntersectionType::None, get_type(ip1l2));
     // should be in the plane completely
-    R3::line L3(J, pl2);
+    R3::line L3{J, pl2};
     intersection ip1l3 = intersects(P1, L3);
     ASSERT_EQ(IntersectionType::Line, get_type(ip1l3));
     intersection copy_of_ip1l3(ip1l3);
@@ -137,7 +137,7 @@ TEST(IntersectionTest, PlaneLine) {
     ASSERT_EQ(IntersectionType::Line, get_type(second_copy_of_ip1l3));
 
     R3::line L4{{2, 0, 0, -1, 0, 0}};
-    plane XZ(1, 0, 0, 0);
+    plane XZ{1, 0, 0, 0};
     point O{{0, 0, 0}};
     intersection iL4XZ = intersects(XZ, L4);
     ASSERT_EQ(IntersectionType::Point, get_type(iL4XZ));
@@ -149,7 +149,7 @@ TEST(IntersectionTest, PlaneLine) {
     ASSERT_POINT_EQ(O, as_point(iL5XZ));
 
     R3::line L6{{-1, -1, 1, -3, -3, 2}};
-    plane XY(0, 0, 1, 0);
+    plane XY{0, 0, 1, 0};
     point xy0{{-1, -1, 0}};
     intersection iL6XY = intersects(XY, L6);
     ASSERT_EQ(IntersectionType::Point, get_type(iL6XY));
@@ -176,9 +176,9 @@ TEST(IntersectionTest, LineLine) {
     R3::vector z = R3::basis::Z;
     R3::vector zo = R3::null;
     point di{{1, 1, 0}};
-    R3::line lx(origin, x);
-    R3::line ly(origin, y);
-    R3::line lz(origin, z);
+    R3::line lx{origin, x};
+    R3::line ly{origin, y};
+    R3::line lz{origin, z};
     ASSERT_TRUE(lx != lz);
     R3::line nlx(origin, nx);
     ASSERT_TRUE(lx == nlx);
@@ -190,8 +190,8 @@ TEST(IntersectionTest, LineLine) {
     ASSERT_TRUE(skew(lx, llz));
     R3::line ai{{6, 7, 0, 6, 8, 4}};
     R3::line bi{{6, 7, 4, 6, 8, 2}};
-    R3::line a(point{{12, 15, 4}}, point{{6, 8, 4}});
-    R3::line b(point{{12, 15, 6}}, point{{6, 8, 2}});
+    R3::line a{point{{12, 15, 4}}, point{{6, 8, 4}}};
+    R3::line b{point{{12, 15, 6}}, point{{6, 8, 2}}};
     ASSERT_TRUE(ai == a);
     ASSERT_TRUE(bi == b);
     intersection ab = intersects(a, b);
@@ -239,8 +239,8 @@ TEST(IntersectionTest, PlanePlane) {
     point p2{{4, 6, 2}};
     R3::vector n1{{1, 1, 1}};
     R3::vector n2{{1, 2, 7}};
-    plane P1(n1, p1);
-    plane P2(n2, p2);
+    plane P1{n1, p1};
+    plane P2{n2, p2};
     intersection iP1P2 = intersects(P1, P2);
     ASSERT_TRUE(get_type(iP1P2) == IntersectionType::Line);
     R3::line p1p2{{5, -6, 1, 0, 15, 0}};
@@ -254,10 +254,10 @@ TEST(IntersectionTest, PlanePlane) {
 }
 
 TEST(IntersectionTest, SphereOffCenter) {
-    R3::sphere S0(5);
+    R3::sphere S0{5};
     point Z0{{5, 5, 0}};
     point Z1{{1, 0, 0}};
-    R3::line L0(Z1, Z0);
+    R3::line L0{Z1, Z0};
     // this should pass off-center
     intersection I0 = intersects(S0, L0);
     ASSERT_EQ(IntersectionType::Points, get_type(I0));
@@ -268,10 +268,10 @@ TEST(IntersectionTest, SphereOffCenter) {
 }
 
 TEST(IntersectionTest, SphereOffCenterNonOrigin) {
-    R3::sphere S0(2);
+    R3::sphere S0{2};
     point Z0{{1, -4, 3}};
     point Z1{{0, 0, 1}};
-    R3::line L0(Z1, Z0);
+    R3::line L0{Z1, Z0};
     // this should pass off-center
     intersection I0 = intersects(S0, L0);
     ASSERT_EQ(IntersectionType::Points, get_type(I0));
@@ -284,8 +284,8 @@ TEST(IntersectionTest, SphereOffCenterNonOrigin) {
 TEST(IntersectionTest, SphereCenter) {
     point p1{{15, 15, 15}};
     R3::vector n{{-1, -1, -1}};
-    R3::sphere s1(5.0);
-    R3::line l1(p1, n);
+    R3::sphere s1{5.0};
+    R3::line l1{p1, n};
     // this should pass through the center
     intersection is1l1 = intersects(s1, l1);
     ASSERT_EQ(IntersectionType::Points, get_type(is1l1));
@@ -294,10 +294,10 @@ TEST(IntersectionTest, SphereCenter) {
     ASSERT_DOUBLE_EQ(5.0, v.norm());
     ASSERT_DOUBLE_EQ(5.0, u.norm());
 
-    R3::sphere s2(1.0);
-    R3::point p2(2.0, 0.0, 0.0);
+    R3::sphere s2{1.0};
+    R3::point p2{2.0, 0.0, 0.0};
     R3::vector v2 = -R3::basis::X;
-    R3::line l2(v2, p2);
+    R3::line l2{v2, p2};
     // this should pass through the center
     intersection is2l2 = intersects(s2, l2);
     ASSERT_EQ(IntersectionType::Points, get_type(is2l2));
@@ -313,16 +313,16 @@ TEST(IntersectionTest, SphereCenter) {
 }
 
 TEST(IntersectionTest, SphereNone) {
-    R3::sphere s1(5.0);
-    R3::line l3(point{{72, 42, 99}}, point{{73, 42, 99}});
+    R3::sphere s1{5.0};
+    R3::line l3{point{{72, 42, 99}}, point{{73, 42, 99}}};
     // this should not intersect at all.
     intersection iss1l3 = intersects(s1, l3);
     ASSERT_EQ(IntersectionType::None, get_type(iss1l3));
 }
 
 TEST(IntersectionTest, SphereInside) {
-    R3::sphere s1(5.0);
-    R3::line l3(point{{1, 1, 1}}, point{{2, 2, 1}});
+    R3::sphere s1{5.0};
+    R3::line l3{point{{1, 1, 1}}, point{{2, 2, 1}}};
     // this will intersect with two points which both point away from the zero
     intersection iss1l3 = intersects(s1, l3);
     ASSERT_EQ(IntersectionType::Points, get_type(iss1l3));
@@ -335,7 +335,7 @@ TEST(IntersectionTest, SphereInside) {
 }
 
 TEST(IntersectionTest, SphereTangent) {
-    R3::sphere s1(5.0);
+    R3::sphere s1{5.0};
     R3::line l4{{0, 0, -1, 5, 0, 5}};
     // a tangent R3::line should only have a point as an intersection.
     intersection isl4s1 = intersects(s1, l4);

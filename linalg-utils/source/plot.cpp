@@ -76,7 +76,7 @@ void plot_points(std::string name, const std::vector<geometry::point_<2>> &data,
     for (size_t i = 0; i < data.size(); i++) {
         int x = x0 + data[i].x;
         int y = y0 + data[i].y;
-        cv::Point pt(x, y);
+        cv::Point pt{x, y};
         cv::circle(img, pt, 1, colors[indexes[i]], 1);
     }
 

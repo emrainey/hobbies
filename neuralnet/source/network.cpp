@@ -56,7 +56,7 @@ network::~network() {
 
 void network::forward() {
     int index = -1;
-    for_each([&](layer& _layer) {
+    for_each ([&](layer& _layer) {
         if (_layer.isa(layer::type::input)) {
             // printf("i");
             _layer.forward();
@@ -68,7 +68,8 @@ void network::forward() {
             _layer.forward(get(index));
         }
         index++;
-    });
+    })
+        ;
     // printf(">");
 }
 
@@ -100,7 +101,7 @@ layer& network::get(size_t i) {
     return *(layers[i]);
 }
 
-network& network::for_each(std::function<void(layer& l)> block) {
+network& network::for_each (std::function<void(layer& l)> block) {
     for (auto& ptr : layers) {
         block(*ptr);
     }
@@ -108,33 +109,36 @@ network& network::for_each(std::function<void(layer& l)> block) {
 }
 
 void network::set(activation_type type) {
-    for_each([&](layer& _layer) -> void {
+    for_each ([&](layer& _layer) -> void {
         if (_layer.isa(layer::type::input)) {
             return;
         }
         inner& in = dynamic_cast<inner&>(_layer);
         in.set(type);
-    });
+    })
+        ;
 }
 
 void network::update(void) {
-    for_each([](layer& _layer) {
+    for_each ([](layer& _layer) {
         if (_layer.isa(layer::type::input)) {
             return;
         }
         inner& in = dynamic_cast<inner&>(_layer);
         in.update();
-    });
+    })
+        ;
 }
 
 void network::reset(void) {
-    for_each([](layer& _layer) {
+    for_each ([](layer& _layer) {
         if (_layer.isa(layer::type::input)) {
             return;
         }
         inner& in = dynamic_cast<inner&>(_layer);
         in.reset();
-    });
+    })
+        ;
 }
 
 static cv::Scalar black(0);
@@ -195,7 +199,7 @@ static cv::Size compute_complete_dimensions(std::vector<std::vector<cv::Mat>>& i
             ix += rects[lidx][idx].width + border;
         }
     }
-    cv::Size sz(width, height + 2 * border);
+    cv::Size sz{width, height + 2 * border};
     // now verify that all rectangles fit in the image.
     cv::Rect rect(cv::Point(0, 0), sz);
     for (size_t lidx = 0; lidx < images.size(); lidx++) {
@@ -217,7 +221,7 @@ static void jetImage() {
     int width = (2.0 * high) * 100;
     printf("Jet Image is %d across\n", width);
     linalg::matrix values(1, width);
-    values.for_each([&](size_t y, size_t x, double& v) {
+    values.for_each ([&](size_t y, size_t x, double& v) {
         y |= 0;
         v = ((double)x / width);  // 0.0 to 1.0
         v *= (2.0 * high);        // 0.0 to 3.0
@@ -283,7 +287,7 @@ void network::visualize(std::chrono::milliseconds delay) {
         for (size_t lidx = 0, ix = 0; lidx < images.size(); lidx++) {
             for (size_t idx = 0; idx < images[lidx].size(); idx++) {
                 ix += border;
-                cv::Point pt(ix, border / 2);
+                cv::Point pt{(int)ix, (int)border / 2};
                 print(img, pt, "%s", names[lidx][idx].c_str());
                 cv::Size _sz = rects[lidx][idx].size();
                 cv::resize(images[lidx][idx], img(rects[lidx][idx]), _sz, 0, 0, cv::INTER_NEAREST);
@@ -299,7 +303,8 @@ void network::visualize(std::chrono::milliseconds delay) {
         size_t scaling = 270;
         size_t width = 2 * scaling * layers.size();
         size_t height = 0;
-        for_each([&](layer& _layer) { height = (height < _layer.values.rows ? _layer.values.rows : height); });
+        for_each ([&](layer& _layer) { height = (height < _layer.values.rows ? _layer.values.rows : height); })
+            ;
         height *= scaling;
         cv::Mat img(height, width, CV_8UC1);
         img = 255;  // white
@@ -310,7 +315,7 @@ void network::visualize(std::chrono::milliseconds delay) {
             x = 2 * l * scaling + scaling / 2;
             for (size_t n = 0; n < layers[l]->values.rows; n++) {
                 y = n * scaling + scaling / 2;
-                cv::Point pt(x, y);
+                cv::Point pt{(int)x, (int)y};
                 node_pts[l].push_back(pt);
                 cv::circle(img, pt, scaling / 3, black, 1, 8, 0);
                 print(img, pt, "v=%0.3lf", layers[l]->values[n][0]);
@@ -340,7 +345,7 @@ void network::visualize(std::chrono::milliseconds delay) {
             }
         }
         nn::output& out = as_output(node_pts.size() - 1);
-        cv::Point br(width - scaling, height - 20);
+        cv::Point br{(int)(width - scaling), (int)(height - 20)};
         print(img, br, "RMS=%07lf", out.rms_value);
         cv::imshow(windowName, img);
     }

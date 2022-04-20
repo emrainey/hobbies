@@ -13,22 +13,22 @@ using namespace geometry::operators;
 
 TEST(PlaneTest, ConstructorsAndAssigns) {
     R3::vector n{{1, 1, 1}};
-    R3::point p(5, 0, 0);
-    plane p1(n, p);
-    plane p2(p, n);
+    R3::point p{5, 0, 0};
+    plane p1{n, p};
+    plane p2{p, n};
     ASSERT_TRUE(p1 || p2);
 
     plane p3{{4, 5, 6, 7}};
-    plane p4(4, 5, 6, 7);
+    plane p4{4, 5, 6, 7};
     ASSERT_TRUE(p3 || p4);
 
     R3::point pt1(5, 0, 0);
     R3::point pt2(0, 5, 0);
     R3::point pt3(0, 0, 5);
-    plane p5(pt1, pt2, pt3);
+    plane p5{pt1, pt2, pt3};
     ASSERT_TRUE(p5 == p2);
-    plane p6(p3);             // copy construct
-    plane p7(std::move(p4));  // move construct
+    plane p6{p3};             // copy construct
+    plane p7{std::move(p4)};  // move construct
     ASSERT_TRUE(p6 || p7);
     p6 = p3;
     p7 = std::move(p3);
@@ -36,8 +36,8 @@ TEST(PlaneTest, ConstructorsAndAssigns) {
 }
 
 TEST(PlaneTest, IntersectionWithNullspace) {
-    plane P1(2, -1, 1, -5);
-    plane P2(1, 1, -1, -1);
+    plane P1{2, -1, 1, -5};
+    plane P2{1, 1, -1, -1};
     intersection iP1P2 = intersects(P1, P2);
     R3::line p1p2{{0, 3, 3, 2, -1, 0}};
     ASSERT_TRUE(get_type(iP1P2) == IntersectionType::Line);
@@ -52,10 +52,10 @@ TEST(PlaneTest, IntersectionWithNullspace) {
 }
 
 TEST(PlaneTest, Parallel) {
-    R3::point A(1, 2, -1);
-    R3::point B(2, 3, 1);
-    R3::point C(3, -1, 2);
-    plane P(A, B, C);
+    R3::point A{1, 2, -1};
+    R3::point B{2, 3, 1};
+    R3::point C{3, -1, 2};
+    plane P{A, B, C};
     plane Q{{9, 1, -5, -16}};
     // print_this(P);
     // print_this(Q);
@@ -64,10 +64,10 @@ TEST(PlaneTest, Parallel) {
 }
 
 TEST(PlaneTest, Perpendicular) {
-    R3::point Pt(1, -4, -3);
+    R3::point Pt{1, -4, -3};
     // print_this(Pt);
     plane P0{{2, -3, 6, 1}};
-    plane P1(2, -3, 6, 1);
+    plane P1{2, -3, 6, 1};
     // print_this(P0);
     // print_this(P1);
     double P0toPt = P0.distance(Pt);

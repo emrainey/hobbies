@@ -57,7 +57,7 @@ joules& joules::operator/=(double factor) {
     return (*this);
 }
 joules joules::operator-() const {
-    return joules(-value);
+    return joules{-value};
 }
 bool joules::operator<(const joules& other) const {
     return (_value < other.value);
@@ -73,19 +73,19 @@ bool joules::operator>=(const joules& other) const {
 }
 namespace operators {
 joules operator+(const joules& A, const joules& B) {
-    return joules(A.value + B.value);
+    return joules{A.value + B.value};
 }
 joules operator-(const joules& A, const joules& B) {
-    return joules(A.value - B.value);
+    return joules{A.value - B.value};
 }
 joules operator*(const joules& A, double factor) {
-    return joules(A.value * factor);
+    return joules{A.value * factor};
 }
 joules operator*(double factor, const joules& A) {
-    return joules(A.value * factor);
+    return joules{A.value * factor};
 }
 joules operator/(const joules& A, double factor) {
-    return joules(A.value / factor);
+    return joules{A.value / factor};
 }
 }  // namespace operators
 namespace literals {

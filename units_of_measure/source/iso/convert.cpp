@@ -7,26 +7,26 @@ using namespace iso::operators;
 
 // feet <=> meters
 feet convert(meters& A) {
-    return feet(A.value * 3.28084);
+    return feet{A.value * 3.28084};
 }
 meters convert(feet& B) {
-    return meters(B.value * 0.3048000097536);
+    return meters{B.value * 0.3048000097536};
 }
 
 // radians <=> turns
 radians convert(turns& A) {
-    return radians(A.value * tau);
+    return radians{A.value * tau};
 }
 turns convert(radians& A) {
-    return turns(A.value / tau);
+    return turns{A.value / tau};
 }
 
 // seconds <=> cycles
 hertz convert(seconds& A) {
-    return hertz(1.0 / A.value);
+    return hertz{1.0 / A.value};
 }
 seconds convert(hertz& B) {
-    return seconds(1.0 / B.value);
+    return seconds{1.0 / B.value};
 }
 
 void convert(feet& f, const meters& m) {
@@ -63,11 +63,11 @@ void convert(seconds& sec, const hertz& hz) {
 
 namespace operators {
 hertz operator/(const double num, const seconds& denom) {
-    return hertz(num / denom.value);
+    return hertz{num / denom.value};
 }
 
 seconds operator/(const double num, const hertz& denom) {
-    return seconds(num / denom.value);
+    return seconds{num / denom.value};
 }
 }  // namespace operators
 

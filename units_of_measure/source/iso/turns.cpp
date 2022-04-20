@@ -57,7 +57,7 @@ turns& turns::operator/=(double factor) {
     return (*this);
 }
 turns turns::operator-() const {
-    return turns(-value);
+    return turns{-value};
 }
 bool turns::operator<(const turns& other) const {
     return (_value < other.value);
@@ -73,19 +73,19 @@ bool turns::operator>=(const turns& other) const {
 }
 namespace operators {
 turns operator+(const turns& A, const turns& B) {
-    return turns(A.value + B.value);
+    return turns{A.value + B.value};
 }
 turns operator-(const turns& A, const turns& B) {
-    return turns(A.value - B.value);
+    return turns{A.value - B.value};
 }
 turns operator*(const turns& A, double factor) {
-    return turns(A.value * factor);
+    return turns{A.value * factor};
 }
 turns operator*(double factor, const turns& A) {
-    return turns(A.value * factor);
+    return turns{A.value * factor};
 }
 turns operator/(const turns& A, double factor) {
-    return turns(A.value / factor);
+    return turns{A.value / factor};
 }
 }  // namespace operators
 namespace literals {

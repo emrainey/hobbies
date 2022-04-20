@@ -57,7 +57,7 @@ watts& watts::operator/=(double factor) {
     return (*this);
 }
 watts watts::operator-() const {
-    return watts(-value);
+    return watts{-value};
 }
 bool watts::operator<(const watts& other) const {
     return (_value < other.value);
@@ -73,19 +73,19 @@ bool watts::operator>=(const watts& other) const {
 }
 namespace operators {
 watts operator+(const watts& A, const watts& B) {
-    return watts(A.value + B.value);
+    return watts{A.value + B.value};
 }
 watts operator-(const watts& A, const watts& B) {
-    return watts(A.value - B.value);
+    return watts{A.value - B.value};
 }
 watts operator*(const watts& A, double factor) {
-    return watts(A.value * factor);
+    return watts{A.value * factor};
 }
 watts operator*(double factor, const watts& A) {
-    return watts(A.value * factor);
+    return watts{A.value * factor};
 }
 watts operator/(const watts& A, double factor) {
-    return watts(A.value / factor);
+    return watts{A.value / factor};
 }
 }  // namespace operators
 namespace literals {

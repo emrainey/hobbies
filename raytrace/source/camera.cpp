@@ -40,7 +40,7 @@ camera::camera(size_t image_height, size_t image_width, iso::degrees field_of_vi
     // we can't move anything until the camera to world rotation has been computed, as we use it.
     move_to(m_world_position, m_world_look_at);
     // initialize it to all white
-    mask.for_each([](size_t, size_t, uint8_t& pixel) -> void { pixel = image::AAA_MASK_DISABLED; });
+    mask.for_each ([](size_t, size_t, uint8_t& pixel) -> void { pixel = image::AAA_MASK_DISABLED; });
 }
 
 void camera::move_to(const point& look_from, const point& look_at) {
@@ -89,9 +89,9 @@ void camera::move_to(const point& look_from, const point& look_at) {
     R3::point cartesian_world_point(m_world_look[0], m_world_look[1], m_world_look[2]);
     // (r, theta, phi)
     R3::point spherical_world_point = cartesian_to_spherical(cartesian_world_point);
-    iso::radians rx(0);                                       // no barrel roll
-    iso::radians ry(spherical_world_point[2] - iso::pi / 2);  // phi with "level" at XY plane
-    iso::radians rz(spherical_world_point[1]);                // theta
+    iso::radians rx{0};                                       // no barrel roll
+    iso::radians ry{spherical_world_point[2] - iso::pi / 2};  // phi with "level" at XY plane
+    iso::radians rz{spherical_world_point[1]};                // theta
     if constexpr (debug) {
         std::cout << "Rotation X (Barrel)" << rx.value << std::endl;
         std::cout << "Rotation Y (Tilt)" << ry.value << std::endl;
@@ -119,7 +119,7 @@ void camera::move_to(const point& look_from, const point& look_at) {
 
     // now verify the look_at by casting a ray through the principal point and determine what t the look_at is at
     // (should be zero).
-    image::point P(capture.width / 2, capture.height / 2);
+    image::point P{(element_type)capture.width / 2, (element_type)capture.height / 2};
     ray world_ray = cast(P);
     // the point we're looking at had better be where this ray starts
     element_type t = std::nan("");

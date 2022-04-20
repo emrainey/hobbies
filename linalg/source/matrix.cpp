@@ -20,16 +20,16 @@ namespace linalg {
 static const char* g_filename = __FILE__;
 
 matrix matrix::zeros(size_t rows, size_t cols) {
-    return matrix(rows, cols).fill(0.0);
+    return matrix{rows, cols}.fill(0.0);
 }
 
 matrix matrix::ones(size_t rows, size_t cols) {
-    return matrix(rows, cols).fill(1.0);
+    return matrix{rows, cols}.fill(1.0);
 }
 
 matrix matrix::identity(size_t rows, size_t cols) {
     ref_coord_iterator iter = [](size_t r, size_t c, element_type& v) -> void { v = (r == c ? 1.0 : 0.0); };
-    return matrix(rows, cols).for_each(iter);
+    return matrix{rows, cols}.for_each (iter);
 }
 
 matrix matrix::col(std::vector<element_type>& data) {
@@ -243,7 +243,7 @@ void matrix::destroy() {
     }
 }
 
-void matrix::for_each(const_coord_iterator const_functor) const {
+void matrix::for_each (const_coord_iterator const_functor) const {
     for (size_t r = 0; r < rows; r++) {
         for (size_t c = 0; c < cols; c++) {
             const_functor(r, c, array[r][c]);
@@ -251,7 +251,7 @@ void matrix::for_each(const_coord_iterator const_functor) const {
     }
 }
 
-matrix& matrix::for_each(ref_coord_iterator functor) {
+matrix& matrix::for_each (ref_coord_iterator functor) {
     for (size_t r = 0; r < rows; r++) {
         for (size_t c = 0; c < cols; c++) {
             functor(r, c, array[r][c]);
@@ -260,7 +260,7 @@ matrix& matrix::for_each(ref_coord_iterator functor) {
     return *this;
 }
 
-void matrix::for_each(const_ref_iterator functor) const {
+void matrix::for_each (const_ref_iterator functor) const {
     for (size_t r = 0; r < rows; r++) {
         for (size_t c = 0; c < cols; c++) {
             functor(array[r][c]);
@@ -268,7 +268,7 @@ void matrix::for_each(const_ref_iterator functor) const {
     }
 }
 
-matrix& matrix::for_each(ref_iterator functor) {
+matrix& matrix::for_each (ref_iterator functor) {
     for (size_t r = 0; r < rows; r++) {
         for (size_t c = 0; c < cols; c++) {
             functor(array[r][c]);
@@ -279,7 +279,7 @@ matrix& matrix::for_each(ref_iterator functor) {
 
 matrix& matrix::fill(element_type v) {
     ref_iterator iter = [&](element_type& val) { val = v; };
-    return for_each(iter);
+    return for_each (iter);
 }
 
 matrix& matrix::zero() {
@@ -380,10 +380,10 @@ void matrix::assignInto(matrix& dst, size_t start_row, size_t start_col) {
                                    "Not enough destination space for rows");
     basal::exception::throw_unless(start_col + cols <= dst.cols, g_filename, __LINE__,
                                    "Not enough destination space for columns");
-    ref_coord_iterator iter = [&](size_t row, size_t col, element_type& v) {
-        dst[start_row + row][start_col + col] = v;
-    };
-    for_each(iter);
+    ref_coord_iterator iter
+        = [&](size_t row, size_t col, element_type& v) { dst[start_row + row][start_col + col] = v; };
+    for_each (iter)
+        ;
 }
 
 bool matrix::operator==(const matrix& a) const {
@@ -392,7 +392,8 @@ bool matrix::operator==(const matrix& a) const {
     const_coord_iterator iter = [&](size_t r, size_t c, element_type v) {
         if (!basal::equals(a[r][c], v)) match = false;
     };
-    for_each(iter);
+    for_each (iter)
+        ;
     return match;
 }
 
@@ -402,18 +403,19 @@ bool matrix::operator!=(const matrix& a) const {
     const_coord_iterator iter = [&](size_t r, size_t c, element_type v) {
         if (!basal::equals(a[r][c], v)) match = false;
     };
-    for_each(iter);
+    for_each (iter)
+        ;
     return !match;
 }
 
 matrix& matrix::operator*=(const element_type a) {
     ref_iterator iter = [&](element_type& v) { v *= a; };
-    return for_each(iter);
+    return for_each (iter);
 }
 
 matrix& matrix::operator/=(const element_type a) {
     ref_iterator iter = [&](element_type& v) { v /= a; };
-    return for_each(iter);
+    return for_each (iter);
 }
 
 matrix matrix::copy() {
@@ -430,11 +432,12 @@ element_type matrix::trace() const {
 }
 
 matrix matrix::transpose() const {
-    matrix AT(cols, rows);  // create new matrix.
+    matrix AT{cols, rows};  // create new matrix.
     // NOTE a generic inplace transpose is nearly impossible.
     // this will iterator ourselves, not the AT matrix.
     const_coord_iterator iter = [&](size_t r, size_t c, element_type v) { AT[c][r] = v; };
-    for_each(iter);
+    for_each (iter)
+        ;
     return AT;
 }
 
@@ -498,7 +501,8 @@ bool matrix::diagonal() const {
             diag = false;
         }
     };
-    for_each(iter);
+    for_each (iter)
+        ;
     return diag;
 }
 
@@ -513,7 +517,8 @@ bool matrix::lower_triangular() const {
             ret = false;
         }
     };
-    for_each(iter);
+    for_each (iter)
+        ;
     return ret;
 }
 
@@ -524,7 +529,8 @@ bool matrix::upper_triangular() const {
             ret = false;
         }
     };
-    for_each(iter);
+    for_each (iter)
+        ;
     return ret;
 }
 
@@ -558,7 +564,7 @@ matrix matrix::eigenvalues() const noexcept(false) {
 matrix matrix::inverse() const noexcept(false) {
     basal::exception::throw_unless(rows == cols, g_filename, __LINE__,
                                    "Must be a square matrix");  // no inverses for non square matrix
-    matrix m(rows, cols);
+    matrix m{rows, cols};
     element_type det = determinant();
     basal::exception::throw_unless(det != 0.0, g_filename, __LINE__, "Matrix is singular, not invertible");
 
@@ -577,7 +583,7 @@ matrix matrix::inverse() const noexcept(false) {
 }
 
 matrix matrix::sub(size_t nrow, size_t ncol) const {
-    matrix s(rows - 1, cols - 1);
+    matrix s{rows - 1, cols - 1};
     for (size_t r = 0, j = 0; r < rows; r++) {
         if (r == nrow) continue;
         for (size_t c = 0, i = 0; c < cols; c++) {
@@ -595,7 +601,7 @@ matrix matrix::subset(size_t row, size_t col, size_t nrows, size_t ncols) const 
                                    "Subset rows request is larger than parent");
     basal::exception::throw_unless(ncols + col <= cols, g_filename, __LINE__,
                                    "Subset cols request is larger than parent");
-    matrix m(nrows, ncols);
+    matrix m{nrows, ncols};
     for (size_t r = row, mr = 0; r < rows && mr < m.rows; r++, mr++) {
         for (size_t c = col, mc = 0; c < cols && mc < m.cols; c++, mc++) {
             m[mr][mc] = array[r][c];
@@ -624,12 +630,12 @@ element_type matrix::cofactor(size_t nrow, size_t ncol) const {
 
 matrix matrix::minors() const {
     ref_coord_iterator iter = [&](size_t r, size_t c, element_type& v) { v = minor(r, c); };
-    return matrix(rows, cols).for_each(iter);
+    return matrix{rows, cols}.for_each (iter);
 }
 
 matrix matrix::comatrix() const {
     ref_coord_iterator iter = [&](size_t r, size_t c, element_type& v) { v = cofactor(r, c); };
-    return matrix(rows, cols).for_each(iter);
+    return matrix{rows, cols}.for_each (iter);
 }
 
 matrix matrix::adjugate() const {
@@ -648,9 +654,9 @@ element_type matrix::determinant() const noexcept(false) {
         det = at(1, 1) * at(2, 2) - at(1, 2) * at(2, 1);
     } else if (rows == 3) {
         // fprintf(stdout, "Sarrus's rule\n");
-        det = at(1, 1) * (at(2, 2) * at(3, 3) - at(3, 2) * at(2, 3)) -
-              at(1, 2) * (at(3, 3) * at(2, 1) - at(2, 3) * at(3, 1)) +
-              at(1, 3) * (at(2, 1) * at(3, 2) - at(3, 1) * at(2, 2));
+        det = at(1, 1) * (at(2, 2) * at(3, 3) - at(3, 2) * at(2, 3))
+              - at(1, 2) * (at(3, 3) * at(2, 1) - at(2, 3) * at(3, 1))
+              + at(1, 3) * (at(2, 1) * at(3, 2) - at(3, 1) * at(2, 2));
     } else {
         // fprintf(stdout, "Co-factors method\n");
         for (size_t c = 0; c < cols; c++) {
@@ -661,13 +667,13 @@ element_type matrix::determinant() const noexcept(false) {
 }
 
 matrix matrix::random(size_t rows, size_t cols, double min, double max, double p) {
-    matrix R(rows, cols);
+    matrix R{rows, cols};
     std::uniform_real_distribution<element_type> unif(min, max);
     // std::default_random_engine re;
     std::random_device rd;
     std::mt19937 gen(rd());
     ref_iterator iter = [&](element_type& v) { v = std::ceil(unif(gen) * std::pow(10.0, p)) / std::pow(10.0, p); };
-    return R.for_each(iter);
+    return R.for_each (iter);
 }
 
 matrix& matrix::random(double min, double max, double p) {
@@ -675,7 +681,7 @@ matrix& matrix::random(double min, double max, double p) {
     std::random_device rd;
     std::mt19937 gen(rd());
     ref_iterator iter = [&](element_type& v) { v = std::ceil(unif(gen) * std::pow(10.0, p)) / std::pow(10.0, p); };
-    return for_each(iter);
+    return for_each (iter);
 }
 
 // element-wise accumulator
@@ -683,7 +689,7 @@ matrix& matrix::operator+=(const matrix& a) {
     basal::exception::throw_unless(a.rows == rows, g_filename, __LINE__);
     basal::exception::throw_unless(a.cols == cols, g_filename, __LINE__);
     ref_coord_iterator iter = [&](size_t r, size_t c, element_type& v) { v += a[r][c]; };
-    return for_each(iter);
+    return for_each (iter);
 }
 
 // element-wise decumulator
@@ -691,7 +697,7 @@ matrix& matrix::operator-=(const matrix& a) {
     basal::exception::throw_unless(a.rows == rows, g_filename, __LINE__);
     basal::exception::throw_unless(a.cols == cols, g_filename, __LINE__);
     ref_coord_iterator iter = [&](size_t r, size_t c, element_type& v) { v -= a[r][c]; };
-    return for_each(iter);
+    return for_each (iter);
 }
 
 void matrix::print(const char name[]) const {
@@ -872,7 +878,7 @@ std::tuple<matrix, matrix, matrix> matrix::PLU() const noexcept(false) {
     basal::exception::throw_unless(rows == cols, g_filename, __LINE__, "PLU only allowed on square matrix");
     matrix P = matrix::identity(rows, cols);
     matrix L = matrix::identity(rows, cols);
-    matrix U(*this);  // copy
+    matrix U{*this};  // copy
     for (size_t c = 0, r = 0, lr = (U.rows - 1); c < U.cols && r < U.rows; c++) {
         if (U.col_is_zero(c, r)) {
             continue;
@@ -908,7 +914,7 @@ std::tuple<matrix, matrix, matrix> matrix::PLU() const noexcept(false) {
 }
 
 matrix matrix::escheloned(size_t stop_col) const {
-    matrix m(*this);
+    matrix m{*this};
     return m.eschelon(stop_col);
 }
 
@@ -973,7 +979,7 @@ matrix& matrix::reduce(size_t stop_row) {
 }
 
 matrix matrix::reduced(size_t stop_row) const {
-    matrix a(*this);  // copy constructor
+    matrix a{*this};  // copy constructor
     return a.reduce(stop_row);
 }
 
@@ -1099,7 +1105,7 @@ matrix operator^(matrix& a, int p) noexcept(false) {
     if (p == 0) {
         return matrix::identity(a.rows, a.cols);
     } else if (p == 1) {
-        return matrix(a);
+        return matrix{a};
     } else if (p == -1) {
         return a.inverse();
     } else if (p > 1) {
@@ -1108,7 +1114,7 @@ matrix operator^(matrix& a, int p) noexcept(false) {
         if ((std::abs(p) & 1) == 1) {
             return a.inverse();
         } else {
-            return matrix(a);  // copy
+            return matrix{a};  // copy
         }
     }
 }
@@ -1123,7 +1129,7 @@ matrix operator^(matrix& a, letters l) noexcept(false) {
 }
 
 matrix operator^(const matrix& a, letters l) noexcept(false) {
-    matrix b(a);  // const copy
+    matrix b{a};  // const copy
     return operator^(b, l);
 }
 
@@ -1134,7 +1140,7 @@ matrix addition(const matrix& a, const matrix& b) noexcept(false) {
     // b.print("b");
     basal::exception::throw_unless(a.rows == b.rows, g_filename, __LINE__);
     basal::exception::throw_unless(a.cols == b.cols, g_filename, __LINE__);
-    matrix c(a);  // copy constructor
+    matrix c{a};  // copy constructor
     c += b;       // class +=
     return c;     // returns a full object?
 }
@@ -1142,14 +1148,14 @@ matrix addition(const matrix& a, const matrix& b) noexcept(false) {
 matrix subtraction(const matrix& a, const matrix& b) noexcept(false) {
     basal::exception::throw_unless(a.rows == b.rows, g_filename, __LINE__);
     basal::exception::throw_unless(a.cols == b.cols, g_filename, __LINE__);
-    matrix c(a);  // copy constructor
+    matrix c{a};  // copy constructor
     c -= b;       // class +=
     return c;     // returns a full object?
 }
 
 matrix multiply(const matrix& a, const matrix& b) noexcept(false) {
     basal::exception::throw_unless(a.cols == b.rows, g_filename, __LINE__, "Columns and Rows must match!");
-    matrix m(a.rows, b.cols);
+    matrix m{a.rows, b.cols};
     statistics::get().matrix_multiply++;
     for (size_t r = 0; r < m.rows; r++) {
         for (size_t c = 0; c < m.cols; c++) {
@@ -1164,7 +1170,7 @@ matrix multiply(const matrix& a, const matrix& b) noexcept(false) {
 }
 
 matrix multiply(const matrix& a, const element_type r) noexcept(false) {
-    matrix m(a);  // copy
+    matrix m{a};  // copy
     return m *= r;
 }
 
@@ -1175,24 +1181,24 @@ matrix multiply(const element_type r, const matrix& a) noexcept(false) {
 matrix hadamard(const matrix& a, const matrix& b) noexcept(false) {
     basal::exception::throw_unless(a.rows == b.rows, g_filename, __LINE__);
     basal::exception::throw_unless(a.cols == b.cols, g_filename, __LINE__);
-    matrix c(a.rows, b.cols);
-    return c.for_each([&](size_t y, size_t x, element_type& v) { v = a[y][x] * b[y][x]; });
+    matrix c{a.rows, b.cols};
+    return c.for_each ([&](size_t y, size_t x, element_type& v) { v = a[y][x] * b[y][x]; });
 }
 
 namespace pairwise {
 matrix multiply(const matrix& A, const matrix& B) noexcept(false) {
     basal::exception::throw_unless(A.rows == 1 and B.cols == 1, g_filename, __LINE__, "A[%dx%d] (pair) B[%dx%d]",
                                    A.rows, A.cols, B.rows, B.cols);
-    matrix C(B.rows, A.cols);
-    return C.for_each([&](size_t y, size_t x, element_type& v) { v = A[0][x] * B[y][0]; });
+    matrix C{B.rows, A.cols};
+    return C.for_each ([&](size_t y, size_t x, element_type& v) { v = A[0][x] * B[y][0]; });
 }
 }  // namespace pairwise
 
 namespace rowwise {
 matrix scale(const matrix& a, const matrix& b) noexcept(false) {
     basal::exception::throw_unless(b.cols == 1, g_filename, __LINE__, "Must be a column matrix (%u)", b.cols);
-    matrix m(a.rows, a.cols);
-    return m.for_each([&](size_t y, size_t x, element_type& v) { v = a[y][x] * b[y][0]; });
+    matrix m{a.rows, a.cols};
+    return m.for_each ([&](size_t y, size_t x, element_type& v) { v = a[y][x] * b[y][0]; });
 }
 }  // namespace rowwise
 
@@ -1213,7 +1219,7 @@ matrix rowjoin(matrix& a, matrix& b) noexcept(false) {
         else
             v = b[r][c - a.cols];
     };
-    return matrix(a.rows, a.cols + b.cols).for_each(iter);
+    return matrix(a.rows, a.cols + b.cols).for_each (iter);
 }
 
 matrix coljoin(const matrix& a, const matrix& b) noexcept(false) {
@@ -1224,7 +1230,7 @@ matrix coljoin(const matrix& a, const matrix& b) noexcept(false) {
         else
             v = b[r - a.rows][c];
     };
-    return matrix(a.rows + b.rows, a.cols).for_each(iter);
+    return matrix(a.rows + b.rows, a.cols).for_each (iter);
 }
 
 matrix matrix::rule_of_sarrus() noexcept(false) {
@@ -1239,7 +1245,8 @@ bool matrix::to_file(std::string path) const {
         size_t elem = 0;
         elem += fwrite(&rows, sizeof(rows), 1, fp);
         elem += fwrite(&cols, sizeof(cols), 1, fp);
-        for_each([&](const element_type& v) { elem += fwrite(&v, sizeof(v), 1, fp); });
+        for_each ([&](const element_type& v) { elem += fwrite(&v, sizeof(v), 1, fp); })
+            ;
         fclose(fp);
         return (elem == (rows * cols) + 2);
     }
@@ -1253,8 +1260,8 @@ matrix matrix::from_file(std::string path) {
         size_t elem = 0;
         elem += fread(&rows, sizeof(rows), 1, fp);
         elem += fread(&cols, sizeof(cols), 1, fp);
-        matrix m(rows, cols);
-        m.for_each([&](element_type& v) {
+        matrix m{rows, cols};
+        m.for_each ([&](element_type& v) {
             element_type value;
             elem += fread(&value, sizeof(value), 1, fp);
             v = value;
@@ -1262,7 +1269,7 @@ matrix matrix::from_file(std::string path) {
         fclose(fp);
         return m;
     }
-    return matrix();
+    return matrix{};
 }
 
 // ****************************************************************************

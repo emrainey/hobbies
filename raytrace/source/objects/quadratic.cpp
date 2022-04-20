@@ -53,11 +53,11 @@ hits quadratic::collisions_along(const ray& object_ray) const {
     element_type Q33 = Q.at(3, 3);
     element_type Q44 = Q.at(4, 4);
     element_type a = i * (i * Q11 + j * (Q1221)) + j * (j * Q22 + k * (Q2332)) + k * (k * Q33 + i * (Q1331));
-    element_type b = i * ((z * (Q1331) + y * (Q1221) + x * (2.0 * Q11)) + (Q1441)) +
-                     j * ((z * (Q2332) + x * (Q1221) + y * (2.0 * Q22)) + (Q2442)) +
-                     k * ((y * (Q2332) + x * (Q1331) + z * (2.0 * Q33)) + (Q3443));
-    element_type c = x * (x * Q11 + y * (Q1221) + z * (Q1331) + (Q1441)) + y * (y * Q22 + z * (Q2332) + (Q2442)) +
-                     z * (z * Q33 + (Q3443)) + Q44;
+    element_type b = i * ((z * (Q1331) + y * (Q1221) + x * (2.0 * Q11)) + (Q1441))
+                     + j * ((z * (Q2332) + x * (Q1221) + y * (2.0 * Q22)) + (Q2442))
+                     + k * ((y * (Q2332) + x * (Q1331) + z * (2.0 * Q33)) + (Q3443));
+    element_type c = x * (x * Q11 + y * (Q1221) + z * (Q1331) + (Q1441)) + y * (y * Q22 + z * (Q2332) + (Q2442))
+                     + z * (z * Q33 + (Q3443)) + Q44;
     auto roots = quadratic_roots(a, b, c);
     element_type t0 = std::get<0>(roots);
     element_type t1 = std::get<1>(roots);
@@ -81,8 +81,8 @@ bool quadratic::is_surface_point(const point& world_point) const {
     element_type i = Q(3, 4), j = Q(4, 4);
 
     // ax2 +2bxy+2cxz+2dx+ey2 +2fyz+ 2gy + hz2 + 2iz +j=0,
-    return basal::equals_zero((a * x * x) + (2 * b * x * y) + (2 * c * x) + (2 * d * x) + (e * y * y) +
-                              (2 * f * y * z) + (2 * g * y) + (h * z * z) + (2 * i * z) + j);
+    return basal::equals_zero((a * x * x) + (2 * b * x * y) + (2 * c * x) + (2 * d * x) + (e * y * y) + (2 * f * y * z)
+                              + (2 * g * y) + (h * z * z) + (2 * i * z) + j);
 }
 
 image::point quadratic::map(const point& object_surface_point __attribute__((unused))) const {

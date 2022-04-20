@@ -8,4 +8,4 @@ float frand() {
     return f;
 }
 
-}
+}  // namespace htm

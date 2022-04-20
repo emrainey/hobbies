@@ -9,10 +9,10 @@
 
 TEST(MatrixTest, NormalConstructions) {
     using namespace linalg;
-    matrix m0(2, 2);
-    matrix m1(3, 3);
-    matrix m2(4, 4);
-    matrix m3(5, 5);
+    matrix m0{2, 2};
+    matrix m1{3, 3};
+    matrix m2{4, 4};
+    matrix m3{5, 5};
 }
 
 TEST(MatrixTest, InvalidConstructors) {
@@ -35,7 +35,7 @@ TEST(MatrixTest, ListInitializer) {
 TEST(MatrixTest, ArrayConstructor) {
     using namespace linalg;
     double a1[] = {1, 2, 3, 4};
-    matrix m2a(2, 2, a1);
+    matrix m2a{2, 2, a1};
     ASSERT_EQ(2, m2a.cols);
     ASSERT_EQ(2, m2a.rows);
     ASSERT_DOUBLE_EQ(1, m2a[0][0]);
@@ -47,7 +47,7 @@ TEST(MatrixTest, ArrayConstructor) {
     ASSERT_THROW(m2a[7][1] += 0.0, basal::exception);
 
     double a2[2][2] = {{5, 6}, {7, 8}};
-    matrix m2(a2);
+    matrix m2{a2};
     ASSERT_EQ(2, m2.cols);
     ASSERT_EQ(2, m2.rows);
     ASSERT_DOUBLE_EQ(5, m2[0][0]);
@@ -56,7 +56,7 @@ TEST(MatrixTest, ArrayConstructor) {
     ASSERT_DOUBLE_EQ(8, m2[1][1]);
 
     double a3[3][3] = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
-    matrix m3(a3);
+    matrix m3{a3};
     ASSERT_EQ(3, m3.cols);
     ASSERT_EQ(3, m3.rows);
     ASSERT_DOUBLE_EQ(1, m3[0][0]);
@@ -70,7 +70,7 @@ TEST(MatrixTest, ArrayConstructor) {
     ASSERT_DOUBLE_EQ(9, m3[2][2]);
 
     double a4[4][4] = {{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 0, 1, 2}, {3, 4, 5, 6}};
-    matrix m4(a4);
+    matrix m4{a4};
     ASSERT_DOUBLE_EQ(1, m4[0][0]);
     ASSERT_DOUBLE_EQ(2, m4[0][1]);
     ASSERT_DOUBLE_EQ(3, m4[0][2]);
@@ -95,7 +95,7 @@ TEST(MatrixTest, ArrayConstructor) {
 TEST(MatrixTest, CopyConstructor) {
     using namespace linalg;
     matrix m{{{1, 2}, {3, 4}}};
-    matrix n(m);
+    matrix n{m};
     ASSERT_EQ(2, n.cols);
     ASSERT_EQ(2, n.rows);
     ASSERT_DOUBLE_EQ(1, n[0][0]);
@@ -107,7 +107,7 @@ TEST(MatrixTest, CopyConstructor) {
 TEST(MatrixTest, MoveConstructor) {
     using namespace linalg;
     matrix m{{{1, 2}, {3, 4}}};
-    matrix n(std::move(m));
+    matrix n{std::move(m)};
     ASSERT_EQ(2, n.cols);
     ASSERT_EQ(2, n.rows);
     ASSERT_DOUBLE_EQ(1, n[0][0]);
@@ -126,7 +126,7 @@ TEST(MatrixTest, CopyAssignment) {
     ASSERT_DOUBLE_EQ(2, n[0][1]);
     ASSERT_DOUBLE_EQ(3, n[1][0]);
     ASSERT_DOUBLE_EQ(4, n[1][1]);
-    matrix q(n.copy());
+    matrix q{n.copy()};
     ASSERT_DOUBLE_EQ(1, q[0][0]);
     ASSERT_DOUBLE_EQ(2, q[0][1]);
     ASSERT_DOUBLE_EQ(3, q[1][0]);
@@ -161,7 +161,7 @@ TEST(MatrixTest, EqualityAndInEquality) {
 TEST(MatrixTest, Indexing) {
     using namespace linalg;
     const matrix m{{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}};
-    matrix n(m);
+    matrix n{m};
     ASSERT_THROW(m.at(-1, -1), basal::exception);
     ASSERT_THROW(m.at(0, 0), basal::exception);
     // The at() notation is 1-based
@@ -258,7 +258,7 @@ TEST(MatrixTest, Inverse) {
     using namespace linalg;
     double h[2][2] = {{1, 2}, {3, 4}};
     double hi[2][2] = {{-2, 1}, {1.5, -0.5}};
-    matrix H(h), Hi(hi);
+    matrix H{h}, Hi{hi};
     ASSERT_TRUE(H.inverse() == Hi);
 }
 
@@ -384,7 +384,7 @@ TEST(MatrixTest, Adjugate) {
 TEST(MatrixTest, SingularRules) {
     using namespace linalg;
     double f[2][2] = {{2, 6}, {1, 3}};
-    matrix F(f);
+    matrix F{f};
     ASSERT_TRUE(F.singular());
     ASSERT_TRUE(F.degenerate());
     ASSERT_FALSE(F.invertible());
@@ -467,14 +467,14 @@ TEST(MatrixTest, Joinery) {
     using namespace linalg::operators;
 
     double f[2][2] = {{2, 6}, {1, 3}};
-    matrix F(f);
+    matrix F{f};
     double g[2][4] = {{2, 6, 1, 2}, {1, 3, 3, 4}};
-    matrix G(2, 4, g[0]);
+    matrix G{2, 4, g[0]};
     double h[2][2] = {{1, 2}, {3, 4}};
     double hi[2][2] = {{-2, 1}, {1.5, -0.5}};
-    matrix H(h), Hi(hi);
+    matrix H{h}, Hi{hi};
     double j[4][2] = {{2, 6}, {1, 3}, {1, 2}, {3, 4}};
-    matrix J(4, 2, j[0]);
+    matrix J{4, 2, j[0]};
     ASSERT_TRUE(G == (F | H));
     ASSERT_THROW((F | H).inverse(), basal::exception);
     ASSERT_TRUE(J == (F || H));
@@ -603,9 +603,9 @@ TEST(MatrixTest, PLU) {
     matrix O{{{3, 2, 2, 3, 1}, {6, 4, 4, 6, 2}, {9, 6, 6, 9, 1}}};
     matrix A{{{1, 2, 3, 4}, {5, 6, 7, 8}, {1, -1, 2, 3}, {2, 1, 1, 2}}};
     A.print("A");
-    matrix P(4, 4);
-    matrix L(4, 4);
-    matrix U(4, 4);
+    matrix P{4, 4};
+    matrix L{4, 4};
+    matrix U{4, 4};
     A.PLU(P, L, U);
     P.print("P");
     L.print("L");

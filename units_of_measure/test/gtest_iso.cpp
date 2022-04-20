@@ -15,14 +15,14 @@ TEST(IsoTest, PITest) {
 }
 
 TEST(IsoTest, DegreesToRadians) {
-    iso::degrees dtheta(90);
+    iso::degrees dtheta{90};
     iso::radians rtheta;
     iso::convert(rtheta, dtheta);
     ASSERT_DOUBLE_EQ(iso::pi / 2.0, rtheta.value);
 }
 
 TEST(IsoTest, RadiansToDegrees) {
-    iso::radians rtheta(iso::pi / 2);
+    iso::radians rtheta{iso::pi / 2};
     iso::degrees dtheta;
     iso::convert(dtheta, rtheta);
     ASSERT_DOUBLE_EQ(90.0, dtheta.value);
@@ -35,7 +35,7 @@ TEST(IsoTest, FeetMeters) {
 
     meters A;
     A = 7.42_m;        // operator"" into copy assign
-    meters X(8.42_m);  // operator"" into copy constructor
+    meters X{8.42_m};  // operator"" into copy constructor
     feet B = convert(A);
     ASSERT_DOUBLE_EQ(7.42, A.value);
     ASSERT_DOUBLE_EQ(8.42, X.value);
@@ -56,8 +56,8 @@ TEST(IsoTest, Scaling) {
     ASSERT_DOUBLE_EQ(0.007'420, A.at_scale(SI::prefix::kilo));
     ASSERT_DOUBLE_EQ(7'420'000'000, A.at_scale(SI::prefix::nano));
 
-    meters B(93.0);                     // valued constructor
-    meters C(93.0 * SI::prefix::mega);  // operator* then specific constructor
+    meters B{93.0};                     // valued constructor
+    meters C{93.0 * SI::prefix::mega};  // operator* then specific constructor
     ASSERT_DOUBLE_EQ(93'000'000, C.value);
     ASSERT_DOUBLE_EQ(93'000'000, B.at_scale(SI::prefix::micro));
 

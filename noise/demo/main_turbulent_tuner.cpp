@@ -34,7 +34,7 @@ noise::pad map;
 constexpr static bool debug = false;
 
 void generate_pad_image(void) {
-    pad_image.for_each([&](size_t y, size_t x, fourcc::rgb8 &pixel) {
+    pad_image.for_each ([&](size_t y, size_t x, fourcc::rgb8 &pixel) {
         double v = map.at(y, x);
         pixel.r = uint8_t(255u * v);
         pixel.g = uint8_t(255u * v);
@@ -44,8 +44,8 @@ void generate_pad_image(void) {
 
 void generate_noise_image(void) {
     printf("xs: %lf, ys: %lf, power: %lf, size: %lf, scale: %lf\r\n", x_scale, y_scale, power, size, scale);
-    noise_image.for_each([&](size_t y, size_t x, fourcc::rgb8 &pixel) {
-        noise::point pnt(x, y);
+    noise_image.for_each ([&](size_t y, size_t x, fourcc::rgb8 &pixel) {
+        noise::point pnt{(double)x, (double)y};
         double n = noise::turbulentsin(pnt, x_scale, y_scale, power, size, scale, map);
         if constexpr (debug) {
             printf("x,y={%lf, %lf} = %lf\n", pnt.x, pnt.y, n);
@@ -57,7 +57,7 @@ void generate_noise_image(void) {
 }
 
 void copy_to_cv_image(void) {
-    noise_image.for_each([&](size_t y, size_t x, fourcc::rgb8 &pixel) {
+    noise_image.for_each ([&](size_t y, size_t x, fourcc::rgb8 &pixel) {
         render_image.at<cv::Vec3b>(y, x)[0] = pixel.r;
         render_image.at<cv::Vec3b>(y, x)[1] = pixel.g;
         render_image.at<cv::Vec3b>(y, x)[2] = pixel.b;
@@ -65,7 +65,7 @@ void copy_to_cv_image(void) {
 }
 
 void copy_to_pad_image(void) {
-    pad_image.for_each([&](size_t y, size_t x, fourcc::rgb8 &pixel) {
+    pad_image.for_each ([&](size_t y, size_t x, fourcc::rgb8 &pixel) {
         render_pad_image.at<cv::Vec3b>(y, x)[0] = pixel.r;
         render_pad_image.at<cv::Vec3b>(y, x)[1] = pixel.g;
         render_pad_image.at<cv::Vec3b>(y, x)[2] = pixel.b;
@@ -92,12 +92,12 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
     bool should_quit = false;
     bool should_render = true;
     int default_value = 0;
-    std::string windowName("Turbulent Sine Wave Image");
-    std::string padWindowName("Pad");
-    std::string xscaleName("X Scale");
-    std::string yscaleName("Y Scale");
-    std::string powerName("Power");
-    std::string sizeName("Size");
+    std::string windowName{"Turbulent Sine Wave Image"};
+    std::string padWindowName{"Pad"};
+    std::string xscaleName{"X Scale"};
+    std::string yscaleName{"Y Scale"};
+    std::string powerName{"Power"};
+    std::string sizeName{"Size"};
     cv::namedWindow(padWindowName, cv::WINDOW_AUTOSIZE);
     cv::namedWindow(windowName, cv::WINDOW_AUTOSIZE);
     default_value = static_cast<size_t>(std::floor(x_scale));

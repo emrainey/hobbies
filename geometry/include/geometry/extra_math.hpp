@@ -68,13 +68,13 @@ matrix rowjoin(matrix& a, vector_<DATA_TYPE, DIMS>& b) noexcept(false) {
             v = b[r];
         }
     };
-    return matrix(a.rows, a.cols + b.cols).for_each(iter);
+    return matrix(a.rows, a.cols + b.cols).for_each (iter);
 }
 
 /** Creates a matrix from an array of column vectors */
 template <typename DATA_TYPE, size_t DIM>
 matrix span(const std::vector<geometry::vector_<DATA_TYPE, DIM>>& set) noexcept(false) {
-    matrix m(set[0].dimensions, set.size());
+    matrix m{set[0].dimensions, set.size()};
     for (auto& v : set) {
         basal::exception::throw_if(v.dimensions == m.rows, __FILE__, __LINE__,
                                    "Each vector must match dimensionality for the first vector.");

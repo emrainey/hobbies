@@ -14,11 +14,11 @@ using namespace raytrace;
 
 using mat = const mediums::metal;
 
-const raytrace::mediums::metal* my_metals[] = {
-    &raytrace::mediums::metals::aluminum, &raytrace::mediums::metals::brass,     &raytrace::mediums::metals::bronze,
-    &raytrace::mediums::metals::chrome,   &raytrace::mediums::metals::copper,    &raytrace::mediums::metals::gold,
-    &raytrace::mediums::metals::silver,   &raytrace::mediums::metals::stainless, &raytrace::mediums::metals::steel,
-    &raytrace::mediums::metals::tin};
+const raytrace::mediums::metal* my_metals[]
+    = {&raytrace::mediums::metals::aluminum, &raytrace::mediums::metals::brass,     &raytrace::mediums::metals::bronze,
+       &raytrace::mediums::metals::chrome,   &raytrace::mediums::metals::copper,    &raytrace::mediums::metals::gold,
+       &raytrace::mediums::metals::silver,   &raytrace::mediums::metals::stainless, &raytrace::mediums::metals::steel,
+       &raytrace::mediums::metals::tin};
 
 void subspheres(std::vector<raytrace::objects::sphere*>& spheres, const raytrace::point& center, double R, double sR,
                 size_t limit) {

@@ -29,7 +29,7 @@ void plot(std::string name, std::vector<T> &data, matrix &beta, matrix &domain) 
     }
     T y_range = y_max - y_min;
     printf("y_min:%lf y_max:%lf y_range:%lf\n", y_min, y_max, y_range);
-    domain.for_each([&](double &v) {
+    domain.for_each ([&](double &v) {
         if (x_min > v) x_min = v;
         if (x_max < v) x_max = v;
     });
@@ -76,7 +76,7 @@ void plot(std::string name, std::vector<T> &data, matrix &beta, matrix &domain) 
     for (size_t i = 0; i < domain.cols; i++) {
         int x = x0 + static_cast<int>(domain[0][i]);
         int y = y0 - data[i];
-        cv::Point pt(x, y);
+        cv::Point pt{x, y};
         cv::circle(img, pt, 1, black, 1);
     }
 
@@ -111,7 +111,7 @@ double random_range(double min, double max) {
 }
 
 std::vector<double> generate_random_linear_dataset(matrix &domain) {
-    std::random_device rd;
+    std::random_device rd{};
     std::mt19937 gen(rd());
     std::uniform_real_distribution<> num(-1.0, 1.0);
     // slope
@@ -122,7 +122,7 @@ std::vector<double> generate_random_linear_dataset(matrix &domain) {
     double tolerance = 20.0 * num(gen);
     printf("m=%lf, b=%lf\n", m, b);
     std::vector<double> data;
-    domain.for_each([&](double &x) {
+    domain.for_each ([&](double &x) {
         double y = m * x + b;
         std::uniform_real_distribution<> rnd(y - tolerance, y + tolerance);
         // printf("%lf = m * %lf + b\n", y, x);
@@ -143,7 +143,7 @@ void least_squares(std::vector<double> &dataset, matrix &beta, matrix &domain) {
 
 int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused))) {
     matrix domain(1, 300);  // generate a domain set
-    domain.for_each([](size_t row, size_t col, double &v) {
+    domain.for_each ([](size_t row, size_t col, double &v) {
         row |= 0;
         v = -150.0 + col;
     });

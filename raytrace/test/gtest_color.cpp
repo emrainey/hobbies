@@ -75,16 +75,16 @@ TEST(ColorTest, ChannelComponents) {
 }
 
 TEST(ColorTest, PairWiseMult) {
-    color w(0.5, 0.25, 0.75);
-    color v(0.5, 1.0, 0.8);
-    color u(0.25, 0.25, 0.6);
+    color w{0.5, 0.25, 0.75};
+    color v{0.5, 1.0, 0.8};
+    color u{0.25, 0.25, 0.6};
     color t = w * v;
     ASSERT_COLOR_EQ(u, t);
 }
 
 TEST(ColorTest, InterpolateGreyScale) {
     fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8> img4(256, 256);
-    img4.for_each([&](size_t y, size_t x, fourcc::rgb8& pixel) {
+    img4.for_each ([&](size_t y, size_t x, fourcc::rgb8& pixel) {
         y |= 0;
         double a = double(x) / img4.width;
         color c = interpolate(colors::white, colors::black, a);
@@ -95,7 +95,7 @@ TEST(ColorTest, InterpolateGreyScale) {
 
 TEST(ColorTest, InterpolateCorners) {
     fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8> img5(480, 640);
-    img5.for_each([&](size_t y, size_t x, fourcc::rgb8& pixel) {
+    img5.for_each ([&](size_t y, size_t x, fourcc::rgb8& pixel) {
         double a = double(x) / img5.width;
         double b = double(y) / img5.height;
         color c = interpolate(colors::red, colors::green, a);
@@ -108,10 +108,10 @@ TEST(ColorTest, InterpolateCorners) {
 
 TEST(ColorTest, LinearGreyscale) {
     fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8> img6(256, 256);
-    img6.for_each([&](size_t y, size_t x, fourcc::rgb8& pixel) {
+    img6.for_each ([&](size_t y, size_t x, fourcc::rgb8& pixel) {
         y |= 0;
         element_type v = double(x) / img6.width;
-        color c(v, v, v);  // starts linear
+        color c{v, v, v};  // starts linear
         c.to_space(color::space::linear);
         pixel = c.to_rgb8();
     });
@@ -120,10 +120,10 @@ TEST(ColorTest, LinearGreyscale) {
 
 TEST(ColorTest, LogarithmicGreyscale) {
     fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8> img7(256, 256);
-    img7.for_each([&](size_t y, size_t x, fourcc::rgb8& pixel) {
+    img7.for_each ([&](size_t y, size_t x, fourcc::rgb8& pixel) {
         y |= 0;
         element_type v = double(x) / img7.width;
-        color c(v, v, v);
+        color c{v, v, v};
         c.to_space(color::space::logarithmic);
         pixel = c.to_rgb8();
     });

@@ -18,7 +18,7 @@ constexpr int height = 1024;
 
 int angle_pos = 0;
 // random starting angle
-iso::radians angle(-11 * iso::pi / 57);
+iso::radians angle{-11 * iso::pi / 57};
 // The perlin noise seed for the pattern
 noise::vector seed = noise::convert_to_seed(angle);
 // not sure how this effects the pattern yet
@@ -31,8 +31,8 @@ fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8> noise_image(height, widt
 cv::Mat render_image(height, width, CV_8UC3);
 
 void generate_noise_image(void) {
-    noise_image.for_each([&](int y, int x, fourcc::rgb8 &pixel) {
-        noise::point pnt(x, y);
+    noise_image.for_each ([&](int y, int x, fourcc::rgb8 &pixel) {
+        noise::point pnt{(double)x, (double)y};
         double n = noise::perlin(pnt, scale, seed, gain);
         pixel.r = n * 255;
         pixel.g = n * 255;
@@ -41,7 +41,7 @@ void generate_noise_image(void) {
 }
 
 void copy_to_cv_image(void) {
-    noise_image.for_each([&](int y, int x, fourcc::rgb8 &pixel) {
+    noise_image.for_each ([&](int y, int x, fourcc::rgb8 &pixel) {
         render_image.at<cv::Vec3b>(y, x)[0] = pixel.r;
         render_image.at<cv::Vec3b>(y, x)[1] = pixel.g;
         render_image.at<cv::Vec3b>(y, x)[2] = pixel.b;
@@ -76,10 +76,10 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
     bool should_render = true;
     char buffer[1024];
     int default_value = 0;
-    std::string windowName("Perlin Image");
-    std::string gainName("Gain");
-    std::string seedName("Seed Angle");
-    std::string scaleName("Feature Scale");
+    std::string windowName{"Perlin Image"};
+    std::string gainName{"Gain"};
+    std::string seedName{"Seed Angle"};
+    std::string scaleName{"Feature Scale"};
     cv::namedWindow(windowName, cv::WINDOW_AUTOSIZE);
     default_value = static_cast<size_t>(std::floor(gain * 1E2 / M_PI));
     cv::createTrackbar(gainName, windowName, &default_value, 1000, on_gain_update, nullptr);
@@ -93,7 +93,7 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
     cv::createTrackbar(scaleName, windowName, &default_value, 128, on_scale_update, nullptr);
 
     std::random_device rd;
-    std::mt19937 gen(rd());
+    std::mt19937 gen{rd()};
     std::uniform_real_distribution<> huge(-10000.0, 10000.0);
     std::uniform_real_distribution<> modr(-10.0, 10.0);
 

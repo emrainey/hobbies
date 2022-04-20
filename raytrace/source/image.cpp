@@ -47,7 +47,7 @@ void image::generate_each(subsampler get_color, size_t number_of_samples, std::o
                 element_type dy = s > 0 ? delta() : 0.0;
                 element_type _x = element_type(x) + dx;
                 element_type _y = element_type(y) + dy;
-                image::point p(_x + 0.5, _y + 0.5);
+                image::point p{_x + 0.5, _y + 0.5};
                 samples[s] = get_color(p);
             }
             // now average all the samples together.

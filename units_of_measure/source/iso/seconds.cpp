@@ -57,7 +57,7 @@ seconds& seconds::operator/=(double factor) {
     return (*this);
 }
 seconds seconds::operator-() const {
-    return seconds(-value);
+    return seconds{-value};
 }
 bool seconds::operator<(const seconds& other) const {
     return (_value < other.value);
@@ -73,19 +73,19 @@ bool seconds::operator>=(const seconds& other) const {
 }
 namespace operators {
 seconds operator+(const seconds& A, const seconds& B) {
-    return seconds(A.value + B.value);
+    return seconds{A.value + B.value};
 }
 seconds operator-(const seconds& A, const seconds& B) {
-    return seconds(A.value - B.value);
+    return seconds{A.value - B.value};
 }
 seconds operator*(const seconds& A, double factor) {
-    return seconds(A.value * factor);
+    return seconds{A.value * factor};
 }
 seconds operator*(double factor, const seconds& A) {
-    return seconds(A.value * factor);
+    return seconds{A.value * factor};
 }
 seconds operator/(const seconds& A, double factor) {
-    return seconds(A.value / factor);
+    return seconds{A.value / factor};
 }
 }  // namespace operators
 namespace literals {

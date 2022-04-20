@@ -57,7 +57,7 @@ grams& grams::operator/=(double factor) {
     return (*this);
 }
 grams grams::operator-() const {
-    return grams(-value);
+    return grams{-value};
 }
 bool grams::operator<(const grams& other) const {
     return (_value < other.value);
@@ -73,19 +73,19 @@ bool grams::operator>=(const grams& other) const {
 }
 namespace operators {
 grams operator+(const grams& A, const grams& B) {
-    return grams(A.value + B.value);
+    return grams{A.value + B.value};
 }
 grams operator-(const grams& A, const grams& B) {
-    return grams(A.value - B.value);
+    return grams{A.value - B.value};
 }
 grams operator*(const grams& A, double factor) {
-    return grams(A.value * factor);
+    return grams{A.value * factor};
 }
 grams operator*(double factor, const grams& A) {
-    return grams(A.value * factor);
+    return grams{A.value * factor};
 }
 grams operator/(const grams& A, double factor) {
-    return grams(A.value / factor);
+    return grams{A.value / factor};
 }
 }  // namespace operators
 namespace literals {

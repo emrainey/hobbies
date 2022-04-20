@@ -12,18 +12,18 @@ using namespace geometry;
 using namespace geometry::operators;
 
 TEST(SphereTest, ConstructorsAndAssigns) {
-    R3::sphere s1(5);
-    R3::sphere s2(s1);
-    R3::sphere s3(std::move(s2));
-    R3::sphere s4(1);
+    R3::sphere s1{5};
+    R3::sphere s2{s1};
+    R3::sphere s3{std::move(s2)};
+    R3::sphere s4{1};
     s4 = s1;
-    R3::sphere s6(2);
+    R3::sphere s6{2};
     s6 = std::move(s4);
     ASSERT_THROW(R3::sphere(0), basal::exception);
 }
 
 TEST(SphereTest, Contains) {
-    R3::sphere s1(5);
+    R3::sphere s1{5};
     point inside{{1, 1, 1}};
     ASSERT_TRUE(s1.contains(inside));
     point outside{{10, 70, 400}};
@@ -38,11 +38,11 @@ TEST(SphereTest, Normals) {
     R3::point p1 = R3::origin + R3::basis::X;
     R3::point p2 = R3::origin + R3::basis::Y;
     R3::point p3 = R3::origin + R3::basis::Z;
-    R3::point p4(1, 1, 1);
-    R3::sphere s1(1);
-    R3::vector v1(s1.normal(p1));
-    R3::vector v2(s1.normal(p2));
-    R3::vector v3(s1.normal(p3));
+    R3::point p4{1, 1, 1};
+    R3::sphere s1{1};
+    R3::vector v1{s1.normal(p1)};
+    R3::vector v2{s1.normal(p2)};
+    R3::vector v3{s1.normal(p3)};
     ASSERT_VECTOR_EQ(R3::null, s1.normal(p4));
     ASSERT_VECTOR_EQ(R3::basis::X, v1);
     ASSERT_VECTOR_EQ(R3::basis::Y, v2);
@@ -51,7 +51,7 @@ TEST(SphereTest, Normals) {
 
 TEST(SphereTest, CartesianToPolar) {
     double radius = 1.0;
-    R3::sphere s0(radius);
+    R3::sphere s0{radius};
     point sp_x = R3::origin + R3::basis::X;
     point sp_y = R3::origin + R3::basis::Y;
     point sp_z = R3::origin + R3::basis::Z;

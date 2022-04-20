@@ -57,7 +57,7 @@ degrees& degrees::operator/=(double factor) {
     return (*this);
 }
 degrees degrees::operator-() const {
-    return degrees(-value);
+    return degrees{-value};
 }
 bool degrees::operator<(const degrees& other) const {
     return (_value < other.value);
@@ -73,19 +73,19 @@ bool degrees::operator>=(const degrees& other) const {
 }
 namespace operators {
 degrees operator+(const degrees& A, const degrees& B) {
-    return degrees(A.value + B.value);
+    return degrees{A.value + B.value};
 }
 degrees operator-(const degrees& A, const degrees& B) {
-    return degrees(A.value - B.value);
+    return degrees{A.value - B.value};
 }
 degrees operator*(const degrees& A, double factor) {
-    return degrees(A.value * factor);
+    return degrees{A.value * factor};
 }
 degrees operator*(double factor, const degrees& A) {
-    return degrees(A.value * factor);
+    return degrees{A.value * factor};
 }
 degrees operator/(const degrees& A, double factor) {
-    return degrees(A.value / factor);
+    return degrees{A.value / factor};
 }
 }  // namespace operators
 namespace literals {

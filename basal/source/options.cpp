@@ -16,8 +16,8 @@ void process(size_t num_opts, config options[], int argc, char* argv[]) {
     for (int i = 1; i < argc; i++) {
         if (argv[i] == nullptr) break;  // shouldn't hit this.
         for (size_t j = 0; j < num_opts; j++) {
-            if ((not options[j].short_switch.empty() and strcmp(options[j].short_switch.c_str(), argv[i]) == 0) or
-                (not options[j].long_switch.empty() and strcmp(options[j].long_switch.c_str(), argv[i]) == 0)) {
+            if ((not options[j].short_switch.empty() and strcmp(options[j].short_switch.c_str(), argv[i]) == 0)
+                or (not options[j].long_switch.empty() and strcmp(options[j].long_switch.c_str(), argv[i]) == 0)) {
                 if (std::holds_alternative<bool>(options[j].value)) {
                     options[j].value = true;
                 } else if (std::holds_alternative<int>(options[j].value) and (i + 1) < argc) {

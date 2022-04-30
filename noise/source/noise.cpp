@@ -9,12 +9,25 @@ using namespace geometry::operators;
 
 constexpr bool debug = false;
 
+const noise::point corners[] = {
+    noise::point{0.0, 0.0},  // top left
+    noise::point{1.0, 0.0},  // top right
+    noise::point{0.0, 1.0},  // btm left
+    noise::point{1.0, 1.0},  // btm right
+};
+
 double sequence_pseudorandom1(uint32_t x) {
     x = (x << 13) ^ x;  // XOR with shifted version of itself
     return (1.0 - ((x * (x * x * 61051 + 3166613) + 5915587277) & 0x7FFFFFFF) / 1073741824.0);
 }
 
 vector convert_to_seed(iso::radians r) {
+    return vector{{std::cos(r.value), std::sin(r.value)}};
+}
+
+vector convert_to_seed(iso::degrees d) {
+    iso::radians r;
+    iso::convert(r, d);
     return vector{{std::cos(r.value), std::sin(r.value)}};
 }
 
@@ -39,10 +52,11 @@ double random(const vector& vec, const vector& seeds, double gain) {
     // use a dot product to create a ratio of how much a particular point
     // is projected unto a set of scalars in a repeatable way.
     // the smaller magnitude vector will control the scale of the value
-    // if smaller is normalized, the value should be 0.0 - 1.0
+    // if smaller is normalized, the value should be -1.0 to +1.0 since
+    // the vectors could be pointing in opposite directions.
     double value = dot(vec, seeds);
-    // use this value as an input into the sine wave (which is 0.0-1.0)
-    // the gain will be the amplitude which can extend back over 1.0
+    // use this value as an input into the sine wave (which is -1.0 to +1.0)
+    // the gain will be the amplitude which can extend back over |1.0|
     double scaled_value = std::sin(value) * gain;
     // now forget anything over 1.0 (surprise!)
     double _integer = 0.0;
@@ -53,25 +67,19 @@ double random(const vector& vec, const vector& seeds, double gain) {
 
 double perlin(const point& pnt, double scale, const vector& seeds, double gain) {
     // converts a point into a normalized space ideally (all dims are 0-1)
-    noise::point uv_s = floor(pnt * (1.0 / scale));
+    noise::point uv_floor = floor(pnt * (1.0 / scale));
     // this point should be the fractional part of uv between 0.0 and 1.0 in each dimension
     noise::point uv = fract(pnt * (1.0 / scale));
-    // the corners of the norminalized area
-    noise::point corners[4] = {
-        point(0.0, 0.0),
-        point(1.0, 0.0),
-        point(0.0, 1.0),
-        point(1.0, 1.0),
-    };
     // find the distance from each corner to the point in the normalize coorindate system
-    noise::vector distance[4] = {
+    noise::vector distance[] = {
         uv - corners[0],
         uv - corners[1],
         uv - corners[2],
         uv - corners[3],
     };
     // the feed vectors to index the randomness
-    noise::vector feed[4] = {uv_s + corners[0], uv_s + corners[1], uv_s + corners[2], uv_s + corners[3]};
+    noise::vector feed[] = {uv_floor + corners[0], uv_floor + corners[1], uv_floor + corners[2], uv_floor + corners[3]};
+
     // procedurally generate 4 "random" numbers between 0 and 1.0
     double rnds[4] = {
         random(feed[0], seeds, gain),
@@ -145,6 +153,46 @@ double turbulentsin(const point& pnt, double xs, double ys, double power, double
     double y = pnt.y * ys / map.dimensions;
     double xyValue = x + y + power * turbulence(pnt, size, scale, map) / scale;
     return scale * fabs(sin(xyValue * M_PI));
+}
+
+static double mix(double value1, double value2, double mixer) {
+    return (value1 * mixer) + (value2 * (1.0 - mixer));
+}
+
+static double fractal_noise(const point& pnt, const vector& seed, double rand_gain = 1.0) {
+    noise::point fl = floor(pnt);
+    noise::point uv = fract(pnt);
+    // the feed vectors
+    noise::vector feed[4] = {
+        fl + corners[0],
+        fl + corners[1],
+        fl + corners[2],
+        fl + corners[3],
+    };
+    // the value at each corner
+    double a = random(feed[0], seed, rand_gain);
+    double b = random(feed[1], seed, rand_gain);
+    double c = random(feed[2], seed, rand_gain);
+    double d = random(feed[3], seed, rand_gain);
+
+    // some function?
+    // 2x^3 - 3.0x^2
+    double ux = uv.x * uv.x * (3.0 - 2.0 * uv.x);
+    double uy = uv.y * uv.y * (3.0 - 2.0 * uv.y);
+
+    return mix(a, b, ux) + (c - a) * uy * (1.0 - ux) + (d - b) * ux * uy;
+}
+
+double fractal_brownian(const point& pnt, const vector& seed, size_t octaves, double lacunarity, double gain,
+                        double amplitude, double frequency) {
+    double value = 0.0;
+    point tmp = pnt;
+    for (size_t o = 0; o < octaves; o++) {
+        value += amplitude * fractal_noise(tmp * frequency, seed, 43758.5453123);
+        tmp *= lacunarity;
+        amplitude *= gain;
+    }
+    return value;
 }
 
 }  // namespace noise

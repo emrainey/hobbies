@@ -4,7 +4,7 @@
 
 namespace doorgame {
 
-Animate::Animate(size_t location) : m_health(Health::Normal), m_location{location} {
+Animate::Animate(size_t location) : m_health{Health::Normal}, m_location{location} {
 }
 
 bool Animate::is_alive() const {

@@ -73,8 +73,26 @@ struct alignas(uint8_t) iyu2 {
     uint8_t v;
 } __attribute__((packed));
 
+/** Defines a 1 channel 32 bit float color format (luminance) */
+struct alignas(float) yf {
+    /** Constructor */
+    constexpr yf() : y{0.0} {
+    }
+    float y;
+} __attribute__((packed));
+
+/** Defines a 3 channel 32 bit float color format */
+struct alignas(float) rgbf {
+    /** Constructor */
+    constexpr rgbf() : r{0.0}, g{0.0}, b{0.0} {
+    }
+    float r;
+    float g;
+    float b;
+} __attribute__((packed));
+
 /**
- * Enumerates the various pixel formats in FOURCC codes.
+ * Enumerates the various pixel formats in FOURCC codes and some additional types.
  * \see fourcc.org
  */
 enum class pixel_format : uint32_t
@@ -89,6 +107,8 @@ enum class pixel_format : uint32_t
     RGBA = four_character_code('R', 'G', 'B', 'A'),   ///< Uses @ref rgba
     ABGR = four_character_code('A', 'B', 'G', 'R'),   ///< Uses @ref abgr
     IYU2 = four_character_code('I', 'Y', 'U', '2'),   ///< Uses @ref @iyu2
+    YF = four_character_code('Y', 'F', ' ', ' '),     ///< User @ref yf
+    RGBf = four_character_code('R', 'G', 'B', 'f'),   ///< Uses @reg rgbf
 };
 
 /** Returns the string name of the format */
@@ -104,6 +124,10 @@ constexpr const char* channel_order(pixel_format fmt) {
             return "BGR";
         case pixel_format::IYU2:
             return "UYV";
+        case pixel_format::RGBf:
+            return "RGBf";
+        case pixel_format::YF:
+            return "YF";
         default:
             return "???";
     }
@@ -117,19 +141,20 @@ constexpr int planes_in_format(pixel_format fmt __attribute__((unused))) {
     }
 }
 
-/** Returns the bit depth of the channel for the format */
-constexpr int depth_in_format(pixel_format fmt) {
+/** Returns the number of channels for the format */
+constexpr int channels_in_format(pixel_format fmt) {
     switch (fmt) {
-        case pixel_format::Y16:
-            return 2;
-        case pixel_format::Y32:
         case pixel_format::RGBA:
         case pixel_format::ABGR:
             return 4;
+        case pixel_format::RGBf:
         case pixel_format::RGB8:
         case pixel_format::BGR8:
         case pixel_format::IYU2:
             return 3;
+        case pixel_format::Y16:
+        case pixel_format::Y32:
+        case pixel_format::YF:
         case pixel_format::GREY8:
         case pixel_format::Y800:
         case pixel_format::Y8:
@@ -153,20 +178,17 @@ constexpr bool uses_uint8(pixel_format fmt) {
 
 /** Returns true if the format uses uint16_t as a channel */
 constexpr bool uses_uint16(pixel_format fmt) {
-    if (fmt == pixel_format::Y16) return true;
-    return false;
+    return (fmt == pixel_format::Y16);
 }
 
 /** Returns true if the format uses rgb8_t as a channel */
 constexpr bool uses_rgb8(pixel_format fmt) {
-    if (fmt == pixel_format::RGB8) return true;
-    return false;
+    return (fmt == pixel_format::RGB8);
 }
 
 /** Returns true if the format uses bgr8_t as a channel */
 constexpr bool uses_bgr8(pixel_format fmt) {
-    if (fmt == pixel_format::BGR8) return true;
-    return false;
+    return (fmt == pixel_format::BGR8);
 }
 
 /** Returns true if the format uses uint32_t as a channel */
@@ -179,17 +201,22 @@ constexpr bool uses_uint32(pixel_format fmt) {
 
 /** Returns true if the format uses iyu2 as a format */
 constexpr bool uses_iyu2(pixel_format fmt) {
-    if (fmt == pixel_format::IYU2) {
-        return true;
-    }
-    return false;
+    return (fmt == pixel_format::IYU2);
+}
+
+constexpr bool uses_rgbf(pixel_format fmt) {
+    return (fmt == pixel_format::RGBf);
+}
+
+constexpr bool uses_yf(pixel_format fmt) {
+    return (fmt == pixel_format::YF);
 }
 
 /** A single plane image format */
 template <typename PIXEL_TYPE, pixel_format PIXEL_FORMAT>
 class image {
 public:
-    /// The size of the pixel in bytes
+    /// The number of channels in the pixel
     const size_t depth;
     /// The number of pixels per row
     const size_t width;
@@ -206,7 +233,7 @@ public:
 
     /// Sized and typed constructor
     image(size_t h, size_t w)
-        : depth{depth_in_format(PIXEL_FORMAT)}
+        : depth{channels_in_format(PIXEL_FORMAT)}
         , width{w}
         , height{h}
         , planes{planes_in_format(PIXEL_FORMAT)}
@@ -220,7 +247,7 @@ public:
 
     /// Copy constructor
     image(const image& other)
-        : depth{depth_in_format(PIXEL_FORMAT)}
+        : depth{channels_in_format(PIXEL_FORMAT)}
         , width{other.width}
         , height{other.height}
         , planes{planes_in_format(PIXEL_FORMAT)}
@@ -318,7 +345,7 @@ public:
 
     /// Returns total byte size of the image
     inline size_t bytes() const {
-        return depth * width * height * planes;
+        return sizeof(PIXEL_TYPE) * width * height * planes;
     }
 
     /** Able to load the image type from file into an image */

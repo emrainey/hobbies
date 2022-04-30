@@ -23,6 +23,9 @@ vector generate_seed();
 /** Converts a radian value to a seed vector normalized */
 vector convert_to_seed(iso::radians r);
 
+/** Converts a degree value to a seed vector normalized */
+vector convert_to_seed(iso::degrees d);
+
 /** A two way interpolation using z = x*(1-a) + y*a */
 constexpr double interpolate(double x, double y, double a) {
     return (x * (1.0 - a) + (y * a));
@@ -151,6 +154,21 @@ double turbulentsin(const point& pnt, double xs, double ys, double power, double
  * @see https://thebookofshaders.com/13/
  * @see https://www.iquilezles.org/www/articles/fbm/fbm.htm
  * @see https://www.iquilezles.org/www/articles/warp/warp.htm
+ * @param pnt
+ * @param seed
+ * @param octaves
+ * @param lacunarity
+ * @param gain
+ * @param amplitude
+ * @param frequency
  */
+double fractal_brownian(const point& pnt, const vector& seed, size_t octaves, double lacunarity, double gain,
+                        double amplitude, double frequency);
+
+/** A collection to hold the various non-parametric assumptions of the noise function */
+struct traits {
+    constexpr traits() {
+    }
+};
 
 }  // namespace noise

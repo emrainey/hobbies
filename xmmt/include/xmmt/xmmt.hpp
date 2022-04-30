@@ -13,7 +13,7 @@ namespace intel {
 /** A pair of doubles */
 struct double2 {
 public:
-    double2() : data(_mm_setzero_pd()) {
+    double2() : data{_mm_setzero_pd()} {
     }
     double2(__m128d a) : data{a} {
     }
@@ -37,7 +37,7 @@ inline std::ostream& operator<<(std::ostream& os, const double2& a) {
 /** A triplet of doubles */
 struct double3 {
 public:
-    double3() : data(_mm256_setzero_pd()) {
+    double3() : data{_mm256_setzero_pd()} {
     }
     double3(__m256d a) : data{a} {
     }
@@ -61,7 +61,7 @@ inline std::ostream& operator<<(std::ostream& os, const double3& a) {
 /** A quad of doubles */
 struct double4 {
 public:
-    double4() : data(_mm256_setzero_pd()) {
+    double4() : data{_mm256_setzero_pd()} {
     }
     double4(__m256d a) : data{a} {
     }
@@ -109,11 +109,11 @@ public:
     }
 
     /** Copy Constructor */
-    xmm_(const xmm_& other) : pack_type(other.data) {
+    xmm_(const xmm_& other) : pack_type{other.data} {
     }
 
     /** Move Construction is just a Copy */
-    xmm_(xmm_&& other) : pack_type(other.data) {
+    xmm_(xmm_&& other) : pack_type{other.data} {
     }
 
     /** Copy Assignment */
@@ -294,7 +294,7 @@ public:
     /****** FRIENDS **************************************************************/
 
     friend inline xmm_ operator+(const xmm_& a, const xmm_& b) {
-        xmm_ c;
+        xmm_ c{};
         if constexpr (pack_type::number_of_elements == 2) {
             c.data = _mm_add_pd(a.data, b.data);
         } else {
@@ -304,7 +304,7 @@ public:
     }
 
     friend inline xmm_ operator*(const xmm_& a, const xmm_& b) {
-        xmm_ c;
+        xmm_ c{};
         if constexpr (pack_type::number_of_elements == 2) {
             c.data = _mm_mul_pd(a.data, b.data);
         } else {
@@ -334,7 +334,7 @@ public:
 
     friend xmm_ cross(const xmm_& a, const xmm_& b) {
         static_assert(dimensions == 3, "Can't preform a cross product on anything but 3d");
-        xmm_ c;
+        xmm_ c{};
         if constexpr (dimensions == 3) {
             __m256d e = _mm256_permute4x64_pd(a.data, 0xC9);
             __m256d f = _mm256_permute4x64_pd(b.data, 0xC9);

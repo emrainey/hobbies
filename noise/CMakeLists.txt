@@ -71,6 +71,9 @@ target_link_libraries(demo_turbulent_tuner ${OpenCV_LIBS} hobbies-noise LinalgUt
 add_executable(demo_perlin_tuner ${CMAKE_CURRENT_SOURCE_DIR}/demo/perlin_tuner.cpp)
 target_link_libraries(demo_perlin_tuner ${OpenCV_LIBS} hobbies-noise LinalgUtils::hobbies-linalg-utils)
 
+add_executable(demo_fbm_tuner ${CMAKE_CURRENT_SOURCE_DIR}/demo/fbm_tuner.cpp)
+target_link_libraries(demo_fbm_tuner ${OpenCV_LIBS} hobbies-noise LinalgUtils::hobbies-linalg-utils)
+
 #####################
 # Googletests
 #####################

@@ -79,6 +79,9 @@
 			"**/*.js",
 			"**/*.xml"
 		],
+		"pythonTestExplorer.testFramework": "pytest",
+		"python.testing.pytestEnabled": true,
+		"python.testing.unittestEnabled": false,
 		"testExplorer.showOnRun": true,
 		"testMate.cpp.log.logpanel": true,
 		"testMate.cpp.debug.configTemplate": {

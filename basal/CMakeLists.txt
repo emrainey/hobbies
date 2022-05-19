@@ -23,7 +23,6 @@ target_sources(hobbies-basal
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/source/debuggable.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/exception.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/listable.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/options.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/module.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/basal.cpp
@@ -85,6 +84,7 @@ if (GTest_FOUND)
     message(STATUS "GTEST_BOTH_LIBRARIES=${GTEST_BOTH_LIBRARIES}")
     add_executable(gtest_basal
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_basal.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_listable.cpp
     )
     target_include_directories(gtest_basal PRIVATE ${GTEST_INCLUDE_DIRS} ${GTest_INCLUDE_DIRS})
     target_link_libraries(gtest_basal PRIVATE hobbies-basal ${GTEST_BOTH_LIBRARIES} ${GTest_LIBS} Threads::Threads)

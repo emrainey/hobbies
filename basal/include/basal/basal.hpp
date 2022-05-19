@@ -3,6 +3,7 @@
 #include <basal/debuggable.hpp>
 #include <basal/exception.hpp>
 #include <basal/ieee754.hpp>
+#include <basal/listable.hpp>
 #include <basal/printable.hpp>
 #include <type_traits>
 

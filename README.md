@@ -10,6 +10,7 @@ A place to collect and share all my hobby projects.
 * `neuralnet` - a simple NN w/ hidden layers
 * `raytrace` - a fairly simple raytracer
 * `htm` - the start of a hierarchical temporal memory system.
+* `units_of_measure` - mechanism to create types which represent Units of Measure. 
 
 Check the README in each folder for it's own progress and issues.
 
@@ -18,10 +19,11 @@ Check the README in each folder for it's own progress and issues.
 * All math oriented objects must implement
   * `operators == != += -= *= /= + - * / !` in the class or operators namespace as `friend`s
 * Must use `basal::equals` for best float checks
-* Consistent use of either read-only members or methods. `const` correctness.
-* Must support printable (with pointer)
+* Consistent use of either read-only members or methods. 
+* `const` correctness.
+* Must support `basal::printable`
 * Must support `friend operator<<`
-* Use `explicit` Constructors to prevent unexplained auto-magic
+* Use `explicit` Constructors to prevent unanticipated auto-magic
 * Use `if constexpr` for debugging.
 * Always install your header files as read-only!
 * Always create your generated source code as read-only!
@@ -34,6 +36,17 @@ You can open either the `hobbies.code-workspace` or the folder itself. Currently
 ## Building
 
 Currently you can run the `./separate_builds.sh -rm -s` to individually config, build, and install each package. All the artifacts will end up in a new `install/` folder.
+
+### Conan 
+
+Hobbies can be build using Conan (http://conan.io). In Windows for Linux, and older versions of Linux you can use the `wsl_conanfile.txt` to setup a build environment and then call the `./separate_build.sh -c` to use Conan to communicate between projects. 
+
+```bash
+conan install wsl_conanfile.txt
+source ./activate.sh
+./seperate_builds.sh -rm -c
+source ./deactivate.sh
+```
 
 ## Running
 

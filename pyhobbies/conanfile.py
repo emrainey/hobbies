@@ -6,8 +6,8 @@ class PyHobbiesConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     description = "The C++ Hobbies Python Interface"
     generators = "cmake", "cmake_paths"
-    requires = "pybind11/2.9.1", \
-               "raytrace/0.7.0"
+    requires = "pybind11/2.4.3", \
+        "raytrace/0.7.0"
 
     url = "http://github.com/emrainey/hobbies"
     homepage = "http://github.com/emrainey/hobbies"

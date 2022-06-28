@@ -12,6 +12,7 @@ enable_testing()
 ################
 find_package(Python COMPONENTS Interpreter Development REQUIRED)
 find_package(pybind11 CONFIG REQUIRED)
+if (pybind11_FOUND)
 pybind11_add_module(pyhobbies SHARED
     ${CMAKE_CURRENT_SOURCE_DIR}/source/module.cpp
 )
@@ -27,6 +28,10 @@ target_include_directories(pyhobbies
 target_link_libraries(pyhobbies
     PUBLIC Raytrace::hobbies-raytrace Basal::hobbies-basal pybind11::pybind11
 )
+pybind11_extension(pyhobbies)
+pybind11_strip(pyhobbies)
+endif()
+
 install(TARGETS pyhobbies
     DESTINATION lib
 )

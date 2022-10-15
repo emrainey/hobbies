@@ -1,6 +1,7 @@
 #pragma once
 
 #include <basal/printable.hpp>
+#include <vector>
 
 #include "raytrace/camera.hpp"
 #include "raytrace/color.hpp"
@@ -10,6 +11,9 @@
 #include "raytrace/objects/object.hpp"
 
 namespace raytrace {
+
+/** A set of cameras */
+using multiview = std::vector<camera>;
 
 /** A functor type that can return a color given the world ray */
 using background_mapper = std::function<color(const ray&)>;
@@ -47,11 +51,10 @@ public:
         const objects::object* objptr;
     };
 
-    /** Constructor */
-    scene() = delete;
-
-    /** Configures the camera and image projection */
-    scene(size_t image_height, size_t image_width, iso::degrees field_of_view, double adaptive_threshhold = 1.0 / 32.0);
+    /** Constructor
+     * @param adaptive_threshold
+     */
+    scene(double adaptive_threshold = 1.0 / 32.0);
 
     /** Destructor */
     virtual ~scene();
@@ -81,7 +84,7 @@ public:
      * @param reflection_depth The current recursive depth of reflections.
      * @param recursive_contribution The amount of contribution from this level of recursion to the top level color.
      *                               When it falls below a global limit, the reflection will not be considered.
-     *                               @see adaptive_reflection_threshhold
+     *                               @see adaptive_reflection_threshold
      */
     color trace(const ray& world_ray, const mediums::medium& media, size_t depth = 1,
                 double recursive_contribution = 1.0);
@@ -99,10 +102,10 @@ public:
                 uint8_t mask_threshold = raytrace::image::AAA_MASK_DISABLED, bool filter_capture = false);
 
     /** The limit for reflective contributions to the top level trace. */
-    double adaptive_reflection_threshhold;
+    double adaptive_reflection_threshold;
 
     /** The camera of the scene */
-    camera view;
+    multiview views;
 
     /** Allows the user to set a functor whioh returns the background color */
     void set_background_mapper(background_mapper bgm);

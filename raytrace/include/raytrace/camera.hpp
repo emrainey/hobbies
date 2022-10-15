@@ -32,7 +32,7 @@ public:
     /// No Copy
     camera(const camera& other) = delete;
     /// No Move
-    camera(camera&& other) = delete;
+    camera(camera&& other);  // need this for multiview
 
     /** Default Destructor */
     virtual ~camera() = default;

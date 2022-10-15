@@ -43,6 +43,19 @@ camera::camera(size_t image_height, size_t image_width, iso::degrees field_of_vi
     mask.for_each ([](size_t, size_t, uint8_t& pixel) -> void { pixel = image::AAA_MASK_DISABLED; });
 }
 
+camera::camera(camera&& other)
+    : entity{other.position()}                            // copy
+    , capture{other.capture.height, other.capture.width}  // create our own
+    , mask{other.mask.height, other.mask.width}
+    , m_intrinsics{matrix::identity(raytrace::dimensions, raytrace::dimensions)}
+    , m_pixel_scale{1.0}  // will be computed in a second
+    , m_field_of_view{other.m_field_of_view}
+    , m_world_look_at{1.0, 0.0, 0.0}
+    , m_world_look{other.m_world_look_at - other.m_world_position}  // position starts at 0,0,0
+    , m_world_up{R3::basis::Z}
+    , m_world_left{R3::basis::Y} {
+}
+
 void camera::move_to(const point& look_from, const point& look_at) {
     using namespace iso::operators;
     // incoming values are *WORLD* coordinates

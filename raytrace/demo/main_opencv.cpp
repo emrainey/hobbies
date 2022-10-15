@@ -122,11 +122,14 @@ int main(int argc, char *argv[]) {
         std::cout << "Look At: " << world.looking_at() << " (Towards)" << std::endl;
 
         // tiny image, simple camera placement
-        raytrace::scene scene(height, width, iso::degrees(params.fov));
+        raytrace::scene scene;
+        // camera setup
+        scene.views.emplace_back(height, width, iso::degrees(params.fov));
         raytrace::vector looking = (world.looking_at() - from).normalized();
         raytrace::point image_plane_principal_point = from + looking;
         std::cout << "Principal: " << image_plane_principal_point << std::endl;
-        scene.view.move_to(from, image_plane_principal_point);
+        scene.views[0].move_to(from, image_plane_principal_point);
+
         scene.set_background_mapper(std::bind(&raytrace::world::background, &world, std::placeholders::_1));
         world.add_to(scene);
         if (verbose) {
@@ -149,7 +152,7 @@ int main(int argc, char *argv[]) {
                         fprintf(stdout, "]");
                     } else {
                         size_t count = 0;
-                        std::for_each(completed.begin(), completed.end(), [&](bool p) -> bool {
+                        std::for_each (completed.begin(), completed.end(), [&](bool p) -> bool {
                             count += (p ? 1 : 0);
                             return p;
                         });
@@ -201,7 +204,7 @@ int main(int argc, char *argv[]) {
 
             std::cout << "Image Rendered in " << diff.count() << " seconds" << std::endl;
 
-            scene.view.capture.for_each([&](size_t y, size_t x, const fourcc::rgb8 &pixel) -> void {
+            scene.views[0].capture.for_each ([&](size_t y, size_t x, const fourcc::rgb8 &pixel) -> void {
                 render_image.at<cv::Vec3b>(y, x)[0] = pixel.b;
                 render_image.at<cv::Vec3b>(y, x)[1] = pixel.g;
                 render_image.at<cv::Vec3b>(y, x)[2] = pixel.r;
@@ -210,7 +213,7 @@ int main(int argc, char *argv[]) {
             cv::imwrite("render_image.png", render_image);
 
             // if (params.mask_threshold < raytrace::image::AAA_MASK_DISABLED) {
-            scene.view.mask.for_each([&](size_t y, size_t x, const uint8_t &pixel) -> void {
+            scene.views[0].mask.for_each ([&](size_t y, size_t x, const uint8_t &pixel) -> void {
                 mask_image.at<cv::Vec3b>(y, x)[0] = pixel;
                 mask_image.at<cv::Vec3b>(y, x)[1] = pixel;
                 mask_image.at<cv::Vec3b>(y, x)[2] = pixel;

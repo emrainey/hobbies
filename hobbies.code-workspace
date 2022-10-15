@@ -190,12 +190,15 @@
 			"cfenv": "cpp",
 			"any": "cpp",
 			"forward_list": "cpp",
-			"source_location": "cpp"
+			"source_location": "cpp",
+			"filesystem": "cpp",
+			"*.ipp": "cpp"
 		},
 		"clang-format.language.cpp.enable": false,
 		"cSpell.words": [
 			"fourcc",
 			"lacunarity",
+			"multiview",
 			"perlin"
 		]
 	}

@@ -67,14 +67,15 @@ TEST(SceneTest, LowResSpheres) {
     raytrace::objects::sphere s2{raytrace::point{4, 2, 0}, 0.25};
     iso::degrees fov(55);
     // tiny image, simple camera placement
-    scene scene(120, 180, fov);
+    scene scene;
+    scene.views.emplace_back(120, 180, fov);
     raytrace::point look_from(-1, 0, 0);
     raytrace::point look_at(0, 0, 0);
-    scene.view.move_to(look_from, look_at);
+    scene.views[0].move_to(look_from, look_at);
 
-    ASSERT_POINT_EQ(look_from, scene.view.position());
-    ASSERT_VECTOR_EQ(R3::basis::X, scene.view.forward().direction().normalized());
-    ASSERT_VECTOR_EQ(R3::basis::Z, scene.view.up().direction().normalized());
+    ASSERT_POINT_EQ(look_from, scene.views[0].position());
+    ASSERT_VECTOR_EQ(R3::basis::X, scene.views[0].forward().direction().normalized());
+    ASSERT_VECTOR_EQ(R3::basis::Z, scene.views[0].up().direction().normalized());
 
     scene.add_object(&s0);
     scene.add_object(&s1);

@@ -35,8 +35,7 @@ struct Parameters {
     size_t mask_threshold;
 };
 
-enum class State : char
-{
+enum class State : char {
     MENU = 'm',
     DRAW = 'd'
 };
@@ -240,14 +239,18 @@ int main(int argc, char* argv[]) {
 
     auto row_notifier = [&](size_t row_index, bool is_complete) -> void { completed[row_index] = is_complete; };
 
+    raytrace::scene scene;
 #if defined(RENDER_TO_CONSOLE)
-    raytrace::scene scene(console.get_height() * 2, console.get_width(), iso::degrees(params.fov));
+    scene.views.emplace_back(console.get_height() * 2, console.get_width(), iso::degrees(params.fov));
 #else
-    raytrace::scene scene(params.height, params.width, iso::degrees(params.fov));
+    scene.views.emplace_back(params.height, params.width, iso::degrees(params.fov));
 #endif
-    raytrace::vector looking = (world.looking_at() - world.looking_from()).normalized();
-    raytrace::point image_plane_principal_point = world.looking_from() + looking;
-    scene.view.move_to(world.looking_from(), image_plane_principal_point);
+    for (auto& view : scene.views) {
+        raytrace::vector looking = (world.looking_at() - world.looking_from()).normalized();
+        raytrace::point image_plane_principal_point = world.looking_from() + looking;
+        view.move_to(world.looking_from(), image_plane_principal_point);
+    }
+
     scene.set_background_mapper(std::bind(&raytrace::world::background, &world, std::placeholders::_1));
     world.add_to(scene);
     if (verbose) {
@@ -276,17 +279,20 @@ int main(int argc, char* argv[]) {
         }
 #if defined(RENDER_TO_CONSOLE)
         else if (state == State::DRAW) {
-            printf("\e[s\e[?25l");  // save cursor?
-            printf("\e[u");         // clear screen?
-            for (size_t y = 0; y < scene.view.capture.height; y += 2) {
-                for (size_t x = 0; x < scene.view.capture.width; x++) {
-                    fourcc::rgb8 top = scene.view.capture.at(y + 0, x);
-                    fourcc::rgb8 btm = scene.view.capture.at(y + 1, x);
-                    printf("\x1b[48;2;%d;%d;%dm\x1b[38;2;%d;%d;%dm\u2584", top.r, top.g, top.b, btm.r, btm.g, btm.b);
+            for (auto& view : scene.views) {
+                printf("\e[s\e[?25l");  // save cursor?
+                printf("\e[u");         // clear screen?
+                for (size_t y = 0; y < view.capture.height; y += 2) {
+                    for (size_t x = 0; x < view.capture.width; x++) {
+                        fourcc::rgb8 top = view.capture.at(y + 0, x);
+                        fourcc::rgb8 btm = view.capture.at(y + 1, x);
+                        printf("\x1b[48;2;%d;%d;%dm\x1b[38;2;%d;%d;%dm\u2584", top.r, top.g, top.b, btm.r, btm.g,
+                               btm.b);
+                    }
                 }
+                printf("\e[?25h");
+                console.refresh();
             }
-            printf("\e[?25h");
-            console.refresh();
         }
 #endif
         // wait for input

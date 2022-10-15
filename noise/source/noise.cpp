@@ -42,9 +42,8 @@ point floor(const point& pnt) {
 }
 
 point fract(const point& pnt) {
-    double _x, x = std::modf(pnt.x, &_x);
-    double _y, y = std::modf(pnt.y, &_y);
-    // _x and _y are thrown away intentionally
+    double x = pnt.x - std::floor(pnt.x);
+    double y = pnt.y - std::floor(pnt.y);
     return point{x, y};
 }
 
@@ -56,13 +55,10 @@ double random(const vector& vec, const vector& seeds, double gain) {
     // the vectors could be pointing in opposite directions.
     double value = dot(vec, seeds);
     // use this value as an input into the sine wave (which is -1.0 to +1.0)
-    // the gain will be the amplitude which can extend back over |1.0|
+    // the gain will be the amplitude which can extend back over |1.0| or any other range
     double scaled_value = std::sin(value) * gain;
-    // now forget anything over 1.0 (surprise!)
-    double _integer = 0.0;
-    double fractional = std::modf(scaled_value, &_integer);
     // and only return the fractional component
-    return fractional;
+    return (scaled_value - std::floor(scaled_value));
 }
 
 double perlin(const point& pnt, double scale, const vector& seeds, double gain) {
@@ -70,7 +66,7 @@ double perlin(const point& pnt, double scale, const vector& seeds, double gain) 
     noise::point uv_floor = floor(pnt * (1.0 / scale));
     // this point should be the fractional part of uv between 0.0 and 1.0 in each dimension
     noise::point uv = fract(pnt * (1.0 / scale));
-    // find the distance from each corner to the point in the normalize coorindate system
+    // find the distance from each corner to the point in the normalize coordinate system
     noise::vector distance[] = {
         uv - corners[0],
         uv - corners[1],
@@ -156,7 +152,11 @@ double turbulentsin(const point& pnt, double xs, double ys, double power, double
 }
 
 static double mix(double value1, double value2, double mixer) {
-    return (value1 * mixer) + (value2 * (1.0 - mixer));
+    return (value2 * mixer) + (value1 * (1.0 - mixer));
+}
+
+static noise::point mix(noise::point a, noise::point b, noise::point s) {
+    return noise::point{mix(a.x, b.x, s.x), mix(a.y, b.y, s.y)};
 }
 
 static double fractal_noise(const point& pnt, const vector& seed, double rand_gain = 1.0) {
@@ -177,19 +177,21 @@ static double fractal_noise(const point& pnt, const vector& seed, double rand_ga
 
     // some function?
     // 2x^3 - 3.0x^2
-    double ux = uv.x * uv.x * (3.0 - 2.0 * uv.x);
-    double uy = uv.y * uv.y * (3.0 - 2.0 * uv.y);
+    double ux = uv.x * uv.x * (3.0 - (2.0 * uv.x));
+    double uy = uv.y * uv.y * (3.0 - (2.0 * uv.y));
 
-    return mix(a, b, ux) + (c - a) * uy * (1.0 - ux) + (d - b) * ux * uy;
+    return mix(a, b, ux) + ((c - a) * uy * (1.0 - ux)) + ((d - b) * ux * uy);
 }
 
 double fractal_brownian(const point& pnt, const vector& seed, size_t octaves, double lacunarity, double gain,
-                        double amplitude, double frequency) {
+                        double initial_amplitude, double initial_frequency) {
     double value = 0.0;
-    point tmp = pnt;
+    double amplitude = initial_amplitude;
+    double frequency = initial_frequency;
     for (size_t o = 0; o < octaves; o++) {
-        value += amplitude * fractal_noise(tmp * frequency, seed, 43758.5453123);
-        tmp *= lacunarity;
+        point tmp = pnt * frequency;
+        value += amplitude * fractal_noise(tmp, seed, 43758.5453123);
+        frequency *= lacunarity;
         amplitude *= gain;
     }
     return value;

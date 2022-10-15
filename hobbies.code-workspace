@@ -187,7 +187,16 @@
 			"*.tcc": "cpp",
 			"memory_resource": "cpp",
 			"stop_token": "cpp",
-			"cfenv": "cpp"
-		}
+			"cfenv": "cpp",
+			"any": "cpp",
+			"forward_list": "cpp",
+			"source_location": "cpp"
+		},
+		"clang-format.language.cpp.enable": false,
+		"cSpell.words": [
+			"fourcc",
+			"lacunarity",
+			"perlin"
+		]
 	}
 }

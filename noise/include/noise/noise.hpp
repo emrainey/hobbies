@@ -149,26 +149,26 @@ double turbulence(const point& pnt, double size, double scale, const pad& m);
  */
 double turbulentsin(const point& pnt, double xs, double ys, double power, double size, double scale, const pad& map);
 
+namespace gains {
+constexpr double pink = 1.0;
+constexpr double brown = 1.41421356237309504880168872420969807856967187537694807317667973799;  // sqrt(2.0);
+constexpr double yellow = 0.5;
+}  // namespace gains
+
 /**
  * Fractal Brownian Motion
  * @see https://thebookofshaders.com/13/
  * @see https://www.iquilezles.org/www/articles/fbm/fbm.htm
  * @see https://www.iquilezles.org/www/articles/warp/warp.htm
- * @param pnt
- * @param seed
- * @param octaves
- * @param lacunarity
- * @param gain
- * @param amplitude
- * @param frequency
+ * @param pnt The point in the space (does not need to be pre-fract)
+ * @param seed The noise seed value
+ * @param octaves The number of iterative octaves
+ * @param lacunarity How the frequency is modified after every octave. Usually 2.0
+ * @param gain How the amplitude if modified after every octave. Usually 0.5 or some value x where 2^-y
+ * @param initial_amplitude The initial amplitude
+ * @param initial_frequency The initial starting frequency
  */
-double fractal_brownian(const point& pnt, const vector& seed, size_t octaves, double lacunarity, double gain,
-                        double amplitude, double frequency);
-
-/** A collection to hold the various non-parametric assumptions of the noise function */
-struct traits {
-    constexpr traits() {
-    }
-};
+double fractal_brownian(const point& pnt, const vector& seed, size_t octaves, double lacunarity = 2.0,
+                        double gain = 0.5, double initial_amplitude = 1.0, double initial_frequency = 1.0);
 
 }  // namespace noise

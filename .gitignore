@@ -51,7 +51,7 @@ __pycache__
 *.tga
 
 # Trainging data and t10k data
-*-ubyte
+# *-ubyte
 
 # Ignore the render image that the OpenCV version makes
 render_image.png

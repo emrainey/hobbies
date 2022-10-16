@@ -46,6 +46,10 @@
 		{
 			"path": "testing",
 			"name": "Conan Testing Folder"
+		},
+		{
+			"path": ".conan",
+			"name": "Conan Build Artifacts"
 		}
 	],
 	"extensions": {
@@ -95,7 +99,7 @@
 			"sourceFileMap": "${sourceFileMapObj}",
 			"externalConsole": false
 		},
-		"testMate.cpp.test.executables": "${workspaceFolder}/build/gtest_*",
+		"testMate.cpp.test.executables": "${workspaceFolder}/.conan/**/gtest_*",
 		"files.associations": {
 			"memory": "cpp",
 			"variant": "cpp",

@@ -130,7 +130,7 @@ setup(
     author_email="erik.rainey@gmail.com",
     description="A pybind11 wrapper for all my hobby projects",
     long_description="",
-    ext_modules=[CMakeExtension("pyhobbies", sourcedir=".", builddir="build")],
+    ext_modules=[CMakeExtension("pyhobbies", sourcedir=".", builddir="../../build/pyhobbies")],
     cmdclass={"build_ext": CMakeBuild},
     zip_safe=False,
     extras_require={"test": ["pytest>=6.0"]},

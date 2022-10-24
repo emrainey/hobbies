@@ -2,45 +2,59 @@
 	// cSpell: disable
 	"folders": [
 		{
+			"name": "basal",
 			"path": "projects/basal"
 		},
 		{
+			"name": "units_of_measure",
 			"path": "projects/units_of_measure"
 		},
 		{
+			"name": "fourcc",
 			"path": "projects/fourcc"
 		},
 		{
+			"name": "xmmt",
 			"path": "projects/xmmt"
 		},
 		{
+			"name": "noise",
 			"path": "projects/noise"
 		},
 		{
+			"name": "linalg",
 			"path": "projects/linalg"
 		},
 		{
+			"name": "geometry",
 			"path": "projects/geometry"
 		},
 		{
+			"name": "linalg-utils",
 			"path": "projects/linalg-utils"
 		},
 		{
+			"name": "linalg-algo",
 			"path": "projects/linalg-algo"
 		},
 		{
+			"name": "raytrace",
 			"path": "projects/raytrace"
 		},
 		{
+			"name": "neuralnet",
 			"path": "projects/neuralnet"
 		},
 		{
+			"name": "htm",
 			"path": "projects/htm"
 		},
 		{
+			"name": "doorgame",
 			"path": "projects/doorgame"
 		},
 		{
+			"name": "pyhobbies",
 			"path": "projects/pyhobbies"
 		},
 		{
@@ -76,11 +90,33 @@
 	"settings": {
 		"editor.formatOnSave": true,
 		"cmake.autoSelectActiveFolder": true,
-		"cmake.installPrefix": "${workspaceFolder}/../install",
+		"cmake.buildDirectory": "${workspaceFolder}/../../build/${workspaceFolderBasename}",
+		"cmake.installPrefix": "${workspaceFolder}/../../install",
 		"cmake.configureOnOpen": false,
-		"C_Cpp.errorSquiggles": "disabled",
-		"C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
-		"C_Cpp.configurationWarnings": "disabled",
+		"cmake.generator": "Unix Makefiles",
+		"cmake.environment": {
+			"CMAKE_PREFIX_PATH": "${workspaceFolder}/../../install"
+		},
+		"cmake.configureEnvironment": {
+			"CMAKE_INSTALL_PREFIX": "${workspaceFolder}/../../install",
+			"CMAKE_BUILD_TYPE": "Release"
+		},
+		"cmake.testEnvironment": {
+			"DYLD_LIBRARY_PATH": "${workspaceFolder}/../../install",
+			"CMAKE_BUILD_TYPE": "Release"
+		},
+		"cmakeExplorer.cmakeIntegration": true,
+		"cmakeExplorer.buildDir": "${cmake.buildDirectory}",
+		"cmakeExplorer.logfile": "${cmake.buildDirectory}/explorer.log",
+		"cmakeExplorer.parallelJobs": 2,
+		"C_Cpp.errorSquiggles": "enabled",
+		"C_Cpp.configurationWarnings": "enabled",
+		"C_Cpp.default.includePath": [
+			"${workspaceRoot}/../../install/include",
+			"${workspaceFolder}/../../install/include",
+			"${workspaceFolder}/../../projects/noise/demo",
+			"${workspaceFolder}/../../projects/raytrace/demo",
+		],
 		"python.linting.pylintEnabled": true,
 		"python.linting.enabled": true,
 		"todo-tree.general.debug": true,
@@ -92,9 +128,6 @@
 			"**/*.js",
 			"**/*.xml"
 		],
-		"pythonTestExplorer.testFramework": "pytest",
-		"python.testing.pytestEnabled": true,
-		"python.testing.unittestEnabled": false,
 		"testExplorer.showOnRun": true,
 		"testMate.cpp.test.workingDirectory": "${absDirpath}",
 		"testMate.cpp.discovery.strictPattern": true,
@@ -110,7 +143,7 @@
 			"sourceFileMap": "${sourceFileMapObj}",
 			"externalConsole": false
 		},
-		"testMate.cpp.test.executables": "${workspaceFolder}/../build/**/gtest_*",
+		"testMate.cpp.test.executables": "${workspaceFolder}/../../build/**/gtest_*",
 		"files.associations": {
 			"memory": "cpp",
 			"variant": "cpp",
@@ -217,6 +250,36 @@
 			"lacunarity",
 			"multiview",
 			"perlin"
+		],
+		"vsconan.general.pythonInterpreter": "python3",
+		"C_Cpp.loggingLevel": "Debug",
+		"cmake.loggingLevel": "debug",
+	},
+	"tasks": {
+		"version": "2.0.0",
+		"tasks": [
+			{
+				"label": "Print Variables",
+				"command": "echo \r\nworkspaceFolder=${workspaceFolder}\r\nworkspaceFolderBasename=${workspaceFolderBasename}\r\nworkspaceRoot=${workspaceRoot}\r\nworkspaceRootPath=${workspaceRootPath}\r\nworkspaceFolder:fourcc=${workspaceFolder:fourcc}",
+				"type": "shell",
+				"args": [],
+			},
+			{
+				"label": "Build Everything with Conan",
+				"command": "(cd ../../ && ./separate_builds.sh -c)",
+				"type": "shell",
+				"args": [],
+				"group": "build",
+				"problemMatcher": "$gcc"
+			},
+			{
+				"label": "Build Everything with CMake",
+				"command": "(cd ../../ && ./separate_builds.sh)",
+				"type": "shell",
+				"args": [],
+				"group": "build",
+				"problemMatcher": "$gcc"
+			}
 		]
 	}
 }

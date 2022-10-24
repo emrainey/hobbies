@@ -41,7 +41,6 @@ INSTALL_ROOT=`pwd`/install
 
 if [[ ${CLEAN} -eq 1 ]]; then
     rm -rf ${INSTALL_ROOT}
-
 fi
 mkdir -p ${INSTALL_ROOT}
 export CONAN_TRACE_FILE=${INSTALL_ROOT}/conan_trace.log
@@ -57,12 +56,11 @@ for pkg in "${PKGS[@]}"; do
 
     project_path=${PROJECT_ROOT}/$pkg
     build_path=${BUILD_ROOT}/$pkg
-    install_path=${INSTALL_ROOT}/$pkg
+    install_path=${INSTALL_ROOT}
     package_path=${PACKAGE_ROOT}/$pkg
 
     if [[ ${CLEAN} -eq 1 ]]; then
         rm -rf ${build_path}
-        rm -rf ${install_path}
         rm -rf ${package_path}
         # can't delete project_path
     fi
@@ -85,12 +83,10 @@ for pkg in "${PKGS[@]}"; do
         if [[ ${CLEAN} -eq 1 ]]; then
             (cd ${PROJECT_ROOT} && conan remove --force $pkg)
         fi
-
         shared=""
         if [[ ${USE_SHARED_LIBS} == ON ]] && [[ ! ${pkg} == "xmmt" ]]; then
             shared="--options shared=True"
         fi
-
         # this installs the dependencies into a local folder
         conan install ${project_path} -if ${build_path} ${shared}
         # this runs CMake config
@@ -101,6 +97,8 @@ for pkg in "${PKGS[@]}"; do
             # this runs tests
             conan build ${project_path} --test  -bf ${build_path}
         fi
+        # special CMake step to install into a common folder
+        cmake --install ${build_path} --prefix ${install_path}
         # this installs from the build folder into the packageing folder
         conan build ${project_path} --install   -bf ${build_path} -pf ${package_path}
         # this creates a conan package in the package folder
@@ -111,10 +109,5 @@ for pkg in "${PKGS[@]}"; do
     fi
 done
 
-if [[ ${USE_CONAN} -eq 0 ]]; then
-    # Install the Hobbies Python Module via CMake build to the User's Python Install
-    CMAKE_INSTALL_PREFIX=${INSTALL_ROOT} python3 -m pip install --user -e projects/pyhobbies
-else
-    # otherwise you'll have to "install" the library to the PYTHONPATH?
-    echo "setup.py not supported through Conan yet"
-fi
+# Install the Hobbies Python Module via CMake build to the User's Python Install
+CMAKE_PREFIX_PATH=${INSTALL_ROOT} CMAKE_INSTALL_PREFIX=${INSTALL_ROOT} python3 -m pip install --user -e projects/pyhobbies

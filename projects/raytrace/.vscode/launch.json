@@ -25,10 +25,17 @@
     ],
     "configurations": [
         {
+            "type": "lldb-mi",
+            "request": "launch",
+            "name": "Launch Program",
+            "target": "/usr/bin/lldb",
+            "cwd": "${workspaceRoot}"
+        },
+        {
             "name": "(lldb) Launch Random Tuner",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/demo_random_tuner",
+            "program": "${workspaceFolder}/../../build/raytrace/demo_random_tuner",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
@@ -37,17 +44,10 @@
             "MIMode": "lldb"
         },
         {
-            "type": "lldb-mi",
-            "request": "launch",
-            "name": "Launch Program",
-            "target": "/usr/bin/lldb",
-            "cwd": "${workspaceRoot}"
-        },
-        {
             "name": "(lldb) GTest Raytrace",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/gtest_raytrace",
+            "program": "${workspaceFolder}/../../build/raytrace/gtest_raytrace",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
@@ -59,7 +59,7 @@
             "name": "(lldb) Demo Curses",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/demo_curses",
+            "program": "${workspaceFolder}/../../build/raytrace/demo_curses",
             "args": [
                 "-m",
                 "${input:world_module}",
@@ -77,7 +77,7 @@
                 },
                 {
                     "name": "DYLD_LIBRARY_PATH",
-                    "value": "install/lib:raytrace/build",
+                    "value": "${workspaceFolder}/../../install/lib:${workspaceFolder}/../../build/raytrace/",
                 }
             ],
             "externalConsole": false,
@@ -87,7 +87,7 @@
             "name": "(lldb) Demo OpenCV Render",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/demo_raytrace_loader",
+            "program": "${workspaceFolder}/../../build/raytrace/demo_raytrace_loader",
             "args": [
                 "-m",
                 "${input:world_module}",
@@ -105,7 +105,7 @@
                 },
                 {
                     "name": "DYLD_LIBRARY_PATH",
-                    "value": "install/lib:raytrace/build",
+                    "value": "${workspaceFolder}/../../install/lib:${workspaceFolder}/../../build/raytrace/",
                 }
             ],
             "externalConsole": false,

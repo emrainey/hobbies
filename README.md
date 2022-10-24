@@ -1,16 +1,19 @@
 # hobbies
 A place to collect and share all my hobby projects.
 
-* `basal` - a core library of utility objects and interfaces.
-* `linalg` - the core matrix oriented math library
+* `projects`
+  * `basal` - a core library of utility objects and interfaces.
+  * `linalg` - the core matrix oriented math library
+  * `linalg-algo` - high level math algorithms 
   * `linalg-utils` - a compatibility library for using OpenCV.
-* `geometry` - the 2D/3D geometry objects
-* `noise` - A 2D image noise generator, useful in textures or other means
-* `fourcc` - a small image library
-* `neuralnet` - a simple NN w/ hidden layers
-* `raytrace` - a fairly simple raytracer
-* `htm` - the start of a hierarchical temporal memory system.
-* `units_of_measure` - mechanism to create types which represent Units of Measure. 
+  * `geometry` - the 2D/3D geometry objects
+  * `noise` - A 2D image noise generator, useful in textures or other means
+  * `fourcc` - a small image library
+  * `neuralnet` - a simple NN w/ hidden layers
+  * `raytrace` - a fairly simple raytracer
+  * `htm` - the start of a hierarchical temporal memory system.
+  * `units_of_measure` - mechanism to create types which represent Units of Measure. 
+  * `xmmt` - SSE2/AVX512 inline assembly vector and matrix headers.
 
 Check the README in each folder for it's own progress and issues.
 

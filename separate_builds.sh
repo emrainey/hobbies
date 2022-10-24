@@ -34,10 +34,14 @@ while [[ $# -gt 0 ]]; do
     shift
 done
 
-# The local install location to test the build
+PROJECT_ROOT=`pwd`/projects
+BUILD_ROOT=`pwd`/build
+PACKAGE_ROOT=`pwd`/package
 INSTALL_ROOT=`pwd`/install
+
 if [[ ${CLEAN} -eq 1 ]]; then
     rm -rf ${INSTALL_ROOT}
+
 fi
 mkdir -p ${INSTALL_ROOT}
 export CONAN_TRACE_FILE=${INSTALL_ROOT}/conan_trace.log
@@ -50,35 +54,37 @@ fi
 
 # Cycle over each package and build it
 for pkg in "${PKGS[@]}"; do
+
+    project_path=${PROJECT_ROOT}/$pkg
+    build_path=${BUILD_ROOT}/$pkg
+    install_path=${INSTALL_ROOT}/$pkg
+    package_path=${PACKAGE_ROOT}/$pkg
+
+    if [[ ${CLEAN} -eq 1 ]]; then
+        rm -rf ${build_path}
+        rm -rf ${install_path}
+        rm -rf ${package_path}
+        # can't delete project_path
+    fi
+    mkdir -p ${build_path} ${install_path} ${package_path}
+
     if [[ ${USE_CONAN} -eq 0 ]]; then
-        if [[ ${CLEAN} -eq 1 ]]; then
-            rm -rf $pkg/build
-        fi
-        mkdir -p $pkg/build
-        cmake -B $pkg/build -S $pkg \
+        cmake -B ${build_path} -S ${project_path} \
             -DBUILD_SHARED_LIBS=${USE_SHARED_LIBS} \
             -DCMAKE_INSTALL_PREFIX:PATH=${INSTALL_ROOT} \
             -DCMAKE_PREFIX_PATH:PATH=${INSTALL_ROOT} \
             -DCMAKE_VERBOSE_MAKEFILE:BOOL=${VERBOSE} \
             -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE \
-            -DCMAKE_BUILD_TYPE:STRING=Release \
-            -DCMAKE_C_COMPILER:FILEPATH=/usr/local/bin/gcc-12 \
-            -DCMAKE_CXX_COMPILER:FILEPATH=/usr/local/bin/g++-12
-        cmake --build $pkg/build -j${JOBS}
+            -DCMAKE_BUILD_TYPE:STRING=Release
+        cmake --build ${build_path} -j${JOBS} --target all
         if [[ ${RUN_TESTS} -eq 1 ]]; then
-            cmake --build $pkg/build --target test
+            cmake --build ${build_path} --target test
         fi
-        cmake --build $pkg/build --target install
+        cmake --build ${build_path} --target install
     else
         if [[ ${CLEAN} -eq 1 ]]; then
-            conan remove --force $pkg
-            rm -rf .conan/$pkg
+            (cd ${PROJECT_ROOT} && conan remove --force $pkg)
         fi
-
-        build_path=.conan/$pkg/build
-        package_path=.conan/$pkg/package
-
-        mkdir -p ${install_path} ${build_path} ${package_path}
 
         shared=""
         if [[ ${USE_SHARED_LIBS} == ON ]] && [[ ! ${pkg} == "xmmt" ]]; then
@@ -86,28 +92,28 @@ for pkg in "${PKGS[@]}"; do
         fi
 
         # this installs the dependencies into a local folder
-        conan install $pkg -if ${build_path} ${shared}
+        conan install ${project_path} -if ${build_path} ${shared}
         # this runs CMake config
-        conan build $pkg --configure -bf ${build_path}
+        conan build ${project_path} --configure -bf ${build_path}
         # this actually builds
-        conan build $pkg --build     -bf ${build_path}
+        conan build ${project_path} --build     -bf ${build_path}
         if [[ ${RUN_TESTS} -eq 1 ]]; then
             # this runs tests
-            conan build $pkg --test  -bf ${build_path}
+            conan build ${project_path} --test  -bf ${build_path}
         fi
         # this installs from the build folder into the packageing folder
-        conan build $pkg --install   -bf ${build_path} -pf ${package_path}
+        conan build ${project_path} --install   -bf ${build_path} -pf ${package_path}
         # this creates a conan package in the package folder
-        conan package $pkg -bf ${build_path} -pf ${package_path}
-        # conan export $pkg
+        conan package ${project_path} -bf ${build_path} -pf ${package_path}
+        # conan export ${project_path}
         # this exports the package into the local conan cache
-        conan export-pkg $pkg --force -pf ${package_path} --profile default
+        conan export-pkg ${project_path} --force -pf ${package_path} --profile default
     fi
 done
 
 if [[ ${USE_CONAN} -eq 0 ]]; then
     # Install the Hobbies Python Module via CMake build to the User's Python Install
-    CMAKE_INSTALL_PREFIX=${INSTALL_ROOT} python3 -m pip install --user -e pyhobbies
+    CMAKE_INSTALL_PREFIX=${INSTALL_ROOT} python3 -m pip install --user -e projects/pyhobbies
 else
     # otherwise you'll have to "install" the library to the PYTHONPATH?
     echo "setup.py not supported through Conan yet"

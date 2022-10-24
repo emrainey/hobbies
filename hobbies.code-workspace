@@ -2,54 +2,58 @@
 	// cSpell: disable
 	"folders": [
 		{
-			"path": "basal"
+			"path": "projects/basal"
 		},
 		{
-			"path": "units_of_measure"
+			"path": "projects/units_of_measure"
 		},
 		{
-			"path": "fourcc"
+			"path": "projects/fourcc"
 		},
 		{
-			"path": "xmmt"
+			"path": "projects/xmmt"
 		},
 		{
-			"path": "noise"
+			"path": "projects/noise"
 		},
 		{
-			"path": "linalg"
+			"path": "projects/linalg"
 		},
 		{
-			"path": "geometry"
+			"path": "projects/geometry"
 		},
 		{
-			"path": "linalg-utils"
+			"path": "projects/linalg-utils"
 		},
 		{
-			"path": "linalg-algo"
+			"path": "projects/linalg-algo"
 		},
 		{
-			"path": "raytrace"
+			"path": "projects/raytrace"
 		},
 		{
-			"path": "neuralnet"
+			"path": "projects/neuralnet"
 		},
 		{
-			"path": "htm"
+			"path": "projects/htm"
 		},
 		{
-			"path": "doorgame"
+			"path": "projects/doorgame"
 		},
 		{
-			"path": "pyhobbies"
+			"path": "projects/pyhobbies"
 		},
 		{
 			"path": "testing",
-			"name": "Conan Testing Folder"
+			"name": "Testing Folder"
 		},
 		{
-			"path": ".conan",
-			"name": "Conan Build Artifacts"
+			"path": "build",
+			"name": "Build Artifacts"
+		},
+		{
+			"path": "install",
+			"name": "Installable Artifacts"
 		}
 	],
 	"extensions": {
@@ -74,6 +78,11 @@
 		"cmake.autoSelectActiveFolder": true,
 		"cmake.installPrefix": "${workspaceFolder}/../install",
 		"cmake.configureOnOpen": false,
+		"C_Cpp.errorSquiggles": "disabled",
+		"C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+		"C_Cpp.configurationWarnings": "disabled",
+		"python.linting.pylintEnabled": true,
+		"python.linting.enabled": true,
 		"todo-tree.general.debug": true,
 		"todo-tree.filtering.excludeGlobs": [
 			"**/googletest/*",
@@ -87,6 +96,8 @@
 		"python.testing.pytestEnabled": true,
 		"python.testing.unittestEnabled": false,
 		"testExplorer.showOnRun": true,
+		"testMate.cpp.test.workingDirectory": "${absDirpath}",
+		"testMate.cpp.discovery.strictPattern": true,
 		"testMate.cpp.log.logpanel": true,
 		"testMate.cpp.debug.configTemplate": {
 			"type": "cppdbg",
@@ -99,7 +110,7 @@
 			"sourceFileMap": "${sourceFileMapObj}",
 			"externalConsole": false
 		},
-		"testMate.cpp.test.executables": "${workspaceFolder}/.conan/**/gtest_*",
+		"testMate.cpp.test.executables": "${workspaceFolder}/../build/**/gtest_*",
 		"files.associations": {
 			"memory": "cpp",
 			"variant": "cpp",
@@ -200,6 +211,8 @@
 		},
 		"clang-format.language.cpp.enable": false,
 		"cSpell.words": [
+			"abgr",
+			"ABGR",
 			"fourcc",
 			"lacunarity",
 			"multiview",

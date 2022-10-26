@@ -2,6 +2,18 @@
 set -x
 set -e
 
+# Which packages to build in which order
+if [[ -z ${PKGS[@]} ]]; then
+PKGS=(basal units_of_measure fourcc linalg geometry linalg-utils \
+    linalg-algo xmmt noise raytrace neuralnet htm doorgame pyhobbies)
+fi
+
+WORKSPACE_ROOT=`pwd`
+PROJECT_ROOT=${WORKSPACE_ROOT}/projects
+BUILD_ROOT=${WORKSPACE_ROOT}/build
+PACKAGE_ROOT=${WORKSPACE_ROOT}/package
+INSTALL_ROOT=${WORKSPACE_ROOT}/install
+
 CLEAN=0
 JOBS=16
 VERBOSE=OFF
@@ -27,29 +39,51 @@ while [[ $# -gt 0 ]]; do
         ;;
         -dy)
             USE_SHARED_LIBS=ON
-            ;;
+        ;;
+        -rmv)
+            conan editable remove basal/0.5.0
+            conan editable remove units_of_measure/0.7.0
+            conan editable remove fourcc/0.7.0
+            conan editable remove linalg/0.7.0
+            conan editable remove linalg-algo/0.7.0
+            conan editable remove linalg-utils/0.7.0
+            conan editable remove geometry/0.7.0
+            conan editable remove xmmt/0.7.0
+            conan editable remove noise/0.7.0
+            conan editable remove raytrace/0.7.0
+            conan editable remove neuralnet/0.7.0
+            conan editable remove htm/0.1.0
+            conan editable remove doorgame/0.1.0
+            exit 0
+        ;;
+        -edit)
+            conan editable add --layout layout.ini projects/basal               basal/0.5.0
+            conan editable add --layout layout.ini projects/units_of_measure    units_of_measure/0.7.0
+            conan editable add --layout layout.ini projects/fourcc              fourcc/0.7.0
+            conan editable add --layout layout.ini projects/linalg              linalg/0.7.0
+            conan editable add --layout layout.ini projects/linalg-algo         linalg-algo/0.7.0
+            conan editable add --layout layout.ini projects/linalg-utils        linalg-utils/0.7.0
+            conan editable add --layout layout.ini projects/geometry            geometry/0.7.0
+            conan editable add --layout layout.ini projects/xmmt                xmmt/0.7.0
+            conan editable add --layout layout.ini projects/noise               noise/0.7.0
+            conan editable add --layout layout.ini projects/raytrace            raytrace/0.7.0
+            conan editable add --layout layout.ini projects/neuralnet           neuralnet/0.7.0
+            conan editable add --layout layout.ini projects/htm                 htm/0.1.0
+            conan editable add --layout layout.ini projects/doorgame            doorgame/0.1.0
+            exit 0
+        ;;
         *)
         ;;
     esac
     shift
 done
 
-PROJECT_ROOT=`pwd`/projects
-BUILD_ROOT=`pwd`/build
-PACKAGE_ROOT=`pwd`/package
-INSTALL_ROOT=`pwd`/install
 
 if [[ ${CLEAN} -eq 1 ]]; then
     rm -rf ${INSTALL_ROOT}
 fi
 mkdir -p ${INSTALL_ROOT}
 export CONAN_TRACE_FILE=${INSTALL_ROOT}/conan_trace.log
-
-# Which packages to build in which order
-if [[ -z ${PKGS[@]} ]]; then
-PKGS=(basal units_of_measure fourcc linalg geometry linalg-utils \
-    linalg-algo xmmt noise raytrace neuralnet htm doorgame pyhobbies)
-fi
 
 # Cycle over each package and build it
 for pkg in "${PKGS[@]}"; do
@@ -89,6 +123,7 @@ for pkg in "${PKGS[@]}"; do
         fi
         # this installs the dependencies into a local folder
         conan install ${project_path} -if ${build_path} ${shared}
+        # conan export ${project_path} ?
         # this runs CMake config
         conan build ${project_path} --configure -bf ${build_path}
         # this actually builds
@@ -103,9 +138,12 @@ for pkg in "${PKGS[@]}"; do
         conan build ${project_path} --install   -bf ${build_path} -pf ${package_path}
         # this creates a conan package in the package folder
         conan package ${project_path} -bf ${build_path} -pf ${package_path}
-        # conan export ${project_path}
-        # this exports the package into the local conan cache
-        conan export-pkg ${project_path} --force -pf ${package_path} --profile default
+
+        editable_already=`conan editable list | grep ${project_path} | wc -l | awk '{print $1}'`
+        if [[ ${editable_already} -eq 0 ]]; then
+            # this exports the package into the local conan cache
+            conan export-pkg ${project_path} --force -pf ${package_path} --profile default
+        fi
     fi
 done
 

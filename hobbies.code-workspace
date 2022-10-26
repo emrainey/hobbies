@@ -68,6 +68,10 @@
 		{
 			"path": "install",
 			"name": "Installable Artifacts"
+		},
+		{
+			"path": "package",
+			"name": "Packaging Artifacts"
 		}
 	],
 	"extensions": {

@@ -14,7 +14,8 @@ class RaytraceConan(ConanFile):
                "linalg/0.7.0", \
                "linalg-utils/0.7.0", \
                "noise/0.7.0", \
-               "xmmt/0.7.0"
+               "xmmt/0.7.0", \
+               "libiconv/1.17", "sdl/2.24.1" # libiconv is overriding
 
     url = "http://github.com/emrainey/hobbies"
     homepage = "http://github.com/emrainey/hobbies"

@@ -1,8 +1,18 @@
 [requires]
-cmake/3.22.0
-doxygen/1.8.18
-gtest/1.8.1
+# overrides
+zlib/1.2.12
+libiconv/1.17
+openssl/1.1.1m
+
+# libraries
 # pybind11/2.9.1
+
+# tools
+cmake/3.22.0
+doxygen/1.9.4
+gtest/1.8.1
+sdl/2.24.1
+opencv/4.5.3
 
 [generators]
 virtualenv

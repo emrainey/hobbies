@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.20.0)
 project(raytrace LANGUAGES CXX VERSION 0.7.0)  # This must match the conanfile.py!
 
-find_package(OpenCV REQUIRED)
 find_package(OpenMP REQUIRED)
 # find_package(ncurses REQUIRED) # should be installed in the system
 find_package(basal 0.5.0 REQUIRED)
@@ -85,6 +84,7 @@ set_target_properties(hobbies-raytrace PROPERTIES
 # DEMOS
 ################
 
+find_package(OpenCV)
 if (OpenCV_FOUND)
 add_executable(demo_sphere_surfaces
     ${CMAKE_CURRENT_SOURCE_DIR}/demo/main_sphere_surfaces.cpp
@@ -102,15 +102,25 @@ add_executable(demo_random_tuner
 target_link_libraries(demo_random_tuner PRIVATE ${OpenCV_LIBS} hobbies-raytrace LinalgUtils::hobbies-linalg-utils Threads::Threads)
 endif()
 
-find_package(Threads REQUIRED)
+find_package(Threads)
 find_package(Curses)
-if (CURSES_FOUND)
+if (Threads_FOUND AND CURSES_FOUND)
     add_executable(demo_curses
         ${CMAKE_CURRENT_SOURCE_DIR}/demo/main_console.cpp
     )
     target_include_directories(demo_curses PRIVATE ${CURSES_INCLUDE_DIRS})
     target_link_libraries(demo_curses PRIVATE hobbies-raytrace ${CURSES_LIBRARIES} Threads::Threads)
     target_compile_options(demo_curses PRIVATE ${CURSES_CFLAGS})
+endif()
+
+find_package(Threads)
+find_package(SDL2)
+if (SDL2_FOUND)
+    add_executable(demo_sdl2
+        ${CMAKE_CURRENT_SOURCE_DIR}/demo/main_sdl2.cpp
+    )
+    target_include_directories(demo_sdl2 PRIVATE ${SDL2_INCLUDE_DIRS})
+    target_link_libraries(demo_sdl2 PRIVATE hobbies-raytrace ${SDL2_LIBRARIES} Threads::Threads)
 endif()
 
 #################################
@@ -131,9 +141,9 @@ endforeach()
 #####################
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
-find_package(Threads REQUIRED)
-find_package(GTest REQUIRED)
-if (GTest_FOUND)
+find_package(Threads)
+find_package(GTest)
+if (Threads_FOUND AND GTest_FOUND)
     add_executable(gtest_raytrace
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_camera.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_color.cpp

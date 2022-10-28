@@ -1,12 +1,26 @@
-#!/bin/bash
+#!/bin/zsh
 set -x
 set -e
 
-# Which packages to build in which order
-if [[ -z ${PKGS[@]} ]]; then
-PKGS=(basal units_of_measure fourcc linalg geometry linalg-utils \
-    linalg-algo xmmt noise raytrace neuralnet htm doorgame pyhobbies)
-fi
+# Which packages to build and their versions (must keep this manually synced with conanfile.py's)
+declare -A PKGS
+PKGS=(["basal"]="0.5.0" \
+      ["units_of_measure"]="0.7.0" \
+      ["fourcc"]="0.7.0" \
+      ["linalg"]="0.7.0" \
+      ["geometry"]="0.7.0" \
+      ["linalg-utils"]="0.7.0" \
+      ["linalg-algo"]="0.7.0" \
+      ["xmmt"]="0.7.0" \
+      ["noise"]="0.7.0" \
+      ["raytrace"]="0.7.0" \
+      ["neuralnet"]="0.7.0" \
+      ["htm"]="0.1.0" \
+      ["doorgame"]="0.1.0" \
+      ["pyhobbies"]="0.7.0" \
+)
+# build in which order
+ORDER=(basal units_of_measure fourcc linalg geometry linalg-utils linalg-algo xmmt noise raytrace neuralnet htm doorgame pyhobbies)
 
 WORKSPACE_ROOT=`pwd`
 PROJECT_ROOT=${WORKSPACE_ROOT}/projects
@@ -40,36 +54,22 @@ while [[ $# -gt 0 ]]; do
         -dy)
             USE_SHARED_LIBS=ON
         ;;
+        -del)
+            for pkg ver in ${(kv)PKGS}; do
+                conan remove --force ${pkg}/${ver}
+            done
+            exit 0
+        ;;
         -rmv)
-            conan editable remove basal/0.5.0
-            conan editable remove units_of_measure/0.7.0
-            conan editable remove fourcc/0.7.0
-            conan editable remove linalg/0.7.0
-            conan editable remove linalg-algo/0.7.0
-            conan editable remove linalg-utils/0.7.0
-            conan editable remove geometry/0.7.0
-            conan editable remove xmmt/0.7.0
-            conan editable remove noise/0.7.0
-            conan editable remove raytrace/0.7.0
-            conan editable remove neuralnet/0.7.0
-            conan editable remove htm/0.1.0
-            conan editable remove doorgame/0.1.0
+            for pkg ver in ${(kv)PKGS}; do
+                conan editable remove ${pkg}/${ver}
+            done
             exit 0
         ;;
         -edit)
-            conan editable add --layout layout.ini projects/basal               basal/0.5.0
-            conan editable add --layout layout.ini projects/units_of_measure    units_of_measure/0.7.0
-            conan editable add --layout layout.ini projects/fourcc              fourcc/0.7.0
-            conan editable add --layout layout.ini projects/linalg              linalg/0.7.0
-            conan editable add --layout layout.ini projects/linalg-algo         linalg-algo/0.7.0
-            conan editable add --layout layout.ini projects/linalg-utils        linalg-utils/0.7.0
-            conan editable add --layout layout.ini projects/geometry            geometry/0.7.0
-            conan editable add --layout layout.ini projects/xmmt                xmmt/0.7.0
-            conan editable add --layout layout.ini projects/noise               noise/0.7.0
-            conan editable add --layout layout.ini projects/raytrace            raytrace/0.7.0
-            conan editable add --layout layout.ini projects/neuralnet           neuralnet/0.7.0
-            conan editable add --layout layout.ini projects/htm                 htm/0.1.0
-            conan editable add --layout layout.ini projects/doorgame            doorgame/0.1.0
+            for pkg ver in ${(kv)PKGS}; do
+                conan editable add --layout layout.ini projects/${pkg} ${pkg}/${ver}
+            done
             exit 0
         ;;
         *)
@@ -86,8 +86,9 @@ mkdir -p ${INSTALL_ROOT}
 export CONAN_TRACE_FILE=${INSTALL_ROOT}/conan_trace.log
 
 # Cycle over each package and build it
-for pkg in "${PKGS[@]}"; do
-
+for pkg in ${ORDER[@]}; do
+    ver=${PKGS[${pkg}]}
+    echo "Package=${pkg} Version=${ver}"
     project_path=${PROJECT_ROOT}/$pkg
     build_path=${BUILD_ROOT}/$pkg
     install_path=${INSTALL_ROOT}

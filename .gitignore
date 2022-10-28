@@ -60,6 +60,8 @@ render_image.png
 # Ignore the Virtual Environment Stuff for Conan
 activate.*
 conan.lock
+conan_paths.cmake
+conanbuildinfo.cmake
 conanbuildinfo.txt
 conaninfo.txt
 deactivate.*

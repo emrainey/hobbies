@@ -23,8 +23,6 @@ class UnitsOfMeasureConan(ConanFile):
         self.cpp_info.name = self.name
         self.cpp_info.libs = ['hobbies-uom']
         self.cpp_info.includedirs = ['include']
-        self.cpp_info.build_modules["cmake_find_package"].append(f"cmake/{self.name}-config.cmake")
-        self.cpp_info.build_modules["cmake_find_package"].append(f"cmake/Find{self.name}.cmake")
 
     def _configure_cmake(self) -> CMake:
         cmake = CMake(self)

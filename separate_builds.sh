@@ -32,7 +32,7 @@ CLEAN=0
 JOBS=16
 VERBOSE=OFF
 RUN_TESTS=0
-USE_CONAN=0
+USE_CONAN=1
 USE_SHARED_LIBS=OFF
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -48,8 +48,8 @@ while [[ $# -gt 0 ]]; do
         -t)
             RUN_TESTS=1
         ;;
-        -c)
-            USE_CONAN=1
+        -cmake)
+            USE_CONAN=0
         ;;
         -dy)
             USE_SHARED_LIBS=ON

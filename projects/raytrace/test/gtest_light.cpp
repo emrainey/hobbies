@@ -56,7 +56,7 @@ TEST(LightTest, TriColorSpots) {
     scene.add_object(&floor);
     scene.add_object(&shape);
     scene.print("TriColor");
-    scene.render("tricolor_spots.ppm", 1, 1, std::nullopt, true);
+    scene.render(0u, "tricolor_spots.ppm", 1, 1, std::nullopt, true);
 }
 
 TEST(LightTest, BulbTest) {
@@ -70,5 +70,5 @@ TEST(LightTest, BulbTest) {
     scene.add_object(&floor);
     scene.add_object(&shape);
     scene.print("BulbTest");
-    scene.render("bulb_and_sphere.ppm", 1, 1, std::nullopt, true);
+    scene.render(0u, "bulb_and_sphere.ppm", 1, 1, std::nullopt, true);
 }

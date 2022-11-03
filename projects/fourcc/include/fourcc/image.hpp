@@ -63,6 +63,17 @@ struct alignas(uint32_t) abgr {
     uint8_t r;  //!< Red Component
 } __attribute__((packed));
 
+/** Defines the ABGR (32 bit) type of alpha, then blue, then green, then red */
+struct alignas(uint32_t) bgra {
+    /** Constructor */
+    constexpr bgra() : b{0}, g{0}, r{0}, a{0} {
+    }
+    uint8_t b;  //!< Blue Component
+    uint8_t g;  //!< Green Component
+    uint8_t r;  //!< Red Component
+    uint8_t a;  //!< Alpha Component
+} __attribute__((packed));
+
 /** Defines the 4:4:4 (non subsampled) single plane interleaved YUV format */
 struct alignas(uint8_t) iyu2 {
     /** Constructor */
@@ -95,8 +106,7 @@ struct alignas(float) rgbf {
  * Enumerates the various pixel formats in FOURCC codes and some additional types.
  * \see fourcc.org
  */
-enum class pixel_format : uint32_t
-{
+enum class pixel_format : uint32_t {
     GREY8 = four_character_code('G', 'R', 'E', 'Y'),  ///< Uses uint8_t
     Y800 = four_character_code('Y', '8', '0', '0'),   ///< Uses uint8_t
     Y8 = four_character_code('Y', '8', ' ', ' '),     ///< Uses uint8_t
@@ -106,6 +116,7 @@ enum class pixel_format : uint32_t
     BGR8 = four_character_code('B', 'G', 'R', '8'),   ///< Uses @ref bgr8
     RGBA = four_character_code('R', 'G', 'B', 'A'),   ///< Uses @ref rgba
     ABGR = four_character_code('A', 'B', 'G', 'R'),   ///< Uses @ref abgr
+    BGRA = four_character_code('B', 'G', 'R', 'A'),   ///< Uses @ref bgra
     IYU2 = four_character_code('I', 'Y', 'U', '2'),   ///< Uses @ref @iyu2
     YF = four_character_code('Y', 'F', ' ', ' '),     ///< User @ref yf
     RGBf = four_character_code('R', 'G', 'B', 'f'),   ///< Uses @reg rgbf
@@ -122,6 +133,8 @@ constexpr const char* channel_order(pixel_format fmt) {
             [[fallthrough]];
         case pixel_format::ABGR:
             return "BGR";
+        case pixel_format::BGRA:
+            return "BGRA";
         case pixel_format::IYU2:
             return "UYV";
         case pixel_format::RGBf:
@@ -146,6 +159,7 @@ constexpr int channels_in_format(pixel_format fmt) {
     switch (fmt) {
         case pixel_format::RGBA:
         case pixel_format::ABGR:
+        case pixel_format::BGRA:
             return 4;
         case pixel_format::RGBf:
         case pixel_format::RGB8:
@@ -193,8 +207,14 @@ constexpr bool uses_bgr8(pixel_format fmt) {
 
 /** Returns true if the format uses uint32_t as a channel */
 constexpr bool uses_uint32(pixel_format fmt) {
-    if (fmt == pixel_format::Y32 || fmt == pixel_format::ABGR || fmt == pixel_format::RGBA) {
-        return true;
+    switch (fmt) {
+        case pixel_format::Y32:
+        case pixel_format::ABGR:
+        case pixel_format::RGBA:
+        case pixel_format::BGRA:
+            return true;
+        default:
+            break;
     }
     return false;
 }
@@ -374,8 +394,7 @@ protected:
 };
 
 /** Enumerates the channels */
-enum class channel : int8_t
-{
+enum class channel : int8_t {
     R,
     G,
     B,

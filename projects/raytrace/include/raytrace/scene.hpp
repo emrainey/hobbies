@@ -91,13 +91,14 @@ public:
 
     /**
      * Computes the scene and saves the camera image to a file
+     * @param view_index The view number to render.
      * @param filename The name of the file to write
      * @param number_of_samples The number of subsamples per pixel.
      * @param reflection_depth The depth of recursion for a traced ray. 1 equals no reflections.
      * @param func     The optional callback per pixel
      * @param show_bar Enables showing the progress bar
      */
-    void render(std::string filename, size_t number_of_samples = 1, size_t reflection_depth = 1,
+    void render(size_t view_index, std::string filename, size_t number_of_samples = 1, size_t reflection_depth = 1,
                 std::optional<image::rendered_line> func = std::nullopt,
                 uint8_t mask_threshold = raytrace::image::AAA_MASK_DISABLED, bool filter_capture = false);
 

@@ -80,7 +80,7 @@ public:
             char buffer[len];
             snprintf(buffer, len, "rendertest_%s_%zu.ppm", name, i);
             scenes[i]->print(buffer);
-            scenes[i]->render(buffer, 1, 2);
+            scenes[i]->render(0u, buffer, 1, 2);
         }
     }
 

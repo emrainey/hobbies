@@ -81,5 +81,5 @@ TEST(SceneTest, LowResSpheres) {
     scene.add_object(&s1);
     scene.add_object(&s2);
 
-    scene.render("low_res_sphere.ppm");
+    scene.render(0u, "low_res_sphere.ppm");
 }

@@ -332,9 +332,10 @@ color scene::trace(const ray& world_ray, const mediums::medium& media, size_t re
     return traced_color;
 }
 
-void scene::render(std::string filename, size_t number_of_samples, size_t reflection_depth,
+void scene::render(size_t view_index, std::string filename, size_t number_of_samples, size_t reflection_depth,
                    std::optional<image::rendered_line> row_notifier, uint8_t aaa_mask_threshold, bool filter_capture) {
-    for (auto& view : views) {
+    if (view_index < views.size()) {
+        auto& view = views[view_index];
         bool adaptive_antialiasing = aaa_mask_threshold != raytrace::image::AAA_MASK_DISABLED;
         if constexpr (debug) {
             view.print("Camera Info:\n");

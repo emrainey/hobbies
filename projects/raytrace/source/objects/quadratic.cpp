@@ -97,6 +97,10 @@ void quadratic::print(const char name[]) const {
     std::cout << name << " " << *this << std::endl;
 }
 
+element_type quadratic::get_object_extant(void) const {
+    return std::nan("");
+}
+
 std::ostream& operator<<(std::ostream& os, const quadratic& q) {
     os << " Quadratic " << q.position() << ", Coefficients {" << q.m_coefficients << "}";
     return os;

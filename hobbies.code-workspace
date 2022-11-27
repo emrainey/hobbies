@@ -116,6 +116,7 @@
 		"C_Cpp.errorSquiggles": "enabled",
 		"C_Cpp.configurationWarnings": "enabled",
 		"C_Cpp.default.includePath": [
+			"${workspaceRoot}/include",
 			"${workspaceRoot}/../../install/include",
 			"${workspaceFolder}/../../install/include",
 			"${workspaceFolder}/../../projects/noise/demo",
@@ -250,8 +251,10 @@
 		"cSpell.words": [
 			"abgr",
 			"ABGR",
+			"basal",
 			"fourcc",
 			"lacunarity",
+			"linalg",
 			"multiview",
 			"perlin"
 		],

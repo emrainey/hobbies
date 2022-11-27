@@ -30,6 +30,7 @@ public:
     image::point map(const point& object_surface_point) const override;
     /** @copydoc basal::printable::print */
     void print(const char str[]) const override;
+    element_type get_object_extant(void) const override;
 };
 }  // namespace objects
 }  // namespace raytrace

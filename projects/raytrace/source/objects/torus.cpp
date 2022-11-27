@@ -143,5 +143,9 @@ void torus::print(const char str[]) const {
               << " Ring Radius:" << m_ring_radius << std::endl;
 }
 
+element_type torus::get_object_extant(void) const {
+    return m_ring_radius + m_tube_radius;
+}
+
 }  // namespace objects
 }  // namespace raytrace

@@ -36,13 +36,13 @@ hits pyramid::collisions_along(const ray& object_ray) const {
     element_type dz = object_ray.direction()[2];
     // we know if x or y components positive or negative but we don't know
     // t yet so we don't know when the ray equation (p + dt) will be > 0
-    // so we solve for 4 different scenarios to find the answer. Generally we subsitute
+    // so we solve for 4 different scenarios to find the answer. Generally we substitute
     // |p + d*t| = a*(p + d*t) = a*p + a*d*t where a can be 1.0 or -1.0.
     // when p > 0 and d > 0 then a =  1.0
     // when p < 0 and d < 0 then a = -1.0
     // when p > 0 and d < 0 then when t < |p|/|d| a = 1.0, else -1.0
     // when p < 0 and d > 0 then when t > |p|/|d| a = 1.0, else -1.0
-    // the problem is that we don't know t yet! However, a can only be 2 values, and we have
+    // the problem is that we don't know t yet! However, it can only be 2 values, and we have
     // a and b (associated with x and y) respectively.
     // z = h - |x| - |y|
     // 0 = h - |x| - |y| - z
@@ -97,6 +97,12 @@ image::point pyramid::map(const point& object_surface_point) const {
 
 void pyramid::print(const char str[]) const {
     std::cout << str << " Pyramid @" << this << " " << position() << " Height " << m_height << std::endl;
+}
+
+element_type pyramid::get_object_extant(void) const {
+    // this should return highest distance from the object origin
+    // for a pyramid which is assumed to be cornered down the x/y axes, the
+    // furthest distance is the a point
 }
 
 }  // namespace objects

@@ -51,5 +51,9 @@ image::point square::map(const point& object_surface_point) const {
     return image::point(object_surface_point.x / m_surface_scale, object_surface_point.y / m_surface_scale);
 }
 
+element_type square::get_object_extant(void) const {
+    return (m_points[1] - R3::origin).magnitude();
+}
+
 }  // namespace objects
 }  // namespace raytrace

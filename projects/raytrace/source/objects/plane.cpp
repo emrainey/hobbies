@@ -63,6 +63,10 @@ image::point plane::map(const point& object_surface_point) const {
     return image::point(polar_space[0] / 1.0, polar_space[1] / iso::tau);
 }
 
+element_type plane::get_object_extant(void) const {
+    return std::nan("");
+}
+
 void plane::print(const char str[]) const {
     std::cout << str << " Plane @" << this << " " << position() << " Normal " << normal(position()) << std::endl;
 }

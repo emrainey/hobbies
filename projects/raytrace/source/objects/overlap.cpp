@@ -173,5 +173,10 @@ void overlap::print(const char str[]) const {
     m_B.print(str);
 }
 
+element_type overlap::get_object_extant(void) const {
+    // we want this to be additive as this is for collision checking.
+    return std::max(m_A.get_object_extant(), m_B.get_object_extant());
+}
+
 }  // namespace objects
 }  // namespace raytrace

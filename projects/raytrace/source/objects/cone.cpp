@@ -4,6 +4,7 @@
 
 namespace raytrace {
 namespace objects {
+// FIXME delete or modify!
 cone::cone(const point& C, iso::radians angle)
     : object{C, 2, true}  // 2 collisions, closed (infinite)
     , m_bottom_radius{0.0}
@@ -124,6 +125,10 @@ image::point cone::map(const point& object_surface_point) const {
 void cone::print(const char str[]) const {
     std::cout << str << " cone @" << this << " " << position() << " Height" << m_height << " Radius:" << m_bottom_radius
               << " Angle:" << m_angle.value << std::endl;
+}
+
+element_type cone::get_object_extant(void) const {
+    return sqrt((m_height * m_height) + (m_bottom_radius * m_bottom_radius));
 }
 
 }  // namespace objects

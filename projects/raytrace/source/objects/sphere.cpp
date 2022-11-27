@@ -62,5 +62,9 @@ void sphere::print(const char str[]) const {
     std::cout << str << " Sphere @" << this << " " << position() << " Radius " << radius << std::endl;
 }
 
+element_type sphere::get_object_extant(void) const {
+    return m_radius;
+}
+
 }  // namespace objects
 }  // namespace raytrace

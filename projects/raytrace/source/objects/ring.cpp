@@ -48,5 +48,9 @@ void ring::print(const char str[]) const {
               << " Radii (Squared):" << m_inner_radius2 << ", " << m_outer_radius2 << std::endl;
 }
 
+element_type ring::get_object_extant(void) const {
+    return m_outer_radius2;
+}
+
 }  // namespace objects
 }  // namespace raytrace

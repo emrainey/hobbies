@@ -171,6 +171,10 @@ void cuboid::print(const char name[]) const {
     std::cout << name << " " << *this << std::endl;
 }
 
+element_type cuboid::get_object_extant(void) const {
+    return vector{x_half_width, y_half_width, z_half_width}.magnitude();
+}
+
 }  // namespace objects
 
 std::ostream& operator<<(std::ostream& os, const objects::cuboid& c) {

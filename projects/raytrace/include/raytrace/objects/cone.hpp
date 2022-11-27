@@ -33,6 +33,7 @@ public:
     /** @copydoc basal::printable::print */
     void print(const char str[]) const override;
     bool is_surface_point(const raytrace::point& world_point) const override;
+    element_type get_object_extant(void) const override;
 
 private:
     element_type m_bottom_radius;

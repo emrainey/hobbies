@@ -90,6 +90,16 @@ const std::array<point, 3>& triangle::points() const {
     return m_points;
 }
 
+element_type triangle::get_object_extant(void) const {
+    // find the point farthest from origin
+    element_type d[] = {
+        (m_points[0] - R3::origin).magnitude(),
+        (m_points[1] - R3::origin).magnitude(),
+        (m_points[2] - R3::origin).magnitude(),
+    };
+    return std::max(d[0], std::max(d[1], d[2]));
+}
+
 }  // namespace objects
 
 geometry::plane as_plane(const objects::triangle& tri) {

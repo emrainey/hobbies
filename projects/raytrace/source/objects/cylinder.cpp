@@ -93,5 +93,9 @@ void cylinder::print(const char str[]) const {
               << std::endl;
 }
 
+element_type cylinder::get_object_extant(void) const {
+    return sqrt((m_half_height * m_half_height) + (m_radius * m_radius));
+}
+
 }  // namespace objects
 }  // namespace raytrace

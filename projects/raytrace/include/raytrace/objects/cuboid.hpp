@@ -31,6 +31,7 @@ public:
     image::point map(const point& object_surface_point) const override;
     /** @copydoc basal::printable::print */
     void print(const char str[]) const override;
+    element_type get_object_extant(void) const override;
 
     const element_type& x_half_width;
     const element_type& y_half_width;

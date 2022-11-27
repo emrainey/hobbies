@@ -1,7 +1,7 @@
 #pragma once
 
 #include <geometry/geometry.hpp>
-//#include "xmmt.hpp"
+// #include "xmmt.hpp"
 
 namespace raytrace {
 using namespace geometry::operators;
@@ -26,6 +26,12 @@ struct hit {
 };
 /** A set of distances along the world_ray which collide with the object, could be many. */
 using hits = std::vector<element_type>;
+
+/** An axis aligned bounding box for computing the BSP */
+struct abba {
+    point min;  //!< The lower set of values.
+    point max;  //!< The higher set of values.
+};
 
 /** Collects the statistics from the raytracing library */
 struct statistics {

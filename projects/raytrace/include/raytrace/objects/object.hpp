@@ -196,6 +196,22 @@ public:
         return false;  // override to correct
     };
 
+    abba get_world_bounds(void) const {
+        // finds the object's maximum radial distance from the object origin
+        auto ijk_max = get_object_extant();
+        // the 3d corner of a point with those components
+        vector v{ijk_max, ijk_max, ijk_max};
+        auto r = v.magnitude();
+        // constructs a local trivial structure
+        return abba{
+            {entity_<DIMS>::forward_transform(point{-r, -r, -r}), entity_<DIMS>::forward_transform(point{r, r, r})}};
+    }
+
+    /** Returns the maximum radial distance from the object origin on the surface of the object.
+     * @warning Objects which are not closed or have infinite dimensionality will return std::nan.
+     */
+    virtual element_type get_object_extant(void) const = 0;
+
 protected:
     /** The maximum number of collisions with the surface of this object */
     const size_t m_max_collisions;

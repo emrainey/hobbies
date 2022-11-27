@@ -8,8 +8,7 @@ namespace objects {
 class overlap : public object {
 public:
     /** The various types of supported overlaps */
-    enum class type : int
-    {
+    enum class type : int {
         additive,     //!< Joins two objects together
         subtractive,  //!< Subtracts object B from A
         exclusive,    //!< Renders only what is not overlapping between both items (will need to be overlapped again to
@@ -42,6 +41,7 @@ public:
     }
 
     bool is_surface_point(const point& world_point) const override;
+    element_type get_object_extant(void) const override;
 
 protected:
     const object& m_A;

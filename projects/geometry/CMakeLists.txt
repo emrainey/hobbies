@@ -21,10 +21,16 @@ add_library(hobbies-geometry
     ${CMAKE_CURRENT_SOURCE_DIR}/source/sphere.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/vector.cpp
 )
-target_link_libraries(hobbies-geometry PUBLIC
-    Basal::hobbies-basal
-    UnitsOfMeasure::hobbies-uom
-    Linalg::hobbies-linalg
+target_link_libraries(hobbies-geometry
+    PUBLIC
+        Basal::hobbies-basal
+        UnitsOfMeasure::hobbies-uom
+        Linalg::hobbies-linalg
+    PRIVATE
+        Basal::enabled-warnings
+        Basal::enabled-debugging
+        Basal::enabled-profiling
+        Basal::native-optimized
 )
 target_include_directories(hobbies-geometry PUBLIC
     # Generated Tree

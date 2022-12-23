@@ -101,8 +101,9 @@ void pyramid::print(const char str[]) const {
 
 element_type pyramid::get_object_extant(void) const {
     // this should return highest distance from the object origin
-    // for a pyramid which is assumed to be cornered down the x/y axes, the
-    // furthest distance is the a point
+    // for a pyramid, the center is at the base, the corners are down
+    // each axis. it's all the same distance.
+    return m_height;
 }
 
 }  // namespace objects

@@ -62,8 +62,18 @@ add_library(hobbies-raytrace
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/triangle.cpp
 )
 target_link_libraries(hobbies-raytrace
-    PUBLIC Linalg::hobbies-linalg Fourcc::hobbies-fourcc Noise::hobbies-noise Geometry::hobbies-geometry Xmmt::hobbies-xmmt Basal::native-optimized
-    PRIVATE OpenMP::OpenMP_CXX
+    PUBLIC
+        Linalg::hobbies-linalg
+        Fourcc::hobbies-fourcc
+        Noise::hobbies-noise
+        Geometry::hobbies-geometry
+        Xmmt::hobbies-xmmt
+        OpenMP::OpenMP_CXX
+    PRIVATE
+        Basal::enabled-warnings
+        Basal::enabled-debugging
+        Basal::enabled-profiling
+        Basal::native-optimized
 )
 target_include_directories(hobbies-raytrace
     PUBLIC

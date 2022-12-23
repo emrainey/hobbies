@@ -22,12 +22,21 @@ target_include_directories(hobbies-fourcc
         # Install Tree
         $<INSTALL_INTERFACE:include>
 )
-target_link_libraries(hobbies-fourcc PUBLIC Basal::hobbies-basal Basal::enabled-warnings Basal::native-optimized)
+target_link_libraries(hobbies-fourcc
+    PUBLIC
+        Basal::hobbies-basal
+    PRIVATE
+        Basal::enabled-warnings
+        Basal::enabled-debugging
+        Basal::enabled-profiling
+        Basal::native-optimized
+)
 set_target_properties(hobbies-fourcc PROPERTIES
     VERSION ${PROJECT_VERSION}
     SOVERSION ${PROJECT_VERSION_MAJOR}
     POSITION_INDEPENDENT_CODE ON
 )
+
 
 #####################
 # EXPORTS

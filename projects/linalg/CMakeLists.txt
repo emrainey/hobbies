@@ -15,8 +15,16 @@ add_library(hobbies-linalg
     ${CMAKE_CURRENT_SOURCE_DIR}/source/matrix.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/solvers.cpp
 )
-target_link_libraries(hobbies-linalg PUBLIC
-    Basal::hobbies-basal UnitsOfMeasure::hobbies-uom)
+target_link_libraries(hobbies-linalg
+    PUBLIC
+        Basal::hobbies-basal
+        UnitsOfMeasure::hobbies-uom
+    PRIVATE
+        Basal::enabled-warnings
+        Basal::enabled-debugging
+        Basal::enabled-profiling
+        Basal::native-optimized
+)
 target_include_directories(hobbies-linalg PUBLIC
     # Generated Tree
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>

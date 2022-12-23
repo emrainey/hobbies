@@ -26,7 +26,15 @@ add_library(hobbies-doorgame
     ${CMAKE_CURRENT_SOURCE_DIR}/source/targets.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/streamview.cpp
 )
-target_link_libraries(hobbies-doorgame PUBLIC Basal::hobbies-basal)
+target_link_libraries(hobbies-doorgame
+    PUBLIC
+        Basal::hobbies-basal
+    PRIVATE
+        Basal::enabled-debugging
+        Basal::enabled-profiling
+        Basal::enabled-warnings
+        Basal::native-optimized
+)
 target_include_directories(hobbies-doorgame
     PUBLIC
         # Generated Tree

@@ -68,5 +68,10 @@ deactivate.*
 environment.*.env
 graph_info.json
 
+# ignore profiling and odd docs
+/*.pdf
+/*.prof
+/*.profraw
+
 # Ignore Python Junk
 *.egg-info

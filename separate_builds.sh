@@ -149,4 +149,4 @@ for pkg in ${ORDER[@]}; do
 done
 
 # Install the Hobbies Python Module via CMake build to the User's Python Install
-CMAKE_PREFIX_PATH=${INSTALL_ROOT} CMAKE_INSTALL_PREFIX=${INSTALL_ROOT} python3 -m pip install --user -e projects/pyhobbies
+#CMAKE_PREFIX_PATH=${INSTALL_ROOT} CMAKE_INSTALL_PREFIX=${INSTALL_ROOT} python3 -m pip install --user -e projects/pyhobbies

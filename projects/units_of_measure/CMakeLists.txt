@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.20.0)
 project(units_of_measure LANGUAGES CXX VERSION 0.7.0)  # This must match the conanfile.py!
 set(CMAKE_CXX_STANDARD 17)
 
+find_package(basal 0.5.0 REQUIRED)
+
 enable_testing()
 
 option(BUILD_SHARED_LIBS "Builds libraries as dynamic objects" OFF)
@@ -32,6 +34,13 @@ add_library(hobbies-uom
     "source/iso/watts.cpp"
     # SI
     "source/si/prefix.cpp"
+)
+target_link_libraries(hobbies-uom
+    PRIVATE
+        Basal::enabled-warnings
+        Basal::enabled-debugging
+        Basal::enabled-profiling
+        Basal::native-optimized
 )
 target_include_directories(hobbies-uom PUBLIC
     # Generated Tree

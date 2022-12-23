@@ -22,7 +22,18 @@ add_library(hobbies-neuralnet
     ${CMAKE_CURRENT_SOURCE_DIR}/source/network.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/output.cpp
 )
-target_link_libraries(hobbies-neuralnet Basal::hobbies-basal Linalg::hobbies-linalg LinalgUtils::hobbies-linalg-utils ${OpenCV_LIBS})
+target_link_libraries(hobbies-neuralnet
+    PUBLIC
+        Basal::hobbies-basal
+        Linalg::hobbies-linalg
+        LinalgUtils::hobbies-linalg-utils
+        ${OpenCV_LIBS}
+    PRIVATE
+        Basal::enabled-debugging
+        Basal::enabled-profiling
+        Basal::enabled-warnings
+        Basal::native-optimized
+)
 target_include_directories(hobbies-neuralnet
     PUBLIC
        # Generated Tree

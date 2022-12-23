@@ -10,10 +10,26 @@ target_compile_options(enabled-warnings INTERFACE
     $<$<COMPILE_LANG_AND_ID:CXX,AppleClang,Clang,GNU>:$<BUILD_INTERFACE:-Wall -Wextra -Werror -pedantic>>
 )
 
+add_library(enabled-debugging INTERFACE)
+target_compile_options(enabled-debugging INTERFACE
+    $<$<COMPILE_LANG_AND_ID:CXX,AppleClang,Clang>:-glldb>
+    $<$<COMPILE_LANG_AND_ID:CXX,GNU>:-g -gstabs+>
+)
+
+add_library(enabled-profiling INTERFACE)
+target_link_options(enabled-profiling INTERFACE
+    $<$<COMPILE_LANG_AND_ID:CXX,AppleClang,Clang>:-fprofile-instr-generate>
+    $<$<COMPILE_LANG_AND_ID:CXX,GNU>:-pg>
+)
+target_compile_options(enabled-profiling INTERFACE
+    $<$<COMPILE_LANG_AND_ID:CXX,AppleClang,Clang>:-fprofile-instr-generate>
+    $<$<COMPILE_LANG_AND_ID:CXX,GNU>:-pg>
+)
+
 # Optimizes your objects for native builds (on the build side only)
 add_library(native-optimized INTERFACE)
 target_compile_options(native-optimized INTERFACE
-    $<$<COMPILE_LANG_AND_ID:CXX,AppleClang,Clang,GNU>:-ggdb -march=native -mtune=native>
+    $<$<COMPILE_LANG_AND_ID:CXX,AppleClang,Clang,GNU>:-march=native -mtune=native>
     $<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/arch:AVX2>
 )
 
@@ -35,7 +51,15 @@ target_include_directories(hobbies-basal PUBLIC
     # Install Tree
     $<INSTALL_INTERFACE:include>
 )
-target_link_libraries(hobbies-basal dl enabled-warnings)
+target_link_libraries(hobbies-basal
+    PUBLIC
+        dl
+    PRIVATE
+        enabled-warnings
+        enabled-debugging
+        enabled-profiling
+        native-optimized
+)
 set_target_properties(hobbies-basal PROPERTIES
     VERSION ${PROJECT_VERSION}
     SOVERSION ${PROJECT_VERSION_MAJOR}
@@ -43,7 +67,7 @@ set_target_properties(hobbies-basal PROPERTIES
 )
 
 # Declare installs and exports
-install(TARGETS hobbies-basal enabled-warnings native-optimized
+install(TARGETS hobbies-basal enabled-warnings enabled-debugging enabled-profiling native-optimized
     EXPORT BasalTargets
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib

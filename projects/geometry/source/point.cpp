@@ -74,6 +74,12 @@ element_type point::operator[](int i) const {
     return m_data[static_cast<size_t>(i)];
 }
 
+void point::zero(void) {
+    for (size_t r = 0; r < dimensions; r++) {
+        m_data[r] = 0.0;
+    }
+}
+
 void point::print(const char name[]) const {
     std::cout << name << " " << *this << std::endl;
 }

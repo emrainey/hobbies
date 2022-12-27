@@ -112,7 +112,7 @@ public:
     }
 
     T at(const point& pnt) const {
-        return at(pnt.y, pnt.x);
+        return at(pnt[1], pnt[0]);
     }
 
 protected:

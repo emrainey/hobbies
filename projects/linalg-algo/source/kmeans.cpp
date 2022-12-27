@@ -78,8 +78,7 @@ double kmeans::iteration(IterationMethod method) {
     // now compute the new centroid of each cluster
     std::vector<R2::point> sums(m_centroids.size());
     for (auto& s : sums) {
-        s.x = 0;
-        s.y = 0;
+        s.zero();
     }
     std::vector<size_t> counts(m_centroids.size());
     for (auto& c : counts) {

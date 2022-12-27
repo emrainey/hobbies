@@ -4,6 +4,7 @@ project(geometry LANGUAGES CXX VERSION 0.7.0)  # This must match the conanfile.p
 find_package(basal 0.5.0 REQUIRED)
 find_package(units_of_measure REQUIRED)
 find_package(linalg REQUIRED)
+find_package(xmmt REQUIRED)
 
 # Build Everything with C++17 and full native optimizations
 set(CMAKE_CXX_STANDARD 17)

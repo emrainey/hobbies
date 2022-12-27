@@ -9,7 +9,8 @@ class LinAlgConan(ConanFile):
     requires = "gtest/1.8.1", \
                 "basal/0.5.0", \
                 "units_of_measure/0.7.0", \
-                "linalg/0.7.0"
+                "linalg/0.7.0" \
+                "xmmt/0.7.0"
 
     url = "http://github.com/emrainey/hobbies"
     homepage = "http://github.com/emrainey/hobbies"

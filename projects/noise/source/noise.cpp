@@ -38,13 +38,21 @@ vector generate_seed() {
 }
 
 point floor(const point& pnt) {
-    return point{std::floor(pnt.x), std::floor(pnt.y)};
+#if defined(USE_XMMT)
+    return pnt.floor();
+#else
+    return point{std::floor(pnt[0]), std::floor(pnt[1])};
+#endif
 }
 
 point fract(const point& pnt) {
-    double x = pnt.x - std::floor(pnt.x);
-    double y = pnt.y - std::floor(pnt.y);
+#if defined(USE_XMMT)
+    return pnt.fract();
+#else
+    double x = pnt[0] - std::floor(pnt[0]);
+    double y = pnt[1] - std::floor(pnt[1]);
     return point{x, y};
+#endif
 }
 
 double random(const vector& vec, const vector& seeds, double gain) {

@@ -1,11 +1,12 @@
 #pragma once
+
 /**
  * @file
  * Definitions for the point object.
  * @copyright Copyright 2019 (C) Erik Rainey.
  */
 
-#include <vector>
+#include <xmmt/xmmt.hpp>
 
 #include "geometry/types.hpp"
 #include "geometry/vector.hpp"
@@ -57,7 +58,7 @@ public:
         return (*this);
     }
 
-    /** Deccumulate a vector into the point (moves the point by the vector) */
+    /** De-accumulate a vector into the point (moves the point by the vector) */
     template <typename DATA_TYPE, size_t DIM>
     point& operator-=(const vector_<DATA_TYPE, DIM>& a) noexcept(false) {
         basal::exception::throw_if(a.dimensions != dimensions, __FILE__, __LINE__,
@@ -76,6 +77,9 @@ public:
 
     /** Indexer for Const objects */
     element_type operator[](int i) const;
+
+    /** Clears the point to zero values */
+    void zero();
 
     /** @copydoc basal::printable::print */
     void print(const char name[]) const override;

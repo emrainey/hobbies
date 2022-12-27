@@ -20,7 +20,7 @@ PKGS=(["basal"]="0.5.0" \
       ["pyhobbies"]="0.7.0" \
 )
 # build in which order
-ORDER=(basal units_of_measure fourcc linalg geometry linalg-utils linalg-algo xmmt noise raytrace neuralnet htm doorgame pyhobbies)
+ORDER=(basal units_of_measure fourcc linalg xmmt geometry linalg-utils linalg-algo noise raytrace neuralnet htm doorgame pyhobbies)
 
 WORKSPACE_ROOT=`pwd`
 PROJECT_ROOT=${WORKSPACE_ROOT}/projects

@@ -247,7 +247,7 @@
 			"filesystem": "cpp",
 			"*.ipp": "cpp"
 		},
-		"clang-format.language.cpp.enable": false,
+		"clang-format.language.cpp.enable": true,
 		"cSpell.words": [
 			"abgr",
 			"ABGR",
@@ -261,6 +261,12 @@
 		"vsconan.general.pythonInterpreter": "python3",
 		"C_Cpp.loggingLevel": "Debug",
 		"cmake.loggingLevel": "debug",
+		"clang-format.language.cpp.style": "Google",
+		"clang-format.language.cpp.fallbackStyle": "LLVM",
+		"C_Cpp.clang_format_style": "file",
+		"clang-format.executable": "clang-format",
+		"C_Cpp.default.cppStandard": "c++17",
+		"C_Cpp.default.cStandard": "c17",
 	},
 	"tasks": {
 		"version": "2.0.0",

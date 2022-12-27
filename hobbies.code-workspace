@@ -115,6 +115,7 @@
 		"cmakeExplorer.parallelJobs": 2,
 		"C_Cpp.errorSquiggles": "enabled",
 		"C_Cpp.configurationWarnings": "enabled",
+		"C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
 		"C_Cpp.default.includePath": [
 			"${workspaceRoot}/include",
 			"${workspaceRoot}/../../install/include",

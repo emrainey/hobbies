@@ -12,8 +12,8 @@ color simple(const image::point& p __attribute__((unused)), const palette& pal _
 color checkerboard(const image::point& p, const palette& pal) {
     basal::exception::throw_unless(pal.size() == 8, __FILE__, __LINE__, "Must have all 8 colors in checkerboard");
     element_type h = 0.5;
-    element_type u = std::fmod(p.x, 1.0);  // values betwee n -1.0 and 1.0 exclusive
-    element_type v = std::fmod(p.y, 1.0);  // values betwee n -1.0 and 1.0 exclusive
+    element_type u = std::fmod(p.x, 1.0);  // values between -1.0 and 1.0 exclusive
+    element_type v = std::fmod(p.y, 1.0);  // values between -1.0 and 1.0 exclusive
     // this only really works in u > 0 && v > 0
     if (u >= 0 and v >= 0) {  // quad 1
         if ((u < h and v < h) or (u >= h and v >= h)) {
@@ -46,7 +46,8 @@ color checkerboard(const image::point& p, const palette& pal) {
 }
 
 color checkerboard(const raytrace::point& p, const palette& pal) {
-    basal::exception::throw_unless(pal.size() == 2, __FILE__, __LINE__, "Must have only two colors in checkerboard");
+    // palette could have up to 8 colors, don't worry about it here
+    basal::exception::throw_unless(pal.size() >= 2, __FILE__, __LINE__, "Must have at least two colors in checkerboard");
     static constexpr element_type h = 0.5;
     element_type u = std::fmod(p.x, 1.0);
     element_type v = std::fmod(p.y, 1.0);

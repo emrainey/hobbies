@@ -100,24 +100,20 @@ install(FILES
 
 # Unit Tests
 set(THREADS_PREFER_PTHREAD_FLAG ON)
-find_package(Threads REQUIRED)
-find_package(GTest REQUIRED)
-if (GTest_FOUND)
-    message(STATUS "GTest_FOUND=${GTest_FOUND}")
-    message(STATUS "GTEST_INCLUDE_DIRS=${GTEST_INCLUDE_DIRS}")
-    message(STATUS "GTEST_BOTH_LIBRARIES=${GTEST_BOTH_LIBRARIES}")
+find_package(Threads)
+find_package(GTest)
+if (Threads_FOUND AND GTest_FOUND)
     add_executable(gtest_basal
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_basal.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_listable.cpp
     )
-    target_include_directories(gtest_basal PRIVATE ${GTEST_INCLUDE_DIRS} ${GTest_INCLUDE_DIRS})
-    target_link_libraries(gtest_basal PRIVATE hobbies-basal ${GTEST_BOTH_LIBRARIES} ${GTest_LIBS} Threads::Threads)
+    target_link_libraries(gtest_basal PRIVATE hobbies-basal GTest::gtest GTest::gtest_main Threads::Threads)
     add_test(NAME gtest_basal COMMAND gtest_basal)
 endif()
 
 # Documentation
-find_package(Doxygen REQUIRED)
-if (${Doxygen_FOUND})
+find_package(Doxygen)
+if (Doxygen_FOUND)
     set(DOXYGEN_GENERATE_HTML YES)
     set(DOXYGEN_GENERATE_MAN NO)
     doxygen_add_docs(hobbies-basal-docs

@@ -69,7 +69,7 @@ target_link_libraries(demo_sparse_word hobbies-htm)
 # Build Documentation
 #####################
 find_package(Doxygen)
-if (${Doxygen_FOUND})
+if (Doxygen_FOUND)
     set(DOXYGEN_GENERATE_HTML YES)
     set(DOXYGEN_GENERATE_MAN NO)
     doxygen_add_docs(hobbies-htm-docs

@@ -17,6 +17,7 @@ TEST(MatrixTest, NormalConstructions) {
 
 TEST(MatrixTest, InvalidConstructors) {
     using namespace linalg;
+    // can't use narrowing constructors in macro
     ASSERT_THROW(matrix m0(0, 1), basal::exception);
     ASSERT_THROW(matrix m0(1, 0), basal::exception);
 }

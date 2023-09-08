@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.20.0)
 project(linalg-utils LANGUAGES CXX VERSION 0.7.0)  # This must match the conanfile.py!
 
 find_package(OpenCV REQUIRED)
-find_package(GTest REQUIRED)
+find_package(GTest)
 find_package(basal 0.5.0 REQUIRED)
 find_package(units_of_measure REQUIRED)
 find_package(fourcc REQUIRED)

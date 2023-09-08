@@ -80,9 +80,9 @@ install(FILES "cmake/Find${PROJECT_NAME}.cmake" "cmake/${PROJECT_NAME}-config.cm
 # Unit Testing
 #####################################################
 set(THREADS_PREFER_PTHREAD_FLAG ON)
-find_package(Threads REQUIRED)
-find_package(GTest REQUIRED)
-if (GTest_FOUND)
+find_package(Threads)
+find_package(GTest)
+if (Threads_FOUND AND GTest_FOUND)
     add_executable(gtest_iso ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_iso.cpp)
     target_include_directories(gtest_iso PUBLIC ${GTEST_INCLUDE_DIRS} ${GTest_INCLUDE_DIRS})
     target_link_libraries(gtest_iso PRIVATE hobbies-uom ${GTEST_BOTH_LIBRARIES} ${GTest_LIBS} Threads::Threads)
@@ -96,7 +96,7 @@ find_package(Doxygen
 #    REQUIRED dot
 #    OPTIONAL_COMPONENTS mscgen dia
 )
-if (${Doxygen_FOUND})
+if (Doxygen_FOUND)
     set(DOXYGEN_GENERATE_HTML YES)
     set(DOXYGEN_GENERATE_MAN NO)
 

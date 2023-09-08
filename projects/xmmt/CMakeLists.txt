@@ -48,9 +48,9 @@ install(FILES "cmake/Find${PROJECT_NAME}.cmake" "cmake/${PROJECT_NAME}-config.cm
 
 if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
     set(THREADS_PREFER_PTHREAD_FLAG ON)
-    find_package(Threads REQUIRED)
-    find_package(GTest REQUIRED)
-    if (GTest_FOUND)
+    find_package(Threads)
+    find_package(GTest)
+    if (Threads_FOUND AND GTest_FOUND)
         add_executable(gtest_xmmt ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_xmmt.cpp)
         target_include_directories(gtest_xmmt SYSTEM PUBLIC ${GTEST_INCLUDE_DIRS})
         target_link_libraries(gtest_xmmt PRIVATE ${GTEST_BOTH_LIBRARIES} hobbies-xmmt Threads::Threads)

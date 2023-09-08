@@ -1084,7 +1084,7 @@ matrix matrix::nullspace() const noexcept(false) {
         matrix C = A.col(c).negative();
         // assign into B matrix
         for (size_t br = 0, cr = 0; br < B.rows; br++) {
-            if (br != c) {            // variable is not the free vraible in this column
+            if (br != c) {            // variable is not the free variable in this column
                 if (bpv[br] == true)  // variable is not a free variable in another column
                     B[br][nf] = C[cr++][0];
                 else

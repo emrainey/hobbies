@@ -80,7 +80,7 @@ public:
     explicit plane(const std::vector<element_type> &list);
 
     /** Of the form ax + by + cz + d = 0 */
-    plane(element_type a, element_type b, element_type c, element_type d);
+    explicit plane(element_type a, element_type b, element_type c, element_type d);
 
     /**
      * The distance from some point to this plane. Negative values indicates

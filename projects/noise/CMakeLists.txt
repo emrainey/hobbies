@@ -86,14 +86,13 @@ target_link_libraries(demo_fbm_tuner ${OpenCV_LIBS} hobbies-noise LinalgUtils::h
 # Googletests
 #####################
 set(THREADS_PREFER_PTHREAD_FLAG ON)
-find_package(Threads REQUIRED)
-find_package(GTest REQUIRED)
-if (GTest_FOUND)
+find_package(Threads)
+find_package(GTest)
+if (Threads_FOUND AND GTest_FOUND)
     add_executable(gtest_noise
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_noise.cpp
     )
-    target_include_directories(gtest_noise PUBLIC ${GTEST_INCLUDE_DIRS})
-    target_link_libraries(gtest_noise PRIVATE ${GTEST_BOTH_LIBRARIES} hobbies-noise Fourcc::hobbies-fourcc Threads::Threads)
+    target_link_libraries(gtest_noise PRIVATE hobbies-noise Fourcc::hobbies-fourcc GTest::gtest GTest::gtest_main Threads::Threads)
     add_test(NAME gtest_noise COMMAND gtest_noise)
 endif()
 

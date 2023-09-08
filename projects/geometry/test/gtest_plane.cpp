@@ -56,7 +56,7 @@ TEST(PlaneTest, Parallel) {
     R3::point B{2, 3, 1};
     R3::point C{3, -1, 2};
     plane P{A, B, C};
-    plane Q{{9, 1, -5, -16}};
+    plane Q{9.0, 1.0, -5.0, -16.0};
     // print_this(P);
     // print_this(Q);
     //  see ELA p.156
@@ -66,7 +66,7 @@ TEST(PlaneTest, Parallel) {
 TEST(PlaneTest, Perpendicular) {
     R3::point Pt{1, -4, -3};
     // print_this(Pt);
-    plane P0{{2, -3, 6, 1}};
+    plane P0{2, -3, 6, 1};
     plane P1{2, -3, 6, 1};
     // print_this(P0);
     // print_this(P1);

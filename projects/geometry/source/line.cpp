@@ -139,7 +139,8 @@ bool operator!=(const line &a, const line &b) {
 bool parallel(const line &a, const line &b) {
     R3::vector an{a.direction().normalized()};
     R3::vector bn{b.direction().normalized()};
-    return ((an == bn) || ((!an) == bn));
+    return R3::parallel(an, bn);
+    // return ((an == bn) || ((!an) == bn));
 }
 
 bool skew(const R3::line &i, const R3::line &j) {

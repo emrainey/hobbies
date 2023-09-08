@@ -68,15 +68,14 @@ install(FILES "cmake/Find${PROJECT_NAME}.cmake" "cmake/${PROJECT_NAME}-config.cm
 #####################
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
-find_package(Threads REQUIRED)
-find_package(GTest REQUIRED)
-if (GTest_FOUND)
+find_package(Threads)
+find_package(GTest)
+if (Threads_FOUND AND GTest_FOUND)
     add_executable(gtest_linalg
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_solvers.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_matrix.cpp
     )
-    target_include_directories(gtest_linalg SYSTEM PUBLIC ${GTEST_INCLUDE_DIRS})
-    target_link_libraries(gtest_linalg PRIVATE ${GTEST_BOTH_LIBRARIES} hobbies-linalg Threads::Threads)
+    target_link_libraries(gtest_linalg PRIVATE hobbies-linalg GTest::gtest GTest::gtest_main Threads::Threads)
     add_test(NAME gtest_linalg COMMAND gtest_linalg)
 endif()
 

@@ -76,9 +76,9 @@ install(FILES "cmake/Find${PROJECT_NAME}.cmake" "cmake/${PROJECT_NAME}-config.cm
 #####################
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
-find_package(Threads REQUIRED)
-find_package(GTest REQUIRED)
-if (GTest_FOUND)
+find_package(Threads)
+find_package(GTest)
+if (Threads_FOUND AND GTest_FOUND)
     add_executable(gtest_geometry
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_extra.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_intersections.cpp
@@ -96,8 +96,8 @@ endif()
 #####################
 # Build Documentation
 #####################
-
-if (${Doxygen_FOUND})
+find_package(Doxygen)
+if (Doxygen_FOUND)
     set(DOXYGEN_GENERATE_HTML YES)
     set(DOXYGEN_GENERATE_MAN NO)
     doxygen_add_docs(hobbies-geometry-docs

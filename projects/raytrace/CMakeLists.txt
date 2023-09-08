@@ -175,8 +175,7 @@ if (Threads_FOUND AND GTest_FOUND)
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_torus.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_triangle.cpp
     )
-    target_include_directories(gtest_raytrace SYSTEM PUBLIC ${GTEST_INCLUDE_DIRS})
-    target_link_libraries(gtest_raytrace PRIVATE ${GTEST_BOTH_LIBRARIES} hobbies-raytrace Threads::Threads)
+    target_link_libraries(gtest_raytrace PRIVATE hobbies-raytrace GTest::gtest GTest::gtest_main Threads::Threads)
     add_test(NAME gtest_raytrace COMMAND gtest_raytrace)
 endif()
 
@@ -185,7 +184,7 @@ endif()
 #####################
 
 find_package(Doxygen)
-if (${Doxygen_FOUND})
+if (Doxygen_FOUND)
     set(DOXYGEN_GENERATE_HTML YES)
     set(DOXYGEN_GENERATE_MAN NO)
     doxygen_add_docs(hobbies-raytrace-docs

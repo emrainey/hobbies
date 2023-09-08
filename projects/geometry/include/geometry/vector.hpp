@@ -232,7 +232,7 @@ public:
     /** Equality operator of two vector */
     friend bool operator==(const vector_& a, const vector_& b) {
         for (size_t i = 0; i < dimensions; i++) {
-            if (a.data[i] != b.data[i]) {
+            if (not basal::equals(a.data[i], b.data[i])) {
                 return false;
             }
         }
@@ -240,12 +240,7 @@ public:
     }
 
     friend bool operator!=(const vector_& a, const vector_& b) {
-        for (size_t i = 0; i < dimensions; i++) {
-            if (a.data[i] != b.data[i]) {
-                return true;
-            }
-        }
-        return false;
+        return not operator==(a, b);
     }
 
     friend inline vector_ multiply(const vector_& a, DATA_TYPE b) {

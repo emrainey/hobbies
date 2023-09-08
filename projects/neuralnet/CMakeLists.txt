@@ -64,7 +64,7 @@ target_link_libraries(neuralnet hobbies-neuralnet ${OpenCV_LIBS})
 #####################
 
 find_package(Doxygen)
-if (${Doxygen_FOUND})
+if (Doxygen_FOUND)
     set(DOXYGEN_GENERATE_HTML YES)
     set(DOXYGEN_GENERATE_MAN NO)
     doxygen_add_docs(hobbies-neuralnet-docs

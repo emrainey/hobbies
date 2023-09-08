@@ -11,7 +11,7 @@ enable_testing()
 # PyBind Interface
 ################
 find_package(Python COMPONENTS Interpreter Development REQUIRED)
-find_package(pybind11 CONFIG REQUIRED)
+find_package(pybind11 CONFIG)
 if (pybind11_FOUND)
 pybind11_add_module(pyhobbies SHARED
     ${CMAKE_CURRENT_SOURCE_DIR}/source/module.cpp

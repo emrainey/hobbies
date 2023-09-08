@@ -102,6 +102,13 @@ struct alignas(float) rgbf {
     float b;
 } __attribute__((packed));
 
+/** Defines a 16 bit packed pixel color in 5:6:5 format. R being the highest bits, and B the lowest */
+struct alignas(uint16_t) rgb565 {
+    uint16_t b : 5;
+    uint16_t g : 6;
+    uint16_t r : 5;
+} __attribute__((packed));
+
 /**
  * Enumerates the various pixel formats in FOURCC codes and some additional types.
  * \see fourcc.org
@@ -120,6 +127,7 @@ enum class pixel_format : uint32_t {
     IYU2 = four_character_code('I', 'Y', 'U', '2'),   ///< Uses @ref @iyu2
     YF = four_character_code('Y', 'F', ' ', ' '),     ///< User @ref yf
     RGBf = four_character_code('R', 'G', 'B', 'f'),   ///< Uses @reg rgbf
+    RGBP = four_character_code('R', 'G', 'B', 'P'),   ///< Uses @reg rgb565
 };
 
 /** Returns the string name of the format */
@@ -129,6 +137,8 @@ constexpr const char* channel_order(pixel_format fmt) {
             [[fallthrough]];
         case pixel_format::RGB8:
             return "RGB";
+        case pixel_format::RGBP:
+            [[fallthrough]];
         case pixel_format::BGR8:
             [[fallthrough]];
         case pixel_format::ABGR:
@@ -161,6 +171,7 @@ constexpr int channels_in_format(pixel_format fmt) {
         case pixel_format::ABGR:
         case pixel_format::BGRA:
             return 4;
+        case pixel_format::RGBP:
         case pixel_format::RGBf:
         case pixel_format::RGB8:
         case pixel_format::BGR8:
@@ -230,6 +241,11 @@ constexpr bool uses_rgbf(pixel_format fmt) {
 
 constexpr bool uses_yf(pixel_format fmt) {
     return (fmt == pixel_format::YF);
+}
+
+/** Returns true if the format uses rgb565 (either endianess) as a format */
+constexpr bool uses_rgb565(pixel_format fmt) {
+    return (fmt == pixel_format::RGBP);
 }
 
 /** A single plane image format */

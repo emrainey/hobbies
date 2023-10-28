@@ -1,14 +1,16 @@
-from conans import ConanFile, CMake
+"""
+Unit of Measurement Conan Recipe
+"""
 import os
-
+import sys
+from conan import ConanFile
+from conan.tools.cmake import CMakeToolchain, CMakeDeps, CMake, cmake_layout
 
 class UnitsOfMeasureConan(ConanFile):
     name = "units_of_measure"
     version = "0.7.0"  # This must match the CMakeLists.txt!
     settings = "os", "arch", "compiler", "build_type"
     description = "A library for defining ISO/IEC standard units of measure"
-    generators = "cmake", "cmake_paths"
-    requires = "gtest/1.8.1"
     url = "http://github.com/emrainey/hobbies"
     homepage = "http://github.com/emrainey/hobbies"
     license = 'Unlicense'
@@ -19,23 +21,27 @@ class UnitsOfMeasureConan(ConanFile):
         'shared': False
     }
 
-    def package_info(self):
-        self.cpp_info.name = self.name
-        self.cpp_info.libs = ['hobbies-uom']
-        self.cpp_info.includedirs = ['include']
+    # Sources are located in the same place as this recipe, copy them to the recipe
+    exports_sources = "CMakeLists.txt", "cmake/*", "source/*", "test/*", "include/*"
 
-    def _configure_cmake(self) -> CMake:
-        cmake = CMake(self)
-        cmake.definitions[f"CMAKE_PROJECT_{self.name}_INCLUDE"] = f"{self.build_folder}/conan_paths.cmake"
-        # since we have a 'shared', BUILD_SHARED_LIBS will automatically be set
-        cmake.configure()
-        return cmake
+    def requirements(self):
+        self.requires("gtest/1.8.1")
+        self.requires("basal/0.5.0")
 
-    def package(self):
-        cmake = self._configure_cmake()
-        cmake.install()
+    def layout(self):
+        cmake_layout(self)
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.generate()
 
     def build(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
         cmake.test()
+
+    def package(self):
+        cmake = CMake(self)
+        cmake.install()
+

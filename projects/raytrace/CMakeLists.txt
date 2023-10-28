@@ -174,8 +174,9 @@ if (Threads_FOUND AND GTest_FOUND)
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_surface.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_torus.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_triangle.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_objparser.cpp
     )
-    target_link_libraries(gtest_raytrace PRIVATE hobbies-raytrace GTest::gtest GTest::gtest_main Threads::Threads)
+    target_link_libraries(gtest_raytrace PRIVATE hobbies-raytrace GTest::gtest GTest::gmock GTest::gtest_main Threads::Threads)
     add_test(NAME gtest_raytrace COMMAND gtest_raytrace)
 endif()
 

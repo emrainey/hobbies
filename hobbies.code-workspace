@@ -110,9 +110,9 @@
 			"CMAKE_BUILD_TYPE": "Release"
 		},
 		"cmakeExplorer.cmakeIntegration": true,
-		// "cmakeExplorer.buildDir": "${workspaceFolder}/../../build/${workspaceFolderBasename}",
-		// "cmakeExplorer.logfile": "${workspaceFolder}../../build/explorer.log",
-		"cmakeExplorer.parallelJobs": 2,
+		"cmakeExplorer.buildDir": "${workspaceFolder}/../../build/${workspaceFolderBasename}",
+		"cmakeExplorer.debugConfig": "Debug",
+		"cmakeExplorer.parallelJobs": 12,
 		"cmake.loggingLevel": "debug",
 		"C_Cpp.errorSquiggles": "enabled",
 		"C_Cpp.configurationWarnings": "enabled",

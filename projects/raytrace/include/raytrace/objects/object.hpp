@@ -40,14 +40,32 @@ public:
         , m_medium{&mediums::dull} {
     }
 
-    // Removing copy constructor stops us from using std::vectors or other STL objects
-    object_(const object_&) = delete;
-    object_(object_&&) = delete;
-    object_& operator=(const object_&) = delete;
-    object_& operator=(object_&&) = delete;
+    /// Copy Constructor for the object. This is allowed as the medium is constant!
+    object_(const object_& that) : entity_<DIMS>(), m_max_collisions{that.m_max_collisions}, m_closed_surface{that.m_closed_surface}, m_medium(that.m_medium) {
+    }
+
+    /// Move Constructor for the object. This is allowed as the medium is constant!
+    object_(object_&& that) : entity_<DIMS>(), m_max_collisions{that.m_max_collisions}, m_closed_surface{that.m_closed_surface}, m_medium(that.m_medium) {
+    }
+
+    /// Copy Assignment for the object. This is allowed as the medium is constant!
+    object_& operator=(const object_& that) {
+        m_max_collisions = that.m_max_collisions;
+        m_closed_surface = that.m_closed_surface;
+        m_medium = that.m_medium;
+        return *this;
+    }
+
+    object_& operator=(object_&& that) {
+        m_max_collisions = that.m_max_collisions;
+        m_closed_surface = that.m_closed_surface;
+        m_medium = that.m_medium; // copy is sufficient as the medium is constant
+        that.m_medium = nullptr; // clear the medium from the moved object
+        return *this;
+    }
 
     virtual ~object_() {
-        m_medium = nullptr;
+        m_medium = nullptr; // forget the medium
     }
 
     /** Gives a read-only version of the medium of the object */
@@ -196,6 +214,7 @@ public:
         return false;  // override to correct
     };
 
+    /// Computes the Axis Aligned Bounding Box in World Coordinates for this object.
     abba get_world_bounds(void) const {
         // finds the object's maximum radial distance from the object origin
         auto ijk_max = get_object_extant();
@@ -207,9 +226,8 @@ public:
             {entity_<DIMS>::forward_transform(point{-r, -r, -r}), entity_<DIMS>::forward_transform(point{r, r, r})}};
     }
 
-    /** Returns the maximum radial distance from the object origin on the surface of the object.
-     * @warning Objects which are not closed or have infinite dimensionality will return std::nan.
-     */
+    /// Returns the maximum radial distance from the object origin on the surface of the object.
+    /// @warning Objects which are not closed or have infinite dimensionality will return std::nan.
     virtual element_type get_object_extant(void) const = 0;
 
 protected:

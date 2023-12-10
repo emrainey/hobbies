@@ -3,6 +3,8 @@ project(basal LANGUAGES CXX VERSION 0.5.0)  # This must match the conanfile.py!
 set(CMAKE_CXX_STANDARD 17)
 enable_testing()
 
+
+option(BUILD_SEPARATELY "Builds the library separately from the others" OFF)
 option(BUILD_SHARED_LIBS "Builds libraries as dynamic objects" OFF)
 
 add_library(enabled-warnings INTERFACE)
@@ -66,6 +68,7 @@ set_target_properties(hobbies-basal PROPERTIES
     POSITION_INDEPENDENT_CODE ON
 )
 
+if(BUILD_SEPARATELY)
 # Declare installs and exports
 install(TARGETS hobbies-basal enabled-warnings enabled-debugging enabled-profiling native-optimized
     EXPORT BasalTargets
@@ -97,6 +100,13 @@ install(FILES
     DESTINATION share/cmake/${PROJECT_NAME}
     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
 )
+else()
+    # This creates the ${PROJECT_NAME}Targets.cmake file
+    export(TARGETS hobbies-basal enabled-warnings enabled-debugging enabled-profiling native-optimized
+        NAMESPACE Basal::
+        FILE "${CMAKE_CURRENT_BINARY_DIR}/BasalTargets.cmake"
+    )
+endif() # BUILD_SEPARATELY
 
 # Unit Tests
 set(THREADS_PREFER_PTHREAD_FLAG ON)

@@ -1,11 +1,18 @@
 cmake_minimum_required(VERSION 3.20.0)
 project(fourcc LANGUAGES CXX VERSION 0.7.0)  # This must match the conanfile.py!
+option(BUILD_SEPARATELY "Builds the library separately from the others" OFF)
 
+
+option(BUILD_SEPARATELY "Builds the library separately from the others" OFF)
+
+if (BUILD_SEPARATELY)
 find_package(basal 0.5.0 REQUIRED)
+endif()
 
 # Build Everything with C++17
 set(CMAKE_CXX_STANDARD 17)
 enable_testing()
+
 
 option(BUILD_SHARED_LIBS "Builds libraries as dynamic objects" OFF)
 

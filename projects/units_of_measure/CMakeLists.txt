@@ -2,7 +2,11 @@ cmake_minimum_required(VERSION 3.20.0)
 project(units_of_measure LANGUAGES CXX VERSION 0.7.0)  # This must match the conanfile.py!
 set(CMAKE_CXX_STANDARD 17)
 
+option(BUILD_SEPARATELY "Builds the library separately from the others" OFF)
+
+if (BUILD_SEPARATELY)
 find_package(basal 0.5.0 REQUIRED)
+endif()
 
 enable_testing()
 

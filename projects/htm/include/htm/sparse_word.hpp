@@ -152,7 +152,9 @@ protected:
             std::sort(bits.begin(), bits.end(), std::less<uint16_t>());
         }
         // remove duplicate entries
-        std::unique(bits.begin(), bits.end());
+        auto last = std::unique(bits.begin(), bits.end());
+        // erase the duplicates at the end of the vector
+        bits.erase(last, bits.end());
     }
     template <size_t B2>
     friend sparse_word<B2> operator&(const sparse_word<B2>& a, const sparse_word<B2>& b);

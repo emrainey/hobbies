@@ -27,7 +27,7 @@ struct Parameters {
 };
 
 // QQVGA, QVGA, VGA, XGA, HD, UWGA, 4K
-size_t dimensions[][2] = {{160, 120}, {320, 240}, {640, 480}, {1024, 768}, {1920, 1080}, {2560, 1440}, {3840, 2160}};
+size_t dimensions[][2] = {{160, 120}, {320, 240}, {640, 480}, {1024, 768}, {1600, 1200}, {1920, 1080}, {2560, 1440}, {3840, 2160}};
 
 #define my_assert(condition, statement)                       \
     {                                                         \

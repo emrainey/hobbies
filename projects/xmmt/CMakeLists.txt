@@ -30,7 +30,7 @@ install(TARGETS hobbies-xmmt EXPORT XmmtTargets
     INCLUDES DESTINATION include
 )
 install(EXPORT XmmtTargets
-    FILE XmmtTargets.cmake
+    FILE ${PROJECT_NAME}-Targets.cmake
     NAMESPACE Xmmt::
     DESTINATION share/cmake/${PROJECT_NAME}
 )

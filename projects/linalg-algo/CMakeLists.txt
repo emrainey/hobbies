@@ -49,7 +49,7 @@ install(TARGETS hobbies-linalg-algo EXPORT LinalgAlgoTargets
     INCLUDES DESTINATION include
 )
 install(EXPORT LinalgAlgoTargets
-    FILE LinalgAlgoTargets.cmake
+    FILE ${PROJECT_NAME}-Targets.cmake
     NAMESPACE LinalgAlgo::
     DESTINATION share/cmake/${PROJECT_NAME}
 )

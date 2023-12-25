@@ -64,7 +64,7 @@ install(TARGETS hobbies-uom EXPORT UnitsOfMeasureTargets
     INCLUDES DESTINATION include
 )
 install(EXPORT UnitsOfMeasureTargets
-    FILE UnitsOfMeasureTargets.cmake
+    FILE ${PROJECT_NAME}-Targets.cmake
     NAMESPACE UnitsOfMeasure::
     DESTINATION share/cmake/${PROJECT_NAME}
 )

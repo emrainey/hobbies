@@ -50,7 +50,7 @@ install(TARGETS hobbies-fourcc EXPORT FourccTargets
     INCLUDES DESTINATION include
 )
 install(EXPORT FourccTargets
-    FILE FourccTargets.cmake
+    FILE ${PROJECT_NAME}-Targets.cmake
     NAMESPACE Fourcc::
     DESTINATION share/cmake/${PROJECT_NAME}
     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ

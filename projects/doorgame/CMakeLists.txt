@@ -62,7 +62,7 @@ install(TARGETS hobbies-doorgame EXPORT DoorGameTargets
     INCLUDES DESTINATION include
 )
 install(EXPORT DoorGameTargets
-    FILE DoorGameTargets.cmake
+    FILE ${PROJECT_NAME}-Targets.cmake
     NAMESPACE DoorGame::
     DESTINATION share/cmake/${PROJECT_NAME}
 )

@@ -57,7 +57,7 @@ install(TARGETS hobbies-noise EXPORT NoiseTargets
     INCLUDES DESTINATION include
 )
 install(EXPORT NoiseTargets
-    FILE NoiseTargets.cmake
+    FILE ${PROJECT_NAME}-Targets.cmake
     NAMESPACE Noise::
     DESTINATION share/cmake/${PROJECT_NAME}
 )

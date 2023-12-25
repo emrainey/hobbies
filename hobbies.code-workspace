@@ -124,8 +124,8 @@
 			"${workspaceFolder}/../../projects/noise/demo",
 			"${workspaceFolder}/../../projects/raytrace/demo",
 		],
-		"python.linting.pylintEnabled": true,
-		"python.linting.enabled": true,
+		// "python.linting.pylintEnabled": true,
+		// "python.linting.enabled": true,
 		"todo-tree.general.debug": true,
 		"todo-tree.filtering.excludeGlobs": [
 			"**/googletest/*",
@@ -152,8 +152,11 @@
 		},
 		"testMate.cpp.test.executables": "${workspaceFolder}/../../build/**/gtest_*",
 		"files.associations": {
+			".clang-format": "json",
 			"*.yaml": "home-assistant",
-			"vector": "cpp"
+			"vector": "cpp",
+			"__bit_reference": "cpp",
+			"ios": "cpp"
 		},
 		"cSpell.words": [
 			"abgr",

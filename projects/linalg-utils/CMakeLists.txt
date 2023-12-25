@@ -52,7 +52,7 @@ install(TARGETS hobbies-linalg-utils EXPORT LinalgUtilsTargets
     INCLUDES DESTINATION include
 )
 install(EXPORT LinalgUtilsTargets
-    FILE LinalgUtilsTargets.cmake
+    FILE ${PROJECT_NAME}-Targets.cmake
     NAMESPACE LinalgUtils::
     DESTINATION share/cmake/${PROJECT_NAME}
 )

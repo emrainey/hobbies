@@ -85,7 +85,7 @@ install(TARGETS hobbies-neuralnet EXPORT NeuralnetTargets
     INCLUDES DESTINATION include
 )
 install(EXPORT NeuralnetTargets
-    FILE NeuralnetTargets.cmake
+    FILE ${PROJECT_NAME}-Targets.cmake
     NAMESPACE Neuralnet::
     DESTINATION share/cmake/${PROJECT_NAME}
 )

@@ -59,7 +59,7 @@ install(TARGETS hobbies-geometry EXPORT GeometryTargets
     INCLUDES DESTINATION include
 )
 install(EXPORT GeometryTargets
-    FILE GeometryTargets.cmake
+    FILE ${PROJECT_NAME}-Targets.cmake
     NAMESPACE Geometry::
     DESTINATION share/cmake/${PROJECT_NAME}
 )

@@ -205,7 +205,7 @@ The raytrace library currently supports this object hierarchy for mediums.
       * `chrome`, `steel`, `copper`, `silver`, etc
   * `dielectric`
     * `opaque` - majority reflected light, but diffuse coloring and can have specular highlights
-      * `plain` - no specular highlights, or at least *super* rough
+      * `plain` - no specular highlights, or at least _super_ rough
       * `dots` - a plain dotted pattern
       * `checkerboard` - common shiny floor in raytracing
       * perlin noise patterns like `marble`
@@ -261,18 +261,18 @@ This is also a useful project to understand how to optimize with SSE2/AVX as wel
 
 ## Design Assumptions
 
-* When computing a collision with a ray on a surface and the point of the ray is *on* the surface, there are two situations.
+* When computing a collision with a ray on a surface and the point of the ray is _on_ the surface, there are two situations.
   * The ray points into the surface - this is a collision (`dot(R,N) < 0`)
   * The ray points away (or tangent) from the surface - this is not a collision (`dot(R, N) > -basal::epsilon`)
 
 ## TODOs
 
-* TODO (Raytrace) Shadow Rays traced through transparent objects
-* TODO (Raytrace) implement diffraction (a special case of which is refraction and reflection)
-* TODO (Raytrace) fractal brownian noise patterns
-* TODO (Raytrace) Polygon (N triangles or does the triangle cross trick work for more than 3 points (as long as it is convex and coplanar?)
-* TODO (Raytrace) cap the end of cylinders so they can be used in `overlap`s?
-* TODO (Raytrace) add the cap into the equation so they can be used in `overlaps`?
+* TODO Shadow Rays traced through transparent objects
+* TODO implement diffraction (a special case of which is refraction and reflection)
+* TODO Polygon (N triangles or does the triangle cross trick work for more than 3 points (as long as it is convex and coplanar?)
+* TODO Cap the end of cylinders so they can be used in `overlap`s. Does that mean the cap has to be in the equation so they can be used in `overlaps`?
+* TODO Create a world of a grid of spheres with different roughnesses to demonstrate the values.
+* TODO Create a world of a grid of spheres with different phong value to demonstrate the values.
 
 ## References
 
@@ -305,7 +305,6 @@ This is also a useful project to understand how to optimize with SSE2/AVX as wel
 * [Resistance](http://hyperphysics.phy-astr.gsu.edu/hbase/Tables/rstiv.html)
 * [Resistance and Conductivity](https://www.engineeringtoolbox.com/resistivity-conductivity-d_418.html)
 
-
 ### PDFs and Slides
 
 * [Reflectance and Transmission](https://www.flipcode.com/archives/reflection_transmission.pdf)
@@ -316,6 +315,7 @@ This is also a useful project to understand how to optimize with SSE2/AVX as wel
 #### Research
 
 * [Reflection, transmission and scattering Direction-resolved measurement of transmission and reflection](https://www.hslu.ch/en/lucerne-school-of-engineering-architecture/research/competence-centers/gebaeudehuelleundingenieurbau/gebaeudehuelle/envelopes-and-solar-energy/labore-und-infrastruktur/reflektion-transmission-und-streuung/)
+
 ### Similar Examples
 
 * [Perlin Noise Generator](http://lencinhaus.github.io/canvas-noise/)
@@ -324,14 +324,14 @@ This is also a useful project to understand how to optimize with SSE2/AVX as wel
 
 ### Wikipedia Pages
 
-* https://en.wikipedia.org/wiki/Luminous_intensity
-* https://en.wikipedia.org/wiki/Reflectance
-* https://en.wikipedia.org/wiki/Luminance
-* https://en.wikipedia.org/wiki/Etendue
-* https://en.wikipedia.org/wiki/Lambertian_reflectance
-* https://en.wikipedia.org/wiki/Fresnel_equations
-* https://en.wikipedia.org/wiki/Geometrical_optics
-* https://en.wikipedia.org/wiki/Ray_tracing_(physics)
-* https://en.wikipedia.org/wiki/Ray_tracing_(graphics)
-* https://en.wikipedia.org/wiki/Rendering_equation
-* https://en.wikipedia.org/wiki/Transparency_and_translucency
+* <https://en.wikipedia.org/wiki/Luminous_intensity>
+* <https://en.wikipedia.org/wiki/Reflectance>
+* <https://en.wikipedia.org/wiki/Luminance>
+* <https://en.wikipedia.org/wiki/Etendue>
+* <https://en.wikipedia.org/wiki/Lambertian_reflectance>
+* <https://en.wikipedia.org/wiki/Fresnel_equations>
+* <https://en.wikipedia.org/wiki/Geometrical_optics>
+* <https://en.wikipedia.org/wiki/Ray_tracing_(physics)>
+* <https://en.wikipedia.org/wiki/Ray_tracing_(graphics)>
+* <https://en.wikipedia.org/wiki/Rendering_equation>
+* <https://en.wikipedia.org/wiki/Transparency_and_translucency>

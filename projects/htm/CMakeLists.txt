@@ -46,7 +46,7 @@ install(TARGETS hobbies-htm EXPORT HTMTargets
     INCLUDES DESTINATION include
 )
 install(EXPORT HTMTargets
-    FILE HTMTargets.cmake
+    FILE ${PROJECT_NAME}-Targets.cmake
     NAMESPACE HTM::
     DESTINATION share/cmake/${PROJECT_NAME}
 )

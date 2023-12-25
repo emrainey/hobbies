@@ -75,7 +75,7 @@ install(TARGETS hobbies-basal enabled-warnings enabled-debugging enabled-profili
     INCLUDES DESTINATION include
 )
 install(EXPORT BasalTargets
-    FILE BasalTargets.cmake
+    FILE ${PROJECT_NAME}-Targets.cmake
     NAMESPACE Basal::
     DESTINATION share/cmake/${PROJECT_NAME}
     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ

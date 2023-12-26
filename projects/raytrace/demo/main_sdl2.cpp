@@ -16,6 +16,7 @@
 #include "world.hpp"
 
 using namespace std::placeholders;
+constexpr static bool live_preview{true};
 
 struct Parameters {
     size_t dim_index;
@@ -41,9 +42,10 @@ int main(int argc, char *argv[]) {
     Parameters params;
     bool verbose = false;
     bool should_quit = false;
-    bool should_render = true;
+    bool should_render = false;
     double move_unit = 5.0;
     std::string module_name;
+    bool should_show_help = true;
 
     basal::options::config opts[] = {
         {"-d", "--dims", (size_t)1, "WxH Pairs"},
@@ -128,6 +130,7 @@ int main(int argc, char *argv[]) {
                 std::vector<bool> completed(view.capture.height);
                 std::fill(completed.begin(), completed.end(), false);
                 bool running = true;
+                std::mutex window_mutex;
                 auto start = std::chrono::steady_clock::now();
                 auto progress_bar = [&]() -> void {
                     while (running) {
@@ -162,9 +165,36 @@ int main(int argc, char *argv[]) {
                     }
                     fprintf(stdout, "\r\n");
                 };
-
-                auto row_notifier
-                    = [&](size_t row_index, bool is_complete) -> void { completed[row_index] = is_complete; };
+                auto row_notifier = [&](size_t row_index, bool is_complete) -> void {
+                    completed[row_index] = is_complete;
+                    if (live_preview) {
+                        // surface = SDL_GetWindowSurface(window);
+                        bool should_lock = SDL_MUSTLOCK(surface);
+                        if (should_lock) {
+                            if (0 != SDL_LockSurface(surface)) {
+                                printf("Failed to lock surface!\n");
+                                return;
+                            }
+                        }
+                        scene.views[view_index].capture.for_each ([&](size_t y, size_t x, const fourcc::rgb8 &pixel) -> void {
+                            if (row_index != y) return; // if it's not this row, skip it
+                            uint8_t *pixels = reinterpret_cast<uint8_t *>(surface->pixels);
+                            size_t offset = (y * surface->pitch) + (x * sizeof(fourcc::bgra));
+                            // B G R A order
+                            pixels[offset + 0u] = pixel.b;
+                            pixels[offset + 1u] = pixel.g;
+                            pixels[offset + 2u] = pixel.r;
+                            pixels[offset + 3u] = 0u;
+                        });
+                        if (window_mutex.try_lock()) {
+                            SDL_UpdateWindowSurface(window); // calling this across threads is bad
+                            window_mutex.unlock();
+                        }
+                        if (should_lock) {
+                            SDL_UnlockSurface(surface);
+                        }
+                    }
+                };
                 printf("Starting Render (depth=%zu, samples=%zu, aaa?=%s thresh=%zu)...\r\n", params.reflections,
                        params.subsamples, params.mask_threshold == raytrace::image::AAA_MASK_DISABLED ? "no" : "yes",
                        params.mask_threshold);
@@ -186,10 +216,14 @@ int main(int argc, char *argv[]) {
 
                 std::cout << "Image Rendered in " << diff.count() << " seconds" << std::endl;
 
-                SDL_LockSurface(surface);
+                bool should_lock = SDL_MUSTLOCK(surface);
+                if (should_lock) {
+                    if (0 != SDL_LockSurface(surface)) {
+                        printf("Failed to lock surface!\n");
+                        return -1;
+                    }
+                }
                 scene.views[view_index].capture.for_each ([&](size_t y, size_t x, const fourcc::rgb8 &pixel) -> void {
-                    // SDL_Rect rect = {int(x), int(y), 1, 1};
-                    // SDL_FillRect(surface, &rect, SDL_MapRGB(surface->format, pixel.r, pixel.g, pixel.b));
                     uint8_t *pixels = reinterpret_cast<uint8_t *>(surface->pixels);
                     size_t offset = (y * surface->pitch) + (x * sizeof(fourcc::bgra));
                     // B G R A order
@@ -199,9 +233,16 @@ int main(int argc, char *argv[]) {
                     pixels[offset + 3u] = 0u;
                 });
                 SDL_UpdateWindowSurface(window);
-                SDL_UnlockSurface(surface);
+                if (should_lock) {
+                    SDL_UnlockSurface(surface);
+                }
             }
             should_render = false;
+        } else {
+            if (should_show_help) {
+                printf("Press ENTER to render, ESC or q to quit\n");
+                should_show_help = false;
+            }
         }
         int key;
         SDL_Event event;

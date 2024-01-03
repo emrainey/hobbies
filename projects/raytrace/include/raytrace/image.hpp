@@ -52,6 +52,9 @@ public:
     /** Returns the image pixel at the point (rounded raster coordinates) */
     fourcc::rgb8& at(const point& p);
 
+    // declared const override
+    fourcc::rgb8 const& at(size_t y, size_t x) const override;
+
     // declared override
     fourcc::rgb8& at(size_t y, size_t x) override;
 

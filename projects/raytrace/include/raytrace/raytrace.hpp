@@ -7,6 +7,9 @@ namespace raytrace {
 static_assert(std::numeric_limits<double>::is_iec559, "Platform must be IEEE-754 formatted.");
 }  // namespace raytrace
 
+#include "raytrace/camera.hpp"
+#include "raytrace/stereocamera.hpp"
+
 #include "raytrace/scene.hpp"
 #include "raytrace/types.hpp"
 

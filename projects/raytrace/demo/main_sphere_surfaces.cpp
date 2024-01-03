@@ -76,8 +76,8 @@ int main(int argc, char* argv[]) {
     do {
         // tiny image, simple camera placement
         scene scene;
-        scene.views.emplace_back(height, width, fov);
-        scene.views[0].move_to(look_from, look_at);
+        camera view(height, width, fov);
+        view.move_to(look_from, look_at);
         // scene.background = colors::black;
 
         // define some surfaces
@@ -96,9 +96,9 @@ int main(int argc, char* argv[]) {
             cv::imshow(windowName, render_image);
             (void)cv::waitKey(1);
             printf("Starting Render (depth=%zu, samples=%zu)...\r\n", reflection_depth, subsamples);
-            scene.render(0u, "demo_sphere_surfaces.tga", subsamples, reflection_depth, std::nullopt, show_bar);
+            scene.render(view, "demo_sphere_surfaces.tga", subsamples, reflection_depth, std::nullopt, show_bar);
             // copy to the cv::Mat
-            scene.views[0].capture.for_each ([&](size_t y, size_t x, const fourcc::rgb8& pixel) -> void {
+            view.capture.for_each ([&](size_t y, size_t x, const fourcc::rgb8& pixel) -> void {
                 render_image.at<cv::Vec3b>(y, x)[0] = pixel.b;
                 render_image.at<cv::Vec3b>(y, x)[1] = pixel.g;
                 render_image.at<cv::Vec3b>(y, x)[2] = pixel.r;

@@ -42,12 +42,12 @@ public:
         plane0.material(&plastic);
         for (size_t i = 0; i < number_of_scenes; i++) {
             scenes.push_back(new scene{});
-            scenes[i]->views.emplace_back(image_height, image_width, field_of_view);
+            views.push_back(new camera{image_height, image_width, field_of_view});
             vector look = look_at - look_froms[i];
             look.normalize();
             look *= 10;
             raytrace::point camera_principal = look_froms[i] + look;
-            scenes[i]->views[0].move_to(look_froms[i], camera_principal);
+            views[i]->move_to(look_froms[i], camera_principal);
             scenes[i]->add_light(&beam_of_light);
             scenes[i]->add_object(&plane0);
         }
@@ -57,6 +57,7 @@ public:
         for (size_t i = 0; i < number_of_scenes; i++) {
             scenes[i]->clear();
             delete scenes[i];
+            delete views[i];
         }
         scenes.clear();
     }
@@ -80,7 +81,7 @@ public:
             char buffer[len];
             snprintf(buffer, len, "rendertest_%s_%zu.ppm", name, i);
             scenes[i]->print(buffer);
-            scenes[i]->render(0u, buffer, 1, 2);
+            scenes[i]->render(*views[i], buffer, 1, 2);
         }
     }
 
@@ -101,6 +102,7 @@ protected:
     raytrace::point look_at;
     raytrace::objects::plane plane0;
     std::vector<scene *> scenes;
+    std::vector<camera *> views;
 };
 
 TEST_F(RenderTest, DISABLED_Sphere) {

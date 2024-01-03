@@ -48,15 +48,15 @@ TEST(LightTest, TriColorSpots) {
     raytrace::lights::spot grn_light(raytrace::ray(p1, -R3::basis::Z), colors::green, 1E5, iso::degrees(25));
     raytrace::lights::spot blu_light(raytrace::ray(p2, -R3::basis::Z), colors::blue, 1E5, iso::degrees(25));
     raytrace::scene scene;
-    scene.views.emplace_back(480, 640, iso::degrees(55));
-    scene.views[0].move_to(raytrace::point{60, 60, 60}, raytrace::point{59, 59, 59});
+    raytrace::camera view(480, 640, iso::degrees(55));
+    view.move_to(raytrace::point{60, 60, 60}, raytrace::point{59, 59, 59});
     scene.add_light(&red_light);
     scene.add_light(&grn_light);
     scene.add_light(&blu_light);
     scene.add_object(&floor);
     scene.add_object(&shape);
     scene.print("TriColor");
-    scene.render(0u, "tricolor_spots.ppm", 1, 1, std::nullopt, true);
+    scene.render(view, "tricolor_spots.ppm", 1, 1, std::nullopt, true);
 }
 
 TEST(LightTest, BulbTest) {
@@ -64,11 +64,11 @@ TEST(LightTest, BulbTest) {
     raytrace::objects::plane floor(raytrace::point{0, 0, 0}, R3::basis::Z, 1.0);
     raytrace::lights::bulb light(raytrace::point{0, 0, 9}, 0.2, colors::white, 1E11, 100);
     raytrace::scene scene;
-    scene.views.emplace_back(480, 640, iso::degrees(55));
-    scene.views[0].move_to(raytrace::point{30, 30, 30}, raytrace::point{29, 29, 29});
+    raytrace::camera view(480, 640, iso::degrees(55));
+    view.move_to(raytrace::point{30, 30, 30}, raytrace::point{29, 29, 29});
     scene.add_light(&light);
     scene.add_object(&floor);
     scene.add_object(&shape);
     scene.print("BulbTest");
-    scene.render(0u, "bulb_and_sphere.ppm", 1, 1, std::nullopt, true);
+    scene.render(view, "bulb_and_sphere.ppm", 1, 1, std::nullopt, true);
 }

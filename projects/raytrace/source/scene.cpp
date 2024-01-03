@@ -20,8 +20,7 @@ static constexpr bool use_specular_scaling = true;
 static constexpr bool use_grayscale_distance = false;
 
 scene::scene(double art)
-    : views{}
-    , adaptive_reflection_threshold{art}
+    : adaptive_reflection_threshold{art}
     , m_objects{}
     , m_lights{}
     , m_background{[](const raytrace::ray&) { return colors::black; }}
@@ -30,7 +29,6 @@ scene::scene(double art)
 }
 
 scene::~scene() {
-    views.clear();
     m_objects.clear();
     m_lights.clear();
 }
@@ -332,56 +330,50 @@ color scene::trace(const ray& world_ray, const mediums::medium& media, size_t re
     return traced_color;
 }
 
-void scene::render(size_t view_index, std::string filename, size_t number_of_samples, size_t reflection_depth,
+void scene::render(camera& view, std::string filename, size_t number_of_samples, size_t reflection_depth,
                    std::optional<image::rendered_line> row_notifier, uint8_t aaa_mask_threshold, bool filter_capture) {
-    if (view_index < views.size()) {
-        auto& view = views[view_index];
-        bool adaptive_antialiasing = aaa_mask_threshold != raytrace::image::AAA_MASK_DISABLED;
-        if constexpr (debug) {
-            view.print("Camera Info:\n");
-        }
-        auto tracer = [&](const image::point& pnt) -> color {
-            // create the ray at each point in the image along the vector
-            // from the image plane along the camera ray.
-            ray world_ray = view.cast(pnt);
-
-            // trace the ray out to the world, starting from a vaccum
-            return trace(world_ray, *m_media, reflection_depth);
-        };
-        // if we're doing adaptive anti-aliasing we only shoot 1 ray at first and then compute a constrast mask
-        // later
-        view.capture.generate_each(tracer, adaptive_antialiasing ? 1 : number_of_samples, row_notifier, &view.mask,
-                                   image::AAA_MASK_DISABLED);
-        // if the threshold is not disabled, then compute the extra pixels based on the mask
-        if (aaa_mask_threshold < image::AAA_MASK_DISABLED) {
-            // reset all rendered lines
-            if (row_notifier != std::nullopt) {
-                image::rendered_line func = row_notifier.value();
-                for (size_t y = 0; y < view.capture.height; y++) {
-                    func(y, false);
-                }
-            }
-            // compute the mask
-            fourcc::sobel_mask(view.capture, view.mask);
-            // update the image based on the mask
-            view.capture.generate_each(tracer, number_of_samples, row_notifier, &view.mask, aaa_mask_threshold);
-        }
-        // if we want to filter the image before viewing or saving, do that here.
-        if (filter_capture) {
-            // copy the image into a duplicate
-            fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8> capture_copy(view.capture);
-            int16_t kernel[3]{-1, 2, 1};
-            fourcc::filter(view.capture, capture_copy, kernel);
-        }
-        view.capture.save(filename);
+    bool adaptive_antialiasing = aaa_mask_threshold != raytrace::image::AAA_MASK_DISABLED;
+    if constexpr (debug) {
+        view.print("Camera Info:\n");
     }
+    auto tracer = [&](const image::point& pnt) -> color {
+        // create the ray at each point in the image along the vector
+        // from the image plane along the camera ray.
+        ray world_ray = view.cast(pnt);
+
+        // trace the ray out to the world, starting from a vaccum
+        return trace(world_ray, *m_media, reflection_depth);
+    };
+    // if we're doing adaptive anti-aliasing we only shoot 1 ray at first and then compute a constrast mask
+    // later
+    view.capture.generate_each(tracer, adaptive_antialiasing ? 1 : number_of_samples, row_notifier, &view.mask,
+                                image::AAA_MASK_DISABLED);
+    // if the threshold is not disabled, then compute the extra pixels based on the mask
+    if (aaa_mask_threshold < image::AAA_MASK_DISABLED) {
+        // reset all rendered lines
+        if (row_notifier != std::nullopt) {
+            image::rendered_line func = row_notifier.value();
+            for (size_t y = 0; y < view.capture.height; y++) {
+                func(y, false);
+            }
+        }
+        // compute the mask
+        fourcc::sobel_mask(view.capture, view.mask);
+        // update the image based on the mask
+        view.capture.generate_each(tracer, number_of_samples, row_notifier, &view.mask, aaa_mask_threshold);
+    }
+    // if we want to filter the image before viewing or saving, do that here.
+    if (filter_capture) {
+        // copy the image into a duplicate
+        fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8> capture_copy(view.capture);
+        int16_t kernel[3]{-1, 2, 1};
+        fourcc::filter(view.capture, capture_copy, kernel);
+    }
+    view.capture.save(filename);
 }
 
 void scene::print(const char str[]) const {
     std::cout << str << std::endl;
-    for (auto& view : views) {
-        view.print(str);
-    }
     for (auto obj : m_objects) {
         obj->print(str);
     }

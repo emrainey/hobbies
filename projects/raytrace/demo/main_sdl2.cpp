@@ -16,6 +16,7 @@
 #include "world.hpp"
 
 using namespace std::placeholders;
+constexpr static bool live_preview{true};
 
 struct Parameters {
     size_t dim_index;
@@ -41,9 +42,10 @@ int main(int argc, char *argv[]) {
     Parameters params;
     bool verbose = false;
     bool should_quit = false;
-    bool should_render = true;
+    bool should_render = false;
     double move_unit = 5.0;
     std::string module_name;
+    bool should_show_help = true;
 
     basal::options::config opts[] = {
         {"-d", "--dims", (size_t)1, "WxH Pairs"},
@@ -110,98 +112,134 @@ int main(int argc, char *argv[]) {
             // tiny image, simple camera placement
             raytrace::scene scene;
             // camera setup
-            scene.views.emplace_back(height, width, iso::degrees(params.fov));
+            raytrace::camera view(height, width, iso::degrees(params.fov));
             raytrace::vector looking = (world.looking_at() - from).normalized();
             raytrace::point image_plane_principal_point = from + looking;
             std::cout << "Principal: " << image_plane_principal_point << std::endl;
-            scene.views[0].move_to(from, image_plane_principal_point);
+            view.move_to(from, image_plane_principal_point);
 
             scene.set_background_mapper(std::bind(&raytrace::world::background, &world, std::placeholders::_1));
             world.add_to(scene);
             if (verbose) {
                 scene.print(world.window_name().c_str());
             }
-            // for each view of the scene
-            for (size_t view_index = 0; view_index < scene.views.size(); view_index++) {
-                auto &view = scene.views[view_index];
-                // The completion data will be stored in here, a bool per line.
-                std::vector<bool> completed(view.capture.height);
-                std::fill(completed.begin(), completed.end(), false);
-                bool running = true;
-                auto start = std::chrono::steady_clock::now();
-                auto progress_bar = [&]() -> void {
-                    while (running) {
-                        constexpr static bool use_bar = false;
-                        if constexpr (use_bar) {
-                            fprintf(stdout, "\r [");
-                            for (size_t i = 0; i < completed.size(); i++) {
-                                fprintf(stdout, "%s", completed[i] ? "#" : "_");
-                            }
-                            fprintf(stdout, "]");
-                        } else {
-                            size_t count = 0;
-                            std::for_each (completed.begin(), completed.end(), [&](bool p) -> bool {
-                                count += (p ? 1 : 0);
-                                return p;
-                            });
-                            double percentage = 100.0 * count / completed.size();
-                            bool done = (count == completed.size());
-                            fprintf(stdout,
-                                    "\r[ %0.3lf %%] rays cast: %zu dots: %zu cross: %zu intersects: %zu bounced: %zu "
-                                    "transmitted: %zu %s ",
-                                    done ? 100.0 : percentage, raytrace::statistics::get().cast_rays_from_camera,
-                                    geometry::statistics::get().dot_operations,
-                                    geometry::statistics::get().cross_products,
-                                    raytrace::statistics::get().intersections_with_objects,
-                                    raytrace::statistics::get().bounced_rays,
-                                    raytrace::statistics::get().transmitted_rays, done ? "\r\n" : "");
-                            // if (done) return;
+
+            // The completion data will be stored in here, a bool per line.
+            std::vector<bool> completed(view.capture.height);
+            std::fill(completed.begin(), completed.end(), false);
+            bool running = true;
+            std::mutex window_mutex;
+            auto start = std::chrono::steady_clock::now();
+            auto progress_bar = [&]() -> void {
+                while (running) {
+                    constexpr static bool use_bar = false;
+                    if constexpr (use_bar) {
+                        fprintf(stdout, "\r [");
+                        for (size_t i = 0; i < completed.size(); i++) {
+                            fprintf(stdout, "%s", completed[i] ? "#" : "_");
                         }
-                        fflush(stdout);
-                        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                        fprintf(stdout, "]");
+                    } else {
+                        size_t count = 0;
+                        std::for_each (completed.begin(), completed.end(), [&](bool p) -> bool {
+                            count += (p ? 1 : 0);
+                            return p;
+                        });
+                        double percentage = 100.0 * count / completed.size();
+                        bool done = (count == completed.size());
+                        fprintf(stdout,
+                                "\r[ %0.3lf %%] rays cast: %zu dots: %zu cross: %zu intersects: %zu bounced: %zu "
+                                "transmitted: %zu %s ",
+                                done ? 100.0 : percentage, raytrace::statistics::get().cast_rays_from_camera,
+                                geometry::statistics::get().dot_operations,
+                                geometry::statistics::get().cross_products,
+                                raytrace::statistics::get().intersections_with_objects,
+                                raytrace::statistics::get().bounced_rays,
+                                raytrace::statistics::get().transmitted_rays, done ? "\r\n" : "");
+                        // if (done) return;
                     }
-                    fprintf(stdout, "\r\n");
-                };
-
-                auto row_notifier
-                    = [&](size_t row_index, bool is_complete) -> void { completed[row_index] = is_complete; };
-                printf("Starting Render (depth=%zu, samples=%zu, aaa?=%s thresh=%zu)...\r\n", params.reflections,
-                       params.subsamples, params.mask_threshold == raytrace::image::AAA_MASK_DISABLED ? "no" : "yes",
-                       params.mask_threshold);
-
-                std::thread bar_thread(progress_bar);  // thread starts
-                try {
-                    scene.render(view_index, world.output_filename(), params.subsamples, params.reflections,
-                                 row_notifier, params.mask_threshold);
-                } catch (const basal::exception &e) {
-                    std::cout << "Caught basal::exception in scene.render()! " << std::endl;
-                    std::cout << "What:" << e.what() << " Why:" << e.why() << " Where:" << e.where() << std::endl;
-                } catch (...) {
-                    std::cout << "Caught unknown exception in scene.render()! " << std::endl;
+                    fflush(stdout);
+                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
                 }
-                std::chrono::duration<double> diff = std::chrono::steady_clock::now() - start;
-                std::this_thread::sleep_for(std::chrono::milliseconds(500));
-                running = false;
-                bar_thread.join();  // thread stop
+                fprintf(stdout, "\r\n");
+            };
+            auto row_notifier = [&](size_t row_index, bool is_complete) -> void {
+                completed[row_index] = is_complete;
+                if (live_preview) {
+                    // surface = SDL_GetWindowSurface(window);
+                    bool should_lock = SDL_MUSTLOCK(surface);
+                    if (should_lock) {
+                        if (0 != SDL_LockSurface(surface)) {
+                            printf("Failed to lock surface!\n");
+                            return;
+                        }
+                    }
+                    view.capture.for_each ([&](size_t y, size_t x, const fourcc::rgb8 &pixel) -> void {
+                        if (row_index != y) return; // if it's not this row, skip it
+                        uint8_t *pixels = reinterpret_cast<uint8_t *>(surface->pixels);
+                        size_t offset = (y * surface->pitch) + (x * sizeof(fourcc::bgra));
+                        // B G R A order
+                        pixels[offset + 0u] = pixel.b;
+                        pixels[offset + 1u] = pixel.g;
+                        pixels[offset + 2u] = pixel.r;
+                        pixels[offset + 3u] = 0u;
+                    });
+                    if (window_mutex.try_lock()) {
+                        SDL_UpdateWindowSurface(window); // calling this across threads is bad
+                        window_mutex.unlock();
+                    }
+                    if (should_lock) {
+                        SDL_UnlockSurface(surface);
+                    }
+                }
+            };
+            printf("Starting Render (depth=%zu, samples=%zu, aaa?=%s thresh=%zu)...\r\n", params.reflections,
+                    params.subsamples, params.mask_threshold == raytrace::image::AAA_MASK_DISABLED ? "no" : "yes",
+                    params.mask_threshold);
 
-                std::cout << "Image Rendered in " << diff.count() << " seconds" << std::endl;
+            std::thread bar_thread(progress_bar);  // thread starts
+            try {
+                scene.render(view, world.output_filename(), params.subsamples, params.reflections,
+                                row_notifier, params.mask_threshold);
+            } catch (const basal::exception &e) {
+                std::cout << "Caught basal::exception in scene.render()! " << std::endl;
+                std::cout << "What:" << e.what() << " Why:" << e.why() << " Where:" << e.where() << std::endl;
+            } catch (...) {
+                std::cout << "Caught unknown exception in scene.render()! " << std::endl;
+            }
+            std::chrono::duration<double> diff = std::chrono::steady_clock::now() - start;
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            running = false;
+            bar_thread.join();  // thread stop
 
-                SDL_LockSurface(surface);
-                scene.views[view_index].capture.for_each ([&](size_t y, size_t x, const fourcc::rgb8 &pixel) -> void {
-                    // SDL_Rect rect = {int(x), int(y), 1, 1};
-                    // SDL_FillRect(surface, &rect, SDL_MapRGB(surface->format, pixel.r, pixel.g, pixel.b));
-                    uint8_t *pixels = reinterpret_cast<uint8_t *>(surface->pixels);
-                    size_t offset = (y * surface->pitch) + (x * sizeof(fourcc::bgra));
-                    // B G R A order
-                    pixels[offset + 0u] = pixel.b;
-                    pixels[offset + 1u] = pixel.g;
-                    pixels[offset + 2u] = pixel.r;
-                    pixels[offset + 3u] = 0u;
-                });
-                SDL_UpdateWindowSurface(window);
+            std::cout << "Image Rendered in " << diff.count() << " seconds" << std::endl;
+
+            bool should_lock = SDL_MUSTLOCK(surface);
+            if (should_lock) {
+                if (0 != SDL_LockSurface(surface)) {
+                    printf("Failed to lock surface!\n");
+                    return -1;
+                }
+            }
+            view.capture.for_each ([&](size_t y, size_t x, const fourcc::rgb8 &pixel) -> void {
+                uint8_t *pixels = reinterpret_cast<uint8_t *>(surface->pixels);
+                size_t offset = (y * surface->pitch) + (x * sizeof(fourcc::bgra));
+                // B G R A order
+                pixels[offset + 0u] = pixel.b;
+                pixels[offset + 1u] = pixel.g;
+                pixels[offset + 2u] = pixel.r;
+                pixels[offset + 3u] = 0u;
+            });
+            SDL_UpdateWindowSurface(window);
+            if (should_lock) {
                 SDL_UnlockSurface(surface);
             }
             should_render = false;
+        } else {
+            if (should_show_help) {
+                printf("Press ENTER to render, ESC or q to quit\n");
+                should_show_help = false;
+            }
         }
         int key;
         SDL_Event event;

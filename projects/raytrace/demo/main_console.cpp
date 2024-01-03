@@ -241,15 +241,13 @@ int main(int argc, char* argv[]) {
 
     raytrace::scene scene;
 #if defined(RENDER_TO_CONSOLE)
-    scene.views.emplace_back(console.get_height() * 2, console.get_width(), iso::degrees(params.fov));
+    raytrace::camera view(console.get_height() * 2, console.get_width(), iso::degrees(params.fov));
 #else
-    scene.views.emplace_back(params.height, params.width, iso::degrees(params.fov));
+    raytrace::camera view(params.height, params.width, iso::degrees(params.fov));
 #endif
-    for (auto& view : scene.views) {
-        raytrace::vector looking = (world.looking_at() - world.looking_from()).normalized();
-        raytrace::point image_plane_principal_point = world.looking_from() + looking;
-        view.move_to(world.looking_from(), image_plane_principal_point);
-    }
+    raytrace::vector looking = (world.looking_at() - world.looking_from()).normalized();
+    raytrace::point image_plane_principal_point = world.looking_from() + looking;
+    view.move_to(world.looking_from(), image_plane_principal_point);
 
     scene.set_background_mapper(std::bind(&raytrace::world::background, &world, std::placeholders::_1));
     world.add_to(scene);
@@ -279,20 +277,18 @@ int main(int argc, char* argv[]) {
         }
 #if defined(RENDER_TO_CONSOLE)
         else if (state == State::DRAW) {
-            for (auto& view : scene.views) {
-                printf("\e[s\e[?25l");  // save cursor?
-                printf("\e[u");         // clear screen?
-                for (size_t y = 0; y < view.capture.height; y += 2) {
-                    for (size_t x = 0; x < view.capture.width; x++) {
-                        fourcc::rgb8 top = view.capture.at(y + 0, x);
-                        fourcc::rgb8 btm = view.capture.at(y + 1, x);
-                        printf("\x1b[48;2;%d;%d;%dm\x1b[38;2;%d;%d;%dm\u2584", top.r, top.g, top.b, btm.r, btm.g,
-                               btm.b);
-                    }
+            printf("\e[s\e[?25l");  // save cursor?
+            printf("\e[u");         // clear screen?
+            for (size_t y = 0; y < view.capture.height; y += 2) {
+                for (size_t x = 0; x < view.capture.width; x++) {
+                    fourcc::rgb8 top = view.capture.at(y + 0, x);
+                    fourcc::rgb8 btm = view.capture.at(y + 1, x);
+                    printf("\x1b[48;2;%d;%d;%dm\x1b[38;2;%d;%d;%dm\u2584", top.r, top.g, top.b, btm.r, btm.g,
+                            btm.b);
                 }
-                printf("\e[?25h");
-                console.refresh();
             }
+            printf("\e[?25h");
+            console.refresh();
         }
 #endif
         // wait for input
@@ -302,28 +298,26 @@ int main(int argc, char* argv[]) {
                     // show function menu instead?
                     break;
                 case 'r': {
-                    for (size_t view_index = 0; view_index < scene.views.size(); view_index++) {
-                        auto start = std::chrono::steady_clock::now();
-                        start_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-                        char time_string[256];
-                        std::strftime(time_string, dimof(time_string), "%A %c", std::localtime(&start_time));
-                        console.print(6, 2, "START TIME: %s, RENDERING TIME: ??? secs", time_string);
-                        std::thread bar_thread(progress_bar);  // thread starts
-                        try {
-                            scene.render(view_index, world.output_filename(), params.subsamples, params.reflections,
-                                         row_notifier, params.mask_threshold);
-                        } catch (const basal::exception& e) {
-                            std::cout << "Caught basal::exception in scene.render()! " << std::endl;
-                            std::cout << "What:" << e.what() << " Why:" << e.why() << " Where:" << e.where()
-                                      << std::endl;
-                        } catch (...) {
-                            std::cout << "Caught unknown exception in scene.render()! " << std::endl;
-                        }
-                        diff = std::chrono::steady_clock::now() - start;
-                        running = false;
-                        bar_thread.join();  // thread stop
-                        console.print(6, 2, "START TIME: %s, RENDERING TIME: %0.3lf secs", time_string, diff.count());
+                    auto start = std::chrono::steady_clock::now();
+                    start_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+                    char time_string[256];
+                    std::strftime(time_string, dimof(time_string), "%A %c", std::localtime(&start_time));
+                    console.print(6, 2, "START TIME: %s, RENDERING TIME: ??? secs", time_string);
+                    std::thread bar_thread(progress_bar);  // thread starts
+                    try {
+                        scene.render(view, world.output_filename(), params.subsamples, params.reflections,
+                                        row_notifier, params.mask_threshold);
+                    } catch (const basal::exception& e) {
+                        std::cout << "Caught basal::exception in scene.render()! " << std::endl;
+                        std::cout << "What:" << e.what() << " Why:" << e.why() << " Where:" << e.where()
+                                    << std::endl;
+                    } catch (...) {
+                        std::cout << "Caught unknown exception in scene.render()! " << std::endl;
                     }
+                    diff = std::chrono::steady_clock::now() - start;
+                    running = false;
+                    bar_thread.join();  // thread stop
+                    console.print(6, 2, "START TIME: %s, RENDERING TIME: %0.3lf secs", time_string, diff.count());
                     break;
                 }
 #if defined(RENDER_TO_CONSOLE)

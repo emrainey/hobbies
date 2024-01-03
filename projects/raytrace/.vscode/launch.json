@@ -19,6 +19,7 @@
                 "world_snowman",
                 "world_spheres",
                 "world_spheres2",
+                "world_mats",
                 "world_monochrome",
             ]
         }
@@ -95,6 +96,36 @@
                 "128",
                 "-b",
                 "4"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [
+                {
+                    "name": "ABORT",
+                    "value": "1"
+                },
+                {
+                    "name": "DYLD_LIBRARY_PATH",
+                    "value": "${workspaceFolder}/../../install/lib:${workspaceFolder}/../../build/raytrace/",
+                }
+            ],
+            "externalConsole": false,
+            "MIMode": "lldb"
+        },
+        {
+            "name": "(lldb) Demo SDL2 Render",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/../../build/raytrace/demo_sdl2",
+            "args": [
+                "-m",
+                "${input:world_module}",
+                "-d",
+                "0",
+                "-a",
+                "128",
+                "-b",
+                "1"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",

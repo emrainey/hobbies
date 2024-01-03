@@ -12,7 +12,8 @@
 
 using namespace raytrace;
 
-constexpr static size_t number_of_spheres_per_side = 7; // this has to be odd
+constexpr static size_t number_of_spheres_per_side = 11; // 7; // this has to be odd
+constexpr static double radius = 3.0; // 4.5;
 static_assert(number_of_spheres_per_side % 2 == 1, "number_of_spheres_per_side must be odd");
 
 class MaterialWorld : public world {
@@ -27,7 +28,6 @@ public:
         , mats{}
         , sunlight{raytrace::vector{0, -1, -1}, colors::white, brightness}
         , specks{} {
-        double radius = 4.5;
         size_t half_count = number_of_spheres_per_side / 2;
         for (size_t j = 0; j < number_of_spheres_per_side; j++) {
             for (size_t i = 0; i < number_of_spheres_per_side; i++) {

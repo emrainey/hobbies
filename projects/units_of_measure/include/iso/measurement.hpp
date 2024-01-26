@@ -3,6 +3,7 @@
 #include <cmath>
 #include <ostream>
 
+#include "iso/types.hpp"
 #include "iec/prefix.hpp"
 #include "si/prefix.hpp"
 
@@ -10,7 +11,7 @@
 namespace iso {
 
 /** A simple float/double equals */
-inline bool equivalent(const double a, const double b) {
+inline bool equivalent(const precision a, const precision b) {
     return not(a > b) and not(a < b);
 }
 

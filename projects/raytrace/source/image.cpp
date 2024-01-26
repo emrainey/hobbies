@@ -33,7 +33,7 @@ fourcc::rgb8& image::at(const image::point& p) {
 void image::generate_each(subsampler get_color, size_t number_of_samples, std::optional<rendered_line> row_notifier,
                           fourcc::image<uint8_t, fourcc::pixel_format::Y8>* mask, uint8_t mask_threshold) {
     std::default_random_engine generator;
-    std::uniform_real_distribution<element_type> distribution(-0.5, 0.5);
+    std::uniform_real_distribution<precision> distribution(-0.5, 0.5);
     auto delta = std::bind(distribution, generator);
 
 #pragma omp parallel for shared(data, delta, get_color)
@@ -47,11 +47,11 @@ void image::generate_each(subsampler get_color, size_t number_of_samples, std::o
             for (size_t s = 0; s < number_of_samples; s++) {
                 // create a random 2d unit vector from this point.
                 // except the first point, it should be dead center
-                element_type dx = s > 0 ? delta() : 0.0;
-                element_type dy = s > 0 ? delta() : 0.0;
-                element_type _x = element_type(x) + dx;
-                element_type _y = element_type(y) + dy;
-                image::point p{_x + 0.5, _y + 0.5};
+                precision dx = s > 0 ? delta() : 0.0;
+                precision dy = s > 0 ? delta() : 0.0;
+                precision _x = precision(x) + dx;
+                precision _y = precision(y) + dy;
+                image::point p{precision(_x + 0.5), precision(_y + 0.5)};
                 samples[s] = get_color(p);
             }
             // now average all the samples together.

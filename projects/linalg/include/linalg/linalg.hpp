@@ -5,13 +5,9 @@
  * @copyright Copyright 2019 (C) Erik Rainey.
  */
 #include <basal/exception.hpp>
-#include <limits>
+#include <basal/ieee754.hpp>
 
-/** The Linear Algebra Library Namespace */
-namespace linalg {
-// Enforce the IEEE-754 compliance
-static_assert(std::numeric_limits<double>::is_iec559, "Platform must be IEEE-754 formatted.");
-}  // namespace linalg
+#include <limits>
 
 #include <linalg/matrix.hpp>
 #include <linalg/solvers.hpp>

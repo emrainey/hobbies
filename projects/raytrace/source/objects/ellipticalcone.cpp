@@ -1,10 +1,13 @@
 #include <raytrace/objects/ellipticalcone.hpp>
 
+#include "basal/ieee754.hpp"
+using namespace basal::literals;
+
 namespace raytrace {
 namespace objects {
-ellipticalcone::ellipticalcone(const point &center, element_type a, element_type b) : quadratic{center} {
+ellipticalcone::ellipticalcone(const point &center, precision a, precision b) : quadratic{center} {
     m_coefficients = linalg::matrix{
-        {{1.0 / (a * a), 0.0, 0.0, 0.0}, {0.0, 1.0 / (b * b), 0.0, 0.0}, {0.0, 0.0, -1.0, 0.0}, {0.0, 0.0, 0.0, -1.0}}};
+        {{1.0_p / (a * a), 0.0_p, 0.0_p, 0.0_p}, {0.0_p, 1.0_p / (b * b), 0.0_p, 0.0_p}, {0.0_p, 0.0_p, -1.0_p, 0.0_p}, {0.0_p, 0.0_p, 0.0_p, -1.0_p}}};
 }
 
 }  // namespace objects

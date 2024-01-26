@@ -10,6 +10,7 @@ set(CMAKE_CXX_STANDARD 17)
 enable_testing()
 
 option(BUILD_SHARED_LIBS "Builds libraries as dynamic objects" OFF)
+option(USE_PRECISION_AS_FLOAT "Use float (ON) as the precision or double (OFF)" OFF)
 
 add_library(hobbies-linalg
     ${CMAKE_CURRENT_SOURCE_DIR}/source/matrix.cpp
@@ -38,6 +39,7 @@ set_target_properties(hobbies-linalg PROPERTIES
     SOVERSION ${PROJECT_VERSION_MAJOR}
     POSITION_INDEPENDENT_CODE ON
 )
+target_compile_definitions(hobbies-linalg PUBLIC $<$<BOOL:${USE_PRECISION_AS_FLOAT}>:USE_PRECISION_AS_FLOAT>)
 
 #####################
 # EXPORTS

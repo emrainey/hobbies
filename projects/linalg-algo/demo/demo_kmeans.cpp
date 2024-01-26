@@ -11,10 +11,10 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
     // std::default_random_engine re;
     std::random_device rd{};
     std::mt19937 gen(rd());
-    std::uniform_real_distribution<double> unif(-120, 120);
-    std::vector<std::normal_distribution<double>> distribs(8);
+    std::uniform_real_distribution<precision> unif(-120, 120);
+    std::vector<std::normal_distribution<precision>> distribs(8);
     for (auto &dist : distribs) {
-        dist = std::normal_distribution<double>(unif(gen), rand() % 200);
+        dist = std::normal_distribution<precision>(unif(gen), rand() % 200);
     }
     // create a bunch of random points
     std::vector<point_<2>> points(6000);
@@ -31,7 +31,7 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
         cv::Scalar(0, 0, 255, 0),   // Blue
         cv::Scalar(255, 0, 255, 0)  // Magenta
     }};
-    double error = std::numeric_limits<double>::max();
+    precision error = std::numeric_limits<precision>::max();
     size_t iteration = 0;
     km.initial(kmeans::InitialMethod::RandomPoints);
     do {

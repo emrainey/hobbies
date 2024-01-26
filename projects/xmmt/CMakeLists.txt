@@ -51,7 +51,13 @@ if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
     find_package(Threads)
     find_package(GTest)
     if (Threads_FOUND AND GTest_FOUND)
-        add_executable(gtest_xmmt ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_xmmt.cpp)
+        add_executable(gtest_xmmt
+            ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_xmmt.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_xmat.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_pixel.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_point.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_vector.cpp
+        )
         target_include_directories(gtest_xmmt SYSTEM PUBLIC ${GTEST_INCLUDE_DIRS})
         target_link_libraries(gtest_xmmt PRIVATE ${GTEST_BOTH_LIBRARIES} hobbies-xmmt Threads::Threads)
         add_test(NAME gtest_xmmt COMMAND gtest_xmmt)

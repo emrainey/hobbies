@@ -15,12 +15,13 @@ size_t height = 480;
 iso::degrees fov(55);
 
 using namespace raytrace;
+using namespace basal::literals;
 
 size_t ambient_color_index = 0;
-double ambient_scale = 0.1;
+precision ambient_scale = 0.1_p;
 size_t diffuse_color_index = 0;
-double smoothiness = mediums::smoothness::polished;
-double tightness = mediums::roughness::tight;
+precision smoothiness = mediums::smoothness::polished;
+precision tightness = mediums::roughness::tight;
 color color_choices[] = {colors::white, colors::red,     colors::green,  colors::blue,
                          colors::cyan,  colors::magenta, colors::yellow, colors::black};
 constexpr size_t number_of_colors = dimof(color_choices);
@@ -49,20 +50,20 @@ int main(int argc, char* argv[]) {
                                                  1u, &diffuse_color_index);
     linalg::Trackbar<size_t> trackbar_amb_color("Ambient Color", windowName, 0u, ambient_color_index, number_of_colors,
                                                 1u, &ambient_color_index);
-    linalg::Trackbar trackbar_amb_scale("Ambient Scale", windowName, 0.0, ambient_scale, 1.0, 0.1, &ambient_scale);
-    linalg::Trackbar trackbar_smoothness("Smoothness", windowName, 0.0, smoothiness, 1.0, 0.1, &smoothiness);
-    linalg::Trackbar trackbar_tightness("Tightness", windowName, 0.0, tightness, 100.0, 5.0, &tightness);
+    linalg::Trackbar trackbar_amb_scale("Ambient Scale", windowName, 0.0_p, ambient_scale, 1.0_p, 0.1_p, &ambient_scale);
+    linalg::Trackbar trackbar_smoothness("Smoothness", windowName, 0.0_p, smoothiness, 1.0_p, 0.1_p, &smoothiness);
+    linalg::Trackbar trackbar_tightness("Tightness", windowName, 0.0_p, tightness, 100.0_p, 5.0_p, &tightness);
 
-    double move_unit = 5.0;
+    precision move_unit = 5.0_p;
     raytrace::point look_from(0, 0, 60);
-    vector looking{{0.8, 0.8, -1}};
+    vector looking{{0.8_p, 0.8_p, -1}};
     // looking.normalize();
     raytrace::point look_at = look_from + looking;
 
     vector up = R3::basis::Z;
     vector down = -R3::basis::Z;
 
-    raytrace::objects::plane ground(R3::origin, up, 1.0);
+    raytrace::objects::plane ground(R3::origin, up, 1.0_p);
     mediums::plain plain_green(colors::green, mediums::ambient::dim, colors::green, mediums::smoothness::barely,
                                mediums::roughness::loose);
     ground.material(&plain_green);

@@ -15,6 +15,12 @@
 
 #include "world.hpp"
 
+#if defined(USE_PRECISION_AS_FLOAT)
+#warning "Using precision as float"
+#else
+#warning "Using precision as double"
+#endif
+
 using namespace std::placeholders;
 constexpr static bool live_preview{true};
 
@@ -22,7 +28,7 @@ struct Parameters {
     size_t dim_index;
     size_t subsamples;
     size_t reflections;
-    double fov;
+    precision fov;
     std::string module;
     size_t mask_threshold;
 };
@@ -43,7 +49,7 @@ int main(int argc, char *argv[]) {
     bool verbose = false;
     bool should_quit = false;
     bool should_render = false;
-    double move_unit = 5.0;
+    precision move_unit = 5.0;
     std::string module_name;
     bool should_show_help = true;
 
@@ -51,7 +57,7 @@ int main(int argc, char *argv[]) {
         {"-d", "--dims", (size_t)1, "WxH Pairs"},
         {"-b", "--subsamples", (size_t)1, "Nubmer of subsamples"},
         {"-r", "--reflections", (size_t)4, "Reflection Depth"},
-        {"-f", "--fov", 55.0, "Field of View in Degrees"},
+        {"-f", "--fov", 55.0_p, "Field of View in Degrees"},
         {"-v", "--verbose", false, "Enables showing the early debugging"},
         {"-m", "--module", std::string(""), "Module to load"},
         {"-a", "--aaa", (size_t)raytrace::image::AAA_MASK_DISABLED,
@@ -82,9 +88,9 @@ int main(int argc, char *argv[]) {
     raytrace::point cart = geometry::R3::origin + look.normalized();
     raytrace::point sphl = geometry::cartesian_to_spherical(cart);
 
-    double radius = look.magnitude();
-    double theta = sphl.y;
-    double phi = sphl.z;
+    precision radius = look.magnitude();
+    precision theta = sphl.y;
+    precision phi = sphl.z;
 
     std::cout << "ρ=" << radius << ", Θ=" << theta << ", Φ=" << phi << std::endl;
 
@@ -100,9 +106,9 @@ int main(int argc, char *argv[]) {
 
     do {
         if (should_render) {
-            double x = radius * std::sin(phi) * std::cos(theta);
-            double y = radius * std::sin(phi) * std::sin(theta);
-            double z = radius * std::cos(phi);
+            precision x = radius * std::sin(phi) * std::cos(theta);
+            precision y = radius * std::sin(phi) * std::sin(theta);
+            precision z = radius * std::cos(phi);
 
             raytrace::vector ring_rail{x, y, z};
             raytrace::point from = world.looking_at() + ring_rail;

@@ -25,7 +25,7 @@ public:
         return colors::black;
     }
 
-    color specular(const raytrace::point& volumetric_point, element_type scaling,
+    color specular(const raytrace::point& volumetric_point, precision scaling,
                    const color& light_color) const override {
         return colors::black;
     }
@@ -33,7 +33,7 @@ public:
     color emissive(const raytrace::point& volumetric_point) const override {
         raytrace::vector obj_vec = volumetric_point - R3::origin;
         iso::radians obj_angle = angle(R3::basis::Z, obj_vec);
-        element_type scalar = obj_angle.value / (iso::pi / 2.0);
+        precision scalar = obj_angle.value / (iso::pi / 2.0);
         if (scalar < 1.0) {
             return interpolate(colors::orange_red, colors::yellow, scalar);
         } else {
@@ -46,9 +46,9 @@ public:
         }
     }
 
-    void radiosity(const raytrace::point& volumetric_point, element_type refractive_index,
-                   const iso::radians& incident_angle, const iso::radians& transmitted_angle, element_type& emitted,
-                   element_type& reflected, element_type& transmitted) const override {
+    void radiosity(const raytrace::point& volumetric_point, precision refractive_index,
+                   const iso::radians& incident_angle, const iso::radians& transmitted_angle, precision& emitted,
+                   precision& reflected, precision& transmitted) const override {
         emitted = 1.0;
         reflected = 1.0 - m_transmissivity;
         transmitted = m_transmissivity;
@@ -93,7 +93,7 @@ public:
     raytrace::color background(const raytrace::ray& world_ray) const override {
         // this creates a gradient from top to bottom
         iso::radians sky_angle = angle(R3::basis::Z, world_ray.direction());
-        element_type scalar = sky_angle.value / (2 * iso::pi);
+        precision scalar = sky_angle.value / (2 * iso::pi);
         return interpolate(colors::dark_slate_blue, colors::black, scalar);
         // return colors::black;
     }

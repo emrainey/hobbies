@@ -105,7 +105,7 @@ public:
     fourcc::image<uint8_t, fourcc::pixel_format::Y8> mask;  ///< The mask of the capture image
 protected:
     linalg::matrix m_intrinsics;   ///< Camera Intrinsics
-    element_type m_pixel_scale;    ///< The scaling factor for sizing pixels in the image plane
+    precision m_pixel_scale;    ///< The scaling factor for sizing pixels in the image plane
     iso::degrees m_field_of_view;  ///< The horizontal field of view of the camera.
 
     point m_world_look_at;  ///< The location in the world where the principal point will be located

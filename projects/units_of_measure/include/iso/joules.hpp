@@ -3,7 +3,7 @@
  * This is an auto-generated header for iso::joules.
  * A measure of energy
  * @note See README on re-generation.
- * @copyright Copyright 2022.
+ * @copyright Copyright 2024.
  */
 #pragma once
 #include <cstdint>
@@ -29,12 +29,12 @@ struct suffix_type_J {
  * overload >,<,==,!=,<=,>=
  * not overloaded %=,%
  */
-class joules : public measurement<double, SI::prefix, suffix_type_J> {
+class joules : public measurement<precision, SI::prefix, suffix_type_J> {
 public:
     /** Default constructor */
     joules();
     /** Parameter constructor */
-    explicit joules(double value);
+    explicit joules(precision value);
     /** Copy Constructor */
     joules(const joules& other);
     /** Move Constructor */
@@ -56,9 +56,9 @@ public:
     /** Deccumulation Operator */
     joules& operator-=(const joules& other);
     /** Scaling Operator */
-    joules& operator*=(double factor);
+    joules& operator*=(precision factor);
     /** Inverse Scaling Operator */
-    joules& operator/=(double factor);
+    joules& operator/=(precision factor);
     /** Negating Operator */
     joules operator-() const;
     /** Less Than Operator */
@@ -77,11 +77,11 @@ namespace operators {
     /** Subtraction operator */
     joules operator-(const joules& A, const joules& B);
     /** Left Scaling Operator */
-    joules operator*(const joules& A, double factor);
+    joules operator*(const joules& A, precision factor);
     /** Right Scaling Operator */
-    joules operator*(double factor, const joules& A);
+    joules operator*(precision factor, const joules& A);
     /** Inverse Scaling Operator */
-    joules operator/(const joules& A, double factor);
+    joules operator/(const joules& A, precision factor);
 }
 
 namespace literals {

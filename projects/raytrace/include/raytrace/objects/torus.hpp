@@ -10,7 +10,7 @@ public:
     /**
      * Constructs a torus which is up and down in Z
      */
-    torus(const point& C, element_type ring_radius, element_type tube_radius);
+    torus(const point& C, precision ring_radius, precision tube_radius);
     virtual ~torus() = default;
 
     /** @copydoc raytrace::object::normal */
@@ -24,11 +24,11 @@ public:
     /** @copydoc basal::printable::print */
     void print(const char str[]) const override;
     bool is_surface_point(const point& world_point) const override;
-    element_type get_object_extant(void) const override;
+    precision get_object_extant(void) const override;
 
 private:
-    element_type m_ring_radius;
-    element_type m_tube_radius;
+    precision m_ring_radius;
+    precision m_tube_radius;
 };
 }  // namespace objects
 }  // namespace raytrace

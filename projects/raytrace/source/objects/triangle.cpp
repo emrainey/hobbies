@@ -15,15 +15,15 @@ triangle::triangle(const R3::point& A, const R3::point& B, const R3::point& C)
     m_points[0] = A;
     m_points[1] = B;
     m_points[2] = C;
-    element_type a = (position() - A).magnitude();
-    element_type b = (position() - B).magnitude();
-    element_type c = (position() - C).magnitude();
+    precision a = (position() - A).magnitude();
+    precision b = (position() - B).magnitude();
+    precision c = (position() - C).magnitude();
     m_radius2 = std::max(a, std::max(b, c));
     m_radius2 *= m_radius2;
 }
 
 bool triangle::is_contained(const point& D) const {
-    element_type r2 = (position() - D).quadrance();
+    precision r2 = (position() - D).quadrance();
     // do we need to do a more in depth test?
     if (r2 < m_radius2) {
         constexpr static bool use_triple = true;
@@ -35,9 +35,9 @@ bool triangle::is_contained(const point& D) const {
         vector DA = D - m_points[0];
         vector DB = D - m_points[1];
         vector DC = D - m_points[2];
-        element_type NdDAxAB;
-        element_type NdDBxBC;
-        element_type NdDCxCA;
+        precision NdDAxAB;
+        precision NdDBxBC;
+        precision NdDCxCA;
         if constexpr (not use_triple) {
             vector DAxAB = R3::cross(DA, AB);
             vector DBxBC = R3::cross(DB, BC);
@@ -62,7 +62,7 @@ intersection triangle::intersect(const ray& world_ray) const {
     if (get_type(inter) == IntersectionType::Point) {
         point D = as_point(inter);
         if (is_contained(D)) {
-            element_type projected_length = dot(geometry::plane::normal, world_ray.direction());
+            precision projected_length = dot(geometry::plane::normal, world_ray.direction());
             if (projected_length < 0) {
                 // pointing at each other, it's a hit
                 statistics::get().intersections_with_objects++;
@@ -90,9 +90,9 @@ const std::array<point, 3>& triangle::points() const {
     return m_points;
 }
 
-element_type triangle::get_object_extant(void) const {
+precision triangle::get_object_extant(void) const {
     // find the point farthest from origin
-    element_type d[] = {
+    precision d[] = {
         (m_points[0] - R3::origin).magnitude(),
         (m_points[1] - R3::origin).magnitude(),
         (m_points[2] - R3::origin).magnitude(),

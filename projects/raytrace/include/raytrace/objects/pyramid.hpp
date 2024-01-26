@@ -13,7 +13,7 @@ public:
     /**
      * Constructs a pyramid at a point of a given height. The slope is fixed
      */
-    pyramid(const point& base, double height);
+    pyramid(const point& base, precision height);
     virtual ~pyramid() = default;
 
     /** @copydoc raytrace::object::normal */
@@ -25,10 +25,10 @@ public:
     /** @copydoc basal::printable::print */
     void print(const char str[]) const override;
     bool is_surface_point(const point& world_point) const override;
-    element_type get_object_extant(void) const override;
+    precision get_object_extant(void) const override;
 
 protected:
-    double m_height;  //!< The height of the pyramid above 0 in Z.
+    precision m_height;  //!< The height of the pyramid above 0 in Z.
 };
 }  // namespace objects
 }  // namespace raytrace

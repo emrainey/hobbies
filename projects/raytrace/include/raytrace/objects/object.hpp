@@ -102,7 +102,7 @@ public:
      * @param nu1 Material Refractivity Index
      * @param nu2 Material Refractivity Index
      */
-    vector refraction(const vector& I, const point& P, element_type nu1, element_type nu2) const {
+    vector refraction(const vector& I, const point& P, precision nu1, precision nu2) const {
         vector N = normal(P);  // MAYBE (Optim) should we already have calculated the normal at this point already?
         vector nI = I.normalized();  // MAYBE (Optim) shouldn't this already be normalized?
         // if the Incident and the Normal have a positive dot then they are not arranged properly
@@ -119,7 +119,7 @@ public:
      * @param nu1 Material Refractivity Index
      * @param nu2 Material Refractivity Index
      */
-    ray refraction(const ray& I, const point& P, element_type nu1, element_type nu2) const {
+    ray refraction(const ray& I, const point& P, precision nu1, precision nu2) const {
         return ray(P, refraction(I.direction(), P, nu1, nu2));
     }
 
@@ -145,7 +145,7 @@ public:
      */
     virtual intersection intersect(const ray& world_ray) const {
         /// @note While we could be pedantic about having a unit normal, it doesn't really stop us from working.
-        // basal::exception::throw_unless(basal::equals(world_ray.direction().quadrance(), 1.0), __FILE__, __LINE__,
+        // basal::exception::throw_unless(basal::equals(world_ray.direction().quadrance(), 1.0_p), __FILE__, __LINE__,
         // "The ray must have a unit vector");
 
         ray object_ray = entity_<DIMS>::reverse_transform(world_ray);
@@ -154,19 +154,19 @@ public:
         // ts could contain NaN and +Inf/-Inf
         if (ts.size() > 0) {
             // determine the closest hit and transform the point
-            element_type closest = std::numeric_limits<element_type>::infinity();
+            precision closest = std::numeric_limits<precision>::infinity();
             for (auto t : ts) {
-                if (std::isnan(t)) {
+                if (basal::is_nan(t)) {
                     continue;
                 }
                 if constexpr (can_ray_origin_be_collision) {
                     if (basal::equals_zero(t)) {
                         const vector N = normal(world_ray.location());
                         const vector& I = world_ray.direction();
-                        element_type d = dot(N, I);
+                        precision d = dot(N, I);
                         if (d < 0) {  // the ray points "into" the material so it's a collision
                             // however if the material is transparent, that's ok and it should not count as a collision
-                            if (m_medium and m_medium->refractive_index(world_ray.location()) > 0.0) {
+                            if (m_medium and m_medium->refractive_index(world_ray.location()) > 0.0_p) {
                                 continue;
                             }
                             closest = t;
@@ -228,7 +228,7 @@ public:
 
     /// Returns the maximum radial distance from the object origin on the surface of the object.
     /// @warning Objects which are not closed or have infinite dimensionality will return std::nan.
-    virtual element_type get_object_extant(void) const = 0;
+    virtual precision get_object_extant(void) const = 0;
 
 protected:
     /** The maximum number of collisions with the surface of this object */

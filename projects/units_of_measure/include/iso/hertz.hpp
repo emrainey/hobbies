@@ -3,7 +3,7 @@
  * This is an auto-generated header for iso::hertz.
  * A measure of frequency
  * @note See README on re-generation.
- * @copyright Copyright 2022.
+ * @copyright Copyright 2024.
  */
 #pragma once
 #include <cstdint>
@@ -29,12 +29,12 @@ struct suffix_type_Hz {
  * overload >,<,==,!=,<=,>=
  * not overloaded %=,%
  */
-class hertz : public measurement<double, SI::prefix, suffix_type_Hz> {
+class hertz : public measurement<precision, SI::prefix, suffix_type_Hz> {
 public:
     /** Default constructor */
     hertz();
     /** Parameter constructor */
-    explicit hertz(double value);
+    explicit hertz(precision value);
     /** Copy Constructor */
     hertz(const hertz& other);
     /** Move Constructor */
@@ -56,9 +56,9 @@ public:
     /** Deccumulation Operator */
     hertz& operator-=(const hertz& other);
     /** Scaling Operator */
-    hertz& operator*=(double factor);
+    hertz& operator*=(precision factor);
     /** Inverse Scaling Operator */
-    hertz& operator/=(double factor);
+    hertz& operator/=(precision factor);
     /** Negating Operator */
     hertz operator-() const;
     /** Less Than Operator */
@@ -77,11 +77,11 @@ namespace operators {
     /** Subtraction operator */
     hertz operator-(const hertz& A, const hertz& B);
     /** Left Scaling Operator */
-    hertz operator*(const hertz& A, double factor);
+    hertz operator*(const hertz& A, precision factor);
     /** Right Scaling Operator */
-    hertz operator*(double factor, const hertz& A);
+    hertz operator*(precision factor, const hertz& A);
     /** Inverse Scaling Operator */
-    hertz operator/(const hertz& A, double factor);
+    hertz operator/(const hertz& A, precision factor);
 }
 
 namespace literals {

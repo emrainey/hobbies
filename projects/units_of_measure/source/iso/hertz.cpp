@@ -3,7 +3,7 @@
  * This is an auto-generated source for iso::hertz.
  * A measure of frequency
  * @note See README on re-generation.
- * @copyright Copyright 2022.
+ * @copyright Copyright 2024.
  */
 #include "iso/hertz.hpp"
 
@@ -13,7 +13,7 @@ const char* const suffix_type_Hz::suffix;
 hertz::hertz() : measurement{} {
 }
 // explicit value
-hertz::hertz(double a) : measurement{a} {
+hertz::hertz(precision a) : measurement{a} {
 }
 // copy constructor
 hertz::hertz(const hertz& other) : measurement{other} {
@@ -48,11 +48,11 @@ hertz& hertz::operator-=(const hertz& other) {
     _value -= other.value;
     return (*this);
 }
-hertz& hertz::operator*=(double factor) {
+hertz& hertz::operator*=(precision factor) {
     _value *= factor;
     return (*this);
 }
-hertz& hertz::operator/=(double factor) {
+hertz& hertz::operator/=(precision factor) {
     _value /= factor;
     return (*this);
 }
@@ -78,19 +78,19 @@ hertz operator+(const hertz& A, const hertz& B) {
 hertz operator-(const hertz& A, const hertz& B) {
     return hertz{A.value - B.value};
 }
-hertz operator*(const hertz& A, double factor) {
+hertz operator*(const hertz& A, precision factor) {
     return hertz{A.value * factor};
 }
-hertz operator*(double factor, const hertz& A) {
+hertz operator*(precision factor, const hertz& A) {
     return hertz{A.value * factor};
 }
-hertz operator/(const hertz& A, double factor) {
+hertz operator/(const hertz& A, precision factor) {
     return hertz{A.value / factor};
 }
 }  // namespace operators
 namespace literals {
 iso::hertz operator""_Hz(long double a) {
-    return iso::hertz(a);
+    return iso::hertz(static_cast<precision>(a));
 }
 iso::hertz operator""_Hz(unsigned long long a) {
     return iso::hertz(a);

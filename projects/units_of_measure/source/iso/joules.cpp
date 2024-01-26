@@ -3,7 +3,7 @@
  * This is an auto-generated source for iso::joules.
  * A measure of energy
  * @note See README on re-generation.
- * @copyright Copyright 2022.
+ * @copyright Copyright 2024.
  */
 #include "iso/joules.hpp"
 
@@ -13,7 +13,7 @@ const char* const suffix_type_J::suffix;
 joules::joules() : measurement{} {
 }
 // explicit value
-joules::joules(double a) : measurement{a} {
+joules::joules(precision a) : measurement{a} {
 }
 // copy constructor
 joules::joules(const joules& other) : measurement{other} {
@@ -48,11 +48,11 @@ joules& joules::operator-=(const joules& other) {
     _value -= other.value;
     return (*this);
 }
-joules& joules::operator*=(double factor) {
+joules& joules::operator*=(precision factor) {
     _value *= factor;
     return (*this);
 }
-joules& joules::operator/=(double factor) {
+joules& joules::operator/=(precision factor) {
     _value /= factor;
     return (*this);
 }
@@ -78,19 +78,19 @@ joules operator+(const joules& A, const joules& B) {
 joules operator-(const joules& A, const joules& B) {
     return joules{A.value - B.value};
 }
-joules operator*(const joules& A, double factor) {
+joules operator*(const joules& A, precision factor) {
     return joules{A.value * factor};
 }
-joules operator*(double factor, const joules& A) {
+joules operator*(precision factor, const joules& A) {
     return joules{A.value * factor};
 }
-joules operator/(const joules& A, double factor) {
+joules operator/(const joules& A, precision factor) {
     return joules{A.value / factor};
 }
 }  // namespace operators
 namespace literals {
 iso::joules operator""_J(long double a) {
-    return iso::joules(a);
+    return iso::joules(static_cast<precision>(a));
 }
 iso::joules operator""_J(unsigned long long a) {
     return iso::joules(a);

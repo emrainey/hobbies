@@ -58,7 +58,7 @@ public:
      * @param alpha The direct learning coefficient
      * @param gamma The "momentum" learning coefficient
      */
-    virtual void backward(layer& other, double alpha, double gamma) override;
+    virtual void backward(layer& other, precision alpha, precision gamma) override;
 
     /**
      * Applies the change in weights and biases to each layer.

@@ -3,7 +3,7 @@
  * This is an auto-generated source for iso::watts.
  * A measure of electrical power
  * @note See README on re-generation.
- * @copyright Copyright 2022.
+ * @copyright Copyright 2024.
  */
 #include "iso/watts.hpp"
 
@@ -13,7 +13,7 @@ const char* const suffix_type_W::suffix;
 watts::watts() : measurement{} {
 }
 // explicit value
-watts::watts(double a) : measurement{a} {
+watts::watts(precision a) : measurement{a} {
 }
 // copy constructor
 watts::watts(const watts& other) : measurement{other} {
@@ -48,11 +48,11 @@ watts& watts::operator-=(const watts& other) {
     _value -= other.value;
     return (*this);
 }
-watts& watts::operator*=(double factor) {
+watts& watts::operator*=(precision factor) {
     _value *= factor;
     return (*this);
 }
-watts& watts::operator/=(double factor) {
+watts& watts::operator/=(precision factor) {
     _value /= factor;
     return (*this);
 }
@@ -78,19 +78,19 @@ watts operator+(const watts& A, const watts& B) {
 watts operator-(const watts& A, const watts& B) {
     return watts{A.value - B.value};
 }
-watts operator*(const watts& A, double factor) {
+watts operator*(const watts& A, precision factor) {
     return watts{A.value * factor};
 }
-watts operator*(double factor, const watts& A) {
+watts operator*(precision factor, const watts& A) {
     return watts{A.value * factor};
 }
-watts operator/(const watts& A, double factor) {
+watts operator/(const watts& A, precision factor) {
     return watts{A.value / factor};
 }
 }  // namespace operators
 namespace literals {
 iso::watts operator""_W(long double a) {
-    return iso::watts(a);
+    return iso::watts(static_cast<precision>(a));
 }
 iso::watts operator""_W(unsigned long long a) {
     return iso::watts(a);

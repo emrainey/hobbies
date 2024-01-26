@@ -9,8 +9,8 @@ using namespace linalg;
 
 /** The learning rate of the network */
 namespace local {
-constexpr double alpha = -0.25;
-constexpr double gamma = -0.9;
+constexpr precision alpha = -0.25;
+constexpr precision gamma = -0.9;
 }  // namespace local
 
 int main(int argc, char* argv[]) {
@@ -98,7 +98,7 @@ int main(int argc, char* argv[]) {
             cv::imshow(named_i1, inm);
             net.forward();
 
-            double value = 0.0;
+            precision value = 0.0;
             size_t idx = out.infer_label(value);
             if (idx == testdata.get_label(i)) {
                 hits++;

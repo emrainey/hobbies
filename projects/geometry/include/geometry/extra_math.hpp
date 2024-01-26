@@ -9,10 +9,10 @@
 
 namespace geometry {
 /** Computes the dot product of a vector and a point */
-element_type dot(const R3::vector& a, const R3::point& b);
+precision dot(const R3::vector& a, const R3::point& b);
 
 /** Computes the dot product of a vector and a point */
-inline element_type dot(const R3::point& b, const R3::vector& a) {
+inline precision dot(const R3::point& b, const R3::vector& a) {
     return dot(a, b);
 }
 
@@ -54,7 +54,7 @@ R3::point spherical_to_cartesian(const R3::point& spherical_point);
  * @param in axis The axis to rotate about
  * @param in theta The amount in radians (following the right hand rule) to rotate around the axis
  */
-linalg::matrix rotation(const geometry::vector_<element_type, 3>& axis, const iso::radians theta);
+linalg::matrix rotation(const geometry::vector_<precision, 3>& axis, const iso::radians theta);
 
 /** Joins the matricies horizontally, mxn and mxk to make a mx(n+k) matrix */
 template <typename DATA_TYPE, size_t DIMS>

@@ -9,13 +9,13 @@ namespace lights {
 class beam : public light {
 public:
     /** Constructs a beam of light given the vector of the beam, the color and the intensity */
-    beam(const raytrace::vector& v, const raytrace::color& C, element_type intensity);
+    beam(const raytrace::vector& v, const raytrace::color& C, precision intensity);
     /** Constructs a beam of light given the vector of the beam, the color and the intensity */
-    beam(raytrace::vector&& v, const raytrace::color& C, element_type intensity);
+    beam(raytrace::vector&& v, const raytrace::color& C, precision intensity);
     virtual ~beam() = default;
 
     /** @copydoc raytrace::light::intensity_at() */
-    element_type intensity_at(const point& world_point) const override;
+    precision intensity_at(const point& world_point) const override;
 
     /** @copydoc raytrace::light::incident() */
     ray incident(const point& world_point, size_t sample_index) const override;
@@ -27,7 +27,7 @@ protected:
     /** The direction which the light is coming from */
     raytrace::vector m_world_source;
     /** The emulated distance of the light source */
-    element_type m_distance;
+    precision m_distance;
 };
 
 }  // namespace lights

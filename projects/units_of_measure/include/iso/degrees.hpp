@@ -3,7 +3,7 @@
  * This is an auto-generated header for iso::degrees.
  * A measure of an angle
  * @note See README on re-generation.
- * @copyright Copyright 2022.
+ * @copyright Copyright 2024.
  */
 #pragma once
 #include <cstdint>
@@ -29,12 +29,12 @@ struct suffix_type_d {
  * overload >,<,==,!=,<=,>=
  * not overloaded %=,%
  */
-class degrees : public measurement<double, SI::prefix, suffix_type_d> {
+class degrees : public measurement<precision, SI::prefix, suffix_type_d> {
 public:
     /** Default constructor */
     degrees();
     /** Parameter constructor */
-    explicit degrees(double value);
+    explicit degrees(precision value);
     /** Copy Constructor */
     degrees(const degrees& other);
     /** Move Constructor */
@@ -56,9 +56,9 @@ public:
     /** Deccumulation Operator */
     degrees& operator-=(const degrees& other);
     /** Scaling Operator */
-    degrees& operator*=(double factor);
+    degrees& operator*=(precision factor);
     /** Inverse Scaling Operator */
-    degrees& operator/=(double factor);
+    degrees& operator/=(precision factor);
     /** Negating Operator */
     degrees operator-() const;
     /** Less Than Operator */
@@ -77,11 +77,11 @@ namespace operators {
     /** Subtraction operator */
     degrees operator-(const degrees& A, const degrees& B);
     /** Left Scaling Operator */
-    degrees operator*(const degrees& A, double factor);
+    degrees operator*(const degrees& A, precision factor);
     /** Right Scaling Operator */
-    degrees operator*(double factor, const degrees& A);
+    degrees operator*(precision factor, const degrees& A);
     /** Inverse Scaling Operator */
-    degrees operator/(const degrees& A, double factor);
+    degrees operator/(const degrees& A, precision factor);
 }
 
 namespace literals {

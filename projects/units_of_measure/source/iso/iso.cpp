@@ -4,11 +4,13 @@
 #include "iso/compound.hpp"
 namespace iso {
 
+using namespace basal::literals;
+
 template <>
-double rescale(double value, SI::prefix old_scale, SI::prefix new_scale) {
-    double diff = static_cast<typename std::underlying_type<SI::prefix>::type>(old_scale)
+precision rescale(precision value, SI::prefix old_scale, SI::prefix new_scale) {
+    precision diff = static_cast<typename std::underlying_type<SI::prefix>::type>(old_scale)
                   - static_cast<typename std::underlying_type<SI::prefix>::type>(new_scale);
-    return value * pow(10.0, diff);
+    return value * pow(10.0_p, diff);
 }
 
 template <>
@@ -27,13 +29,14 @@ uint64_t rescale(uint64_t value, IEC::prefix old_scale, IEC::prefix new_scale) {
 namespace literals {
 // Compound Quote operator
 speed operator""_m_per_sec(long double a) {
-    return speed{static_cast<double>(a), 1.0};
+    constexpr precision const C = 1.0_p;
+    return speed{distance{static_cast<precision>(a)}, time{C}};
 }
 
 /// Define shortcut for Gravity values!
 acceleration operator""_G(long double g) {
     using namespace iso::operators;
-    return (distance(g) / 1.0_sec) / 1.0_sec;
+    return (distance(static_cast<precision>(g)) / 1.0_sec) / 1.0_sec;
 }
 }  // namespace literals
 

@@ -14,7 +14,7 @@ using palette = std::vector<color>;
 namespace functions {
 
 /**
- * A color map takes an image::point (u,v) and fmods it into the range of [0.0, 1.0) to make a pattern
+ * A color map takes an image::point (u,v) and fmods it into the range of [0.0_p, 1.0_p) to make a pattern
  * and a set of colors as a palette and produces a color. Each map may take it's own number
  * of colors in the palette.
  * @param p A point in unit R2 u,v space (or repeated)
@@ -23,13 +23,13 @@ namespace functions {
 using texture_color_map = std::function<raytrace::color(const image::point& p, const palette& pal)>;
 
 /**
- * A scalar map takes an image::point (u,v) which in the range of [0.0, 1.0)
+ * A scalar map takes an image::point (u,v) which in the range of [0.0_p, 1.0_p)
  * and returns a scalar value to describe that point
  */
 using texture_scalar_map = std::function<raytrace::color(const image::point&)>;
 
 /**
- * A volumetric color map takes an raytrace::point (R3) (x,y,z) and fmods it into the range of [0.0, 1.0) to make a
+ * A volumetric color map takes an raytrace::point (R3) (x,y,z) and fmods it into the range of [0.0_p, 1.0_p) to make a
  * pattern and a set of colors as a palette and produces a color. Each map may take it's own number of colors in the
  * palette.
  * @param p A point in unit R3 space (or repeated)
@@ -38,7 +38,7 @@ using texture_scalar_map = std::function<raytrace::color(const image::point&)>;
 using volumetric_color_map = std::function<raytrace::color(const raytrace::point& p, const palette& pal)>;
 
 /**
- * A scalar map takes an image::point (u,v) which in the range of [0.0, 1.0)
+ * A scalar map takes an image::point (u,v) which in the range of [0.0_p, 1.0_p)
  * and returns a scalar value to describe that point
  */
 using volumetric_scalar_map = std::function<raytrace::color(const raytrace::point&)>;
@@ -75,8 +75,8 @@ color pseudo_random_noise(const image::point& p, const palette& pal);
 namespace tuning {
 class prn_parameters {
 public:
-    double gain;
-    double radius;
+    precision gain;
+    precision radius;
     iso::radians theta_r;
     iso::radians theta_g;
     iso::radians theta_b;

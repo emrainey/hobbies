@@ -13,13 +13,13 @@ public:
      * @param dot The color of the dot
      * @param background The background color of the dot
      */
-    dots(element_type r, color dot, color background);
+    dots(precision r, color dot, color background);
     virtual ~dots() = default;
 
     color diffuse(const raytrace::point& volumetric_point) const final;
 
 protected:
-    element_type m_repeat;
+    precision m_repeat;
     color m_dot, m_background;
 };
 

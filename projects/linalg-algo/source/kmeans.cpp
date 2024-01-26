@@ -39,20 +39,20 @@ void kmeans::initial(InitialMethod method) {
 }
 
 /** Iterates the method and reports the error */
-double kmeans::iteration(IterationMethod method) {
-    double error = 0.0;
+precision kmeans::iteration(IterationMethod method) {
+    precision error = 0.0;
 
-    auto euclidean = [](const R2::point& A, const R2::point& B) -> double { return (A - B).quadrance(); };
+    auto euclidean = [](const R2::point& A, const R2::point& B) -> precision { return (A - B).quadrance(); };
 
     for (auto& cnt : m_centroids) {
         cnt.print("Centroid:");
     }
 
     // create a vector of metrics per centroid
-    std::vector<double> metrics(m_centroids.size());
+    std::vector<precision> metrics(m_centroids.size());
     // for each point
     for (size_t p = 0; p < m_points.size(); p++) {
-        double min_metric = std::numeric_limits<double>::max();
+        precision min_metric = std::numeric_limits<precision>::max();
         size_t min_index = m_centroids.size();
         // compute distance to each centroids
         for (size_t m = 0; m < metrics.size(); m++) {
@@ -88,7 +88,7 @@ double kmeans::iteration(IterationMethod method) {
         // move the sums points by the vector
         size_t cluster = m_cluster_assignment[p];
         if (cluster < m_centroids.size()) {
-            sums[cluster] += vector_<element_type, 2>{{m_points[p].x, m_points[p].y}};
+            sums[cluster] += vector_<precision, 2>{{m_points[p].x, m_points[p].y}};
             counts[cluster]++;
         }
     }
@@ -97,7 +97,7 @@ double kmeans::iteration(IterationMethod method) {
         printf("Counts[%zu] = %zu\n", c, counts[c]);
         if (counts[c] > 0) {
             R2::point center(sums[c].x / counts[c], sums[c].y / counts[c]);
-            double err = sqrt(euclidean(m_centroids[c], center));
+            precision err = sqrt(euclidean(m_centroids[c], center));
             center.print("Computed Center:");
             printf("Center[%zu] = %lf, %lf (error = %lf)\n", c, center.x, center.y, err);
             error += err;

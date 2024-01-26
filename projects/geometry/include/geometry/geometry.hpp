@@ -6,13 +6,8 @@
  */
 
 #include <basal/exception.hpp>
+#include <basal/ieee754.hpp>
 #include <limits>
-
-/** The Geometry Namespace */
-namespace geometry {
-// Enforce the IEEE-754 compliance
-static_assert(std::numeric_limits<double>::is_iec559, "Platform must be IEEE-754 formatted.");
-}  // namespace geometry
 
 // clang-format off
 #include "geometry/types.hpp"  // <-- linalg comes in here

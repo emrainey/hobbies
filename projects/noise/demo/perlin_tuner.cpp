@@ -22,9 +22,9 @@ iso::radians angle{-11 * iso::pi / 57};
 // The perlin noise seed for the pattern
 noise::vector seed = noise::convert_to_seed(angle);
 // not sure how this effects the pattern yet
-double gain = 1.0;
+noise::precision gain = 1.0;
 // scale of the pattern
-double scale = 16.0;
+noise::precision scale = 16.0;
 // noise image
 fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8> noise_image(height, width);
 // the render image
@@ -32,8 +32,8 @@ cv::Mat render_image(height, width, CV_8UC3);
 
 void generate_noise_image(void) {
     noise_image.for_each ([&](int y, int x, fourcc::rgb8 &pixel) {
-        noise::point pnt{double(x), double(y)};
-        double n = noise::perlin(pnt, scale, seed, gain);
+        noise::point pnt{noise::precision(x), noise::precision(y)};
+        noise::precision n = noise::perlin(pnt, scale, seed, gain);
         pixel.r = n * 255;
         pixel.g = n * 255;
         pixel.b = n * 255;
@@ -58,9 +58,9 @@ void on_seed_angle_update(int value, void *cookie __attribute__((unused))) {
         angle_pos = value;
         // value from 0 - 1024
         // convert to 0 - 2.0
-        double u = (double)value / 512.0;
+        noise::precision u = (noise::precision)value / 512.0;
         // converts to 0 - 2pi
-        double v = u * iso::pi;
+        noise::precision v = u * iso::pi;
         // then to -pi to +pi
         angle = iso::radians(v - iso::pi);
         seed = noise::convert_to_seed(angle);
@@ -68,7 +68,7 @@ void on_seed_angle_update(int value, void *cookie __attribute__((unused))) {
 }
 
 void on_scale_update(int value, void *cookie __attribute__((unused))) {
-    scale = double(value + 1);
+    scale = noise::precision(value + 1);
 }
 
 int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused))) {

@@ -8,7 +8,7 @@ using namespace linalg::operators;
 point::point(const size_t d) : m_data{nullptr}, dimensions{d} {
     basal::exception::throw_if(dimensions > 4, __FILE__, __LINE__, "Small dimensionality for now");
     basal::exception::throw_if(dimensions == 0, __FILE__, __LINE__, "Must be larger than zero");
-    m_data = std::make_unique<element_type[]>(dimensions);
+    m_data = std::make_unique<precision[]>(dimensions);
     if (m_data) {
         for (size_t i = 0; i < dimensions; i++) {
             m_data[i] = 0.0;
@@ -17,7 +17,7 @@ point::point(const size_t d) : m_data{nullptr}, dimensions{d} {
 }
 
 /// Constructor from a pointer to an array
-point::point(const element_type a[], size_t len) noexcept(false) : point{len} {
+point::point(const precision a[], size_t len) noexcept(false) : point{len} {
     if (m_data) {
         for (size_t i = 0; i < dimensions; i++) {
             m_data[i] = a[i];
@@ -26,7 +26,7 @@ point::point(const element_type a[], size_t len) noexcept(false) : point{len} {
 }
 
 /// Constructor from an initialization list {{}};
-point::point(const std::vector<element_type>& list) noexcept(false) : point(list.size()) {
+point::point(const std::vector<precision>& list) noexcept(false) : point(list.size()) {
     if (m_data) {
         for (size_t i = 0; i < list.size(); i++) {
             m_data[i] = list[i];
@@ -66,11 +66,11 @@ point& point::operator=(point&& other) noexcept(false) {
 }
 
 /// Indexer
-element_type& point::operator[](int i) {
+precision& point::operator[](int i) {
     return m_data[static_cast<size_t>(i)];
 }
 
-element_type point::operator[](int i) const {
+precision point::operator[](int i) const {
     return m_data[static_cast<size_t>(i)];
 }
 
@@ -93,7 +93,7 @@ std::ostream& operator<<(std::ostream& os, const point& p) {
     return os;
 }
 
-point& point::operator*=(element_type s) noexcept(false) {
+point& point::operator*=(precision s) noexcept(false) {
     for (size_t i = 0; i < dimensions; i++) {
         m_data[i] *= s;
     }
@@ -145,13 +145,13 @@ bool operator==(point& a, point& b) noexcept(false) {
 
 }  // namespace operators
 
-point multiply(const point& a, element_type s) noexcept(false) {
+point multiply(const point& a, precision s) noexcept(false) {
     point c{a};
     c *= s;
     return point(c);
 }
 
-point multiply(element_type s, const point& a) noexcept(false) {
+point multiply(precision s, const point& a) noexcept(false) {
     point c{a};
     c *= s;
     return point(c);

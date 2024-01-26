@@ -34,6 +34,9 @@ VERBOSE=OFF
 RUN_TESTS=0
 USE_CONAN=1
 USE_SHARED_LIBS=OFF
+USE_PRECISION_AS_FLOAT=OFF
+USE_SIMD=ON
+ONLY_PKG=
 while [[ $# -gt 0 ]]; do
     case $1 in
         -rm)
@@ -54,11 +57,17 @@ while [[ $# -gt 0 ]]; do
         -dy)
             USE_SHARED_LIBS=ON
         ;;
+        -uf)
+            USE_PRECISION_AS_FLOAT=ON
+        ;;
         -del)
             for pkg ver in ${(kv)PKGS}; do
                 conan remove --force ${pkg}/${ver}
             done
             exit 0
+        ;;
+        -no-simd)
+            USE_SIMD=OFF
         ;;
         -rmv)
             for pkg ver in ${(kv)PKGS}; do
@@ -71,6 +80,10 @@ while [[ $# -gt 0 ]]; do
                 conan editable add --layout layout.ini projects/${pkg} ${pkg}/${ver}
             done
             exit 0
+        ;;
+        -p)
+            ONLY_PKG=$2
+            shift
         ;;
         *)
         ;;
@@ -87,10 +100,13 @@ export CONAN_TRACE_FILE=${INSTALL_ROOT}/conan_trace.log
 
 # Cycle over each package and build it
 for pkg in ${ORDER[@]}; do
+    if [[ ! -z ${ONLY_PKG} ]] && [[ ! ${pkg} == ${ONLY_PKG} ]]; then
+        continue
+    fi
     ver=${PKGS[${pkg}]}
     echo "Package=${pkg} Version=${ver}"
     project_path=${PROJECT_ROOT}/$pkg
-    build_path=${BUILD_ROOT}/$pkg
+    build_path=${project_path}/build
     install_path=${INSTALL_ROOT}
     package_path=${PACKAGE_ROOT}/$pkg
 
@@ -108,7 +124,9 @@ for pkg in ${ORDER[@]}; do
             -DCMAKE_PREFIX_PATH:PATH=${INSTALL_ROOT} \
             -DCMAKE_VERBOSE_MAKEFILE:BOOL=${VERBOSE} \
             -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE \
-            -DCMAKE_BUILD_TYPE:STRING=Release
+            -DCMAKE_BUILD_TYPE:STRING=Release \
+            -DUSE_PRECISION_AS_FLOAT=${USE_PRECISION_AS_FLOAT} \
+            -DUSE_SIMD=${USE_SIMD}
         cmake --build ${build_path} -j${JOBS} --target all
         if [[ ${RUN_TESTS} -eq 1 ]]; then
             cmake --build ${build_path} --target test

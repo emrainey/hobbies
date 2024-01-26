@@ -28,10 +28,10 @@ geometry::R2::point spherical(const geometry::R3::vector& q);
  * @param scale The Z height scale size
  * @note Use std::bind(scale, _1) to fix a certain scale height when creating a mapper
  */
-geometry::R2::point cylindrical(element_type scale, const geometry::R3::point& p);
+geometry::R2::point cylindrical(precision scale, const geometry::R3::point& p);
 
 // FIXME create a toriodal mapping from a single larger radius value
-geometry::R2::point toroidal(element_type r1, const geometry::R3::point& p);
+geometry::R2::point toroidal(precision r1, const geometry::R3::point& p);
 
 // FIXME create a planar polar mapping given a Normal ray and the "X" unit point
 geometry::R2::point planar_polar(const raytrace::ray& N, const raytrace::point& X, const geometry::R3::point& p);

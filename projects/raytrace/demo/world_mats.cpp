@@ -13,7 +13,7 @@
 using namespace raytrace;
 
 constexpr static size_t number_of_spheres_per_side = 11; // 7; // this has to be odd
-constexpr static double radius = 3.0; // 4.5;
+constexpr static precision radius = 3.0_p; // 4.5_p;
 static_assert(number_of_spheres_per_side % 2 == 1, "number_of_spheres_per_side must be odd");
 
 class MaterialWorld : public world {
@@ -23,7 +23,7 @@ public:
         , look_from{0, -20, 80}
         , look_at{0, 0, 0}
         , number_of_spheres{number_of_spheres_per_side*number_of_spheres_per_side}
-        , brightness{0.1}
+        , brightness{0.1_p}
         , spheres{}
         , mats{}
         , sunlight{raytrace::vector{0, -1, -1}, colors::white, brightness}
@@ -31,23 +31,23 @@ public:
         size_t half_count = number_of_spheres_per_side / 2;
         for (size_t j = 0; j < number_of_spheres_per_side; j++) {
             for (size_t i = 0; i < number_of_spheres_per_side; i++) {
-                raytrace::point start{0.0, 0.0, radius};
+                raytrace::point start{0.0_p, 0.0_p, radius};
                 // create the sphere where we are looking
                 spheres.push_back(new raytrace::objects::sphere{start, radius});
                 // index into each sphere uniquely
                 size_t s = j * number_of_spheres_per_side + i;
                 // generate the move vector
-                double x = ((double)i - (double)half_count) * 2 * radius;
-                double y = ((double)j - (double)half_count) * 2 * radius;
-                raytrace::vector mover{x, y, 0.0};
+                precision x = ((precision)i - (precision)half_count) * 2 * radius;
+                precision y = ((precision)j - (precision)half_count) * 2 * radius;
+                raytrace::vector mover{x, y, 0.0_p};
                 // move the sphere to the correct location
                 spheres[s]->move_by(mover);
                 // pick the color based on the position
                 raytrace::color c = j % 2 == 0 ? colors::red : colors::green;
                 // create a plain material for each sphere
-                double smooth = 1.0 * (double)i / (double)number_of_spheres_per_side;
-                double rough = 1.0 * (double)j / (double)number_of_spheres_per_side;
-                auto * mat = new mediums::plain{ c, 0.0, c, smooth, rough};
+                precision smooth = 1.0_p * (precision)i / (precision)number_of_spheres_per_side;
+                precision rough = 1.0_p * (precision)j / (precision)number_of_spheres_per_side;
+                auto * mat = new mediums::plain{ c, 0.0_p, c, smooth, rough};
                 // assign the material
                 mats.push_back(mat);
                 spheres[s]->material(mats[s]);
@@ -89,8 +89,8 @@ public:
 
     raytrace::color background(const raytrace::ray& world_ray) const override {
         iso::radians A = angle(R3::basis::Z, world_ray.direction());
-        element_type B = A.value / iso::pi;
-        return color(0.3 * B, 0.3 * B, 0.3 * B);
+        precision B = A.value / iso::pi;
+        return color(0.3_p * B, 0.3_p * B, 0.3_p * B);
     }
 
     void add_to(scene& scene) override {
@@ -108,7 +108,7 @@ protected:
     raytrace::point look_from;
     raytrace::point look_at;
     size_t number_of_spheres;
-    element_type brightness;
+    precision brightness;
     std::vector<raytrace::objects::sphere*> spheres;
     std::vector<raytrace::mediums::plain*> mats;
     lights::beam sunlight;

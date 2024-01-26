@@ -17,25 +17,25 @@ namespace geometry {
  */
 typedef struct coefficients_t {
     /** First coefficient */
-    element_type a;
+    precision a;
     /** Second coefficient */
-    element_type b;
+    precision b;
     /** Third coefficient */
-    element_type c;
+    precision c;
     /** Fourth coefficient */
-    element_type d;
+    precision d;
     /** Solves the value of x
-     * \returns element_type
+     * \returns precision
      */
-    element_type x(void);
+    precision x(void);
     /** Solves the value of y
-     * \returns element_type
+     * \returns precision
      */
-    element_type y(void);
+    precision y(void);
     /** Solves the value of z
-     * \returns element_type
+     * \returns precision
      */
-    element_type z(void);
+    precision z(void);
 } coefficients_t;
 
 /** A N-dimensional plane */
@@ -48,7 +48,7 @@ protected:
     /** The terms of the equation of a plane in 3d: ax+by+cz+d=0 */
     coefficients_t eq;
     /** The scaling factor between the equation variables and the normal (magnitude) */
-    element_type m_magnitude;
+    precision m_magnitude;
 
 public:
     /** Constant reference to the internal \ref vector normal */
@@ -77,16 +77,16 @@ public:
     plane &operator=(plane &&other);
 
     /** List initialization constructor */
-    explicit plane(const std::vector<element_type> &list);
+    explicit plane(const std::vector<precision> &list);
 
     /** Of the form ax + by + cz + d = 0 */
-    explicit plane(element_type a, element_type b, element_type c, element_type d);
+    explicit plane(precision a, precision b, precision c, precision d);
 
     /**
      * The distance from some point to this plane. Negative values indicates
      * that the normal is pointing away from the point.
      */
-    element_type distance(const R3::point &a) const;
+    precision distance(const R3::point &a) const;
 
     /** Determines if the planes are parallel */
     bool parallel(const plane &a) const;
@@ -109,7 +109,7 @@ public:
     bool contains(const R3::line &l) const;
 
     /** Returns the dihedral angle */
-    element_type angle(const plane &P) const;
+    precision angle(const plane &P) const;
 
     friend std::ostream &operator<<(std::ostream &os, const plane &p);
 };

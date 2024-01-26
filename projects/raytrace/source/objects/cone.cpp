@@ -13,7 +13,7 @@ cone::cone(const point& C, iso::radians angle)
     throw_exception_if(m_angle >= iso::radians(iso::pi / 2), "Angle %lf is too large", m_angle.value);
 }
 
-cone::cone(const point& C, element_type bottom_radius, element_type height)
+cone::cone(const point& C, precision bottom_radius, precision height)
     : object{C, 2, false}  // 2 collisions, not closed
     , m_bottom_radius{bottom_radius}
     , m_height{height}
@@ -22,8 +22,8 @@ cone::cone(const point& C, element_type bottom_radius, element_type height)
 
 vector cone::normal(const point& world_surface_point) const {
     point object_surface_point = reverse_transform(world_surface_point);
-    element_type height = m_height;
-    element_type radius = m_bottom_radius;
+    precision height = m_height;
+    precision radius = m_bottom_radius;
     if (m_height > 0) {
         if (object_surface_point.z < 0 or object_surface_point.z > m_height) {
             return R3::null;
@@ -66,31 +66,31 @@ hits cone::collisions_along(const ray& object_ray) const {
     // a = s(i^2 + j^2) - k^2
     // b = 2(s(ix + jy) - k(z-h))
     // c = s(x^2+y^2) - (z-h)^2
-    element_type x = object_ray.location().x;
-    element_type y = object_ray.location().y;
-    element_type z = object_ray.location().z;
-    element_type i = object_ray.direction()[0];
-    element_type j = object_ray.direction()[1];
-    element_type k = object_ray.direction()[2];
-    element_type h = m_height;
-    element_type br = m_bottom_radius;
-    element_type f = std::tan(m_angle.value);
-    element_type s = basal::equals_zero(h) ? 1.0 / (f * f) : (h * h) / (br * br);
-    element_type z_h = z - h;
-    element_type a = s * (i * i + j * j) - k * k;
-    element_type b = 2 * (s * (i * x + j * y) - k * z_h);
-    element_type c = s * (x * x + y * y) - z_h * z_h;
+    precision x = object_ray.location().x;
+    precision y = object_ray.location().y;
+    precision z = object_ray.location().z;
+    precision i = object_ray.direction()[0];
+    precision j = object_ray.direction()[1];
+    precision k = object_ray.direction()[2];
+    precision h = m_height;
+    precision br = m_bottom_radius;
+    precision f = std::tan(m_angle.value);
+    precision s = basal::equals_zero(h) ? 1.0 / (f * f) : (h * h) / (br * br);
+    precision z_h = z - h;
+    precision a = s * (i * i + j * j) - k * k;
+    precision b = 2 * (s * (i * x + j * y) - k * z_h);
+    precision c = s * (x * x + y * y) - z_h * z_h;
     auto roots = linalg::quadratic_roots(a, b, c);
-    element_type t0 = std::get<0>(roots);
-    element_type t1 = std::get<1>(roots);
+    precision t0 = std::get<0>(roots);
+    precision t1 = std::get<1>(roots);
     point surface_point;
-    if (not std::isnan(t0)) {
+    if (not basal::is_nan(t0)) {
         surface_point = object_ray.distance_along(t0);
         if (basal::equals_zero(h) or linalg::within(0, surface_point.z, h)) {
             ts.push_back(t0);
         }
     }
-    if (not std::isnan(t1)) {
+    if (not basal::is_nan(t1)) {
         surface_point = object_ray.distance_along(t1);
         if (basal::equals_zero(h) or linalg::within(0, surface_point.z, h)) {
             ts.push_back(t1);
@@ -101,9 +101,9 @@ hits cone::collisions_along(const ray& object_ray) const {
 
 bool cone::is_surface_point(const point& world_point) const {
     point object_point = reverse_transform(world_point);
-    element_type x = object_point.x;
-    element_type y = object_point.y;
-    element_type z = object_point.z;
+    precision x = object_point.x;
+    precision y = object_point.y;
+    precision z = object_point.z;
     return basal::equals(z * z, (x * x) + (y * y));
 }
 
@@ -111,9 +111,9 @@ image::point cone::map(const point& object_surface_point) const {
     geometry::point_<2> cartesian(object_surface_point[0], object_surface_point[1]);
     geometry::point_<2> polar = geometry::cartesian_to_polar(cartesian);
     // some range of z based in the half_height we want -h2 to map to zero and +h2 to 1.0
-    element_type u = (object_surface_point[2] / (-2.0 * m_height)) + 0.5;
+    precision u = (object_surface_point[2] / (-2.0 * m_height)) + 0.5;
     // theta goes from +pi to -pi we want to map -pi to 1.0 and + pi to zero
-    element_type v = 0.0;
+    precision v = 0.0;
     if (polar.y >= 0) {
         v = 0.5 - (polar.y / (+2.0 * iso::pi));
     } else {
@@ -127,7 +127,7 @@ void cone::print(const char str[]) const {
               << " Angle:" << m_angle.value << std::endl;
 }
 
-element_type cone::get_object_extant(void) const {
+precision cone::get_object_extant(void) const {
     return sqrt((m_height * m_height) + (m_bottom_radius * m_bottom_radius));
 }
 

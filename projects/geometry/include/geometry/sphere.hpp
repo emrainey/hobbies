@@ -20,14 +20,14 @@ namespace R3 {
 class sphere {
 protected:
     /** The radius of the sphere */
-    element_type m_radius;
+    precision m_radius;
 
 public:
-    const element_type &radius = m_radius;
+    const precision &radius = m_radius;
 
     sphere() = delete;
     /** Generic Constructor */
-    sphere(element_type r);
+    sphere(precision r);
     /** Copy Constructor */
     sphere(const sphere &s);
     /** Move Constructor */

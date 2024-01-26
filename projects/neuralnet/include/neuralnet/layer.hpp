@@ -6,8 +6,11 @@
  */
 
 #include <linalg/linalg.hpp>
+#include <basal/ieee754.hpp>
 
 namespace nn {
+
+using precision = basal::precision;
 /** The common layer object which other layer objects are childern of */
 class layer {
 public:
@@ -53,7 +56,7 @@ public:
     virtual void backward();
 
     /** Does any necessary layer computation in the backward direction */
-    virtual void backward(layer& other, double alpha, double gamma);
+    virtual void backward(layer& other, precision alpha, precision gamma);
 
     /** The computed value of this layer */
     linalg::matrix values;

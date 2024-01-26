@@ -16,6 +16,7 @@ set(CMAKE_CXX_STANDARD 17)
 enable_testing()
 
 option(BUILD_SHARED_LIBS "Builds libraries as dynamic objects" OFF)
+option(USE_SIMD "Use SIMD instructions" ON)
 
 add_library(hobbies-raytrace
     ${CMAKE_CURRENT_SOURCE_DIR}/source/camera.cpp
@@ -60,6 +61,10 @@ add_library(hobbies-raytrace
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/square.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/torus.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/triangle.cpp
+)
+target_compile_definitions(hobbies-raytrace
+    PRIVATE
+        $<$<BOOL:${USE_SIMD}>:USE_SIMD>
 )
 target_link_libraries(hobbies-raytrace
     PUBLIC

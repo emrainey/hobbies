@@ -8,13 +8,13 @@ namespace geometry {
 
 using namespace geometry::operators;
 
-element_type coefficients_t::x() {
+precision coefficients_t::x() {
     return -d / a;
 }
-element_type coefficients_t::y() {
+precision coefficients_t::y() {
     return -d / b;
 }
-element_type coefficients_t::z() {
+precision coefficients_t::z() {
     return -d / c;
 }
 
@@ -32,11 +32,11 @@ plane::plane(const R3::point &op, const R3::vector &on) : m_normal{on}, m_center
     m_normal.normalize();
 }
 
-plane::plane(const std::vector<element_type> &list) : plane(list[0], list[1], list[2], list[3]) {
+plane::plane(const std::vector<precision> &list) : plane(list[0], list[1], list[2], list[3]) {
     assert(list.size() == 4);
 }
 
-plane::plane(element_type a, element_type b, element_type c, element_type d)
+plane::plane(precision a, precision b, precision c, precision d)
     : m_normal{{a, b, c}}, m_center_point{3}, normal{m_normal} {
     // before we normalize, we solve for the point
     // normal line through the origin
@@ -46,13 +46,13 @@ plane::plane(element_type a, element_type b, element_type c, element_type d)
     eq.c = c;
     eq.d = d;
     // find the length of the segment of the normal line through the origin to the plane.
-    element_type tn = -d / dot(m_normal, m_normal);
+    precision tn = -d / dot(m_normal, m_normal);
     // the plane point is that length on normal line.
     m_center_point = l.solve(tn);
     // the plane's t
     m_magnitude = m_normal.norm();
     m_normal.normalize();
-    // element_type check that the plane point is indeed on the plane
+    // precision check that the plane point is indeed on the plane
     basal::exception::throw_unless(contains(m_center_point), __FILE__, __LINE__);
 }
 
@@ -108,9 +108,9 @@ R3::vector plane::unormal() const {
     return R3::vector{{eq.a, eq.b, eq.c}};
 }
 
-element_type plane::distance(const R3::point &a) const {
+precision plane::distance(const R3::point &a) const {
     R3::vector n_{{eq.a, eq.b, eq.c}};
-    element_type top = dot(n_, a) + eq.d;
+    precision top = dot(n_, a) + eq.d;
     return top / n_.norm();
 }
 
@@ -133,7 +133,7 @@ bool plane::contains(const R3::point &pt) const {
     constexpr bool use_vector_method = false;
     constexpr bool use_equation_method = true;  // seems like the fewest steps
     constexpr bool use_distance_method = false;
-    double value = 1.0;  // checking for equals to zero so initialize to nonzero
+    precision value = 1.0;  // checking for equals to zero so initialize to nonzero
     // static_assert(use_distance_method or use_equation_method or use_vector_method, "Only one should be active");
 
     // determine if pt is in the plane by the vector method, the equation method and the distance method
@@ -196,7 +196,7 @@ bool plane::operator!=(const plane &other) const {
     return !operator==(other);
 }
 
-element_type plane::angle(const plane &P) const {
+precision plane::angle(const plane &P) const {
     return acos(dot(m_normal, P.normal));
 }
 

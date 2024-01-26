@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include "iso/types.hpp"
 
 namespace SI {
 enum class prefix : short
@@ -43,7 +44,7 @@ constexpr const prefix_name prefixes[] = {
 
 namespace operators {
 /** A scaling prefix for SI units */
-double operator*(const double a, SI::prefix p);
+iso::precision operator*(iso::precision const a, SI::prefix p);
 }  // namespace operators
 
 /** Users must `using` this namespace to expose the quote operators */

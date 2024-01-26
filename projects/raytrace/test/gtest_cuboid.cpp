@@ -71,13 +71,13 @@ TEST(CuboidTest, IntersectionMassXY) {
     using namespace raytrace::objects;
 
     raytrace::point P{7, 22, -19};
-    element_type w = 0.5;  // the half-width of the cuboid
+    precision w = 0.5;  // the half-width of the cuboid
     cuboid c0{P, w, w, w};
-    element_type u = 1.0 / 32.0;  // the testing step
+    precision u = 1.0 / 32.0;  // the testing step
 
     // in the XY plane
-    for (element_type y = (-w + u + P.y); y < (w + P.y); y += u) {
-        for (element_type x = (-w + u + P.x); x < (w + P.x); x += u) {
+    for (precision y = (-w + u + P.y); y < (w + P.y); y += u) {
+        for (precision x = (-w + u + P.x); x < (w + P.x); x += u) {
             raytrace::point R{x, y, P.z + (2 * w)};
             vector N{{0, 0, -1}};
             ray W{R, N};
@@ -94,7 +94,7 @@ TEST(CuboidTest, IntersectionsOnSurface) {
     using namespace raytrace::objects;
 
     raytrace::point center(0, 0, 0);
-    element_type w = 2.0;
+    precision w = 2.0;
     cuboid c0{center, w, w, w};
     raytrace::point A{w, 0, 0};
     raytrace::point B{-w, 0, 0};

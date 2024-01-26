@@ -23,8 +23,8 @@ typedef enum letters_e : short
     U = 2,  //!< When using \ref matrix::PLU, provide this to get the U value
 } letters;
 
-/** All the linalg element types are doubles */
-using element_type = double;
+/** All the linalg element types are using basal's types */
+using precision = basal::precision;
 
 /** Collects the statistics from the linalg library */
 struct statistics {

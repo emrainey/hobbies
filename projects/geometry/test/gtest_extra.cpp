@@ -29,8 +29,8 @@ TEST(GeomExtraTests, ClosestPointsFromSkewLines) {
 
 TEST(GeomExtraTests, RotationAroundAxis) {
     const iso::radians theta(iso::pi / 2);
-    double cos_t = std::cos(theta.value);
-    double sin_t = std::sin(theta.value);
+    precision cos_t = std::cos(theta.value);
+    precision sin_t = std::sin(theta.value);
 
     // rotation around Z (in the XY plane)
     matrix _Rxy{{{cos_t, -sin_t, 0}, {sin_t, cos_t, 0}, {0, 0, 1}}};
@@ -108,11 +108,11 @@ TEST(GeomExtraTests, DotPerf) {
     constexpr size_t number_of_ops = 100'000'000;
     auto start = std::chrono::steady_clock::now();
     for (size_t count = 0; count < number_of_ops; /* count++ */) {
-        volatile double d = dot(u, v);
+        volatile precision d = dot(u, v);
         count += (d > 0 ? 1 : 1);
     }
     auto diff = std::chrono::steady_clock::now() - start;
-    double rate = (double(number_of_ops) / (diff.count() / 1E9)) / 1E6;
+    precision rate = (precision(number_of_ops) / (diff.count() / 1E9)) / 1E6;
     std::cout << "dots rate:" << rate << " M-dots/sec, Period: " << diff.count() / 1E9 << " sec" << std::endl;
 }
 
@@ -126,7 +126,7 @@ TEST(GeomExtraTests, CrossPerf) {
         count += (c[0] > 0 ? 1 : 1);
     }
     auto diff = std::chrono::steady_clock::now() - start;
-    double rate = (double(number_of_ops) / (diff.count() / 1E9)) / 1E6;
+    precision rate = (precision(number_of_ops) / (diff.count() / 1E9)) / 1E6;
     std::cout << "cross rate:" << rate << " M-cross/sec, Period: " << diff.count() / 1E9 << " sec" << std::endl;
 }
 

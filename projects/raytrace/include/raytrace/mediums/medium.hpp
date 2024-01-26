@@ -32,11 +32,11 @@ public:
     virtual color diffuse(const raytrace::point& volumetric_point) const;
 
     /** Within reflection, given the uv point of the surface, returns a specular color */
-    virtual color specular(const raytrace::point& volumetric_point, element_type scaling,
+    virtual color specular(const raytrace::point& volumetric_point, precision scaling,
                            const color& light_color) const;
 
     /** Returns the overall tightness the specular highlight (K) */
-    virtual element_type specular_tightness(const raytrace::point& volumetric_point) const;
+    virtual precision specular_tightness(const raytrace::point& volumetric_point) const;
 
     /** Returns the emitted light at the volumetric point */
     virtual color emissive(const raytrace::point& volumetric_point) const;
@@ -47,14 +47,14 @@ public:
     /**
      * HACK "Smoothness"
      * Determines the proportion of reflected light which is coherently reflected from the surface like a mirror
-     * 0.0 means no coherent reflected light, it's all too diffuse.
-     * 1.0 means like a perfect mirror. No diffuse surface colors at all.
+     * 0.0_p means no coherent reflected light, it's all too diffuse.
+     * 1.0_p means like a perfect mirror. No diffuse surface colors at all.
      */
-    virtual element_type smoothness(const raytrace::point& volumetric_point) const;
+    virtual precision smoothness(const raytrace::point& volumetric_point) const;
 
     /** Computes the emissive, reflected and transmitted components of the medium.
      * This replaces the reflectivity, transparency components.
-     * @note Typically transmitted + reflected = 1.0.
+     * @note Typically transmitted + reflected = 1.0_p.
      * @param[in] volumetric_point The volumetric point
      * @param[in] refractive_index The other medium's eta or wave length impedance (aka refractive index)
      * @param[in] incident_angle The angle of incident to the normal of the surface at the given point.
@@ -63,20 +63,20 @@ public:
      * @param[out] reflected The scalar value of the reflectivity component of the surface.
      * @param[out] transmitted The scalar value of the transmitted component of the surface.
      */
-    virtual void radiosity(const raytrace::point& volumetric_point, element_type refractive_index,
+    virtual void radiosity(const raytrace::point& volumetric_point, precision refractive_index,
                            const iso::radians& incident_angle, const iso::radians& transmitted_angle,
-                           element_type& emitted, element_type& reflected, element_type& transmitted) const;
+                           precision& emitted, precision& reflected, precision& transmitted) const;
 
     /**
      * Return the refractive index of the medium at a point
      * @param volumetric_point The point to determine the refractive index
      */
-    virtual element_type refractive_index(const raytrace::point& volumetric_point) const;
+    virtual precision refractive_index(const raytrace::point& volumetric_point) const;
 
     /** Returns the filtered color of the light as absorbed by the medium during
      * transmission for a given (unitless) distance.
      */
-    virtual color absorbance(element_type distance, const color& given_color) const;
+    virtual color absorbance(precision distance, const color& given_color) const;
 
     /** Returns the mapping function */
     mapping::reducer mapper() const;
@@ -89,29 +89,29 @@ public:
 
 protected:
     /** How bright the ambient color is in unit scale */
-    element_type m_ambient_scale;
+    precision m_ambient_scale;
     /** The color of the materials under ambient conditions */
     color m_ambient;
     /** The color of the diffuse light reflected from the material */
     color m_diffuse;
     /** The tightness of the specular highlight (lower is larger, higher is smaller) on a power scale with regards to
      * specular highlights on the phong model */
-    element_type m_tightness;
+    precision m_tightness;
     /**
      * The smoothness of the surface, i.e. how much of a coherent mirror does it form?
-     * 0.0 means bounced light is not allowed at all.
-     * 1.0 means it's a perfect mirror
+     * 0.0_p means bounced light is not allowed at all.
+     * 1.0_p means it's a perfect mirror
      */
-    element_type m_smoothness;
+    precision m_smoothness;
     /** The proportion of incoming light which is reflected versus transmitted 1 = (R + T). If 0, then all is reflected,
      * if 1 then all is transmitted */
-    element_type m_transmissivity;
+    precision m_transmissivity;
     /** This material's refractive index */
-    element_type m_refractive_index;
+    precision m_refractive_index;
     /** Electrical Permissivity */
-    // element_type m_permissivity;
+    // precision m_permissivity;
     /** Magnetic Permeability */
-    // element_type m_permeability;
+    // precision m_permeability;
     /** The mapping reduction function (if supplied) maps R3 to R2 for "surface mapping" */
     mapping::reducer m_reducing_map;
 };
@@ -119,15 +119,15 @@ protected:
 /** This is a namespace of constants to use on mediums for smoothness to get a sense of what to expect */
 namespace smoothness {
 /** This medium will not reflect *any* light and will only have diffuse and ambient components */
-constexpr element_type none = 0.0;
+constexpr precision none = 0.0_p;
 /** There's barely any reflections */
-constexpr element_type barely = 0.0625;
+constexpr precision barely = 0.0625_p;
 /** The medium will have a small bit of reflections in it */
-constexpr element_type small = 0.2;
+constexpr precision small = 0.2_p;
 /** The medium will be very reflective like a polished metal */
-constexpr element_type polished = 0.7;
+constexpr precision polished = 0.7_p;
 /** The medium will *only* reflect light and will not have any ambient or diffuse components */
-constexpr element_type mirror = 1.0;
+constexpr precision mirror = 1.0_p;
 }  // namespace smoothness
 
 /**
@@ -136,9 +136,9 @@ constexpr element_type mirror = 1.0;
  * have any light from the scene but we need to see details.
  */
 namespace ambient {
-constexpr element_type none = 0.0;
-constexpr element_type dim = 0.1;
-constexpr element_type glowy = 0.4;
+constexpr precision none = 0.0_p;
+constexpr precision dim = 0.1_p;
+constexpr precision glowy = 0.4_p;
 }  // namespace ambient
 
 /**
@@ -146,8 +146,8 @@ constexpr element_type glowy = 0.4;
  * Lower values result in larger spots. Higher values result in tighter spots.
  */
 namespace roughness {
-constexpr element_type tight = 100.0;
-constexpr element_type loose = 20.0;
+constexpr precision tight = 100.0_p;
+constexpr precision loose = 20.0_p;
 }  // namespace roughness
 
 }  // namespace mediums

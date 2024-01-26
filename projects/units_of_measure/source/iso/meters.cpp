@@ -3,7 +3,7 @@
  * This is an auto-generated source for iso::meters.
  * A measure of distance
  * @note See README on re-generation.
- * @copyright Copyright 2022.
+ * @copyright Copyright 2024.
  */
 #include "iso/meters.hpp"
 
@@ -13,7 +13,7 @@ const char* const suffix_type_m::suffix;
 meters::meters() : measurement{} {
 }
 // explicit value
-meters::meters(double a) : measurement{a} {
+meters::meters(precision a) : measurement{a} {
 }
 // copy constructor
 meters::meters(const meters& other) : measurement{other} {
@@ -48,11 +48,11 @@ meters& meters::operator-=(const meters& other) {
     _value -= other.value;
     return (*this);
 }
-meters& meters::operator*=(double factor) {
+meters& meters::operator*=(precision factor) {
     _value *= factor;
     return (*this);
 }
-meters& meters::operator/=(double factor) {
+meters& meters::operator/=(precision factor) {
     _value /= factor;
     return (*this);
 }
@@ -78,19 +78,19 @@ meters operator+(const meters& A, const meters& B) {
 meters operator-(const meters& A, const meters& B) {
     return meters{A.value - B.value};
 }
-meters operator*(const meters& A, double factor) {
+meters operator*(const meters& A, precision factor) {
     return meters{A.value * factor};
 }
-meters operator*(double factor, const meters& A) {
+meters operator*(precision factor, const meters& A) {
     return meters{A.value * factor};
 }
-meters operator/(const meters& A, double factor) {
+meters operator/(const meters& A, precision factor) {
     return meters{A.value / factor};
 }
 }  // namespace operators
 namespace literals {
 iso::meters operator""_m(long double a) {
-    return iso::meters(a);
+    return iso::meters(static_cast<precision>(a));
 }
 iso::meters operator""_m(unsigned long long a) {
     return iso::meters(a);

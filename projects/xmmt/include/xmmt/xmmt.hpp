@@ -1,18 +1,15 @@
-#pragma once
-
-/**
- * @file
- * Main Interface for the AVX/AVX2 points and vectors
- */
+#ifndef XMMT_XMMT_HPP_
+#define XMMT_XMMT_HPP_
 
 #include "xmmt/point.hpp"
 #include "xmmt/vector.hpp"
+#include "xmmt/pixel.hpp"
 
 namespace intel {
 
-// DEFINE POINT / VECTOR MATH
-
-/****** FRIENDS **************************************************************/
+// +================================================================================================+
+// Cross-Type operations
+// +================================================================================================+
 
 /** A Point minus a point is a vector from the last to the first. */
 template <typename pack_type, size_t dimensions>
@@ -22,30 +19,16 @@ vector_<pack_type, dimensions> operator-(const point_<pack_type, dimensions>& a,
     if constexpr (point_<pack_type, dimensions>::number_of_elements == 2) {
         c.data = _mm_sub_pd(a.data, b.data);
     } else {
-        c.data = _mm256_sub_pd(a.data, b.data);
+        if constexpr (std::is_same_v<typename pack_type::element_type, float>) {
+            c.data = _mm_sub_ps(a.data, b.data);
+        } else {
+            c.data = _mm256_sub_pd(a.data, b.data);
+        }
     }
     return c;
 }
-
-/** A Point plus a vector is a point. */
-template <typename pack_type, size_t dimensions>
-point_<pack_type, dimensions> operator+(const point_<pack_type, dimensions>& a,
-                                        const vector_<pack_type, dimensions>& b) {
-    point_<pack_type, dimensions> c{};
-    if constexpr (point_<pack_type, dimensions>::number_of_elements == 2) {
-        c.data = _mm_add_pd(a.data, b.data);
-    } else {
-        c.data = _mm256_add_pd(a.data, b.data);
-    }
-    return c;
-}
-
-using point2 = point_<double2, 2>;
-using point3 = point_<double3, 3>;
-using point4 = point_<double4, 4>;
-
-using vector2 = vector_<double2, 2>;
-using vector3 = vector_<double3, 3>;
-using vector4 = vector_<double4, 4>;
 
 }  // namespace intel
+
+#endif // XMMT_XMMT_HPP_INCLUDED
+

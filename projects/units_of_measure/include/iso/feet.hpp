@@ -20,14 +20,14 @@ struct suffix_type_ft {
 
 namespace iso {
 // you can still have your own class with internal stuff
-class feet : public measurement<double, imperial::prefix, imperial::suffix_type_ft> {
+class feet : public measurement<precision, imperial::prefix, imperial::suffix_type_ft> {
 protected:
-    const double unit = 16.0;  // sixteenths
+    constexpr static uint32_t const subunit = 16;  // sixteenths
     uint32_t _sixteenths;
 
 public:
-    const uint32_t &sixteenths;
-    feet(double a);
+    uint32_t const& sixteenths;
+    feet(precision a);
     feet(const feet &other);
     feet &operator=(const feet &other);
     // TODO add move as well?

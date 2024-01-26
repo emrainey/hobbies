@@ -16,7 +16,7 @@ namespace objects {
 class quadratic : public object {
 public:
     /**
-     * Constructs a quadratic at a point of a given set of enough doubles to form a 4x4 matrix
+     * Constructs a quadratic at a point of a given set of enough precisions to form a 4x4 matrix
      */
     quadratic(const point& center, raytrace::matrix& C);
 
@@ -33,7 +33,7 @@ public:
     /** @copydoc basal::printable::print */
     void print(const char str[]) const override;
     bool is_surface_point(const point& world_point) const override;
-    element_type get_object_extant(void) const override;
+    precision get_object_extant(void) const override;
 
 protected:
     /** Print in stream for cuboid */

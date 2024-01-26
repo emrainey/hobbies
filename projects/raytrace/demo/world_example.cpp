@@ -20,20 +20,20 @@ public:
         : world{}
         , look_from{0, 0, 60}
         , look_at{60, 60, 0}
-        , tilt{{-0.2, +0.2, 1}}  // define some surfaces
-        , plain_green{colors::green, mediums::ambient::none, colors::green, 0.2, 100.0}
-        , plain_yellow{colors::yellow, mediums::ambient::none, colors::yellow, 0.2, 100.0}
+        , tilt{{-0.2_p, +0.2_p, 1.0_p}}  // define some surfaces
+        , plain_green{colors::green, mediums::ambient::none, colors::green, 0.2_p, 100.0_p}
+        , plain_yellow{colors::yellow, mediums::ambient::none, colors::yellow, 0.2_p, 100.0_p}
         , grey_checkers{9, colors::grey, colors::red}
-        , plain_blue{colors::white, mediums::ambient::none, colors::blue, 0.2, 100.0}
-        , plain_red{colors::white, mediums::ambient::none, colors::red, 0.2, 100.0}
-        , plain_cyan{colors::white, mediums::ambient::none, colors::cyan, 0.2, 120.0}
+        , plain_blue{colors::white, mediums::ambient::none, colors::blue, 0.2_p, 100.0_p}
+        , plain_red{colors::white, mediums::ambient::none, colors::red, 0.2_p, 100.0_p}
+        , plain_cyan{colors::white, mediums::ambient::none, colors::cyan, 0.2_p, 120.0_p}
         , ikea_checkers{5, colors::yellow, colors::blue}
-        , polka_dots{0.333, colors::black, colors::white}
-        , bw_marble{150.0, 300, 15.0, 32.0, colors::black, colors::white}
+        , polka_dots{0.333_p, colors::black, colors::white}
+        , bw_marble{150.0_p, 300, 15.0_p, 32.0_p, colors::black, colors::white}
         , grid1{1, colors::black, colors::green}  // sphere w/ ring
-        , s2r{7.5}
-        , r0r1{s2r + 2.0}
-        , r0r2{r0r1 + 9.0}
+        , s2r{7.5_p}
+        , r0r1{s2r + 2.0_p}
+        , r0r2{r0r1 + 9.0_p}
         , pos0{60, 60, s2r}
         , s2{pos0, s2r}
         , ring0{pos0, tilt, r0r1, r0r2}
@@ -42,8 +42,8 @@ public:
         , top{pos1 + R3::vector{{0, 0, 10}}}
         , cyl1{pos1, 10, 10}
         , cap{top, R3::basis::Z, 0, 10}
-        , po2{80, 20, 7.5}
-        , c0{po2, 7.5, 7.5, 7.5}
+        , po2{80, 20, 7.5_p}
+        , c0{po2, 7.5_p, 7.5_p, 7.5_p}
         , pos3{0, 0, 0}
         , ground{pos3, R3::basis::Z, 5}
         , pos5{80, 80, 30}
@@ -149,9 +149,9 @@ protected:
     turbsin bw_marble;
     grid grid1;
     // sphere w/ ring
-    element_type s2r;
-    element_type r0r1;
-    element_type r0r2;
+    precision s2r;
+    precision r0r1;
+    precision r0r2;
     raytrace::point pos0;
     raytrace::objects::sphere s2;
     ring ring0;

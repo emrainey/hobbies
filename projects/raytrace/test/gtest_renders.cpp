@@ -12,6 +12,8 @@ using namespace raytrace::objects;
 using namespace raytrace::colors;
 using namespace raytrace::operators;
 
+using namespace basal::literals;
+
 class RenderTest : public ::testing::Test {
 public:
     RenderTest()
@@ -35,10 +37,10 @@ public:
     }
 
     void SetUp() {
-        element_type r = 40;
-        raytrace::point look_froms[] = {raytrace::point{r * cos(0), r * sin(0), 40},
-                                        raytrace::point{r * cos(iso::pi / 4), r * sin(iso::pi / 4), 40},
-                                        raytrace::point{r * cos(iso::pi / 2), r * sin(iso::pi / 2), 40}};
+        precision r = 40.0_p;
+        raytrace::point look_froms[] = {raytrace::point{static_cast<precision>(r * cos(0)), static_cast<precision>(r * sin(0)), 40.0_p},
+                                        raytrace::point{static_cast<precision>(r * cos(iso::pi / 4)), static_cast<precision>(r * sin(iso::pi / 4)), 40.0_p},
+                                        raytrace::point{static_cast<precision>(r * cos(iso::pi / 2)), static_cast<precision>(r * sin(iso::pi / 2)), 40.0_p}};
         plane0.material(&plastic);
         for (size_t i = 0; i < number_of_scenes; i++) {
             scenes.push_back(new scene{});

@@ -21,15 +21,15 @@ public:
 
     void TearDown() {
         diff = std::chrono::steady_clock::now() - start;
-        rate = (double(number_of_ops) / (diff.count() / 1E9)) / 1E6;
+        rate = (precision(number_of_ops) / (diff.count() / 1E9)) / 1E6;
         std::cout << activity << " rate:" << rate << " per sec, Period: " << diff.count() << " nsec" << std::endl;
     }
 
 protected:
     static constexpr size_t number_of_ops = 10'000;
     std::chrono::time_point<std::chrono::steady_clock> start;
-    std::chrono::duration<double> diff;
-    double rate;
+    std::chrono::duration<precision> diff;
+    precision rate;
     std::string activity;
 };
 

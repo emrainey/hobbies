@@ -56,7 +56,7 @@ bool intersects(const point &pt, const R3::line &lin) {
         return true;
     } else {
         // find the t which it does intersect or it will return false if it does not
-        double t = 0.0;
+        precision t = 0.0;
         return lin.solve(pt, t);
     }
 }
@@ -77,7 +77,7 @@ intersection intersects(const R3::line &L0, const R3::line &L1) {
         R3::vector v = L1.position() - L0.position();
         R3::vector a = R3::cross(v, L1.direction());
         R3::vector b = R3::cross(L0.direction(), L1.direction());
-        double s = dot(a, b) / b.quadrance();  // L0 variable
+        precision s = dot(a, b) / b.quadrance();  // L0 variable
         return intersection(L0.solve(s));
     }
 }
@@ -91,10 +91,10 @@ intersection intersects(const R3::line &l, const plane &P) {
     } else {
         R3::point a = l.solve(0.0);
         R3::point b = l.solve(1.0);
-        double da = P.distance(a);
-        double db = P.distance(b);
-        double dd = (da > db ? da - db : db - da);  // distance between the points
-        double tn = 0.0;
+        precision da = P.distance(a);
+        precision db = P.distance(b);
+        precision dd = (da > db ? da - db : db - da);  // distance between the points
+        precision tn = 0.0;
         // the plane can be below, above or between the points.
         // sometimes these are very close to zero but not zero
         if (basal::equals_zero(da)) {
@@ -150,8 +150,8 @@ intersection intersects(const R3::sphere &S, const R3::line &l) noexcept(false) 
     // get the vector from the p to the center.
     R3::vector pc = P - R3::origin;
     // get the distance of the vector
-    double d = pc.magnitude();
-    double r = S.radius;
+    precision d = pc.magnitude();
+    precision r = S.radius;
 
     if (d > r) {
         // no intersection
@@ -167,9 +167,9 @@ intersection intersects(const R3::sphere &S, const R3::line &l) noexcept(false) 
             // a = (vx^2 + vy^2 + vz^2)
             // b = (2vxpx + 2vypy + 2vzpz)
             // c = (px^2 + py^2 + pz^2) - r^2
-            element_type a = 0;
-            element_type b = 0;
-            element_type c = 0;
+            precision a = 0;
+            precision b = 0;
+            precision c = 0;
             for (size_t i = 0; i < p.dimensions; i++) {
                 a += v[i] * v[i];
                 b += 2 * p[i] * v[i];
@@ -177,9 +177,9 @@ intersection intersects(const R3::sphere &S, const R3::line &l) noexcept(false) 
             }
             c -= r * r;
             auto roots = quadratic_roots(a, b, c);
-            element_type t0 = std::get<0>(roots);
-            element_type t1 = std::get<1>(roots);
-            if (not std::isnan(t0) and not std::isnan(t1)) {
+            precision t0 = std::get<0>(roots);
+            precision t1 = std::get<1>(roots);
+            if (not basal::is_nan(t0) and not basal::is_nan(t1)) {
                 R3::point R = l.solve(t0);
                 R3::point Q = l.solve(t1);
                 set_of_points sop = {R, Q};
@@ -198,12 +198,12 @@ intersection intersects(const R3::sphere &S, const R3::line &l) noexcept(false) 
 
             // find the internal t to P to determine if the vector is
             // going towards or away from P
-            element_type t = 0.0;
+            precision t = 0.0;
             assert(l.solve(P, t));
             // if t == 0 then P == Z0
             // if t < 0 then V is facing away from P
             // if t > 0 then V is facing towards P
-            element_type u = (t < 0 ? -1.0 : 1.0);
+            precision u = (t < 0 ? -1.0 : 1.0);
 
             // line passes throught the center
             if (basal::equals_zero(d)) {
@@ -211,7 +211,7 @@ intersection intersects(const R3::sphere &S, const R3::line &l) noexcept(false) 
                 // The closet point to the center is the center (passes through the middle)
                 // get the distance to the center from the zero point
                 R3::vector cz = C - Z0;
-                double k = cz.magnitude();
+                precision k = cz.magnitude();
                 // we'll add a sign to k to indicate direction
                 k *= u;
                 R = l.distance_along(k - r);
@@ -224,10 +224,10 @@ intersection intersects(const R3::sphere &S, const R3::line &l) noexcept(false) 
                 // C != P and d < r
                 // Solve for R and Q (the two sphere point intersections)
                 // distance from R/Q to P (c^2 - b^2 = a^2) where c is r and b is d
-                double m = sqrt(r * r - d * d);
+                precision m = sqrt(r * r - d * d);
                 // vector from P to the zero point
                 R3::vector pz = Z0 - P;
-                double k = pz.norm();
+                precision k = pz.norm();
 
                 // is the zero point of the line in the sphere?
                 if (basal::equals_zero(k)) {

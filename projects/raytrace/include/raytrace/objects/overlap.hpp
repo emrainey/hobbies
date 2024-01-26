@@ -41,7 +41,7 @@ public:
     }
 
     bool is_surface_point(const point& world_point) const override;
-    element_type get_object_extant(void) const override;
+    precision get_object_extant(void) const override;
 
 protected:
     const object& m_A;

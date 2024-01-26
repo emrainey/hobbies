@@ -14,7 +14,7 @@ using namespace raytrace;
 
 class ConvexLensData {
 public:
-    ConvexLensData(element_type d, iso::radians a) {
+    ConvexLensData(precision d, iso::radians a) {
         diameter = d;
         angle = a;
         radius = (diameter * 0.5) / std::sin(angle.value);
@@ -22,10 +22,10 @@ public:
         bulge = radius - separation;
     }
     iso::radians angle;
-    element_type diameter;
-    element_type radius;
-    element_type separation;
-    element_type bulge;
+    precision diameter;
+    precision radius;
+    precision separation;
+    precision bulge;
 };
 
 class LensWorld : public world {

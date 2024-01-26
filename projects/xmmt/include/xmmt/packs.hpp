@@ -1,11 +1,9 @@
 #pragma once
+///
+/// @file
+/// The SSE2/AVX2 Packed Structures which are in the compact representation we need.
 
-/**
- * @file
- * The AVX2 Packed Structures which are in the compact representation we need.
- */
-
-#include <immintrin.h>
+#include "xmmt/pragmas.hpp"
 
 #include <cmath>
 #include <cstdint>
@@ -14,7 +12,160 @@
 #include <iostream>
 #include <typeinfo>
 
+#include <basal/ieee754.hpp>
+using namespace basal::literals;
+
 namespace intel {
+
+/** A triplet of floats */
+struct float3 {
+public:
+    /** The parallel data type used */
+    using parallel_type = __m128;
+    /** The element data type used */
+    using element_type = float;
+    /** The other element type not used */
+    using other_type = double;
+    /** The desired number of units (which may be smaller than number of elements) */
+    constexpr static size_t desired_elements = 3;
+    /** The required alignment for this type */
+    constexpr static size_t alignment = 16;
+    /** define the number of element types within a data unit */
+    constexpr static size_t number_of_elements = sizeof(parallel_type) / sizeof(element_type);
+    /** Default Constructor */
+    constexpr float3() : float3{0.0f, 0.0f, 0.0f} {
+    }
+    /** Forwarding Element Parameter Constructor */
+    constexpr explicit float3(element_type a, element_type b, element_type d) : datum{a, b, d, 1.0_p} {}
+    /** Forwarding Element Parameter Constructor */
+    constexpr explicit float3(other_type a, other_type b, other_type d)
+        : float3{static_cast<element_type>(a), static_cast<element_type>(b), static_cast<element_type>(d)} {}
+    /** Parallel Parameter Constructor */
+    float3(parallel_type a) : data{a} {
+    }
+    /** Copy Constructor */
+    float3(const float3& other) : data{other.data} {}
+    /** Move Constructor */
+    float3(float3&& other) : data{other.data} {
+        other.zero();
+    }
+    /** Copy Assign */
+    float3& operator=(const float3& other) {
+        data = other.data;
+        return (*this);
+    }
+    /** Move Assign */
+    float3& operator=(float3&& other) {
+        data = other.data;
+        other.zero();
+        return (*this);
+    }
+    /** Sets data to zero */
+    inline void zero(void) {
+        data = _mm_setzero_ps();
+    }
+
+    /// Indexing into the datums
+    inline element_type operator[](const size_t& index) const {
+        if (index < number_of_elements) {
+            return datum[index];
+        } else {
+            return datum[index % number_of_elements];
+        }
+    }
+
+    /// Indexing into the datums
+    inline element_type& operator[](const size_t& index) {
+        if (index < number_of_elements) {
+            return datum[index];
+        } else {
+            return datum[index % number_of_elements];
+        }
+    }
+
+    union {
+        /** The parallel data type */
+        alignas(alignment) parallel_type data;
+        /** The array data type */
+        alignas(alignment) element_type datum[number_of_elements];
+        /** The named data type */
+        alignas(alignment) struct {
+            element_type x, y, z;
+        } c;  // components
+    };
+};
+
+inline std::ostream& operator<<(std::ostream& os, const float3& a) {
+    os << " x=" << a.c.x << ", y=" << a.c.y << ", z=" << a.c.z;
+    return os;
+}
+
+/** A quad of floats */
+struct float4 {
+public:
+    /** The parallel data type used */
+    using parallel_type = __m128;
+    /** The element data type used */
+    using element_type = float;
+    /** The other element type not used */
+    using other_type = double;
+    /** The desired number of units (which may be smaller than number of elements) */
+    constexpr static size_t desired_elements = 4;
+    /** The required alignment for this type */
+    constexpr static size_t alignment = 32;
+    /** define the number of element types within a data unit */
+    constexpr static size_t number_of_elements = sizeof(parallel_type) / sizeof(element_type);
+    /** Default Constructor */
+    constexpr float4() : float4{0.0f, 0.0f, 0.0f, 0.0f} {
+    }
+    /** Forwarding Element Parameter Constructor */
+    constexpr explicit float4(element_type a, element_type b, element_type d, element_type e) : datum{a, b, d, e} {
+        // _mm_set_ps(a, b, d, e);
+    }
+    /** Forwarding Element Parameter Constructor */
+    constexpr explicit float4(other_type a, other_type b, other_type d, other_type e)
+        : float4{static_cast<element_type>(a), static_cast<element_type>(b), static_cast<element_type>(d), static_cast<element_type>(e)} {}
+    /** Parallel Parameter Constructor */
+    float4(parallel_type a) : data{a} {
+    }
+    /** Copy Constructor */
+    float4(const float4& other) : data{other.data} {}
+    /** Move Constructor */
+    float4(float4&& other) : data{other.data} {
+        other.zero();
+    }
+    /** Copy Assign */
+    float4& operator=(const float4& other) {
+        data = other.data;
+        return (*this);
+    }
+    /** Move Assign */
+    float4& operator=(float4&& other) {
+        data = other.data;
+        other.zero();
+        return (*this);
+    }
+    /** Sets data to zero */
+    inline void zero(void) {
+        data = _mm_setzero_ps();
+    }
+
+    union {
+        /** The parallel data type */
+        alignas(alignment) parallel_type data;
+        /** The array data type */
+        alignas(alignment) element_type datum[number_of_elements];
+        /** The named data type */
+        alignas(alignment) struct {
+            element_type x, y, z, w;
+        } c;  // components
+    };
+};
+
+inline std::ostream& operator<<(std::ostream& os, const float4& a) {
+    os << " x=" << a.c.x << ", y=" << a.c.y << ", z=" << a.c.z << ", w=" << a.c.w;
+    return os;
+}
 
 /** A pair of doubles */
 struct double2 {
@@ -23,46 +174,62 @@ public:
     using parallel_type = __m128d;
     /** The element data type used */
     using element_type = double;
+    /** The other element type not used */
+    using other_type = float;
+    /** The desired number of units (which may be smaller than number of elements) */
+    constexpr static size_t desired_elements = 2;
     /** The required alignment for this type */
     constexpr static size_t alignment = 16;
     /** define the number of element types within a data unit */
     constexpr static size_t number_of_elements = sizeof(parallel_type) / sizeof(element_type);
     /** Default Constructor */
-    double2() : data{_mm_setzero_pd()} {
+    constexpr double2() : double2{0.0, 0.0} {
     }
     /** Forwarding Element Parameter Constructor */
-    double2(element_type a, element_type b) {
-        c.x = a;
-        c.y = b;
-    }
+    constexpr double2(element_type a, element_type b) : datum{a, b} {}
+    /** Forwarding Element Parameter Constructor */
+    constexpr double2(other_type a, other_type b)
+        : double2{static_cast<element_type>(a), static_cast<element_type>(b)} {}
     /** Parallel Parameter Constructor */
     double2(parallel_type a) : data{a} {
     }
-
+    /** Copy Constructor */
+    double2(const double2& other) : data{other.data} {}
+    /** Move Constructor */
+    double2(double2&& other) : data{other.data} {
+        other.zero();
+    }
+    /** Copy Assign */
+    double2& operator=(const double2& other) {
+        data = other.data;
+        return (*this);
+    }
+    /** Move Assign */
+    double2& operator=(double2&& other) {
+        data = other.data;
+        other.zero();
+        return (*this);
+    }
     /** Sets data to zero */
     inline void zero(void) {
         data = _mm_setzero_pd();
     }
-
-    /** Returns the floored value */
-    inline parallel_type floor() const {
-        return _mm_floor_pd(data);
+    /// Indexing into the datums
+    inline element_type& operator[](const size_t& index) {
+        if (index < number_of_elements) {
+            return datum[index];
+        } else {
+            return datum[index % number_of_elements];
+        }
     }
-
-    /** Returns the fractional value in the parallel type */
-    inline parallel_type fract() const {
-        parallel_type tmp = _mm_floor_pd(data);
-        return _mm_sub_pd(data, tmp);
-    }
-
     union {
         /** The parallel data type */
-        parallel_type data;
+        alignas(alignment) parallel_type data;
         /** The array data type */
         alignas(alignment) element_type datum[number_of_elements];
         /** The named data type */
         alignas(alignment) struct {
-            double x, y;
+            element_type x, y;
         } c;  // components
     };
 };
@@ -79,47 +246,58 @@ public:
     using parallel_type = __m256d;
     /** The element data type used */
     using element_type = double;
+    /** The other element type not used */
+    using other_type = float;
+    /** The desired number of units (which may be smaller than number of elements) */
+    constexpr static size_t desired_elements = 3;
     /** The required alignment for this type */
     constexpr static size_t alignment = 32;
     /** define the number of element types within a data unit */
     constexpr static size_t number_of_elements = sizeof(parallel_type) / sizeof(element_type);
     /** Default Constructor */
-    double3() : data{_mm256_setzero_pd()} {
+    constexpr double3() : double3{0.0, 0.0, 0.0} {
     }
     /** Forwarding Element Parameter Constructor */
-    double3(element_type a, element_type b, element_type d) {
-        c.x = a;
-        c.y = b;
-        c.z = d;
+    constexpr explicit double3(element_type a, element_type b, element_type d) : datum{a, b, d, 1.0_p} {
+        // _mm256_set_pd(a, b, d, 1.0_p);
     }
+    /** Forwarding Element Parameter Constructor */
+    constexpr explicit double3(other_type a, other_type b, other_type d)
+        : double3{static_cast<element_type>(a), static_cast<element_type>(b), static_cast<element_type>(d)} {}
+
     /** Parallel Parameter Constructor */
     double3(parallel_type a) : data{a} {
     }
-
+    /** Copy Constructor */
+    double3(const double3& other) : data{other.data} {}
+    /** Move Constructor */
+    double3(double3&& other) : data{other.data} {
+        other.zero();
+    }
+    /** Copy Assign */
+    double3& operator=(const double3& other) {
+        data = other.data;
+        return (*this);
+    }
+    /** Move Assign */
+    double3& operator=(double3&& other) {
+        data = other.data;
+        other.zero();
+        return (*this);
+    }
     /** Sets data to zero */
     inline void zero(void) {
         data = _mm256_setzero_pd();
     }
 
-    /** Returns the floored value */
-    inline parallel_type floor() const {
-        return _mm256_floor_pd(data);
-    }
-
-    /** Returns the fractional value in the parallel type */
-    inline parallel_type fract() const {
-        parallel_type tmp = _mm256_floor_pd(data);
-        return _mm256_sub_pd(data, tmp);
-    }
-
     union {
         /** The parallel data type */
-        parallel_type data;
+        alignas(alignment) parallel_type data;
         /** The array data type */
         alignas(alignment) element_type datum[number_of_elements];
         /** The named data type */
         alignas(alignment) struct {
-            double x, y, z;
+            element_type x, y, z;
         } c;  // components
     };
 };
@@ -136,22 +314,39 @@ public:
     using parallel_type = __m256d;
     /** The element data type used */
     using element_type = double;
+    /** The other element type not used */
+    using other_type = float;
+    /** The desired number of units (which may be smaller than number of elements) */
+    constexpr static size_t desired_elements = 4;
     /** The required alignment for this type */
     constexpr static size_t alignment = 32;
     /** define the number of element types within a data unit */
     constexpr static size_t number_of_elements = sizeof(parallel_type) / sizeof(element_type);
     /** Default Constructor */
-    double4() : data{_mm256_setzero_pd()} {
-    }
+    constexpr double4() : double4{0.0, 0.0, 0.0, 0.0} {}
     /** Forwarding Element Parameter Constructor */
-    double4(element_type a, element_type b, element_type d, element_type e) {
-        c.x = a;
-        c.y = b;
-        c.z = d;
-        c.w = e;
-    }
+    constexpr explicit double4(element_type a, element_type b, element_type d, element_type e) : datum{a, b, d, e} {}
+    /** Forwarding Element Parameter Constructor */
+    constexpr explicit double4(other_type a, other_type b, other_type d, other_type e)
+        : double4{static_cast<element_type>(a), static_cast<element_type>(b), static_cast<element_type>(d), static_cast<element_type>(e)} {}
     /** Parallel Parameter Constructor */
-    double4(parallel_type a) : data{a} {
+    double4(parallel_type a) : data{a} {}
+    /** Copy Constructor */
+    double4(const double4& other) : data{other.data} {}
+    /** Move Constructor */
+    double4(double4&& other) : data{other.data} {
+        other.zero();
+    }
+    /** Copy Assign */
+    double4& operator=(const double4& other) {
+        data = other.data;
+        return (*this);
+    }
+    /** Move Assign */
+    double4& operator=(double4&& other) {
+        data = other.data;
+        other.zero();
+        return (*this);
     }
 
     /** Sets data to zero */
@@ -159,25 +354,14 @@ public:
         data = _mm256_setzero_pd();
     }
 
-    /** Returns a new point which is the floored of this point */
-    inline parallel_type floor() const {
-        return _mm256_floor_pd(data);
-    }
-
-    /** Returns the fractional value in the parallel type */
-    inline parallel_type fract() const {
-        parallel_type tmp = _mm256_floor_pd(data);
-        return _mm256_sub_pd(data, tmp);
-    }
-
     union {
         /** The parallel data type */
-        parallel_type data;
+        alignas(alignment) parallel_type data;
         /** The array data type */
         alignas(alignment) element_type datum[number_of_elements];
         /** The named data type */
         alignas(alignment) struct {
-            double x, y, z, w;
+            element_type x, y, z, w;
         } c;  // components
     };
 };

@@ -77,12 +77,12 @@ public:
         return bits.size();
     }
 
-    double capacity() const {
+    float capacity() const {
         // n! / (w! * (n - w)!)
         size_t num = std::tgamma(BITS + 1);
         size_t n_w = BITS - population();
         size_t den = std::tgamma(population() + 1) * std::tgamma(n_w + 1);
-        return ((double)num / den);
+        return ((float)num / den);
     }
 
     float sparsity() const {

@@ -73,7 +73,7 @@ void network::forward() {
     // printf(">");
 }
 
-void network::backward(double alpha, double gamma) {
+void network::backward(precision alpha, precision gamma) {
     basal::exception::throw_unless(layers.size() > 2, __FILE__, __LINE__);
     for (int index = layers.size() - 1; index >= 0; index--) {
         layer& _layer = (*layers[index]);
@@ -149,7 +149,7 @@ static void print(cv::Mat& img, cv::Point& pt, const char fmt[], ...) {
     va_start(list, fmt);
     vsnprintf(buffer, sizeof(buffer), fmt, list);
     va_end(list);
-    double scl = 0.5;
+    precision scl = 0.5;
     int thickness = 1;
     int baseline = 0;
     int fontFace = cv::FONT_HERSHEY_SCRIPT_SIMPLEX;
@@ -216,14 +216,14 @@ static void jetImage() {
     static bool showJetImage = false;
     if (showJetImage) return;
     showJetImage = true;
-    double high = 1.5;
-    double low = -high;
+    precision high = 1.5;
+    precision low = -high;
     int width = (2.0 * high) * 100;
     printf("Jet Image is %d across\n", width);
     linalg::matrix values(1, width);
-    values.for_each ([&](size_t y, size_t x, double& v) {
+    values.for_each ([&](size_t y, size_t x, precision& v) {
         y |= 0;
-        v = ((double)x / width);  // 0.0 to 1.0
+        v = ((precision)x / width);  // 0.0 to 1.0
         v *= (2.0 * high);        // 0.0 to 3.0
         v += low;                 // -1.5 to 1.5
         // should go from lower to high

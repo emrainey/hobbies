@@ -5,9 +5,13 @@
  */
 #include <cmath>
 
+#include "basal/ieee754.hpp"
 #include "fourcc/image.hpp"
 
 namespace fourcc {
+
+using namespace basal::literals;
+using precision = basal::precision;
 
 template <typename TYPE>
 TYPE clamp(TYPE value, TYPE _min, TYPE _max) {
@@ -57,12 +61,12 @@ void convert(const image<rgb8, pixel_format::RGB8>& in, image<iyu2, pixel_format
     throw_exception_unless(in.width == out.width, "Must be the same width %zu != %zu", in.width, out.width);
     for (size_t y = 0; y < in.height; y++) {
         for (size_t x = 0; x < in.width; x++) {
-            double R = in.at(y, x).r;
-            double G = in.at(y, x).g;
-            double B = in.at(y, x).b;
-            double Y = 0 + 0.2215f * R + 0.7154f * G + 0.0721f * B;
-            double Cb = 0 - 0.1145f * R - 0.3855f * G + 0.5000f * B;
-            double Cr = 0 + 0.5016f * R - 0.4556f * G - 0.0459f * B;
+            precision R = in.at(y, x).r;
+            precision G = in.at(y, x).g;
+            precision B = in.at(y, x).b;
+            precision Y = 0 + 0.2215_p * R + 0.7154_p * G + 0.0721_p * B;
+            precision Cb = 0 - 0.1145_p * R - 0.3855_p * G + 0.5000_p * B;
+            precision Cr = 0 + 0.5016_p * R - 0.4556_p * G - 0.0459_p * B;
             int32_t y_ = (int32_t)Y;
             int32_t u_ = (int32_t)Cb + 128;
             int32_t v_ = (int32_t)Cr + 128;

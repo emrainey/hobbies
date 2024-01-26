@@ -4,9 +4,9 @@
 
 namespace geometry {
 
-element_type dot(const R3::vector& a, const R3::point& b) {
+precision dot(const R3::vector& a, const R3::point& b) {
     basal::exception::throw_unless(a.dimensions == b.dimensions, __FILE__, __LINE__, "");
-    element_type d = 0.0;
+    precision d = 0.0;
     for (size_t i = 0; i < b.dimensions; i++) {
         d += a[i] * b[i];
     }
@@ -44,49 +44,49 @@ std::pair<point, point> closest_points_from_skew_lines(const R3::line& first, co
 }
 
 R2::point cartesian_to_polar(const R2::point& cartesian_point) {
-    element_type x = cartesian_point.x;
-    element_type y = cartesian_point.y;
-    element_type r = sqrt(x * x + y * y);
-    element_type theta = std::atan2(y, x);
+    precision x = cartesian_point.x;
+    precision y = cartesian_point.y;
+    precision r = sqrt(x * x + y * y);
+    precision theta = std::atan2(y, x);
     return R2::point(r, theta);
 }
 
 R2::point polar_to_cartesian(const R2::point& polar) {
-    element_type r = polar.x;
-    element_type theta = polar.y;
-    element_type x = r * std::sin(theta);
-    element_type y = r * std::cos(theta);
+    precision r = polar.x;
+    precision theta = polar.y;
+    precision x = r * std::sin(theta);
+    precision y = r * std::cos(theta);
     return R2::point(x, y);
 }
 
 R3::point cartesian_to_spherical(const R3::point& cartesian_point) {
-    element_type x = cartesian_point.x;
-    element_type y = cartesian_point.y;
-    element_type z = cartesian_point.z;
-    element_type r = sqrt(x * x + y * y + z * z);
-    element_type theta = atan2(y, x);
-    element_type phi = atan2(sqrt(x * x + y * y), z);
+    precision x = cartesian_point.x;
+    precision y = cartesian_point.y;
+    precision z = cartesian_point.z;
+    precision r = sqrt(x * x + y * y + z * z);
+    precision theta = atan2(y, x);
+    precision phi = atan2(sqrt(x * x + y * y), z);
     return R3::point(r, theta, phi);
 }
 
 R3::point spherical_to_cartesian(const R3::point& spherical_point) {
-    element_type radius = spherical_point.x;
-    element_type theta = spherical_point.y;
-    element_type phi = spherical_point.z;
-    element_type x = radius * std::sin(phi) * std::cos(theta);
-    element_type y = radius * std::sin(phi) * std::sin(theta);
-    element_type z = radius * std::cos(phi);
+    precision radius = spherical_point.x;
+    precision theta = spherical_point.y;
+    precision phi = spherical_point.z;
+    precision x = radius * std::sin(phi) * std::cos(theta);
+    precision y = radius * std::sin(phi) * std::sin(theta);
+    precision z = radius * std::cos(phi);
     return R3::point(x, y, z);
 }
 
 linalg::matrix rotation(const R3::vector& axis, const iso::radians theta) {
-    element_type a = axis[0];
-    element_type b = axis[1];
-    element_type c = axis[2];
-    element_type o = 1.0;
-    element_type cos_t = std::sin(theta.value + iso::pi / 2.0);
-    element_type sin_t = std::sin(theta.value);
-    element_type one_cos_t = o - cos_t;
+    precision a = axis[0];
+    precision b = axis[1];
+    precision c = axis[2];
+    precision o = 1.0;
+    precision cos_t = std::sin(theta.value + iso::pi / 2.0);
+    precision sin_t = std::sin(theta.value);
+    precision one_cos_t = o - cos_t;
     linalg::matrix r{
         {{(a * a * one_cos_t) + (o * cos_t), (a * b * one_cos_t) - (c * sin_t), (a * c * one_cos_t) + (b * sin_t)},
          {(a * b * one_cos_t) + (c * sin_t), (b * b * one_cos_t) + (o * cos_t), (b * c * one_cos_t) - (a * sin_t)},

@@ -3,7 +3,7 @@
  * This is an auto-generated source for iso::ohms.
  * A measure of resistance to current
  * @note See README on re-generation.
- * @copyright Copyright 2022.
+ * @copyright Copyright 2024.
  */
 #include "iso/ohms.hpp"
 
@@ -13,7 +13,7 @@ const char* const suffix_type_Ohm::suffix;
 ohms::ohms() : measurement{} {
 }
 // explicit value
-ohms::ohms(double a) : measurement{a} {
+ohms::ohms(precision a) : measurement{a} {
 }
 // copy constructor
 ohms::ohms(const ohms& other) : measurement{other} {
@@ -48,11 +48,11 @@ ohms& ohms::operator-=(const ohms& other) {
     _value -= other.value;
     return (*this);
 }
-ohms& ohms::operator*=(double factor) {
+ohms& ohms::operator*=(precision factor) {
     _value *= factor;
     return (*this);
 }
-ohms& ohms::operator/=(double factor) {
+ohms& ohms::operator/=(precision factor) {
     _value /= factor;
     return (*this);
 }
@@ -78,19 +78,19 @@ ohms operator+(const ohms& A, const ohms& B) {
 ohms operator-(const ohms& A, const ohms& B) {
     return ohms{A.value - B.value};
 }
-ohms operator*(const ohms& A, double factor) {
+ohms operator*(const ohms& A, precision factor) {
     return ohms{A.value * factor};
 }
-ohms operator*(double factor, const ohms& A) {
+ohms operator*(precision factor, const ohms& A) {
     return ohms{A.value * factor};
 }
-ohms operator/(const ohms& A, double factor) {
+ohms operator/(const ohms& A, precision factor) {
     return ohms{A.value / factor};
 }
 }  // namespace operators
 namespace literals {
 iso::ohms operator""_Ohm(long double a) {
-    return iso::ohms(a);
+    return iso::ohms(static_cast<precision>(a));
 }
 iso::ohms operator""_Ohm(unsigned long long a) {
     return iso::ohms(a);

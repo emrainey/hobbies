@@ -89,9 +89,9 @@ amperes operator/(const watts &P, const volts &E);
 /** amperes = volts / ohms */
 amperes operator/(const volts &E, const ohms &R);
 /** hertz = _num_ / seconds */
-hertz operator/(const double num, const seconds &denom);
+hertz operator/(precision const num, const seconds &denom);
 /** seconds = _num_ / hertz */
-seconds operator/(const double num, const hertz &denom);
+seconds operator/(precision const num, const hertz &denom);
 
 /** Creates a speed from a distance over time */
 speed operator/(const distance &num, const time &denom);
@@ -140,22 +140,23 @@ bool operator==(const joules &J, const torque &T);
 
 /** A method of computing PI at compile time */
 constexpr long double compute_pi(size_t digits) {
-    long double pi = 0.0;
-    for (long double i = 0.0; i < digits; i += 1.0) {
-        long double denum = 1.0;
-        for (long double j = i; j > 0; j -= 1.0) {
-            denum *= 16.0;
+    using namespace basal::literals;
+    long double pi = 0.0_p;
+    for (long double i = 0.0_p; i < digits; i += 1.0_p) {
+        long double denum = 1.0_p;
+        for (long double j = i; j > 0; j -= 1.0_p) {
+            denum *= 16.0_p;
         }
-        pi += ((4.0 / (8.0 * i + 1.0)) - (2.0 / (8.0 * i + 4.0)) - (1.0 / (8.0 * i + 5.0)) - (1.0 / (8.0 * i + 6.0)))
+        pi += ((4.0_p / (8.0_p * i + 1.0_p)) - (2.0_p / (8.0_p * i + 4.0_p)) - (1.0_p / (8.0_p * i + 5.0_p)) - (1.0_p / (8.0_p * i + 6.0_p)))
               / denum;
     }
     return pi;
 }
 
 /** PI accurate to 200 digits */
-constexpr double pi = compute_pi(200);
+constexpr precision pi = static_cast<precision>(compute_pi(200));
 /** 2*PI */
-constexpr double tau = 2.0 * pi;
+constexpr precision tau = static_cast<precision>(2.0) * pi;
 
 /** The namespace where the quote operators are stored. You must `using namespace literals;` to use them */
 namespace literals {

@@ -13,11 +13,13 @@
 #include <string>
 #include <variant>
 
+#include "basal/ieee754.hpp"
+
 namespace basal {
 namespace options {
 
 /** Define the value in the command processor as a variant */
-using Value = std::variant<bool, int, size_t, double, std::string>;
+using Value = std::variant<bool, int, size_t, precision, std::string>;
 
 /** Relates the short, long switch and the values */
 struct config {

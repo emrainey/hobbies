@@ -28,7 +28,7 @@ public:
      */
     struct intersect_set {
         /** Simple Constructor */
-        explicit intersect_set(element_type d, const geometry::intersection& i, const objects::object* o);
+        explicit intersect_set(precision d, const geometry::intersection& i, const objects::object* o);
         // Default Copy
         explicit intersect_set(const intersect_set&) = default;
         // No move construct
@@ -41,7 +41,7 @@ public:
         virtual ~intersect_set() = default;
 
         /** The distance to the object */
-        element_type distance;
+        precision distance;
         /** The intersection information */
         geometry::intersection intersector;
         /** The pointer to the const object of *closest* intersection */
@@ -51,7 +51,7 @@ public:
     /** Constructor
      * @param adaptive_threshold
      */
-    scene(double adaptive_threshold = 1.0 / 32.0);
+    scene(precision adaptive_threshold = 1.0_p / 32.0_p);
 
     /** Destructor */
     virtual ~scene();
@@ -77,14 +77,14 @@ public:
     /**
      * Traces the path of a world ray within the scene and returns the color.
      * @param world_ray The ray in world coordinates to trace.
-     * @param refractive_index The current medium's refractive index. Most of time this will be air (~1.0)
+     * @param refractive_index The current medium's refractive index. Most of time this will be air (~1.0_p)
      * @param reflection_depth The current recursive depth of reflections.
      * @param recursive_contribution The amount of contribution from this level of recursion to the top level color.
      *                               When it falls below a global limit, the reflection will not be considered.
      *                               @see adaptive_reflection_threshold
      */
     color trace(const ray& world_ray, const mediums::medium& media, size_t depth = 1,
-                double recursive_contribution = 1.0);
+                precision recursive_contribution = 1.0_p);
 
     /**
      * Computes the scene and saves the camera image to a file
@@ -100,7 +100,7 @@ public:
                 uint8_t mask_threshold = raytrace::image::AAA_MASK_DISABLED, bool filter_capture = false);
 
     /** The limit for reflective contributions to the top level trace. */
-    double adaptive_reflection_threshold;
+    precision adaptive_reflection_threshold;
 
     /** Allows the user to set a functor whioh returns the background color */
     void set_background_mapper(background_mapper bgm);

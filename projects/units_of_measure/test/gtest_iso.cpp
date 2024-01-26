@@ -1,31 +1,33 @@
-
-#include <gtest/gtest.h>
-
+#include "basal/gtest_helper.hpp"
 #include "iso/iso.hpp"
 
+using namespace basal::literals;
+
 TEST(IsoTest, PITest) {
-    double pi = std::atan(1.0) * 4.0;
-    auto scos = [](double a) -> double { return std::sin(a - (iso::pi / 2)); };
-    EXPECT_DOUBLE_EQ(iso::pi, pi);
-    EXPECT_DOUBLE_EQ(0.0, scos(pi / 2.0));
-    EXPECT_DOUBLE_EQ(1.0, std::sin(pi / 2.0));
-    EXPECT_DOUBLE_EQ(0.0, scos(iso::pi / 2.0));
-    EXPECT_DOUBLE_EQ(1.0, std::sin(iso::pi / 2.0));
-    EXPECT_DOUBLE_EQ(0.0, std::sin(iso::pi / 2.0 - iso::pi / 2));
+    iso::precision pi = std::atan(1.0_p) * 4.0_p;
+    auto scos = [](iso::precision a) -> iso::precision { return std::sin(a - (iso::pi / 2)); };
+    EXPECT_PRECISION_EQ(iso::pi, pi);
+    EXPECT_PRECISION_EQ(0.0_p, scos(pi / 2.0_p));
+    EXPECT_PRECISION_EQ(1.0_p, std::sin(pi / 2.0_p));
+    EXPECT_PRECISION_EQ(0.0_p, scos(iso::pi / 2.0_p));
+    EXPECT_PRECISION_EQ(1.0_p, std::sin(iso::pi / 2.0_p));
+    EXPECT_PRECISION_EQ(0.0_p, std::sin(iso::pi / 2.0_p - iso::pi / 2));
 }
 
 TEST(IsoTest, DegreesToRadians) {
     iso::degrees dtheta{90};
     iso::radians rtheta;
     iso::convert(rtheta, dtheta);
-    ASSERT_DOUBLE_EQ(iso::pi / 2.0, rtheta.value);
+    constexpr iso::precision const C = 2.0_p;
+    ASSERT_PRECISION_EQ(iso::pi / C, rtheta.value);
 }
 
 TEST(IsoTest, RadiansToDegrees) {
     iso::radians rtheta{iso::pi / 2};
     iso::degrees dtheta;
     iso::convert(dtheta, rtheta);
-    ASSERT_DOUBLE_EQ(90.0, dtheta.value);
+    constexpr iso::precision const C = 90.0_p;
+    ASSERT_PRECISION_EQ(C, dtheta.value);
 }
 
 TEST(IsoTest, FeetMeters) {
@@ -37,13 +39,13 @@ TEST(IsoTest, FeetMeters) {
     A = 7.42_m;        // operator"" into copy assign
     meters X{8.42_m};  // operator"" into copy constructor
     feet B = convert(A);
-    ASSERT_DOUBLE_EQ(7.42, A.value);
-    ASSERT_DOUBLE_EQ(8.42, X.value);
-    ASSERT_NEAR(24.34383, B.value, 1E-3);  // within a milli-foot
-    ASSERT_DOUBLE_EQ(390, B.sixteenths);
+    ASSERT_PRECISION_EQ(7.42_p, A.value);
+    ASSERT_PRECISION_EQ(8.42_p, X.value);
+    ASSERT_NEAR(24.34383_p, B.value, 1E-3);  // within a milli-foot
+    ASSERT_PRECISION_EQ(390, B.sixteenths);
     B = 12.0_ft;
     A = convert(B);
-    EXPECT_FLOAT_EQ(3.6576, A.value);
+    EXPECT_FLOAT_EQ(3.6576_p, A.value);
 }
 
 TEST(IsoTest, Scaling) {
@@ -53,16 +55,16 @@ TEST(IsoTest, Scaling) {
     using namespace SI::operators;
 
     meters A = 7.42_m;  // operator""_m
-    ASSERT_DOUBLE_EQ(0.007'420, A.at_scale(SI::prefix::kilo));
-    ASSERT_DOUBLE_EQ(7'420'000'000, A.at_scale(SI::prefix::nano));
+    ASSERT_PRECISION_EQ(0.007'420, A.at_scale(SI::prefix::kilo));
+    ASSERT_PRECISION_EQ(7'420'000'000, A.at_scale(SI::prefix::nano));
+    constexpr precision const D = 93.0_p;
+    meters B{D};                     // valued constructor
+    meters C{D * SI::prefix::mega};  // operator* then specific constructor
+    ASSERT_PRECISION_EQ(D * 1E6, C.value);
+    ASSERT_PRECISION_EQ(D * 1E6, B.at_scale(SI::prefix::micro));
 
-    meters B{93.0};                     // valued constructor
-    meters C{93.0 * SI::prefix::mega};  // operator* then specific constructor
-    ASSERT_DOUBLE_EQ(93'000'000, C.value);
-    ASSERT_DOUBLE_EQ(93'000'000, B.at_scale(SI::prefix::micro));
-
-    double k = 9.0 * SI::prefix::nano;  // operator* again
-    ASSERT_DOUBLE_EQ(0.000'000'009, k);
+    precision k = 9.0_p * SI::prefix::nano;  // operator* again
+    ASSERT_PRECISION_EQ(0.000'000'009, k);
 }
 
 TEST(IsoTest, HertzSeconds) {
@@ -73,15 +75,15 @@ TEST(IsoTest, HertzSeconds) {
     hertz framerate = 10.0_Hz;  // copy assign? or implicit conversion to copy constructor?
     framerate = 11.0_Hz;
     seconds framewindow = convert(framerate);
-    ASSERT_DOUBLE_EQ(1.0 / 11.0, framewindow.value);
+    ASSERT_PRECISION_EQ(1.0_p / 11.0_p, framewindow.value);
 
     framewindow = 20.0_sec;
     framerate = convert(framewindow);
-    ASSERT_DOUBLE_EQ(1.0 / 20.0, framerate.value);
+    ASSERT_PRECISION_EQ(1.0_p / 20.0_p, framerate.value);
 
-    framerate = hertz(30.0);        // wrap new assignment into a copy assign
-    framewindow = 1.0 / framerate;  // could use any double, which would modify the relationship
-    ASSERT_DOUBLE_EQ(1.0 / 30.0, framewindow.value);
+    framerate = hertz(30.0_p);        // wrap new assignment into a copy assign
+    framewindow = 1.0_p / framerate;  // could use any precision, which would modify the relationship
+    ASSERT_PRECISION_EQ(1.0_p / 30.0_p, framewindow.value);
 }
 
 TEST(IsoTest, Quantities) {
@@ -101,10 +103,10 @@ TEST(IsoTest, Quantities) {
     speed v3 = d1 / t1;
     speed v4 = 9.807_m / 1.0_sec;
 
-    ASSERT_DOUBLE_EQ(9.807, v1.reduce());
-    ASSERT_DOUBLE_EQ(9.807, v2.reduce());
-    ASSERT_DOUBLE_EQ(9.807, v3.reduce());
-    ASSERT_DOUBLE_EQ(9.807, v4.reduce());
+    ASSERT_PRECISION_EQ(9.807_p, v1.reduce());
+    ASSERT_PRECISION_EQ(9.807_p, v2.reduce());
+    ASSERT_PRECISION_EQ(9.807_p, v3.reduce());
+    ASSERT_PRECISION_EQ(9.807_p, v4.reduce());
 
     acceleration g1 = 9.807_m_per_sec / 1.0_sec;
     acceleration g2 = v1 / 1.0_sec;
@@ -145,7 +147,7 @@ TEST(IsoTest, VoltageAmperesOhms) {
     using namespace iso::operators;
 
     volts V = 24_mV;
-    ASSERT_DOUBLE_EQ(V.value, 0.024) << "Must be equal";
+    ASSERT_PRECISION_EQ(V.value, 0.024_p) << "Must be equal";
     amperes I = 3_mA;
     ohms R = V / I;  // operator/
     ASSERT_TRUE(R == 8_Ohm) << "Must be equal resistance!";
@@ -158,7 +160,7 @@ TEST(IsoTest, JoulesAndCompound) {
 
     joules E = 87_J;
     torque F = 87_N * 1.0_m;
-    ASSERT_DOUBLE_EQ(E.value, F.value) << "By raw value they are the same!";
+    ASSERT_PRECISION_EQ(E.value, F.value) << "By raw value they are the same!";
     ASSERT_TRUE(10_J == 5_N * 2.0_m) << "Not the same values but the same force!";
 }
 

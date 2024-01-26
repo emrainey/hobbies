@@ -11,12 +11,12 @@ class speck
     : public light
     , public entity {
 public:
-    speck(const point& P, const raytrace::color& C, element_type intensity);
-    speck(point&& P, const raytrace::color& C, element_type intensity);
+    speck(const point& P, const raytrace::color& C, precision intensity);
+    speck(point&& P, const raytrace::color& C, precision intensity);
     virtual ~speck() = default;
 
     /** @copydoc raytrace::light::intensity_at() */
-    element_type intensity_at(const point& world_point) const override;
+    precision intensity_at(const point& world_point) const override;
 
     /** @copydoc raytrace::light::incident() */
     ray incident(const point& world_point, size_t sample_index) const override;

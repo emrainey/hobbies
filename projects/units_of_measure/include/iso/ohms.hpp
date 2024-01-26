@@ -3,7 +3,7 @@
  * This is an auto-generated header for iso::ohms.
  * A measure of resistance to current
  * @note See README on re-generation.
- * @copyright Copyright 2022.
+ * @copyright Copyright 2024.
  */
 #pragma once
 #include <cstdint>
@@ -29,12 +29,12 @@ struct suffix_type_Ohm {
  * overload >,<,==,!=,<=,>=
  * not overloaded %=,%
  */
-class ohms : public measurement<double, SI::prefix, suffix_type_Ohm> {
+class ohms : public measurement<precision, SI::prefix, suffix_type_Ohm> {
 public:
     /** Default constructor */
     ohms();
     /** Parameter constructor */
-    explicit ohms(double value);
+    explicit ohms(precision value);
     /** Copy Constructor */
     ohms(const ohms& other);
     /** Move Constructor */
@@ -56,9 +56,9 @@ public:
     /** Deccumulation Operator */
     ohms& operator-=(const ohms& other);
     /** Scaling Operator */
-    ohms& operator*=(double factor);
+    ohms& operator*=(precision factor);
     /** Inverse Scaling Operator */
-    ohms& operator/=(double factor);
+    ohms& operator/=(precision factor);
     /** Negating Operator */
     ohms operator-() const;
     /** Less Than Operator */
@@ -77,11 +77,11 @@ namespace operators {
     /** Subtraction operator */
     ohms operator-(const ohms& A, const ohms& B);
     /** Left Scaling Operator */
-    ohms operator*(const ohms& A, double factor);
+    ohms operator*(const ohms& A, precision factor);
     /** Right Scaling Operator */
-    ohms operator*(double factor, const ohms& A);
+    ohms operator*(precision factor, const ohms& A);
     /** Inverse Scaling Operator */
-    ohms operator/(const ohms& A, double factor);
+    ohms operator/(const ohms& A, precision factor);
 }
 
 namespace literals {

@@ -12,7 +12,7 @@ public:
     /**
      * Constructs a ring
      */
-    ring(const point& C, const vector& N, element_type inner, element_type outer);
+    ring(const point& C, const vector& N, precision inner, precision outer);
     virtual ~ring() = default;
 
     /** @copydoc raytrace::object::collisions_along */
@@ -20,11 +20,11 @@ public:
     /** @copydoc basal::printable::print */
     void print(const char str[]) const override;
     bool is_surface_point(const point& world_point) const override;
-    element_type get_object_extant(void) const override;
+    precision get_object_extant(void) const override;
 
 private:
-    element_type m_inner_radius2;  ///< Squared Inner Radius
-    element_type m_outer_radius2;  ///< Squared Outer Radius
+    precision m_inner_radius2;  ///< Squared Inner Radius
+    precision m_outer_radius2;  ///< Squared Outer Radius
 };
 }  // namespace objects
 /** Returns the plane in which the three points we co-planar */

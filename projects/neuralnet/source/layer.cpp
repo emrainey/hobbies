@@ -46,8 +46,8 @@ void layer::forward(layer& other __attribute__((unused))) {
 void layer::backward() {
 }
 
-void layer::backward(layer& other __attribute__((unused)), double alpha __attribute__((unused)),
-                     double gamma __attribute__((unused))) {
+void layer::backward(layer& other __attribute__((unused)), precision alpha __attribute__((unused)),
+                     precision gamma __attribute__((unused))) {
 }
 
 bool layer::isa(type t) const {

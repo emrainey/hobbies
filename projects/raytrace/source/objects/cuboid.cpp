@@ -7,7 +7,7 @@ const vector cuboid::m_normals[6] = {
     R3::basis::X, -R3::basis::X, R3::basis::Y, -R3::basis::Y, R3::basis::Z, -R3::basis::Z,
 };
 
-cuboid::cuboid(const point& center, element_type xhw, element_type yhw, element_type zhw)
+cuboid::cuboid(const point& center, precision xhw, precision yhw, precision zhw)
     : object{center, 2, true}  // max 2 collisions, closed surface
     , x_half_width{m_half_widths[0]}
     , y_half_width{m_half_widths[1]}
@@ -27,7 +27,7 @@ cuboid::cuboid(const point& center, element_type xhw, element_type yhw, element_
     m_faces[5] = point(0, 0, -z_half_width);
 }
 
-cuboid::cuboid(point&& center, element_type xhw, element_type yhw, element_type zhw)
+cuboid::cuboid(point&& center, precision xhw, precision yhw, precision zhw)
     : object{std::move(center), 2, true}  // 2 collisions, closed surface
     , x_half_width{m_half_widths[0]}
     , y_half_width{m_half_widths[1]}
@@ -79,21 +79,21 @@ hits cuboid::collisions_along(const ray& object_ray) const {
 
     // given the direction of the vector, only certain sides of the AABB are colliable.
     // the sign of the vector component is the opposite of the side that may be collidable.
-    const element_type& x = object_ray.location().x;
-    const element_type& y = object_ray.location().y;
-    const element_type& z = object_ray.location().z;
-    const element_type& i = object_ray.direction()[0];
-    const element_type& j = object_ray.direction()[1];
-    const element_type& k = object_ray.direction()[2];
+    const precision& x = object_ray.location().x;
+    const precision& y = object_ray.location().y;
+    const precision& z = object_ray.location().z;
+    const precision& i = object_ray.direction()[0];
+    const precision& j = object_ray.direction()[1];
+    const precision& k = object_ray.direction()[2];
 
-    element_type t;
+    precision t;
 
-    element_type p_xmax = m_half_widths[0];
-    element_type p_xmin = -m_half_widths[0];
-    element_type p_ymax = m_half_widths[1];
-    element_type p_ymin = -m_half_widths[1];
-    element_type p_zmax = m_half_widths[2];
-    element_type p_zmin = -m_half_widths[2];
+    precision p_xmax = m_half_widths[0];
+    precision p_xmin = -m_half_widths[0];
+    precision p_ymax = m_half_widths[1];
+    precision p_ymin = -m_half_widths[1];
+    precision p_zmax = m_half_widths[2];
+    precision p_zmin = -m_half_widths[2];
 
     point p_max(p_xmax, p_ymax, p_zmax);
     point p_min(p_xmin, p_ymin, p_zmin);
@@ -123,7 +123,7 @@ hits cuboid::collisions_along(const ray& object_ray) const {
 image::point cuboid::map(const point& object_surface_point) const {
     // map some range of object 3D points to some 2D u,v pair
     // isolate which axis this is on and return the forward_transformed normal
-    element_type u = 0.0, v = 0.0;
+    precision u = 0.0, v = 0.0;
 
     if (basal::equals(object_surface_point.x, x_half_width)) {
         // positive yz plane
@@ -171,7 +171,7 @@ void cuboid::print(const char name[]) const {
     std::cout << name << " " << *this << std::endl;
 }
 
-element_type cuboid::get_object_extant(void) const {
+precision cuboid::get_object_extant(void) const {
     return vector{x_half_width, y_half_width, z_half_width}.magnitude();
 }
 

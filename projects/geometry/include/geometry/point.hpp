@@ -17,7 +17,7 @@ namespace geometry {
 class point : public basal::printable {
 protected:
     /** The storage of the data */
-    std::unique_ptr<element_type[]> m_data;
+    std::unique_ptr<precision[]> m_data;
 
 public:
     /** The dimensionality of the point */
@@ -27,10 +27,10 @@ public:
     point(const size_t dim = 3);
 
     /** Constructor from a pointer to an array */
-    explicit point(const element_type a[], size_t len) noexcept(false);
+    explicit point(const precision a[], size_t len) noexcept(false);
 
     /** Constructor from an initialization list {{}}; */
-    explicit point(const std::vector<element_type>& list) noexcept(false);
+    explicit point(const std::vector<precision>& list) noexcept(false);
 
     /** Copy Constructor  */
     point(const point& other);
@@ -70,13 +70,13 @@ public:
     }
 
     /** Scale a point */
-    point& operator*=(element_type s) noexcept(false);
+    point& operator*=(precision s) noexcept(false);
 
     /** Indexer */
-    element_type& operator[](int i);
+    precision& operator[](int i);
 
     /** Indexer for Const objects */
-    element_type operator[](int i) const;
+    precision operator[](int i) const;
 
     /** Clears the point to zero values */
     void zero();
@@ -85,9 +85,9 @@ public:
     void print(const char name[]) const override;
 };
 
-point multiply(const point& a, element_type s) noexcept(false);
+point multiply(const point& a, precision s) noexcept(false);
 
-point multiply(element_type s, const point& a) noexcept(false);
+point multiply(precision s, const point& a) noexcept(false);
 
 namespace operators {
 
@@ -100,11 +100,11 @@ bool operator==(point& a, point& b) noexcept(false);
 /** Inequality Operator */
 bool operator!=(const point& a, const point& b) noexcept(false);
 
-inline point operator*(const point& a, element_type s) noexcept(false) {
+inline point operator*(const point& a, precision s) noexcept(false) {
     return multiply(a, s);
 }
 
-inline point operator*(element_type s, const point& a) noexcept(false) {
+inline point operator*(precision s, const point& a) noexcept(false) {
     return multiply(s, a);
 }
 
@@ -147,8 +147,8 @@ class point_ : public point {
 template <>
 class point_<2> : public point {
 public:
-    element_type& x; /**< First dimensional reference */
-    element_type& y; /**< Second dimensional reference */
+    precision& x; /**< First dimensional reference */
+    precision& y; /**< Second dimensional reference */
     /** Custom empty constructor */
     point_() : point{2}, x(m_data[0]), y(m_data[1]) {
     }
@@ -164,8 +164,8 @@ public:
         y = other.y;
     }
 
-    /** Custom element_type input constructor */
-    explicit point_(element_type a, element_type b) : point_{} {
+    /** Custom precision input constructor */
+    explicit point_(precision a, precision b) : point_{} {
         x = a;
         y = b;
     }
@@ -177,25 +177,25 @@ public:
     }
 
     /** Adding points creates a vector */
-    friend vector_<element_type, 2> operator+(const point_& a, const point_& b) noexcept(false) {
-        vector_<element_type, 2> c;
+    friend vector_<precision, 2> operator+(const point_& a, const point_& b) noexcept(false) {
+        vector_<precision, 2> c;
         for (size_t i = 0; i < c.dimensions; i++) {
             c[i] = a[i] + b[i];
         }
-        return vector_<element_type, 2>(c);
+        return vector_<precision, 2>(c);
     }
 
     /** Subtracting points creates a vector */
-    friend vector_<element_type, 2> operator-(const point_& a, const point_& b) noexcept(false) {
-        vector_<element_type, 2> c;
+    friend vector_<precision, 2> operator-(const point_& a, const point_& b) noexcept(false) {
+        vector_<precision, 2> c;
         for (size_t i = 0; i < c.dimensions; i++) {
             c[i] = a[i] - b[i];
         }
-        return vector_<element_type, 2>(c);
+        return vector_<precision, 2>(c);
     }
 
     /** Adding a vector to a point creates a new point */
-    friend point operator+(const point_& a, const vector_<element_type, 2>& b) noexcept(false) {
+    friend point operator+(const point_& a, const vector_<precision, 2>& b) noexcept(false) {
         point c{a};
         c += b;
         return point(c);
@@ -206,9 +206,9 @@ public:
 template <>
 class point_<3> : public point {
 public:
-    element_type& x; /**< First dimensional reference */
-    element_type& y; /**< Second dimensional reference */
-    element_type& z; /**< Third dimensional reference */
+    precision& x; /**< First dimensional reference */
+    precision& y; /**< Second dimensional reference */
+    precision& z; /**< Third dimensional reference */
     /** Custom empty constructor */
     point_() : point{3}, x(m_data[0]), y(m_data[1]), z(m_data[2]) {
     }
@@ -216,7 +216,7 @@ public:
     point_(const point_<2>& p) : point_{} {
         x = p.x;
         y = p.y;
-        z = 1.0;
+        z = 1.0_p;
     }
     /** Base type Constructor */
     point_(const point& p) : point_{} {
@@ -232,7 +232,7 @@ public:
         z = other.z;
     }
     /** Custom triple input constructor */
-    explicit point_(element_type a, element_type b, element_type c) : point_{} {
+    explicit point_(precision a, precision b, precision c) : point_{} {
         x = a;
         y = b;
         z = c;
@@ -246,32 +246,32 @@ public:
     }
 
     /** Adding points creates a vector */
-    friend vector_<element_type, 3> operator+(const point_& a, const point_& b) noexcept(false) {
-        vector_<element_type, 3> c;
+    friend vector_<precision, 3> operator+(const point_& a, const point_& b) noexcept(false) {
+        vector_<precision, 3> c;
         for (size_t i = 0; i < c.dimensions; i++) {
             c[i] = a[i] + b[i];
         }
-        return vector_<element_type, 3>(c);
+        return vector_<precision, 3>(c);
     }
 
     /** Subtracting points creates a vector */
-    friend vector_<element_type, 3> operator-(const point_& a, const point_& b) noexcept(false) {
-        vector_<element_type, 3> c;
+    friend vector_<precision, 3> operator-(const point_& a, const point_& b) noexcept(false) {
+        vector_<precision, 3> c;
         for (size_t i = 0; i < c.dimensions; i++) {
             c[i] = a[i] - b[i];
         }
-        return vector_<element_type, 3>(c);
+        return vector_<precision, 3>(c);
     }
 
     /** Adding a vector to a point creates a new point */
-    friend point operator+(const point_& a, const vector_<element_type, 3>& b) noexcept(false) {
+    friend point operator+(const point_& a, const vector_<precision, 3>& b) noexcept(false) {
         point c{a};
         c += b;
         return point(c);
     }
 
     /** Adding a vector to a point creates a new point */
-    friend point operator-(const point_& a, const vector_<element_type, 3>& b) noexcept(false) {
+    friend point operator-(const point_& a, const vector_<precision, 3>& b) noexcept(false) {
         point c{a};
         c -= b;
         return point(c);
@@ -282,10 +282,10 @@ public:
 template <>
 class point_<4> : public point {
 public:
-    element_type& x; /**< First dimensional reference */
-    element_type& y; /**< Second dimensional reference */
-    element_type& z; /**< Third dimensional reference */
-    element_type& w; /**< Fourth dimensional reference */
+    precision& x; /**< First dimensional reference */
+    precision& y; /**< Second dimensional reference */
+    precision& z; /**< Third dimensional reference */
+    precision& w; /**< Fourth dimensional reference */
     /** Custom empty constructor */
     point_() : point{4}, x(m_data[0]), y(m_data[1]), z(m_data[2]), w(m_data[3]) {
     }
@@ -294,7 +294,7 @@ public:
         x = p.x;
         y = p.y;
         z = p.z;
-        w = 1.0;
+        w = 1.0_p;
     }
     /** Base type Constructor */
     point_(const point& p) : point_{} {
@@ -312,7 +312,7 @@ public:
         w = other.w;
     }
     /** Custom triple input constructor */
-    explicit point_(element_type a, element_type b, element_type c, element_type d) : point_{} {
+    explicit point_(precision a, precision b, precision c, precision d) : point_{} {
         x = a;
         y = b;
         z = c;
@@ -328,25 +328,25 @@ public:
     }
 
     /** Adding points creates a vector */
-    friend vector_<element_type, 4> operator+(const point_& a, const point_& b) noexcept(false) {
-        vector_<element_type, 4> c;
+    friend vector_<precision, 4> operator+(const point_& a, const point_& b) noexcept(false) {
+        vector_<precision, 4> c;
         for (size_t i = 0; i < c.dimensions; i++) {
             c[i] = a[i] + b[i];
         }
-        return vector_<element_type, 4>(c);
+        return vector_<precision, 4>(c);
     }
 
     /** Subtracting points creates a vector */
-    friend vector_<element_type, 4> operator-(const point_& a, const point_& b) noexcept(false) {
-        vector_<element_type, 4> c;
+    friend vector_<precision, 4> operator-(const point_& a, const point_& b) noexcept(false) {
+        vector_<precision, 4> c;
         for (size_t i = 0; i < c.dimensions; i++) {
             c[i] = a[i] - b[i];
         }
-        return vector_<element_type, 4>(c);
+        return vector_<precision, 4>(c);
     }
 
     /** Adding a vector to a point creates a new point */
-    friend point operator+(const point_& a, const vector_<element_type, 4>& b) noexcept(false) {
+    friend point operator+(const point_& a, const vector_<precision, 4>& b) noexcept(false) {
         point c{a};
         c += b;
         return point(c);
@@ -367,17 +367,17 @@ point_<DIM> as_point(const vector_<DATA_TYPE, DIM>& v) {
 
 namespace R2 {
 using point = point_<2>;
-static const point origin(0.0, 0.0);
+static const point origin(0.0_p, 0.0_p);
 }  // namespace R2
 
 namespace R3 {
 using point = point_<3>;
-static const point origin(0.0, 0.0, 0.0);
+static const point origin(0.0_p, 0.0_p, 0.0_p);
 }  // namespace R3
 
 namespace R4 {
 using point = point_<4>;
-static const point origin(0.0, 0.0, 0.0, 0.0);
+static const point origin(0.0_p, 0.0_p, 0.0_p, 0.0_p);
 }  // namespace R4
 
 }  // namespace geometry

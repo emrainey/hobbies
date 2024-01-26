@@ -5,14 +5,22 @@
 
 #include "raytrace/gtest_helper.hpp"
 
+using namespace basal::literals;
 using namespace raytrace;
 using namespace raytrace::colors;
 using namespace raytrace::operators;
 
+TEST(ColorTest, DefaultConstruction) {
+    color c;
+    ASSERT_PRECISION_EQ(0.0_p, c.red());
+    ASSERT_PRECISION_EQ(0.0_p, c.green());
+    ASSERT_PRECISION_EQ(0.0_p, c.blue());
+}
+
 TEST(ColorTest, Basics) {
-    double gg = 0.73536062;
-    double c = gamma_interpolate(1.0, 0.0, 0.5);
-    ASSERT_FLOAT_EQ(c, gg);
+    precision gg = 0.73536062_p;
+    precision c = gamma_interpolate(1.0_p, 0.0_p, 0.5_p);
+    ASSERT_NEAR(c, gg, basal::epsilon);
 }
 
 TEST(ColorTest, Blending) {
@@ -32,9 +40,9 @@ TEST(ColorTest, Logarithmic) {
     // convert to log
     tmp.to_space(color::space::logarithmic);
     // check values
-    ASSERT_NEAR(tmp.red(), 0.44798841244188325, 1E-10);
-    ASSERT_NEAR(tmp.green(), 0.21404114048223255, 1E-10);
-    ASSERT_NEAR(tmp.blue(), 0.033104766570885055, 1E-10);
+    ASSERT_NEAR(tmp.red(), 0.44798841244188325, basal::epsilon);
+    ASSERT_NEAR(tmp.green(), 0.21404114048223255, basal::epsilon);
+    ASSERT_NEAR(tmp.blue(), 0.033104766570885055, basal::epsilon);
 }
 
 TEST(ColorTest, Scaling) {
@@ -68,9 +76,9 @@ TEST(ColorTest, Accumulate) {
 }
 
 TEST(ColorTest, ChannelComponents) {
-    double gg = 0.73536062;
+    precision gg = 0.73536062;
     color w = colors::white;
-    w.per_channel([&](double c) -> double { return c * gg; });
+    w.per_channel([&](precision c) -> precision { return c * gg; });
     ASSERT_COLOR_EQ(w, colors::grey);
 }
 
@@ -86,7 +94,7 @@ TEST(ColorTest, InterpolateGreyScale) {
     fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8> img4(256, 256);
     img4.for_each ([&](size_t y, size_t x, fourcc::rgb8& pixel) {
         y |= 0;
-        double a = double(x) / img4.width;
+        precision a = precision(x) / img4.width;
         color c = interpolate(colors::white, colors::black, a);
         pixel = c.to_rgb8();
     });
@@ -96,8 +104,8 @@ TEST(ColorTest, InterpolateGreyScale) {
 TEST(ColorTest, InterpolateCorners) {
     fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8> img5(480, 640);
     img5.for_each ([&](size_t y, size_t x, fourcc::rgb8& pixel) {
-        double a = double(x) / img5.width;
-        double b = double(y) / img5.height;
+        precision a = precision(x) / img5.width;
+        precision b = precision(y) / img5.height;
         color c = interpolate(colors::red, colors::green, a);
         color d = interpolate(colors::blue, colors::white, b);
         color e = blend(c, d);
@@ -110,7 +118,7 @@ TEST(ColorTest, LinearGreyscale) {
     fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8> img6(256, 256);
     img6.for_each ([&](size_t y, size_t x, fourcc::rgb8& pixel) {
         y |= 0;
-        element_type v = double(x) / img6.width;
+        precision v = precision(x) / img6.width;
         color c{v, v, v};  // starts linear
         c.to_space(color::space::linear);
         pixel = c.to_rgb8();
@@ -122,7 +130,7 @@ TEST(ColorTest, LogarithmicGreyscale) {
     fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8> img7(256, 256);
     img7.for_each ([&](size_t y, size_t x, fourcc::rgb8& pixel) {
         y |= 0;
-        element_type v = double(x) / img7.width;
+        precision v = precision(x) / img7.width;
         color c{v, v, v};
         c.to_space(color::space::logarithmic);
         pixel = c.to_rgb8();
@@ -135,7 +143,7 @@ TEST(ColorTest, BlendingSamples) {
     color tmp = color::blend_samples(wb_samples);
     ASSERT_COLOR_EQ(colors::grey, tmp);
 
-    element_type g = 0.61250591370193386;
+    precision g = 0.61250591370193386_p;
     std::vector<color> rgb_samples = {colors::red, colors::green, colors::blue};
     tmp = color::blend_samples(rgb_samples);
     color dark_grey(g, g, g);
@@ -147,7 +155,7 @@ TEST(ColorTest, LMSImage) {
     img.generate_each([&](const image::point& pnt) -> color {
         // x is 0 - 800
         // w should be in the range of 380 to 780
-        element_type w = (pnt.x / 2) + 380;
+        precision w = (pnt.x / 2) + 380;
         iso::meters lambda(w * pow(10, -9));
         return wavelength_to_color(lambda);
     });

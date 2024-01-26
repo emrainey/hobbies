@@ -22,12 +22,12 @@ fourcc::image<fourcc::yf, fourcc::pixel_format::YF> noise_image(height, width);
 // the render image
 cv::Mat render_image(height, width, CV_32FC1);  // CV_8UC3);
 size_t octaves = 6;
-double lacunarity = 2.0;
-double gain = 0.5;
-double amplitude = 0.5;
-double frequency = 1.0;
+noise::precision lacunarity = 2.0;
+noise::precision gain = 0.5;
+noise::precision amplitude = 0.5;
+noise::precision frequency = 1.0;
 iso::degrees angle{81};
-double magnitude = 78.0;
+noise::precision magnitude = 78.0;
 noise::vector seed = noise::convert_to_seed(angle);
 constexpr static bool debug = false;
 
@@ -35,7 +35,7 @@ void generate_noise_image(void) {
     printf("octaves: %zu lacunarity: %lf, gain: %lf, amplitude: %lf, frequency: %lf\r\n", octaves, lacunarity, gain,
            amplitude, frequency);
     noise_image.for_each ([&](size_t y, size_t x, fourcc::yf &pixel) {
-        noise::point pnt{(double)x / scale, (double)y / scale};
+        noise::point pnt{(noise::precision)x / scale, (noise::precision)y / scale};
         pixel.y = (float)noise::fractal_brownian(pnt, seed, octaves, lacunarity, gain, amplitude, frequency);
     });
     noise_image.for_each ([&](size_t y, size_t x, fourcc::yf &pixel) {
@@ -49,7 +49,7 @@ void on_octaves_update(int value, void *cookie __attribute__((unused))) {
     octaves = size_t(value);
 }
 void on_seed_angle_update(int value, void *cookie __attribute__((unused))) {
-    angle = iso::degrees{(double)value};
+    angle = iso::degrees{(noise::precision)value};
     seed = noise::convert_to_seed(angle);
     seed *= magnitude;
     printf("angle %lf, seed: %lf, %lf\r\n", angle.value, seed[0], seed[1]);

@@ -14,6 +14,8 @@ add_library(hobbies-htm
     ${CMAKE_CURRENT_SOURCE_DIR}/source/frand.cpp
 )
 target_link_libraries(hobbies-htm
+    PUBLIC
+        Basal::hobbies-basal
     PRIVATE
         Basal::enabled-debugging
         Basal::enabled-profiling

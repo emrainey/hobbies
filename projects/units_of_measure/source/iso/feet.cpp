@@ -5,10 +5,10 @@
 
 namespace iso {
 // you can still have your own class with internal stuff
-feet::feet(double a) : measurement{a}, _sixteenths(std::round(a * unit)), sixteenths{_sixteenths} {
+feet::feet(precision a) : measurement{a}, _sixteenths(std::round(a * subunit)), sixteenths{_sixteenths} {
 }
 
-feet::feet(const feet &other) : measurement(other.value), _sixteenths(other.value * unit), sixteenths{_sixteenths} {
+feet::feet(const feet &other) : measurement(other.value), _sixteenths(other.value * subunit), sixteenths{_sixteenths} {
 }
 
 feet &feet::operator=(const feet &other) {
@@ -21,7 +21,7 @@ feet::~feet() {
 }
 namespace literals {
 iso::feet operator""_ft(long double a) {
-    return iso::feet(a);
+    return iso::feet(static_cast<precision>(a));
 }
 
 iso::feet operator""_ft(const char a[]) {

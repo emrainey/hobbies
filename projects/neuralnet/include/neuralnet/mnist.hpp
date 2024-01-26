@@ -8,6 +8,10 @@
 #include <algorithm>
 #include <opencv2/opencv.hpp>
 
+#include "basal/ieee754.hpp"
+
+using namespace basal::literals;
+
 namespace nn {
 /// Loads the MNIST data set. Scans the entire set and generates indexes to cover all images.
 class mnist {

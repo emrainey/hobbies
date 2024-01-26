@@ -16,6 +16,8 @@
 
 #include <initializer_list>
 
+using namespace basal::literals;
+
 namespace geometry {
 
 /** A N-dimensional vector_ object */
@@ -94,7 +96,7 @@ public:
 
     inline bool is_zero(void) const {
         for (size_t i = 0; i < dimensions; i++) {
-            if (data[i] != 0.0 or data[i] != -0.0) {
+            if (data[i] != 0.0_p or data[i] != -0.0_p) {
                 return false;
             }
         }
@@ -113,7 +115,7 @@ public:
 
     /** @return The sum of the squares of the components */
     inline DATA_TYPE quadrance() const {
-        DATA_TYPE sum = 0.0;
+        DATA_TYPE sum = 0.0_p;
         for (size_t i = 0; i < dimensions; i++) {
             sum += data[i] * data[i];
         }
@@ -177,7 +179,7 @@ public:
     /** Returns a negative copy of the vector_ */
     vector_ operator!() const {
         vector_ v{*this};
-        v *= -1.0;
+        v *= -1.0_p;
         return vector_(v);
     }
 
@@ -206,7 +208,7 @@ public:
 
     /** Returns the dot product of two vectors. Reference parameter form */
     friend DATA_TYPE dot(const vector_& a, const vector_& b) noexcept(false) {
-        DATA_TYPE d = 0.0;
+        DATA_TYPE d = 0.0_p;
         for (size_t i = 0; i < dimensions; i++) {
             d += (a.data[i] * b.data[i]);
         }
@@ -224,8 +226,8 @@ public:
         if (a.dimensions == 2) {
             return (a[0] * b[1] - b[0] * a[1]) / (Q(a) * Q(b));
         } else {
-            element_type d = dot(a, b);
-            return 1.0 - ((d * d) / (Q(a) * Q(b)));
+            precision d = dot(a, b);
+            return 1.0_p - ((d * d) / (Q(a) * Q(b)));
         }
     }
 
@@ -250,7 +252,7 @@ public:
     }
 
     friend inline vector_ division(const vector_& a, DATA_TYPE b) {
-        return multiply(a, 1.0 / b);
+        return multiply(a, 1.0_p / b);
     }
 
     friend inline vector_ multiply(DATA_TYPE b, const vector_& a) {
@@ -281,7 +283,7 @@ public:
         basal::exception::throw_unless(A.cols == b.dimensions, __FILE__, __LINE__);
         vector_ c;
         for (size_t j = 0; j < A.rows; j++) {
-            element_type d = 0.0;
+            precision d = 0.0_p;
             for (size_t i = 0; i < A.cols; i++) {
                 d += A[j][i] * b[i];
             }
@@ -292,7 +294,7 @@ public:
 
     friend vector_ negation(const vector_& a) {
         vector_ b{a};
-        b *= -1.0;
+        b *= -1.0_p;
         return vector_(b);
     }
 
@@ -337,22 +339,22 @@ inline vector_<DATA_TYPE, DIMS> operator-(const vector_<DATA_TYPE, DIMS>& a, con
 }
 
 template <typename DATA_TYPE, size_t DIMS>
-inline vector_<DATA_TYPE, DIMS> operator*(const vector_<DATA_TYPE, DIMS>& a, element_type b) {
+inline vector_<DATA_TYPE, DIMS> operator*(const vector_<DATA_TYPE, DIMS>& a, precision b) {
     return multiply(a, b);
 }
 
 template <typename DATA_TYPE, size_t DIMS>
-inline vector_<DATA_TYPE, DIMS> operator*(element_type b, const vector_<DATA_TYPE, DIMS>& a) {
+inline vector_<DATA_TYPE, DIMS> operator*(precision b, const vector_<DATA_TYPE, DIMS>& a) {
     return multiply(a, b);
 }
 
 template <typename DATA_TYPE, size_t DIMS>
-inline vector_<DATA_TYPE, DIMS> operator/(const vector_<DATA_TYPE, DIMS>& a, element_type b) {
+inline vector_<DATA_TYPE, DIMS> operator/(const vector_<DATA_TYPE, DIMS>& a, precision b) {
     return division(a, b);
 }
 
 template <typename DATA_TYPE, size_t DIMS>
-inline vector_<DATA_TYPE, DIMS> operator/(element_type b, const vector_<DATA_TYPE, DIMS>& a) {
+inline vector_<DATA_TYPE, DIMS> operator/(precision b, const vector_<DATA_TYPE, DIMS>& a) {
     return division(a, b);
 }
 
@@ -375,28 +377,28 @@ std::ostream& operator<<(std::ostream& os, const vector_<DATA_TYPE, DIMS>& vec) 
 
 /** 2D Space */
 namespace R2 {
-using vector = vector_<element_type, 2>;
+using vector = vector_<precision, 2>;
 
-static const vector null{{0.0, 0.0}};
-static const vector nan{{std::nan(""), std::nan("")}};
+static const vector null{{0.0_p, 0.0_p}};
+static const vector nan{{static_cast<precision>(basal::nan), static_cast<precision>(basal::nan)}};
 /** Predefine the axis vectors to prevent constant redefinitions in tests and other code */
 namespace basis {
-static const vector X{{1.0, 0.0}};
-static const vector Y{{0.0, 1.0}};
+static const vector X{{1.0_p, 0.0_p}};
+static const vector Y{{0.0_p, 1.0_p}};
 }  // namespace basis
 }  // namespace R2
 
 /** 3D Space */
 namespace R3 {
-using vector = vector_<element_type, 3>;
+using vector = vector_<precision, 3>;
 
-static const vector null{{0.0, 0.0, 0.0}};
-static const vector nan{{std::nan(""), std::nan(""), std::nan("")}};
+static const vector null{{0.0_p, 0.0_p, 0.0_p}};
+static const vector nan{{static_cast<precision>(basal::nan), static_cast<precision>(basal::nan), static_cast<precision>(basal::nan)}};
 /** Predefine the axis vectors to prevent constant redefinitions in tests and other code */
 namespace basis {
-static const vector X{{1.0, 0.0, 0.0}};
-static const vector Y{{0.0, 1.0, 0.0}};
-static const vector Z{{0.0, 0.0, 1.0}};
+static const vector X{{1.0_p, 0.0_p, 0.0_p}};
+static const vector Y{{0.0_p, 1.0_p, 0.0_p}};
+static const vector Z{{0.0_p, 0.0_p, 1.0_p}};
 }  // namespace basis
 
 /** Returns a new vector which is the cross Product of two vectors (only for 3,4 DIM). Copy parameter form. */
@@ -409,21 +411,21 @@ bool parallel(const vector& a, const vector& b);
 vector rodrigues(const vector& k, const vector& v, iso::radians theta);
 
 /** Computes the triple product of three vectors */
-element_type triple(const vector& u, const vector& v, const vector& w) noexcept(false);
+precision triple(const vector& u, const vector& v, const vector& w) noexcept(false);
 }  // namespace R3
 
 /** 4D Space */
 namespace R4 {
-using vector = vector_<element_type, 4>;
+using vector = vector_<precision, 4>;
 
-static const vector null{{0.0, 0.0, 0.0, 0.0}};
-static const vector nan{{std::nan(""), std::nan(""), std::nan(""), std::nan("")}};
+static const vector null{{0.0_p, 0.0_p, 0.0_p, 0.0_p}};
+static const vector nan{{static_cast<precision>(basal::nan), static_cast<precision>(basal::nan), static_cast<precision>(basal::nan), static_cast<precision>(basal::nan)}};
 /** Predefine the axis vectors to prevent constant redefinitions in tests and other code */
 namespace basis {
-static const vector X{{1.0, 0.0, 0.0, 0.0}};
-static const vector Y{{0.0, 1.0, 0.0, 0.0}};
-static const vector Z{{0.0, 0.0, 1.0, 0.0}};
-static const vector W{{0.0, 0.0, 0.0, 1.0}};
+static const vector X{{1.0_p, 0.0_p, 0.0_p, 0.0_p}};
+static const vector Y{{0.0_p, 1.0_p, 0.0_p, 0.0_p}};
+static const vector Z{{0.0_p, 0.0_p, 1.0_p, 0.0_p}};
+static const vector W{{0.0_p, 0.0_p, 0.0_p, 1.0_p}};
 }  // namespace basis
 }  // namespace R4
 

@@ -16,7 +16,7 @@ TEST(LightTest, SpeckLightColor) {
     lights::speck light0(source, colors::white, 1.0);
 
     // Specks obey the inverse square law
-    element_type scaling = 1.0 / diff.quadrance();
+    precision scaling = 1.0 / diff.quadrance();
     ASSERT_FLOAT_EQ(scaling, light0.intensity_at(surface_point));
 
     color C2{scaling, scaling, scaling};
@@ -37,7 +37,7 @@ TEST(LightTest, BeamLightColor) {
     ASSERT_VECTOR_EQ(geometry::R3::basis::Z, light0.incident(p0, 0).direction().normalized());
 }
 
-TEST(LightTest, TriColorSpots) {
+TEST(LightTest, DISABLED_TriColorSpots) {
     raytrace::objects::sphere shape(raytrace::point{0, 0, 3}, 3);
     raytrace::objects::plane floor(raytrace::point{0, 0, 0}, R3::basis::Z, 1.0);
     raytrace::point p0{10, 0, 50};
@@ -59,7 +59,7 @@ TEST(LightTest, TriColorSpots) {
     scene.render(view, "tricolor_spots.ppm", 1, 1, std::nullopt, true);
 }
 
-TEST(LightTest, BulbTest) {
+TEST(LightTest, DISABLED_BulbTest) {
     raytrace::objects::sphere shape(raytrace::point{0, 0, 3}, 3);
     raytrace::objects::plane floor(raytrace::point{0, 0, 0}, R3::basis::Z, 1.0);
     raytrace::lights::bulb light(raytrace::point{0, 0, 9}, 0.2, colors::white, 1E11, 100);

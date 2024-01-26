@@ -87,7 +87,7 @@ struct alignas(uint8_t) iyu2 {
 /** Defines a 1 channel 32 bit float color format (luminance) */
 struct alignas(float) yf {
     /** Constructor */
-    constexpr yf() : y{0.0} {
+    constexpr yf() : y{0.0f} {
     }
     float y;
 } __attribute__((packed));
@@ -95,7 +95,7 @@ struct alignas(float) yf {
 /** Defines a 3 channel 32 bit float color format */
 struct alignas(float) rgbf {
     /** Constructor */
-    constexpr rgbf() : r{0.0}, g{0.0}, b{0.0} {
+    constexpr rgbf() : r{0.0f}, g{0.0f}, b{0.0f} {
     }
     float r;
     float g;

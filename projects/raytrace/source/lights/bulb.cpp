@@ -8,18 +8,18 @@ namespace lights {
 
 using namespace linalg::operators;
 
-bulb::bulb(const point& P, element_type radius, const color& C, element_type intensity, size_t samples)
+bulb::bulb(const point& P, precision radius, const color& C, precision intensity, size_t samples)
     : light{C, intensity, samples}, entity{P}, m_radius{radius} {
 }
 
-bulb::bulb(point&& P, element_type radius, const color& C, element_type intensity, size_t samples)
+bulb::bulb(point&& P, precision radius, const color& C, precision intensity, size_t samples)
     : light{C, intensity, samples}, entity{std::move(P)}, m_radius{radius} {
 }
 
-element_type bulb::intensity_at(const point& world_point) const {
+precision bulb::intensity_at(const point& world_point) const {
     using namespace geometry::operators;
     vector direction = position() - world_point;
-    element_type d = direction.magnitude();
+    precision d = direction.magnitude();
     if (basal::equals_zero(d)) {
         return m_intensity;
     } else {
@@ -33,7 +33,7 @@ ray bulb::incident(const point& world_point, size_t sample_index) const {
     raytrace::vector shadow = position() - world_point;
     // if (dot(perturb, shadow) > 0.0) { // check for visibility
     //  if the dot is positive, the point is on the non-visible side of the sphere
-    //  reflect it to the visible side with the double cross
+    //  reflect it to the visible side with the precision cross
     //    perturb = laws::reflection(cross(cross(perturb, shadow), shadow), perturb);
     //}
     perturb *= m_radius;

@@ -19,7 +19,7 @@ public:
         : m_world_position{}
         , m_rotation{matrix::identity(DIMS, DIMS)}
         , m_inv_rotation{matrix::identity(DIMS, DIMS)}
-        , m_scaling{{1.0, 1.0, 1.0}}
+        , m_scaling{{1.0_p, 1.0_p, 1.0_p}}
         , m_transform{matrix::identity(DIMS + 1, DIMS + 1)}
         , m_inv_transform{matrix::identity(DIMS + 1, DIMS + 1)} {
     }

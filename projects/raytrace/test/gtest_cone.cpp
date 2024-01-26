@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include "basal/gtest_helper.hpp"
 
 #include <basal/basal.hpp>
 #include <raytrace/raytrace.hpp>
@@ -74,31 +74,31 @@ TEST(ConeTest, Mapping) {
     using namespace raytrace::objects;
 
     raytrace::point C{0, 0, 0};
-    element_type h2 = 1.0;
-    element_type r = 1.0;
+    precision h2 = 1.0;
+    precision r = 1.0;
     cylinder cyl1(C, h2, r);
 
     raytrace::point p0{1, 0, 0};
     image::point uv0(0.5, 0.5);
     image::point tmp0 = cyl1.map(p0);
-    ASSERT_DOUBLE_EQ(uv0.x, tmp0.x);
-    ASSERT_DOUBLE_EQ(uv0.y, tmp0.y);
+    ASSERT_NEAR(uv0.x, tmp0.x, basal::epsilon);
+    ASSERT_NEAR(uv0.y, tmp0.y, basal::epsilon);
 
     raytrace::point p1{-1, 0, h2};
     image::point uv1(0.0, 0.0);
     image::point tmp1 = cyl1.map(p1);
-    ASSERT_DOUBLE_EQ(uv1.x, tmp1.x);
-    ASSERT_DOUBLE_EQ(uv1.y, tmp1.y);
+    ASSERT_NEAR(uv1.x, tmp1.x, basal::epsilon);
+    ASSERT_NEAR(uv1.y, tmp1.y, basal::epsilon);
 
     raytrace::point p2{-1, 0, -h2};
     image::point uv2(1.0, 0.0);
     image::point tmp2 = cyl1.map(p2);
-    ASSERT_DOUBLE_EQ(uv2.x, tmp2.x);
-    ASSERT_DOUBLE_EQ(uv2.y, tmp2.y);
+    ASSERT_NEAR(uv2.x, tmp2.x, basal::epsilon);
+    ASSERT_NEAR(uv2.y, tmp2.y, basal::epsilon);
 
     raytrace::point p3{0, -1, -h2};
     image::point uv3(1.0, 0.75);
     image::point tmp3 = cyl1.map(p3);
-    ASSERT_DOUBLE_EQ(uv3.x, tmp3.x);
-    ASSERT_DOUBLE_EQ(uv3.y, tmp3.y);
+    ASSERT_NEAR(uv3.x, tmp3.x, basal::epsilon);
+    ASSERT_NEAR(uv3.y, tmp3.y, basal::epsilon);
 }

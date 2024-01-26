@@ -15,7 +15,7 @@ public:
     /**
      * Constructs a plane from a point and a normal.
      */
-    plane(const point& point, const vector& normal, element_type surface_scale);
+    plane(const point& point, const vector& normal, precision surface_scale);
     virtual ~plane() = default;
 
     /** @copydoc raytrace::object::normal */
@@ -29,9 +29,9 @@ public:
     /** @copydoc basal::printable::print */
     void print(const char str[]) const override;
     bool is_surface_point(const point& world_point) const override;
-    element_type get_object_extant(void) const override;
+    precision get_object_extant(void) const override;
 protected:
-    element_type m_surface_scale;
+    precision m_surface_scale;
 };
 }  // namespace objects
 }  // namespace raytrace

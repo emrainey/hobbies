@@ -5,7 +5,7 @@
 
 namespace raytrace {
 
-scene::intersect_set::intersect_set(element_type d, const geometry::intersection& i, const objects::object* o)
+scene::intersect_set::intersect_set(precision d, const geometry::intersection& i, const objects::object* o)
     : distance{d}, intersector{i}, objptr{o} {
 }
 
@@ -74,7 +74,7 @@ scene::intersect_set scene::nearest_object(const ray& world_ray, const intersect
                                            const object_list& objects) {
     basal::exception::throw_unless(intersections.size() == objects.size(), __FILE__, __LINE__, "Lists must match!");
     const objects::object* closest_object = nullptr;
-    element_type closest_distance2 = std::numeric_limits<element_type>::max();
+    precision closest_distance2 = std::numeric_limits<precision>::max();
     geometry::intersection closest_intersection;
     for (size_t i = 0; i < intersections.size(); i++) {
         const geometry::intersection& inter = intersections[i];
@@ -84,7 +84,7 @@ scene::intersect_set scene::nearest_object(const ray& world_ray, const intersect
             }
             // find the distance
             vector D = as_point(inter) - world_ray.location();
-            element_type distance2 = D.quadrance();
+            precision distance2 = D.quadrance();
             // distance can't be negative but can be zero
             // which means the world_ray is already touching so we don't need to care about that?
             if (basal::epsilon < distance2 and distance2 < closest_distance2) {
@@ -100,7 +100,7 @@ scene::intersect_set scene::nearest_object(const ray& world_ray, const intersect
             }
             for (size_t j = 0; j < sop.size(); j++) {
                 vector D = sop[j] - world_ray.location();
-                element_type distance2 = D.quadrance();
+                precision distance2 = D.quadrance();
                 if (basal::epsilon < distance2 and distance2 < closest_distance2) {
                     closest_distance2 = distance2;
                     closest_intersection = intersection(sop[j]);
@@ -113,7 +113,7 @@ scene::intersect_set scene::nearest_object(const ray& world_ray, const intersect
 }
 
 color scene::trace(const ray& world_ray, const mediums::medium& media, size_t reflection_depth,
-                   double recursive_contribution) {
+                   precision recursive_contribution) {
     using namespace operators;
 
     // this will store the final traced value for this call.
@@ -157,9 +157,9 @@ color scene::trace(const ray& world_ray, const mediums::medium& media, size_t re
 
         // today we get the surface's reflectivity at this texture point
         // (which means the surface could be like a film of mirror with bits flaking off)
-        element_type reflectivity = 0;
-        element_type transparency = 0;
-        element_type emissivity = 0;
+        precision reflectivity = 0;
+        precision transparency = 0;
+        precision emissivity = 0;
 
         // several different types of color in this area to contend with
         color surface_color, emitted_color, reflected_color, transmitted_color;
@@ -239,13 +239,13 @@ color scene::trace(const ray& world_ray, const mediums::medium& media, size_t re
                         // the scaling at this point due to this light source's
                         // relationship with the normal of the medium this will be
                         // some fractional component from -1.0 to 1.0 since both input vectors are normalized.
-                        element_type incident_scaling = dot(normalized_light_direction, world_surface_normal);
+                        precision incident_scaling = dot(normalized_light_direction, world_surface_normal);
                         // basal::exception::throw_unless(within_inclusive(-1.0, incident_scaling, 1.0), __FILE__,
                         // __LINE__, "Must be within bounds");
                         color incident_light
                             = (incident_scaling > 0.0) ? incident_scaling * raw_light_color : colors::black;
                         color diffuse_light = medium.diffuse(object_surface_point);
-                        element_type specular_scaling = dot(normalized_light_direction, world_reflection.direction());
+                        precision specular_scaling = dot(normalized_light_direction, world_reflection.direction());
                         // basal::exception::throw_unless(within_inclusive(-1.0, specular_scaling, 1.0), __FILE__,
                         // __LINE__, "Must be within bounds");
                         color specular_light = medium.specular(object_surface_point, specular_scaling, raw_light_color);
@@ -279,7 +279,7 @@ color scene::trace(const ray& world_ray, const mediums::medium& media, size_t re
 
             if (reflection_depth > 0) {
                 // mix how much local surface color versus reflected surface there should be
-                element_type smoothness = medium.smoothness(object_surface_point);
+                precision smoothness = medium.smoothness(object_surface_point);
                 if (smoothness > 0.0) {
                     // should we continue bouncing given the contribution?
                     if (recursive_contribution < adaptive_reflection_threshold) {
@@ -325,7 +325,7 @@ color scene::trace(const ray& world_ray, const mediums::medium& media, size_t re
         traced_color = media.absorbance(nearest.distance, surface_color);
     } else {  // if (get_type(closest_intersection) == geometry::intersectionType::None) {
         // return the background as the ray didn't hit anything.
-        traced_color = media.absorbance(std::numeric_limits<element_type>::infinity(), m_background(world_ray));
+        traced_color = media.absorbance(std::numeric_limits<precision>::infinity(), m_background(world_ray));
     }
     return traced_color;
 }

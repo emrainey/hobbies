@@ -16,8 +16,11 @@
 #include <memory>
 #include <vector>
 
-namespace htm {
+#include <basal/ieee754.hpp>
 
+namespace htm {
+using precision = basal::precision;
+using namespace basal::literals;
 constexpr const uint32_t NUM_SYNAPSES = 20;
 constexpr const uint32_t NUM_DENDRITES = 5;
 constexpr const uint32_t NUM_NEURONS = 8;
@@ -97,7 +100,7 @@ protected:
     const float minStrength;
 
 public:
-    network() : minOverlap(2.0f), minActivate(0.8f), minStrength(0.7f) {
+    network() : minOverlap(2.0_p), minActivate(0.8_p), minStrength(0.7_p) {
         srand(time(nullptr));
         for (size_t j = 0; j < H; j++) {
             for (size_t i = 0; i < W; i++) {
@@ -165,7 +168,7 @@ public:
     void overlap() {
         for (size_t j = 0; j < H; j++) {
             for (size_t i = 0; i < W; i++) {
-                grid[j][i].overlap = 0.0f;
+                grid[j][i].overlap = 0.0_p;
                 for (size_t n = 0; n < grid[j][i].neurons.size(); n++) {
                     for (size_t s = 0; s < grid[j][i].neurons[n].num_synapses(); s++) {
                         synapse& syn = grid[j][i].neurons[n][s];
@@ -175,7 +178,7 @@ public:
                     }
                 }
                 if (grid[j][i].overlap < minOverlap)
-                    grid[j][i].overlap = 0.0f;
+                    grid[j][i].overlap = 0.0_p;
                 else
                     grid[j][i].overlap *= grid[j][i].boost;
             }

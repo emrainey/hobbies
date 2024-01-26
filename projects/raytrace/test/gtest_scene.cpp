@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include "basal/gtest_helper.hpp"
 
 #include <basal/basal.hpp>
 #include <raytrace/raytrace.hpp>
@@ -52,7 +52,7 @@ TEST(SceneTest, NearestObjectIntersections) {
     ASSERT_EQ(geometry::IntersectionType::Point, get_type(list[1]));
     // find the nearest object to the ray
     scene::intersect_set nearest = scene::nearest_object(r0, list, objects);
-    ASSERT_DOUBLE_EQ(1, nearest.distance);
+    ASSERT_PRECISION_EQ(1, nearest.distance);
     ASSERT_EQ(geometry::IntersectionType::Point, get_type(nearest.intersector));
     ASSERT_EQ(&s0, nearest.objptr);
 }

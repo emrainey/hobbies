@@ -3,7 +3,7 @@
  * This is an auto-generated source for iso::turns.
  * A measure of an angle
  * @note See README on re-generation.
- * @copyright Copyright 2022.
+ * @copyright Copyright 2024.
  */
 #include "iso/turns.hpp"
 
@@ -13,7 +13,7 @@ const char* const suffix_type_Tau::suffix;
 turns::turns() : measurement{} {
 }
 // explicit value
-turns::turns(double a) : measurement{a} {
+turns::turns(precision a) : measurement{a} {
 }
 // copy constructor
 turns::turns(const turns& other) : measurement{other} {
@@ -48,11 +48,11 @@ turns& turns::operator-=(const turns& other) {
     _value -= other.value;
     return (*this);
 }
-turns& turns::operator*=(double factor) {
+turns& turns::operator*=(precision factor) {
     _value *= factor;
     return (*this);
 }
-turns& turns::operator/=(double factor) {
+turns& turns::operator/=(precision factor) {
     _value /= factor;
     return (*this);
 }
@@ -78,19 +78,19 @@ turns operator+(const turns& A, const turns& B) {
 turns operator-(const turns& A, const turns& B) {
     return turns{A.value - B.value};
 }
-turns operator*(const turns& A, double factor) {
+turns operator*(const turns& A, precision factor) {
     return turns{A.value * factor};
 }
-turns operator*(double factor, const turns& A) {
+turns operator*(precision factor, const turns& A) {
     return turns{A.value * factor};
 }
-turns operator/(const turns& A, double factor) {
+turns operator/(const turns& A, precision factor) {
     return turns{A.value / factor};
 }
 }  // namespace operators
 namespace literals {
 iso::turns operator""_Tau(long double a) {
-    return iso::turns(a);
+    return iso::turns(static_cast<precision>(a));
 }
 iso::turns operator""_Tau(unsigned long long a) {
     return iso::turns(a);

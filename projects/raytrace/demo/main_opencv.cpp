@@ -21,7 +21,7 @@ struct Parameters {
     size_t dim_index;
     size_t subsamples;
     size_t reflections;
-    double fov;
+    precision fov;
     std::string module;
     size_t mask_threshold;
 };
@@ -42,14 +42,14 @@ int main(int argc, char *argv[]) {
     bool verbose = false;
     bool should_quit = false;
     bool should_render = true;
-    double move_unit = 5.0;
+    precision move_unit = 5.0_p;
     std::string module_name;
 
     basal::options::config opts[] = {
         {"-d", "--dims", (size_t)1, "WxH Pairs"},
         {"-b", "--subsamples", (size_t)1, "Nubmer of subsamples"},
         {"-r", "--reflections", (size_t)4, "Reflection Depth"},
-        {"-f", "--fov", 55.0, "Field of View in Degrees"},
+        {"-f", "--fov", 55.0_p, "Field of View in Degrees"},
         {"-v", "--verbose", false, "Enables showing the early debugging"},
         {"-m", "--module", std::string(""), "Module to load"},
         {"-a", "--aaa", (size_t)raytrace::image::AAA_MASK_DISABLED,
@@ -84,24 +84,24 @@ int main(int argc, char *argv[]) {
     raytrace::point cart = geometry::R3::origin + look.normalized();
     raytrace::point sphl = geometry::cartesian_to_spherical(cart);
 
-    double radius = look.magnitude();
-    double theta = sphl.y;
-    double phi = sphl.z;
+    precision radius = look.magnitude();
+    precision theta = sphl.y;
+    precision phi = sphl.z;
 
     std::cout << "ρ=" << radius << ", Θ=" << theta << ", Φ=" << phi << std::endl;
 
-    linalg::Trackbar<double> trackbar_theta("Camera Theta", world.window_name(), -iso::pi, theta, iso::pi, iso::pi / 8,
+    linalg::Trackbar<precision> trackbar_theta("Camera Theta", world.window_name(), -iso::pi, theta, iso::pi, iso::pi / 8,
                                             &theta);
-    linalg::Trackbar<double> trackbar_phi("Camera Phi", world.window_name(), 0, phi, iso::pi, iso::pi / 16, &phi);
+    linalg::Trackbar<precision> trackbar_phi("Camera Phi", world.window_name(), 0, phi, iso::pi, iso::pi / 16, &phi);
     radius = (world.looking_from() - world.looking_at()).magnitude();
-    linalg::Trackbar<double> trackbar_radius("Camera Radius", world.window_name(), 1.0, radius, 100.0, 5.0, &radius);
+    linalg::Trackbar<precision> trackbar_radius("Camera Radius", world.window_name(), 1.0, radius, 100.0, 5.0, &radius);
     linalg::Trackbar<size_t> trackbar_dim("Dimensions", world.window_name(), 1u, params.dim_index, dimof(dimensions),
                                           1u);
     linalg::Trackbar<size_t> trackbar_subsamples("Subsamples", world.window_name(), 1, params.subsamples, 16, 1,
                                                  &params.subsamples);
     linalg::Trackbar<size_t> trackbar_reflect("Reflections", world.window_name(), 0, params.reflections, 10, 1,
                                               &params.reflections);
-    linalg::Trackbar<double> trackbar_fov("FOV", world.window_name(), 10, params.fov, 90, 5, &params.fov);
+    linalg::Trackbar<precision> trackbar_fov("FOV", world.window_name(), 10, params.fov, 90, 5, &params.fov);
 
     do {
         int index = trackbar_dim.get();
@@ -112,9 +112,9 @@ int main(int argc, char *argv[]) {
         cv::Mat render_image(height, width, CV_8UC3);
         cv::Mat mask_image(height, width, CV_8UC3);
 
-        double x = radius * std::sin(phi) * std::cos(theta);
-        double y = radius * std::sin(phi) * std::sin(theta);
-        double z = radius * std::cos(phi);
+        precision x = radius * std::sin(phi) * std::cos(theta);
+        precision y = radius * std::sin(phi) * std::sin(theta);
+        precision z = radius * std::cos(phi);
 
         raytrace::vector diff{x, y, z};
         raytrace::point from = world.looking_at() + diff;

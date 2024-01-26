@@ -4,16 +4,16 @@ namespace raytrace {
 namespace lights {
 using namespace linalg::operators;
 
-speck::speck(const point& P, const color& C, element_type intensity) : light(C, intensity, 1), entity(P) {
+speck::speck(const point& P, const color& C, precision intensity) : light(C, intensity, 1), entity(P) {
 }
 
-speck::speck(point&& P, const color& C, element_type intensity) : light(C, intensity, 1), entity(std::move(P)) {
+speck::speck(point&& P, const color& C, precision intensity) : light(C, intensity, 1), entity(std::move(P)) {
 }
 
-element_type speck::intensity_at(const point& pnt) const {
+precision speck::intensity_at(const point& pnt) const {
     using namespace geometry::operators;
     vector direction = position() - pnt;
-    element_type d = direction.magnitude();
+    precision d = direction.magnitude();
     if (basal::equals_zero(d)) {
         return m_intensity;
     } else {

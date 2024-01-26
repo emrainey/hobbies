@@ -36,7 +36,7 @@
             "name": "(lldb) Launch Random Tuner",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/../../build/raytrace/demo_random_tuner",
+            "program": "${workspaceFolder}/build/demo_random_tuner",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
@@ -48,7 +48,7 @@
             "name": "(lldb) GTest Raytrace",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/../../build/raytrace/gtest_raytrace",
+            "program": "${workspaceFolder}/build/gtest_raytrace",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
@@ -60,7 +60,7 @@
             "name": "(lldb) Demo Curses",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/../../build/raytrace/demo_curses",
+            "program": "${workspaceFolder}/build/demo_curses",
             "args": [
                 "-m",
                 "${input:world_module}",
@@ -78,7 +78,7 @@
                 },
                 {
                     "name": "DYLD_LIBRARY_PATH",
-                    "value": "${workspaceFolder}/../../install/lib:${workspaceFolder}/../../build/raytrace/",
+                    "value": "${workspaceFolder}/../../install/lib:${workspaceFolder}/build/",
                 }
             ],
             "externalConsole": false,
@@ -88,7 +88,7 @@
             "name": "(lldb) Demo OpenCV Render",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/../../build/raytrace/demo_raytrace_loader",
+            "program": "${workspaceFolder}/build/demo_raytrace_loader",
             "args": [
                 "-m",
                 "${input:world_module}",
@@ -106,7 +106,7 @@
                 },
                 {
                     "name": "DYLD_LIBRARY_PATH",
-                    "value": "${workspaceFolder}/../../install/lib:${workspaceFolder}/../../build/raytrace/",
+                    "value": "${workspaceFolder}/../../install/lib:${workspaceFolder}/build/",
                 }
             ],
             "externalConsole": false,
@@ -116,7 +116,7 @@
             "name": "(lldb) Demo SDL2 Render",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/../../build/raytrace/demo_sdl2",
+            "program": "${workspaceFolder}/build/demo_sdl2",
             "args": [
                 "-m",
                 "${input:world_module}",
@@ -136,7 +136,7 @@
                 },
                 {
                     "name": "DYLD_LIBRARY_PATH",
-                    "value": "${workspaceFolder}/../../install/lib:${workspaceFolder}/../../build/raytrace/",
+                    "value": "${workspaceFolder}/../../install/lib:${workspaceFolder}/build/",
                 }
             ],
             "externalConsole": false,

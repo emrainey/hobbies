@@ -4,15 +4,15 @@ namespace linalg {
 
 linalg::matrix convert(::cv::Mat& img) {
     linalg::matrix mat = linalg::matrix(img.rows, img.cols);
-    return mat.for_each([&](int y, int x, double& v) {
+    return mat.for_each([&](int y, int x, precision& v) {
         if (img.type() == CV_8UC1) {
-            v = double(img.at<uint8_t>(y, x)) / 255.0;
+            v = precision(img.at<uint8_t>(y, x)) / 255.0;
         } else if (img.type() == CV_8UC3) {
             v = 0.0;
         } else if (img.type() == CV_16UC1) {
-            v = double(img.at<uint16_t>(y, x)) / 65535.0;
+            v = precision(img.at<uint16_t>(y, x)) / 65535.0;
         } else if (img.type() == CV_32SC1) {
-            v = double(img.at<uint32_t>(y, x)) / double(std::numeric_limits<int32_t>::max());
+            v = precision(img.at<uint32_t>(y, x)) / precision(std::numeric_limits<int32_t>::max());
         } else {  // if (img.type() == CV_8UC3) { // BGR usually
             assert(false);
         }
@@ -21,7 +21,7 @@ linalg::matrix convert(::cv::Mat& img) {
 
 ::cv::Mat convert(linalg::matrix& mat, int type) {
     ::cv::Mat img(mat.rows, mat.cols, type);
-    mat.for_each([&](int y, int x, const double& v) {
+    mat.for_each([&](int y, int x, precision const& v) {
         if (type == CV_8UC1) {
             img.at<uint8_t>(y, x) = uint8_t(std::ceil(v * 255.0));
         } else if (type == CV_8UC3) {
@@ -46,7 +46,7 @@ linalg::matrix convert(::cv::Mat& img) {
     int sqr = std::sqrt(num);
     int W = sqr, H = (num / W) + (((num % W) > 0) ? 1 : 0);
     ::cv::Mat img(H, W, type);
-    mat.for_each([&](int y, int x, const double& v) {
+    mat.for_each([&](int y, int x, precision const& v) {
         // map y,x to iy,ix
         int n = (y * mat.cols) + x;
         int iy = n / W;
@@ -95,11 +95,11 @@ linalg::matrix convert(::cv::Mat& img) {
     }
 }
 
-static double interpolate(double val, double y0, double x0, double y1, double x1) {
+static precision interpolate(precision val, precision y0, precision x0, precision y1, precision x1) {
     return (val - x0) * (y1 - y0) / (x1 - x0) + y0;
 }
 
-static double base(double val) {
+static precision base(precision val) {
     if (val <= -0.75)
         return 0.0;
     else if (val <= -0.25)
@@ -112,24 +112,24 @@ static double base(double val) {
         return 0.0;
 }
 
-static double red(double gray) {
+static precision red(precision gray) {
     return base(gray - 0.5);
 }
 
-static double green(double gray) {
+static precision green(precision gray) {
     return base(gray);
 }
 
-static double blue(double gray) {
+static precision blue(precision gray) {
     return base(gray + 0.5);
 }
 
 cv::Scalar_<uint8_t> jet(cv::Scalar_<uint8_t>& grey) {
-    double v = double(grey[0]) / 255.0;
+    precision v = precision(grey[0]) / 255.0;
     return jet(v);
 }
 
-cv::Scalar_<uint8_t> jet(double v) {
+cv::Scalar_<uint8_t> jet(precision v) {
     // must be between 0 and 1.0
     return cv::Scalar(uint8_t(std::ceil(red(v) * 255.0)), uint8_t(std::ceil(green(v) * 255.0)),
                       uint8_t(std::ceil(blue(v) * 255.0)));

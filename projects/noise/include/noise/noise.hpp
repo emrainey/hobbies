@@ -15,7 +15,7 @@
 namespace noise {
 
 /** Generates a pseudo random sequence */
-double sequence_pseudorandom1(uint32_t x);
+precision sequence_pseudorandom1(uint32_t x);
 
 /** Generates a random seed vector which is normalized */
 vector generate_seed();
@@ -27,16 +27,16 @@ vector convert_to_seed(iso::radians r);
 vector convert_to_seed(iso::degrees d);
 
 /** A two way interpolation using z = x*(1-a) + y*a */
-constexpr double interpolate(double x, double y, double a) {
-    return (x * (1.0 - a) + (y * a));
+constexpr precision interpolate(precision x, precision y, precision a) {
+    return (x * (1.0_p - a) + (y * a));
 }
 
 /** Maps an input value range to an output value range */
-constexpr double map(double value, double in_low, double in_hi, double out_low, double out_hi) {
+constexpr precision map(precision value, precision in_low, precision in_hi, precision out_low, precision out_hi) {
     value = std::max(in_low, std::min(value, in_hi));
-    double in_range = in_hi - in_low;
-    double out_range = out_hi - out_low;
-    double norm = (value - in_low) / in_range;
+    precision in_range = in_hi - in_low;
+    precision out_range = out_hi - out_low;
+    precision norm = (value - in_low) / in_range;
     return (norm * out_range) + out_low;
 }
 
@@ -49,18 +49,18 @@ point fract(const point& pnt);
 /**
  * Computes a seemingly random, repeatable number from a 2d point and 2d scalars.
  */
-double random(const vector& pnt, const vector& scalars, double gain);
+precision random(const vector& pnt, const vector& scalars, precision gain);
 
 /** Improved Perlin Fade, which is defined as 6t^5 - 15t^4 + 10t^3 */
-constexpr double fade(double t) {
+constexpr precision fade(precision t) {
     return t * t * t * (t * (t * 6 - 15) + 10);
 }
 
 namespace {  // in an anonymous namespace for testing
 // enforce the correctness at compile time!
-static_assert(fade(0.5) == 0.5, "Must be equal");
-static_assert(fade(1.0) == 1.0, "Must be equal");
-static_assert(fade(2.0) == 32.0, "Must be equal");
+static_assert(fade(0.5_p) == 0.5_p, "Must be equal");
+static_assert(fade(1.0_p) == 1.0_p, "Must be equal");
+static_assert(fade(2.0_p) == 32.0_p, "Must be equal");
 }  // namespace
 
 /** @todo The set of 3d perlin noise gradients */
@@ -78,9 +78,9 @@ static_assert(fade(2.0) == 32.0, "Must be equal");
  * @see https://flafla2.github.io/2014/08/09/perlinnoise.html
  * @see https://mzucker.github.io/html/perlin-noise-math-faq.html
  */
-double perlin(const point& pnt, double scale, const vector& seeds, double gain);
+precision perlin(const point& pnt, precision scale, const vector& seeds, precision gain);
 
-/** Builds an internal 2D map of random values between 0.0 and 1.0. */
+/** Builds an internal 2D map of random values between 0.0_p and 1.0_p. */
 template <typename T, size_t DIM>
 class pad_ {
 public:
@@ -91,8 +91,8 @@ public:
 
     void generate(void) {
         std::default_random_engine generator;
-        // create values between [0.0,1.0)
-        std::uniform_real_distribution<double> distribution(0.0, 1.0);
+        // create values between [0.0_p,1.0_p)
+        std::uniform_real_distribution<precision> distribution(0.0_p, 1.0_p);
 
         for (size_t y = 0; y < dimensions; y++) {
             for (size_t x = 0; x < dimensions; x++) {
@@ -105,7 +105,7 @@ public:
         return values[y % dimensions][x % dimensions];
     }
 
-    T at(double y, double x) const {
+    T at(precision y, precision x) const {
         size_t _y = static_cast<size_t>(std::floor(y));
         size_t _x = static_cast<size_t>(std::floor(x));
         return at(_y, _x);
@@ -118,23 +118,23 @@ public:
 protected:
     T values[dimensions][dimensions];
 };
-using pad = pad_<double, 128>;
+using pad = pad_<precision, 128>;
 
 /**
  * Returns a smoothed value from the Noise map given the point
  * @param pnt The input point.
  * @param map The input noise map
- * @return double
+ * @return precision
  */
-double smooth(const point& pnt, const pad& m);
+precision smooth(const point& pnt, const pad& m);
 
 /**
  * Generates some turbulence from the point.
  * @param pnt
  * @param size
- * @return double
+ * @return precision
  */
-double turbulence(const point& pnt, double size, double scale, const pad& m);
+precision turbulence(const point& pnt, precision size, precision scale, const pad& m);
 
 /**
  * Turbulent Sine Noise
@@ -147,12 +147,12 @@ double turbulence(const point& pnt, double size, double scale, const pad& m);
  * @param map The noise pad to pull values from
  * @see https://lodev.org/cgtutor/randomnoise.html
  */
-double turbulentsin(const point& pnt, double xs, double ys, double power, double size, double scale, const pad& map);
+precision turbulentsin(const point& pnt, precision xs, precision ys, precision power, precision size, precision scale, const pad& map);
 
 namespace gains {
-constexpr double pink = 1.0;
-constexpr double brown = 1.41421356237309504880168872420969807856967187537694807317667973799;  // sqrt(2.0);
-constexpr double yellow = 0.5;
+constexpr precision pink = 1.0_p;
+constexpr precision brown = 1.41421356237309504880168872420969807856967187537694807317667973799_p;  // sqrt(2.0_p);
+constexpr precision yellow = 0.5_p;
 }  // namespace gains
 
 /**
@@ -163,12 +163,12 @@ constexpr double yellow = 0.5;
  * @param pnt The point in the space (does not need to be pre-fract)
  * @param seed The noise seed value
  * @param octaves The number of iterative octaves
- * @param lacunarity How the frequency is modified after every octave. Usually 2.0
- * @param gain How the amplitude if modified after every octave. Usually 0.5 or some value x where 2^-y
+ * @param lacunarity How the frequency is modified after every octave. Usually 2.0_p
+ * @param gain How the amplitude if modified after every octave. Usually 0.5_p or some value x where 2^-y
  * @param initial_amplitude The initial amplitude
  * @param initial_frequency The initial starting frequency
  */
-double fractal_brownian(const point& pnt, const vector& seed, size_t octaves, double lacunarity = 2.0,
-                        double gain = 0.5, double initial_amplitude = 1.0, double initial_frequency = 1.0);
+precision fractal_brownian(const point& pnt, const vector& seed, size_t octaves, precision lacunarity = 2.0_p,
+                        precision gain = 0.5_p, precision initial_amplitude = 1.0_p, precision initial_frequency = 1.0_p);
 
 }  // namespace noise

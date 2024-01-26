@@ -3,7 +3,7 @@
  * This is an auto-generated header for iso::meters.
  * A measure of distance
  * @note See README on re-generation.
- * @copyright Copyright 2022.
+ * @copyright Copyright 2024.
  */
 #pragma once
 #include <cstdint>
@@ -29,12 +29,12 @@ struct suffix_type_m {
  * overload >,<,==,!=,<=,>=
  * not overloaded %=,%
  */
-class meters : public measurement<double, SI::prefix, suffix_type_m> {
+class meters : public measurement<precision, SI::prefix, suffix_type_m> {
 public:
     /** Default constructor */
     meters();
     /** Parameter constructor */
-    explicit meters(double value);
+    explicit meters(precision value);
     /** Copy Constructor */
     meters(const meters& other);
     /** Move Constructor */
@@ -56,9 +56,9 @@ public:
     /** Deccumulation Operator */
     meters& operator-=(const meters& other);
     /** Scaling Operator */
-    meters& operator*=(double factor);
+    meters& operator*=(precision factor);
     /** Inverse Scaling Operator */
-    meters& operator/=(double factor);
+    meters& operator/=(precision factor);
     /** Negating Operator */
     meters operator-() const;
     /** Less Than Operator */
@@ -77,11 +77,11 @@ namespace operators {
     /** Subtraction operator */
     meters operator-(const meters& A, const meters& B);
     /** Left Scaling Operator */
-    meters operator*(const meters& A, double factor);
+    meters operator*(const meters& A, precision factor);
     /** Right Scaling Operator */
-    meters operator*(double factor, const meters& A);
+    meters operator*(precision factor, const meters& A);
     /** Inverse Scaling Operator */
-    meters operator/(const meters& A, double factor);
+    meters operator/(const meters& A, precision factor);
 }
 
 namespace literals {

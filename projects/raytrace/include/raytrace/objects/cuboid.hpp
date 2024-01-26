@@ -9,16 +9,17 @@
 
 namespace raytrace {
 namespace objects {
-/** A six sided rectangar (in a 3D sense) object (cuboid). */
+/** A six sided rectangular (in a 3D sense) object (cuboid). */
 class cuboid : public object {
 public:
     /**
      * Constructs a cuboid at a point of a given set of half widths. When the half-width are the same,
      * it is a cube.
      */
-    cuboid(const point& center, double x_half_width, double y_half_width, double z_half_width);
+    cuboid(const point& center, precision x_half_width, precision y_half_width, precision z_half_width);
     /** Uses the point move syntax */
-    cuboid(point&& center, double x_half_width, double y_half_width, double z_half_width);
+    cuboid(point&& center, precision x_half_width, precision y_half_width, precision z_half_width);
+
     virtual ~cuboid() = default;
 
     /** @copydoc raytrace::object::normal */
@@ -31,15 +32,15 @@ public:
     image::point map(const point& object_surface_point) const override;
     /** @copydoc basal::printable::print */
     void print(const char str[]) const override;
-    element_type get_object_extant(void) const override;
+    precision get_object_extant(void) const override;
 
-    const element_type& x_half_width;
-    const element_type& y_half_width;
-    const element_type& z_half_width;
+    const precision& x_half_width;
+    const precision& y_half_width;
+    const precision& z_half_width;
 
 protected:
     // The half-width sizes for x,y,z
-    element_type m_half_widths[3];
+    precision m_half_widths[3];
     point m_faces[6];
     // These don't change with any particular instance
     static const vector m_normals[6];

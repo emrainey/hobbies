@@ -19,7 +19,7 @@ public:
     /** @return The index with the highest score.
      * @param [out] out The value of the highest score.
      */
-    size_t infer_label(double& out);
+    size_t infer_label(precision& out);
 
     /**
      * This will create a desired output matrix and compute the error and
@@ -28,7 +28,7 @@ public:
      * desired max value.
      * @param [in] max The value to assign to the maximum node.
      */
-    void learn_label(size_t index, double min = -1.0, double max = 1.0);
+    void learn_label(size_t index, precision min = -1.0, precision max = 1.0);
 
     /**
      * This will use the desired to start the training process for
@@ -48,9 +48,9 @@ public:
     linalg::matrix error;
 
     /** Holds to total error */
-    double error_value;
+    precision error_value;
 
     /** Holds the true RMS of the layer */
-    double rms_value;
+    precision rms_value;
 };
 }  // namespace nn

@@ -17,7 +17,7 @@ class ray_ : public basal::printable {
 
 public:
     using point = point_<DIMS>;
-    using vector = vector_<element_type, DIMS>;
+    using vector = vector_<precision, DIMS>;
 
     /** Remember how many base dimensions this ray has */
     constexpr static size_t dimensions = DIMS;
@@ -55,13 +55,13 @@ public:
         return m_direction;
     }
 
-    point distance_along(element_type t) const {
+    point distance_along(precision t) const {
         return m_location + (t * m_direction);
     }
 
     point closest(const R3::point& p) const {
         R3::vector side = p - location();
-        element_type t = dot(side, direction()) / direction().quadrance();
+        precision t = dot(side, direction()) / direction().quadrance();
         return distance_along(t);
     }
 
@@ -104,13 +104,13 @@ bool inequality(const ray_<DIMS>& a, const ray_<DIMS>& b) {
 template <size_t DIMS>
 ray_<DIMS> multiply(const linalg::matrix& m, const ray_<DIMS>& r) {
     basal::exception::throw_unless(m.rows == r.dimensions, __FILE__, __LINE__, "Must be same dimensions");
-    vector_<element_type, DIMS> v = multiply(m, r.direction());
+    vector_<precision, DIMS> v = multiply(m, r.direction());
     return ray_<DIMS>(r.location(), v);
 }
 
 /** Adds the vector to the point, does change the direction of the ray */
 template <size_t DIMS>
-ray_<DIMS> addition(const ray_<DIMS>& r, const vector_<element_type, DIMS>& v) {
+ray_<DIMS> addition(const ray_<DIMS>& r, const vector_<precision, DIMS>& v) {
     return ray_<DIMS>(r.location() + v, r.direction());
 }
 
@@ -135,7 +135,7 @@ inline ray_<DIMS> operator*(const linalg::matrix& m, const ray_<DIMS>& r) {
 
 /** Addition Operator. Add the vector to the point, does change the direction of the ray */
 template <size_t DIMS>
-inline ray_<DIMS> operator+(const ray_<DIMS>& r, const vector_<element_type, DIMS>& v) {
+inline ray_<DIMS> operator+(const ray_<DIMS>& r, const vector_<precision, DIMS>& v) {
     return addition(r, v);
 }
 }  // namespace operators

@@ -12,20 +12,20 @@
 
 using namespace raytrace;
 
-void subspheres(std::vector<raytrace::objects::sphere*>& spheres, const raytrace::point& center, double R,
+void subspheres(std::vector<raytrace::objects::sphere*>& spheres, const raytrace::point& center, precision R,
                 size_t depth) {
     if (depth > 0) {
         // adding 28 spheres of
-        double radius = R / 6.0;
-        for (double z = -R; z <= R; z += R) {
-            for (double y = -R; y <= R; y += R) {
-                for (double x = -R; x <= R; x += R) {
+        precision radius = R / 6.0_p;
+        for (precision z = -R; z <= R; z += R) {
+            for (precision y = -R; y <= R; y += R) {
+                for (precision x = -R; x <= R; x += R) {
                     // if all are zero, continue
-                    if (iso::equivalent(x, 0.0) and iso::equivalent(y, 0.0) and iso::equivalent(z, 0.0)) {
+                    if (iso::equivalent(x, 0.0_p) and iso::equivalent(y, 0.0_p) and iso::equivalent(z, 0.0_p)) {
                         continue;
                     }
                     spheres.push_back(new raytrace::objects::sphere(center + R3::vector{{x, y, z}}, radius));
-                    subspheres(spheres, spheres.back()->position(), R / 3.0, depth - 1);
+                    subspheres(spheres, spheres.back()->position(), R / 3.0_p, depth - 1);
                 }
             }
         }
@@ -36,14 +36,14 @@ public:
     SpheresWorld()
         : world{}  //, look_from(-50, 50, 20)
                    //, look_at(0, 0, 0)
-        , look_from{-10, 6.66, 20}
-        , look_at{3, 0, 6}
+        , look_from{-10.0_p, 6.66_p, 20.0_p}
+        , look_at{3.0_p, 0.0_p, 6.0_p}
         , spheres{}
         , sunlight{raytrace::vector{-2, 2, -1}, colors::white, 1E11}
         , specks{} {
         raytrace::point center = look_at;
         spheres.push_back(new raytrace::objects::sphere(center, 6));
-        subspheres(spheres, center, 12.0, 2);
+        subspheres(spheres, center, 12.0_p, 2);
         for (auto& s : spheres) {
             s->material(&mediums::metals::stainless);
         }

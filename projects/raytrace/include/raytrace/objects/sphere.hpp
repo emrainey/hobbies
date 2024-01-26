@@ -15,7 +15,7 @@ public:
     /**
      * Constructs a sphere at a point of a given radius.
      */
-    sphere(const point& center, double radius);
+    sphere(const point& center, precision radius);
     virtual ~sphere() = default;
 
     /** @copydoc geometry::sphere::surface */
@@ -30,7 +30,7 @@ public:
     image::point map(const point& object_surface_point) const override;
     /** @copydoc basal::printable::print */
     void print(const char str[]) const override;
-    element_type get_object_extant(void) const override;
+    precision get_object_extant(void) const override;
 };
 }  // namespace objects
 }  // namespace raytrace

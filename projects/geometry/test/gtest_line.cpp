@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include "basal/gtest_helper.hpp"
 
 #include <basal/basal.hpp>
 #include <geometry/geometry.hpp>
@@ -27,8 +27,8 @@ TEST(LineTest, Distance) {
     R3::line l{geometry::R3::origin, v};
     R3::point p{3, 3, 5};
     R3::point q{-2, -3, 0};
-    ASSERT_DOUBLE_EQ(5.0, l.distance(p));
-    ASSERT_DOUBLE_EQ(sqrt(2.0) / 2, l.distance(q));
+    ASSERT_PRECISION_EQ(5.0, l.distance(p));
+    ASSERT_PRECISION_EQ(sqrt(2.0) / 2, l.distance(q));
 }
 
 TEST(LineTest, Solves) {
@@ -38,7 +38,7 @@ TEST(LineTest, Solves) {
     R3::vector vA{{1, 1, 1}};
 
     R3::line L0{vA, A};
-    element_type t;
+    precision t;
     ASSERT_TRUE(L0.solve(A, t));
     ASSERT_FLOAT_EQ(0, t);
 
@@ -55,7 +55,7 @@ TEST(LineTest, SolvesFlattened) {
     R3::vector vA{{1, 0, -1}};
 
     R3::line L0{vA, A};
-    element_type t;
+    precision t;
     ASSERT_TRUE(L0.solve(A, t));
     ASSERT_FLOAT_EQ(0, t);
 

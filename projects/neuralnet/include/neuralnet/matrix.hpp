@@ -6,14 +6,15 @@
  */
 
 #include <linalg/linalg.hpp>
-
+#include <basal/ieee754.hpp>
 namespace nn {
 using namespace linalg;
+using precision = basal::precision;
 
-/** Returns a sigmoid from a double */
-double sigmoid(double x);
-/** Returns a sigmoid derivative from a double */
-double sigmoid_deriv(double x);
+/** Returns a sigmoid from a precision */
+precision sigmoid(precision x);
+/** Returns a sigmoid derivative from a precision */
+precision sigmoid_deriv(precision x);
 
 /** Returns a sigmoid matrix from a rvalue matrix */
 matrix sigmoid(matrix&& mat);
@@ -25,27 +26,27 @@ matrix sigmoid_deriv(matrix&& mat);
 /** Returns a sigmoid derivative matrix from a matrix */
 matrix sigmoid_deriv(const matrix& mat);
 
-/** Returns a hyperbolic tangent from a double */
-double tanh_(double x);
+/** Returns a hyperbolic tangent from a precision */
+precision tanh_(precision x);
 /** Returns a hyperbolic tangent matrix from a r-value matrix */
 matrix tanh_(matrix&& mat);
 /** Returns a hyperbolic tangent matrix from a matrix */
 matrix tanh_(const matrix& mat);
 
-/** Returns a hyperbolic tangent derivative from a double */
-double tanh_deriv(double x);
+/** Returns a hyperbolic tangent derivative from a precision */
+precision tanh_deriv(precision x);
 /** Returns a hyperbolic tangent derivative matrix from a r-value matrix */
 matrix tanh_deriv(matrix&& mat);
 /** Returns a hyperbolic tangent derivative matrix from a matrix */
 matrix tanh_deriv(const matrix& mat);
 
 /** A fudge factor */
-constexpr static const double leaky = 0.15;
+constexpr static const precision leaky = 0.15_p;
 
-/** Returns a RELU value from a double */
-double relu(double x);
-/** Returns a RELU derivative value from a double */
-double relu_deriv(double x);
+/** Returns a RELU value from a precision */
+precision relu(precision x);
+/** Returns a RELU derivative value from a precision */
+precision relu_deriv(precision x);
 
 /** Return the RELU value from a matrix */
 matrix relu(const matrix& mat);
@@ -63,9 +64,9 @@ matrix squared(const matrix& mat);
 /// Squares each value in the r-value matrix
 matrix squared(matrix&& mat);
 /// Sums all values in the matrix
-double sum(const matrix& mat);
+precision sum(const matrix& mat);
 /// Sums all values in the matrix
-double sum(matrix&& mat);
+precision sum(matrix&& mat);
 
 /** Returns the square root of each value in the matrix */
 matrix sqrt(const matrix& mat);

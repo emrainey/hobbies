@@ -7,6 +7,7 @@
 
 #include <basal/exception.hpp>
 #include <basal/printable.hpp>
+#include <basal/ieee754.hpp>
 #include <cinttypes>
 #include <functional>
 #include <initializer_list>
@@ -22,6 +23,8 @@
 
 namespace linalg {
 
+using namespace basal::literals;
+
 /** The matrix objects, the core of the linear algebra library. */
 class matrix : public basal::printable {
 public:
@@ -36,9 +39,9 @@ protected:
     /** Used to remember if the memory was imported from an external allocator */
     const bool external_memory;
     /** The pointer to the internal memory allocation */
-    element_type *memory;
+    precision *memory;
     /** The array of memory pointers */
-    element_type **array;
+    precision **array;
 
     /** Allocates the memory for the array and the memory pointers */
     bool create(size_t rows, size_t cols, size_t bytes);
@@ -53,17 +56,17 @@ public:
     /** A user defined constructor (which assumes at least a 1x1) */
     matrix(size_t rows = 3, size_t cols = 3);
 
-    /** A user defined copy constructor from basic element_type array */
-    matrix(size_t rows, size_t cols, element_type mat[]);
+    /** A user defined copy constructor from basic precision array */
+    matrix(size_t rows, size_t cols, precision mat[]);
 
-    /** Explicit Constructor for a 2x2 element_type matrix */
-    explicit matrix(element_type m[2][2]);
-    /** Explicit Constructor for a 3x3 element_type matrix */
-    explicit matrix(element_type m[3][3]);
-    /** Explicit Constructor for a 4x4 element_type matrix */
-    explicit matrix(element_type m[4][4]);
-    /** Explicit constructor for a nested vector of element_types */
-    explicit matrix(const std::vector<std::vector<element_type>> &a);
+    /** Explicit Constructor for a 2x2 precision matrix */
+    explicit matrix(precision m[2][2]);
+    /** Explicit Constructor for a 3x3 precision matrix */
+    explicit matrix(precision m[3][3]);
+    /** Explicit Constructor for a 4x4 precision matrix */
+    explicit matrix(precision m[4][4]);
+    /** Explicit constructor for a nested vector of precisions */
+    explicit matrix(const std::vector<std::vector<precision>> &a);
 
     /** Copy constructor */
     matrix(const matrix &a) noexcept(false);
@@ -74,7 +77,7 @@ public:
     /** Move assignment */
     matrix &operator=(matrix &&a) noexcept(false);
     /** Assignment operator, fills each matrix value with v */
-    void operator=(const element_type v);
+    void operator=(const precision v);
     /** Virtual Destructor */
     virtual ~matrix();
 
@@ -88,13 +91,13 @@ public:
     static matrix ones(size_t rows, size_t cols);
 
     /** Static method to create a random value matrix */
-    static matrix random(size_t rows, size_t cols, double min = 0.0, double max = 1.0, double p = 3.0);
+    static matrix random(size_t rows, size_t cols, precision min = 0.0_p, precision max = 1.0_p, precision p = 3.0_p);
 
     /** Makes a row matrix from a vector */
-    static matrix row(std::vector<element_type> &data);
+    static matrix row(std::vector<precision> &data);
 
     /** Makes a column matrix from a vector */
-    static matrix col(std::vector<element_type> &data);
+    static matrix col(std::vector<precision> &data);
 
     /** Creates a copy of the matrix */
     matrix copy();
@@ -103,43 +106,43 @@ public:
     matrix &zero();
 
     /** Fills a matrix with a specific value */
-    matrix &fill(element_type v);
+    matrix &fill(precision v);
 
     /** Fill a matrix with random values between the given parameters */
-    matrix &random(double min = 0.0, double max = 1.0, double p = 3.0);
+    matrix &random(precision min = 0.0_p, precision max = 1.0_p, precision p = 3.0_p);
 
     /** Returns the trace of a matrix */
-    element_type trace() const;
+    precision trace() const;
 
     /** Returns the value at the row and column. 0 based indexing. */
-    virtual element_type &index(size_t idx) noexcept(false);
+    virtual precision &index(size_t idx) noexcept(false);
     /** Returns the value at the row and column. 0 based indexing. */
-    virtual element_type index(const size_t idx) const noexcept(false);
+    virtual precision index(const size_t idx) const noexcept(false);
 
     /** Returns the value at the row and column. 0 based indexing. */
-    virtual element_type &index(size_t row, size_t col) noexcept(false);
+    virtual precision &index(size_t row, size_t col) noexcept(false);
     /** Returns the value at the row and column. 0 based indexing. */
-    virtual element_type index(const size_t row, const size_t col) const noexcept(false);
+    virtual precision index(const size_t row, const size_t col) const noexcept(false);
 
     /** Returns the value at the row and column. 0 based indexing. */
-    element_type operator()(const size_t row, const size_t col) const noexcept(false);
+    precision operator()(const size_t row, const size_t col) const noexcept(false);
     /** Returns the value at the row and column. 0 based indexing. */
-    element_type &operator()(size_t row, size_t col) noexcept(false);
+    precision &operator()(size_t row, size_t col) noexcept(false);
 
     /** Returns a pointer of a row which can be further indexed */
-    virtual const element_type *operator[](size_t idx) const noexcept(false);
+    virtual const precision *operator[](size_t idx) const noexcept(false);
     /** Returns a const pointer to a const value row */
-    virtual element_type *operator[](size_t idx) noexcept(false);
+    virtual precision *operator[](size_t idx) noexcept(false);
 
     /** This method uses a 1 based, not 0 based indexes */
-    virtual element_type &at(short r, short c) noexcept(false);
+    virtual precision &at(short r, short c) noexcept(false);
     /** This method uses a 1 based, not 0 based indexes */
-    virtual element_type at(short r, short c) const noexcept(false);
+    virtual precision at(short r, short c) const noexcept(false);
 
     /** This method uses a 1 based, not 0 based indexes */
-    virtual element_type &at(letters i) noexcept(false);
+    virtual precision &at(letters i) noexcept(false);
     /** This method uses a 1 based, not 0 based indexes */
-    virtual element_type at(letters i) const noexcept(false);
+    virtual precision at(letters i) const noexcept(false);
 
     /** Copies the matrix into another matrix at a specified row and column. */
     void assignInto(matrix &dst, size_t start_row, size_t start_col);
@@ -151,8 +154,8 @@ public:
     matrix &operator/=(const matrix &a);
 
     // scalar ops
-    matrix &operator*=(const element_type r);
-    matrix &operator/=(const element_type r);
+    matrix &operator*=(const precision r);
+    matrix &operator/=(const precision r);
 
     // comparisons
     bool operator==(const matrix &a) const;
@@ -164,9 +167,9 @@ public:
     /** Returns the inverse of the matrix */
     matrix inverse() const noexcept(false);
     /** Returns the determinant of the matrix */
-    element_type determinant() const noexcept(false);
+    precision determinant() const noexcept(false);
     /** Returns the magnitude of the matrix */
-    virtual element_type magnitude() const;
+    virtual precision magnitude() const;
     /** Returns the transpose of the matrix */
     matrix transpose() const;
     matrix T() const; /**< shortening of the transpose() */
@@ -196,11 +199,11 @@ public:
 #undef minor  // somewhere deep in Unix land this is used to make minor numbers
 
     /** Returns the determinant of the sub matrix */
-    element_type minor(size_t number_of_rows, size_t number_of_columns) const;
+    precision minor(size_t number_of_rows, size_t number_of_columns) const;
     /** Returns a matrix of the minors of the object matrix */
     matrix minors() const;
     /** Returns the minor multiplied by a power */
-    element_type cofactor(size_t number_of_rows, size_t number_of_columns) const;
+    precision cofactor(size_t number_of_rows, size_t number_of_columns) const;
     /** Return a matrix of cofact   ors */
     matrix comatrix() const;
     /** Returns the tranpose of the comatrix */
@@ -237,7 +240,7 @@ public:
     bool upper_triangular() const;
 
     /** Determines if a value is an eigenvalue of a matrix */
-    bool eigenvalue(element_type lambda) const;
+    bool eigenvalue(precision lambda) const;
 
     /** Returns the eigenvalues of the matrix */
     matrix eigenvalues() const noexcept(false);
@@ -267,16 +270,16 @@ public:
     std::tuple<matrix, matrix, matrix> PLU() const noexcept(false);
 
     /** For use with const methods */
-    typedef std::function<void(size_t, size_t, const element_type &)> const_coord_iterator;
+    typedef std::function<void(size_t, size_t, const precision &)> const_coord_iterator;
 
     /** For use with non-const methods */
-    typedef std::function<void(size_t, size_t, element_type &)> ref_coord_iterator;
+    typedef std::function<void(size_t, size_t, precision &)> ref_coord_iterator;
 
     /** For use with filling non-const methods */
-    typedef std::function<void(const element_type &)> const_ref_iterator;
+    typedef std::function<void(const precision &)> const_ref_iterator;
 
     /** For use with filling non-const methods */
-    typedef std::function<void(element_type &)> ref_iterator;
+    typedef std::function<void(precision &)> ref_iterator;
 
     /** A method to iterator over all elements of the matrix by row and column with a const value */
     void for_each(const_coord_iterator const_functor) const;
@@ -368,22 +371,22 @@ protected:
     /** Swap two rows */
     void row_swap(size_t row_a, size_t row_b);
     /** Scale a row by 'a' */
-    void row_scale(size_t row, element_type a);
+    void row_scale(size_t row, precision a);
     /** Row addition
      * \code
      * A[dst][c] = A[dst][c] + (a * A[src][c]);
      * \endcode
      */
-    void row_add(size_t row_dst, size_t row_src, element_type a = 1.0);
+    void row_add(size_t row_dst, size_t row_src, precision a = 1.0_p);
     /** Row subtraction
      * \code
      * A[dst][c] = A[dst][c] - (a * A[src][c]);
      * \endcode
      */
-    void row_sub(size_t row_dst, size_t row_src, element_type a = 1.0);
+    void row_sub(size_t row_dst, size_t row_src, precision a = 1.0_p);
 
     /** Compares row to a value */
-    bool row_compare(size_t row, element_type a);
+    bool row_compare(size_t row, precision a);
 
     /** Pushes zeroes rows to bottom of matrix */
     matrix &sort_zero_rows();
@@ -402,10 +405,10 @@ matrix subtraction(const matrix &a, const matrix &b) noexcept(false);
 matrix multiply(const matrix &a, const matrix &b) noexcept(false);
 
 /** Multiplies matrix a by scalar r */
-matrix multiply(const matrix &a, const element_type r) noexcept(false);
+matrix multiply(const matrix &a, const precision r) noexcept(false);
 
 /** Multiplies matrix a by scalar r */
-matrix multiply(const element_type r, const matrix &a) noexcept(false);
+matrix multiply(const precision r, const matrix &a) noexcept(false);
 
 namespace operators {
 inline matrix operator+(const matrix &a, const matrix &b) noexcept(false) {
@@ -420,11 +423,11 @@ inline matrix operator*(const matrix &a, const matrix &b) noexcept(false) {
     return multiply(a, b);
 }
 
-inline matrix operator*(const matrix &a, const element_type r) noexcept(false) {
+inline matrix operator*(const matrix &a, const precision r) noexcept(false) {
     return multiply(a, r);
 }
 
-inline matrix operator*(const element_type r, const matrix &a) noexcept(false) {
+inline matrix operator*(const precision r, const matrix &a) noexcept(false) {
     return multiply(a, r);
 }
 
@@ -434,12 +437,12 @@ inline matrix operator/(const matrix &a, const matrix &b) noexcept(false) {
     return multiply(a, binv);
 }
 
-inline matrix operator/(const matrix &a, const element_type r) noexcept(false) {
-    return multiply(a, (1.0 / r));
+inline matrix operator/(const matrix &a, const precision r) noexcept(false) {
+    return multiply(a, (1.0_p / r));
 }
 
-inline matrix operator/(const element_type r, const matrix &a) noexcept(false) {
-    return multiply(a, (1.0 / r));
+inline matrix operator/(const precision r, const matrix &a) noexcept(false) {
+    return multiply(a, (1.0_p / r));
 }
 
 /** An easy mechanism to raise a matrix to a specific integer power */
@@ -517,12 +520,12 @@ matrix hadamard(const matrix &a, const matrix &b) noexcept(false);
 // INLINE SHORTCUTS
 
 /** Returns the determinant of the matrix */
-inline element_type determinant(const matrix &A) noexcept(false) {
+inline precision determinant(const matrix &A) noexcept(false) {
     return A.determinant();
 }
 
 /** Returns the determinant of the const matrix */
-inline element_type det(const matrix &A) noexcept(false) {
+inline precision det(const matrix &A) noexcept(false) {
     return A.determinant();
 }
 
@@ -532,7 +535,7 @@ inline matrix adj(const matrix &A) noexcept(false) {
 }
 
 /** Return the trace of the matrix. */
-inline element_type tr(const matrix &A) {
+inline precision tr(const matrix &A) {
     return A.trace();
 }
 
@@ -542,12 +545,12 @@ inline matrix inv(const matrix &A) noexcept(false) {
 }
 
 /** Returns the absolute value of the matrix */
-inline element_type abs(const matrix &A) noexcept(false) {
+inline precision abs(const matrix &A) noexcept(false) {
     return A.determinant();
 }
 
 /** Computes the dot of two matrixes (not vectors) */
-inline element_type dot(const matrix &u, const matrix &v) noexcept(false) {
+inline precision dot(const matrix &u, const matrix &v) noexcept(false) {
     using namespace operators;
     return (v.T() * u).determinant();
 }

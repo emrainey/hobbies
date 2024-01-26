@@ -4,7 +4,7 @@ namespace raytrace {
 namespace lights {
 using namespace linalg::operators;
 
-light::light(const color& C, element_type intensity, size_t number_of_samples)
+light::light(const color& C, precision intensity, size_t number_of_samples)
     : m_color{C}, m_intensity{intensity}, m_samples{number_of_samples} {
 }
 

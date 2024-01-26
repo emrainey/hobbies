@@ -3,7 +3,7 @@
  * This is an auto-generated source for iso::seconds.
  * A measure of time
  * @note See README on re-generation.
- * @copyright Copyright 2022.
+ * @copyright Copyright 2024.
  */
 #include "iso/seconds.hpp"
 
@@ -13,7 +13,7 @@ const char* const suffix_type_sec::suffix;
 seconds::seconds() : measurement{} {
 }
 // explicit value
-seconds::seconds(double a) : measurement{a} {
+seconds::seconds(precision a) : measurement{a} {
 }
 // copy constructor
 seconds::seconds(const seconds& other) : measurement{other} {
@@ -48,11 +48,11 @@ seconds& seconds::operator-=(const seconds& other) {
     _value -= other.value;
     return (*this);
 }
-seconds& seconds::operator*=(double factor) {
+seconds& seconds::operator*=(precision factor) {
     _value *= factor;
     return (*this);
 }
-seconds& seconds::operator/=(double factor) {
+seconds& seconds::operator/=(precision factor) {
     _value /= factor;
     return (*this);
 }
@@ -78,19 +78,19 @@ seconds operator+(const seconds& A, const seconds& B) {
 seconds operator-(const seconds& A, const seconds& B) {
     return seconds{A.value - B.value};
 }
-seconds operator*(const seconds& A, double factor) {
+seconds operator*(const seconds& A, precision factor) {
     return seconds{A.value * factor};
 }
-seconds operator*(double factor, const seconds& A) {
+seconds operator*(precision factor, const seconds& A) {
     return seconds{A.value * factor};
 }
-seconds operator/(const seconds& A, double factor) {
+seconds operator/(const seconds& A, precision factor) {
     return seconds{A.value / factor};
 }
 }  // namespace operators
 namespace literals {
 iso::seconds operator""_sec(long double a) {
-    return iso::seconds(a);
+    return iso::seconds(static_cast<precision>(a));
 }
 iso::seconds operator""_sec(unsigned long long a) {
     return iso::seconds(a);

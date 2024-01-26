@@ -4,7 +4,7 @@ namespace raytrace {
 
 namespace mediums {
 
-metal::metal(color diffuse, element_type smoothness, element_type tightness, element_type fuzz_scale)
+metal::metal(color diffuse, precision smoothness, precision tightness, precision fuzz_scale)
     : conductor{}
     , m_specularity{diffuse}  // metals (conductors} can alter the color of the light
     , m_fuzz_scale{basal::clamp(0.0, fuzz_scale, 1.0)} {
@@ -13,7 +13,7 @@ metal::metal(color diffuse, element_type smoothness, element_type tightness, ele
     m_tightness = tightness;
 }
 
-color metal::specular(const raytrace::point& volumetric_point, element_type scaling, const color& light_color) const {
+color metal::specular(const raytrace::point& volumetric_point, precision scaling, const color& light_color) const {
     using namespace operators;
     // metals can alter the incoming light in specular highlights
     // we multiply by the color to emulate surfaces which would reject the light color by being a different color.

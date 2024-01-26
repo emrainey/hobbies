@@ -4,7 +4,7 @@ namespace raytrace {
 
 namespace mediums {
 
-plain::plain(const color& amb, element_type amb_scale, const color& dif, element_type ref, element_type rough)
+plain::plain(const color& amb, precision amb_scale, const color& dif, precision ref, precision rough)
     : opaque{} {
     m_ambient = amb;
     m_ambient_scale = basal::clamp(0.0, amb_scale, 1.0);

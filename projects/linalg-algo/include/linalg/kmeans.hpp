@@ -43,7 +43,7 @@ public:
     void initial(InitialMethod method);
 
     /** Iterates the method and reports the error */
-    double iteration(IterationMethod method);
+    precision iteration(IterationMethod method);
 
     /** Returns the vector of centroids. */
     const std::vector<geometry::R2::point> &centroids() const;

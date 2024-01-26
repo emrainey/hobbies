@@ -17,7 +17,7 @@ namespace linalg {
  * Solves for the quadratic roots via the quadratic formula.
  * Given: a*x^2+b*x+c=0, solves for x. A NaN is a complex solution.
  */
-std::tuple<element_type, element_type> quadratic_roots(element_type a, element_type b, element_type c);
+std::tuple<precision, precision> quadratic_roots(precision a, precision b, precision c);
 
 /**
  * @todo Solves for cubic roots of a cubic formula:
@@ -25,28 +25,28 @@ std::tuple<element_type, element_type> quadratic_roots(element_type a, element_t
  * @see https://www.youtube.com/watch?v=N-KXStupwsc
  * @return Returns real solutions only. Solutions which would be complex are left as NaN. Solutions are left-packed.
  */
-std::tuple<element_type, element_type, element_type> cubic_roots(element_type a, element_type b, element_type c,
-                                                                 element_type d);
+std::tuple<precision, precision, precision> cubic_roots(precision a, precision b, precision c,
+                                                                 precision d);
 
 /**
  * @todo Solves for quartic roots of a quartic formula:
  * Given: a*x^4+b*x^3+c*x^2+d*x^1+e=0, solves for x. A NaN in the tuple is a complex solution.
  */
-std::tuple<element_type, element_type, element_type, element_type> quartic_roots(element_type a, element_type b,
-                                                                                 element_type c, element_type d,
-                                                                                 element_type e);
+std::tuple<precision, precision, precision, precision> quartic_roots(precision a, precision b,
+                                                                                 precision c, precision d,
+                                                                                 precision e);
 
 /**
  * Returns true when m is within the range of low to hi (but not when equal)
  */
-constexpr bool within(element_type low, element_type m, element_type hi) {
+constexpr bool within(precision low, precision m, precision hi) {
     return (low < m and m < hi);
 }
 
 /**
  * Returns true when m is within the range of low to hi (but not when equal)
  */
-constexpr bool within_inclusive(element_type low, element_type m, element_type hi) {
+constexpr bool within_inclusive(precision low, precision m, precision hi) {
     return (low <= m and m <= hi);
 }
 

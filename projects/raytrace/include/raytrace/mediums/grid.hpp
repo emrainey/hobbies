@@ -11,13 +11,13 @@ public:
     /**
      * @param scale The scaling factor
      */
-    grid(element_type scale, color dark, color light);
+    grid(precision scale, color dark, color light);
     virtual ~grid() = default;
 
     color diffuse(const raytrace::point& volumetric_point) const final;
 
 protected:
-    element_type m_scale;
+    precision m_scale;
     color m_dark, m_light;
 };
 

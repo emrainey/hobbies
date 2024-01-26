@@ -3,7 +3,7 @@
  * This is an auto-generated header for iso::pascals.
  * A measure of pressure
  * @note See README on re-generation.
- * @copyright Copyright 2022.
+ * @copyright Copyright 2024.
  */
 #pragma once
 #include <cstdint>
@@ -29,12 +29,12 @@ struct suffix_type_Pa {
  * overload >,<,==,!=,<=,>=
  * not overloaded %=,%
  */
-class pascals : public measurement<double, SI::prefix, suffix_type_Pa> {
+class pascals : public measurement<precision, SI::prefix, suffix_type_Pa> {
 public:
     /** Default constructor */
     pascals();
     /** Parameter constructor */
-    explicit pascals(double value);
+    explicit pascals(precision value);
     /** Copy Constructor */
     pascals(const pascals& other);
     /** Move Constructor */
@@ -56,9 +56,9 @@ public:
     /** Deccumulation Operator */
     pascals& operator-=(const pascals& other);
     /** Scaling Operator */
-    pascals& operator*=(double factor);
+    pascals& operator*=(precision factor);
     /** Inverse Scaling Operator */
-    pascals& operator/=(double factor);
+    pascals& operator/=(precision factor);
     /** Negating Operator */
     pascals operator-() const;
     /** Less Than Operator */
@@ -77,11 +77,11 @@ namespace operators {
     /** Subtraction operator */
     pascals operator-(const pascals& A, const pascals& B);
     /** Left Scaling Operator */
-    pascals operator*(const pascals& A, double factor);
+    pascals operator*(const pascals& A, precision factor);
     /** Right Scaling Operator */
-    pascals operator*(double factor, const pascals& A);
+    pascals operator*(precision factor, const pascals& A);
     /** Inverse Scaling Operator */
-    pascals operator/(const pascals& A, double factor);
+    pascals operator/(const pascals& A, precision factor);
 }
 
 namespace literals {

@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include "basal/gtest_helper.hpp"
 
 #include <basal/basal.hpp>
 #include <geometry/geometry.hpp>
@@ -291,8 +291,8 @@ TEST(IntersectionTest, SphereCenter) {
     ASSERT_EQ(IntersectionType::Points, get_type(is1l1));
     R3::vector v = as_points(is1l1)[0] - R3::origin;
     R3::vector u = as_points(is1l1)[1] - R3::origin;
-    ASSERT_DOUBLE_EQ(5.0, v.norm());
-    ASSERT_DOUBLE_EQ(5.0, u.norm());
+    ASSERT_PRECISION_EQ(5.0, v.norm());
+    ASSERT_PRECISION_EQ(5.0, u.norm());
 
     R3::sphere s2{1.0};
     R3::point p2{2.0, 0.0, 0.0};
@@ -306,7 +306,7 @@ TEST(IntersectionTest, SphereCenter) {
     std::cout << "is2l2" << is2l2 << std::endl;
     // either R or Q is +X or -X
     R3::vector d = R - Q;
-    ASSERT_DOUBLE_EQ(2.0, d.norm());
+    ASSERT_PRECISION_EQ(2.0, d.norm());
 
     ASSERT_TRUE(s2.surface(R));
     ASSERT_TRUE(s2.surface(Q));

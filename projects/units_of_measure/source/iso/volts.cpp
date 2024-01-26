@@ -3,7 +3,7 @@
  * This is an auto-generated source for iso::volts.
  * A measure of the electrical potential
  * @note See README on re-generation.
- * @copyright Copyright 2022.
+ * @copyright Copyright 2024.
  */
 #include "iso/volts.hpp"
 
@@ -13,7 +13,7 @@ const char* const suffix_type_V::suffix;
 volts::volts() : measurement{} {
 }
 // explicit value
-volts::volts(double a) : measurement{a} {
+volts::volts(precision a) : measurement{a} {
 }
 // copy constructor
 volts::volts(const volts& other) : measurement{other} {
@@ -48,11 +48,11 @@ volts& volts::operator-=(const volts& other) {
     _value -= other.value;
     return (*this);
 }
-volts& volts::operator*=(double factor) {
+volts& volts::operator*=(precision factor) {
     _value *= factor;
     return (*this);
 }
-volts& volts::operator/=(double factor) {
+volts& volts::operator/=(precision factor) {
     _value /= factor;
     return (*this);
 }
@@ -78,19 +78,19 @@ volts operator+(const volts& A, const volts& B) {
 volts operator-(const volts& A, const volts& B) {
     return volts{A.value - B.value};
 }
-volts operator*(const volts& A, double factor) {
+volts operator*(const volts& A, precision factor) {
     return volts{A.value * factor};
 }
-volts operator*(double factor, const volts& A) {
+volts operator*(precision factor, const volts& A) {
     return volts{A.value * factor};
 }
-volts operator/(const volts& A, double factor) {
+volts operator/(const volts& A, precision factor) {
     return volts{A.value / factor};
 }
 }  // namespace operators
 namespace literals {
 iso::volts operator""_V(long double a) {
-    return iso::volts(a);
+    return iso::volts(static_cast<precision>(a));
 }
 iso::volts operator""_V(unsigned long long a) {
     return iso::volts(a);

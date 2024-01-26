@@ -15,6 +15,7 @@ set(CMAKE_CXX_STANDARD 17)
 enable_testing()
 
 option(BUILD_SHARED_LIBS "Builds libraries as dynamic objects" OFF)
+option(USE_XMMT "Use XMMT for SIMD" ON)
 
 add_library(hobbies-noise
     ${CMAKE_CURRENT_SOURCE_DIR}/source/noise.cpp

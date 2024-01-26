@@ -3,7 +3,7 @@
  * This is an auto-generated header for iso::seconds.
  * A measure of time
  * @note See README on re-generation.
- * @copyright Copyright 2022.
+ * @copyright Copyright 2024.
  */
 #pragma once
 #include <cstdint>
@@ -29,12 +29,12 @@ struct suffix_type_sec {
  * overload >,<,==,!=,<=,>=
  * not overloaded %=,%
  */
-class seconds : public measurement<double, SI::prefix, suffix_type_sec> {
+class seconds : public measurement<precision, SI::prefix, suffix_type_sec> {
 public:
     /** Default constructor */
     seconds();
     /** Parameter constructor */
-    explicit seconds(double value);
+    explicit seconds(precision value);
     /** Copy Constructor */
     seconds(const seconds& other);
     /** Move Constructor */
@@ -56,9 +56,9 @@ public:
     /** Deccumulation Operator */
     seconds& operator-=(const seconds& other);
     /** Scaling Operator */
-    seconds& operator*=(double factor);
+    seconds& operator*=(precision factor);
     /** Inverse Scaling Operator */
-    seconds& operator/=(double factor);
+    seconds& operator/=(precision factor);
     /** Negating Operator */
     seconds operator-() const;
     /** Less Than Operator */
@@ -77,11 +77,11 @@ namespace operators {
     /** Subtraction operator */
     seconds operator-(const seconds& A, const seconds& B);
     /** Left Scaling Operator */
-    seconds operator*(const seconds& A, double factor);
+    seconds operator*(const seconds& A, precision factor);
     /** Right Scaling Operator */
-    seconds operator*(double factor, const seconds& A);
+    seconds operator*(precision factor, const seconds& A);
     /** Inverse Scaling Operator */
-    seconds operator/(const seconds& A, double factor);
+    seconds operator/(const seconds& A, precision factor);
 }
 
 namespace literals {

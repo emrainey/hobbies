@@ -12,12 +12,12 @@ class bulb
     : public light
     , public entity {
 public:
-    bulb(const point& P, element_type radius, const raytrace::color& C, element_type intensity, size_t samples);
-    bulb(point&& P, element_type radius, const raytrace::color& C, element_type intensity, size_t samples);
+    bulb(const point& P, precision radius, const raytrace::color& C, precision intensity, size_t samples);
+    bulb(point&& P, precision radius, const raytrace::color& C, precision intensity, size_t samples);
     virtual ~bulb() = default;
 
     /** @copydoc raytrace::light::intensity_at() */
-    element_type intensity_at(const point& world_point) const override;
+    precision intensity_at(const point& world_point) const override;
 
     /** @copydoc raytrace::light::incident() */
     ray incident(const point& world_point, size_t sample_index) const override;
@@ -26,7 +26,7 @@ public:
     void print(const char str[]) const override;
 
 protected:
-    const element_type m_radius;
+    const precision m_radius;
 };
 
 }  // namespace lights

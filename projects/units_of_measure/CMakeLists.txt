@@ -7,6 +7,7 @@ find_package(basal 0.5.0 REQUIRED)
 enable_testing()
 
 option(BUILD_SHARED_LIBS "Builds libraries as dynamic objects" OFF)
+option(USE_PRECISION_AS_FLOAT "Use basic precision unit as float" OFF)
 
 add_library(hobbies-uom
     # IEC
@@ -41,6 +42,8 @@ target_link_libraries(hobbies-uom
         Basal::enabled-debugging
         Basal::enabled-profiling
         Basal::native-optimized
+    PUBLIC
+        Basal::hobbies-basal
 )
 target_include_directories(hobbies-uom PUBLIC
     # Generated Tree
@@ -54,6 +57,10 @@ set_target_properties(hobbies-uom PROPERTIES
     VERSION ${PROJECT_VERSION}
     SOVERSION ${PROJECT_VERSION_MAJOR}
     POSITION_INDEPENDENT_CODE ON
+)
+target_compile_definitions(hobbies-uom
+    PUBLIC
+        $<$<BOOL:${USE_PRECISION_AS_FLOAT}>:USE_PRECISION_AS_FLOAT>
 )
 
 # Declare installs and exports

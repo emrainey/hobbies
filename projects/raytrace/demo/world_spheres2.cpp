@@ -20,7 +20,7 @@ const raytrace::mediums::metal* my_metals[]
        &raytrace::mediums::metals::silver,   &raytrace::mediums::metals::stainless, &raytrace::mediums::metals::steel,
        &raytrace::mediums::metals::tin};
 
-void subspheres(std::vector<raytrace::objects::sphere*>& spheres, const raytrace::point& center, double R, double sR,
+void subspheres(std::vector<raytrace::objects::sphere*>& spheres, const raytrace::point& center, precision R, precision sR,
                 size_t limit) {
     for (size_t s = 0; s < limit; s++) {
         R3::point pnt = mapping::golden_ratio_mapper(s, limit);
@@ -91,7 +91,7 @@ public:
 
     raytrace::color background(const raytrace::ray& world_ray) const override {
         iso::radians A = angle(R3::basis::Z, world_ray.direction());
-        element_type B = A.value / iso::pi;
+        precision B = A.value / iso::pi;
         return color(0.8 * B, 0.8 * B, 0.8 * B);
     }
 

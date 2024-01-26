@@ -70,11 +70,11 @@ TEST(PlaneTest, Perpendicular) {
     plane P1{2, -3, 6, 1};
     // print_this(P0);
     // print_this(P1);
-    double P0toPt = P0.distance(Pt);
-    double P1toPt = P1.distance(Pt);
+    precision P0toPt = P0.distance(Pt);
+    precision P1toPt = P1.distance(Pt);
     // printf("P0toPt = %E, P1toPt = %E, real=%E\n", P0toPt, P1toPt, 3.0 / 7.0);
-    ASSERT_NEAR(-3.0 / 7.0, P0toPt, 1.0E-15);
-    ASSERT_NEAR(-3.0 / 7.0, P1toPt, 1.0E-15);
+    ASSERT_NEAR(-3.0 / 7.0, P0toPt, basal::epsilon);
+    ASSERT_NEAR(-3.0 / 7.0, P1toPt, basal::epsilon);
     ASSERT_TRUE(P0 || P1);
     plane P2{{3, -1, 1, -4}};
     plane P3{{1, 0, 2, 1}};

@@ -55,7 +55,7 @@ public:
 
     raytrace::color background(const raytrace::ray& world_ray) const override {
         iso::radians A = angle(R3::basis::Z, world_ray.direction());
-        element_type B = A.value / iso::pi;
+        precision B = A.value / iso::pi;
         using namespace raytrace::operators;
         return colors::grey * B;
     }

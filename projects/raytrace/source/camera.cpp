@@ -25,7 +25,7 @@ camera::camera(size_t image_height, size_t image_width, iso::degrees field_of_vi
     // compute f so that pixel_scale will remain 1 at first.
     iso::radians rfov;
     iso::convert(rfov, m_field_of_view);
-    element_type f = (image_width / 2) / std::tan(rfov.value / 2.0);
+    precision f = (image_width / 2) / std::tan(rfov.value / 2.0);
     m_world_look_at.x = f;
 
     // the rotation from camera (+Z forward, -Y up) to world frame (+Z up, +X forward)
@@ -92,7 +92,7 @@ void camera::move_to(const point& look_from, const point& look_at) {
     m_world_look_at = look_at;
     m_world_look = world_look;
     m_world_left = world_left;
-    element_type image_distance = m_world_look.magnitude();
+    precision image_distance = m_world_look.magnitude();
     // which we'll use to make the actual up
     m_world_up = R3::cross(m_world_look, world_left);
     if constexpr (debug) {
@@ -114,15 +114,15 @@ void camera::move_to(const point& look_from, const point& look_at) {
     basal::exception::throw_unless((iso::pi > ry.value and ry.value > -iso::pi / 2), __FILE__, __LINE__,
                                    " Tilt must be +PI/2 > %lf > -PI/2\r\n", ry.value);
     // no rotation should ever be NaN
-    assert(not std::isnan(rx.value) and not std::isnan(ry.value) and not std::isnan(rz.value));
+    assert(not basal::is_nan(rx.value) and not basal::is_nan(ry.value) and not basal::is_nan(rz.value));
     // move the camera's entity base class by these values
     rotation(rx, ry, rz);
 
     // update the intrinsics which converts the focal distance into scaling for pixel
     iso::radians phi;  // half of the field of view
     iso::convert(phi, m_field_of_view * 0.5);
-    element_type w = element_type(capture.width);
-    element_type h = element_type(capture.height);
+    precision w = precision(capture.width);
+    precision h = precision(capture.height);
     m_pixel_scale = 2.0 * image_distance * std::tan(phi.value) / w;
     m_intrinsics[0][0] = m_pixel_scale;
     m_intrinsics[1][1] = m_pixel_scale;
@@ -132,10 +132,10 @@ void camera::move_to(const point& look_from, const point& look_at) {
 
     // now verify the look_at by casting a ray through the principal point and determine what t the look_at is at
     // (should be zero).
-    image::point P{(element_type)capture.width / 2, (element_type)capture.height / 2};
+    image::point P{(precision)capture.width / 2, (precision)capture.height / 2};
     ray world_ray = cast(P);
     // the point we're looking at had better be where this ray starts
-    element_type t = std::nan("");
+    precision t = basal::nan;
     geometry::R3::line world_line = as_line(world_ray);
     // t should be zero, as it is the position of the world ray and line
     bool principal_found_at_look_at = world_line.solve(look_at, t);

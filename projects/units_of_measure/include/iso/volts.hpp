@@ -3,7 +3,7 @@
  * This is an auto-generated header for iso::volts.
  * A measure of the electrical potential
  * @note See README on re-generation.
- * @copyright Copyright 2022.
+ * @copyright Copyright 2024.
  */
 #pragma once
 #include <cstdint>
@@ -29,12 +29,12 @@ struct suffix_type_V {
  * overload >,<,==,!=,<=,>=
  * not overloaded %=,%
  */
-class volts : public measurement<double, SI::prefix, suffix_type_V> {
+class volts : public measurement<precision, SI::prefix, suffix_type_V> {
 public:
     /** Default constructor */
     volts();
     /** Parameter constructor */
-    explicit volts(double value);
+    explicit volts(precision value);
     /** Copy Constructor */
     volts(const volts& other);
     /** Move Constructor */
@@ -56,9 +56,9 @@ public:
     /** Deccumulation Operator */
     volts& operator-=(const volts& other);
     /** Scaling Operator */
-    volts& operator*=(double factor);
+    volts& operator*=(precision factor);
     /** Inverse Scaling Operator */
-    volts& operator/=(double factor);
+    volts& operator/=(precision factor);
     /** Negating Operator */
     volts operator-() const;
     /** Less Than Operator */
@@ -77,11 +77,11 @@ namespace operators {
     /** Subtraction operator */
     volts operator-(const volts& A, const volts& B);
     /** Left Scaling Operator */
-    volts operator*(const volts& A, double factor);
+    volts operator*(const volts& A, precision factor);
     /** Right Scaling Operator */
-    volts operator*(double factor, const volts& A);
+    volts operator*(precision factor, const volts& A);
     /** Inverse Scaling Operator */
-    volts operator/(const volts& A, double factor);
+    volts operator/(const volts& A, precision factor);
 }
 
 namespace literals {

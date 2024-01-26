@@ -56,22 +56,6 @@
 		{
 			"name": "pyhobbies",
 			"path": "projects/pyhobbies"
-		},
-		{
-			"path": "testing",
-			"name": "Testing Folder"
-		},
-		{
-			"path": "build",
-			"name": "Build Artifacts"
-		},
-		{
-			"path": "install",
-			"name": "Installable Artifacts"
-		},
-		{
-			"path": "package",
-			"name": "Packaging Artifacts"
 		}
 	],
 	"extensions": {
@@ -92,9 +76,9 @@
 		],
 	},
 	"settings": {
-		"editor.formatOnSave": true,
+		"editor.formatOnSave": false,
 		"cmake.autoSelectActiveFolder": true,
-		"cmake.buildDirectory": "${workspaceFolder}/../../build/${workspaceFolderBasename}",
+		"cmake.buildDirectory": "${workspaceFolder}/build",
 		"cmake.installPrefix": "${workspaceFolder}/../../install",
 		"cmake.configureOnOpen": false,
 		"cmake.generator": "Unix Makefiles",
@@ -109,11 +93,20 @@
 			"DYLD_LIBRARY_PATH": "${workspaceFolder}/../../install",
 			"CMAKE_BUILD_TYPE": "Release"
 		},
+		"cmake.configureArgs": [
+			"-DBUILD_SHARED_LIB=OFF",
+			"-DCMAKE_VERBOSE_MAKEFILE:BOOL=OFF",
+			"-DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE",
+			"-DUSE_PRECISION_AS_FLOAT=ON",
+			"-DUSE_SIMD=OFF"
+		],
+		"cmake.loggingLevel": "debug",
+		"cmake.ctest.allowParallelJobs": true,
+		"cmake.ctest.parallelJobs": 2,
 		"cmakeExplorer.cmakeIntegration": true,
-		"cmakeExplorer.buildDir": "${workspaceFolder}/../../build/${workspaceFolderBasename}",
+		"cmakeExplorer.buildDir": "${workspaceFolder}/build",
 		"cmakeExplorer.debugConfig": "Debug",
 		"cmakeExplorer.parallelJobs": 12,
-		"cmake.loggingLevel": "debug",
 		"C_Cpp.errorSquiggles": "enabled",
 		"C_Cpp.configurationWarnings": "enabled",
 		"C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
@@ -150,7 +143,7 @@
 			"sourceFileMap": "${sourceFileMapObj}",
 			"externalConsole": false
 		},
-		"testMate.cpp.test.executables": "${workspaceFolder}/../../build/**/gtest_*",
+		"testMate.cpp.test.executables": "${workspaceFolder}/build/**/gtest_*",
 		"files.associations": {
 			".clang-format": "json",
 			"*.yaml": "home-assistant",
@@ -229,7 +222,24 @@
 			"type_traits": "cpp",
 			"utility": "cpp",
 			"format": "cpp",
-			"cinttypes": "cpp"
+			"cinttypes": "cpp",
+			"map": "cpp",
+			"set": "cpp",
+			"unordered_set": "cpp",
+			"__tree": "cpp",
+			"deque": "cpp",
+			"forward_list": "cpp",
+			"fstream": "cpp",
+			"any": "cpp",
+			"cfenv": "cpp",
+			"source_location": "cpp",
+			"__availability": "cpp",
+			"*.inc": "cpp",
+			"stop_token": "cpp",
+			"semaphore": "cpp",
+			"shared_mutex": "cpp",
+			"version": "cpp",
+			"strstream": "cpp"
 		},
 		"cSpell.words": [
 			"abgr",
@@ -251,7 +261,7 @@
 		"C_Cpp.default.cppStandard": "c++17",
 		"C_Cpp.default.cStandard": "c17",
 		"C_Cpp.default.browse.limitSymbolsToIncludedHeaders": true,
-		"C_Cpp.default.compileCommands": "${workspaceFolder}/../../build/${workspaceFolderBasename}/compile_commands.json",
+		"C_Cpp.default.compileCommands": "${workspaceFolder}/build/compile_commands.json",
 		"C_Cpp.default.browse.path": [
 			"${workspaceFolder}/../../projects/basal/include",
 			"${workspaceFolder}/../../projects/units_of_measure/include",
@@ -266,7 +276,7 @@
 			"${workspaceFolder}/../../projects/htm/include",
 			"${workspaceFolder}/../../projects/doorgame/include",
 		],
-		"C_Cpp.default.browse.databaseFilename": "${workspaceFolder}/../../build/${workspaceFolderBasename}/browse.db",
+		"C_Cpp.default.browse.databaseFilename": "${workspaceFolder}/build/browse.db",
 		"vsconan.general.pythonInterpreter": "python3",
 		"vsconan.explorer.treeview.package.showDirtyPackage": true,
 	},

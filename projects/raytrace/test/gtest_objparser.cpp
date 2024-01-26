@@ -49,7 +49,7 @@ TEST(ObjParser, Vertices2) {
     MockObserver mock;
     obj::Parser parser{mock};
     parser.Parse(literal);
-    EXPECT_CALL(mock, addVertex(1.2f, 3.4f, 5.6f)).Times(0);
+    EXPECT_CALL(mock, addVertex(1.2_p, 3.4_p, 5.6_p)).Times(0);
     ASSERT_EQ(obj::Parser::State::Vertices, parser.GetState());
     ASSERT_EQ(obj::Parser::SubState::FloatingPoint, parser.GetSubState());
     ASSERT_EQ(1u, parser.GetNumberOfLines());
@@ -64,7 +64,7 @@ TEST(ObjParser, Vertices3) {
     MockObserver mock;
     obj::Parser parser{mock};
     parser.Parse(literal);
-    EXPECT_CALL(mock, addVertex(1.2f, 3.4f, 5.6f));
+    EXPECT_CALL(mock, addVertex(1.2_p, 3.4_p, 5.6_p));
     ASSERT_EQ(obj::Parser::State::Vertices, parser.GetState());
     ASSERT_EQ(obj::Parser::SubState::FloatingPoint, parser.GetSubState());
     ASSERT_EQ(1u, parser.GetNumberOfLines());
@@ -79,7 +79,7 @@ TEST(ObjParser, Normals) {
     MockObserver mock;
     obj::Parser parser{mock};
     parser.Parse(literal);
-    EXPECT_CALL(mock, addNormal(1.2f, 3.4f, 5.6f));
+    EXPECT_CALL(mock, addNormal(1.2_p, 3.4_p, 5.6_p));
     ASSERT_EQ(obj::Parser::State::Normals, parser.GetState());
     ASSERT_EQ(obj::Parser::SubState::FloatingPoint, parser.GetSubState());
     ASSERT_EQ(1u, parser.GetNumberOfLines());
@@ -108,8 +108,8 @@ TEST(ObjParser, SingleTriangle) {
     char const * const literal =
         "# comment\n"
         "o Object\n"
-        "v 1.0 2.0 3.0\n"
-        "v 4.0 5.0 6.0\n"
+        "v 3.0 2.0 1.0\n"
+        "v 5.0 4.0 6.0\n"
         "v 7.0 8.0 9.0\n"
         "f 1 2 3\n";
     MockObserver mock;
@@ -127,22 +127,24 @@ public:
     TestObjParser() : ::testing::Test(), parser{*this} {}
 
     void addVertex(float x, float y, float z) override {
-        element_type a = x;
-        element_type b = y;
-        element_type c = z;
-        raytrace::point p{a, b, c};
+        printf("Adding vertex %f %f %f\n", x, y, z);
+        raytrace::point p{x, y, z};
         points.emplace_back(p);
     }
     void addNormal(float dx, float dy, float dz) override {
-        element_type a = dx;
-        element_type b = dy;
-        element_type c = dz;
-        raytrace::vector v{a, b, c};
+        printf("Adding vector %f %f %f\n", dx, dy, dz);
+        raytrace::vector v{dx, dy, dz};
         normals.emplace_back(v);
     }
     void addFace(uint32_t a, uint32_t b, uint32_t c) override {
-        if (a < points.size() and b < points.size() and c < points.size()) {
-            triangles.emplace_back(points[a], points[b], points[c]);
+        uint32_t ia = a - 1;
+        uint32_t ib = b - 1;
+        uint32_t ic = c - 1;
+        if (ia < points.size() and ib < points.size() and ic < points.size()) {
+            printf("Adding triangle %u %u %u\n", a, b, c);
+            triangles.emplace_back(points[ia], points[ib], points[ic]);
+        } else {
+            printf("Index out of bounds! %" PRIu32 " %" PRIu32 " %" PRIu32 "\n", a, b, c);
         }
     }
     size_t GetNumberTriangles(void) const {
@@ -159,10 +161,11 @@ TEST_F(TestObjParser, SingleTriangle) {
     char const * const literal =
         "# comment\n"
         "o Object\n"
-        "v 1.0 2.0 3.0\n"
-        "v 4.0 5.0 6.0\n"
+        "v 3.0 2.0 1.0\n"
+        "v 5.0 4.0 6.0\n"
         "v 7.0 8.0 9.0\n"
-        "f 1 2 3\n";
+        "f 1 2 3\n"
+        "";
     parser.Parse(literal);
     ASSERT_EQ(7u, parser.GetNumberOfLines());
     ASSERT_EQ(1u, GetNumberTriangles());

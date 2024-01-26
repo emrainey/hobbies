@@ -6,7 +6,7 @@ namespace raytrace {
 namespace objects {
 class ellipticalcylinder : public quadratic {
 public:
-    ellipticalcylinder(const point &center, element_type a, element_type b);
+    ellipticalcylinder(const point &center, precision a, precision b);
     ~ellipticalcylinder() = default;
 };
 }  // namespace objects

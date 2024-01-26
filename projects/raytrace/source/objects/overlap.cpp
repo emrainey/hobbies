@@ -41,7 +41,7 @@ hits overlap::collisions_along(const ray& overlap_ray) const {
         return hits();  // empty
     }
 
-    auto sorter = [](element_type a, element_type b) -> bool { return (a < b); };
+    auto sorter = [](precision a, precision b) -> bool { return (a < b); };
 
     // sort them individually so we can make some logical deductions later.
     std::sort(hitsA.begin(), hitsA.end(), sorter);
@@ -173,7 +173,7 @@ void overlap::print(const char str[]) const {
     m_B.print(str);
 }
 
-element_type overlap::get_object_extant(void) const {
+precision overlap::get_object_extant(void) const {
     // we want this to be additive as this is for collision checking.
     return std::max(m_A.get_object_extant(), m_B.get_object_extant());
 }

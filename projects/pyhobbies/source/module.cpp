@@ -13,11 +13,11 @@ PYBIND11_MODULE(pyhobbies, module) {
         // raytracing submodule
         py::module sub = module.def_submodule("raytrace");
         py::class_<raytrace::color> color(sub, "color");
-        color.def(py::init<raytrace::element_type, raytrace::element_type, raytrace::element_type>())
+        color.def(py::init<raytrace::precision, raytrace::precision, raytrace::precision>())
             .def("scale", &raytrace::color::scale)
-            .def("red", &raytrace::color::red)
-            .def("green", &raytrace::color::green)
-            .def("blue", &raytrace::color::blue)
+            // .def("red", &raytrace::color::red)
+            // .def("green", &raytrace::color::green)
+            // .def("blue", &raytrace::color::blue)
             .def("clamp", &raytrace::color::clamp)
             .def(
                 "__repr__", [](const raytrace::color& c) -> auto {

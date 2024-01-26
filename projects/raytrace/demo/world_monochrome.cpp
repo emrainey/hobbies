@@ -81,7 +81,7 @@ public:
     raytrace::color background(const raytrace::ray& world_ray) const override {
         // this creates a gradient from top to bottom
         iso::radians A = angle(R3::basis::Z, world_ray.direction());
-        element_type B = A.value / iso::pi;
+        precision B = A.value / iso::pi;
         return color(0.8 * B, 0.8 * B, 0.8 * B);
     }
 

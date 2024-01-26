@@ -16,7 +16,7 @@ const noise::point corners[] = {
     noise::point{1.0, 1.0},  // btm right
 };
 
-double sequence_pseudorandom1(uint32_t x) {
+precision sequence_pseudorandom1(uint32_t x) {
     x = (x << 13) ^ x;  // XOR with shifted version of itself
     return (1.0 - ((x * (x * x * 61051 + 3166613) + 5915587277) & 0x7FFFFFFF) / 1073741824.0);
 }
@@ -32,8 +32,9 @@ vector convert_to_seed(iso::degrees d) {
 }
 
 vector generate_seed() {
-    double d = (double)rand() / RAND_MAX;           // 0.0 to 1.0
-    iso::radians r{(2.0 * iso::pi * d) - iso::pi};  // -pi to +pi
+    precision d = (precision)rand() / RAND_MAX;           // 0.0 to 1.0
+    constexpr precision const C = 2.0;
+    iso::radians r{(C * iso::pi * d) - iso::pi};  // -pi to +pi
     return convert_to_seed(r);
 }
 
@@ -49,27 +50,27 @@ point fract(const point& pnt) {
 #if defined(USE_XMMT)
     return pnt.fract();
 #else
-    double x = pnt[0] - std::floor(pnt[0]);
-    double y = pnt[1] - std::floor(pnt[1]);
+    precision x = pnt[0] - std::floor(pnt[0]);
+    precision y = pnt[1] - std::floor(pnt[1]);
     return point{x, y};
 #endif
 }
 
-double random(const vector& vec, const vector& seeds, double gain) {
+precision random(const vector& vec, const vector& seeds, precision gain) {
     // use a dot product to create a ratio of how much a particular point
     // is projected unto a set of scalars in a repeatable way.
     // the smaller magnitude vector will control the scale of the value
     // if smaller is normalized, the value should be -1.0 to +1.0 since
     // the vectors could be pointing in opposite directions.
-    double value = dot(vec, seeds);
+    precision value = dot(vec, seeds);
     // use this value as an input into the sine wave (which is -1.0 to +1.0)
     // the gain will be the amplitude which can extend back over |1.0| or any other range
-    double scaled_value = std::sin(value) * gain;
+    precision scaled_value = std::sin(value) * gain;
     // and only return the fractional component
     return (scaled_value - std::floor(scaled_value));
 }
 
-double perlin(const point& pnt, double scale, const vector& seeds, double gain) {
+precision perlin(const point& pnt, precision scale, const vector& seeds, precision gain) {
     // converts a point into a normalized space ideally (all dims are 0-1)
     noise::point uv_floor = floor(pnt * (1.0 / scale));
     // this point should be the fractional part of uv between 0.0 and 1.0 in each dimension
@@ -85,7 +86,7 @@ double perlin(const point& pnt, double scale, const vector& seeds, double gain) 
     noise::vector feed[] = {uv_floor + corners[0], uv_floor + corners[1], uv_floor + corners[2], uv_floor + corners[3]};
 
     // procedurally generate 4 "random" numbers between 0 and 1.0
-    double rnds[4] = {
+    precision rnds[4] = {
         random(feed[0], seeds, gain),
         random(feed[1], seeds, gain),
         random(feed[2], seeds, gain),
@@ -98,20 +99,20 @@ double perlin(const point& pnt, double scale, const vector& seeds, double gain) 
     // The set of 2d perlin noise gradients
     vector gradients[4] = {vector{{-1, -1}}, vector{{1, -1}}, vector{{-1, 1}}, vector{{1, 1}}};
     // these are now considered as weights in the interpolation between the four corners
-    double weights[4] = {
+    precision weights[4] = {
         dot(gradients[idx[0]], distance[0]),
         dot(gradients[idx[1]], distance[1]),
         dot(gradients[idx[2]], distance[2]),
         dot(gradients[idx[3]], distance[3]),
     };
     // now do an interpolation between the 4 weights using the normalized point as the alpha
-    double top = noise::interpolate(weights[0], weights[1], fade(uv.x));
-    double bot = noise::interpolate(weights[2], weights[3], fade(uv.x));
-    double mid = noise::interpolate(top, bot, fade(uv.y));
+    precision top = noise::interpolate(weights[0], weights[1], fade(uv.x));
+    precision bot = noise::interpolate(weights[2], weights[3], fade(uv.x));
+    precision mid = noise::interpolate(top, bot, fade(uv.y));
     return fade(map(mid, -1.0, 1.0, 0.0, 1.0));
 }
 
-double smooth(const point& pnt, const pad& map) {
+precision smooth(const point& pnt, const pad& map) {
     point base = floor(pnt);
     point frat = fract(pnt);
 
@@ -130,7 +131,7 @@ double smooth(const point& pnt, const pad& map) {
     }
 
     // smooth the noise with bilinear interpolation
-    double value = 0.0;
+    precision value = 0.0;
     value += frat.x * frat.y * map.at(y1, x1);
     value += (1 - frat.x) * frat.y * map.at(y1, x2);
     value += frat.x * (1 - frat.y) * map.at(y2, x1);
@@ -138,8 +139,8 @@ double smooth(const point& pnt, const pad& map) {
     return value;
 }
 
-double turbulence(const point& pnt, double size, double scale, const pad& map) {
-    double value = 0.0, initialSize = size;
+precision turbulence(const point& pnt, precision size, precision scale, const pad& map) {
+    precision value = 0.0, initialSize = size;
     while (size >= 1.0) {
         point pnt2{pnt};  // copy
         pnt2 *= 1.0 / size;
@@ -152,14 +153,14 @@ double turbulence(const point& pnt, double size, double scale, const pad& map) {
     return (scale * value) / initialSize;
 }
 
-double turbulentsin(const point& pnt, double xs, double ys, double power, double size, double scale, const pad& map) {
-    double x = pnt.x * xs / map.dimensions;
-    double y = pnt.y * ys / map.dimensions;
-    double xyValue = x + y + power * turbulence(pnt, size, scale, map) / scale;
+precision turbulentsin(const point& pnt, precision xs, precision ys, precision power, precision size, precision scale, const pad& map) {
+    precision x = pnt.x * xs / map.dimensions;
+    precision y = pnt.y * ys / map.dimensions;
+    precision xyValue = x + y + power * turbulence(pnt, size, scale, map) / scale;
     return scale * fabs(sin(xyValue * M_PI));
 }
 
-static double mix(double value1, double value2, double mixer) {
+static precision mix(precision value1, precision value2, precision mixer) {
     return (value2 * mixer) + (value1 * (1.0 - mixer));
 }
 
@@ -167,7 +168,7 @@ static noise::point mix(noise::point a, noise::point b, noise::point s) {
     return noise::point{mix(a.x, b.x, s.x), mix(a.y, b.y, s.y)};
 }
 
-static double fractal_noise(const point& pnt, const vector& seed, double rand_gain = 1.0) {
+static precision fractal_noise(const point& pnt, const vector& seed, precision rand_gain = 1.0) {
     noise::point fl = floor(pnt);
     noise::point uv = fract(pnt);
     // the feed vectors
@@ -178,24 +179,24 @@ static double fractal_noise(const point& pnt, const vector& seed, double rand_ga
         fl + corners[3],
     };
     // the value at each corner
-    double a = random(feed[0], seed, rand_gain);
-    double b = random(feed[1], seed, rand_gain);
-    double c = random(feed[2], seed, rand_gain);
-    double d = random(feed[3], seed, rand_gain);
+    precision a = random(feed[0], seed, rand_gain);
+    precision b = random(feed[1], seed, rand_gain);
+    precision c = random(feed[2], seed, rand_gain);
+    precision d = random(feed[3], seed, rand_gain);
 
     // some function?
     // 2x^3 - 3.0x^2
-    double ux = uv.x * uv.x * (3.0 - (2.0 * uv.x));
-    double uy = uv.y * uv.y * (3.0 - (2.0 * uv.y));
+    precision ux = uv.x * uv.x * (3.0 - (2.0 * uv.x));
+    precision uy = uv.y * uv.y * (3.0 - (2.0 * uv.y));
 
     return mix(a, b, ux) + ((c - a) * uy * (1.0 - ux)) + ((d - b) * ux * uy);
 }
 
-double fractal_brownian(const point& pnt, const vector& seed, size_t octaves, double lacunarity, double gain,
-                        double initial_amplitude, double initial_frequency) {
-    double value = 0.0;
-    double amplitude = initial_amplitude;
-    double frequency = initial_frequency;
+precision fractal_brownian(const point& pnt, const vector& seed, size_t octaves, precision lacunarity, precision gain,
+                        precision initial_amplitude, precision initial_frequency) {
+    precision value = 0.0;
+    precision amplitude = initial_amplitude;
+    precision frequency = initial_frequency;
     for (size_t o = 0; o < octaves; o++) {
         point tmp = pnt * frequency;
         value += amplitude * fractal_noise(tmp, seed, 43758.5453123);

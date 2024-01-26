@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include "basal/gtest_helper.hpp"
 
 #include <basal/basal.hpp>
 #include <geometry/geometry.hpp>
@@ -23,35 +23,35 @@ TEST(PointTest, InvalidConstructors) {
 
 TEST(PointTest, ListInitializer) {
     point p{{1, 2, 3, 4}};
-    ASSERT_DOUBLE_EQ(4, p.dimensions);
+    ASSERT_PRECISION_EQ(4, p.dimensions);
 }
 
 TEST(PointTest, ArrayConstructor) {
-    double _p[] = {1, 2, 3};
+    precision _p[] = {1, 2, 3};
     point *p = new point{_p, 3};
-    ASSERT_DOUBLE_EQ(3, p->dimensions);
+    ASSERT_PRECISION_EQ(3, p->dimensions);
     delete p;
 }
 
 TEST(PointTest, VectorConstructor) {
-    std::vector<double> v;
+    std::vector<precision> v;
     v.push_back(7);
     v.push_back(8);
     v.push_back(9);
     point p{v};
-    ASSERT_DOUBLE_EQ(3, p.dimensions);
+    ASSERT_PRECISION_EQ(3, p.dimensions);
 }
 
 TEST(PointTest, Assignments) {
     point p1{{1, 2, 3}};
     point p2 = p1;  // copy
-    ASSERT_DOUBLE_EQ(p1[0], p2[0]);
-    ASSERT_DOUBLE_EQ(p1[1], p2[1]);
-    ASSERT_DOUBLE_EQ(p1[2], p2[2]);
+    ASSERT_PRECISION_EQ(p1[0], p2[0]);
+    ASSERT_PRECISION_EQ(p1[1], p2[1]);
+    ASSERT_PRECISION_EQ(p1[2], p2[2]);
     point p3{std::move(p2)};  // move
-    ASSERT_DOUBLE_EQ(p1[0], p3[0]);
-    ASSERT_DOUBLE_EQ(p1[1], p3[1]);
-    ASSERT_DOUBLE_EQ(p1[2], p3[2]);
+    ASSERT_PRECISION_EQ(p1[0], p3[0]);
+    ASSERT_PRECISION_EQ(p1[1], p3[1]);
+    ASSERT_PRECISION_EQ(p1[2], p3[2]);
 }
 
 TEST(PointTest, ClassOperators) {
@@ -60,14 +60,14 @@ TEST(PointTest, ClassOperators) {
     R3::point p3{5, 7, 9};
 
     p1 += p2;
-    ASSERT_DOUBLE_EQ(p3[0], p1.x);
-    ASSERT_DOUBLE_EQ(p3[1], p1.y);
-    ASSERT_DOUBLE_EQ(p3[2], p1.z);
+    ASSERT_PRECISION_EQ(p3[0], p1.x);
+    ASSERT_PRECISION_EQ(p3[1], p1.y);
+    ASSERT_PRECISION_EQ(p3[2], p1.z);
 
     p3 *= 2.0;
-    ASSERT_DOUBLE_EQ(10, p3[0]);
-    ASSERT_DOUBLE_EQ(14, p3[1]);
-    ASSERT_DOUBLE_EQ(18, p3[2]);
+    ASSERT_PRECISION_EQ(10, p3[0]);
+    ASSERT_PRECISION_EQ(14, p3[1]);
+    ASSERT_PRECISION_EQ(18, p3[2]);
 }
 
 TEST(PointTest, NamespaceOperators) {
@@ -83,9 +83,9 @@ TEST(PointTest, NamespaceOperators) {
     // point translation
     // operator+ (point = point + vector)
     point p3 = p2 + v1;
-    ASSERT_DOUBLE_EQ(9, p3[0]);
-    ASSERT_DOUBLE_EQ(12, p3[1]);
-    ASSERT_DOUBLE_EQ(15, p3[2]);
+    ASSERT_PRECISION_EQ(9, p3[0]);
+    ASSERT_PRECISION_EQ(12, p3[1]);
+    ASSERT_PRECISION_EQ(15, p3[2]);
 }
 
 TEST(PointTest, Equality) {
@@ -100,16 +100,16 @@ TEST(PointTest, Equality) {
 TEST(PointTest, Templates) {
     point p1{{90, -39}};
     point_<2> p2(p1);
-    ASSERT_DOUBLE_EQ(p1[0], p2.x);
-    ASSERT_DOUBLE_EQ(p1[1], p2.y);
+    ASSERT_PRECISION_EQ(p1[0], p2.x);
+    ASSERT_PRECISION_EQ(p1[1], p2.y);
 }
 
 TEST(PointTest, PointHomogenizing) {
     point_<2> u(2.3, 4.5);
     R3::point v{u};  // homogenizing 2d->3d
-    ASSERT_DOUBLE_EQ(2.3, v.x);
-    ASSERT_DOUBLE_EQ(4.5, v.y);
-    ASSERT_DOUBLE_EQ(1.0, v.z);
+    ASSERT_PRECISION_EQ(2.3, v.x);
+    ASSERT_PRECISION_EQ(4.5, v.y);
+    ASSERT_PRECISION_EQ(1.0, v.z);
 }
 
 TEST(PointTest, VectorToPoint) {

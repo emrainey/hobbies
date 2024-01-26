@@ -50,7 +50,7 @@ TEST(SphereTest, Normals) {
 }
 
 TEST(SphereTest, CartesianToPolar) {
-    double radius = 1.0;
+    precision radius = 1.0;
     R3::sphere s0{radius};
     point sp_x = R3::origin + R3::basis::X;
     point sp_y = R3::origin + R3::basis::Y;

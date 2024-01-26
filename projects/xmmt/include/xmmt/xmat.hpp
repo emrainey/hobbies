@@ -1,21 +1,11 @@
 #pragma once
 
-#include <emmintrin.h>
-#include <immintrin.h>
-
 #include <basal/exception.hpp>
 #include <cstddef>
 #include <initializer_list>
 
+#include <xmmt/pragmas.hpp>
 namespace intel {
-
-#if defined(__AVX2__) and (__AVX2__ == 1)
-#pragma message("AVX2 Enabled")
-#endif
-
-#if defined(__AVX__) and (__AVX__ == 1)
-#pragma message("AVX Enabled")
-#endif
 
 template <size_t ROWS, size_t COLS>
 class xmat_ {
@@ -27,7 +17,7 @@ public:
     static_assert(1 < cols and cols < 9, "Must have between 2 to 8 columns (inclusive)");
 
 private:
-    /** Each row is a 8 element, so it will have the required alignment (16) */
+    /** Each row is a 8 element, so it will have the required alignment (32) at least */
     union {
         __m512d m512[1];
         __m256d m256[2];

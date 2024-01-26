@@ -13,13 +13,13 @@
 
 #define ASSERT_COLOR_EQ(simple, compound)                      \
     {                                                          \
-        ASSERT_NEAR(simple.red(), (compound).red(), 1E-5);     \
-        ASSERT_NEAR(simple.green(), (compound).green(), 1E-5); \
-        ASSERT_NEAR(simple.blue(), (compound).blue(), 1E-5);   \
+        ASSERT_NEAR(simple.red(), (compound).red(), raytrace::color::equality_limit);     \
+        ASSERT_NEAR(simple.green(), (compound).green(), raytrace::color::equality_limit); \
+        ASSERT_NEAR(simple.blue(), (compound).blue(), raytrace::color::equality_limit);   \
     }
 
 #define ASSERT_IMAGE_POINT_EQ(simple, compound)   \
     {                                             \
-        ASSERT_DOUBLE_EQ(simple.x, (compound).x); \
-        ASSERT_DOUBLE_EQ(simple.x, (compound).x); \
+        ASSERT_PRECISION_EQ(simple.x, (compound).x); \
+        ASSERT_PRECISION_EQ(simple.y, (compound).y); \
     }

@@ -3,7 +3,7 @@
  * This is an auto-generated header for iso::amperes.
  * A measure of current in electricity
  * @note See README on re-generation.
- * @copyright Copyright 2022.
+ * @copyright Copyright 2024.
  */
 #pragma once
 #include <cstdint>
@@ -29,12 +29,12 @@ struct suffix_type_A {
  * overload >,<,==,!=,<=,>=
  * not overloaded %=,%
  */
-class amperes : public measurement<double, SI::prefix, suffix_type_A> {
+class amperes : public measurement<precision, SI::prefix, suffix_type_A> {
 public:
     /** Default constructor */
     amperes();
     /** Parameter constructor */
-    explicit amperes(double value);
+    explicit amperes(precision value);
     /** Copy Constructor */
     amperes(const amperes& other);
     /** Move Constructor */
@@ -56,9 +56,9 @@ public:
     /** Deccumulation Operator */
     amperes& operator-=(const amperes& other);
     /** Scaling Operator */
-    amperes& operator*=(double factor);
+    amperes& operator*=(precision factor);
     /** Inverse Scaling Operator */
-    amperes& operator/=(double factor);
+    amperes& operator/=(precision factor);
     /** Negating Operator */
     amperes operator-() const;
     /** Less Than Operator */
@@ -77,11 +77,11 @@ namespace operators {
     /** Subtraction operator */
     amperes operator-(const amperes& A, const amperes& B);
     /** Left Scaling Operator */
-    amperes operator*(const amperes& A, double factor);
+    amperes operator*(const amperes& A, precision factor);
     /** Right Scaling Operator */
-    amperes operator*(double factor, const amperes& A);
+    amperes operator*(precision factor, const amperes& A);
     /** Inverse Scaling Operator */
-    amperes operator/(const amperes& A, double factor);
+    amperes operator/(const amperes& A, precision factor);
 }
 
 namespace literals {

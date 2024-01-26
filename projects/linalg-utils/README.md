@@ -65,7 +65,7 @@ There's 3 special cases:
 
 A list of the features I would like to add.
 
-* TODO (Linalg) Tensor implementation (more than just `double[D][R][C]`)
+* TODO (Linalg) Tensor implementation (more than just `precision[D][R][C]`)
 * TODO (Linalg) SV Decomposition
 * TODO (Linalg) EKF
 * TODO (Linalg) SLAM

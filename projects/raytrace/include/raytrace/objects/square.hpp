@@ -12,7 +12,7 @@ public:
     /**
      * Constructs a square from two half width/heights and a normal
      */
-    square(const point& C, const raytrace::vector& N, element_type half_height, element_type half_width);
+    square(const point& C, const raytrace::vector& N, precision half_height, precision half_width);
     virtual ~square() = default;
 
     /** @copydoc raytrace::object::collisions_along */
@@ -25,7 +25,7 @@ public:
     image::point map(const point& object_surface_point) const override;
 
     bool is_surface_point(const point& world_point) const override;
-    element_type get_object_extant(void) const override;
+    precision get_object_extant(void) const override;
 
 private:
     std::array<raytrace::point, 2> m_points;

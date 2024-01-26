@@ -7,7 +7,7 @@ medium::medium()
     : m_ambient_scale{mediums::ambient::none}
     , m_ambient{colors::black}
     , m_diffuse{colors::grey}
-    , m_tightness{0.0f}
+    , m_tightness{0.0_p}
     , m_smoothness{mediums::smoothness::none}
     , m_transmissivity{0.0}
     , m_refractive_index{0.0}
@@ -23,7 +23,7 @@ color medium::diffuse(const raytrace::point& volumetric_point __attribute__((unu
     return m_diffuse;
 }
 
-color medium::specular(const raytrace::point& volumetric_point, element_type scaling, const color& light_color) const {
+color medium::specular(const raytrace::point& volumetric_point, precision scaling, const color& light_color) const {
     using namespace operators;
     // phong model?
     if (scaling > 0) {
@@ -33,7 +33,7 @@ color medium::specular(const raytrace::point& volumetric_point, element_type sca
     }
 }
 
-element_type medium::specular_tightness(const raytrace::point& volumetric_point __attribute__((unused))) const {
+precision medium::specular_tightness(const raytrace::point& volumetric_point __attribute__((unused))) const {
     return m_tightness;
 }
 
@@ -46,25 +46,25 @@ color medium::bounced(const raytrace::point& volumetic_point __attribute__((unus
     return incoming;
 }
 
-element_type medium::smoothness(const raytrace::point& volumetric_point __attribute__((unused))) const {
+precision medium::smoothness(const raytrace::point& volumetric_point __attribute__((unused))) const {
     return m_smoothness;
 }
 
 void medium::radiosity(const raytrace::point& volumetric_point __attribute__((unused)),
-                       element_type refractive_index __attribute__((unused)),
+                       precision refractive_index __attribute__((unused)),
                        const iso::radians& incident_angle __attribute__((unused)),
-                       const iso::radians& transmitted_angle __attribute__((unused)), element_type& emitted,
-                       element_type& reflected, element_type& transmitted) const {
+                       const iso::radians& transmitted_angle __attribute__((unused)), precision& emitted,
+                       precision& reflected, precision& transmitted) const {
     emitted = 0;
     reflected = 1.0 - m_transmissivity;
     transmitted = m_transmissivity;
 }
 
-element_type medium::refractive_index(const raytrace::point& volumetric_point __attribute__((unused))) const {
+precision medium::refractive_index(const raytrace::point& volumetric_point __attribute__((unused))) const {
     return m_refractive_index;
 }
 
-color medium::absorbance(element_type /*distance*/, const color& given_color) const {
+color medium::absorbance(precision /*distance*/, const color& given_color) const {
     return given_color;
 }
 

@@ -22,12 +22,12 @@ fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8> pad_image(noise::pad::di
 // the render image
 cv::Mat render_image(height, width, CV_8UC3);
 cv::Mat render_pad_image(noise::pad::dimensions, noise::pad::dimensions, CV_8UC3);
-double x_scale = 5.0;
-double y_scale = 10.0;
-double power = 5.0;
-double size = 32.0;
+noise::precision x_scale = 5.0;
+noise::precision y_scale = 10.0;
+noise::precision power = 5.0;
+noise::precision size = 32.0;
 // The initialize scale value
-double scale = 256.0;
+noise::precision scale = 256.0;
 // the map of noise values (generate once)
 noise::pad map;
 
@@ -35,7 +35,7 @@ constexpr static bool debug = false;
 
 void generate_pad_image(void) {
     pad_image.for_each ([&](size_t y, size_t x, fourcc::rgb8 &pixel) {
-        double v = map.at(y, x);
+        noise::precision v = map.at(y, x);
         pixel.r = uint8_t(255u * v);
         pixel.g = uint8_t(255u * v);
         pixel.b = uint8_t(255u * v);
@@ -45,8 +45,8 @@ void generate_pad_image(void) {
 void generate_noise_image(void) {
     printf("xs: %lf, ys: %lf, power: %lf, size: %lf, scale: %lf\r\n", x_scale, y_scale, power, size, scale);
     noise_image.for_each ([&](size_t y, size_t x, fourcc::rgb8 &pixel) {
-        noise::point pnt{(double)x, (double)y};
-        double n = noise::turbulentsin(pnt, x_scale, y_scale, power, size, scale, map);
+        noise::point pnt{(noise::precision)x, (noise::precision)y};
+        noise::precision n = noise::turbulentsin(pnt, x_scale, y_scale, power, size, scale, map);
         if constexpr (debug) {
             printf("x,y={%lf, %lf} = %lf\n", pnt.x, pnt.y, n);
         }
@@ -73,19 +73,19 @@ void copy_to_pad_image(void) {
 }
 
 void on_xscale_update(int value, void *cookie __attribute__((unused))) {
-    x_scale = double(value + 1);
+    x_scale = noise::precision(value + 1);
 }
 
 void on_yscale_update(int value, void *cookie __attribute__((unused))) {
-    y_scale = double(value + 1);
+    y_scale = noise::precision(value + 1);
 }
 
 void on_power_update(int value, void *cookie __attribute__((unused))) {
-    power = double(value + 1);
+    power = noise::precision(value + 1);
 }
 
 void on_size_update(int value, void *cookie __attribute__((unused))) {
-    size = double(value + 1);
+    size = noise::precision(value + 1);
 }
 
 int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused))) {

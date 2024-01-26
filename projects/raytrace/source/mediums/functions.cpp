@@ -11,9 +11,9 @@ color simple(const image::point& p __attribute__((unused)), const palette& pal _
 
 color checkerboard(const image::point& p, const palette& pal) {
     basal::exception::throw_unless(pal.size() == 8, __FILE__, __LINE__, "Must have all 8 colors in checkerboard");
-    element_type h = 0.5;
-    element_type u = std::fmod(p.x, 1.0);  // values between -1.0 and 1.0 exclusive
-    element_type v = std::fmod(p.y, 1.0);  // values between -1.0 and 1.0 exclusive
+    precision h = 0.5;
+    precision u = std::fmod(p.x, 1.0);  // values between -1.0 and 1.0 exclusive
+    precision v = std::fmod(p.y, 1.0);  // values between -1.0 and 1.0 exclusive
     // this only really works in u > 0 && v > 0
     if (u >= 0 and v >= 0) {  // quad 1
         if ((u < h and v < h) or (u >= h and v >= h)) {
@@ -48,10 +48,10 @@ color checkerboard(const image::point& p, const palette& pal) {
 color checkerboard(const raytrace::point& p, const palette& pal) {
     // palette could have up to 8 colors, don't worry about it here
     basal::exception::throw_unless(pal.size() >= 2, __FILE__, __LINE__, "Must have at least two colors in checkerboard");
-    static constexpr element_type h = 0.5;
-    element_type u = std::fmod(p.x, 1.0);
-    element_type v = std::fmod(p.y, 1.0);
-    element_type w = std::fmod(p.z, 1.0);
+    static constexpr precision h = 0.5;
+    precision u = std::fmod(p.x, 1.0);
+    precision v = std::fmod(p.y, 1.0);
+    precision w = std::fmod(p.z, 1.0);
 
     // there are 8 cases of p/ne (if you just do std::abs, you get a weird pattern)
     if (u >= 0 and v >= 0 and w >= 0) {
@@ -107,9 +107,9 @@ color checkerboard(const raytrace::point& p, const palette& pal) {
 
 color diagonal(const image::point& p, const palette& pal) {
     basal::exception::throw_unless(pal.size() == 2, __FILE__, __LINE__, "Must have only two colors in checkerboard");
-    element_type u = std::fmod(p.x, 1.0);
-    element_type v = std::fmod(p.y, 1.0);
-    element_type upv = u + v;
+    precision u = std::fmod(p.x, 1.0);
+    precision v = std::fmod(p.y, 1.0);
+    precision upv = u + v;
     if ((0.0 <= upv and upv < 0.5)) {
         return pal[0];
     } else if (0.5 <= upv and upv < 1.0) {
@@ -123,12 +123,12 @@ color diagonal(const image::point& p, const palette& pal) {
 
 color dots(const image::point& p, const palette& pal) {
     basal::exception::throw_unless(pal.size() == 2, __FILE__, __LINE__, "Must have only two colors in checkerboard");
-    element_type u = std::abs(std::fmod(p.x, 1.0));
-    element_type v = std::abs(std::fmod(p.y, 1.0));
-    element_type h = 0.5;
-    element_type rx = std::abs(h - u);
-    element_type ry = std::abs(h - v);
-    element_type r = std::sqrt(rx * rx + ry * ry);
+    precision u = std::abs(std::fmod(p.x, 1.0));
+    precision v = std::abs(std::fmod(p.y, 1.0));
+    precision h = 0.5;
+    precision rx = std::abs(h - u);
+    precision ry = std::abs(h - v);
+    precision r = std::sqrt(rx * rx + ry * ry);
     if (r < 0.3) {
         return pal[1];
     } else {
@@ -138,14 +138,14 @@ color dots(const image::point& p, const palette& pal) {
 
 color dots(const raytrace::point& p, const palette& pal) {
     basal::exception::throw_unless(pal.size() == 2, __FILE__, __LINE__, "Must have only two colors in checkerboard");
-    element_type u = std::abs(std::fmod(p.x, 1.0));
-    element_type v = std::abs(std::fmod(p.y, 1.0));
-    element_type w = std::abs(std::fmod(p.z, 1.0));
-    element_type h = 0.5;
-    element_type rx = std::abs(h - u);
-    element_type ry = std::abs(h - v);
-    element_type rz = std::abs(h - w);
-    element_type r = std::sqrt(rx * rx + ry * ry + rz * rz);
+    precision u = std::abs(std::fmod(p.x, 1.0));
+    precision v = std::abs(std::fmod(p.y, 1.0));
+    precision w = std::abs(std::fmod(p.z, 1.0));
+    precision h = 0.5;
+    precision rx = std::abs(h - u);
+    precision ry = std::abs(h - v);
+    precision rz = std::abs(h - w);
+    precision r = std::sqrt(rx * rx + ry * ry + rz * rz);
     if (r < 0.3) {
         return pal[1];
     } else {
@@ -155,10 +155,10 @@ color dots(const raytrace::point& p, const palette& pal) {
 
 color grid(const image::point& p, const palette& pal) {
     basal::exception::throw_unless(pal.size() == 2, __FILE__, __LINE__, "Must have only two colors in checkerboard");
-    element_type u = std::abs(std::fmod(p.x, 1.0));
-    element_type v = std::abs(std::fmod(p.y, 1.0));
-    const element_type l = 0.0625;  // a 1/16
-    const element_type a = 1.0 - l;
+    precision u = std::abs(std::fmod(p.x, 1.0));
+    precision v = std::abs(std::fmod(p.y, 1.0));
+    const precision l = 0.0625;  // a 1/16
+    const precision a = 1.0 - l;
     if (l < u and u <= a and l < v and v <= a) {
         return pal[1];
     } else {
@@ -168,11 +168,11 @@ color grid(const image::point& p, const palette& pal) {
 
 color grid(const raytrace::point& p, const palette& pal) {
     basal::exception::throw_unless(pal.size() == 2, __FILE__, __LINE__, "Must have only two colors in checkerboard");
-    element_type u = std::abs(std::fmod(p.x, 1.0));
-    element_type v = std::abs(std::fmod(p.y, 1.0));
-    element_type w = std::abs(std::fmod(p.z, 1.0));
-    const element_type l = 0.0625;
-    const element_type a = 1.0 - l;
+    precision u = std::abs(std::fmod(p.x, 1.0));
+    precision v = std::abs(std::fmod(p.y, 1.0));
+    precision w = std::abs(std::fmod(p.z, 1.0));
+    const precision l = 0.0625;
+    const precision a = 1.0 - l;
     if (l < u and u <= a and l < v and v <= a and l < w and w <= a) {
         return pal[1];
     } else {
@@ -183,11 +183,11 @@ color grid(const raytrace::point& p, const palette& pal) {
 color pseudo_random_noise(const image::point& p, const palette& pal __attribute__((unused))) {
     noise::vector vec{{p.x, p.y}};
     vec = (vec == geometry::R2::null) ? geometry::R2::null : vec.normalized();
-    double _r,
+    precision _r,
         r = noise::random(vec, tuning::pseudo_random_noise_params.vec_r, tuning::pseudo_random_noise_params.gain);
-    double _g,
+    precision _g,
         g = noise::random(vec, tuning::pseudo_random_noise_params.vec_g, tuning::pseudo_random_noise_params.gain);
-    double _b,
+    precision _b,
         b = noise::random(vec, tuning::pseudo_random_noise_params.vec_b, tuning::pseudo_random_noise_params.gain);
     color out(std::modf(r, &_r) * 255, std::modf(g, &_g) * 255, std::modf(b, &_b) * 255);
     return out;

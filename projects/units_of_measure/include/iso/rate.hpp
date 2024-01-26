@@ -39,15 +39,15 @@ public:
     rate()
         : _value{0}
         , value{_value}
-        , _numerator{0.0}
-        , _denominator{1.0}
+        , _numerator{0}
+        , _denominator{1}
         , numerator{_numerator}
         , denominator{_denominator} {
         snprintf(suffix, sizeof(suffix), "%s/%s", _numerator.get_suffix(), _denominator.get_suffix());
     }
 
     rate(const NumeratorType& num, const DenominatorType& denom)
-        : _value{0.0}
+        : _value{0}
         , value{_value}
         , _numerator{num}
         , _denominator{denom}

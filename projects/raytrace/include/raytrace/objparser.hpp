@@ -28,21 +28,21 @@ protected:
 class Parser {
 public:
     /// @brief The state of the parser.
-    enum State {
-        Unknown, ///< Unknown state
-        Comment, ///< Comment line
-        Object, ///< The object name is being parsed
-        Vertices, ///< A vertex is being parsed
-        Textures, ///< A texture vertex is being parsed
-        Normals,  ///< A normal is being parsed
-        Faces ///< A face is being parsed.
+    enum class State : char {
+        Unknown = 'u', ///< Unknown state
+        Comment = 'c', ///< Comment line
+        Object = 'o', ///< The object name is being parsed
+        Vertices = 'v', ///< A vertex is being parsed
+        Textures = 't', ///< A texture vertex is being parsed
+        Normals = 'n',  ///< A normal is being parsed
+        Faces = 'f' ///< A face is being parsed.
     };
     /// @brief  The state within each state.
-    enum SubState {
-        None, ///< An invalid state
-        String, ///< Any characters up to the line terminators
-        FloatingPoint, ///< Digits, -, +, .
-        Integer, ///< Unsigned Digits, no point.
+    enum class SubState : char {
+        None = ' ', ///< An invalid state
+        String = 's', ///< Any characters up to the line terminators
+        FloatingPoint = 'f', ///< Digits, -, +, .
+        Integer = 'i', ///< Unsigned Digits, no point.
     };
 
     /// Constructs a parser with a given observer
@@ -160,6 +160,7 @@ public:
                 m_state_ = State::Unknown;
                 m_substate_ = SubState::None;
                 m_index_ = 0u;
+                memset(&m_buffer_[0], 0, sizeof(m_buffer_));
             }
         }
         if (c == '\n') {
@@ -173,33 +174,36 @@ public:
 
 protected:
     void Complete(void) {
-        // printf("state=%d sub=%d Buffer=%s\n", (int)m_state_, (int)m_substate_, m_buffer_);
+        printf("state=%c sub=%c Buffer=%s\n", to_underlying(m_state_), to_underlying(m_substate_), m_buffer_);
         switch (m_state_) {
             case State::Vertices:
                 if (GetSubState() == SubState::FloatingPoint) {
-                    float x = std::nan("");
-                    float y = std::nan("");
-                    float z = std::nan("");
-                    if (3u == sscanf(m_buffer_, " %f %f %f", &x, &y, &z)) {
+                    float x = basal::nan;
+                    float y = basal::nan;
+                    float z = basal::nan;
+                    int scans = sscanf(m_buffer_, " %f %f %f", &x, &y, &z);
+                    if (3u == scans) {
                         m_observer_.addVertex(x, y, z);
                     }
                 }
                 break;
             case State::Normals:
                 if (GetSubState() == SubState::FloatingPoint) {
-                    float x = std::nan("");
-                    float y = std::nan("");
-                    float z = std::nan("");
-                    if (3u == sscanf(m_buffer_, " %f %f %f", &x, &y, &z)) {
+                    float x = basal::nan;
+                    float y = basal::nan;
+                    float z = basal::nan;
+                    int scans = sscanf(m_buffer_, " %f %f %f", &x, &y, &z);
+                    if (3u == scans) {
                         m_observer_.addNormal(x, y, z);
                     }
                 }
                 break;
             case State::Textures:
                 if (GetSubState() == SubState::FloatingPoint) {
-                    float u = std::nan("");
-                    float v = std::nan("");
-                    if (2u == sscanf(m_buffer_, " %f %f", &u, &v)) {
+                    float u = basal::nan;
+                    float v = basal::nan;
+                    int scans = sscanf(m_buffer_, " %f %f", &u, &v);
+                    if (2u == scans) {
                         // m_observer_.addTextureCoord(u, v);
                     }
                 }
@@ -209,17 +213,20 @@ protected:
                     uint32_t a = UINT32_MAX;
                     uint32_t b = UINT32_MAX;
                     uint32_t c = UINT32_MAX;
-                    if (3u == sscanf(m_buffer_, " %" PRIu32 " %" PRIu32 " %" PRIu32 "", &a, &b, &c)) {
+                    int scans = sscanf(m_buffer_, " %" SCNu32 " %" SCNu32 " %" SCNu32 "", &a, &b, &c);
+                    if (3u == scans) {
                         m_observer_.addFace(a, b, c);
                         break;
                     }
                     uint32_t d = UINT32_MAX;
                     uint32_t e = UINT32_MAX;
                     uint32_t f = UINT32_MAX;
-                    if (6u == sscanf(m_buffer_, " %" PRIu32 "/%" PRIu32 " %" PRIu32 "/%" PRIu32 " %" PRIu32 "/%" PRIu32 "",
-                                     &a, &d, &b, &e, &c, &f)) {
+                    scans = sscanf(m_buffer_, " %" SCNu32 "/%" SCNu32 " %" SCNu32 "/%" SCNu32 " %" SCNu32 "/%" SCNu32 "",
+                                     &a, &d, &b, &e, &c, &f);
+                    if (6u == scans) {
                         m_observer_.addFace(a, b, c);
                         // add some other face from d,e,f?
+                        break;
                     }
                 }
             default:

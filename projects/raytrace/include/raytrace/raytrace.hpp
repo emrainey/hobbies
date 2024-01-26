@@ -1,11 +1,7 @@
 #pragma once
 
 #include <limits>
-/** The Raytracing Namespace contains objects used for Raytracing */
-namespace raytrace {
-// Enforce IEEE-754 compliance
-static_assert(std::numeric_limits<double>::is_iec559, "Platform must be IEEE-754 formatted.");
-}  // namespace raytrace
+#include <basal/ieee754.hpp>
 
 #include "raytrace/camera.hpp"
 #include "raytrace/stereocamera.hpp"

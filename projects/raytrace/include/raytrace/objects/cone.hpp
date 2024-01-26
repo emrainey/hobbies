@@ -19,7 +19,7 @@ public:
      * Constructs a cone which is up and down in Z. The point C is on the base in the center of the ring.
      * The cone with a height is not closed and can't be used in intersections.
      */
-    cone(const point& C, element_type bottom_radius, element_type height);
+    cone(const point& C, precision bottom_radius, precision height);
     virtual ~cone() = default;
 
     /** @copydoc raytrace::object::normal */
@@ -33,11 +33,11 @@ public:
     /** @copydoc basal::printable::print */
     void print(const char str[]) const override;
     bool is_surface_point(const raytrace::point& world_point) const override;
-    element_type get_object_extant(void) const override;
+    precision get_object_extant(void) const override;
 
 private:
-    element_type m_bottom_radius;
-    element_type m_height;
+    precision m_bottom_radius;
+    precision m_height;
     iso::radians m_angle;
 };
 

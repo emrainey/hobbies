@@ -3,7 +3,7 @@
  * This is an auto-generated header for iso::watts.
  * A measure of electrical power
  * @note See README on re-generation.
- * @copyright Copyright 2022.
+ * @copyright Copyright 2024.
  */
 #pragma once
 #include <cstdint>
@@ -29,12 +29,12 @@ struct suffix_type_W {
  * overload >,<,==,!=,<=,>=
  * not overloaded %=,%
  */
-class watts : public measurement<double, SI::prefix, suffix_type_W> {
+class watts : public measurement<precision, SI::prefix, suffix_type_W> {
 public:
     /** Default constructor */
     watts();
     /** Parameter constructor */
-    explicit watts(double value);
+    explicit watts(precision value);
     /** Copy Constructor */
     watts(const watts& other);
     /** Move Constructor */
@@ -56,9 +56,9 @@ public:
     /** Deccumulation Operator */
     watts& operator-=(const watts& other);
     /** Scaling Operator */
-    watts& operator*=(double factor);
+    watts& operator*=(precision factor);
     /** Inverse Scaling Operator */
-    watts& operator/=(double factor);
+    watts& operator/=(precision factor);
     /** Negating Operator */
     watts operator-() const;
     /** Less Than Operator */
@@ -77,11 +77,11 @@ namespace operators {
     /** Subtraction operator */
     watts operator-(const watts& A, const watts& B);
     /** Left Scaling Operator */
-    watts operator*(const watts& A, double factor);
+    watts operator*(const watts& A, precision factor);
     /** Right Scaling Operator */
-    watts operator*(double factor, const watts& A);
+    watts operator*(precision factor, const watts& A);
     /** Inverse Scaling Operator */
-    watts operator/(const watts& A, double factor);
+    watts operator/(const watts& A, precision factor);
 }
 
 namespace literals {

@@ -65,7 +65,7 @@ TEST(ImageTest, SubsamplerTest) {
     // since the image has 3 subsamples,
     // the averaging should make a dark grey.
     image img4(2, 2);
-    element_type g = 0.61250591370193386;  //  -> 155
+    precision g = 0.61250591370193386_p;  //  -> ~156
     color tmp0(g, g, g);
     fourcc::rgb8 dark_grey = tmp0.to_rgb8();
 
@@ -78,9 +78,9 @@ TEST(ImageTest, SubsamplerTest) {
     auto renderer = [&](size_t row_index, bool is_completed) -> void {
         image::point pnt(row_index, 0);
         fourcc::rgb8 pix = img4.at(pnt);
-        EXPECT_EQ(dark_grey.r, pix.r) << " at " << pnt.x << ", " << pnt.y << std::endl;
-        EXPECT_EQ(dark_grey.g, pix.g) << " at " << pnt.x << ", " << pnt.y << std::endl;
-        EXPECT_EQ(dark_grey.b, pix.b) << " at " << pnt.x << ", " << pnt.y << std::endl;
+        EXPECT_EQ(dark_grey.r, pix.r) << pix.r << " at " << pnt.x << ", " << pnt.y << std::endl;
+        EXPECT_EQ(dark_grey.g, pix.g) << pix.g << " at " << pnt.x << ", " << pnt.y << std::endl;
+        EXPECT_EQ(dark_grey.b, pix.b) << pix.b << " at " << pnt.x << ", " << pnt.y << std::endl;
     };
     img4.generate_each(subsampler, 3, renderer);
     img4.save("averaged_dark_grey.ppm");
@@ -92,13 +92,13 @@ TEST(ImageTest, SubsamplingChecker) {
     image image5(480, 640);
     image5.generate_each([&](const image::point&) -> color { return colors::white; });
     image image6(24, 32);
-    double ratio = (image5.height / image6.height);
+    precision ratio = (image5.height / image6.height);
     image6.generate_each(
         [&](const image::point& p) -> color {
-            image::point n{p.x * ratio, p.y * ratio};
-            double fx = std::floor(p.x);
+            image::point n{static_cast<precision>(p.x * ratio), static_cast<precision>(p.y * ratio)};
+            precision fx = std::floor(p.x);
             bool ix = (static_cast<int>(fx) & 1);
-            double fy = std::floor(p.y);
+            precision fy = std::floor(p.y);
             bool iy = (static_cast<int>(fy) & 1);
             if ((not ix and not iy) or (ix and iy)) {
                 image5.at(n) = colors::red.to_rgb8();

@@ -29,7 +29,7 @@ void plot(std::string name, std::vector<T> &data, matrix &beta, matrix &domain) 
     }
     T y_range = y_max - y_min;
     printf("y_min:%lf y_max:%lf y_range:%lf\n", y_min, y_max, y_range);
-    domain.for_each ([&](double &v) {
+    domain.for_each ([&](precision &v) {
         if (x_min > v) x_min = v;
         if (x_max < v) x_max = v;
     });
@@ -101,29 +101,29 @@ void plot(std::string name, std::vector<T> &data, matrix &beta, matrix &domain) 
     } while (1);
 }
 
-double frand() {
-    return static_cast<double>(rand()) / RAND_MAX;
+precision frand() {
+    return static_cast<precision>(rand()) / RAND_MAX;
 }
 
-double random_range(double min, double max) {
-    double range = max - min;
+precision random_range(precision min, precision max) {
+    precision range = max - min;
     return (frand() * range) + min;
 }
 
-std::vector<double> generate_random_linear_dataset(matrix &domain) {
+std::vector<precision> generate_random_linear_dataset(matrix &domain) {
     std::random_device rd{};
     std::mt19937 gen(rd());
     std::uniform_real_distribution<> num(-1.0, 1.0);
     // slope
-    double m = 2.0 * num(gen);
+    precision m = 2.0 * num(gen);
     // offset
-    double b = 10.0 * num(gen);
+    precision b = 10.0 * num(gen);
     // we want the dots clustered around a random line equation by this tolerance.
-    double tolerance = 20.0 * num(gen);
+    precision tolerance = 20.0 * num(gen);
     printf("m=%lf, b=%lf\n", m, b);
-    std::vector<double> data;
-    domain.for_each ([&](double &x) {
-        double y = m * x + b;
+    std::vector<precision> data;
+    domain.for_each ([&](precision &x) {
+        precision y = m * x + b;
         std::uniform_real_distribution<> rnd(y - tolerance, y + tolerance);
         // printf("%lf = m * %lf + b\n", y, x);
         y = rnd(gen);
@@ -132,7 +132,7 @@ std::vector<double> generate_random_linear_dataset(matrix &domain) {
     return data;
 }
 
-void least_squares(std::vector<double> &dataset, matrix &beta, matrix &domain) {
+void least_squares(std::vector<precision> &dataset, matrix &beta, matrix &domain) {
     // create a column matrix of the data points (default is row)
     matrix y = matrix::col(dataset);
     matrix X = matrix::ones(dataset.size(), 2);
@@ -143,13 +143,13 @@ void least_squares(std::vector<double> &dataset, matrix &beta, matrix &domain) {
 
 int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused))) {
     matrix domain(1, 300);  // generate a domain set
-    domain.for_each ([](size_t row, size_t col, double &v) {
+    domain.for_each ([](size_t row, size_t col, precision &v) {
         row |= 0;
         v = -150.0 + col;
     });
     // generate a random data set within bounds
-    std::vector<double> dataset = generate_random_linear_dataset(domain);
-    // std::vector<double> smallset{{6,5,7,10}};
+    std::vector<precision> dataset = generate_random_linear_dataset(domain);
+    // std::vector<precision> smallset{{6,5,7,10}};
     matrix beta(2, 1);
     least_squares(dataset, beta, domain);
     beta.print("beta");

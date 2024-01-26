@@ -13,10 +13,10 @@ output::output(size_t prev, size_t num)
 output::~output() {
 }
 
-size_t output::infer_label(double& out) {
-    double tmp = 0.0;
+size_t output::infer_label(precision& out) {
+    precision tmp = 0.0;
     size_t index = 0;
-    values.for_each ([&](size_t y, size_t x, const double& v) {
+    values.for_each ([&](size_t y, size_t x, const precision& v) {
         x |= 0;
         if (tmp < v) {
             tmp = v;
@@ -39,7 +39,7 @@ void output::update(void) {
     error_value = nn::sum(error) / error.rows;
 }
 
-void output::learn_label(size_t index, double min, double max) {
+void output::learn_label(size_t index, precision min, precision max) {
     basal::exception::throw_unless(index < values.rows, __FILE__, __LINE__);
     linalg::matrix desired = linalg::matrix::zeros(values.rows, 1);
     desired = min;

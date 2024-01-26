@@ -31,7 +31,7 @@ public:
     image merge_images(void) const noexcept;
 
 protected:
-    double m_separation;    //!< The unit-less separation between the two cameras.
+    precision m_separation;    //!< The unit-less separation between the two cameras.
     point m_look_at;        //!< The point which both cameras are pointing
     iso::radians m_toe_in;  //!< The inward tilting angle of the views.
     Layout m_layout;        //!< The layout of the cameras

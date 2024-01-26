@@ -15,12 +15,12 @@ public:
      * Constructs a cylinder which is up and down in Z.
      * The point C is in the center of the cylinder between the top and bottom.
      */
-    cylinder(const point& C, element_type half_height, element_type radius);
+    cylinder(const point& C, precision half_height, precision radius);
     /**
      * Constructs a cylinder in which the base and apex are defined by points
      * The height and rotation are defined by the point orientations.
      */
-    cylinder(const point& base, const point& apex, element_type radius);
+    cylinder(const point& base, const point& apex, precision radius);
 
     virtual ~cylinder() = default;
 
@@ -35,11 +35,11 @@ public:
     /** @copydoc basal::printable::print */
     void print(const char str[]) const override;
     bool is_surface_point(const point& world_point) const override;
-    element_type get_object_extant(void) const override;
+    precision get_object_extant(void) const override;
 
 private:
-    element_type m_half_height;
-    element_type m_radius;
+    precision m_half_height;
+    precision m_radius;
 };
 
 }  // namespace objects

@@ -37,7 +37,7 @@ public:
     void forward();
     /// Computes the backwards direction of the network for learning
     /// with a given learning rate (alpha) and momentum (gamma).
-    void backward(double alpha, double gamma);
+    void backward(precision alpha, precision gamma);
 
     /// Updates the weights and biases in the network.
     void update(void);

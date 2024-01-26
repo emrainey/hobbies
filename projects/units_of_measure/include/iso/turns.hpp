@@ -3,7 +3,7 @@
  * This is an auto-generated header for iso::turns.
  * A measure of an angle
  * @note See README on re-generation.
- * @copyright Copyright 2022.
+ * @copyright Copyright 2024.
  */
 #pragma once
 #include <cstdint>
@@ -29,12 +29,12 @@ struct suffix_type_Tau {
  * overload >,<,==,!=,<=,>=
  * not overloaded %=,%
  */
-class turns : public measurement<double, SI::prefix, suffix_type_Tau> {
+class turns : public measurement<precision, SI::prefix, suffix_type_Tau> {
 public:
     /** Default constructor */
     turns();
     /** Parameter constructor */
-    explicit turns(double value);
+    explicit turns(precision value);
     /** Copy Constructor */
     turns(const turns& other);
     /** Move Constructor */
@@ -56,9 +56,9 @@ public:
     /** Deccumulation Operator */
     turns& operator-=(const turns& other);
     /** Scaling Operator */
-    turns& operator*=(double factor);
+    turns& operator*=(precision factor);
     /** Inverse Scaling Operator */
-    turns& operator/=(double factor);
+    turns& operator/=(precision factor);
     /** Negating Operator */
     turns operator-() const;
     /** Less Than Operator */
@@ -77,11 +77,11 @@ namespace operators {
     /** Subtraction operator */
     turns operator-(const turns& A, const turns& B);
     /** Left Scaling Operator */
-    turns operator*(const turns& A, double factor);
+    turns operator*(const turns& A, precision factor);
     /** Right Scaling Operator */
-    turns operator*(double factor, const turns& A);
+    turns operator*(precision factor, const turns& A);
     /** Inverse Scaling Operator */
-    turns operator/(const turns& A, double factor);
+    turns operator/(const turns& A, precision factor);
 }
 
 namespace literals {

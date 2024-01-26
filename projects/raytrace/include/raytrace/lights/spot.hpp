@@ -12,12 +12,12 @@ class spot
     : public light
     , public entity {
 public:
-    spot(const raytrace::ray& r, const raytrace::color& C, element_type intensity, const iso::degrees& incoming_angle);
-    spot(raytrace::ray&& r, const raytrace::color& C, element_type intensity, const iso::degrees& incoming_angle);
+    spot(const raytrace::ray& r, const raytrace::color& C, precision intensity, const iso::degrees& incoming_angle);
+    spot(raytrace::ray&& r, const raytrace::color& C, precision intensity, const iso::degrees& incoming_angle);
     virtual ~spot() = default;
 
     /** @copydoc raytrace::light::intensity_at() */
-    element_type intensity_at(const point& world_point) const override;
+    precision intensity_at(const point& world_point) const override;
 
     /** @copydoc raytrace::light::incident() */
     ray incident(const point& world_point, size_t sample_index) const override;

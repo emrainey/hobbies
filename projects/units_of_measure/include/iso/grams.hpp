@@ -3,7 +3,7 @@
  * This is an auto-generated header for iso::grams.
  * A measurement of mass
  * @note See README on re-generation.
- * @copyright Copyright 2022.
+ * @copyright Copyright 2024.
  */
 #pragma once
 #include <cstdint>
@@ -29,12 +29,12 @@ struct suffix_type_g {
  * overload >,<,==,!=,<=,>=
  * not overloaded %=,%
  */
-class grams : public measurement<double, SI::prefix, suffix_type_g> {
+class grams : public measurement<precision, SI::prefix, suffix_type_g> {
 public:
     /** Default constructor */
     grams();
     /** Parameter constructor */
-    explicit grams(double value);
+    explicit grams(precision value);
     /** Copy Constructor */
     grams(const grams& other);
     /** Move Constructor */
@@ -56,9 +56,9 @@ public:
     /** Deccumulation Operator */
     grams& operator-=(const grams& other);
     /** Scaling Operator */
-    grams& operator*=(double factor);
+    grams& operator*=(precision factor);
     /** Inverse Scaling Operator */
-    grams& operator/=(double factor);
+    grams& operator/=(precision factor);
     /** Negating Operator */
     grams operator-() const;
     /** Less Than Operator */
@@ -77,11 +77,11 @@ namespace operators {
     /** Subtraction operator */
     grams operator-(const grams& A, const grams& B);
     /** Left Scaling Operator */
-    grams operator*(const grams& A, double factor);
+    grams operator*(const grams& A, precision factor);
     /** Right Scaling Operator */
-    grams operator*(double factor, const grams& A);
+    grams operator*(precision factor, const grams& A);
     /** Inverse Scaling Operator */
-    grams operator/(const grams& A, double factor);
+    grams operator/(const grams& A, precision factor);
 }
 
 namespace literals {

@@ -1,14 +1,13 @@
 #pragma once
 
 #include <geometry/geometry.hpp>
-// #include "xmmt.hpp"
 
 namespace raytrace {
 using namespace geometry::operators;
 using namespace geometry::R3;  // only 3D functions
 constexpr const static size_t dimensions = geometry::R3::dimensions;
 /** Reuse the element type */
-using element_type = geometry::element_type;
+using precision = geometry::precision;
 /** We only consider 3D points in space */
 using point = geometry::R3::point;
 /** We only consider 3D vectors */
@@ -21,11 +20,11 @@ using line = geometry::R3::line;
 using matrix = linalg::matrix;
 /** A hit is both a distance along the line and the normal at that point */
 struct hit {
-    element_type t;  //!< The distance along the line.
+    precision t;  //!< The distance along the line.
     vector N;        //!< The normal at the point along the line.
 };
 /** A set of distances along the world_ray which collide with the object, could be many. */
-using hits = std::vector<element_type>;
+using hits = std::vector<precision>;
 
 /** An axis aligned bounding box for computing the BSP */
 struct abba {

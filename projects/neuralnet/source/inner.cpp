@@ -4,6 +4,7 @@ namespace nn {
 
 using namespace linalg;
 using namespace linalg::operators;
+using namespace basal::literals;
 
 inner::inner(layer::type _type, size_t inputs, size_t num)
     : layer{_type, num}
@@ -18,9 +19,9 @@ inner::inner(layer::type _type, size_t inputs, size_t num)
     , last_bias{num, 1}
     , delta_weights{num, inputs}
     , delta_biases{num, 1} {
-    weights.random(-1.0, 1.0);
-    biases.random(0.0, 0.1);
-    // biases.fill(1.0);
+    weights.random(-1.0_p, 1.0_p);
+    biases.random(0.0_p, 0.1_p);
+    // biases.fill(1.0_p);
     delta.zero();
     zeta.zero();
     rms.zero();
@@ -156,7 +157,7 @@ void inner::forward(layer& other) {
     }
 }
 
-void inner::backward(layer& other, double alpha, double gamma) {
+void inner::backward(layer& other, precision alpha, precision gamma) {
     basal::exception::throw_unless(layer_type == layer::type::output or layer_type == layer::type::hidden, __FILE__,
                                    __LINE__);
 

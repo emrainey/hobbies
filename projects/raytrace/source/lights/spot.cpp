@@ -2,12 +2,12 @@
 
 namespace raytrace {
 namespace lights {
-spot::spot(const raytrace::ray& r, const raytrace::color& C, element_type intensity, const iso::degrees& incoming_angle)
+spot::spot(const raytrace::ray& r, const raytrace::color& C, precision intensity, const iso::degrees& incoming_angle)
     : light{C, intensity, 1}, entity{r.location()}, m_direction{r.direction()}, m_incoming_angle{incoming_angle} {
     basal::exception::throw_unless(incoming_angle.value > 0, __FILE__, __LINE__, "Must be positive angle.");
 }
 
-spot::spot(raytrace::ray&& r, const raytrace::color& C, element_type intensity, const iso::degrees& incoming_angle)
+spot::spot(raytrace::ray&& r, const raytrace::color& C, precision intensity, const iso::degrees& incoming_angle)
     : light{C, intensity, 1}
     , entity{std::move(r.location())}
     , m_direction{std::move(r.direction())}
@@ -15,7 +15,7 @@ spot::spot(raytrace::ray&& r, const raytrace::color& C, element_type intensity, 
     basal::exception::throw_unless(incoming_angle.value > 0, __FILE__, __LINE__, "Must be positive angle.");
 }
 
-element_type spot::intensity_at(const point& world_point) const {
+precision spot::intensity_at(const point& world_point) const {
     // with spotlights, we draw the direction vector differently.
     // we're going to measure the angle between the direction of the spotlight
     // and the direction of the world point.
@@ -24,7 +24,7 @@ element_type spot::intensity_at(const point& world_point) const {
     iso::degrees deg_angle;
     iso::convert(deg_angle, rad_angle);
     if (deg_angle <= m_incoming_angle) {
-        element_type d = world_direction.magnitude();
+        precision d = world_direction.magnitude();
         if (basal::equals_zero(d)) {  // prevent divide by zero
             return m_intensity;       // full intensity, not inf
         } else {

@@ -2,13 +2,15 @@
 
 #include <basal/basal.hpp>
 
+using namespace basal::literals;
+
 TEST(BasalTest, FloatCheck) {
-    ASSERT_TRUE(basal::equals(0.0125, 0.0124, 0.001));
-    ASSERT_FALSE(basal::equals(0.0125, 0.0124, 0.0001));
-    ASSERT_FALSE(basal::equals(0.0125, 0.0124));
-    ASSERT_TRUE(basal::equals(0.0125, 0.0125));
-    double value = 1.0 / 3.0;
-    ASSERT_TRUE(basal::equals(value * 3.0, 1.0));
+    ASSERT_TRUE(basal::equals(0.0125_p, 0.0124_p, 0.001_p));
+    ASSERT_FALSE(basal::equals(0.0125_p, 0.0124_p, 0.0001_p));
+    ASSERT_FALSE(basal::equals(0.0125_p, 0.0124_p));
+    ASSERT_TRUE(basal::equals(0.0125_p, 0.0125_p));
+    basal::precision value = 1.0_p / 3.0_p;
+    ASSERT_TRUE(basal::equals(value * 3.0_p, 1.0_p));
 }
 
 TEST(BasalTest, ThrowAndCatch) {
@@ -28,8 +30,8 @@ TEST(BasalTest, ThrowAndCatch) {
 
 TEST(BasalTest, RandRange) {
     for (size_t i = 0; i < 1000; i++) {
-        double value = basal::rand_range(-0.847, 1.497);
-        ASSERT_LE(value, 1.497);
-        ASSERT_GE(value, -0.847);
+        basal::precision value = basal::rand_range(-0.847_p, 1.497_p);
+        ASSERT_LE(value, 1.497_p);
+        ASSERT_GE(value, -0.847_p);
     }
 }

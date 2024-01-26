@@ -3,7 +3,7 @@
  * This is an auto-generated header for iso::newtons.
  * A measure of force
  * @note See README on re-generation.
- * @copyright Copyright 2022.
+ * @copyright Copyright 2024.
  */
 #pragma once
 #include <cstdint>
@@ -29,12 +29,12 @@ struct suffix_type_N {
  * overload >,<,==,!=,<=,>=
  * not overloaded %=,%
  */
-class newtons : public measurement<double, SI::prefix, suffix_type_N> {
+class newtons : public measurement<precision, SI::prefix, suffix_type_N> {
 public:
     /** Default constructor */
     newtons();
     /** Parameter constructor */
-    explicit newtons(double value);
+    explicit newtons(precision value);
     /** Copy Constructor */
     newtons(const newtons& other);
     /** Move Constructor */
@@ -56,9 +56,9 @@ public:
     /** Deccumulation Operator */
     newtons& operator-=(const newtons& other);
     /** Scaling Operator */
-    newtons& operator*=(double factor);
+    newtons& operator*=(precision factor);
     /** Inverse Scaling Operator */
-    newtons& operator/=(double factor);
+    newtons& operator/=(precision factor);
     /** Negating Operator */
     newtons operator-() const;
     /** Less Than Operator */
@@ -77,11 +77,11 @@ namespace operators {
     /** Subtraction operator */
     newtons operator-(const newtons& A, const newtons& B);
     /** Left Scaling Operator */
-    newtons operator*(const newtons& A, double factor);
+    newtons operator*(const newtons& A, precision factor);
     /** Right Scaling Operator */
-    newtons operator*(double factor, const newtons& A);
+    newtons operator*(precision factor, const newtons& A);
     /** Inverse Scaling Operator */
-    newtons operator/(const newtons& A, double factor);
+    newtons operator/(const newtons& A, precision factor);
 }
 
 namespace literals {

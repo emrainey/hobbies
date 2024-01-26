@@ -3,7 +3,7 @@
  * This is an auto-generated header for iso::radians.
  * A measure of an angle
  * @note See README on re-generation.
- * @copyright Copyright 2022.
+ * @copyright Copyright 2024.
  */
 #pragma once
 #include <cstdint>
@@ -29,12 +29,12 @@ struct suffix_type_rad {
  * overload >,<,==,!=,<=,>=
  * not overloaded %=,%
  */
-class radians : public measurement<double, SI::prefix, suffix_type_rad> {
+class radians : public measurement<precision, SI::prefix, suffix_type_rad> {
 public:
     /** Default constructor */
     radians();
     /** Parameter constructor */
-    explicit radians(double value);
+    explicit radians(precision value);
     /** Copy Constructor */
     radians(const radians& other);
     /** Move Constructor */
@@ -56,9 +56,9 @@ public:
     /** Deccumulation Operator */
     radians& operator-=(const radians& other);
     /** Scaling Operator */
-    radians& operator*=(double factor);
+    radians& operator*=(precision factor);
     /** Inverse Scaling Operator */
-    radians& operator/=(double factor);
+    radians& operator/=(precision factor);
     /** Negating Operator */
     radians operator-() const;
     /** Less Than Operator */
@@ -77,11 +77,11 @@ namespace operators {
     /** Subtraction operator */
     radians operator-(const radians& A, const radians& B);
     /** Left Scaling Operator */
-    radians operator*(const radians& A, double factor);
+    radians operator*(const radians& A, precision factor);
     /** Right Scaling Operator */
-    radians operator*(double factor, const radians& A);
+    radians operator*(precision factor, const radians& A);
     /** Inverse Scaling Operator */
-    radians operator/(const radians& A, double factor);
+    radians operator/(const radians& A, precision factor);
 }
 
 namespace literals {

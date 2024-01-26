@@ -30,7 +30,7 @@ public:
     }
 
     void callback(int value) {
-        m_value = (double(value) * m_step) + m_min;
+        m_value = (TYPE(value) * m_step) + m_min;
         if (m_update) {
             *m_update = m_value;
         }

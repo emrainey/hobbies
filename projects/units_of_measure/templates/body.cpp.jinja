@@ -90,7 +90,7 @@ namespace operators {
 }  // namespace operators
 namespace literals {
 iso::{{classname}} operator""_{{postfix}}(long double a) {
-    return iso::{{classname}}(a);
+    return iso::{{classname}}(static_cast<precision>(a));
 }
 iso::{{classname}} operator""_{{postfix}}(unsigned long long a) {
     return iso::{{classname}}(a);

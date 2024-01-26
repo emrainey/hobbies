@@ -3,7 +3,7 @@
  * This is an auto-generated source for iso::radians.
  * A measure of an angle
  * @note See README on re-generation.
- * @copyright Copyright 2022.
+ * @copyright Copyright 2024.
  */
 #include "iso/radians.hpp"
 
@@ -13,7 +13,7 @@ const char* const suffix_type_rad::suffix;
 radians::radians() : measurement{} {
 }
 // explicit value
-radians::radians(double a) : measurement{a} {
+radians::radians(precision a) : measurement{a} {
 }
 // copy constructor
 radians::radians(const radians& other) : measurement{other} {
@@ -48,11 +48,11 @@ radians& radians::operator-=(const radians& other) {
     _value -= other.value;
     return (*this);
 }
-radians& radians::operator*=(double factor) {
+radians& radians::operator*=(precision factor) {
     _value *= factor;
     return (*this);
 }
-radians& radians::operator/=(double factor) {
+radians& radians::operator/=(precision factor) {
     _value /= factor;
     return (*this);
 }
@@ -78,19 +78,19 @@ radians operator+(const radians& A, const radians& B) {
 radians operator-(const radians& A, const radians& B) {
     return radians{A.value - B.value};
 }
-radians operator*(const radians& A, double factor) {
+radians operator*(const radians& A, precision factor) {
     return radians{A.value * factor};
 }
-radians operator*(double factor, const radians& A) {
+radians operator*(precision factor, const radians& A) {
     return radians{A.value * factor};
 }
-radians operator/(const radians& A, double factor) {
+radians operator/(const radians& A, precision factor) {
     return radians{A.value / factor};
 }
 }  // namespace operators
 namespace literals {
 iso::radians operator""_rad(long double a) {
-    return iso::radians(a);
+    return iso::radians(static_cast<precision>(a));
 }
 iso::radians operator""_rad(unsigned long long a) {
     return iso::radians(a);

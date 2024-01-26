@@ -6,13 +6,13 @@ namespace raytrace {
 namespace objects {
 using namespace linalg::operators;
 
-cylinder::cylinder(const point& C, element_type half_height, element_type radius)
+cylinder::cylinder(const point& C, precision half_height, precision radius)
     : object{C, 2, false}  // 2 collisions, not closed
     , m_half_height{half_height}
     , m_radius{radius} {
 }
 
-cylinder::cylinder(const point& base, const point& apex, element_type radius)
+cylinder::cylinder(const point& base, const point& apex, precision radius)
     : object{base, 2, false}  // 2 collisions, not closed
     , m_half_height{0.0}
     , m_radius{radius} {
@@ -40,23 +40,23 @@ vector cylinder::normal(const point& world_surface_point) const {
 
 hits cylinder::collisions_along(const ray& object_ray) const {
     hits ts;
-    element_type px = object_ray.location()[0];
-    element_type py = object_ray.location()[1];
-    element_type dx = object_ray.direction()[0];
-    element_type dy = object_ray.direction()[1];
-    element_type a = (dx * dx + dy * dy);
-    element_type b = 2.0 * (dx * px + dy * py);
-    element_type c = (px * px + py * py) - (m_radius * m_radius);
+    precision px = object_ray.location()[0];
+    precision py = object_ray.location()[1];
+    precision dx = object_ray.direction()[0];
+    precision dy = object_ray.direction()[1];
+    precision a = (dx * dx + dy * dy);
+    precision b = 2.0 * (dx * px + dy * py);
+    precision c = (px * px + py * py) - (m_radius * m_radius);
     auto roots = linalg::quadratic_roots(a, b, c);
-    element_type t0 = std::get<0>(roots);
-    element_type t1 = std::get<1>(roots);
-    if (not std::isnan(t0)) {
+    precision t0 = std::get<0>(roots);
+    precision t1 = std::get<1>(roots);
+    if (not basal::is_nan(t0)) {
         point R = object_ray.distance_along(t0);
         if (linalg::within(-m_half_height, R.z, m_half_height)) {
             ts.push_back(t0);
         }
     }
-    if (not std::isnan(t1)) {
+    if (not basal::is_nan(t1)) {
         point Q = object_ray.distance_along(t1);
         if (linalg::within(-m_half_height, Q.z, m_half_height)) {
             ts.push_back(t1);
@@ -67,9 +67,9 @@ hits cylinder::collisions_along(const ray& object_ray) const {
 
 bool cylinder::is_surface_point(const point& world_point) const {
     point object_point = reverse_transform(world_point);
-    element_type x = object_point.x;
-    element_type y = object_point.y;
-    element_type z = object_point.z;
+    precision x = object_point.x;
+    precision y = object_point.y;
+    precision z = object_point.z;
     return basal::equals(m_radius * m_radius, (x * x) + (y * y)) and linalg::within(-m_half_height, z, m_half_height);
 }
 
@@ -77,9 +77,9 @@ image::point cylinder::map(const point& object_surface_point) const {
     geometry::point_<2> cartesian(object_surface_point[0], object_surface_point[1]);
     geometry::point_<2> polar = geometry::cartesian_to_polar(cartesian);
     // some range of z based in the half_height we want -h2 to map to zero and +h2 to 1.0
-    element_type u = (object_surface_point[2] / (-2.0 * m_half_height)) + 0.5;
+    precision u = (object_surface_point[2] / (-2.0 * m_half_height)) + 0.5;
     // theta goes from +pi to -pi we want to map -pi to 1.0 and + pi to zero
-    element_type v = 0.0;
+    precision v = 0.0;
     if (polar.y >= 0) {
         v = 0.5 - (polar.y / (+2.0 * iso::pi));
     } else {
@@ -93,7 +93,7 @@ void cylinder::print(const char str[]) const {
               << std::endl;
 }
 
-element_type cylinder::get_object_extant(void) const {
+precision cylinder::get_object_extant(void) const {
     return sqrt((m_half_height * m_half_height) + (m_radius * m_radius));
 }
 

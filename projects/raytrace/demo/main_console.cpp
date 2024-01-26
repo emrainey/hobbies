@@ -24,13 +24,14 @@
 #include "world.hpp"
 
 using namespace std::placeholders;
+using namespace basal::literals;
 
 struct Parameters {
     size_t width;
     size_t height;
     size_t subsamples;
     size_t reflections;
-    double fov;
+    precision fov;
     std::string module;
     size_t mask_threshold;
 };
@@ -77,14 +78,14 @@ public:
         refresh();
     }
 
-    void progress(size_t row, double percent) {
+    void progress(size_t row, precision percent) {
         size_t lb = 1, rb = 1;
         size_t span = m_width - lb - rb;
         attron(COLOR_PAIR(PROGRESS_PAIR));
         move(row, lb);
         addch('[');
         for (size_t x = lb + 1; x < (m_width - rb); x++) {
-            double here = 100.0 * (x - lb) / span;
+            precision here = 100.0 * (x - lb) / span;
             move(row, x);
             if (here <= percent) {
                 addch('*');
@@ -148,18 +149,18 @@ int main(int argc, char* argv[]) {
     bool verbose = false;
     bool should_quit = false;
     bool should_render = true;
-    double move_unit = 5.0;
+    precision move_unit = 5.0_p;
     std::string module_name;
     State state = State::MENU;
     std::time_t start_time;
-    std::chrono::duration<double> diff;
+    std::chrono::duration<precision> diff;
 
     basal::options::config opts[] = {
         {"-w", "--width", (size_t)320, "Width of the image in pixels"},
         {"-h", "--height", (size_t)240, "Height of the image in pixels"},
         {"-b", "--subsamples", (size_t)1, "Nubmer of subsamples"},
         {"-r", "--reflections", (size_t)4, "Reflection Depth"},
-        {"-f", "--fov", 55.0, "Field of View in Degrees"},
+        {"-f", "--fov", 55.0_p, "Field of View in Degrees"},
         {"-v", "--verbose", false, "Enables showing the early debugging"},
         {"-m", "--module", std::string(""), "Module to load"},
         {"-a", "--aaa", (size_t)raytrace::image::AAA_MASK_DISABLED,
@@ -206,7 +207,7 @@ int main(int argc, char* argv[]) {
                 count += (p ? 1 : 0);
                 return p;
             });
-            double percentage = 100.0 * count / completed.size();
+            precision percentage = 100.0 * count / completed.size();
             bool done = (count == completed.size());
             if (state == State::MENU) {
                 size_t h = console.get_height() - 2;  // account for border

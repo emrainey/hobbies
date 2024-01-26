@@ -37,7 +37,7 @@ public:
     explicit line(const R3::point &a, const R3::point &b);
 
     /** list initialization, first vector tuple, then point tuple. Specialized 3D constructor */
-    explicit line(const std::vector<element_type> &list);
+    explicit line(const std::vector<precision> &list);
     /** Copy Constructor */
     line(const line &other);
     /** Move Constructor */
@@ -52,16 +52,16 @@ public:
     /** Find the point at some value t along the line.
      * Orientation and scale of t is determined by \ref direction().
      */
-    R3::point solve(element_type t) const;
+    R3::point solve(precision t) const;
 
     /** Determines if a point is on the line and returns the t value if it is. */
-    bool solve(const point &n, element_type &t) const;
+    bool solve(const point &n, precision &t) const;
 
     /** Normalizes the direction and returns a point at a distance along the line */
-    R3::point distance_along(element_type t) const;
+    R3::point distance_along(precision t) const;
 
     /** Returns the distance of a point from the line */
-    element_type distance(const R3::point &p) const;
+    precision distance(const R3::point &p) const;
 
     /** Returns the direction of the line from the zero point */
     const R3::vector &direction() const;

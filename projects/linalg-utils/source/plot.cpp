@@ -15,19 +15,19 @@ void plot_points(std::string name, const std::vector<geometry::point_<2>> &data,
     int border = 20;
     int b2 = border >> 1;
     // find the min/max for x & y
-    double x_min, y_min = x_min = std::numeric_limits<double>::max();
-    double x_max, y_max = x_max = std::numeric_limits<double>::min();
+    precision x_min, y_min = x_min = std::numeric_limits<precision>::max();
+    precision x_max, y_max = x_max = std::numeric_limits<precision>::min();
     for (auto &d : data) {
         if (y_min > d.y) y_min = d.y;
         if (y_max < d.y) y_max = d.y;
         if (x_min > d.x) x_min = d.x;
         if (x_max < d.x) x_max = d.x;
     }
-    double y_range = y_max - y_min;
+    precision y_range = y_max - y_min;
     if (debug) {
         printf("y_min:%lf y_max:%lf y_range:%lf\n", y_min, y_max, y_range);
     }
-    double x_range = x_max - x_min;
+    precision x_range = x_max - x_min;
     if (debug) {
         printf("x_min:%lf x_max:%lf x_range:%lf\n", x_min, x_max, x_range);
     }

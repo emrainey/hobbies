@@ -28,13 +28,13 @@ linalg::matrix convert(::cv::Mat& img);
 cv::Scalar_<uint8_t> jet(cv::Scalar_<uint8_t>& grey);
 
 /**
- * @param [in] v The value scaled down to within 0.0 to 1.0
+ * @param [in] v The value scaled down to within 0.0_p to 1.0_p
  */
-cv::Scalar_<uint8_t> jet(double v);
+cv::Scalar_<uint8_t> jet(precision v);
 
 /** Converts a point to another point type. */
-inline cv::Point_<double> convert(const geometry::R2::point& a) {
-    return cv::Point_<double>(a.x, a.y);
+inline cv::Point_<precision> convert(const geometry::R2::point& a) {
+    return cv::Point_<precision>(a.x, a.y);
 }
 
 }  // namespace linalg

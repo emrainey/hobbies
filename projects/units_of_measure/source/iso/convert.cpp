@@ -4,13 +4,16 @@
 namespace iso {
 
 using namespace iso::operators;
+using namespace basal::literals;
 
 // feet <=> meters
 feet convert(meters& A) {
-    return feet{A.value * 3.28084};
+    feet::type c = 3.28084_p;
+    return feet{A.value * c};
 }
 meters convert(feet& B) {
-    return meters{B.value * 0.3048000097536};
+    feet::type c = 0.3048000097536_p; // a double value I think?
+    return meters{static_cast<precision>(B.value * c)};
 }
 
 // radians <=> turns
@@ -23,18 +26,22 @@ turns convert(radians& A) {
 
 // seconds <=> cycles
 hertz convert(seconds& A) {
-    return hertz{1.0 / A.value};
+    constexpr precision const C = 1.0_p;
+    return hertz{C / A.value};
 }
 seconds convert(hertz& B) {
-    return seconds{1.0 / B.value};
+    constexpr precision const C = 1.0_p;
+    return seconds{C / B.value};
 }
 
 void convert(feet& f, const meters& m) {
-    f = feet(m.value * 3.28084);
+    constexpr precision const C = 3.28084_p;
+    f = feet(m.value * C);
 }
 
 void convert(meters& m, const feet& f) {
-    m = meters(f.value * 0.3048000097536);
+    constexpr precision const C = 0.3048000097536_p; // a double value I think?
+    m = meters(static_cast<precision>(f.value * C));
 }
 
 void convert(radians& r, const turns& t) {
@@ -46,27 +53,29 @@ void convert(turns& t, const radians& r) {
 }
 
 void convert(degrees& d, const radians& r) {
-    d = degrees(r.value * (180.0 / pi));
+    d = degrees(r.value * (180.0_p / pi));
 }
 
 void convert(radians& r, const degrees& d) {
-    r = radians(d.value * (pi / 180.0));
+    r = radians(d.value * (pi / 180.0_p));
 }
 
 void convert(hertz& hz, const seconds& sec) {
-    hz = 1.0 / sec;
+    constexpr precision const C = 1.0_p;
+    hz = C / sec;
 }
 
 void convert(seconds& sec, const hertz& hz) {
-    sec = 1.0 / hz;
+    constexpr precision const C = 1.0_p;
+    sec = C / hz;
 }
 
 namespace operators {
-hertz operator/(const double num, const seconds& denom) {
+hertz operator/(precision const num, const seconds& denom) {
     return hertz{num / denom.value};
 }
 
-seconds operator/(const double num, const hertz& denom) {
+seconds operator/(precision const num, const hertz& denom) {
     return seconds{num / denom.value};
 }
 }  // namespace operators

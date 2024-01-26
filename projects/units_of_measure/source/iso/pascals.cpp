@@ -3,7 +3,7 @@
  * This is an auto-generated source for iso::pascals.
  * A measure of pressure
  * @note See README on re-generation.
- * @copyright Copyright 2022.
+ * @copyright Copyright 2024.
  */
 #include "iso/pascals.hpp"
 
@@ -13,7 +13,7 @@ const char* const suffix_type_Pa::suffix;
 pascals::pascals() : measurement{} {
 }
 // explicit value
-pascals::pascals(double a) : measurement{a} {
+pascals::pascals(precision a) : measurement{a} {
 }
 // copy constructor
 pascals::pascals(const pascals& other) : measurement{other} {
@@ -48,11 +48,11 @@ pascals& pascals::operator-=(const pascals& other) {
     _value -= other.value;
     return (*this);
 }
-pascals& pascals::operator*=(double factor) {
+pascals& pascals::operator*=(precision factor) {
     _value *= factor;
     return (*this);
 }
-pascals& pascals::operator/=(double factor) {
+pascals& pascals::operator/=(precision factor) {
     _value /= factor;
     return (*this);
 }
@@ -78,19 +78,19 @@ pascals operator+(const pascals& A, const pascals& B) {
 pascals operator-(const pascals& A, const pascals& B) {
     return pascals{A.value - B.value};
 }
-pascals operator*(const pascals& A, double factor) {
+pascals operator*(const pascals& A, precision factor) {
     return pascals{A.value * factor};
 }
-pascals operator*(double factor, const pascals& A) {
+pascals operator*(precision factor, const pascals& A) {
     return pascals{A.value * factor};
 }
-pascals operator/(const pascals& A, double factor) {
+pascals operator/(const pascals& A, precision factor) {
     return pascals{A.value / factor};
 }
 }  // namespace operators
 namespace literals {
 iso::pascals operator""_Pa(long double a) {
-    return iso::pascals(a);
+    return iso::pascals(static_cast<precision>(a));
 }
 iso::pascals operator""_Pa(unsigned long long a) {
     return iso::pascals(a);

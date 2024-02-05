@@ -10,7 +10,7 @@ cone::cone(const point& C, iso::radians angle)
     , m_bottom_radius{0.0}
     , m_height{0.0}
     , m_angle{angle} {
-    throw_exception_if(m_angle >= iso::radians(iso::pi / 2), "Angle %lf is too large", m_angle.value);
+    basal::exception::throw_if(m_angle >= iso::radians(iso::pi / 2), __FILE__, __LINE__, "Angle %lf is too large", m_angle.value);
 }
 
 cone::cone(const point& C, precision bottom_radius, precision height)

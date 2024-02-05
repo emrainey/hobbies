@@ -401,7 +401,7 @@ static const vector Y{{0.0_p, 1.0_p, 0.0_p}};
 static const vector Z{{0.0_p, 0.0_p, 1.0_p}};
 }  // namespace basis
 
-/** Returns a new vector which is the cross Product of two vectors (only for 3,4 DIM). Copy parameter form. */
+/** Returns a new vector which is the cross Product of A and B vectors (i.e. A cross B). Copy parameter form. */
 vector cross(const vector& a, const vector& b) noexcept(false);
 
 /** Tests if two vectors are parallel */

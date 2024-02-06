@@ -7,17 +7,17 @@
 #include "raytrace/mediums/plain.hpp"
 
 namespace raytrace {
-/** The namespace to contain all (spatial) objects */
+/// The namespace to contain all (spatial) objects
 namespace objects {
 
-/** A flag to control if origin collisions are counted */
+/// A flag to control if origin collisions are counted
 constexpr bool can_ray_origin_be_collision = true;
 
 using namespace linalg;
 using namespace geometry;
 using namespace raytrace::mediums;
 
-/** A template for wrapping the concept of an object, which can have a surface and material properties. */
+/// A template for wrapping the concept of an object, which can have a surface and material properties.
 template <size_t DIMS>
 class object_
     : public entity_<DIMS>
@@ -68,19 +68,19 @@ public:
         m_medium = nullptr; // forget the medium
     }
 
-    /** Gives a read-only version of the medium of the object */
+    /// Gives a read-only version of the medium of the object
     const medium& material() const {
         basal::exception::throw_if(m_medium == nullptr, __FILE__, __LINE__, "Can not request a nullptr.");
         return *m_medium;
     }
 
-    /** Sets the material to the given parameter medium */
+    /// Sets the material to the given parameter medium
     virtual void material(const medium* new_medium) {
         basal::exception::throw_if(new_medium == nullptr, __FILE__, __LINE__, "Can not set a nullptr to material()");
         m_medium = new_medium;
     }
 
-    /** Computes the reflection vector at the surface point P given the incident vector I */
+    /// Computes the reflection vector at the surface point P given the incident vector I
     vector reflection(const vector& I, const point& P) const {
         vector N = normal(P);  // MAYBE (Optim) should we already have calculated the normal at this point already?
         vector nI = I.normalized();  // MAYBE (Optim) shouldn't this already be normalized?
@@ -91,17 +91,17 @@ public:
         return R;
     }
 
-    /** Computes the reflection ray at the surface point P given the incident ray I */
+    /// Computes the reflection ray at the surface point P given the incident ray I
     ray reflection(const ray& I, const point& P) const {
         return ray(P, reflection(I.direction(), P));
     }
 
-    /** Computes the refraction vector at the surface point
-     * @param I The incident vector
-     * @param P The surface point
-     * @param nu1 Material Refractivity Index
-     * @param nu2 Material Refractivity Index
-     */
+    /// Computes the refraction vector at the surface point
+    /// @param I The incident vector
+    /// @param P The surface point
+    /// @param nu1 Material Refractivity Index
+    /// @param nu2 Material Refractivity Index
+    ///
     vector refraction(const vector& I, const point& P, precision nu1, precision nu2) const {
         vector N = normal(P);  // MAYBE (Optim) should we already have calculated the normal at this point already?
         vector nI = I.normalized();  // MAYBE (Optim) shouldn't this already be normalized?
@@ -113,39 +113,37 @@ public:
         }
     }
 
-    /** Computes the refraction ray at the surface point P.
-     * @param I The incident ray
-     * @param P The surface point
-     * @param nu1 Material Refractivity Index
-     * @param nu2 Material Refractivity Index
-     */
+    /// Computes the refraction ray at the surface point P.
+    /// @param I The incident ray
+    /// @param P The surface point
+    /// @param nu1 Material Refractivity Index
+    /// @param nu2 Material Refractivity Index
+    ///
     ray refraction(const ray& I, const point& P, precision nu1, precision nu2) const {
         return ray(P, refraction(I.direction(), P, nu1, nu2));
     }
 
-    /**
-     * Returns the normal to the surface given an world space point which is presumed to be the collision point, thus on
-     * the surface.
-     * @param world_surface_point The point on the object to use.
-     * @warning It is assumed that the point given is an intersection point.
-     * @retval R3::null indicates that the point is not on the surface.
-     */
+    ///
+    /// Returns the normal to the surface given an world space point which is presumed to be the collision point, thus on
+    /// the surface.
+    /// @param world_surface_point The point on the object to use.
+    /// @warning It is assumed that the point given is an intersection point.
+    /// @retval R3::null indicates that the point is not on the surface.
+    ///
     virtual vector normal(const point& world_surface_point) const = 0;
 
-    /**
-     * Returns all the intersections with this object along the ray (extended as a line).
-     * @param object_ray The ray in object space.
-     * @return The unordered set of intersection distances along the world ray.
-     */
+    /// Returns all the intersections with this object along the ray (extended as a line).
+/// @param object_ray The ray in object space.
+/// @return The unordered set of intersection distances along the world ray.
     virtual hits collisions_along(const ray& object_ray) const = 0;
 
-    /** Returns an intersection with this object
-     * @param world_ray The ray from the world space to test the intersection with.
-     * @return Returns the first intersection with the object.
-     */
+    /// Returns an intersection with this object
+    /// @param world_ray The ray from the world space to test the intersection with.
+    /// @return Returns the first intersection with the object.
+    ///
     virtual intersection intersect(const ray& world_ray) const {
         /// @note While we could be pedantic about having a unit normal, it doesn't really stop us from working.
-        // basal::exception::throw_unless(basal::equals(world_ray.direction().quadrance(), 1.0_p), __FILE__, __LINE__,
+        // basal::exception::throw_unless(basal::nearly_equals(world_ray.direction().quadrance(), 1.0_p), __FILE__, __LINE__,
         // "The ray must have a unit vector");
 
         ray object_ray = entity_<DIMS>::reverse_transform(world_ray);
@@ -160,7 +158,7 @@ public:
                     continue;
                 }
                 if constexpr (can_ray_origin_be_collision) {
-                    if (basal::equals_zero(t)) {
+                    if (basal::nearly_zero(t)) {
                         const vector N = normal(world_ray.location());
                         const vector& I = world_ray.direction();
                         precision d = dot(N, I);
@@ -190,26 +188,24 @@ public:
         return intersection();
     }
 
-    /**
-     * Maps a surface point (in R3 object space) to a image::point in u,v coordinates (R2)
-     * @param object_surface_point The point on the surface of the object in object space coordinates
-     */
+    /// Maps a surface point (in R3 object space) to a image::point in u,v coordinates (R2)
+/// @param object_surface_point The point on the surface of the object in object space coordinates
     virtual image::point map(const point& object_surface_point) const = 0;
 
-    /** Returns the maximum number of surface collisions that the object can return.
-     * It is assumed that the actual collisions could be between 0 and this number.
-     */
+    /// Returns the maximum number of surface collisions that the object can return.
+    /// It is assumed that the actual collisions could be between 0 and this number.
+    ///
     virtual inline size_t max_collisions() const {
         return m_max_collisions;
     }
 
-    /** Return true if the object is a closed surface.
-     * Within the raytracer a closed surface can never show the "inside surface" */
+    /// Return true if the object is a closed surface.
+    /// Within the raytracer a closed surface can never show the "inside surface" */
     virtual inline bool is_closed_surface() const {
         return m_closed_surface;
     }
 
-    /** Given a world point verify that the point is on the surface of the object. */
+    /// Given a world point verify that the point is on the surface of the object.
     virtual bool is_surface_point(const raytrace::point& world_point) const {
         return false;  // override to correct
     };
@@ -231,17 +227,17 @@ public:
     virtual precision get_object_extant(void) const = 0;
 
 protected:
-    /** The maximum number of collisions with the surface of this object */
+    /// The maximum number of collisions with the surface of this object
     const size_t m_max_collisions;
-    /** Some objects may return more than 1 collisions but are not closed surfaces */
+    /// Some objects may return more than 1 collisions but are not closed surfaces
     const bool m_closed_surface;
-    /** The pointer to the medium to use */
+    /// The pointer to the medium to use
     const raytrace::mediums::medium* m_medium;
-    /** The std::bind or used to reference the instance of the mapping function */
+    /// The std::bind or used to reference the instance of the mapping function
     std::function<geometry::R2::point(const geometry::R3::point&)> m_bound_map;
 };
 
-/** In Raytracing we only consider 3D objects */
+/// In Raytracing we only consider 3D objects
 using object = object_<dimensions>;
 }  // namespace objects
 }  // namespace raytrace

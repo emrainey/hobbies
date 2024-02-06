@@ -7,26 +7,24 @@
 
 namespace raytrace {
 namespace objects {
-/** Constructs a 1 sided infinite plane */
+/// Constructs a 1 sided infinite plane
 class plane
     : public geometry::plane
     , public object {
 public:
-    /**
-     * Constructs a plane from a point and a normal.
-     */
+    /// Constructs a plane from a point and a normal.
     plane(const point& point, const vector& normal, precision surface_scale);
     virtual ~plane() = default;
 
-    /** @copydoc raytrace::object::normal */
+    /// @copydoc raytrace::object::normal
     vector normal(const point& world_surface_point) const override;
-    /** @copydoc raytrace::object::intersect */
+    /// @copydoc raytrace::object::intersect
     intersection intersect(const ray& world_ray) const override;
-    /** @copydoc raytrace::object::collisions_along */
+    /// @copydoc raytrace::object::collisions_along
     hits collisions_along(const ray& object_ray) const override;
-    /** @copydoc raytrace::object::map */
+    /// @copydoc raytrace::object::map
     image::point map(const point& object_surface_point) const override;
-    /** @copydoc basal::printable::print */
+    /// @copydoc basal::printable::print
     void print(const char str[]) const override;
     bool is_surface_point(const point& world_point) const override;
     precision get_object_extant(void) const override;

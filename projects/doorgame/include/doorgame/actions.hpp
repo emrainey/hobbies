@@ -1,8 +1,6 @@
-/**
- * @file
- * Enumeration definition and helpers
- * @copyright Copyright (c) 2022
- */
+/// @file
+/// Enumeration definition and helpers
+/// @copyright Copyright (c) 2022
 
 #pragma once
 
@@ -11,7 +9,7 @@
 
 namespace doorgame {
 
-/** An enumeration of possible actions */
+/// An enumeration of possible actions
 enum class Action : char
 {
     Nothing = 'n',  //!< Do nothing
@@ -23,13 +21,13 @@ enum class Action : char
     Quit = 'q'      //!< Quit the game
 };
 
-/** A set of actions */
+/// A set of actions
 using Actions = std::vector<Action>;
 
-/** The complete set of all possible actions */
+/// The complete set of all possible actions
 extern Actions valid_actions;
 
-/** Is a given value of action within the valid set */
+/// Is a given value of action within the valid set
 bool is_valid(Action action);
 
 }  // namespace doorgame

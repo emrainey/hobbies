@@ -25,7 +25,7 @@ precision spot::intensity_at(const point& world_point) const {
     iso::convert(deg_angle, rad_angle);
     if (deg_angle <= m_incoming_angle) {
         precision d = world_direction.magnitude();
-        if (basal::equals_zero(d)) {  // prevent divide by zero
+        if (basal::nearly_zero(d)) {  // prevent divide by zero
             return m_intensity;       // full intensity, not inf
         } else {
             // using square fall-off rule

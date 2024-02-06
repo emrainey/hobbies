@@ -1,8 +1,6 @@
-/**
- * @file
- * Definitions for linalg utility library
- * @copyright Copyright 2021 (C) Erik Rainey.
- */
+/// @file
+/// Definitions for linalg utility library
+/// @copyright Copyright 2021 (C) Erik Rainey.
 
 #pragma once
 
@@ -12,7 +10,7 @@
 #include "linalg/plot.hpp"
 
 namespace linalg {
-/** Debugging tool to export a matrix into a color coded image based on some precision to pixel converter */
+/// Debugging tool to export a matrix into a color coded image based on some precision to pixel converter
 template <typename PIXEL_TYPE, fourcc::pixel_format PIXEL_FORMAT>
 void convert(const linalg::matrix& mat, fourcc::image<PIXEL_TYPE, PIXEL_FORMAT>& image,
              std::function<PIXEL_TYPE(precision)> converter) {

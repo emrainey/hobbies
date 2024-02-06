@@ -1,9 +1,7 @@
 #pragma once
-/**
- * @file
- * Definitions for smaller types within the linalg space
- * @copyright Copyright 2019 (C) Erik Rainey.
- */
+/// @file
+/// Definitions for smaller types within the linalg space
+/// @copyright Copyright 2019 (C) Erik Rainey.
 
 #include <basal/basal.hpp>
 #include <iso/iso.hpp>
@@ -12,10 +10,10 @@
 
 namespace geometry {
 
-/** All the linalg element types are the same */
+/// All the linalg element types are the same
 using precision = linalg::precision;
 
-/** We just bring this into our namspace */
+/// We just bring this into our namspace
 using matrix = linalg::matrix;
 
 namespace R2 {
@@ -26,12 +24,12 @@ namespace R3 {
 constexpr static size_t dimensions = 3;
 }
 
-/** Collects the statistics from the geometry library */
+/// Collects the statistics from the geometry library
 struct statistics {
 public:
-    /** The number of dot products */
+    /// The number of dot products
     size_t dot_operations;
-    /** The number of cross products */
+    /// The number of cross products
     size_t cross_products;
 
     static statistics& get() {

@@ -6,54 +6,54 @@ namespace raytrace {
 using namespace geometry::operators;
 using namespace geometry::R3;  // only 3D functions
 constexpr const static size_t dimensions = geometry::R3::dimensions;
-/** Reuse the element type */
+/// Reuse the element type
 using precision = geometry::precision;
-/** We only consider 3D points in space */
+/// We only consider 3D points in space
 using point = geometry::R3::point;
-/** We only consider 3D vectors */
+/// We only consider 3D vectors
 using vector = geometry::R3::vector;
-/** We only consider 3D rays */
+/// We only consider 3D rays
 using ray = geometry::R3::ray;
-/** We consider only 3D lines */
+/// We consider only 3D lines
 using line = geometry::R3::line;
-/** Reusing other matrix */
+/// Reusing other matrix
 using matrix = linalg::matrix;
-/** A hit is both a distance along the line and the normal at that point */
+/// A hit is both a distance along the line and the normal at that point
 struct hit {
     precision t;  //!< The distance along the line.
     vector N;        //!< The normal at the point along the line.
 };
-/** A set of distances along the world_ray which collide with the object, could be many. */
+/// A set of distances along the world_ray which collide with the object, could be many.
 using hits = std::vector<precision>;
 
-/** An axis aligned bounding box for computing the BSP */
+/// An axis aligned bounding box for computing the BSP
 struct abba {
     point min;  //!< The lower set of values.
     point max;  //!< The higher set of values.
 };
 
-/** Collects the statistics from the raytracing library */
+/// Collects the statistics from the raytracing library
 struct statistics {
 public:
-    /** The number of rays cast from the camera */
+    /// The number of rays cast from the camera
     size_t cast_rays_from_camera;
-    /** Intersections with objects */
+    /// Intersections with objects
     size_t intersections_with_objects;
-    /** The count of rays reflected off objects */
+    /// The count of rays reflected off objects
     size_t bounced_rays;
-    /** The count of rays transmitted through mediums via refraction */
+    /// The count of rays transmitted through mediums via refraction
     size_t transmitted_rays;
-    /** Saved Bounces from adaptive threshold */
+    /// Saved Bounces from adaptive threshold
     size_t saved_ray_traces;
-    /** The count of shadow rays used to determine lighting */
+    /// The count of shadow rays used to determine lighting
     size_t shadow_rays;
-    /** The count of rays added due to multiple samples from light sources */
+    /// The count of rays added due to multiple samples from light sources
     size_t sampled_rays;
-    /** The count of sampled rays which actually contribute to the color of the scene. */
+    /// The count of sampled rays which actually contribute to the color of the scene.
     size_t color_sampled_rays;
-    /** The count of the points in the shadow which don't have a color contribution */
+    /// The count of the points in the shadow which don't have a color contribution
     size_t point_in_shadow;
-    /** The count of rays absorbed into a media */
+    /// The count of rays absorbed into a media
     size_t absorbed_rays;  // FIXME this will not accurately count until a per frequency method done.
 
     static statistics& get() {

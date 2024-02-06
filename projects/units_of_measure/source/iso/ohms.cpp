@@ -1,10 +1,10 @@
-/**
- * @file
- * This is an auto-generated source for iso::ohms.
- * A measure of resistance to current
- * @note See README on re-generation.
- * @copyright Copyright 2024.
- */
+///
+/// @file
+/// This is an auto-generated source for iso::ohms.
+/// A measure of resistance to current
+/// @note See README on re-generation.
+/// @copyright Copyright 2024.
+///
 #include "iso/ohms.hpp"
 
 namespace iso {
@@ -35,7 +35,7 @@ ohms& ohms::operator=(ohms&& other) noexcept {
     return (*this);
 }
 bool ohms::operator==(const ohms& other) const {
-    return iso::equivalent(value, other.value);
+    return basal::equivalent(value, other.value);
 }
 bool ohms::operator!=(const ohms& other) const {
     return !operator==(other);

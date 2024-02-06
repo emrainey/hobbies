@@ -1,10 +1,10 @@
-/**
- * @file
- * This is an auto-generated source for iso::hertz.
- * A measure of frequency
- * @note See README on re-generation.
- * @copyright Copyright 2024.
- */
+///
+/// @file
+/// This is an auto-generated source for iso::hertz.
+/// A measure of frequency
+/// @note See README on re-generation.
+/// @copyright Copyright 2024.
+///
 #include "iso/hertz.hpp"
 
 namespace iso {
@@ -35,7 +35,7 @@ hertz& hertz::operator=(hertz&& other) noexcept {
     return (*this);
 }
 bool hertz::operator==(const hertz& other) const {
-    return iso::equivalent(value, other.value);
+    return basal::equivalent(value, other.value);
 }
 bool hertz::operator!=(const hertz& other) const {
     return !operator==(other);

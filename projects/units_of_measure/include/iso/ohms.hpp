@@ -1,95 +1,95 @@
-/**
- * @file
- * This is an auto-generated header for iso::ohms.
- * A measure of resistance to current
- * @note See README on re-generation.
- * @copyright Copyright 2024.
- */
+///
+/// @file
+/// This is an auto-generated header for iso::ohms.
+/// A measure of resistance to current
+/// @note See README on re-generation.
+/// @copyright Copyright 2024.
+///
 #pragma once
 #include <cstdint>
 #include <cstddef>
 
 #include "iso/measurement.hpp"
 
-/** iso comment */
+/// iso comment
 namespace iso {
 
-/** A structure used to hold the postfix for ohms */
+/// A structure used to hold the postfix for ohms
 struct suffix_type_Ohm {
     constexpr static const char *suffix = "Ohm";
 };
 
-/**
- * This is the iso::ohms interface.
- * These have a default, generic, SI, copy, move, dtor and copy assign
- * And operator"" and equality and inequality
- * overload +=,-=,+,- with other units of the same type
- * overload *=,/=,*,/ with immediate values and atomics
- * overload ++,-- ?
- * overload >,<,==,!=,<=,>=
- * not overloaded %=,%
- */
+///
+/// This is the iso::ohms interface.
+/// These have a default, generic, SI, copy, move, dtor and copy assign
+/// And operator"" and equality and inequality
+/// overload +=,-=,+,- with other units of the same type
+/// overload *=,/=,*,/ with immediate values and atomics
+/// overload ++,-- ?
+/// overload >,<,==,!=,<=,>=
+/// not overloaded %=,%
+///
 class ohms : public measurement<precision, SI::prefix, suffix_type_Ohm> {
 public:
-    /** Default constructor */
+    /// Default constructor
     ohms();
-    /** Parameter constructor */
+    /// Parameter constructor
     explicit ohms(precision value);
-    /** Copy Constructor */
+    /// Copy Constructor
     ohms(const ohms& other);
-    /** Move Constructor */
+    /// Move Constructor
     ohms(ohms&& other);
-    /** Destructor */
+    /// Destructor
     ~ohms() = default;
-    /** Const Copy Assignment */
+    /// Const Copy Assignment
     ohms& operator=(const ohms& other) noexcept;
-    /** Copy Assignment */
+    /// Copy Assignment
     ohms& operator=(ohms& other) noexcept;
-    /** Move Assignment */
+    /// Move Assignment
     ohms& operator=(ohms&& other) noexcept;
-    /** Equality Operator */
+    /// Equality Operator
     bool operator==(const ohms& other) const;
-    /** Inequality Operator */
+    /// Inequality Operator
     bool operator!=(const ohms& other) const;
-    /** Accumulation Operator */
+    /// Accumulation Operator
     ohms& operator+=(const ohms& other);
-    /** Deccumulation Operator */
+    /// Deccumulation Operator
     ohms& operator-=(const ohms& other);
-    /** Scaling Operator */
+    /// Scaling Operator
     ohms& operator*=(precision factor);
-    /** Inverse Scaling Operator */
+    /// Inverse Scaling Operator
     ohms& operator/=(precision factor);
-    /** Negating Operator */
+    /// Negating Operator
     ohms operator-() const;
-    /** Less Than Operator */
+    /// Less Than Operator
     bool operator<(const ohms& other) const;
-    /** Less Than or Equal Operator */
+    /// Less Than or Equal Operator
     bool operator<=(const ohms& other) const;
-    /** Greater Than Operator */
+    /// Greater Than Operator
     bool operator>(const ohms& other) const;
-    /** Greater Than or Equal Operator */
+    /// Greater Than or Equal Operator
     bool operator>=(const ohms& other) const;
 };
 
 namespace operators {
-    /** Addition operator */
+    /// Addition operator
     ohms operator+(const ohms& A, const ohms& B);
-    /** Subtraction operator */
+    /// Subtraction operator
     ohms operator-(const ohms& A, const ohms& B);
-    /** Left Scaling Operator */
+    /// Left Scaling Operator
     ohms operator*(const ohms& A, precision factor);
-    /** Right Scaling Operator */
+    /// Right Scaling Operator
     ohms operator*(precision factor, const ohms& A);
-    /** Inverse Scaling Operator */
+    /// Inverse Scaling Operator
     ohms operator/(const ohms& A, precision factor);
 }
 
 namespace literals {
-    /** Literal Double, Quote Operator */
+    /// Literal Double, Quote Operator
     ohms operator""_Ohm(long double value);
-    /** Literal Int, Quote Operator */
+    /// Literal Int, Quote Operator
     ohms operator""_Ohm(unsigned long long value);
-    /** Literal String, Quote Operator */
+    /// Literal String, Quote Operator
     iso::ohms operator""_Ohm(const char a[]);
 }
 

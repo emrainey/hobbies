@@ -1,8 +1,6 @@
-/**
- * @file
- * Enumeration definition and helpers
- * @copyright Copyright (c) 2022
- */
+/// @file
+/// Enumeration definition and helpers
+/// @copyright Copyright (c) 2022
 
 #pragma once
 
@@ -11,7 +9,7 @@
 
 namespace doorgame {
 
-/** The enumerated value of Damage that an Animate object can take */
+/// The enumerated value of Damage that an Animate object can take
 enum class Damage : size_t
 {
     None = 0,
@@ -24,13 +22,13 @@ enum class Damage : size_t
     Fatal = 50,
 };
 
-/** A set of damage */
+/// A set of damage
 using Damages = std::vector<Damage>;
 
-/** The set of all possible damages */
+/// The set of all possible damages
 extern Damages valid_damages;
 
-/** Is a damage contained in the possible set of damages */
+/// Is a damage contained in the possible set of damages
 bool is_valid(Damage damage);
 
 }  // namespace doorgame

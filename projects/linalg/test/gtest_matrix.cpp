@@ -570,12 +570,12 @@ TEST(MatrixTest, Triangular) {
 }
 
 TEST(MatrixTest, DISABLED_SVD) {
-    /*! This uses data from:
-     * <ul>
-     * <li>Elementary Linear Algebra by Howard Anton and Chris Rorres, aka. ELA</li>
-     * <li>Wolfram Math World</li>
-     * <li>Wikipedia</li>
-     */
+    /// @internal This uses data from:
+    /// <ul>
+    /// <li>Elementary Linear Algebra by Howard Anton and Chris Rorres, aka. ELA</li>
+    /// <li>Wolfram Math World</li>
+    /// <li>Wikipedia</li>
+    /// </ul>
     using namespace linalg;
     using namespace linalg::operators;
 

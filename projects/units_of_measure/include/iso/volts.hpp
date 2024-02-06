@@ -1,95 +1,95 @@
-/**
- * @file
- * This is an auto-generated header for iso::volts.
- * A measure of the electrical potential
- * @note See README on re-generation.
- * @copyright Copyright 2024.
- */
+///
+/// @file
+/// This is an auto-generated header for iso::volts.
+/// A measure of the electrical potential
+/// @note See README on re-generation.
+/// @copyright Copyright 2024.
+///
 #pragma once
 #include <cstdint>
 #include <cstddef>
 
 #include "iso/measurement.hpp"
 
-/** iso comment */
+/// iso comment
 namespace iso {
 
-/** A structure used to hold the postfix for volts */
+/// A structure used to hold the postfix for volts
 struct suffix_type_V {
     constexpr static const char *suffix = "V";
 };
 
-/**
- * This is the iso::volts interface.
- * These have a default, generic, SI, copy, move, dtor and copy assign
- * And operator"" and equality and inequality
- * overload +=,-=,+,- with other units of the same type
- * overload *=,/=,*,/ with immediate values and atomics
- * overload ++,-- ?
- * overload >,<,==,!=,<=,>=
- * not overloaded %=,%
- */
+///
+/// This is the iso::volts interface.
+/// These have a default, generic, SI, copy, move, dtor and copy assign
+/// And operator"" and equality and inequality
+/// overload +=,-=,+,- with other units of the same type
+/// overload *=,/=,*,/ with immediate values and atomics
+/// overload ++,-- ?
+/// overload >,<,==,!=,<=,>=
+/// not overloaded %=,%
+///
 class volts : public measurement<precision, SI::prefix, suffix_type_V> {
 public:
-    /** Default constructor */
+    /// Default constructor
     volts();
-    /** Parameter constructor */
+    /// Parameter constructor
     explicit volts(precision value);
-    /** Copy Constructor */
+    /// Copy Constructor
     volts(const volts& other);
-    /** Move Constructor */
+    /// Move Constructor
     volts(volts&& other);
-    /** Destructor */
+    /// Destructor
     ~volts() = default;
-    /** Const Copy Assignment */
+    /// Const Copy Assignment
     volts& operator=(const volts& other) noexcept;
-    /** Copy Assignment */
+    /// Copy Assignment
     volts& operator=(volts& other) noexcept;
-    /** Move Assignment */
+    /// Move Assignment
     volts& operator=(volts&& other) noexcept;
-    /** Equality Operator */
+    /// Equality Operator
     bool operator==(const volts& other) const;
-    /** Inequality Operator */
+    /// Inequality Operator
     bool operator!=(const volts& other) const;
-    /** Accumulation Operator */
+    /// Accumulation Operator
     volts& operator+=(const volts& other);
-    /** Deccumulation Operator */
+    /// Deccumulation Operator
     volts& operator-=(const volts& other);
-    /** Scaling Operator */
+    /// Scaling Operator
     volts& operator*=(precision factor);
-    /** Inverse Scaling Operator */
+    /// Inverse Scaling Operator
     volts& operator/=(precision factor);
-    /** Negating Operator */
+    /// Negating Operator
     volts operator-() const;
-    /** Less Than Operator */
+    /// Less Than Operator
     bool operator<(const volts& other) const;
-    /** Less Than or Equal Operator */
+    /// Less Than or Equal Operator
     bool operator<=(const volts& other) const;
-    /** Greater Than Operator */
+    /// Greater Than Operator
     bool operator>(const volts& other) const;
-    /** Greater Than or Equal Operator */
+    /// Greater Than or Equal Operator
     bool operator>=(const volts& other) const;
 };
 
 namespace operators {
-    /** Addition operator */
+    /// Addition operator
     volts operator+(const volts& A, const volts& B);
-    /** Subtraction operator */
+    /// Subtraction operator
     volts operator-(const volts& A, const volts& B);
-    /** Left Scaling Operator */
+    /// Left Scaling Operator
     volts operator*(const volts& A, precision factor);
-    /** Right Scaling Operator */
+    /// Right Scaling Operator
     volts operator*(precision factor, const volts& A);
-    /** Inverse Scaling Operator */
+    /// Inverse Scaling Operator
     volts operator/(const volts& A, precision factor);
 }
 
 namespace literals {
-    /** Literal Double, Quote Operator */
+    /// Literal Double, Quote Operator
     volts operator""_V(long double value);
-    /** Literal Int, Quote Operator */
+    /// Literal Int, Quote Operator
     volts operator""_V(unsigned long long value);
-    /** Literal String, Quote Operator */
+    /// Literal String, Quote Operator
     iso::volts operator""_V(const char a[]);
 }
 

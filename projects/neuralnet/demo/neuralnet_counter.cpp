@@ -18,7 +18,7 @@ int main(int argc __attribute__((unused)), char* argv[] __attribute__((unused)))
         printf("Sigmoid of 300.0_p => %lf\n", nn::sigmoid(300.0_p));
         assert(1.0_p <= nn::sigmoid(300.0_p));
         printf("Sigmoid of -300.0_p => %lf\n", nn::sigmoid(-300.0_p));
-        assert(basal::equals(0.0_p, nn::sigmoid(-300.0_p)));
+        assert(basal::nearly_equals(0.0_p, nn::sigmoid(-300.0_p)));
 
         linalg::matrix A{{{5}, {6}}};
         linalg::matrix B = linalg::hadamard(A, A);
@@ -75,7 +75,7 @@ int main(int argc __attribute__((unused)), char* argv[] __attribute__((unused)))
             if (out.rms_value > last_rms) {
                 // printf("RMS is not improving!!!\n");
                 // alpha += 0.001_p;
-            } else if (basal::equals(out.rms_value, last_rms)) {
+            } else if (basal::nearly_equals(out.rms_value, last_rms)) {
                 // alpha -= 0.001_p;
             }
             // save the old number

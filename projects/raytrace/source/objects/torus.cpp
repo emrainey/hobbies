@@ -127,7 +127,7 @@ bool torus::is_surface_point(const point& world_point) const {
     precision r = m_ring_radius;
     precision sqrt_xx_yy = std::sqrt((x * x) + (y * y));
     precision sqrt_xx_yy_R_zz = ((sqrt_xx_yy + R) * (sqrt_xx_yy + R)) + (z * z);
-    return basal::equals(r * r, sqrt_xx_yy_R_zz);
+    return basal::nearly_equals(r * r, sqrt_xx_yy_R_zz);
 }
 
 image::point torus::map(const point& object_surface_point __attribute__((unused))) const {

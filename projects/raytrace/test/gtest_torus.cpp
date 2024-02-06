@@ -121,6 +121,7 @@ TEST(TorusTest, Mapping) {
     raytrace::point C{0, 0, 0};
     torus shape(C, r, t);
 
+    /// @TODO Enable when UV mapping for toroids is implemented
     /*
     raytrace::point C{0, 0, 0};
     precision h2 = 1.0;
@@ -150,5 +151,5 @@ TEST(TorusTest, Mapping) {
     image::point tmp3 = cyl1.map(p3);
     ASSERT_PRECISION_EQ(uv3.x, tmp3.x);
     ASSERT_PRECISION_EQ(uv3.y, tmp3.y);
-    */
+   */
 }

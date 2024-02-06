@@ -1,10 +1,10 @@
-/**
- * @file
- * This is an auto-generated source for iso::turns.
- * A measure of an angle
- * @note See README on re-generation.
- * @copyright Copyright 2024.
- */
+///
+/// @file
+/// This is an auto-generated source for iso::turns.
+/// A measure of an angle
+/// @note See README on re-generation.
+/// @copyright Copyright 2024.
+///
 #include "iso/turns.hpp"
 
 namespace iso {
@@ -35,7 +35,7 @@ turns& turns::operator=(turns&& other) noexcept {
     return (*this);
 }
 bool turns::operator==(const turns& other) const {
-    return iso::equivalent(value, other.value);
+    return basal::equivalent(value, other.value);
 }
 bool turns::operator!=(const turns& other) const {
     return !operator==(other);

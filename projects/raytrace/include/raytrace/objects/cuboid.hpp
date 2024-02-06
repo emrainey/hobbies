@@ -9,28 +9,26 @@
 
 namespace raytrace {
 namespace objects {
-/** A six sided rectangular (in a 3D sense) object (cuboid). */
+/// A six sided rectangular (in a 3D sense) object (cuboid).
 class cuboid : public object {
 public:
-    /**
-     * Constructs a cuboid at a point of a given set of half widths. When the half-width are the same,
-     * it is a cube.
-     */
+    /// Constructs a cuboid at a point of a given set of half widths. When the half-width are the same,
+/// it is a cube.
     cuboid(const point& center, precision x_half_width, precision y_half_width, precision z_half_width);
-    /** Uses the point move syntax */
+    /// Uses the point move syntax
     cuboid(point&& center, precision x_half_width, precision y_half_width, precision z_half_width);
 
     virtual ~cuboid() = default;
 
-    /** @copydoc raytrace::object::normal */
+    /// @copydoc raytrace::object::normal
     vector normal(const point& world_surface_point) const override;
-    /** @copydoc raytrace::object::intersect */
+    /// @copydoc raytrace::object::intersect
     // geometry::intersection intersect(const ray& world_ray) const override;
-    /** @copydoc raytrace::object::collision_along */
+    /// @copydoc raytrace::object::collision_along
     hits collisions_along(const ray& object_ray) const override;
-    /** @copydoc raytrace::object::map */
+    /// @copydoc raytrace::object::map
     image::point map(const point& object_surface_point) const override;
-    /** @copydoc basal::printable::print */
+    /// @copydoc basal::printable::print
     void print(const char str[]) const override;
     precision get_object_extant(void) const override;
 
@@ -48,7 +46,7 @@ protected:
 
 }  // namespace objects
 
-/** Print in stream for cuboid */
+/// Print in stream for cuboid
 std::ostream& operator<<(std::ostream& os, const objects::cuboid& c);
 
 }  // namespace raytrace

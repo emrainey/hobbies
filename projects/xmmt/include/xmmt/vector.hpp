@@ -1,25 +1,21 @@
 #pragma once
 
-/**
- * @file
- * The Vector Class
- */
+/// @file
+/// The Vector Class
 
 #include "xmmt/packs.hpp"
 
 namespace intel {
 
-/**
- * An ordered set of values which can be operator-ed on in-bulk.
- * Classically, this is a vector and this is used as such.
- * @tparam pack_type The packing structure definition.
- */
+/// An ordered set of values which can be operator-ed on in-bulk.
+/// Classically, this is a vector and this is used as such.
+/// @tparam pack_type The packing structure definition.
 template <typename pack_type, size_t _dimensions>
 class vector_ : public pack_type {
 protected:
-    /** Hold on to the number of elements needed */
+    /// Hold on to the number of elements needed
     constexpr static size_t dimensions = _dimensions;
-    /** The data storage of the unit */
+    /// The data storage of the unit
     static_assert(std::is_floating_point<typename pack_type::element_type>::value,
                   "Must be either float, double or long double");
     static_assert(2 <= pack_type::number_of_elements, "Must be a Intel Parallel/Multiple Data data type");
@@ -31,43 +27,43 @@ public:
     using element_type = typename pack_type::element_type;
     using parallel_type = typename pack_type::parallel_type;
 
-    /** Default Constructor */
+    /// Default Constructor
     constexpr vector_() : pack_type{} {
     }
 
-    /** Intrinsic Initializer */
+    /// Intrinsic Initializer
     constexpr vector_(parallel_type v) : pack_type{v} {
     }
 
-    /** Forwarding Constructor. This allows the pack_type parameter constructors to be used. */
+    /// Forwarding Constructor. This allows the pack_type parameter constructors to be used.
     template <typename... Args>
     vector_(Args&&... args) : pack_type{std::forward<Args>(args)...} {
     }
 
-    /** Copy Constructor */
+    /// Copy Constructor
     vector_(const vector_& other) : pack_type{other.data} {
     }
 
-    /** Move Construction is just a Copy */
+    /// Move Construction is just a Copy
     vector_(vector_&& other) : pack_type{other.data} {
     }
 
-    /** Copy Assignment */
+    /// Copy Assignment
     vector_& operator=(const vector_& other) {
         pack_type::operator=(other.data);
         return (*this);
     }
 
-    /** Move Assignment is Copy Assignment */
+    /// Move Assignment is Copy Assignment
     vector_& operator=(vector_&& other) {
         pack_type::operator=(std::move(other.data));
         return (*this);
     }
 
-    /** Destructor */
+    /// Destructor
     ~vector_() = default;
 
-    /** Initializer List Constructor */
+    /// Initializer List Constructor
     constexpr vector_(std::initializer_list<element_type> list) : vector_{} {
         size_t n = 0;
         for (auto it = list.begin(); it < list.end() and n < dimensions; it++, n++) {
@@ -75,17 +71,17 @@ public:
         }
     }
 
-    /** The const/volatile indexer operator */
+    /// The const/volatile indexer operator
     const volatile element_type& operator[](size_t index) const volatile {
         return pack_type::datum[index];
     }
 
-    /** The non-const index operator */
+    /// The non-const index operator
     element_type& operator[](size_t index) {
         return pack_type::datum[index];
     }
 
-    /** Scales each value */
+    /// Scales each value
     inline vector_& operator*=(element_type a) {
         if constexpr (pack_type::number_of_elements == 2) {
             __m128d tmp = _mm_setr_pd(a, a);
@@ -102,7 +98,7 @@ public:
         return (*this);
     }
 
-    /** Scales each value */
+    /// Scales each value
     inline vector_& operator/=(element_type a) {
         if constexpr (pack_type::number_of_elements == 2) {
             __m128d tmp = _mm_setr_pd(a, a);
@@ -119,7 +115,7 @@ public:
         return (*this);
     }
 
-    /** Scales the vector by the approximate magnitude */
+    /// Scales the vector by the approximate magnitude
     inline vector_& normalize() {
         double2 tmp;                          // we'll use this for union access only
         tmp.datum[0] = quadrance();           // put it in the bottom
@@ -131,18 +127,18 @@ public:
         return operator*=(tmp.datum[0]);
     }
 
-    /** Returns the sum of the squares of the elements */
+    /// Returns the sum of the squares of the elements
     inline element_type quadrance() {
         return dot((*this), (*this));
     }
 
-    /** Returns the square root of the sum of squares of the elements */
+    /// Returns the square root of the sum of squares of the elements
     inline element_type magnitude() {
         element_type q = quadrance();
         return sqrt(q);
     }
 
-    /** Accumulate value */
+    /// Accumulate value
     inline vector_& operator+=(vector_ const& a) {
         if constexpr (pack_type::number_of_elements == 2) {
             pack_type::data = _mm_add_pd(pack_type::data, a.data);
@@ -169,7 +165,7 @@ public:
         return (*this);
     }
 
-    /** Equality Operator */
+    /// Equality Operator
     bool operator==(const vector_& other) {
         bool ret = true;
         for (size_t n = 0; n < dimensions && ret; n++) {
@@ -178,12 +174,12 @@ public:
         return ret;
     }
 
-    /** Inequality Operator */
+    /// Inequality Operator
     bool operator!=(const vector_& other) {
         return not operator==(other);
     }
 
-    /** Unary Minus Operator (Inverts vector) */
+    /// Unary Minus Operator (Inverts vector)
     inline vector_ operator-() const {
         vector_ c{};
         return (c - (*this));
@@ -223,7 +219,7 @@ public:
         return c;
     }
 
-    /** Pairwise/Hamard Scaling */
+    /// Pairwise/Hamard Scaling
     friend inline vector_ operator*(const vector_& a, const vector_& b) {
         vector_ c{};
         if constexpr (pack_type::number_of_elements == 2) {

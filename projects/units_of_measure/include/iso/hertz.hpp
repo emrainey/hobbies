@@ -1,95 +1,95 @@
-/**
- * @file
- * This is an auto-generated header for iso::hertz.
- * A measure of frequency
- * @note See README on re-generation.
- * @copyright Copyright 2024.
- */
+///
+/// @file
+/// This is an auto-generated header for iso::hertz.
+/// A measure of frequency
+/// @note See README on re-generation.
+/// @copyright Copyright 2024.
+///
 #pragma once
 #include <cstdint>
 #include <cstddef>
 
 #include "iso/measurement.hpp"
 
-/** iso comment */
+/// iso comment
 namespace iso {
 
-/** A structure used to hold the postfix for hertz */
+/// A structure used to hold the postfix for hertz
 struct suffix_type_Hz {
     constexpr static const char *suffix = "Hz";
 };
 
-/**
- * This is the iso::hertz interface.
- * These have a default, generic, SI, copy, move, dtor and copy assign
- * And operator"" and equality and inequality
- * overload +=,-=,+,- with other units of the same type
- * overload *=,/=,*,/ with immediate values and atomics
- * overload ++,-- ?
- * overload >,<,==,!=,<=,>=
- * not overloaded %=,%
- */
+///
+/// This is the iso::hertz interface.
+/// These have a default, generic, SI, copy, move, dtor and copy assign
+/// And operator"" and equality and inequality
+/// overload +=,-=,+,- with other units of the same type
+/// overload *=,/=,*,/ with immediate values and atomics
+/// overload ++,-- ?
+/// overload >,<,==,!=,<=,>=
+/// not overloaded %=,%
+///
 class hertz : public measurement<precision, SI::prefix, suffix_type_Hz> {
 public:
-    /** Default constructor */
+    /// Default constructor
     hertz();
-    /** Parameter constructor */
+    /// Parameter constructor
     explicit hertz(precision value);
-    /** Copy Constructor */
+    /// Copy Constructor
     hertz(const hertz& other);
-    /** Move Constructor */
+    /// Move Constructor
     hertz(hertz&& other);
-    /** Destructor */
+    /// Destructor
     ~hertz() = default;
-    /** Const Copy Assignment */
+    /// Const Copy Assignment
     hertz& operator=(const hertz& other) noexcept;
-    /** Copy Assignment */
+    /// Copy Assignment
     hertz& operator=(hertz& other) noexcept;
-    /** Move Assignment */
+    /// Move Assignment
     hertz& operator=(hertz&& other) noexcept;
-    /** Equality Operator */
+    /// Equality Operator
     bool operator==(const hertz& other) const;
-    /** Inequality Operator */
+    /// Inequality Operator
     bool operator!=(const hertz& other) const;
-    /** Accumulation Operator */
+    /// Accumulation Operator
     hertz& operator+=(const hertz& other);
-    /** Deccumulation Operator */
+    /// Deccumulation Operator
     hertz& operator-=(const hertz& other);
-    /** Scaling Operator */
+    /// Scaling Operator
     hertz& operator*=(precision factor);
-    /** Inverse Scaling Operator */
+    /// Inverse Scaling Operator
     hertz& operator/=(precision factor);
-    /** Negating Operator */
+    /// Negating Operator
     hertz operator-() const;
-    /** Less Than Operator */
+    /// Less Than Operator
     bool operator<(const hertz& other) const;
-    /** Less Than or Equal Operator */
+    /// Less Than or Equal Operator
     bool operator<=(const hertz& other) const;
-    /** Greater Than Operator */
+    /// Greater Than Operator
     bool operator>(const hertz& other) const;
-    /** Greater Than or Equal Operator */
+    /// Greater Than or Equal Operator
     bool operator>=(const hertz& other) const;
 };
 
 namespace operators {
-    /** Addition operator */
+    /// Addition operator
     hertz operator+(const hertz& A, const hertz& B);
-    /** Subtraction operator */
+    /// Subtraction operator
     hertz operator-(const hertz& A, const hertz& B);
-    /** Left Scaling Operator */
+    /// Left Scaling Operator
     hertz operator*(const hertz& A, precision factor);
-    /** Right Scaling Operator */
+    /// Right Scaling Operator
     hertz operator*(precision factor, const hertz& A);
-    /** Inverse Scaling Operator */
+    /// Inverse Scaling Operator
     hertz operator/(const hertz& A, precision factor);
 }
 
 namespace literals {
-    /** Literal Double, Quote Operator */
+    /// Literal Double, Quote Operator
     hertz operator""_Hz(long double value);
-    /** Literal Int, Quote Operator */
+    /// Literal Int, Quote Operator
     hertz operator""_Hz(unsigned long long value);
-    /** Literal String, Quote Operator */
+    /// Literal String, Quote Operator
     iso::hertz operator""_Hz(const char a[]);
 }
 

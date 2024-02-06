@@ -1,8 +1,6 @@
-/**
- * @file
- * Game Header
- * @copyright Copyright (c) 2022
- */
+/// @file
+/// Game Header
+/// @copyright Copyright (c) 2022
 
 #pragma once
 

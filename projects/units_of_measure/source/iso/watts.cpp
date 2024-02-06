@@ -1,10 +1,10 @@
-/**
- * @file
- * This is an auto-generated source for iso::watts.
- * A measure of electrical power
- * @note See README on re-generation.
- * @copyright Copyright 2024.
- */
+///
+/// @file
+/// This is an auto-generated source for iso::watts.
+/// A measure of electrical power
+/// @note See README on re-generation.
+/// @copyright Copyright 2024.
+///
 #include "iso/watts.hpp"
 
 namespace iso {
@@ -35,7 +35,7 @@ watts& watts::operator=(watts&& other) noexcept {
     return (*this);
 }
 bool watts::operator==(const watts& other) const {
-    return iso::equivalent(value, other.value);
+    return basal::equivalent(value, other.value);
 }
 bool watts::operator!=(const watts& other) const {
     return !operator==(other);

@@ -5,12 +5,10 @@ namespace raytrace {
 
 namespace mediums {
 
-/** The grid surface lets users define the size and color of the squares. */
+/// The grid surface lets users define the size and color of the squares.
 class grid : public opaque {
 public:
-    /**
-     * @param scale The scaling factor
-     */
+    /// @param scale The scaling factor
     grid(precision scale, color dark, color light);
     virtual ~grid() = default;
 

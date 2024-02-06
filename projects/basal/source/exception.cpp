@@ -156,7 +156,7 @@ void exception::throw_unless(bool condition, const char loc[], std::size_t line)
     }
 }
 
-/*! Simplifies catch the same exception within code blocks */
+/// Simplifies catch the same exception within code blocks
 void assert_if_thrown(const char statement[], std::function<void(void) noexcept(false)> block) noexcept {
     try {
         block();
@@ -173,7 +173,7 @@ void assert_if_thrown(const char statement[], std::function<void(void) noexcept(
     }
 }
 
-/*! Allows the execution of a block which must throw an exception */
+/// Allows the execution of a block which must throw an exception
 void assert_if_not_thrown(const char statement[], std::function<void(void) noexcept(false)> block) noexcept {
     try {
         block();

@@ -4,7 +4,7 @@
 
 namespace raytrace {
 namespace objects {
-/** Creates Hyperbolic surface */
+/// Creates Hyperbolic surface
 class hyperboloid : public quadratic {
 public:
     hyperboloid(const point &center, precision a, precision b, precision c);

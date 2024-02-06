@@ -51,22 +51,22 @@ vector cuboid::normal(const point& world_surface_point) const {
     point object_surface_point = reverse_transform(world_surface_point);
     vector object_normal = R3::null;
     // isolate which axis this is on and return the forward_transformed normal
-    if (basal::equals(object_surface_point.x, x_half_width)) {
+    if (basal::nearly_equals(object_surface_point.x, x_half_width)) {
         // positive yz plane
         object_normal = m_normals[0];
-    } else if (basal::equals(object_surface_point.x, -x_half_width)) {
+    } else if (basal::nearly_equals(object_surface_point.x, -x_half_width)) {
         // negative yz plane
         object_normal = m_normals[1];
-    } else if (basal::equals(object_surface_point.y, y_half_width)) {
+    } else if (basal::nearly_equals(object_surface_point.y, y_half_width)) {
         // positive xz plane
         object_normal = m_normals[2];
-    } else if (basal::equals(object_surface_point.y, -y_half_width)) {
+    } else if (basal::nearly_equals(object_surface_point.y, -y_half_width)) {
         // negative xz plane
         object_normal = m_normals[3];
-    } else if (basal::equals(object_surface_point.z, z_half_width)) {
+    } else if (basal::nearly_equals(object_surface_point.z, z_half_width)) {
         // positive xy plane
         object_normal = m_normals[4];
-    } else if (basal::equals(object_surface_point.z, -z_half_width)) {
+    } else if (basal::nearly_equals(object_surface_point.z, -z_half_width)) {
         // negative xy plane
         object_normal = m_normals[5];
     }
@@ -100,7 +100,7 @@ hits cuboid::collisions_along(const ray& object_ray) const {
 
     point surface_point;
 
-/** uses t, object_point, and p_min, p_max */
+/// uses t, object_point, and p_min, p_max
 #define FACET_TEST(p, v, m, op)                                   \
     if (v op 0 or disable_optimization) {                         \
         t = (m - p) / v;                                          \
@@ -125,37 +125,37 @@ image::point cuboid::map(const point& object_surface_point) const {
     // isolate which axis this is on and return the forward_transformed normal
     precision u = 0.0, v = 0.0;
 
-    if (basal::equals(object_surface_point.x, x_half_width)) {
+    if (basal::nearly_equals(object_surface_point.x, x_half_width)) {
         // positive yz plane
         // u = -y -> +y
         u = ((object_surface_point.y / (2.0 * y_half_width)) + 0.5);
         // v = +z -> -z
         v = -((object_surface_point.z / (2.0 * z_half_width)) - 0.5);
-    } else if (basal::equals(object_surface_point.x, -x_half_width)) {
+    } else if (basal::nearly_equals(object_surface_point.x, -x_half_width)) {
         // negative yz plane
         // u = +y -> -y
         u = -((object_surface_point.y / (2.0 * y_half_width)) - 0.5);
         // v = +z -> -z
         v = -((object_surface_point.z / (2.0 * z_half_width)) - 0.5);
-    } else if (basal::equals(object_surface_point.y, y_half_width)) {
+    } else if (basal::nearly_equals(object_surface_point.y, y_half_width)) {
         // positive xz plane
         // u = +x -> -x
         u = -((object_surface_point.x / (2.0 * x_half_width)) - 0.5);
         // v = +z -> -z
         v = -((object_surface_point.z / (2.0 * z_half_width)) - 0.5);
-    } else if (basal::equals(object_surface_point.y, -y_half_width)) {
+    } else if (basal::nearly_equals(object_surface_point.y, -y_half_width)) {
         // negative xz plane
         // u = -x -> +x
         u = ((object_surface_point.x / (2.0 * x_half_width)) + 0.5);
         // v = +z -> -z
         v = -((object_surface_point.z / (2.0 * z_half_width)) - 0.5);
-    } else if (basal::equals(object_surface_point.z, z_half_width)) {
+    } else if (basal::nearly_equals(object_surface_point.z, z_half_width)) {
         // positive xy plane
         // u = +x -> -x
         u = -((object_surface_point.x / (2.0 * x_half_width)) - 0.5);
         // v = +y -> -y
         v = -((object_surface_point.y / (2.0 * y_half_width)) - 0.5);
-    } else if (basal::equals(object_surface_point.z, -z_half_width)) {
+    } else if (basal::nearly_equals(object_surface_point.z, -z_half_width)) {
         // negative xy plane
         // u = -x -> +x
         u = ((object_surface_point.x / (2.0 * x_half_width)) + 0.5);

@@ -17,7 +17,7 @@ public:
     using type = typename NumeratorType::type;
 
 protected:
-    /** The simplified value */
+    /// The simplified value
     type _value;
 
 public:
@@ -35,7 +35,7 @@ protected:
     char suffix[12];
 
 public:
-    /** Default Constructor */
+    /// Default Constructor
     rate()
         : _value{0}
         , value{_value}
@@ -100,7 +100,7 @@ public:
     }
 
     bool operator==(const rate& other) {
-        return equivalent(_value, other.value);
+        return basal::equivalent(_value, other.value);
     }
 
     bool operator!=(const rate& other) {

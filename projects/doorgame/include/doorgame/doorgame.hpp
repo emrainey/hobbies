@@ -1,12 +1,12 @@
-/**
- * @file
- * Doorgame main include
- * @copyright Copyright (c) 2022
- *
- */
+///
+/// @file
+/// Doorgame main include
+/// @copyright Copyright (c) 2022
+
+///
 #pragma once
 
-/** The doorgame namespace */
+/// The doorgame namespace
 namespace doorgame {}
 
 #include "doorgame/actions.hpp"

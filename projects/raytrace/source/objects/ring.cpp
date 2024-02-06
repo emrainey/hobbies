@@ -20,7 +20,7 @@ hits ring::collisions_along(const ray& object_ray) const {
     const vector& N = m_normal;
     const vector& V = object_ray.direction();
     precision proj = dot(V, N);       // if so the projection is zero
-    if (not basal::equals_zero(proj)) {  // they collide *somewhere*
+    if (not basal::nearly_zero(proj)) {  // they collide *somewhere*
         // get the vector of the center to the ray initial
         vector C = position() - object_ray.location();
         // t is the ratio of the projection of the arbitrary center vector divided by the projection ray

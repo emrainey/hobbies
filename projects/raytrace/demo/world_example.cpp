@@ -1,10 +1,10 @@
-/**
- * @file
- * @author Erik Rainey (erik.rainey@gmail.com)
- * @brief Renders an example raytraced image.
- * @date 2020-05-24
- * @copyright Copyright (c) 2020
- */
+///
+/// @file
+/// @author Erik Rainey (erik.rainey@gmail.com)
+/// @brief Renders an example raytraced image.
+/// @date 2020-05-24
+/// @copyright Copyright (c) 2020
+///
 
 #include <raytrace/raytrace.hpp>
 

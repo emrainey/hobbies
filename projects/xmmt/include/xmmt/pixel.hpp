@@ -1,25 +1,21 @@
 #pragma once
 
-/**
- * @file
- * The Pixel Class
- */
+/// @file
+/// The Pixel Class
 
 #include "xmmt/packs.hpp"
 #include "xmmt/vector.hpp"
 
 namespace intel {
 
-/**
- * An ordered set of values for a pixel of multiple channels which can be operator-ed on in-bulk.
- * @tparam pack_type The packing structure definition.
- */
+/// An ordered set of values for a pixel of multiple channels which can be operator-ed on in-bulk.
+/// @tparam pack_type The packing structure definition.
 template <typename pack_type, size_t _dimensions>
 class pixel_ : public pack_type {
 protected:
-    /** Hold on to the number of elements needed */
+    /// Hold on to the number of elements needed
     constexpr static size_t dimensions = _dimensions;
-    /** The data storage of the unit */
+    /// The data storage of the unit
     static_assert(std::is_floating_point<typename pack_type::element_type>::value,
                   "Must be either float, double or long double");
     static_assert(4 <= pack_type::number_of_elements, "Must be a Intel Parallel/Multiple Data data type");
@@ -31,43 +27,43 @@ public:
     using element_type = typename pack_type::element_type;
     using parallel_type = typename pack_type::parallel_type;
 
-    /** Default Constructor */
+    /// Default Constructor
     constexpr pixel_() : pack_type{} {
     }
 
-    /** Intrinsic Initializer */
+    /// Intrinsic Initializer
     constexpr pixel_(parallel_type v) : pack_type{v} {
     }
 
-    /** Forwarding Constructor. This allows the pack_type parameter constructors to be used. */
+    /// Forwarding Constructor. This allows the pack_type parameter constructors to be used.
     template <typename... Args>
     pixel_(Args&&... args) : pack_type{std::forward<Args>(args)...} {
     }
 
-    /** Copy Constructor */
+    /// Copy Constructor
     pixel_(const pixel_& other) : pack_type{other.data} {
     }
 
-    /** Move Construction is just a Copy */
+    /// Move Construction is just a Copy
     pixel_(pixel_&& other) : pack_type{other.data} {
     }
 
-    /** Copy Assignment */
+    /// Copy Assignment
     pixel_& operator=(const pixel_& other) {
         pack_type::operator=(other.data);
         return (*this);
     }
 
-    /** Move Assignment is Copy Assignment */
+    /// Move Assignment is Copy Assignment
     pixel_& operator=(pixel_&& other) {
         pack_type::operator=(std::move(other.data));
         return (*this);
     }
 
-    /** Destructor */
+    /// Destructor
     ~pixel_() = default;
 
-    /** Initializer List Constructor */
+    /// Initializer List Constructor
     constexpr pixel_(std::initializer_list<element_type> list) : pixel_{} {
         size_t n = 0;
         for (auto it = list.begin(); it < list.end() and n < dimensions; it++, n++) {
@@ -75,17 +71,17 @@ public:
         }
     }
 
-    /** The const/volatile indexer operator */
+    /// The const/volatile indexer operator
     const volatile element_type& operator[](size_t index) const volatile {
         return pack_type::datum[index];
     }
 
-    /** The non-const index operator */
+    /// The non-const index operator
     element_type& operator[](size_t index) {
         return pack_type::datum[index];
     }
 
-    /** Scales each value */
+    /// Scales each value
     inline pixel_& operator*=(element_type a) {
         if constexpr (pack_type::number_of_elements == 2) {
             __m128d tmp = _mm_setr_pd(a, a);
@@ -102,7 +98,7 @@ public:
         return (*this);
     }
 
-    /** Accumulate value */
+    /// Accumulate value
     inline pixel_& operator+=(pixel_ const& a) {
         if constexpr (pack_type::number_of_elements == 2) {
             pack_type::data = _mm_add_pd(pack_type::data, a.data);
@@ -116,7 +112,7 @@ public:
         return (*this);
     }
 
-    /** Equality Operator */
+    /// Equality Operator
     bool operator==(const pixel_& other) {
         bool ret = true;
         for (size_t n = 0; n < dimensions && ret; n++) {
@@ -125,7 +121,7 @@ public:
         return ret;
     }
 
-    /** Inequality Operator */
+    /// Inequality Operator
     bool operator!=(const pixel_& other) {
         return not operator==(other);
     }
@@ -159,7 +155,7 @@ public:
     /****** FRIENDS **************************************************************/
 
 
-    /** Pixel Scaling */
+    /// Pixel Scaling
     friend inline pixel_ operator*(const pixel_& a, const element_type& b) {
         pixel_ c{};
         if constexpr (pack_type::number_of_elements == 2) {
@@ -175,7 +171,7 @@ public:
     }
 
 
-    /** Pairwise/Hamard Scaling */
+    /// Pairwise/Hamard Scaling
     friend inline pixel_ operator*(const pixel_& a, const pixel_& b) {
         pixel_ c{};
         if constexpr (pack_type::number_of_elements == 2) {

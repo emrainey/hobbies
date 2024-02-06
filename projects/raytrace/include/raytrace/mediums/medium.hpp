@@ -12,139 +12,131 @@
 
 namespace raytrace {
 
-/** The namespace that contains all surface/volumetric mediums */
+/// The namespace that contains all surface/volumetric mediums
 namespace mediums {
 
-/** A special mixin interface for mediums which are used to make objects */
+/// A special mixin interface for mediums which are used to make objects
 class medium {
 public:
-    /** The default constructor */
+    /// The default constructor
     medium();
 
-    /** The default destructor */
+    /// The default destructor
     virtual ~medium() = default;
 
-    /** Returns the overall ambient color, post-scaled. This is a stand-in for light in a scene the bounces around
-     * diffusely */
+    /// Returns the overall ambient color, post-scaled. This is a stand-in for light in a scene the bounces around
+    /// diffusely */
     virtual color ambient(const raytrace::point& volumetric_point) const;
 
-    /** Within reflection, given the uv point of the surface, returns a diffuse color */
+    /// Within reflection, given the uv point of the surface, returns a diffuse color
     virtual color diffuse(const raytrace::point& volumetric_point) const;
 
-    /** Within reflection, given the uv point of the surface, returns a specular color */
+    /// Within reflection, given the uv point of the surface, returns a specular color
     virtual color specular(const raytrace::point& volumetric_point, precision scaling,
                            const color& light_color) const;
 
-    /** Returns the overall tightness the specular highlight (K) */
+    /// Returns the overall tightness the specular highlight (K)
     virtual precision specular_tightness(const raytrace::point& volumetric_point) const;
 
-    /** Returns the emitted light at the volumetric point */
+    /// Returns the emitted light at the volumetric point
     virtual color emissive(const raytrace::point& volumetric_point) const;
 
-    /** Returns the color bounced from the medium at a point, given an input color */
+    /// Returns the color bounced from the medium at a point, given an input color
     virtual color bounced(const raytrace::point& volumetic_point, const color& incoming) const;
 
-    /**
-     * HACK "Smoothness"
-     * Determines the proportion of reflected light which is coherently reflected from the surface like a mirror
-     * 0.0_p means no coherent reflected light, it's all too diffuse.
-     * 1.0_p means like a perfect mirror. No diffuse surface colors at all.
-     */
+    ///
+    /// HACK "Smoothness"
+    /// Determines the proportion of reflected light which is coherently reflected from the surface like a mirror
+    /// 0.0_p means no coherent reflected light, it's all too diffuse.
+    /// 1.0_p means like a perfect mirror. No diffuse surface colors at all.
+    ///
     virtual precision smoothness(const raytrace::point& volumetric_point) const;
 
-    /** Computes the emissive, reflected and transmitted components of the medium.
-     * This replaces the reflectivity, transparency components.
-     * @note Typically transmitted + reflected = 1.0_p.
-     * @param[in] volumetric_point The volumetric point
-     * @param[in] refractive_index The other medium's eta or wave length impedance (aka refractive index)
-     * @param[in] incident_angle The angle of incident to the normal of the surface at the given point.
-     * @param[in] transmitted_angle The angle of transmission (from the inverted normal).
-     * @param[out] emitted The scalar value of emitted light from the surface
-     * @param[out] reflected The scalar value of the reflectivity component of the surface.
-     * @param[out] transmitted The scalar value of the transmitted component of the surface.
-     */
+    /// Computes the emissive, reflected and transmitted components of the medium.
+    /// This replaces the reflectivity, transparency components.
+    /// @note Typically transmitted + reflected = 1.0_p.
+    /// @param[in] volumetric_point The volumetric point
+    /// @param[in] refractive_index The other medium's eta or wave length impedance (aka refractive index)
+    /// @param[in] incident_angle The angle of incident to the normal of the surface at the given point.
+    /// @param[in] transmitted_angle The angle of transmission (from the inverted normal).
+    /// @param[out] emitted The scalar value of emitted light from the surface
+    /// @param[out] reflected The scalar value of the reflectivity component of the surface.
+    /// @param[out] transmitted The scalar value of the transmitted component of the surface.
+    ///
     virtual void radiosity(const raytrace::point& volumetric_point, precision refractive_index,
                            const iso::radians& incident_angle, const iso::radians& transmitted_angle,
                            precision& emitted, precision& reflected, precision& transmitted) const;
 
-    /**
-     * Return the refractive index of the medium at a point
-     * @param volumetric_point The point to determine the refractive index
-     */
+    /// Return the refractive index of the medium at a point
+/// @param volumetric_point The point to determine the refractive index
     virtual precision refractive_index(const raytrace::point& volumetric_point) const;
 
-    /** Returns the filtered color of the light as absorbed by the medium during
-     * transmission for a given (unitless) distance.
-     */
+    /// Returns the filtered color of the light as absorbed by the medium during
+    /// transmission for a given (unitless) distance.
+    ///
     virtual color absorbance(precision distance, const color& given_color) const;
 
-    /** Returns the mapping function */
+    /// Returns the mapping function
     mapping::reducer mapper() const;
 
-    /** Allows the mapping mechanism to be set */
+    /// Allows the mapping mechanism to be set
     void mapper(mapping::reducer m);
 
-    /** Returns the perturbation of the normal at a given surface point */
+    /// Returns the perturbation of the normal at a given surface point
     virtual raytrace::vector perturbation(const raytrace::point& volumetric_point) const;
 
 protected:
-    /** How bright the ambient color is in unit scale */
+    /// How bright the ambient color is in unit scale
     precision m_ambient_scale;
-    /** The color of the materials under ambient conditions */
+    /// The color of the materials under ambient conditions
     color m_ambient;
-    /** The color of the diffuse light reflected from the material */
+    /// The color of the diffuse light reflected from the material
     color m_diffuse;
-    /** The tightness of the specular highlight (lower is larger, higher is smaller) on a power scale with regards to
-     * specular highlights on the phong model */
+    /// The tightness of the specular highlight (lower is larger, higher is smaller) on a power scale with regards to
+    /// specular highlights on the phong model */
     precision m_tightness;
-    /**
-     * The smoothness of the surface, i.e. how much of a coherent mirror does it form?
-     * 0.0_p means bounced light is not allowed at all.
-     * 1.0_p means it's a perfect mirror
-     */
+    /// The smoothness of the surface, i.e. how much of a coherent mirror does it form?
+/// 0.0_p means bounced light is not allowed at all.
+/// 1.0_p means it's a perfect mirror
     precision m_smoothness;
-    /** The proportion of incoming light which is reflected versus transmitted 1 = (R + T). If 0, then all is reflected,
-     * if 1 then all is transmitted */
+    /// The proportion of incoming light which is reflected versus transmitted 1 = (R + T). If 0, then all is reflected,
+    /// if 1 then all is transmitted */
     precision m_transmissivity;
-    /** This material's refractive index */
+    /// This material's refractive index
     precision m_refractive_index;
-    /** Electrical Permissivity */
+    /// Electrical Permissivity
     // precision m_permissivity;
-    /** Magnetic Permeability */
+    /// Magnetic Permeability
     // precision m_permeability;
-    /** The mapping reduction function (if supplied) maps R3 to R2 for "surface mapping" */
+    /// The mapping reduction function (if supplied) maps R3 to R2 for "surface mapping"
     mapping::reducer m_reducing_map;
 };
 
-/** This is a namespace of constants to use on mediums for smoothness to get a sense of what to expect */
+/// This is a namespace of constants to use on mediums for smoothness to get a sense of what to expect
 namespace smoothness {
-/** This medium will not reflect *any* light and will only have diffuse and ambient components */
+/// This medium will not reflect *any* light and will only have diffuse and ambient components
 constexpr precision none = 0.0_p;
-/** There's barely any reflections */
+/// There's barely any reflections
 constexpr precision barely = 0.0625_p;
-/** The medium will have a small bit of reflections in it */
+/// The medium will have a small bit of reflections in it
 constexpr precision small = 0.2_p;
-/** The medium will be very reflective like a polished metal */
+/// The medium will be very reflective like a polished metal
 constexpr precision polished = 0.7_p;
-/** The medium will *only* reflect light and will not have any ambient or diffuse components */
+/// The medium will *only* reflect light and will not have any ambient or diffuse components
 constexpr precision mirror = 1.0_p;
 }  // namespace smoothness
 
-/**
- * A namespace of constants to describe the scale of ambient emissions from a medium
- * Ambient light is itself a cheat to get light in places which would otherwise not
- * have any light from the scene but we need to see details.
- */
+/// A namespace of constants to describe the scale of ambient emissions from a medium
+/// Ambient light is itself a cheat to get light in places which would otherwise not
+/// have any light from the scene but we need to see details.
 namespace ambient {
 constexpr precision none = 0.0_p;
 constexpr precision dim = 0.1_p;
 constexpr precision glowy = 0.4_p;
 }  // namespace ambient
 
-/**
- * A namespace of constants to describe the "roughness" of the surface in regards to specular highlights.
- * Lower values result in larger spots. Higher values result in tighter spots.
- */
+/// A namespace of constants to describe the "roughness" of the surface in regards to specular highlights.
+/// Lower values result in larger spots. Higher values result in tighter spots.
 namespace roughness {
 constexpr precision tight = 100.0_p;
 constexpr precision loose = 20.0_p;

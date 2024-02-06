@@ -81,7 +81,7 @@ bool quadratic::is_surface_point(const point& world_point) const {
     precision i = Q(3, 4), j = Q(4, 4);
 
     // ax2 +2bxy+2cxz+2dx+ey2 +2fyz+ 2gy + hz2 + 2iz +j=0,
-    return basal::equals_zero((a * x * x) + (2 * b * x * y) + (2 * c * x) + (2 * d * x) + (e * y * y) + (2 * f * y * z)
+    return basal::nearly_zero((a * x * x) + (2 * b * x * y) + (2 * c * x) + (2 * d * x) + (e * y * y) + (2 * f * y * z)
                               + (2 * g * y) + (h * z * z) + (2 * i * z) + j);
 }
 

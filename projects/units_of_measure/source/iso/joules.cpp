@@ -1,10 +1,10 @@
-/**
- * @file
- * This is an auto-generated source for iso::joules.
- * A measure of energy
- * @note See README on re-generation.
- * @copyright Copyright 2024.
- */
+///
+/// @file
+/// This is an auto-generated source for iso::joules.
+/// A measure of energy
+/// @note See README on re-generation.
+/// @copyright Copyright 2024.
+///
 #include "iso/joules.hpp"
 
 namespace iso {
@@ -35,7 +35,7 @@ joules& joules::operator=(joules&& other) noexcept {
     return (*this);
 }
 bool joules::operator==(const joules& other) const {
-    return iso::equivalent(value, other.value);
+    return basal::equivalent(value, other.value);
 }
 bool joules::operator!=(const joules& other) const {
     return !operator==(other);

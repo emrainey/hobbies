@@ -1,95 +1,95 @@
-/**
- * @file
- * This is an auto-generated header for iso::amperes.
- * A measure of current in electricity
- * @note See README on re-generation.
- * @copyright Copyright 2024.
- */
+///
+/// @file
+/// This is an auto-generated header for iso::amperes.
+/// A measure of current in electricity
+/// @note See README on re-generation.
+/// @copyright Copyright 2024.
+///
 #pragma once
 #include <cstdint>
 #include <cstddef>
 
 #include "iso/measurement.hpp"
 
-/** iso comment */
+/// iso comment
 namespace iso {
 
-/** A structure used to hold the postfix for amperes */
+/// A structure used to hold the postfix for amperes
 struct suffix_type_A {
     constexpr static const char *suffix = "A";
 };
 
-/**
- * This is the iso::amperes interface.
- * These have a default, generic, SI, copy, move, dtor and copy assign
- * And operator"" and equality and inequality
- * overload +=,-=,+,- with other units of the same type
- * overload *=,/=,*,/ with immediate values and atomics
- * overload ++,-- ?
- * overload >,<,==,!=,<=,>=
- * not overloaded %=,%
- */
+///
+/// This is the iso::amperes interface.
+/// These have a default, generic, SI, copy, move, dtor and copy assign
+/// And operator"" and equality and inequality
+/// overload +=,-=,+,- with other units of the same type
+/// overload *=,/=,*,/ with immediate values and atomics
+/// overload ++,-- ?
+/// overload >,<,==,!=,<=,>=
+/// not overloaded %=,%
+///
 class amperes : public measurement<precision, SI::prefix, suffix_type_A> {
 public:
-    /** Default constructor */
+    /// Default constructor
     amperes();
-    /** Parameter constructor */
+    /// Parameter constructor
     explicit amperes(precision value);
-    /** Copy Constructor */
+    /// Copy Constructor
     amperes(const amperes& other);
-    /** Move Constructor */
+    /// Move Constructor
     amperes(amperes&& other);
-    /** Destructor */
+    /// Destructor
     ~amperes() = default;
-    /** Const Copy Assignment */
+    /// Const Copy Assignment
     amperes& operator=(const amperes& other) noexcept;
-    /** Copy Assignment */
+    /// Copy Assignment
     amperes& operator=(amperes& other) noexcept;
-    /** Move Assignment */
+    /// Move Assignment
     amperes& operator=(amperes&& other) noexcept;
-    /** Equality Operator */
+    /// Equality Operator
     bool operator==(const amperes& other) const;
-    /** Inequality Operator */
+    /// Inequality Operator
     bool operator!=(const amperes& other) const;
-    /** Accumulation Operator */
+    /// Accumulation Operator
     amperes& operator+=(const amperes& other);
-    /** Deccumulation Operator */
+    /// Deccumulation Operator
     amperes& operator-=(const amperes& other);
-    /** Scaling Operator */
+    /// Scaling Operator
     amperes& operator*=(precision factor);
-    /** Inverse Scaling Operator */
+    /// Inverse Scaling Operator
     amperes& operator/=(precision factor);
-    /** Negating Operator */
+    /// Negating Operator
     amperes operator-() const;
-    /** Less Than Operator */
+    /// Less Than Operator
     bool operator<(const amperes& other) const;
-    /** Less Than or Equal Operator */
+    /// Less Than or Equal Operator
     bool operator<=(const amperes& other) const;
-    /** Greater Than Operator */
+    /// Greater Than Operator
     bool operator>(const amperes& other) const;
-    /** Greater Than or Equal Operator */
+    /// Greater Than or Equal Operator
     bool operator>=(const amperes& other) const;
 };
 
 namespace operators {
-    /** Addition operator */
+    /// Addition operator
     amperes operator+(const amperes& A, const amperes& B);
-    /** Subtraction operator */
+    /// Subtraction operator
     amperes operator-(const amperes& A, const amperes& B);
-    /** Left Scaling Operator */
+    /// Left Scaling Operator
     amperes operator*(const amperes& A, precision factor);
-    /** Right Scaling Operator */
+    /// Right Scaling Operator
     amperes operator*(precision factor, const amperes& A);
-    /** Inverse Scaling Operator */
+    /// Inverse Scaling Operator
     amperes operator/(const amperes& A, precision factor);
 }
 
 namespace literals {
-    /** Literal Double, Quote Operator */
+    /// Literal Double, Quote Operator
     amperes operator""_A(long double value);
-    /** Literal Int, Quote Operator */
+    /// Literal Int, Quote Operator
     amperes operator""_A(unsigned long long value);
-    /** Literal String, Quote Operator */
+    /// Literal String, Quote Operator
     iso::amperes operator""_A(const char a[]);
 }
 

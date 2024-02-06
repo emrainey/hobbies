@@ -1,10 +1,10 @@
-/**
- * @file
- * This is an auto-generated source for iso::seconds.
- * A measure of time
- * @note See README on re-generation.
- * @copyright Copyright 2024.
- */
+///
+/// @file
+/// This is an auto-generated source for iso::seconds.
+/// A measure of time
+/// @note See README on re-generation.
+/// @copyright Copyright 2024.
+///
 #include "iso/seconds.hpp"
 
 namespace iso {
@@ -35,7 +35,7 @@ seconds& seconds::operator=(seconds&& other) noexcept {
     return (*this);
 }
 bool seconds::operator==(const seconds& other) const {
-    return iso::equivalent(value, other.value);
+    return basal::equivalent(value, other.value);
 }
 bool seconds::operator!=(const seconds& other) const {
     return !operator==(other);

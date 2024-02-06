@@ -32,7 +32,7 @@ vector cone::normal(const point& world_surface_point) const {
         height = 1.0;
         radius = std::tan(m_angle.value);
     }
-    if (basal::equals_zero(object_surface_point.x) and basal::equals_zero(object_surface_point.y)) {
+    if (basal::nearly_zero(object_surface_point.x) and basal::nearly_zero(object_surface_point.y)) {
         return R3::null;
     }
     vector N{{object_surface_point.x, object_surface_point.y, 0}};
@@ -75,7 +75,7 @@ hits cone::collisions_along(const ray& object_ray) const {
     precision h = m_height;
     precision br = m_bottom_radius;
     precision f = std::tan(m_angle.value);
-    precision s = basal::equals_zero(h) ? 1.0 / (f * f) : (h * h) / (br * br);
+    precision s = basal::nearly_zero(h) ? 1.0 / (f * f) : (h * h) / (br * br);
     precision z_h = z - h;
     precision a = s * (i * i + j * j) - k * k;
     precision b = 2 * (s * (i * x + j * y) - k * z_h);
@@ -86,13 +86,13 @@ hits cone::collisions_along(const ray& object_ray) const {
     point surface_point;
     if (not basal::is_nan(t0)) {
         surface_point = object_ray.distance_along(t0);
-        if (basal::equals_zero(h) or linalg::within(0, surface_point.z, h)) {
+        if (basal::nearly_zero(h) or linalg::within(0, surface_point.z, h)) {
             ts.push_back(t0);
         }
     }
     if (not basal::is_nan(t1)) {
         surface_point = object_ray.distance_along(t1);
-        if (basal::equals_zero(h) or linalg::within(0, surface_point.z, h)) {
+        if (basal::nearly_zero(h) or linalg::within(0, surface_point.z, h)) {
             ts.push_back(t1);
         }
     }
@@ -104,7 +104,7 @@ bool cone::is_surface_point(const point& world_point) const {
     precision x = object_point.x;
     precision y = object_point.y;
     precision z = object_point.z;
-    return basal::equals(z * z, (x * x) + (y * y));
+    return basal::nearly_equals(z * z, (x * x) + (y * y));
 }
 
 image::point cone::map(const point& object_surface_point) const {

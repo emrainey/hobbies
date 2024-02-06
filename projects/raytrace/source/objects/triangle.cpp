@@ -78,7 +78,7 @@ intersection triangle::intersect(const ray& world_ray) const {
 bool triangle::is_surface_point(const point& world_point) const {
     point object_point = reverse_transform(world_point);
     vector T = object_point - position();
-    return basal::equals_zero(dot(geometry::plane::normal, T)) and is_contained(world_point);
+    return basal::nearly_zero(dot(geometry::plane::normal, T)) and is_contained(world_point);
 }
 
 void triangle::print(const char str[]) const {

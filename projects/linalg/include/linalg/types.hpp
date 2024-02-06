@@ -1,9 +1,7 @@
 #pragma once
-/**
- * @file
- * Definitions for smaller types within the linalg space
- * @copyright Copyright 2019 (C) Erik Rainey.
- */
+/// @file
+/// Definitions for smaller types within the linalg space
+/// @copyright Copyright 2019 (C) Erik Rainey.
 
 #include <limits>
 //#include <iso/iso.hpp>
@@ -11,7 +9,7 @@
 
 namespace linalg {
 
-/** These are specialized symbols used to notate math ops or commonly used values in a simple way */
+/// These are specialized symbols used to notate math ops or commonly used values in a simple way
 typedef enum letters_e : short
 {
     T = std::numeric_limits<short>::min(),  //!< The Transpose operation
@@ -23,21 +21,21 @@ typedef enum letters_e : short
     U = 2,  //!< When using \ref matrix::PLU, provide this to get the U value
 } letters;
 
-/** All the linalg element types are using basal's types */
+/// All the linalg element types are using basal's types
 using precision = basal::precision;
 
-/** Collects the statistics from the linalg library */
+/// Collects the statistics from the linalg library
 struct statistics {
 public:
-    /** The number of quadratic roots */
+    /// The number of quadratic roots
     size_t quadratic_roots;
-    /** The number of cubic roots */
+    /// The number of cubic roots
     size_t cubic_roots;
-    /** The number of quartic roots */
+    /// The number of quartic roots
     size_t quartic_roots;
-    /** The number of matrix multiplies */
+    /// The number of matrix multiplies
     size_t matrix_multiply;
-    /** The number of determinants */
+    /// The number of determinants
     size_t matrix_determinants;
 
     static statistics& get() {

@@ -24,37 +24,37 @@ using namespace basal::literals;
 constexpr const uint32_t NUM_SYNAPSES = 20;
 constexpr const uint32_t NUM_DENDRITES = 5;
 constexpr const uint32_t NUM_NEURONS = 8;
-/** The structure that connects neurons in a one-way directed graph */
+/// The structure that connects neurons in a one-way directed graph
 struct synapse {
-    float strength;   /**< Contains the strength of the connection */
-    uint8_t index[3]; /**< Height, Width, Column depth */
+    float strength;   ///< Contains the strength of the connection
+    uint8_t index[3]; ///< Height, Width, Column depth
 };
 
 template <size_t _SYN_>
 struct dendrite {
-    std::bitset<_SYN_> active; /**< Determines if this synapse is operational */
+    std::bitset<_SYN_> active; ///< Determines if this synapse is operational
     std::array<synapse, _SYN_> synapses;
 };
 
 template <size_t _DEN_>
 struct neuron {
-    /** Proxial Dendrites are summed, and only touch neighbors */
+    /// Proxial Dendrites are summed, and only touch neighbors
     std::array<dendrite<NUM_SYNAPSES>, 1> proxial;
 
-    /** Distal Dendrites are UNIONed (ORR) and can connect long distances */
+    /// Distal Dendrites are UNIONed (ORR) and can connect long distances
     std::array<dendrite<NUM_SYNAPSES>, _DEN_> distal;
 
-    /** The output of the neuron */
+    /// The output of the neuron
     float output;
 
-    /** Returns the total number of synapses in the neuron */
+    /// Returns the total number of synapses in the neuron
     inline size_t num_synapses() const {
         const size_t proxial_synapses = (proxial.size() * proxial[0].synapses.size());
         const size_t distal_synapses = (distal.size() * distal[0].synapses.size());
         return proxial_synapses + distal_synapses;
     }
 
-    /** Indexes a synapse from a neuron's point of view */
+    /// Indexes a synapse from a neuron's point of view
     inline synapse& operator[](size_t synapse_index) {
         const size_t proxial_synapses = (proxial.size() * proxial[0].synapses.size());
         // /const size_t distal_synapses = (distal.size() * distal[0].synapses.size());
@@ -87,13 +87,13 @@ struct column {
     */
 };
 
-/** Returns a random number between 0.0 and 1.0 inclusive */
+/// Returns a random number between 0.0 and 1.0 inclusive
 float frand();
 
 template <size_t W, size_t H>
 class network {
 protected:
-    /** The grid of columns */
+    /// The grid of columns
     std::array<std::array<column<NUM_NEURONS>, W>, H> grid;
     const float minOverlap;
     const float minActivate;

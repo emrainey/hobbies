@@ -1,8 +1,6 @@
-/**
- * @file
- * The specialized operators implementations.
- * @copyright Copyright (c) 2022
- */
+/// @file
+/// The specialized operators implementations.
+/// @copyright Copyright (c) 2022
 #include "iso/iso.hpp"
 
 namespace iso {

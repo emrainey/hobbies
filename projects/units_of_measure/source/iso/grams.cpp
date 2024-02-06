@@ -1,10 +1,10 @@
-/**
- * @file
- * This is an auto-generated source for iso::grams.
- * A measurement of mass
- * @note See README on re-generation.
- * @copyright Copyright 2024.
- */
+///
+/// @file
+/// This is an auto-generated source for iso::grams.
+/// A measurement of mass
+/// @note See README on re-generation.
+/// @copyright Copyright 2024.
+///
 #include "iso/grams.hpp"
 
 namespace iso {
@@ -35,7 +35,7 @@ grams& grams::operator=(grams&& other) noexcept {
     return (*this);
 }
 bool grams::operator==(const grams& other) const {
-    return iso::equivalent(value, other.value);
+    return basal::equivalent(value, other.value);
 }
 bool grams::operator!=(const grams& other) const {
     return !operator==(other);

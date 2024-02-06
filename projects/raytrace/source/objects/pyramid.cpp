@@ -62,13 +62,13 @@ hits pyramid::collisions_along(const ray& object_ray) const {
     };
     precision t[] = {
         // a = 1, b = 1
-        precision(basal::equals_zero(denoms[0]) ? basal::nan : (h - px - py - pz) / (denoms[0])),
+        precision(basal::nearly_zero(denoms[0]) ? basal::nan : (h - px - py - pz) / (denoms[0])),
         // a =-1, b = 1
-        precision(basal::equals_zero(denoms[1]) ? basal::nan : (h + px - py - pz) / (denoms[1])),
+        precision(basal::nearly_zero(denoms[1]) ? basal::nan : (h + px - py - pz) / (denoms[1])),
         // a = 1, b =-1
-        precision(basal::equals_zero(denoms[2]) ? basal::nan : (h - px + py - pz) / (denoms[2])),
+        precision(basal::nearly_zero(denoms[2]) ? basal::nan : (h - px + py - pz) / (denoms[2])),
         // a =-1, b =-1
-        precision(basal::equals_zero(denoms[3]) ? basal::nan : (h + px + py - pz) / (denoms[3])),
+        precision(basal::nearly_zero(denoms[3]) ? basal::nan : (h + px + py - pz) / (denoms[3])),
     };
     bool usable[4] = {
         is_positive(px, dx, t[0]) and is_positive(py, dy, t[0]),
@@ -92,7 +92,7 @@ bool pyramid::is_surface_point(const point& world_point) const {
     precision x = object_point.x;
     precision y = object_point.y;
     precision z = object_point.z;
-    return basal::equals(z, m_height - std::abs(x) - std::abs(y));
+    return basal::nearly_equals(z, m_height - std::abs(x) - std::abs(y));
 }
 
 image::point pyramid::map(const point& object_surface_point) const {

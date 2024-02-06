@@ -5,7 +5,7 @@ namespace raytrace {
 
 namespace mediums {
 
-/** A sub class of conductors */
+/// A sub class of conductors
 class metal : public conductor {
 public:
     metal(color diffuse, precision smoothness, precision tightness, precision fuzz_scale = 0.0_p);
@@ -18,9 +18,9 @@ public:
     vector perturbation(const raytrace::point& volumetric_point) const override;
 
 protected:
-    /** The color filter of the specular highlight (used only with metals) */
+    /// The color filter of the specular highlight (used only with metals)
     color m_specularity;
-    /** The scale o perturbations in the surface */
+    /// The scale o perturbations in the surface
     precision m_fuzz_scale;
 };
 

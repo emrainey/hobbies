@@ -83,8 +83,8 @@ bool line::solve(const point &P, precision &t) const {
     for (size_t i = 0; i < dims; i++) {
         precision d = m_udir[i];
         precision p = m_zero[i];
-        bool zero_slope = basal::equals_zero(d);
-        bool same_component = basal::equals(P[i], p);
+        bool zero_slope = basal::nearly_zero(d);
+        bool same_component = basal::nearly_equals(P[i], p);
         if (zero_slope and not same_component) {
             // a shortcut to eliminate problems later
             return false;
@@ -94,7 +94,7 @@ bool line::solve(const point &P, precision &t) const {
             ts.push_back((P[i] - p) / d);
         }
     }
-    if (std::all_of(ts.begin(), ts.end(), [&](precision v) { return basal::equals(v, ts[0]); })) {
+    if (std::all_of(ts.begin(), ts.end(), [&](precision v) { return basal::nearly_equals(v, ts[0]); })) {
         t = ts[0];
         return true;
     }
@@ -156,7 +156,7 @@ bool skew(const R3::line &i, const R3::line &j) {
         {x3, y3, z3, 1},
         {x4, y4, z4, 1},
     }};
-    return not basal::equals_zero(det(A));
+    return not basal::nearly_zero(det(A));
 }
 
 }  // namespace R3

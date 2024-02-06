@@ -122,8 +122,8 @@ color interpolate(const color& x, const color& y, precision a) {
 }
 
 bool operator==(const color& a, const color& b) {
-    return basal::equals(a.red(), b.red(), color::equality_limit) and basal::equals(a.green(), b.green(), color::equality_limit)
-           and basal::equals(a.blue(), b.blue(), color::equality_limit);
+    return basal::nearly_equals(a.red(), b.red(), color::equality_limit) and basal::nearly_equals(a.green(), b.green(), color::equality_limit)
+           and basal::nearly_equals(a.blue(), b.blue(), color::equality_limit);
 }
 
 color color::blend_samples(const std::vector<color>& subsamples) {
@@ -207,19 +207,19 @@ color operator*(const color& a, const color& b) {
 }
 }  // namespace operators
 
-/**
- * Finds a nominal (max 1.0_p, min 0.0_p) response in a gaussian peak within a low to high range.
- * The purpose is to emulate the LMS rod/cone response in our eyes. This is close to
- * CIE 1964 (I think, I'm not an expert) as this is a symmetric peak.
- * @see https://www.desmos.com/calculator To play with a calculator to generate the equation.
- * @code
- * p = (f0 + f1) / 2
- * q = (f1 - f0) / 2
- * a = (x - p) / q
- * c = e^-(a*a)
- * @endcode
- *
- */
+///
+/// Finds a nominal (max 1.0_p, min 0.0_p) response in a gaussian peak within a low to high range.
+/// The purpose is to emulate the LMS rod/cone response in our eyes. This is close to
+/// CIE 1964 (I think, I'm not an expert) as this is a symmetric peak.
+/// @see https://www.desmos.com/calculator To play with a calculator to generate the equation.
+/// @code
+/// p = (f0 + f1) / 2
+/// q = (f1 - f0) / 2
+/// a = (x - p) / q
+/// c = e^-(a*a)
+/// @endcode
+
+///
 static precision gaussian_peak(precision x, precision low, precision high) {
     precision p = (low + high) / 2.0_p;
     precision q = (high - low) / 2.0_p;

@@ -1,10 +1,10 @@
-/**
- * @file
- * @author Erik Rainey (erik.rainey@gmail.com)
- * @brief Renders a raytraced image of a bunch of speheres
- * @date 2021-01-02
- * @copyright Copyright (c) 2021
- */
+///
+/// @file
+/// @author Erik Rainey (erik.rainey@gmail.com)
+/// @brief Renders a raytraced image of a bunch of speheres
+/// @date 2021-01-02
+/// @copyright Copyright (c) 2021
+///
 
 #include <linalg/trackbar.hpp>
 #include <opencv2/opencv.hpp>

@@ -5,12 +5,12 @@
 using namespace basal::literals;
 
 TEST(BasalTest, FloatCheck) {
-    ASSERT_TRUE(basal::equals(0.0125_p, 0.0124_p, 0.001_p));
-    ASSERT_FALSE(basal::equals(0.0125_p, 0.0124_p, 0.0001_p));
-    ASSERT_FALSE(basal::equals(0.0125_p, 0.0124_p));
-    ASSERT_TRUE(basal::equals(0.0125_p, 0.0125_p));
+    ASSERT_TRUE(basal::nearly_equals(0.0125_p, 0.0124_p, 0.001_p));
+    ASSERT_FALSE(basal::nearly_equals(0.0125_p, 0.0124_p, 0.0001_p));
+    ASSERT_FALSE(basal::nearly_equals(0.0125_p, 0.0124_p));
+    ASSERT_TRUE(basal::nearly_equals(0.0125_p, 0.0125_p));
     basal::precision value = 1.0_p / 3.0_p;
-    ASSERT_TRUE(basal::equals(value * 3.0_p, 1.0_p));
+    ASSERT_TRUE(basal::nearly_equals(value * 3.0_p, 1.0_p));
 }
 
 TEST(BasalTest, ThrowAndCatch) {

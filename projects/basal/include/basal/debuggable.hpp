@@ -1,8 +1,6 @@
 #pragma once
-/**
- * @file
- * The debuggable class definition
- */
+/// @file
+/// The debuggable class definition
 #include <cstdarg>
 #include <cstdint>
 #include <cstdio>
@@ -11,7 +9,7 @@
 
 namespace basal {
 
-/** The bitfield definition of all known zones. */
+/// The bitfield definition of all known zones.
 union zone_mask {
     constexpr zone_mask() : all{0} {
     }
@@ -32,18 +30,18 @@ protected:
     //! These are the allowed zone masks (can even be changed in const methods)
     mutable zone_mask m_mask;
 
-    /** Default Constructor */
+    /// Default Constructor
     constexpr debuggable() : m_mask{} {
     }
 
-    /** Protected Constructor */
+    /// Protected Constructor
     constexpr debuggable(zone_mask zm) : m_mask{zm} {
     }
 
-    /** Protected Destructor */
+    /// Protected Destructor
     virtual ~debuggable() = default;
 
-    /** Method Tracing Template (instead of a macro) */
+    /// Method Tracing Template (instead of a macro)
     template <typename ReturnType, typename... ParameterTypes>
     ReturnType trace(std::function<ReturnType(ParameterTypes...)> method, ParameterTypes... args) {
         if (mask().zones.api) {

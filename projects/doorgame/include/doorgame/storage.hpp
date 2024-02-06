@@ -1,9 +1,9 @@
-/**
- * @file
- * Storage Header
- * @copyright Copyright (c) 2022
- *
- */
+///
+/// @file
+/// Storage Header
+/// @copyright Copyright (c) 2022
+
+///
 #pragma once
 
 #include <cstddef>

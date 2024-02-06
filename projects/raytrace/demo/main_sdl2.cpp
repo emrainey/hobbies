@@ -1,9 +1,9 @@
-/**
- * @file
- * @author Erik Rainey (erik.rainey@gmail.com)
- * @brief Wraps a rendered scene with some OpenCV widgets
- * @copyright Copyright (c) 2021
- */
+///
+/// @file
+/// @author Erik Rainey (erik.rainey@gmail.com)
+/// @brief Wraps a rendered scene with some OpenCV widgets
+/// @copyright Copyright (c) 2021
+///
 
 #include <SDL.h>
 
@@ -245,13 +245,13 @@ int main(int argc, char *argv[]) {
                     SDL_UnlockSurface(surface);
                 }
                 printf("Separation: %lf\n", params.separation);
-                if (not basal::equals_zero(params.separation)) {
+                if (not basal::nearly_zero(params.separation)) {
                     view_offset += width;
                 } else {
                     break;
                 }
             }
-            if (not basal::equals_zero(params.separation)) {
+            if (not basal::nearly_zero(params.separation)) {
                 stereo_view.merge_images().save(world.output_filename());
             }
             should_render = false;

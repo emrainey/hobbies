@@ -1,10 +1,10 @@
-/**
- * @file
- * @author Erik Rainey (erik.rainey@gmail.com)
- * @brief Renders a raytraced image of a cylinder with another cylinder cut out
- * @date 2021-01-02
- * @copyright Copyright (c) 2022
- */
+///
+/// @file
+/// @author Erik Rainey (erik.rainey@gmail.com)
+/// @brief Renders a raytraced image of a cylinder with another cylinder cut out
+/// @date 2021-01-02
+/// @copyright Copyright (c) 2022
+///
 
 #include <raytrace/raytrace.hpp>
 

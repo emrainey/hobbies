@@ -1,10 +1,10 @@
-/**
- * @file
- * @author Erik Rainey (erik.rainey@gmail.com)
- * @brief A Steel Snowman scene
- * @date 2021-01-02
- * @copyright Copyright (c) 2021
- */
+///
+/// @file
+/// @author Erik Rainey (erik.rainey@gmail.com)
+/// @brief A Steel Snowman scene
+/// @date 2021-01-02
+/// @copyright Copyright (c) 2021
+///
 
 #include <raytrace/raytrace.hpp>
 

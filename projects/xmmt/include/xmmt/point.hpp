@@ -1,25 +1,21 @@
 #pragma once
 
-/**
- * @file
- * The Point Class
- */
+/// @file
+/// The Point Class
 
 #include "xmmt/packs.hpp"
 #include "xmmt/vector.hpp"
 
 namespace intel {
 
-/**
- * An ordered set of values for a geometric point which can be operator-ed on in-bulk.
- * @tparam pack_type The packing structure definition.
- */
+/// An ordered set of values for a geometric point which can be operator-ed on in-bulk.
+/// @tparam pack_type The packing structure definition.
 template <typename pack_type, size_t _dimensions>
 class point_ : public pack_type {
 protected:
-    /** Hold on to the number of elements needed */
+    /// Hold on to the number of elements needed
     constexpr static size_t dimensions = _dimensions;
-    /** The data storage of the unit */
+    /// The data storage of the unit
     static_assert(std::is_floating_point<typename pack_type::element_type>::value,
                   "Must be either float, double or long double");
     static_assert(2 <= pack_type::number_of_elements, "Must be a Intel Parallel/Multiple Data data type");
@@ -31,41 +27,41 @@ public:
     using element_type = typename pack_type::element_type;
     using parallel_type = typename pack_type::parallel_type;
 
-    /** Default Constructor */
+    /// Default Constructor
     constexpr point_() : pack_type{} {
     }
 
-    /** Intrinsic Initializer */
+    /// Intrinsic Initializer
     point_(parallel_type v) : pack_type{v} {
     }
 
-    /** Forwarding Constructor */
+    /// Forwarding Constructor
     template <typename... Args>
     point_(Args&&... args) : pack_type{std::forward<Args>(args)...} {
     }
 
-    /** Copy Constructor */
+    /// Copy Constructor
     point_(const point_& other) : pack_type{other.data} {
     }
 
-    /** Move Construction is just a Copy */
+    /// Move Construction is just a Copy
     point_(point_&& other) : pack_type{other.data} {
     }
 
-    /** Copy Assignment */
+    /// Copy Assignment
     point_& operator=(const point_& other) {
         pack_type::data = other.data;
     }
 
-    /** Move Assignment is Copy Assignment */
+    /// Move Assignment is Copy Assignment
     point_& operator=(point_&& other) {
         pack_type::data = other.data;
     }
 
-    /** Destructor */
+    /// Destructor
     ~point_() = default;
 
-    /** Initializer List Constructor */
+    /// Initializer List Constructor
     point_(std::initializer_list<element_type> list) : point_{} {
         size_t n = 0;
         for (auto it = list.begin(); it < list.end() and n < dimensions; it++, n++) {
@@ -73,38 +69,38 @@ public:
         }
     }
 
-    /** The const/volatile indexer operator */
+    /// The const/volatile indexer operator
     const volatile element_type& operator[](size_t index) const volatile {
         return pack_type::datum[index];
     }
 
-    /** The non-const index operator */
+    /// The non-const index operator
     element_type& operator[](size_t index) {
         return pack_type::datum[index];
     }
 
-    // /** Allows each element to be changed */
+    // /// Allows each element to be changed
     // using alteration_iterator
     //     = std::function<element_type(size_t, element_type)>;
 
-    // /** Only allows read access of each element */
+    // /// Only allows read access of each element
     // using examination_iterator = std::function<void(size_t, element_type)>;
 
-    // /** Iterator for changing values */
+    // /// Iterator for changing values
     // void for_each (alteration_iterator iter) {
     //     for (size_t n = 0; n < dimensions; n++) {
     //         pack_type::datum[n] = iter(n, pack_type::datum[n]);
     //     }
     // }
 
-    // /** Iterator for examining values */
+    // /// Iterator for examining values
     // void for_each (examination_iterator iter) const {
     //     for (size_t n = 0; n < dimensions; n++) {
     //         iter(n, pack_type::datum[n]);
     //     }
     // }
 
-    /** Equality Operator */
+    /// Equality Operator
     bool operator==(const point_& other) {
         bool ret = true;
         for (size_t n = 0; n < dimensions && ret; n++) {
@@ -113,7 +109,7 @@ public:
         return ret;
     }
 
-    /** Inequality Operator */
+    /// Inequality Operator
     bool operator!=(const point_& other) {
         return not operator==(other);
     }
@@ -122,7 +118,7 @@ public:
         std::cout << name << " " << (*this) << std::endl;
     }
 
-    /** A point plus a vector is a moved point */
+    /// A point plus a vector is a moved point
     inline point_& operator+=(const vector_<pack_type, dimensions>& a) {
         if constexpr (pack_type::number_of_elements == 2) {
             pack_type::data = _mm_add_pd(pack_type::data, a.data);
@@ -136,7 +132,7 @@ public:
         return (*this);
     }
 
-    /** A point minus a vector is a moved point */
+    /// A point minus a vector is a moved point
     inline point_& operator-=(const vector_<pack_type, dimensions>& a) {
         if constexpr (pack_type::number_of_elements == 2) {
             pack_type::data = _mm_sub_pd(pack_type::data, a.data);
@@ -183,7 +179,7 @@ public:
         return c;
     }
 
-    /** A Point minus a point is a vector from the last to the first. */
+    /// A Point minus a point is a vector from the last to the first.
     // friend vector_ operator-(const point_& a, const point_& b) {
     //     vector_ c{};
     //     if constexpr (point_::number_of_elements == 2) {
@@ -198,7 +194,7 @@ public:
     //     return c;
     // }
 
-    /** A Point plus a vector is a point. */
+    /// A Point plus a vector is a point.
     friend point_ operator+(const point_& a, const vector_<pack_type, dimensions>& b) {
         point_ c{};
         if constexpr (point_::number_of_elements == 2) {

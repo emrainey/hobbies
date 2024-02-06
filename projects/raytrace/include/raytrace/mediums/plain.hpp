@@ -5,7 +5,7 @@ namespace raytrace {
 
 namespace mediums {
 
-/** A standard binn-phong model diffuse surface with specular highlights */
+/// A standard binn-phong model diffuse surface with specular highlights
 class plain : public opaque {
 public:
     plain(const color& ambient, precision ambient_scale, const color& diffuse, precision smoothness,
@@ -13,7 +13,7 @@ public:
     virtual ~plain() = default;
 };
 
-/** The default boring surface for all objects */
+/// The default boring surface for all objects
 static plain dull(colors::white, 0.0_p, colors::white, 0.01_p, 10.0_p);
 
 }  // namespace mediums

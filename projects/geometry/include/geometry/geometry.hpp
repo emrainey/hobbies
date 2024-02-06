@@ -1,9 +1,7 @@
 #pragma once
-/**
- * @file
- * Common header of the Geometry library.
- * @copyright Copyright 2020 (C) Erik Rainey.
- */
+/// @file
+/// Common header of the Geometry library.
+/// @copyright Copyright 2020 (C) Erik Rainey.
 
 #include <basal/exception.hpp>
 #include <basal/ieee754.hpp>

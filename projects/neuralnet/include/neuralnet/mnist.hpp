@@ -1,9 +1,7 @@
 #pragma once
-/**
- * @file
- * Definitions of the objects used with MNIST database objects.
- * @copyright Copyright 2019 (C) Erik Rainey.
- */
+/// @file
+/// Definitions of the objects used with MNIST database objects.
+/// @copyright Copyright 2019 (C) Erik Rainey.
 
 #include <algorithm>
 #include <opencv2/opencv.hpp>
@@ -30,19 +28,19 @@ public:
     mnist(std::string indexes, std::string images, uint32_t limit = 0);
     virtual ~mnist();
 
-    /** Loads the images from the database files */
+    /// Loads the images from the database files
     bool load();
 
-    /** Indicates the number of entries after loading */
+    /// Indicates the number of entries after loading
     uint32_t get_num_entries() const;
 
-    /** Retrieves an image (28x28) from the dataset */
+    /// Retrieves an image (28x28) from the dataset
     image &get_image(size_t index);
 
-    /** Gets a cv::Mat of the same image from the dataset */
+    /// Gets a cv::Mat of the same image from the dataset
     cv::Mat get_mat(size_t index);
 
-    /** Gets the label from the labels dataset */
+    /// Gets the label from the labels dataset
     uint8_t get_label(size_t index);
 
 protected:

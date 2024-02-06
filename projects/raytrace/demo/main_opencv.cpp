@@ -1,9 +1,9 @@
-/**
- * @file
- * @author Erik Rainey (erik.rainey@gmail.com)
- * @brief Wraps a rendered scene with some OpenCV widgets
- * @copyright Copyright (c) 2021
- */
+///
+/// @file
+/// @author Erik Rainey (erik.rainey@gmail.com)
+/// @brief Wraps a rendered scene with some OpenCV widgets
+/// @copyright Copyright (c) 2021
+///
 
 #include <basal/module.hpp>
 #include <basal/options.hpp>

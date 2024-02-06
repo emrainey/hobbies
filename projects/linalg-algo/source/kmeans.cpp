@@ -26,7 +26,7 @@ void kmeans::configure(size_t N) {
     }
 }
 
-/** Creates the first cluster points via some equations */
+/// Creates the first cluster points via some equations
 void kmeans::initial(InitialMethod method) {
     if (method == InitialMethod::RandomPoints) {
         printf("Initializing %zu centroids\n", m_centroids.size());
@@ -38,7 +38,7 @@ void kmeans::initial(InitialMethod method) {
     }
 }
 
-/** Iterates the method and reports the error */
+/// Iterates the method and reports the error
 precision kmeans::iteration(IterationMethod method) {
     precision error = 0.0;
 
@@ -108,12 +108,12 @@ precision kmeans::iteration(IterationMethod method) {
     return error;
 }
 
-/** Returns the vector of centroids. */
+/// Returns the vector of centroids.
 const std::vector<R2::point>& kmeans::centroids() const {
     return m_centroids;
 }
 
-/** Returns the vector of indexes. */
+/// Returns the vector of indexes.
 const std::vector<size_t>& kmeans::indexes() const {
     return m_cluster_assignment;
 }

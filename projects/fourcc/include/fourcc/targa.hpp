@@ -2,10 +2,8 @@
 #include <cstdio>
 #include <filesystem>
 
-/**
- * A namespace to hold the defined structures of the TARGA format
- * @see http://www.paulbourke.net/dataformats/tga/
- */
+/// A namespace to hold the defined structures of the TARGA format
+/// @see http://www.paulbourke.net/dataformats/tga/
 namespace targa {
 
 enum class ColorMapType : uint8_t
@@ -28,7 +26,7 @@ enum class ImageMapType : uint8_t
 // ensure it is byte packed
 #pragma pack(push, 1)
 
-/** The Targa Header definition */
+/// The Targa Header definition
 struct __attribute__((packed)) header {
     constexpr header()
         : id_length{0}

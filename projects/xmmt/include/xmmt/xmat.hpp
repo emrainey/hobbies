@@ -17,7 +17,7 @@ public:
     static_assert(1 < cols and cols < 9, "Must have between 2 to 8 columns (inclusive)");
 
 private:
-    /** Each row is a 8 element, so it will have the required alignment (32) at least */
+    /// Each row is a 8 element, so it will have the required alignment (32) at least
     union {
         __m512d m512[1];
         __m256d m256[2];
@@ -45,7 +45,7 @@ public:
     }
     virtual ~xmat_() = default;
 
-    /** Zeros the whole structure, even parts "outside" the established area, but within max allocation */
+    /// Zeros the whole structure, even parts "outside" the established area, but within max allocation
     inline void zero() {
         for (size_t j = 0; j < rows; j++) {
 #if defined(__AVX2__) and defined(__AVX512F__)
@@ -57,7 +57,7 @@ public:
         }
     }
 
-    /** Fills all relevant memory locations with the value. */
+    /// Fills all relevant memory locations with the value.
     inline void fill(double v) {
         for (size_t j = 0; j < rows; j++) {
             for (size_t i = 0; i < cols; i++) {
@@ -66,7 +66,7 @@ public:
         }
     }
 
-    /** Copies all data over from one array to the other */
+    /// Copies all data over from one array to the other
     inline void copy_from(const xmat_& o) {
         for (size_t j = 0; j < rows; j++) {
             data[j].m512[0] = o.data[j].m512[0];
@@ -145,7 +145,7 @@ public:
     // [shortcut] Do not implement xmat_& operator*=(const xmat& b);
     // [shortcut] Do not implement xmat_& operator/=(const xmat& b);
 
-    /** Equivalent to adding a same sized matrix with every element being the value given */
+    /// Equivalent to adding a same sized matrix with every element being the value given
     inline xmat_& operator+=(const double value) {
         for (size_t j = 0; j < rows; j++) {
             if constexpr (cols == 2) {
@@ -162,7 +162,7 @@ public:
         return (*this);
     }
 
-    /** Equivalent to subtracting a same sized matrix with every element being the value given */
+    /// Equivalent to subtracting a same sized matrix with every element being the value given
     inline xmat_& operator-=(const double value) {
         for (size_t j = 0; j < rows; j++) {
             if constexpr (cols == 2) {
@@ -179,7 +179,7 @@ public:
         return (*this);
     }
 
-    /** Scales the matrix */
+    /// Scales the matrix
     inline xmat_& operator*=(const double value) {
         for (size_t j = 0; j < rows; j++) {
             if constexpr (cols == 2) {
@@ -196,7 +196,7 @@ public:
         return (*this);
     }
 
-    /** Divides the matrix */
+    /// Divides the matrix
     inline xmat_& operator/=(const double value) {
         for (size_t j = 0; j < rows; j++) {
             if constexpr (cols == 2) {
@@ -213,7 +213,7 @@ public:
         return (*this);
     }
 
-    /** The fill operator */
+    /// The fill operator
     xmat_& operator=(const double v) {
         for (size_t j = 0; j < rows; j++) {
             for (size_t i = 0; i < cols; i++) {
@@ -225,7 +225,7 @@ public:
     // TODO bool operator!=(const xmat_& o);
     // TODO xmat_ inverse();
 
-    /** Returns the transpose matrix */
+    /// Returns the transpose matrix
     xmat_<COLS, ROWS> transpose() {
         xmat_<COLS, ROWS> T;
         for (size_t j = 0; j < T.rows; j++) {

@@ -70,7 +70,7 @@ bool cylinder::is_surface_point(const point& world_point) const {
     precision x = object_point.x;
     precision y = object_point.y;
     precision z = object_point.z;
-    return basal::equals(m_radius * m_radius, (x * x) + (y * y)) and linalg::within(-m_half_height, z, m_half_height);
+    return basal::nearly_equals(m_radius * m_radius, (x * x) + (y * y)) and linalg::within(-m_half_height, z, m_half_height);
 }
 
 image::point cylinder::map(const point& object_surface_point) const {

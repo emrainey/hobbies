@@ -11,7 +11,7 @@ namespace intel {
 // Cross-Type operations
 // +================================================================================================+
 
-/** A Point minus a point is a vector from the last to the first. */
+/// A Point minus a point is a vector from the last to the first.
 template <typename pack_type, size_t dimensions>
 vector_<pack_type, dimensions> operator-(const point_<pack_type, dimensions>& a,
                                          const point_<pack_type, dimensions>& b) {

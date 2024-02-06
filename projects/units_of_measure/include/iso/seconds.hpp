@@ -1,95 +1,95 @@
-/**
- * @file
- * This is an auto-generated header for iso::seconds.
- * A measure of time
- * @note See README on re-generation.
- * @copyright Copyright 2024.
- */
+///
+/// @file
+/// This is an auto-generated header for iso::seconds.
+/// A measure of time
+/// @note See README on re-generation.
+/// @copyright Copyright 2024.
+///
 #pragma once
 #include <cstdint>
 #include <cstddef>
 
 #include "iso/measurement.hpp"
 
-/** iso comment */
+/// iso comment
 namespace iso {
 
-/** A structure used to hold the postfix for seconds */
+/// A structure used to hold the postfix for seconds
 struct suffix_type_sec {
     constexpr static const char *suffix = "sec";
 };
 
-/**
- * This is the iso::seconds interface.
- * These have a default, generic, SI, copy, move, dtor and copy assign
- * And operator"" and equality and inequality
- * overload +=,-=,+,- with other units of the same type
- * overload *=,/=,*,/ with immediate values and atomics
- * overload ++,-- ?
- * overload >,<,==,!=,<=,>=
- * not overloaded %=,%
- */
+///
+/// This is the iso::seconds interface.
+/// These have a default, generic, SI, copy, move, dtor and copy assign
+/// And operator"" and equality and inequality
+/// overload +=,-=,+,- with other units of the same type
+/// overload *=,/=,*,/ with immediate values and atomics
+/// overload ++,-- ?
+/// overload >,<,==,!=,<=,>=
+/// not overloaded %=,%
+///
 class seconds : public measurement<precision, SI::prefix, suffix_type_sec> {
 public:
-    /** Default constructor */
+    /// Default constructor
     seconds();
-    /** Parameter constructor */
+    /// Parameter constructor
     explicit seconds(precision value);
-    /** Copy Constructor */
+    /// Copy Constructor
     seconds(const seconds& other);
-    /** Move Constructor */
+    /// Move Constructor
     seconds(seconds&& other);
-    /** Destructor */
+    /// Destructor
     ~seconds() = default;
-    /** Const Copy Assignment */
+    /// Const Copy Assignment
     seconds& operator=(const seconds& other) noexcept;
-    /** Copy Assignment */
+    /// Copy Assignment
     seconds& operator=(seconds& other) noexcept;
-    /** Move Assignment */
+    /// Move Assignment
     seconds& operator=(seconds&& other) noexcept;
-    /** Equality Operator */
+    /// Equality Operator
     bool operator==(const seconds& other) const;
-    /** Inequality Operator */
+    /// Inequality Operator
     bool operator!=(const seconds& other) const;
-    /** Accumulation Operator */
+    /// Accumulation Operator
     seconds& operator+=(const seconds& other);
-    /** Deccumulation Operator */
+    /// Deccumulation Operator
     seconds& operator-=(const seconds& other);
-    /** Scaling Operator */
+    /// Scaling Operator
     seconds& operator*=(precision factor);
-    /** Inverse Scaling Operator */
+    /// Inverse Scaling Operator
     seconds& operator/=(precision factor);
-    /** Negating Operator */
+    /// Negating Operator
     seconds operator-() const;
-    /** Less Than Operator */
+    /// Less Than Operator
     bool operator<(const seconds& other) const;
-    /** Less Than or Equal Operator */
+    /// Less Than or Equal Operator
     bool operator<=(const seconds& other) const;
-    /** Greater Than Operator */
+    /// Greater Than Operator
     bool operator>(const seconds& other) const;
-    /** Greater Than or Equal Operator */
+    /// Greater Than or Equal Operator
     bool operator>=(const seconds& other) const;
 };
 
 namespace operators {
-    /** Addition operator */
+    /// Addition operator
     seconds operator+(const seconds& A, const seconds& B);
-    /** Subtraction operator */
+    /// Subtraction operator
     seconds operator-(const seconds& A, const seconds& B);
-    /** Left Scaling Operator */
+    /// Left Scaling Operator
     seconds operator*(const seconds& A, precision factor);
-    /** Right Scaling Operator */
+    /// Right Scaling Operator
     seconds operator*(precision factor, const seconds& A);
-    /** Inverse Scaling Operator */
+    /// Inverse Scaling Operator
     seconds operator/(const seconds& A, precision factor);
 }
 
 namespace literals {
-    /** Literal Double, Quote Operator */
+    /// Literal Double, Quote Operator
     seconds operator""_sec(long double value);
-    /** Literal Int, Quote Operator */
+    /// Literal Int, Quote Operator
     seconds operator""_sec(unsigned long long value);
-    /** Literal String, Quote Operator */
+    /// Literal String, Quote Operator
     iso::seconds operator""_sec(const char a[]);
 }
 

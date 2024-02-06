@@ -1,8 +1,6 @@
-/**
- * @file
- * map header
- * @copyright Copyright (c) 2022
- */
+/// @file
+/// map header
+/// @copyright Copyright (c) 2022
 
 #pragma once
 

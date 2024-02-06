@@ -1,95 +1,95 @@
-/**
- * @file
- * This is an auto-generated header for iso::joules.
- * A measure of energy
- * @note See README on re-generation.
- * @copyright Copyright 2024.
- */
+///
+/// @file
+/// This is an auto-generated header for iso::joules.
+/// A measure of energy
+/// @note See README on re-generation.
+/// @copyright Copyright 2024.
+///
 #pragma once
 #include <cstdint>
 #include <cstddef>
 
 #include "iso/measurement.hpp"
 
-/** iso comment */
+/// iso comment
 namespace iso {
 
-/** A structure used to hold the postfix for joules */
+/// A structure used to hold the postfix for joules
 struct suffix_type_J {
     constexpr static const char *suffix = "J";
 };
 
-/**
- * This is the iso::joules interface.
- * These have a default, generic, SI, copy, move, dtor and copy assign
- * And operator"" and equality and inequality
- * overload +=,-=,+,- with other units of the same type
- * overload *=,/=,*,/ with immediate values and atomics
- * overload ++,-- ?
- * overload >,<,==,!=,<=,>=
- * not overloaded %=,%
- */
+///
+/// This is the iso::joules interface.
+/// These have a default, generic, SI, copy, move, dtor and copy assign
+/// And operator"" and equality and inequality
+/// overload +=,-=,+,- with other units of the same type
+/// overload *=,/=,*,/ with immediate values and atomics
+/// overload ++,-- ?
+/// overload >,<,==,!=,<=,>=
+/// not overloaded %=,%
+///
 class joules : public measurement<precision, SI::prefix, suffix_type_J> {
 public:
-    /** Default constructor */
+    /// Default constructor
     joules();
-    /** Parameter constructor */
+    /// Parameter constructor
     explicit joules(precision value);
-    /** Copy Constructor */
+    /// Copy Constructor
     joules(const joules& other);
-    /** Move Constructor */
+    /// Move Constructor
     joules(joules&& other);
-    /** Destructor */
+    /// Destructor
     ~joules() = default;
-    /** Const Copy Assignment */
+    /// Const Copy Assignment
     joules& operator=(const joules& other) noexcept;
-    /** Copy Assignment */
+    /// Copy Assignment
     joules& operator=(joules& other) noexcept;
-    /** Move Assignment */
+    /// Move Assignment
     joules& operator=(joules&& other) noexcept;
-    /** Equality Operator */
+    /// Equality Operator
     bool operator==(const joules& other) const;
-    /** Inequality Operator */
+    /// Inequality Operator
     bool operator!=(const joules& other) const;
-    /** Accumulation Operator */
+    /// Accumulation Operator
     joules& operator+=(const joules& other);
-    /** Deccumulation Operator */
+    /// Deccumulation Operator
     joules& operator-=(const joules& other);
-    /** Scaling Operator */
+    /// Scaling Operator
     joules& operator*=(precision factor);
-    /** Inverse Scaling Operator */
+    /// Inverse Scaling Operator
     joules& operator/=(precision factor);
-    /** Negating Operator */
+    /// Negating Operator
     joules operator-() const;
-    /** Less Than Operator */
+    /// Less Than Operator
     bool operator<(const joules& other) const;
-    /** Less Than or Equal Operator */
+    /// Less Than or Equal Operator
     bool operator<=(const joules& other) const;
-    /** Greater Than Operator */
+    /// Greater Than Operator
     bool operator>(const joules& other) const;
-    /** Greater Than or Equal Operator */
+    /// Greater Than or Equal Operator
     bool operator>=(const joules& other) const;
 };
 
 namespace operators {
-    /** Addition operator */
+    /// Addition operator
     joules operator+(const joules& A, const joules& B);
-    /** Subtraction operator */
+    /// Subtraction operator
     joules operator-(const joules& A, const joules& B);
-    /** Left Scaling Operator */
+    /// Left Scaling Operator
     joules operator*(const joules& A, precision factor);
-    /** Right Scaling Operator */
+    /// Right Scaling Operator
     joules operator*(precision factor, const joules& A);
-    /** Inverse Scaling Operator */
+    /// Inverse Scaling Operator
     joules operator/(const joules& A, precision factor);
 }
 
 namespace literals {
-    /** Literal Double, Quote Operator */
+    /// Literal Double, Quote Operator
     joules operator""_J(long double value);
-    /** Literal Int, Quote Operator */
+    /// Literal Int, Quote Operator
     joules operator""_J(unsigned long long value);
-    /** Literal String, Quote Operator */
+    /// Literal String, Quote Operator
     iso::joules operator""_J(const char a[]);
 }
 

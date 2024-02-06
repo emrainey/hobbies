@@ -1,8 +1,6 @@
 #pragma once
-/**
- * @file
- * The command line options argument processor
- */
+/// @file
+/// The command line options argument processor
 
 #include <algorithm>
 #include <cinttypes>
@@ -18,10 +16,10 @@
 namespace basal {
 namespace options {
 
-/** Define the value in the command processor as a variant */
+/// Define the value in the command processor as a variant
 using Value = std::variant<bool, int, size_t, precision, std::string>;
 
-/** Relates the short, long switch and the values */
+/// Relates the short, long switch and the values
 struct config {
     std::string short_switch;
     std::string long_switch;
@@ -29,7 +27,7 @@ struct config {
     std::string description;
 };
 
-/** Assigns values from argv into the config structure */
+/// Assigns values from argv into the config structure
 void process(size_t num_opts, config options[], int argc, char* argv[]);
 
 template <size_t NUM_OPTS, typename T>
@@ -48,7 +46,7 @@ bool find(const config (&options)[NUM_OPTS], std::string long_name, T& value) {
     return false;
 }
 
-/** Prints all the options information */
+/// Prints all the options information
 void print(size_t num_options, config options[]);
 
 }  // namespace options

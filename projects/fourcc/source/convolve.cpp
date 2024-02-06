@@ -1,8 +1,6 @@
-/**
- * @file
- * Definitions for image processing
- * @copyright Copyright 2022 (C) Erik Rainey.
- */
+/// @file
+/// Definitions for image processing
+/// @copyright Copyright 2022 (C) Erik Rainey.
 #include <cmath>
 
 #include "basal/ieee754.hpp"

@@ -11,7 +11,7 @@ scene::intersect_set::intersect_set(precision d, const geometry::intersection& i
 
 static constexpr bool debug = false;
 static constexpr bool enforce_ranges = true;
-/** uses fixed color scheme for shadows, light, near-zero values */
+/// uses fixed color scheme for shadows, light, near-zero values
 static constexpr bool debug_shadows_and_light = false;
 static constexpr bool use_incident_scaling = true;
 static constexpr bool use_specular_scaling = true;
@@ -139,7 +139,7 @@ color scene::trace(const ray& world_ray, const mediums::medium& media, size_t re
         // find the normal on the surface at that point
         vector world_surface_normal = obj.normal(world_surface_point);
         if constexpr (enforce_ranges) {
-            basal::exception::throw_unless(basal::equals(world_surface_normal.magnitude(), 1.0), __FILE__, __LINE__,
+            basal::exception::throw_unless(basal::nearly_equals(world_surface_normal.magnitude(), 1.0), __FILE__, __LINE__,
                                            "Must be normalized");
         }
         // if this is true, we've collided with something from the inside or the "backside"
@@ -172,7 +172,7 @@ color scene::trace(const ray& world_ray, const mediums::medium& media, size_t re
         iso::radians transmitted_angle = geometry::angle((inside_out ? -world_surface_normal : world_surface_normal),
                                                          world_refraction.direction());
 
-        /*********************************************************************/
+        ///*******************************************************************/
 
         // get the light components, emission, reflection and refraction (diffraction, phosporescense and
         // fluorescence not computed)

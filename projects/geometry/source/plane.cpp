@@ -22,7 +22,7 @@ plane::plane(const R3::vector &on, const R3::point &op) : plane(op, on) {
 }
 
 plane::plane(const R3::point &op, const R3::vector &on) : m_normal{on}, m_center_point{op}, normal{m_normal} {
-    basal::exception::throw_unless(!basal::equals_zero(m_normal.norm()), __FILE__, __LINE__,
+    basal::exception::throw_unless(!basal::nearly_zero(m_normal.norm()), __FILE__, __LINE__,
                                    "The magnitude of the normal can't be zero");
     eq.a = m_normal[0];
     eq.b = m_normal[1];
@@ -65,7 +65,7 @@ plane::plane(const R3::point &a, const R3::point &b, const R3::point &c)
     eq.a = m_normal[0];
     eq.b = m_normal[1];
     eq.c = m_normal[2];
-    basal::exception::throw_unless(!basal::equals_zero(m_normal.norm()), __FILE__, __LINE__,
+    basal::exception::throw_unless(!basal::nearly_zero(m_normal.norm()), __FILE__, __LINE__,
                                    "The magnitude of the normal can't be zero");
     eq.d = -dot(m_normal, b);
     m_magnitude = m_normal.norm();
@@ -133,7 +133,7 @@ bool plane::contains(const R3::point &pt) const {
     constexpr bool use_vector_method = false;
     constexpr bool use_equation_method = true;  // seems like the fewest steps
     constexpr bool use_distance_method = false;
-    precision value = 1.0;  // checking for equals to zero so initialize to nonzero
+    precision value = 1.0;  // checking for nearly_equals to zero so initialize to nonzero
     // static_assert(use_distance_method or use_equation_method or use_vector_method, "Only one should be active");
 
     // determine if pt is in the plane by the vector method, the equation method and the distance method
@@ -146,7 +146,7 @@ bool plane::contains(const R3::point &pt) const {
     } else {
         value = 1.0;
     }
-    const bool vector_method = basal::equals_zero(value);
+    const bool vector_method = basal::nearly_zero(value);
 
     if constexpr (use_equation_method) {
         // solve the equation with this point and it must be zero
@@ -154,7 +154,7 @@ bool plane::contains(const R3::point &pt) const {
     } else {
         value = 1.0;
     }
-    const bool equation_method = basal::equals_zero(value);
+    const bool equation_method = basal::nearly_zero(value);
 
     if constexpr (use_distance_method) {
         // find the distance from the plane
@@ -162,7 +162,7 @@ bool plane::contains(const R3::point &pt) const {
     } else {
         value = 1.0;
     }
-    const bool distance_method = basal::equals_zero(value);
+    const bool distance_method = basal::nearly_zero(value);
 
     // these can disagree in very minor values (around a millionth of a unit)
     // basal::exception::throw_unless(vector_method == eq_method && eq_method == distance_method, __FILE__, __LINE__);
@@ -188,7 +188,7 @@ bool plane::operator==(const plane &other) const {
     return normals && points;
     // they don't have to have the same points.
     // they don't have to have d == d they can be |d| == |d|
-    // return (equals(eq.d,other.eq.d) && (m_center_point == other.m_center_point) && (m_normal || other.m_normal)); //
+    // return (nearly_equals(eq.d,other.eq.d) && (m_center_point == other.m_center_point) && (m_normal || other.m_normal)); //
     // the normal could be negative?
 }
 

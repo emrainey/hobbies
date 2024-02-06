@@ -13,19 +13,19 @@
 
 namespace basal {
 
-/*! A base class used to enforce a printing mechanism */
+/// A base class used to enforce a printing mechanism
 class printable {
 public:
-    /*! Character Array printing mechanism */
+    /// Character Array printing mechanism
     virtual void print(const char[]) const = 0;
 
-    /*! String printing mechanism. */
+    /// String printing mechanism.
     inline void print(std::string str) const {
         print(str.c_str());
     }
 
 protected:
-    /*! Virtual deconstructor */
+    /// Virtual deconstructor
     virtual ~printable() {
     }
 };

@@ -1,8 +1,6 @@
-/**
- * @file
- * @author "Erik Rainey" (erik.rainey@gmail.com)
- * @copyright Copyright (c) 2007-2020 Erik Rainey
- */
+/// @file
+/// @author "Erik Rainey" (erik.rainey@gmail.com)
+/// @copyright Copyright (c) 2007-2020 Erik Rainey
 
 #include "linalg/matrix.hpp"
 
@@ -390,7 +388,7 @@ bool matrix::operator==(const matrix& a) const {
     basal::exception::throw_unless(a.rows == rows && a.cols == cols, g_filename, __LINE__, "Must be equal dimensions");
     bool match = true;
     const_coord_iterator iter = [&](size_t r, size_t c, precision v) {
-        if (!basal::equals(a[r][c], v)) match = false;
+        if (!basal::nearly_equals(a[r][c], v)) match = false;
     };
     for_each (iter)
         ;
@@ -401,7 +399,7 @@ bool matrix::operator!=(const matrix& a) const {
     basal::exception::throw_unless(a.rows == rows && a.cols == cols, g_filename, __LINE__, "Must be equal dimensions");
     bool match = true;
     const_coord_iterator iter = [&](size_t r, size_t c, precision v) {
-        if (!basal::equals(a[r][c], v)) match = false;
+        if (!basal::nearly_equals(a[r][c], v)) match = false;
     };
     for_each (iter)
         ;
@@ -460,7 +458,7 @@ precision matrix::magnitude() const {
 
 bool matrix::singular() const {
     if (rows != cols) return false;
-    return basal::equals_zero(magnitude());
+    return basal::nearly_zero(magnitude());
 }
 
 bool matrix::degenerate() const {
@@ -482,7 +480,7 @@ bool matrix::orthagonal() const {
 }
 
 bool matrix::invertible() const {
-    if (rows == cols && !basal::equals_zero(determinant())) return true;
+    if (rows == cols && !basal::nearly_zero(determinant())) return true;
     return false;
 }
 
@@ -497,7 +495,7 @@ bool matrix::skew_symmetric() const {
 bool matrix::diagonal() const {
     bool diag = true;
     const_coord_iterator iter = [&](size_t row, size_t col, precision v) {
-        if (row != col && !basal::equals_zero(v)) {
+        if (row != col && !basal::nearly_zero(v)) {
             diag = false;
         }
     };
@@ -513,7 +511,7 @@ bool matrix::triangular() const {
 bool matrix::lower_triangular() const {
     bool ret = true;
     const_coord_iterator iter = [&](size_t row, size_t col, precision v) {
-        if (col > row && !basal::equals_zero(v)) {
+        if (col > row && !basal::nearly_zero(v)) {
             ret = false;
         }
     };
@@ -525,7 +523,7 @@ bool matrix::lower_triangular() const {
 bool matrix::upper_triangular() const {
     bool ret = true;
     const_coord_iterator iter = [&](size_t row, size_t col, precision v) {
-        if (row > col && !basal::equals_zero(v)) {
+        if (row > col && !basal::nearly_zero(v)) {
             ret = false;
         }
     };
@@ -537,7 +535,7 @@ bool matrix::upper_triangular() const {
 bool matrix::eigenvalue(precision lambda) const {
     using namespace operators;
     matrix lamI = lambda * matrix::identity(rows, cols);
-    return (basal::equals_zero(det(lamI - (*this))));
+    return (basal::nearly_zero(det(lamI - (*this))));
 }
 
 matrix matrix::eigenvalues() const noexcept(false) {
@@ -742,7 +740,7 @@ bool matrix::row_compare(size_t row, precision a) {
     basal::exception::throw_unless(row < rows, g_filename, __LINE__);
     bool match = true;
     for (size_t c = 0; c < cols; c++) {
-        if (!basal::equals(array[row][c], a)) {
+        if (!basal::nearly_equals(array[row][c], a)) {
             match = false;
             break;
         }
@@ -799,7 +797,7 @@ matrix& matrix::for_each_col(std::function<void(size_t c)> func) {
 bool matrix::row_is_zero(size_t r, size_t sc) const {
     bool match = true;
     for (size_t c = sc; c < cols; c++) {
-        if (!basal::equals_zero(array[r][c])) {
+        if (!basal::nearly_zero(array[r][c])) {
             match = false;
         }
     }
@@ -809,7 +807,7 @@ bool matrix::row_is_zero(size_t r, size_t sc) const {
 bool matrix::col_is_zero(size_t c, size_t sr) const {
     bool match = true;
     for (size_t r = sr; r < rows; r++) {
-        if (!basal::equals_zero(array[r][c])) {
+        if (!basal::nearly_zero(array[r][c])) {
             match = false;
         }
     }
@@ -817,7 +815,7 @@ bool matrix::col_is_zero(size_t c, size_t sr) const {
 }
 
 bool matrix::elem_is_zero(size_t r, size_t c) const {
-    return basal::equals_zero(array[r][c]);
+    return basal::nearly_zero(array[r][c]);
 }
 
 matrix& matrix::sort_zero_rows() {
@@ -845,8 +843,8 @@ matrix& matrix::sort_zero_rows() {
 
 matrix& matrix::sort_leading_nonzero(size_t col, size_t i, size_t& j) {
     for (size_t r = i; r < rows && r < j; /* */) {
-        bool ze = basal::equals_zero(array[r][col]);
-        bool jze = basal::equals_zero(array[j][col]);
+        bool ze = basal::nearly_zero(array[r][col]);
+        bool jze = basal::nearly_zero(array[j][col]);
         if (ze && jze) {
             // both are zero... but we know there's one in here
             // r++;
@@ -900,7 +898,7 @@ std::tuple<matrix, matrix, matrix> matrix::PLU() const noexcept(false) {
             }
         }
         for (size_t ir = r + 1; ir < U.rows; ir++) {
-            if (!basal::equals_zero(U[ir][c])) {
+            if (!basal::nearly_zero(U[ir][c])) {
                 precision v = U[ir][c] / U[r][c];
                 // printf("L[%u][%u] = %E\n", ir, c, v);
                 L[ir][c] = v;
@@ -930,7 +928,7 @@ matrix& matrix::eschelon(size_t stop_col) {
         // r aught to be on the pivot then
         row_scale(r, 1.0 / array[r][c]);
         for (size_t i = r + 1; i < rows; i++) {
-            if (!basal::equals_zero(array[i][c])) {
+            if (!basal::nearly_zero(array[i][c])) {
                 row_scale(i, -1.0 / array[i][c]);
                 row_add(i, r, 1.0);
             }
@@ -969,7 +967,7 @@ matrix& matrix::reduce(size_t stop_row) {
             // get the value at this row
             precision v = array[r][pc];
             // if this row entry is non-zero, scale it to zero
-            if (!basal::equals_zero(v)) {
+            if (!basal::nearly_zero(v)) {
                 // make the dst col element of this row zero
                 row_add(r, pr, -v);
             }
@@ -994,7 +992,7 @@ std::vector<size_t> matrix::leading_nonzero(size_t stop_col) const {
     }
     for (size_t r = 0; r < rows; r++) {
         for (size_t c = 0; c < stop_col; c++) {
-            if (not basal::equals_zero(array[r][c])) {
+            if (not basal::nearly_zero(array[r][c])) {
                 lnz[r] = c;
                 break;
             }

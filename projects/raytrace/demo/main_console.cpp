@@ -1,14 +1,12 @@
-/**
- * @file
- * @author Erik Rainey (erik.rainey@gmail.com)
- * @brief Wraps a rendered scene with some NCurses magic
- * @copyright Copyright (c) 2022
- */
+///
+/// @file
+/// @author Erik Rainey (erik.rainey@gmail.com)
+/// @brief Wraps a rendered scene with some NCurses magic
+/// @copyright Copyright (c) 2022
+///
 
-/**
- * This allows rendering directly to the Terminal via RGB codes.
- * It's not the worst, but I haven't been able to make it a "live" view, as I'd like.
- */
+/// This allows rendering directly to the Terminal via RGB codes.
+/// It's not the worst, but I haven't been able to make it a "live" view, as I'd like.
 #undef RENDER_TO_CONSOLE
 
 #include <ncurses.h>
@@ -64,7 +62,7 @@ public:
         endwin();
     }
 
-    /** Clears the screen and redraws the window edge */
+    /// Clears the screen and redraws the window edge
     void clear() {
         attron(COLOR_PAIR(INFO_PAIR));
         for (size_t y = 0; y < m_height; y++) {

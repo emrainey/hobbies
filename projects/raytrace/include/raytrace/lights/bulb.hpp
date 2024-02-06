@@ -7,7 +7,7 @@ namespace raytrace {
 
 namespace lights {
 
-/** A uniform diffuse light surface with fall-off obeying the inverse square law */
+/// A uniform diffuse light surface with fall-off obeying the inverse square law
 class bulb
     : public light
     , public entity {
@@ -16,13 +16,13 @@ public:
     bulb(point&& P, precision radius, const raytrace::color& C, precision intensity, size_t samples);
     virtual ~bulb() = default;
 
-    /** @copydoc raytrace::light::intensity_at() */
+    /// @copydoc raytrace::light::intensity_at()
     precision intensity_at(const point& world_point) const override;
 
-    /** @copydoc raytrace::light::incident() */
+    /// @copydoc raytrace::light::incident()
     ray incident(const point& world_point, size_t sample_index) const override;
 
-    /** @copydoc basal::printable::print */
+    /// @copydoc basal::printable::print
     void print(const char str[]) const override;
 
 protected:
@@ -31,7 +31,7 @@ protected:
 
 }  // namespace lights
 
-/** Helper to print bulbs of light */
+/// Helper to print bulbs of light
 std::ostream& operator<<(std::ostream& os, const lights::bulb& l);
 
 }  // namespace raytrace

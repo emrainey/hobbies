@@ -1,95 +1,95 @@
-/**
- * @file
- * This is an auto-generated header for iso::newtons.
- * A measure of force
- * @note See README on re-generation.
- * @copyright Copyright 2024.
- */
+///
+/// @file
+/// This is an auto-generated header for iso::newtons.
+/// A measure of force
+/// @note See README on re-generation.
+/// @copyright Copyright 2024.
+///
 #pragma once
 #include <cstdint>
 #include <cstddef>
 
 #include "iso/measurement.hpp"
 
-/** iso comment */
+/// iso comment
 namespace iso {
 
-/** A structure used to hold the postfix for newtons */
+/// A structure used to hold the postfix for newtons
 struct suffix_type_N {
     constexpr static const char *suffix = "N";
 };
 
-/**
- * This is the iso::newtons interface.
- * These have a default, generic, SI, copy, move, dtor and copy assign
- * And operator"" and equality and inequality
- * overload +=,-=,+,- with other units of the same type
- * overload *=,/=,*,/ with immediate values and atomics
- * overload ++,-- ?
- * overload >,<,==,!=,<=,>=
- * not overloaded %=,%
- */
+///
+/// This is the iso::newtons interface.
+/// These have a default, generic, SI, copy, move, dtor and copy assign
+/// And operator"" and equality and inequality
+/// overload +=,-=,+,- with other units of the same type
+/// overload *=,/=,*,/ with immediate values and atomics
+/// overload ++,-- ?
+/// overload >,<,==,!=,<=,>=
+/// not overloaded %=,%
+///
 class newtons : public measurement<precision, SI::prefix, suffix_type_N> {
 public:
-    /** Default constructor */
+    /// Default constructor
     newtons();
-    /** Parameter constructor */
+    /// Parameter constructor
     explicit newtons(precision value);
-    /** Copy Constructor */
+    /// Copy Constructor
     newtons(const newtons& other);
-    /** Move Constructor */
+    /// Move Constructor
     newtons(newtons&& other);
-    /** Destructor */
+    /// Destructor
     ~newtons() = default;
-    /** Const Copy Assignment */
+    /// Const Copy Assignment
     newtons& operator=(const newtons& other) noexcept;
-    /** Copy Assignment */
+    /// Copy Assignment
     newtons& operator=(newtons& other) noexcept;
-    /** Move Assignment */
+    /// Move Assignment
     newtons& operator=(newtons&& other) noexcept;
-    /** Equality Operator */
+    /// Equality Operator
     bool operator==(const newtons& other) const;
-    /** Inequality Operator */
+    /// Inequality Operator
     bool operator!=(const newtons& other) const;
-    /** Accumulation Operator */
+    /// Accumulation Operator
     newtons& operator+=(const newtons& other);
-    /** Deccumulation Operator */
+    /// Deccumulation Operator
     newtons& operator-=(const newtons& other);
-    /** Scaling Operator */
+    /// Scaling Operator
     newtons& operator*=(precision factor);
-    /** Inverse Scaling Operator */
+    /// Inverse Scaling Operator
     newtons& operator/=(precision factor);
-    /** Negating Operator */
+    /// Negating Operator
     newtons operator-() const;
-    /** Less Than Operator */
+    /// Less Than Operator
     bool operator<(const newtons& other) const;
-    /** Less Than or Equal Operator */
+    /// Less Than or Equal Operator
     bool operator<=(const newtons& other) const;
-    /** Greater Than Operator */
+    /// Greater Than Operator
     bool operator>(const newtons& other) const;
-    /** Greater Than or Equal Operator */
+    /// Greater Than or Equal Operator
     bool operator>=(const newtons& other) const;
 };
 
 namespace operators {
-    /** Addition operator */
+    /// Addition operator
     newtons operator+(const newtons& A, const newtons& B);
-    /** Subtraction operator */
+    /// Subtraction operator
     newtons operator-(const newtons& A, const newtons& B);
-    /** Left Scaling Operator */
+    /// Left Scaling Operator
     newtons operator*(const newtons& A, precision factor);
-    /** Right Scaling Operator */
+    /// Right Scaling Operator
     newtons operator*(precision factor, const newtons& A);
-    /** Inverse Scaling Operator */
+    /// Inverse Scaling Operator
     newtons operator/(const newtons& A, precision factor);
 }
 
 namespace literals {
-    /** Literal Double, Quote Operator */
+    /// Literal Double, Quote Operator
     newtons operator""_N(long double value);
-    /** Literal Int, Quote Operator */
+    /// Literal Int, Quote Operator
     newtons operator""_N(unsigned long long value);
-    /** Literal String, Quote Operator */
+    /// Literal String, Quote Operator
     iso::newtons operator""_N(const char a[]);
 }
 

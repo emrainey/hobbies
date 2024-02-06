@@ -14,7 +14,7 @@ precision speck::intensity_at(const point& pnt) const {
     using namespace geometry::operators;
     vector direction = position() - pnt;
     precision d = direction.magnitude();
-    if (basal::equals_zero(d)) {
+    if (basal::nearly_zero(d)) {
         return m_intensity;
     } else {
         return m_intensity / (d * d);

@@ -4,11 +4,11 @@
 ### Classes
 
 * Matrix
-  * Dets, Inverse, Tranpose, etc.
+ /// Dets, Inverse, Tranpose, etc.
 * Pure Math functions
-  * quadratic roots
-  * cubic roots
-  * quartic roots
+ /// quadratic roots
+ /// cubic roots
+ /// quartic roots
 
 ## Cubic Roots
 

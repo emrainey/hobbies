@@ -9,17 +9,17 @@
 
 namespace raytrace {
 
-/** The Gamma Correction Namespace */
+/// The Gamma Correction Namespace
 namespace gamma {
 
 constexpr static bool use_full = true;
 
-/**
- * Removes Gamma Correction
- * @see https://ixora.io/projects/colorblindness/color-blindness-simulation-research/
- * @param value The value to correct (must be nominal (0-1))
- * @return The corrected value
- */
+///
+/// Removes Gamma Correction
+/// @see https://ixora.io/projects/colorblindness/color-blindness-simulation-research/
+/// @param value The value to correct (must be nominal (0-1))
+/// @return The corrected value
+///
 constexpr precision remove_correction(precision value) {
     if constexpr (use_full) {
         if (value <= 0.04045_p) {
@@ -32,12 +32,12 @@ constexpr precision remove_correction(precision value) {
     }
 }
 
-/**
- * Applies Gamma Correction
- * @see https://ixora.io/projects/colorblindness/color-blindness-simulation-research/
- * @param value The value to correct (must be nominal (0-1))
- * @return The corrected value
- */
+///
+/// Applies Gamma Correction
+/// @see https://ixora.io/projects/colorblindness/color-blindness-simulation-research/
+/// @param value The value to correct (must be nominal (0-1))
+/// @return The corrected value
+///
 constexpr precision apply_correction(precision value) {
     if constexpr (use_full) {
         if (value <= 0.0031308_p) {
@@ -52,11 +52,9 @@ constexpr precision apply_correction(precision value) {
 
 }  // namespace gamma
 
-/**
- * Adds two channels together after gamma correction by the scalar given.
- * @note the scalar must be 0.0_p <= s <= 1.0_p.
- * @retval precision will be clamped from 0.0_p to 1.0_p
- */
+/// Adds two channels together after gamma correction by the scalar given.
+/// @note the scalar must be 0.0_p <= s <= 1.0_p.
+/// @retval precision will be clamped from 0.0_p to 1.0_p
 precision gamma_interpolate(const precision a, const precision b, const precision s);
 
 #if defined(USE_PRECISION_AS_FLOAT)
@@ -65,15 +63,13 @@ using precision4 = intel::float4;
 using precision4 = intel::double4;
 #endif
 
-/**
- * @brief sRGB linear color space value
- */
+/// @brief sRGB linear color space value
 class color {
 public:
     constexpr static size_t NUM_CHANNELS = 4;
     precision channels[NUM_CHANNELS];
 
-    /** Indicates hwo the values are stored */
+    /// Indicates hwo the values are stored
     enum class space : int
     {
         linear,
@@ -111,10 +107,10 @@ public:
         return channels[3];
     }
 
-    /** Converts the color from one space to another. */
+    /// Converts the color from one space to another.
     void to_space(space desired);
 
-    /** Scaling operator */
+    /// Scaling operator
     inline void scale(const precision a) {
         for (auto& c : channels) {
             c *= a;
@@ -128,7 +124,7 @@ public:
         }
     }
 
-    /** Scale Wrapper */
+    /// Scale Wrapper
     inline color& operator*=(const precision a) {
         scale(a);
         return (*this);
@@ -139,40 +135,32 @@ public:
     fourcc::rgb8 to_rgb8() const;
     fourcc::bgr8 to_bgr8() const;
 
-    /** Allows a per channel operation */
+    /// Allows a per channel operation
     void per_channel(std::function<precision(precision c)> iter);
 
-    /** Accumulates colors together (does not gamma correct) */
+    /// Accumulates colors together (does not gamma correct)
     color& operator+=(const color& other);
 
-    /** The comparison precision for equal colors (to a millionth) */
+    /// The comparison precision for equal colors (to a millionth)
     constexpr static precision equality_limit = 1.0E-6;
 
-    /**
-     * Blends all colors together in a equal weighted average with gamma
-     * correction.
-     * @param subsamples The vector of color samples
-     */
+    /// Blends all colors together in a equal weighted average with gamma
+/// correction.
+/// @param subsamples The vector of color samples
     static color blend_samples(const std::vector<color>& subsamples);
 
-    /** Accumulates all the samples together into a summed color in the linear space*/
+    /// Accumulates all the samples together into a summed color in the linear space
     static color accumulate_samples(const std::vector<color>& samples);
 
-    /**
-     * Map numbers near the range -1.0_p to 1.0_p to a color in the spectrum.
-     * Bluer for negatives, Reds for Positives.
-     */
+    /// Map numbers near the range -1.0_p to 1.0_p to a color in the spectrum.
+/// Bluer for negatives, Reds for Positives.
     static color jet(precision d);
 
-    /**
-     * Takes a number between min and max and returns an RGB from 0.0_p to 1.0_p.
-     * If the input is out of range, returns magenta.
-     */
+    /// Takes a number between min and max and returns an RGB from 0.0_p to 1.0_p.
+/// If the input is out of range, returns magenta.
     static color greyscale(precision d, precision min, precision max);
 
-    /**
-     * Generates a random color.
-     */
+    /// Generates a random color.
     static color random();
 
     // Don't add interfaces as color needs to be constexpr for colors below
@@ -292,31 +280,31 @@ constexpr color steel(0.62_p, 0.62_p, 0.51_p);
 constexpr color tin(0.72_p, 0.71_p, 0.61_p);
 }  // namespace colors
 
-/** Assumes a 50% blend (uses gamma correct) */
+/// Assumes a 50% blend (uses gamma correct)
 color blend(const color& x, const color& y);
 
-/** Allows for user blend ratio (uses gamma correct) */
+/// Allows for user blend ratio (uses gamma correct)
 color interpolate(const color& x, const color& y, precision a);
 
 namespace operators {
-/** Blend the colors together (uses gamma correct) */
+/// Blend the colors together (uses gamma correct)
 inline color operator+(const color& x, const color& y) {
     return blend(x, y);
 }
 
-/** Scale all the channels together */
+/// Scale all the channels together
 inline color operator*(const color& x, precision a) {
     color y = x;
     y.scale(a);
     return y;
 }
 
-/** Scale all the channels together */
+/// Scale all the channels together
 inline color operator*(precision a, const color& x) {
     return operator*(x, a);
 }
 
-/** Pairwise Color Mixing (when a light and a surface color self select the output color) */
+/// Pairwise Color Mixing (when a light and a surface color self select the output color)
 color operator*(const color& a, const color& b);
 }  // namespace operators
 
@@ -325,15 +313,15 @@ inline std::ostream& operator<<(std::ostream& os, const color& c) {
     return os;
 }
 
-/** Compares two colors within the epsilon */
+/// Compares two colors within the epsilon
 bool operator==(const color& a, const color& b);
 
-/**
- * Converts a specific wavelength of light into an LMS color.
- * @see https://en.wikipedia.org/wiki/LMS_color_space
- * @param lambda The wavelength of the photon. Must be between 380nm and 780nm.
- * @note This uses a simplified gaussian response for each LMS peak.
- */
+///
+/// Converts a specific wavelength of light into an LMS color.
+/// @see https://en.wikipedia.org/wiki/LMS_color_space
+/// @param lambda The wavelength of the photon. Must be between 380nm and 780nm.
+/// @note This uses a simplified gaussian response for each LMS peak.
+///
 color wavelength_to_color(iso::meters lambda) noexcept(false);
 
 }  // namespace raytrace

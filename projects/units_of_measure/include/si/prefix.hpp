@@ -39,17 +39,17 @@ constexpr const prefix_name prefixes[] = {
     {PREFIX_NAME_(peta)},  {PREFIX_NAME_(exa)},
 };
 
-/** Remove the definition after this table */
+/// Remove the definition after this table
 #undef PREFIX_NAME_
 
 namespace operators {
-/** A scaling prefix for SI units */
+/// A scaling prefix for SI units
 iso::precision operator*(iso::precision const a, SI::prefix p);
 }  // namespace operators
 
-/** Users must `using` this namespace to expose the quote operators */
+/// Users must `using` this namespace to expose the quote operators
 namespace literals {
-/** Special String Quote Operator */
+/// Special String Quote Operator
 inline uint64_t operator""_kilobytes(long long unsigned int a) {
     using namespace operators;
     return a * SI::prefix::kilo;

@@ -19,10 +19,10 @@ public:
     stereo_camera(size_t image_height, size_t image_width, iso::degrees field_of_view, double camera_separation, Layout layout = Layout::LeftRight);
     ~stereo_camera() = default;
 
-    /** @copydoc camera::move_to */
+    /// @copydoc camera::move_to
     void move_to(const point& look_from, const point& look_at);
 
-    /** @copydoc basal::printable::print */
+    /// @copydoc basal::printable::print
     void print(const char[]) const override final;
 
     /// @brief Returns a pointer to the first camera

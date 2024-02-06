@@ -1,10 +1,10 @@
-/**
- * @file
- * This is an auto-generated source for iso::amperes.
- * A measure of current in electricity
- * @note See README on re-generation.
- * @copyright Copyright 2024.
- */
+///
+/// @file
+/// This is an auto-generated source for iso::amperes.
+/// A measure of current in electricity
+/// @note See README on re-generation.
+/// @copyright Copyright 2024.
+///
 #include "iso/amperes.hpp"
 
 namespace iso {
@@ -35,7 +35,7 @@ amperes& amperes::operator=(amperes&& other) noexcept {
     return (*this);
 }
 bool amperes::operator==(const amperes& other) const {
-    return iso::equivalent(value, other.value);
+    return basal::equivalent(value, other.value);
 }
 bool amperes::operator!=(const amperes& other) const {
     return !operator==(other);

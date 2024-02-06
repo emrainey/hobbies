@@ -7,7 +7,7 @@ namespace linalg {
 
 constexpr static bool root_debug = false;
 
-/** in order to save some typing just a shorter definition of complex numbers */
+/// in order to save some typing just a shorter definition of complex numbers
 using complex_ = std::complex<precision>;
 
 /// pull in basal's precision literals
@@ -18,7 +18,7 @@ std::tuple<precision, precision> quadratic_roots(precision a, precision b, preci
     if constexpr (root_debug) {
         std::cout << "Quadratic Coefficients a=" << a << ", b=" << b << ", c=" << c << std::endl;
     }
-    if (basal::equals_zero(a)) {
+    if (basal::nearly_zero(a)) {
         return std::make_tuple(basal::nan, basal::nan);
     }
     auto i = (b * b) - (4.0_p * a * c);
@@ -35,7 +35,7 @@ std::tuple<precision, precision> quadratic_roots(precision a, precision b, preci
 std::tuple<precision, precision, precision> cubic_roots(precision a, precision b, precision c,
                                                                  precision d) {
     statistics::get().cubic_roots++;
-    if (basal::equals_zero(a)) {
+    if (basal::nearly_zero(a)) {
         // not a valid case
         return std::make_tuple(basal::nan, basal::nan, basal::nan);
     }
@@ -81,10 +81,10 @@ std::tuple<precision, precision, precision> cubic_roots(precision a, precision b
         X1 = std::get<0>(S3) + std::get<0>(T3);  // real?
         X2 = std::get<2>(S3) + std::get<1>(T3);  // swap conj pairs
         X3 = std::get<1>(S3) + std::get<2>(T3);  // swap conj pairs
-        x1 = (not basal::equals_zero(X1.imag()) ? basal::nan : (X1.real() + shift));
-        x2 = (not basal::equals_zero(X2.imag()) ? basal::nan : (X2.real() + shift));
-        x3 = (not basal::equals_zero(X3.imag()) ? basal::nan : (X3.real() + shift));
-    } else if (basal::equals_zero(D.real())) {
+        x1 = (not basal::nearly_zero(X1.imag()) ? basal::nan : (X1.real() + shift));
+        x2 = (not basal::nearly_zero(X2.imag()) ? basal::nan : (X2.real() + shift));
+        x3 = (not basal::nearly_zero(X3.imag()) ? basal::nan : (X3.real() + shift));
+    } else if (basal::nearly_zero(D.real())) {
         auto R3 = cbrt(R);
         if constexpr (root_debug) {
             std::cout << "Either 2 real or at the zero inflection" << std::endl;
@@ -136,7 +136,7 @@ std::tuple<precision, precision, precision, precision> quartic_roots(precision a
         std::cout << "Quartic Coefficients: a=" << a << ", b=" << b << ", c=" << c << ", d=" << d << ", e=" << e
                   << std::endl;
     }
-    if (basal::equals_zero(a)) {
+    if (basal::nearly_zero(a)) {
         return std::make_tuple(basal::nan, basal::nan, basal::nan, basal::nan);
     }
     a /= a;
@@ -147,9 +147,9 @@ std::tuple<precision, precision, precision, precision> quartic_roots(precision a
     precision x1, x2, x3, x4;
     x1 = x2 = x3 = x4 = basal::nan;
 
-    /** @internal A method based on Herbert E. Salzer "A Note on the Solution of Quartic Equations"
-     * (Am. Math Society Proceedings, 1959).
-     */
+    /// @internal A method based on Herbert E. Salzer "A Note on the Solution of Quartic Equations"
+    /// (Am. Math Society Proceedings, 1959).
+    ///
 
     // solve the cubic to find a good value of z. this is the "resolvent cubic equation"
     precision c1 = (b * d ) - (4.0_p * e);
@@ -167,7 +167,7 @@ std::tuple<precision, precision, precision, precision> quartic_roots(precision a
     m = std::sqrt(mm);
     if (real(mm) > 0) {
         n = (0.25_p * ((b * z) - (2.0_p * d))) / m;
-    } else if (basal::equals_zero(real(mm))) {
+    } else if (basal::nearly_zero(real(mm))) {
         complex_ none{0.0, 0.0};
         n = ((0.25_p * z * z) - e) + none;
         n = std::sqrt(n);

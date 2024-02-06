@@ -7,7 +7,7 @@
 
 using namespace linalg;
 
-/** The learning rate of the network */
+/// The learning rate of the network
 namespace local {
 constexpr precision alpha = -0.25;
 constexpr precision gamma = -0.9;

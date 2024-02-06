@@ -1,8 +1,6 @@
-/**
- * @file
- * A simple text adventure
- * @copyright 2022 Erik Rainey
- */
+/// @file
+/// A simple text adventure
+/// @copyright 2022 Erik Rainey
 
 #include "doorgame/game.hpp"
 

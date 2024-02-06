@@ -1,10 +1,10 @@
-/**
- * @file
- * This is an auto-generated source for iso::meters.
- * A measure of distance
- * @note See README on re-generation.
- * @copyright Copyright 2024.
- */
+///
+/// @file
+/// This is an auto-generated source for iso::meters.
+/// A measure of distance
+/// @note See README on re-generation.
+/// @copyright Copyright 2024.
+///
 #include "iso/meters.hpp"
 
 namespace iso {
@@ -35,7 +35,7 @@ meters& meters::operator=(meters&& other) noexcept {
     return (*this);
 }
 bool meters::operator==(const meters& other) const {
-    return iso::equivalent(value, other.value);
+    return basal::equivalent(value, other.value);
 }
 bool meters::operator!=(const meters& other) const {
     return !operator==(other);

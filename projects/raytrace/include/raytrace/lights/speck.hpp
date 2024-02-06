@@ -6,7 +6,7 @@
 namespace raytrace {
 
 namespace lights {
-/** A point light with fall-off obeying the inverse square law */
+/// A point light with fall-off obeying the inverse square law
 class speck
     : public light
     , public entity {
@@ -15,19 +15,19 @@ public:
     speck(point&& P, const raytrace::color& C, precision intensity);
     virtual ~speck() = default;
 
-    /** @copydoc raytrace::light::intensity_at() */
+    /// @copydoc raytrace::light::intensity_at()
     precision intensity_at(const point& world_point) const override;
 
-    /** @copydoc raytrace::light::incident() */
+    /// @copydoc raytrace::light::incident()
     ray incident(const point& world_point, size_t sample_index) const override;
 
-    /** @copydoc basal::printable::print */
+    /// @copydoc basal::printable::print
     void print(const char str[]) const override;
 };
 
 }  // namespace lights
 
-/** Helper to print specks of light */
+/// Helper to print specks of light
 std::ostream& operator<<(std::ostream& os, const lights::speck& l);
 
 }  // namespace raytrace

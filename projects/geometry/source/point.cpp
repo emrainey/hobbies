@@ -108,7 +108,7 @@ bool operator==(const point& a, const point& b) noexcept(false) {
     basal::exception::throw_if(a.dimensions != b.dimensions, __FILE__, __LINE__, "Points must have same dim");
     bool equal = true;
     for (size_t n = 0; n < a.dimensions; n++) {
-        if (not basal::equals(a[n], b[n])) {
+        if (not basal::nearly_equals(a[n], b[n])) {
             equal = false;
             break;
         }

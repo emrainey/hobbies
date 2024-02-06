@@ -1,8 +1,6 @@
-/**
- * @file
- * Googletest Helper Macros for Linear Algebra Objects
- * @copyright Copyright (c) 2020
- */
+/// @file
+/// Googletest Helper Macros for Linear Algebra Objects
+/// @copyright Copyright (c) 2020
 
 #pragma once
 

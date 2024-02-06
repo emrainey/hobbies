@@ -1,6 +1,6 @@
 
+#include "iso/types.hpp"
 #include "iso/iso.hpp"
-
 #include "iso/compound.hpp"
 namespace iso {
 
@@ -98,7 +98,7 @@ torque operator*(newtons &&N, const meters &m) {
 
 // This is to override specific relations where things ARE equal
 bool operator==(const joules &J, const torque &T) {
-    return equivalent(J.value, T.reduce());
+    return basal::equivalent(J.value, T.reduce());
 }
 
 }  // namespace operators

@@ -1,8 +1,6 @@
-/**
- * @file
- * The Event Type
- * @copyright Copyright (c) 2022
- */
+/// @file
+/// The Event Type
+/// @copyright Copyright (c) 2022
 #pragma once
 
 #include <tuple>
@@ -15,7 +13,7 @@
 
 namespace doorgame {
 
-/** Events are essentially a combination of Subject, Verb, Object, Modifier */
+/// Events are essentially a combination of Subject, Verb, Object, Modifier
 using Event = std::tuple<Target, Action, Target, Parameter>;
 
 }  // namespace doorgame

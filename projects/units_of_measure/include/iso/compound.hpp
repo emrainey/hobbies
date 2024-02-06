@@ -15,11 +15,11 @@ public:
     using type = typename LeftType::type;
 
 protected:
-    /** The simplified value */
+    /// The simplified value
     type _value;
 
 public:
-    /** The read-only simplified value */
+    /// The read-only simplified value
     const type& value;
 
 protected:

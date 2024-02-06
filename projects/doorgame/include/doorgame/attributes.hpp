@@ -7,7 +7,7 @@
 
 namespace doorgame {
 
-/** A list of boolean attributes */
+/// A list of boolean attributes
 enum class Attribute : uint16_t
 {
     Investigated = 0,  //!< Any Target can be investigated
@@ -15,13 +15,13 @@ enum class Attribute : uint16_t
     MAX,  //!< The maximum index of all attributes which we use to determine the
 };
 
-/** An extensible set of bool attributes in an object */
+/// An extensible set of bool attributes in an object
 class HasAttributes {
 public:
-    /** Retrieves an attribute */
+    /// Retrieves an attribute
     bool get(Attribute attr) const;
 
-    /** Sets the state of an attribute */
+    /// Sets the state of an attribute
     void set(Attribute attr, bool value);
 
 protected:

@@ -97,10 +97,10 @@ intersection intersects(const R3::line &l, const plane &P) {
         precision tn = 0.0;
         // the plane can be below, above or between the points.
         // sometimes these are very close to zero but not zero
-        if (basal::equals_zero(da)) {
+        if (basal::nearly_zero(da)) {
             return intersection(a);
         }
-        if (basal::equals_zero(db)) {
+        if (basal::nearly_zero(db)) {
             return intersection(b);
         }
         if ((da > 0 && db < 0) || (da < 0 && db > 0)) {
@@ -156,7 +156,7 @@ intersection intersects(const R3::sphere &S, const R3::line &l) noexcept(false) 
     if (d > r) {
         // no intersection
         return intersection();
-    } else if (basal::equals(d, r)) {
+    } else if (basal::nearly_equals(d, r)) {
         // P is on the surface, single point of Intersection!
         return intersection(P);
     } else {
@@ -206,7 +206,7 @@ intersection intersects(const R3::sphere &S, const R3::line &l) noexcept(false) 
             precision u = (t < 0 ? -1.0 : 1.0);
 
             // line passes throught the center
-            if (basal::equals_zero(d)) {
+            if (basal::nearly_zero(d)) {
                 // C == P
                 // The closet point to the center is the center (passes through the middle)
                 // get the distance to the center from the zero point
@@ -230,7 +230,7 @@ intersection intersects(const R3::sphere &S, const R3::line &l) noexcept(false) 
                 precision k = pz.norm();
 
                 // is the zero point of the line in the sphere?
-                if (basal::equals_zero(k)) {
+                if (basal::nearly_zero(k)) {
                     // zero point is at P
                     R = l.distance_along(-m);
                     Q = l.distance_along(+m);
@@ -238,7 +238,7 @@ intersection intersects(const R3::sphere &S, const R3::line &l) noexcept(false) 
                     // the zero point is in the sphere but not P, R, or Q
                     R = l.distance_along(-u * (m - k));
                     Q = l.distance_along(u * (k + m));
-                } else if (basal::equals(k, m)) {
+                } else if (basal::nearly_equals(k, m)) {
                     // we'll call the one we're on R and the other Q
                     R = Z0;
                     Q = l.distance_along(2 * m * u);

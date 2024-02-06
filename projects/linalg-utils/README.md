@@ -31,7 +31,7 @@ However most polynomials are in the form:
 
     ax^3 + bx^2 + cx + d = 0.
 
-We can use these to make convert into Cardano's format:
+We can use the following to convert the normal form into Cardano's format:
 
     b /= a, c /= a, d /= a
     Q = (3.0*c - b*b)/9.0;

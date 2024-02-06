@@ -1,13 +1,13 @@
-/**
- * @file
- * @author Erik Rainey (erik.rainey@gmail.com)
- * @brief Allows you to tune a random noise generator.
- * @version 0.1
- * @date 2020-05-24
- * @copyright Copyright (c) 2020
- * @note Creates a noise image in a fourcc::image, then transfoms to a cv::Mat to render. Installs a callback for
- * keystrokes to allow tuning of the perlin noise seeds.
- */
+///
+/// @file
+/// @author Erik Rainey (erik.rainey@gmail.com)
+/// @brief Allows you to tune a random noise generator.
+/// @version 0.1
+/// @date 2020-05-24
+/// @copyright Copyright (c) 2020
+/// @note Creates a noise image in a fourcc::image, then transfoms to a cv::Mat to render. Installs a callback for
+/// keystrokes to allow tuning of the perlin noise seeds.
+///
 
 #include <linalg/trackbar.hpp>
 #include <opencv2/opencv.hpp>

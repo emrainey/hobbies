@@ -1,10 +1,10 @@
-/**
- * @file
- * @author Erik Rainey (erik.rainey@gmail.com)
- * @brief Renders a raytraced image of a bunch of spheres
- * @date 2021-01-02
- * @copyright Copyright (c) 2021
- */
+///
+/// @file
+/// @author Erik Rainey (erik.rainey@gmail.com)
+/// @brief Renders a raytraced image of a bunch of spheres
+/// @date 2021-01-02
+/// @copyright Copyright (c) 2021
+///
 
 #include <raytrace/raytrace.hpp>
 
@@ -21,7 +21,7 @@ void subspheres(std::vector<raytrace::objects::sphere*>& spheres, const raytrace
             for (precision y = -R; y <= R; y += R) {
                 for (precision x = -R; x <= R; x += R) {
                     // if all are zero, continue
-                    if (iso::equivalent(x, 0.0_p) and iso::equivalent(y, 0.0_p) and iso::equivalent(z, 0.0_p)) {
+                    if (basal::equivalent(x, 0.0_p) and basal::equivalent(y, 0.0_p) and basal::equivalent(z, 0.0_p)) {
                         continue;
                     }
                     spheres.push_back(new raytrace::objects::sphere(center + R3::vector{{x, y, z}}, radius));

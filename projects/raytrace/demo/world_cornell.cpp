@@ -1,9 +1,9 @@
-/**
- * @file
- * Simulation of the Cornell Box.
- * @author Erik Rainey (erik.rainey@gmail.com)
- * @copyright Copyright (c) 2021
- */
+///
+/// @file
+/// Simulation of the Cornell Box.
+/// @author Erik Rainey (erik.rainey@gmail.com)
+/// @copyright Copyright (c) 2021
+///
 
 #include <raytrace/raytrace.hpp>
 

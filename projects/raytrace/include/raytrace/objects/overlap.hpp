@@ -2,12 +2,12 @@
 
 namespace raytrace {
 namespace objects {
-/** The mechanism by which one object can overlap another and modify ray results with normals.
- * @see overlap::type
- */
+/// The mechanism by which one object can overlap another and modify ray results with normals.
+/// @see overlap::type
+///
 class overlap : public object {
 public:
-    /** The various types of supported overlaps */
+    /// The various types of supported overlaps
     enum class type : int {
         additive,     //!< Joins two objects together
         subtractive,  //!< Subtracts object B from A
@@ -16,20 +16,20 @@ public:
         inclusive,    //!< Render only what overlaps between both objects. (Useful for lenses)
     };
 
-    /** Constructs an overlap between two objects */
+    /// Constructs an overlap between two objects
     overlap(const object& A, const object& B, type t);
 
     virtual ~overlap() = default;
 
-    /** @copydoc raytrace::object::normal */
+    /// @copydoc raytrace::object::normal
     vector normal(const point& world_surface_point) const override;
-    /** @copydoc raytrace::object::intersect */
+    /// @copydoc raytrace::object::intersect
     // geometry::intersection intersect(const ray& world_ray) const override;
-    /** @copydoc raytrace::object::collision_along */
+    /// @copydoc raytrace::object::collision_along
     hits collisions_along(const ray& object_ray) const override;
-    /** @copydoc raytrace::object::map */
+    /// @copydoc raytrace::object::map
     image::point map(const point& object_surface_point) const override;
-    /** @copydoc basal::printable::print */
+    /// @copydoc basal::printable::print
     void print(const char str[]) const override;
 
     inline size_t max_collisions() const override {

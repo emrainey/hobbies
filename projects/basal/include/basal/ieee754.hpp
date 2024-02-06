@@ -40,7 +40,7 @@ static_assert(std::is_same<decltype(1.0_p), basal::precision>(), "Must be a prec
 static_assert(std::is_floating_point<decltype(1.0_p)>(), "Must be a floating value");
 }
 
-/** If high precision is used, it's 1/(1024*1024) else only (1/1024) */
+/// If high precision is used, it's 1/(1024*1024) else only (1/1024)
 constexpr static precision epsilon = use_high_precision ? 0x1.0p-20 : 0x1.0p-10;
 // 1/(1024) == 0.000007875504032
 // 1/(1024*1024) == 0.000000953674316
@@ -52,24 +52,35 @@ inline precision clamp(precision min, precision value, precision max) {
     return std::max(min, std::min(value, max));
 }
 
-/*! Allows a precision to be approximately equal to another precision within a range */
-inline bool equals(precision a, precision b, precision range) {
+/// Returns true if the two precisions are within the range of each other.
+inline bool nearly_equals(precision a, precision b, precision range) {
     return (std::abs(a - b) <= std::abs(range));
 }
 
-/*! Allows two precisions to be compared for equality. */
-inline bool equals(precision a, precision b) {
-    return equals(a, b, basal::epsilon);
+/// Allows two precisions to be compared for equality.
+inline bool nearly_equals(precision a, precision b) {
+    return nearly_equals(a, b, basal::epsilon);
     // bool ngth_and_nlth = (not(a > b) and not(a < b));
 }
 
-/*! Allows a precision to be compared to zero */
-inline bool equals_zero(precision a) {
+/// Determines if a precision is very close to zero
+inline bool nearly_zero(precision a) {
     using namespace basal::literals;
-    return equals(a, 0.0_p);
+    return nearly_equals(a, 0.0_p, basal::epsilon);
 }
 
-/*! Returns a random value between -1.0 and 1.0 */
+/// @brief Returns true if the precision is either exactly +0.0 or -0.0
+/// @param a The precision to check
+inline bool is_exactly_zero(precision a) {
+    return (FP_ZERO == std::fpclassify(a));
+}
+
+/// A comparison which neither value is larger than the other, effectively equivalent
+inline bool equivalent(const precision a, const precision b) {
+    return not(a > b) and not(a < b);
+}
+
+/// Returns a random value between -1.0 and 1.0
 inline precision rand_range(precision min_v, precision max_v) {
     std::random_device rd;
     std::mt19937 gen(rd());

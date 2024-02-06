@@ -5,7 +5,7 @@ namespace raytrace {
 
 namespace mediums {
 
-/** A perlin noise generated is used to simulate (poorly) a perlin pattern */
+/// A perlin noise generated is used to simulate (poorly) a perlin pattern
 class perlin : public opaque {
 public:
     perlin(precision seed, precision scale, precision gain, color dark, color light);

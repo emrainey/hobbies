@@ -1,9 +1,7 @@
 #pragma once
-/**
- * @file
- * Common header of the linear algebra library.
- * @copyright Copyright 2019 (C) Erik Rainey.
- */
+/// @file
+/// Common header of the linear algebra library.
+/// @copyright Copyright 2019 (C) Erik Rainey.
 #include <basal/exception.hpp>
 #include <basal/ieee754.hpp>
 

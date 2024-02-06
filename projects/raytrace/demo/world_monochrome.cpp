@@ -1,9 +1,9 @@
-/**
- * @file
- * The Steel Object Scene from year ago with Vivid 3.
- * @author Erik Rainey (erik.rainey@gmail.com)
- * @copyright Copyright (c) 2021
- */
+///
+/// @file
+/// The Steel Object Scene from year ago with Vivid 3.
+/// @author Erik Rainey (erik.rainey@gmail.com)
+/// @copyright Copyright (c) 2021
+///
 
 #include <functional>
 #include <raytrace/raytrace.hpp>

@@ -1,10 +1,10 @@
-/**
- * @file
- * @author Erik Rainey (erik.rainey@gmail.com)
- * @brief Renders a raytraced image of a lens with a grid background
- * @date 2022-01-02
- * @copyright Copyright (c) 2022
- */
+///
+/// @file
+/// @author Erik Rainey (erik.rainey@gmail.com)
+/// @brief Renders a raytraced image of a lens with a grid background
+/// @date 2022-01-02
+/// @copyright Copyright (c) 2022
+///
 
 #include <raytrace/raytrace.hpp>
 

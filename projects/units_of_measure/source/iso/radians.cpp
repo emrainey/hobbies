@@ -1,10 +1,10 @@
-/**
- * @file
- * This is an auto-generated source for iso::radians.
- * A measure of an angle
- * @note See README on re-generation.
- * @copyright Copyright 2024.
- */
+///
+/// @file
+/// This is an auto-generated source for iso::radians.
+/// A measure of an angle
+/// @note See README on re-generation.
+/// @copyright Copyright 2024.
+///
 #include "iso/radians.hpp"
 
 namespace iso {
@@ -35,7 +35,7 @@ radians& radians::operator=(radians&& other) noexcept {
     return (*this);
 }
 bool radians::operator==(const radians& other) const {
-    return iso::equivalent(value, other.value);
+    return basal::equivalent(value, other.value);
 }
 bool radians::operator!=(const radians& other) const {
     return !operator==(other);

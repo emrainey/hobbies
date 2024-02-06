@@ -1,10 +1,10 @@
-/**
- * @file
- * This is an auto-generated source for iso::volts.
- * A measure of the electrical potential
- * @note See README on re-generation.
- * @copyright Copyright 2024.
- */
+///
+/// @file
+/// This is an auto-generated source for iso::volts.
+/// A measure of the electrical potential
+/// @note See README on re-generation.
+/// @copyright Copyright 2024.
+///
 #include "iso/volts.hpp"
 
 namespace iso {
@@ -35,7 +35,7 @@ volts& volts::operator=(volts&& other) noexcept {
     return (*this);
 }
 bool volts::operator==(const volts& other) const {
-    return iso::equivalent(value, other.value);
+    return basal::equivalent(value, other.value);
 }
 bool volts::operator!=(const volts& other) const {
     return !operator==(other);

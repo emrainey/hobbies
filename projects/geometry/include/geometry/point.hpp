@@ -1,10 +1,8 @@
 #pragma once
 
-/**
- * @file
- * Definitions for the point object.
- * @copyright Copyright 2019 (C) Erik Rainey.
- */
+/// @file
+/// Definitions for the point object.
+/// @copyright Copyright 2019 (C) Erik Rainey.
 
 #include <xmmt/xmmt.hpp>
 
@@ -13,41 +11,41 @@
 
 namespace geometry {
 
-/** A N-dimensional point in space */
+/// A N-dimensional point in space
 class point : public basal::printable {
 protected:
-    /** The storage of the data */
+    /// The storage of the data
     std::unique_ptr<precision[]> m_data;
 
 public:
-    /** The dimensionality of the point */
+    /// The dimensionality of the point
     const size_t dimensions;
 
-    /** Default */
+    /// Default
     point(const size_t dim = 3);
 
-    /** Constructor from a pointer to an array */
+    /// Constructor from a pointer to an array
     explicit point(const precision a[], size_t len) noexcept(false);
 
-    /** Constructor from an initialization list {{}}; */
+    /// Constructor from an initialization list {{}};
     explicit point(const std::vector<precision>& list) noexcept(false);
 
-    /** Copy Constructor  */
+    /// Copy Constructor
     point(const point& other);
 
-    /** Move Constructor */
+    /// Move Constructor
     point(point&& other);
 
-    /** Deconstructor */
+    /// Deconstructor
     virtual ~point();
 
-    /** Copy Assignment */
+    /// Copy Assignment
     point& operator=(const point& other) noexcept(false);
 
-    /** Move Assignment */
+    /// Move Assignment
     point& operator=(point&& other) noexcept(false);
 
-    /** Accumulate a vector into the point (moves the point by the vector) */
+    /// Accumulate a vector into the point (moves the point by the vector)
     template <typename DATA_TYPE, size_t DIM>
     point& operator+=(const vector_<DATA_TYPE, DIM>& a) noexcept(false) {
         basal::exception::throw_if(a.dimensions != dimensions, __FILE__, __LINE__,
@@ -58,7 +56,7 @@ public:
         return (*this);
     }
 
-    /** De-accumulate a vector into the point (moves the point by the vector) */
+    /// De-accumulate a vector into the point (moves the point by the vector)
     template <typename DATA_TYPE, size_t DIM>
     point& operator-=(const vector_<DATA_TYPE, DIM>& a) noexcept(false) {
         basal::exception::throw_if(a.dimensions != dimensions, __FILE__, __LINE__,
@@ -69,19 +67,19 @@ public:
         return (*this);
     }
 
-    /** Scale a point */
+    /// Scale a point
     point& operator*=(precision s) noexcept(false);
 
-    /** Indexer */
+    /// Indexer
     precision& operator[](int i);
 
-    /** Indexer for Const objects */
+    /// Indexer for Const objects
     precision operator[](int i) const;
 
-    /** Clears the point to zero values */
+    /// Clears the point to zero values
     void zero();
 
-    /** @copydoc basal::printable::print */
+    /// @copydoc basal::printable::print
     void print(const char name[]) const override;
 };
 
@@ -91,13 +89,13 @@ point multiply(precision s, const point& a) noexcept(false);
 
 namespace operators {
 
-/** Equality Operator */
+/// Equality Operator
 bool operator==(const point& a, const point& b) noexcept(false);
 
-/** Comparing two points */
+/// Comparing two points
 bool operator==(point& a, point& b) noexcept(false);
 
-/** Inequality Operator */
+/// Inequality Operator
 bool operator!=(const point& a, const point& b) noexcept(false);
 
 inline point operator*(const point& a, precision s) noexcept(false) {
@@ -108,20 +106,20 @@ inline point operator*(precision s, const point& a) noexcept(false) {
     return multiply(s, a);
 }
 
-/**
- * Multiples a point by a matrix to get another point.
- * This could be used to transform a point
- * @param m The input matrix.
- * @param p The input point.
- * @throws basal::exception if the dimensions are incorrect.
- */
+///
+/// Multiples a point by a matrix to get another point.
+/// This could be used to transform a point
+/// @param m The input matrix.
+/// @param p The input point.
+/// @throws basal::exception if the dimensions are incorrect.
+///
 point operator*(const linalg::matrix& m, const point& p);
 }  // namespace operators
 
 namespace pairwise {
-/** Does a pairwise multiply */
+/// Does a pairwise multiply
 point multiply(const point& a, const point& b) noexcept(false);
-/** Does a pairwise divide */
+/// Does a pairwise divide
 point divide(const point& a, const point& b) noexcept(false);
 
 namespace operators {
@@ -134,7 +132,7 @@ inline point operator/(const point& a, const point& b) noexcept(false) {
 }  // namespace operators
 }  // namespace pairwise
 
-/** Generic template class wrapper */
+/// Generic template class wrapper
 template <size_t N>
 class point_ : public point {
     // No move constructor
@@ -143,40 +141,40 @@ class point_ : public point {
     point_& operator=(point_&&) = delete;
 };
 
-/** Specific 2d point template wrapper to define easy access reference to \ref x and \ref y */
+/// Specific 2d point template wrapper to define easy access reference to \ref x and \ref y
 template <>
 class point_<2> : public point {
 public:
-    precision& x; /**< First dimensional reference */
-    precision& y; /**< Second dimensional reference */
-    /** Custom empty constructor */
+    precision& x; ///< First dimensional reference
+    precision& y; ///< Second dimensional reference
+    /// Custom empty constructor
     point_() : point{2}, x(m_data[0]), y(m_data[1]) {
     }
-    /** Base type Constructor */
+    /// Base type Constructor
     point_(const point& p) : point_{} {
         basal::exception::throw_unless(p.dimensions == 2, __FILE__, __LINE__, "Must match the number of dimensions");
         x = p[0];
         y = p[1];
     }
-    /** Copy Constructor */
+    /// Copy Constructor
     point_(const point_& other) : point_{} {
         x = other.x;
         y = other.y;
     }
 
-    /** Custom precision input constructor */
+    /// Custom precision input constructor
     explicit point_(precision a, precision b) : point_{} {
         x = a;
         y = b;
     }
-    /** Assignment Operator */
+    /// Assignment Operator
     point_& operator=(const point_& other) {
         x = other.x;
         y = other.y;
         return (*this);
     }
 
-    /** Adding points creates a vector */
+    /// Adding points creates a vector
     friend vector_<precision, 2> operator+(const point_& a, const point_& b) noexcept(false) {
         vector_<precision, 2> c;
         for (size_t i = 0; i < c.dimensions; i++) {
@@ -185,7 +183,7 @@ public:
         return vector_<precision, 2>(c);
     }
 
-    /** Subtracting points creates a vector */
+    /// Subtracting points creates a vector
     friend vector_<precision, 2> operator-(const point_& a, const point_& b) noexcept(false) {
         vector_<precision, 2> c;
         for (size_t i = 0; i < c.dimensions; i++) {
@@ -194,7 +192,7 @@ public:
         return vector_<precision, 2>(c);
     }
 
-    /** Adding a vector to a point creates a new point */
+    /// Adding a vector to a point creates a new point
     friend point operator+(const point_& a, const vector_<precision, 2>& b) noexcept(false) {
         point c{a};
         c += b;
@@ -202,42 +200,42 @@ public:
     }
 };
 
-/** Specific 3d point template wrapper to define easy access reference to \ref x, \ref y and \ref z */
+/// Specific 3d point template wrapper to define easy access reference to \ref x, \ref y and \ref z
 template <>
 class point_<3> : public point {
 public:
-    precision& x; /**< First dimensional reference */
-    precision& y; /**< Second dimensional reference */
-    precision& z; /**< Third dimensional reference */
-    /** Custom empty constructor */
+    precision& x; ///< First dimensional reference
+    precision& y; ///< Second dimensional reference
+    precision& z; ///< Third dimensional reference
+    /// Custom empty constructor
     point_() : point{3}, x(m_data[0]), y(m_data[1]), z(m_data[2]) {
     }
-    /** Custom Homogenizing Constructor */
+    /// Custom Homogenizing Constructor
     point_(const point_<2>& p) : point_{} {
         x = p.x;
         y = p.y;
         z = 1.0_p;
     }
-    /** Base type Constructor */
+    /// Base type Constructor
     point_(const point& p) : point_{} {
         basal::exception::throw_unless(p.dimensions == 3, __FILE__, __LINE__, "Must match the number of dimensions");
         x = p[0];
         y = p[1];
         z = p[2];
     }
-    /** Copy Constructor */
+    /// Copy Constructor
     point_(const point_& other) : point_{} {
         x = other.x;
         y = other.y;
         z = other.z;
     }
-    /** Custom triple input constructor */
+    /// Custom triple input constructor
     explicit point_(precision a, precision b, precision c) : point_{} {
         x = a;
         y = b;
         z = c;
     }
-    /** Assignment from another template */
+    /// Assignment from another template
     point_& operator=(const point_& other) {
         x = other.x;
         y = other.y;
@@ -245,7 +243,7 @@ public:
         return (*this);
     }
 
-    /** Adding points creates a vector */
+    /// Adding points creates a vector
     friend vector_<precision, 3> operator+(const point_& a, const point_& b) noexcept(false) {
         vector_<precision, 3> c;
         for (size_t i = 0; i < c.dimensions; i++) {
@@ -254,7 +252,7 @@ public:
         return vector_<precision, 3>(c);
     }
 
-    /** Subtracting points creates a vector */
+    /// Subtracting points creates a vector
     friend vector_<precision, 3> operator-(const point_& a, const point_& b) noexcept(false) {
         vector_<precision, 3> c;
         for (size_t i = 0; i < c.dimensions; i++) {
@@ -263,14 +261,14 @@ public:
         return vector_<precision, 3>(c);
     }
 
-    /** Adding a vector to a point creates a new point */
+    /// Adding a vector to a point creates a new point
     friend point operator+(const point_& a, const vector_<precision, 3>& b) noexcept(false) {
         point c{a};
         c += b;
         return point(c);
     }
 
-    /** Adding a vector to a point creates a new point */
+    /// Adding a vector to a point creates a new point
     friend point operator-(const point_& a, const vector_<precision, 3>& b) noexcept(false) {
         point c{a};
         c -= b;
@@ -278,25 +276,25 @@ public:
     }
 };
 
-/** Specific 4d point template wrapper to define easy access reference to \ref x, \ref y and \ref z */
+/// Specific 4d point template wrapper to define easy access reference to \ref x, \ref y and \ref z
 template <>
 class point_<4> : public point {
 public:
-    precision& x; /**< First dimensional reference */
-    precision& y; /**< Second dimensional reference */
-    precision& z; /**< Third dimensional reference */
-    precision& w; /**< Fourth dimensional reference */
-    /** Custom empty constructor */
+    precision& x; ///< First dimensional reference
+    precision& y; ///< Second dimensional reference
+    precision& z; ///< Third dimensional reference
+    precision& w; ///< Fourth dimensional reference
+    /// Custom empty constructor
     point_() : point{4}, x(m_data[0]), y(m_data[1]), z(m_data[2]), w(m_data[3]) {
     }
-    /** Custom Homogenizing Constructor */
+    /// Custom Homogenizing Constructor
     point_(const point_<3>& p) : point_{} {
         x = p.x;
         y = p.y;
         z = p.z;
         w = 1.0_p;
     }
-    /** Base type Constructor */
+    /// Base type Constructor
     point_(const point& p) : point_{} {
         basal::exception::throw_unless(p.dimensions == 4, __FILE__, __LINE__, "Must match the number of dimensions");
         x = p[0];
@@ -304,21 +302,21 @@ public:
         z = p[2];
         w = p[3];
     }
-    /** Copy Constructor */
+    /// Copy Constructor
     point_(const point_& other) : point_{} {
         x = other.x;
         y = other.y;
         z = other.z;
         w = other.w;
     }
-    /** Custom triple input constructor */
+    /// Custom triple input constructor
     explicit point_(precision a, precision b, precision c, precision d) : point_{} {
         x = a;
         y = b;
         z = c;
         w = d;
     }
-    /** Assignment from another template */
+    /// Assignment from another template
     point_& operator=(const point_& other) {
         x = other.x;
         y = other.y;
@@ -327,7 +325,7 @@ public:
         return (*this);
     }
 
-    /** Adding points creates a vector */
+    /// Adding points creates a vector
     friend vector_<precision, 4> operator+(const point_& a, const point_& b) noexcept(false) {
         vector_<precision, 4> c;
         for (size_t i = 0; i < c.dimensions; i++) {
@@ -336,7 +334,7 @@ public:
         return vector_<precision, 4>(c);
     }
 
-    /** Subtracting points creates a vector */
+    /// Subtracting points creates a vector
     friend vector_<precision, 4> operator-(const point_& a, const point_& b) noexcept(false) {
         vector_<precision, 4> c;
         for (size_t i = 0; i < c.dimensions; i++) {
@@ -345,7 +343,7 @@ public:
         return vector_<precision, 4>(c);
     }
 
-    /** Adding a vector to a point creates a new point */
+    /// Adding a vector to a point creates a new point
     friend point operator+(const point_& a, const vector_<precision, 4>& b) noexcept(false) {
         point c{a};
         c += b;
@@ -355,7 +353,7 @@ public:
 
 std::ostream& operator<<(std::ostream& os, const point& p);
 
-/** Converts a vector to a point */
+/// Converts a vector to a point
 template <typename DATA_TYPE, size_t DIM>
 point_<DIM> as_point(const vector_<DATA_TYPE, DIM>& v) {
     point_<DIM> P;

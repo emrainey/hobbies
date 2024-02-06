@@ -1,10 +1,10 @@
-/**
- * @file
- * This is an auto-generated source for iso::degrees.
- * A measure of an angle
- * @note See README on re-generation.
- * @copyright Copyright 2024.
- */
+///
+/// @file
+/// This is an auto-generated source for iso::degrees.
+/// A measure of an angle
+/// @note See README on re-generation.
+/// @copyright Copyright 2024.
+///
 #include "iso/degrees.hpp"
 
 namespace iso {
@@ -35,7 +35,7 @@ degrees& degrees::operator=(degrees&& other) noexcept {
     return (*this);
 }
 bool degrees::operator==(const degrees& other) const {
-    return iso::equivalent(value, other.value);
+    return basal::equivalent(value, other.value);
 }
 bool degrees::operator!=(const degrees& other) const {
     return !operator==(other);

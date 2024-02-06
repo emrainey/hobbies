@@ -1,8 +1,6 @@
-/**
- * @file
- * Enumeration definition and helpers
- * @copyright Copyright (c) 2022
- */
+/// @file
+/// Enumeration definition and helpers
+/// @copyright Copyright (c) 2022
 
 #pragma once
 

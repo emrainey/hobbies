@@ -79,7 +79,7 @@ TEST(IntersectionTest, GeneralIntersections) {
     point lx_yz2 = lx.solve(1.0);  // where it aught to intersect
     // print_this(lx_yz2);
     // print_this(ilxyz.pt);
-    ASSERT_TRUE(basal::equals_zero(yz2.distance(lx_yz2)));
+    ASSERT_TRUE(basal::nearly_zero(yz2.distance(lx_yz2)));
     ASSERT_TRUE(as_point(ilxyz) == lx_yz2);
     ASSERT_TRUE(as_point(ilxyz) == lx_yz2);
 

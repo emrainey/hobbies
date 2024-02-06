@@ -1,9 +1,7 @@
 #pragma once
-/**
- * @file
- * Definitions for the vector_ object.
- * @copyright Copyright 2020 (C) Erik Rainey.
- */
+/// @file
+/// Definitions for the vector_ object.
+/// @copyright Copyright 2020 (C) Erik Rainey.
 
 #include <cstdio>
 
@@ -20,16 +18,16 @@ using namespace basal::literals;
 
 namespace geometry {
 
-/** A N-dimensional vector_ object */
+/// A N-dimensional vector_ object
 template <typename DATA_TYPE, size_t DIM>
 class vector_ {
 public:
     static_assert(2 <= DIM and DIM <= 4, "Must have between (inclusive) 2 and 4 dimensions");
 
-    /** The dimensionality of the vector */
+    /// The dimensionality of the vector
     constexpr static const size_t dimensions = DIM;
 
-    /** The default constructor */
+    /// The default constructor
     vector_() : data{} {
     }
 
@@ -42,7 +40,7 @@ public:
         }
     }
 
-    /** The initializer list constructor, should not be inferred. */
+    /// The initializer list constructor, should not be inferred.
     vector_(std::initializer_list<DATA_TYPE> a) : vector_{} {
         basal::exception::throw_unless(dimensions == a.size(), __FILE__, __LINE__);
         size_t r = 0;
@@ -51,49 +49,50 @@ public:
         }
     }
 
-    /** Copy Constructor */
+    /// Copy Constructor
     vector_(const vector_& other) : vector_{} {
         memcpy(data, other.data, dimensions * sizeof(DATA_TYPE));
     }
 
-    /** Move Constructor */
+    /// Move Constructor
     vector_(vector_&& other) : vector_{} {
         memcpy(data, other.data, dimensions * sizeof(DATA_TYPE));
     }
 
-    /** Copy Assignment */
+    /// Copy Assignment
     vector_& operator=(const vector_& other) {
         memcpy(data, other.data, dimensions * sizeof(DATA_TYPE));
         return (*this);
     }
 
-    /** Move Assignment */
+    /// Move Assignment
     vector_& operator=(vector_&& other) {
         memcpy(data, other.data, dimensions * sizeof(DATA_TYPE));
         return (*this);
     }
 
-    /** Deconstructor */
+    /// Deconstructor
     virtual ~vector_() = default;
 
-    /** Indexing operator */
+    /// Indexing operator
     inline DATA_TYPE& operator[](size_t idx) noexcept(false) {
         basal::exception::throw_if(idx >= dimensions, __FILE__, __LINE__);
         return data[idx];
     }
 
-    /** Indexing operator (const) */
+    /// Indexing operator (const)
     inline const DATA_TYPE& operator[](size_t idx) const noexcept(false) {
         basal::exception::throw_if(idx >= dimensions, __FILE__, __LINE__);
         return data[idx];
     }
 
-    /** Indexing operator (volatile) */
+    /// Indexing operator (volatile)
     inline volatile DATA_TYPE& operator[](size_t idx) volatile noexcept(false) {
         basal::exception::throw_if(idx >= dimensions, __FILE__, __LINE__);
         return data[idx];
     }
 
+    /// Determines if the vector's components are all zero
     inline bool is_zero(void) const {
         for (size_t i = 0; i < dimensions; i++) {
             if (data[i] != 0.0_p or data[i] != -0.0_p) {
@@ -103,17 +102,17 @@ public:
         return true;
     }
 
-    /** @return The sqrt(quadrance()). Euclidean length of vector. */
+    /// @return The sqrt(quadrance()). Euclidean length of vector.
     virtual DATA_TYPE magnitude() const {
         return sqrt(quadrance());
     }
 
-    /** Another name for the magnitude of the vector */
+    /// Another name for the magnitude of the vector
     inline DATA_TYPE norm() const {
         return magnitude();
     }
 
-    /** @return The sum of the squares of the components */
+    /// @return The sum of the squares of the components
     inline DATA_TYPE quadrance() const {
         DATA_TYPE sum = 0.0_p;
         for (size_t i = 0; i < dimensions; i++) {
@@ -122,14 +121,13 @@ public:
         return sum;
     }
 
-    /** Compute the quadrance of a vector.
-     * \see https://en.wikipedia.org/wiki/Rational_trigonometry#Quadrance
-     */
+    /// Compute the quadrance of a vector.
+    ///\see https://en.wikipedia.org/wiki/Rational_trigonometry#Quadrance
     friend inline DATA_TYPE Q(const vector_& a) {
         return a.quadrance();
     }
 
-    /** Scales each element */
+    /// Scales each element
     vector_& operator*=(DATA_TYPE a) {
         for (size_t i = 0; i < dimensions; i++) {
             data[i] *= a;
@@ -137,7 +135,7 @@ public:
         return (*this);
     }
 
-    /** Scales each element */
+    /// Scales each element
     vector_& operator/=(DATA_TYPE a) {
         for (size_t i = 0; i < dimensions; i++) {
             data[i] /= a;
@@ -145,7 +143,7 @@ public:
         return (*this);
     }
 
-    /** Adds a scalar to each element */
+    /// Adds a scalar to each element
     vector_& operator+=(const vector_& a) {
         for (size_t i = 0; i < dimensions; i++) {
             data[i] += a[i];
@@ -153,7 +151,7 @@ public:
         return (*this);
     }
 
-    /** Subtracts a scalar to each element */
+    /// Subtracts a scalar to each element
     vector_& operator-=(const vector_& a) {
         for (size_t i = 0; i < dimensions; i++) {
             data[i] -= a[i];
@@ -161,29 +159,28 @@ public:
         return (*this);
     }
 
-    /** Normalizes the vector, destructive */
+    /// Normalizes the vector, destructive
     vector_& normalize() noexcept(false) {
-        // TODO (xmmt) replace with Fast AVX implementation?
         DATA_TYPE m = magnitude();
-        basal::exception::throw_if(basal::equals_zero(m), __FILE__, __LINE__, "Magnitude is zero, can't normalize");
+        basal::exception::throw_if(basal::nearly_zero(m), __FILE__, __LINE__, "Magnitude is zero, can't normalize");
         return operator/=(m);
     }
 
-    /** Normalizes the vector returns a copy */
+    /// Normalizes the vector returns a copy
     vector_ normalized() const noexcept(false) {
         vector_ v{*this};
         v.normalize();
         return vector_(v);
     }
 
-    /** Returns a negative copy of the vector_ */
+    /// Returns a negative copy of the vector_
     vector_ operator!() const {
         vector_ v{*this};
         v *= -1.0_p;
         return vector_(v);
     }
 
-    /** Creates a scaled vector along the parameter vector */
+    /// Creates a scaled vector along the parameter vector
     vector_ project_along(vector_& a) const {
         DATA_TYPE s = dot((*this), a) / a.quadrance();
         vector_ b{a};
@@ -191,7 +188,7 @@ public:
         return vector_(b);
     }
 
-    /** Creates a scaled vector orthogonal to the parameter vector */
+    /// Creates a scaled vector orthogonal to the parameter vector
     vector_ project_orthogonal(vector_& a) const {
         vector_ c{*this};
         c -= project_along(a);
@@ -206,7 +203,7 @@ public:
         printf(");\r\n");
     }
 
-    /** Returns the dot product of two vectors. Reference parameter form */
+    /// Returns the dot product of two vectors. Reference parameter form
     friend DATA_TYPE dot(const vector_& a, const vector_& b) noexcept(false) {
         DATA_TYPE d = 0.0_p;
         for (size_t i = 0; i < dimensions; i++) {
@@ -216,9 +213,8 @@ public:
         return d;
     }
 
-    /** Computes the spread of two vectors.
-     * \see https://en.wikipedia.org/wiki/Rational_trigonometry#Spread
-     */
+    /// Computes the spread of two vectors.
+    ///\see https://en.wikipedia.org/wiki/Rational_trigonometry#Spread
     friend DATA_TYPE spread(const vector_& a, const vector_& b) noexcept(false) {
         basal::exception::throw_unless(a.dimensions >= 2 && a.dimensions < 5, __FILE__, __LINE__, "Must be 2d to 4d");
         // we assume the vectors cross at origin
@@ -231,10 +227,10 @@ public:
         }
     }
 
-    /** Equality operator of two vector */
+    /// Equality operator of two vector
     friend bool operator==(const vector_& a, const vector_& b) {
         for (size_t i = 0; i < dimensions; i++) {
-            if (not basal::equals(a.data[i], b.data[i])) {
+            if (not basal::nearly_equals(a.data[i], b.data[i])) {
                 return false;
             }
         }
@@ -303,21 +299,21 @@ protected:
     alignas(16) DATA_TYPE data[dimensions];
 };
 
-/** Computes the angle between two vectors in radians */
+/// Computes the angle between two vectors in radians
 template <typename DATA_TYPE, size_t DIMS>
 iso::radians angle(const vector_<DATA_TYPE, DIMS>& a, const vector_<DATA_TYPE, DIMS>& b) {
     iso::radians r{acos(dot(a, b) / (a.norm() * b.norm()))};
     return r;
 }
 
-/** Tests if two vectors are orthagonal */
+/// Tests if two vectors are orthagonal
 template <typename DATA_TYPE, size_t DIMS>
 inline bool orthogonal(const vector_<DATA_TYPE, DIMS>& a, const vector_<DATA_TYPE, DIMS>& b) {
-    return basal::equals_zero(dot(a, b));
+    return basal::nearly_zero(dot(a, b));
 }
 
 namespace operators {
-/** Tests if two vectors are orthagonal */
+/// Tests if two vectors are orthagonal
 template <typename DATA_TYPE, size_t DIMS>
 inline bool operator|(const vector_<DATA_TYPE, DIMS>& a, const vector_<DATA_TYPE, DIMS>& b) {
     return orthogonal(a, b);
@@ -364,7 +360,7 @@ inline vector_<DATA_TYPE, DIMS> operator-(const vector_<DATA_TYPE, DIMS>& a) {
 }
 }  // namespace operators
 
-/** Printing Operator */
+/// Printing Operator
 template <typename DATA_TYPE, size_t DIMS>
 std::ostream& operator<<(std::ostream& os, const vector_<DATA_TYPE, DIMS>& vec) {
     os << "vector_(";
@@ -375,52 +371,52 @@ std::ostream& operator<<(std::ostream& os, const vector_<DATA_TYPE, DIMS>& vec) 
     return os;
 }
 
-/** 2D Space */
+/// 2D Space
 namespace R2 {
 using vector = vector_<precision, 2>;
 
 static const vector null{{0.0_p, 0.0_p}};
 static const vector nan{{static_cast<precision>(basal::nan), static_cast<precision>(basal::nan)}};
-/** Predefine the axis vectors to prevent constant redefinitions in tests and other code */
+/// Predefine the axis vectors to prevent constant redefinitions in tests and other code
 namespace basis {
 static const vector X{{1.0_p, 0.0_p}};
 static const vector Y{{0.0_p, 1.0_p}};
 }  // namespace basis
 }  // namespace R2
 
-/** 3D Space */
+/// 3D Space
 namespace R3 {
 using vector = vector_<precision, 3>;
 
 static const vector null{{0.0_p, 0.0_p, 0.0_p}};
 static const vector nan{{static_cast<precision>(basal::nan), static_cast<precision>(basal::nan), static_cast<precision>(basal::nan)}};
-/** Predefine the axis vectors to prevent constant redefinitions in tests and other code */
+/// Predefine the axis vectors to prevent constant redefinitions in tests and other code
 namespace basis {
 static const vector X{{1.0_p, 0.0_p, 0.0_p}};
 static const vector Y{{0.0_p, 1.0_p, 0.0_p}};
 static const vector Z{{0.0_p, 0.0_p, 1.0_p}};
 }  // namespace basis
 
-/** Returns a new vector which is the cross Product of A and B vectors (i.e. A cross B). Copy parameter form. */
+/// Returns a new vector which is the cross Product of A and B vectors (i.e. A cross B). Copy parameter form.
 vector cross(const vector& a, const vector& b) noexcept(false);
 
-/** Tests if two vectors are parallel */
+/// Tests if two vectors are parallel
 bool parallel(const vector& a, const vector& b);
 
-/** Rotates a vector v around the axis vector k by theta radians. */
+/// Rotates a vector v around the axis vector k by theta radians.
 vector rodrigues(const vector& k, const vector& v, iso::radians theta);
 
-/** Computes the triple product of three vectors */
+/// Computes the triple product of three vectors
 precision triple(const vector& u, const vector& v, const vector& w) noexcept(false);
 }  // namespace R3
 
-/** 4D Space */
+/// 4D Space
 namespace R4 {
 using vector = vector_<precision, 4>;
 
 static const vector null{{0.0_p, 0.0_p, 0.0_p, 0.0_p}};
 static const vector nan{{static_cast<precision>(basal::nan), static_cast<precision>(basal::nan), static_cast<precision>(basal::nan), static_cast<precision>(basal::nan)}};
-/** Predefine the axis vectors to prevent constant redefinitions in tests and other code */
+/// Predefine the axis vectors to prevent constant redefinitions in tests and other code
 namespace basis {
 static const vector X{{1.0_p, 0.0_p, 0.0_p, 0.0_p}};
 static const vector Y{{0.0_p, 1.0_p, 0.0_p, 0.0_p}};
@@ -430,7 +426,7 @@ static const vector W{{0.0_p, 0.0_p, 0.0_p, 1.0_p}};
 }  // namespace R4
 
 namespace operators {
-/** Tests if two vectors are parallel */
+/// Tests if two vectors are parallel
 template <typename DATA_TYPE, size_t DIMS>
 inline bool operator||(const vector_<DATA_TYPE, DIMS>& a, const vector_<DATA_TYPE, DIMS>& b) {
     static_assert(DIMS == 3, "Can only compute parallelism in 3D");

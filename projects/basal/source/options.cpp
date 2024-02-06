@@ -1,7 +1,5 @@
-/**
- * @file
- * The command line options argument processor
- */
+/// @file
+/// The command line options argument processor
 
 #include "basal/options.hpp"
 

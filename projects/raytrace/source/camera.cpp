@@ -35,7 +35,7 @@ camera::camera(size_t image_height, size_t image_width, iso::degrees field_of_vi
     m_camera_to_object_rotation = r2 * r1;
 
     // rotation matrix always must have a determinant of 1
-    assert(basal::equals(det(m_camera_to_object_rotation), 1.0));
+    assert(basal::nearly_equals(det(m_camera_to_object_rotation), 1.0));
 
     // we can't move anything until the camera to world rotation has been computed, as we use it.
     move_to(m_world_position, m_world_look_at);

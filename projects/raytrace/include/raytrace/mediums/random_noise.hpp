@@ -5,7 +5,7 @@ namespace raytrace {
 
 namespace mediums {
 
-/** Generates seemingly pure random noise as colors per pixel */
+/// Generates seemingly pure random noise as colors per pixel
 class random_noise : public opaque {
 public:
     random_noise();

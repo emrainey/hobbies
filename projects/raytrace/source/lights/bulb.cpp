@@ -20,7 +20,7 @@ precision bulb::intensity_at(const point& world_point) const {
     using namespace geometry::operators;
     vector direction = position() - world_point;
     precision d = direction.magnitude();
-    if (basal::equals_zero(d)) {
+    if (basal::nearly_zero(d)) {
         return m_intensity;
     } else {
         return m_intensity / (d * d);

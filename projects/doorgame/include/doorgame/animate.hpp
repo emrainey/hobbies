@@ -1,8 +1,5 @@
-/**
- * @file
- * @copyright Copyright (c) 2022
- *
- */
+/// @file
+/// @copyright Copyright (c) 2022
 
 #pragma once
 
@@ -11,6 +8,7 @@
 
 namespace doorgame {
 
+/// An Animate object is a living entity in the game.
 class Animate {
 public:
     Animate(size_t location);

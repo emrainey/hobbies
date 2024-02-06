@@ -1,9 +1,7 @@
 #pragma once
-/**
- * @file
- * Definitions of the neural network object.
- * @copyright Copyright 2019 (C) Erik Rainey.
- */
+/// @file
+/// Definitions of the neural network object.
+/// @copyright Copyright 2019 (C) Erik Rainey.
 
 #include <chrono>
 #include <cstddef>

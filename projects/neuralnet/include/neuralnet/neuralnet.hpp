@@ -1,11 +1,9 @@
 #pragma once
-/**
- * @file
- * Common header definitions for neural networks.
- * @copyright Copyright 2019 (C) Erik Rainey.
- */
+/// @file
+/// Common header definitions for neural networks.
+/// @copyright Copyright 2019 (C) Erik Rainey.
 
-/** The Neural Network Namespace */
+/// The Neural Network Namespace
 namespace nn {}
 
 #include "neuralnet/matrix.hpp"

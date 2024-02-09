@@ -240,7 +240,7 @@ TEST(VectorTest, DotMagAndAngle) {
     ASSERT_NEAR(std::acos(56.0 / (sqrt(29.0) * sqrt(110.0))), angle_ab.value, basal::epsilon);
 
     // FIXME (Gtest) Compute Spread Independently here, don't just repeat the code
-    ASSERT_PRECISION_EQ(1.0 - ((56.0*56.0)/Q(a)*Q(b)), spread(a, b));
+    ASSERT_PRECISION_EQ(1.0 - ((56.0 * 56.0)/(Q(a)*Q(b))), spread(a, b));
 }
 
 TEST(VectorTest, AdditionSubtraction) {

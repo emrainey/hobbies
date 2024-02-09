@@ -114,8 +114,8 @@ TEST(ObjParser, SingleTriangle) {
         "f 1 2 3\n";
     MockObserver mock;
     obj::Parser parser{mock};
-    EXPECT_CALL(mock, addVertex(1.0, 2.0, 3.0)).Times(1);
-    EXPECT_CALL(mock, addVertex(4.0, 5.0, 6.0)).Times(1);
+    EXPECT_CALL(mock, addVertex(3.0, 2.0, 1.0)).Times(1);
+    EXPECT_CALL(mock, addVertex(5.0, 4.0, 6.0)).Times(1);
     EXPECT_CALL(mock, addVertex(7.0, 8.0, 9.0)).Times(1);
     EXPECT_CALL(mock, addFace(1, 2, 3)).Times(1);
     parser.Parse(literal);

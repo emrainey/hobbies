@@ -68,21 +68,31 @@ TEST(ImageTest, SubsamplerTest) {
     precision g = 0.61250591370193386_p;  //  -> ~156
     color tmp0(g, g, g);
     fourcc::rgb8 dark_grey = tmp0.to_rgb8();
-
+    EXPECT_EQ(156u, dark_grey.r);
+    EXPECT_EQ(156u, dark_grey.g);
+    EXPECT_EQ(156u, dark_grey.b);
     int i = 0;
     std::array<color, 3> samples = {colors::red, colors::green, colors::blue};
-    auto subsampler = [&](const image::point&) -> color {
+    // this will fail if you don't block the multiple render threads from competing to
+    // increment i. If it's single threaded it will pass.
+    auto lock = std::mutex{};
+    auto subsampler = [&](const image::point& pnt) -> color {
+        lock.lock();
+        auto tmp = samples[i];
         i = (i + 1) % samples.size();
-        return samples[i];
+        lock.unlock();
+        std::cout << "returning " << tmp << " for " << pnt << std::endl;
+        return tmp;
     };
     auto renderer = [&](size_t row_index, bool is_completed) -> void {
         image::point pnt(row_index, 0);
         fourcc::rgb8 pix = img4.at(pnt);
+        EXPECT_TRUE(is_completed);
         EXPECT_EQ(dark_grey.r, pix.r) << pix.r << " at " << pnt.x << ", " << pnt.y << std::endl;
         EXPECT_EQ(dark_grey.g, pix.g) << pix.g << " at " << pnt.x << ", " << pnt.y << std::endl;
         EXPECT_EQ(dark_grey.b, pix.b) << pix.b << " at " << pnt.x << ", " << pnt.y << std::endl;
     };
-    img4.generate_each(subsampler, 3, renderer);
+    img4.generate_each(subsampler, samples.size(), renderer);
     img4.save("averaged_dark_grey.ppm");
 }
 

@@ -17,9 +17,9 @@ TEST(StereoCameraTest, CodedImageLeftRight) {
     iso::degrees fov(90);
     const size_t width = 240;
     const size_t height = 120;
-    stereo_camera cam(height, width, fov, 1.0, stereo_camera::Layout::LeftRight);
-    raytrace::point look_from(-119, 0, 0);
-    raytrace::point look_at(1, 0, 0);
+    stereo_camera cam(height, width, fov, 0.0, stereo_camera::Layout::LeftRight);
+    raytrace::point look_from(-6000, 0, 0);
+    raytrace::point look_at(0, 0, 0);
     cam.move_to(look_from, look_at);
 
     camera& first = *cam.begin();
@@ -34,7 +34,7 @@ TEST(StereoCameraTest, CodedImageLeftRight) {
             } else if (wrp.z < 0) {
                 return colors::red;
             } else {
-                return colors::black;
+                return colors::pink;
             }
         } else if (wrp.y < 0) {
             if (wrp.z > 0) {
@@ -42,10 +42,10 @@ TEST(StereoCameraTest, CodedImageLeftRight) {
             } else if (wrp.z < 0) {
                 return colors::black;
             } else {
-                return colors::black;
+                return colors::pink;
             }
         } else {
-            return colors::black;
+            return colors::pink;
         }
     });
 
@@ -58,7 +58,7 @@ TEST(StereoCameraTest, CodedImageLeftRight) {
             } else if (wrp.z < 0) {
                 return colors::magenta;
             } else {
-                return colors::black;
+                return colors::pink;
             }
         } else if (wrp.y < 0) {
             if (wrp.z > 0) {
@@ -66,10 +66,10 @@ TEST(StereoCameraTest, CodedImageLeftRight) {
             } else if (wrp.z < 0) {
                 return colors::white;
             } else {
-                return colors::black;
+                return colors::pink;
             }
         } else {
-            return colors::black;
+            return colors::pink;
         }
     });
 
@@ -83,9 +83,9 @@ TEST(StereoCameraTest, CodedImageTopBottom) {
     iso::degrees fov(90);
     const size_t width = 240;
     const size_t height = 120;
-    stereo_camera cam(height, width, fov, 1.0, stereo_camera::Layout::TopBottom);
-    raytrace::point look_from(-119, 0, 0);
-    raytrace::point look_at(1, 0, 0);
+    stereo_camera cam(height, width, fov, 0.0, stereo_camera::Layout::TopBottom);
+    raytrace::point look_from(-6000, 0, 0);
+    raytrace::point look_at(0, 0, 0);
     cam.move_to(look_from, look_at);
 
     camera& first = *cam.begin();

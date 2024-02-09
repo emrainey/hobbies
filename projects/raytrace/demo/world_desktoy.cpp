@@ -16,7 +16,7 @@ class DesktoyWorld : public world {
 public:
     DesktoyWorld()
         : world{}
-        , look_from{35, 35, 35}
+        , look_from{20, 20, 20}
         , look_at{0, 0, 0}
         , block{raytrace::point{0, 0, 2}, 8, 8, 2}
         , cutout{raytrace::point{0, 0, 6}, 4}

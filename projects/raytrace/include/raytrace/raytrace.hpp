@@ -47,3 +47,4 @@
 #include "raytrace/objects/square.hpp"
 #include "raytrace/objects/torus.hpp"
 #include "raytrace/objects/triangle.hpp"
+#include "raytrace/objects/wall.hpp"

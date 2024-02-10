@@ -165,6 +165,7 @@ bool overlap::is_surface_point(const point& world_point) const {
 
 image::point overlap::map(const point& object_surface_point __attribute__((unused))) const {
     image::point uv{0, 0};
+    // @TODO check if it's a surface point for the objects then call their map.
     return uv;
 }
 

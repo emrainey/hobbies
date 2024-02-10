@@ -1,25 +1,22 @@
 #pragma once
 
+#include <geometry/geometry.hpp>
 #include <linalg/linalg.hpp>
 
-#include "geometry/geometry.hpp"
-#include "raytrace/objects/object.hpp"
+#include "raytrace/objects/plane.hpp"
 
 namespace raytrace {
 namespace objects {
-/// Constructs a 1 sided infinite plane
-class plane
-    : public geometry::plane
-    , public object {
+/// A pair of opposing planes with a thickness
+class wall
+    : public object {
 public:
-    /// Constructs a plane from a point and a normal.
-    plane(const point& point, const vector& normal, precision surface_scale);
-    virtual ~plane() = default;
+    /// Constructs a sphere at a point of a given radius.
+    wall(const point& center, const vector& normal, precision thickness, precision scaling);
+    virtual ~wall() = default;
 
     /// @copydoc raytrace::object::normal
     vector normal(const point& world_surface_point) const override;
-    /// @copydoc raytrace::object::intersect
-    intersection intersect(const ray& world_ray) const override;
     /// @copydoc raytrace::object::collisions_along
     hits collisions_along(const ray& object_ray) const override;
     /// @copydoc raytrace::object::map
@@ -31,7 +28,8 @@ public:
     /// @copydoc raytrace::object::get_object_extant
     precision get_object_extant(void) const override;
 protected:
-    precision m_surface_scale;
+    raytrace::objects::plane m_front_;
+    raytrace::objects::plane m_back_;
 };
 }  // namespace objects
 }  // namespace raytrace

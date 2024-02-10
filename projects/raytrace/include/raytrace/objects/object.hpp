@@ -223,7 +223,7 @@ public:
     }
 
     /// Returns the maximum radial distance from the object origin on the surface of the object.
-    /// @warning Objects which are not closed or have infinite dimensionality will return std::nan.
+    /// @warning Objects which are not closed or have infinite dimensionality will return std::nan
     virtual precision get_object_extant(void) const = 0;
 
 protected:

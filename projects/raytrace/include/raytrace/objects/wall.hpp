@@ -27,6 +27,9 @@ public:
     bool is_surface_point(const point& world_point) const override;
     /// @copydoc raytrace::object::get_object_extant
     precision get_object_extant(void) const override;
+
+    inline size_t max_collisions() const override { return 2; }
+    inline bool is_closed_surface() const override { return true; }
 protected:
     raytrace::objects::plane m_front_;
     raytrace::objects::plane m_back_;

@@ -33,3 +33,57 @@ TEST(WallTest, Intersections) {
     geometry::intersection ir3wall = w0.intersect(r2);
     ASSERT_EQ(geometry::IntersectionType::None, get_type(ir3wall));
 }
+
+TEST(WallTest, CanOverlap) {
+    using namespace raytrace;
+    objects::wall w0{raytrace::point{0,0,0}, R3::basis::X, 2.0, 2.0};
+    objects::wall w1{raytrace::point{0,0,0}, R3::basis::Y, 2.0, 2.0};
+    objects::overlap column{w0, w1, objects::overlap::type::inclusive};
+
+    {
+        raytrace::ray r{raytrace::point{2,2,2},-R3::basis::X};
+        geometry::intersection is = column.intersect(r);
+        ASSERT_EQ(geometry::IntersectionType::None, get_type(is));
+    }
+    {
+        raytrace::ray r{raytrace::point{-2,2,2},-R3::basis::Y};
+        geometry::intersection is = column.intersect(r);
+        ASSERT_EQ(geometry::IntersectionType::None, get_type(is));
+    }
+    {
+        raytrace::ray r{raytrace::point{-2,-2,2},R3::basis::X};
+        geometry::intersection is = column.intersect(r);
+        ASSERT_EQ(geometry::IntersectionType::None, get_type(is));
+    }
+    {
+        raytrace::ray r{raytrace::point{2,-2,2},R3::basis::Y};
+        geometry::intersection is = column.intersect(r);
+        ASSERT_EQ(geometry::IntersectionType::None, get_type(is));
+    }
+    {
+        raytrace::ray r{raytrace::point{2,0,0},-R3::basis::X};
+        geometry::intersection is = column.intersect(r);
+        ASSERT_EQ(geometry::IntersectionType::Point, get_type(is));
+        ASSERT_EQ(raytrace::point{1,0,0},get_point(is));
+    }
+    {
+        raytrace::ray r{raytrace::point{0,2,0},-R3::basis::Y};
+        geometry::intersection is = column.intersect(r);
+        ASSERT_EQ(geometry::IntersectionType::Point, get_type(is));
+        ASSERT_EQ(raytrace::point{0,1,0},get_point(is));
+    }
+    {
+        raytrace::ray r{raytrace::point{-2,0,0},R3::basis::X};
+        geometry::intersection is = column.intersect(r);
+        ASSERT_EQ(geometry::IntersectionType::Point, get_type(is));
+        ASSERT_EQ(raytrace::point{-1,0,0},get_point(is));
+    }
+    {
+        raytrace::ray r{raytrace::point{0,-2,0},R3::basis::Y};
+        geometry::intersection is = column.intersect(r);
+        ASSERT_EQ(geometry::IntersectionType::Point, get_type(is));
+        ASSERT_EQ(raytrace::point{0,1,0},get_point(is));
+    }
+}
+
+// TEST(WallTest, DISABLED_) {}

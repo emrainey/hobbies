@@ -11,7 +11,7 @@ using namespace geometry;
 using namespace geometry::operators;
 
 square::square(const point& C, const vector& N, precision hh, precision hw)
-    : raytrace::objects::plane(C, N, 1.0), m_points{} {
+    : raytrace::objects::plane(C, N), m_points{} {
     m_points[0] = raytrace::point{-hw, -hh, 0};
     m_points[1] = raytrace::point{+hw, +hh, 0};
 }
@@ -48,10 +48,10 @@ void square::print(const char str[]) const {
 }
 
 image::point square::map(const point& object_surface_point) const {
-    return image::point(object_surface_point.x / m_surface_scale, object_surface_point.y / m_surface_scale);
+    return image::point(object_surface_point.x / m_surface_scale.u, object_surface_point.y / m_surface_scale.v);
 }
 
-precision square::get_object_extant(void) const {
+precision square::get_object_extent(void) const {
     return (m_points[1] - R3::origin).magnitude();
 }
 

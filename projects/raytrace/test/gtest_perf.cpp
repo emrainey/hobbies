@@ -35,7 +35,7 @@ protected:
 
 TEST_F(PerfCounter, IntersectionsPlane) {
     raytrace::ray r{raytrace::point{0, 0, 2}, -R3::basis::Z};
-    raytrace::objects::plane obj(R3::origin, R3::basis::Z, 1.0);
+    raytrace::objects::plane obj(R3::origin, R3::basis::Z);
     activity = std::string("plane intersections");
     for (size_t count = 0; count < number_of_ops; count++) {
         geometry::intersection hit = obj.intersect(r);

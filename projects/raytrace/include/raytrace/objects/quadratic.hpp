@@ -31,10 +31,10 @@ public:
     /// @copydoc basal::printable::print
     void print(const char str[]) const override;
     bool is_surface_point(const point& world_point) const override;
-    precision get_object_extant(void) const override;
+    precision get_object_extent(void) const override;
 
 protected:
-    /// Print in stream for cuboid
+    /// Print in stream for quadratic
     friend std::ostream& operator<<(std::ostream& os, const quadratic& c);
     /// Subclass constructor
     quadratic(const point& center);

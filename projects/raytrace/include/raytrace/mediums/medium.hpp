@@ -68,12 +68,11 @@ public:
                            precision& emitted, precision& reflected, precision& transmitted) const;
 
     /// Return the refractive index of the medium at a point
-/// @param volumetric_point The point to determine the refractive index
+    /// @param volumetric_point The point to determine the refractive index
     virtual precision refractive_index(const raytrace::point& volumetric_point) const;
 
     /// Returns the filtered color of the light as absorbed by the medium during
     /// transmission for a given (unitless) distance.
-    ///
     virtual color absorbance(precision distance, const color& given_color) const;
 
     /// Returns the mapping function
@@ -96,8 +95,8 @@ protected:
     /// specular highlights on the phong model */
     precision m_tightness;
     /// The smoothness of the surface, i.e. how much of a coherent mirror does it form?
-/// 0.0_p means bounced light is not allowed at all.
-/// 1.0_p means it's a perfect mirror
+    /// 0.0_p means bounced light is not allowed at all.
+    /// 1.0_p means it's a perfect mirror
     precision m_smoothness;
     /// The proportion of incoming light which is reflected versus transmitted 1 = (R + T). If 0, then all is reflected,
     /// if 1 then all is transmitted */

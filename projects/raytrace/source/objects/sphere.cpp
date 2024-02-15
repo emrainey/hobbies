@@ -62,7 +62,7 @@ void sphere::print(const char str[]) const {
     std::cout << str << " Sphere @" << this << " " << position() << " Radius " << radius << std::endl;
 }
 
-precision sphere::get_object_extant(void) const {
+precision sphere::get_object_extent(void) const {
     return m_radius;
 }
 

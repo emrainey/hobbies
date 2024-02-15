@@ -9,7 +9,7 @@ ellipsoid::ellipsoid(const point &center, precision a, precision b, precision c)
                                      {0.0_p, 0.0_p, 0.0_p, -1.0_p}}};
 }
 
-precision ellipsoid::get_object_extant(void) const {
+precision ellipsoid::get_object_extent(void) const {
     precision a = 1.0_p / m_coefficients[0][0];
     precision b = 1.0_p / m_coefficients[1][1];
     precision c = 1.0_p / m_coefficients[2][2];

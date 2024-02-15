@@ -103,7 +103,7 @@ void pyramid::print(const char str[]) const {
     std::cout << str << " Pyramid @" << this << " " << position() << " Height " << m_height << std::endl;
 }
 
-precision pyramid::get_object_extant(void) const {
+precision pyramid::get_object_extent(void) const {
     // this should return highest distance from the object origin
     // for a pyramid, the center is at the base, the corners are down
     // each axis. it's all the same distance.

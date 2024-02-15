@@ -15,7 +15,7 @@ TEST(Plane2Test, Intersections) {
 
     raytrace::point C{0, 0, -1};
     vector up = R3::basis::Z;
-    raytrace::objects::plane PL{C, up, 1.0};
+    raytrace::objects::plane PL{C, up};
 
     raytrace::ray r0{raytrace::point{1, 1, 1}, vector{{1, 1, 1}}};
     raytrace::ray r1{raytrace::point{1, 1, 1}, vector{{-1, -1, -1}}};
@@ -43,8 +43,8 @@ TEST(Plane2Test, SandwichRays) {
     using namespace raytrace;
     using namespace raytrace::objects;
 
-    raytrace::objects::plane P0{raytrace::point{0, 0, 10}, vector{{0, 0, -1}}, 1.0};
-    raytrace::objects::plane P1{raytrace::point{0, 0, -10}, vector{{0, 0, 1}}, 1.0};
+    raytrace::objects::plane P0{raytrace::point{0, 0, 10}, vector{{0, 0, -1}}};
+    raytrace::objects::plane P1{raytrace::point{0, 0, -10}, vector{{0, 0, 1}}};
     ray r0{raytrace::point{0, 0, 0}, vector{{1, 0, 1}}};
     ray r1{raytrace::point{0, 0, 0}, vector{{1, 0, -1}}};
 
@@ -64,4 +64,13 @@ TEST(Plane2Test, SandwichRays) {
     geometry::intersection ir1P1 = P1.intersect(r1);
     ASSERT_EQ(geometry::IntersectionType::Point, get_type(ir1P1));
     ASSERT_POINT_EQ(p1, as_point(ir1P1));
+}
+
+TEST(Plane2Test, ScaleRotateTranslate) {
+    using namespace raytrace;
+    using namespace raytrace::objects;
+    raytrace::point C{7, 7, 7};
+    raytrace::objects::plane P0{C, geometry::R3::basis::X};
+    P0.rotation(iso::degrees{0.0}, iso::degrees{0.0}, iso::degrees{180.0});
+    ASSERT_VECTOR_EQ(-geometry::R3::basis::X, P0.normal(C));
 }

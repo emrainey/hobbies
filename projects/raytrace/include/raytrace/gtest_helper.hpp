@@ -7,7 +7,9 @@
 #include <iostream>
 #include <raytrace/types.hpp>
 
+#include "basal/gtest_helper.hpp"
 #include "linalg/gtest_helper.hpp"
+#include "geometry/gtest_helper.hpp"
 
 #define ASSERT_COLOR_EQ(simple, compound)                      \
     {                                                          \

@@ -9,8 +9,8 @@ using namespace linalg::operators;
 using namespace geometry;
 using namespace geometry::operators;
 
-plane::plane(const point& C, const vector& N, precision surface_scale)
-    : geometry::plane(C, N), object(C, 1), m_surface_scale{surface_scale} {
+plane::plane(const point& C, vector const& N)
+    : geometry::plane{C, N}, object{C, 1} {
 }
 
 vector plane::normal(const point&) const {
@@ -36,15 +36,17 @@ hits plane::collisions_along(const ray& world_ray) const {
     hits ts;
     // is the ray parallel to the plane?
     // @note in object space, the center point is at the origin
-    const vector& N = geometry::plane::normal;
-    const vector& V = world_ray.direction();
-    const precision proj = dot(V, N);  // if so the projection is zero
-    if (not basal::nearly_zero(proj)) {   // they collide *somewhere*
+    vector const& N = geometry::plane::normal;
+    vector const& V = world_ray.direction();
+    precision const proj = dot(V, N);
+    // if so the projection is not zero they collide *somewhere*
+    // could be positive or negative t.
+    if (not basal::nearly_zero(proj)) {
         const point& P = world_ray.location();
         // get the vector of the center to the ray initial
-        const vector C = position() - P;
+        vector const C = position() - P;
         // t is the ratio of the projection of the arbitrary center vector divided by the projection ray
-        const precision t = dot(C, N) / proj;
+        precision const t = dot(C, N) / proj;
         ts.push_back(t);
     }
     return ts;
@@ -58,16 +60,28 @@ bool plane::is_surface_point(const point& world_point) const {
 
 image::point plane::map(const point& object_surface_point) const {
     // the pattern will map around the point in a polar fashion
-    geometry::R2::point cartesian(object_surface_point[0] / m_surface_scale, object_surface_point[1] / m_surface_scale);
+    geometry::R2::point cartesian(object_surface_point[0] / m_surface_scale.u, object_surface_point[1] / m_surface_scale.v);
     geometry::R2::point polar_space = geometry::cartesian_to_polar(cartesian);
     return image::point(polar_space[0] / 1.0, polar_space[1] / iso::tau);
 }
 
-precision plane::get_object_extant(void) const {
+precision plane::get_object_extent(void) const {
     return basal::nan;
 }
 
-void plane::print(const char str[]) const {
+bool plane::is_along_infinite_extent(ray const& world_ray) const {
+    // is the ray parallel to the plane?
+    auto object_ray = reverse_transform(world_ray);
+    // @note in object space, the center point is at the origin
+    vector const& N = geometry::plane::normal;
+    vector const& V = object_ray.direction();
+    // projection of normal on ray direction
+    precision const proj = dot(V, N);
+    // if zero, they can not intersect anywhere
+    return basal::nearly_zero(proj);
+}
+
+void plane::print(char const str[]) const {
     std::cout << str << " Plane @" << this << " " << position() << " Normal " << normal(position()) << std::endl;
 }
 

@@ -9,6 +9,8 @@ namespace objects {
 using namespace linalg::operators;
 
 overlap::overlap(const object& A, const object& B, overlap::type type) : m_A{A}, m_B{B}, m_type{type} {
+    throw_exception_if(m_A.max_collisions() != 2, "First item must have a max of %" PRIu32 " collisions", 2u);
+    throw_exception_if(m_B.max_collisions() != 2, "Second item must have a max of %" PRIu32 " collisions", 2u);
 }
 
 vector overlap::normal(const point& world_surface_point) const {
@@ -124,11 +126,11 @@ hits overlap::collisions_along(const ray& overlap_ray) const {
         }
     } else if (m_type == overlap::type::inclusive) {
         // return inner hitsAB
-        // if just [A0, A1] or [B0, B1] then return empty.
-        if (hitsA.size() == 0 or hitsB.size() == 0) {
-            return hits();  // empty
-        }
         if (two_closed_simple_surfaces) {
+            // if just [A0, A1] or [B0, B1] then return empty.
+            if (hitsA.size() == 0 or hitsB.size() == 0) {
+                return hits();  // empty
+            }
             // if [A0, A1, B0, B1] return empty
             // if [B0, B1, A0, A1] return empty
             if (std::equal(hitsAB.begin(), hitsAB.begin() + hitsA.size(), hitsA.begin())
@@ -163,6 +165,10 @@ bool overlap::is_surface_point(const point& world_point) const {
     return m_A.is_surface_point(world_point) or m_B.is_surface_point(world_point);
 }
 
+bool overlap::is_along_infinite_extent(ray const& world_ray) const {
+    return m_A.is_along_infinite_extent(world_ray) and m_B.is_along_infinite_extent(world_ray);
+}
+
 image::point overlap::map(const point& object_surface_point __attribute__((unused))) const {
     image::point uv{0, 0};
     // @TODO check if it's a surface point for the objects then call their map.
@@ -174,10 +180,19 @@ void overlap::print(const char str[]) const {
     m_B.print(str);
 }
 
-precision overlap::get_object_extant(void) const {
+precision overlap::get_object_extent(void) const {
     // we want this to be additive as this is for collision checking.
-    return std::max(m_A.get_object_extant(), m_B.get_object_extant());
+    return std::max(m_A.get_object_extent(), m_B.get_object_extent());
 }
+
+size_t overlap::max_collisions() const {
+    return std::max(m_A.max_collisions(), m_B.max_collisions());
+}
+
+bool overlap::is_closed_surface() const {
+    return m_A.is_closed_surface() and m_B.is_closed_surface();
+}
+
 
 }  // namespace objects
 }  // namespace raytrace

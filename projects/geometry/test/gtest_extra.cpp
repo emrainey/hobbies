@@ -2,11 +2,13 @@
 
 #include <basal/basal.hpp>
 #include <chrono>
+#include <linalg/linalg.hpp>
 #include <geometry/geometry.hpp>
 #include <tuple>
 #include <vector>
 
 #include "geometry/gtest_helper.hpp"
+#include "linalg/gtest_helper.hpp"
 
 using namespace linalg;
 using namespace linalg::operators;

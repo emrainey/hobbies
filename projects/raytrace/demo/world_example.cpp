@@ -45,7 +45,7 @@ public:
         , po2{80, 20, 7.5_p}
         , c0{po2, 7.5_p, 7.5_p, 7.5_p}
         , pos3{0, 0, 0}
-        , ground{pos3, R3::basis::Z, 5}
+        , ground{pos3, R3::basis::Z}
         , pos5{80, 80, 30}
         , pos6{90, 70, 0}
         , pos7{70, 90, 0}

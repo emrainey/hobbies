@@ -97,7 +97,7 @@ void quadratic::print(const char name[]) const {
     std::cout << name << " " << *this << std::endl;
 }
 
-precision quadratic::get_object_extant(void) const {
+precision quadratic::get_object_extent(void) const {
     return basal::nan;
 }
 

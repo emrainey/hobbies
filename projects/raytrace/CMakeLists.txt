@@ -16,7 +16,6 @@ set(CMAKE_CXX_STANDARD 17)
 enable_testing()
 
 option(BUILD_SHARED_LIBS "Builds libraries as dynamic objects" OFF)
-option(USE_SIMD "Use SIMD instructions" ON)
 
 add_library(hobbies-raytrace
     ${CMAKE_CURRENT_SOURCE_DIR}/source/camera.cpp
@@ -62,10 +61,6 @@ add_library(hobbies-raytrace
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/torus.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/triangle.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/wall.cpp
-)
-target_compile_definitions(hobbies-raytrace
-    PRIVATE
-        $<$<BOOL:${USE_SIMD}>:USE_SIMD>
 )
 target_link_libraries(hobbies-raytrace
     PUBLIC
@@ -184,7 +179,7 @@ if (Threads_FOUND AND GTest_FOUND)
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_objparser.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_wall.cpp
     )
-    target_link_libraries(gtest_raytrace PRIVATE hobbies-raytrace GTest::gtest GTest::gmock GTest::gtest_main Threads::Threads)
+    target_link_libraries(gtest_raytrace PRIVATE hobbies-raytrace Basal::enabled-debugging GTest::gtest GTest::gmock GTest::gtest_main Threads::Threads)
     add_test(NAME gtest_raytrace COMMAND gtest_raytrace)
 endif()
 

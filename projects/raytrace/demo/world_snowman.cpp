@@ -51,7 +51,7 @@ public:
         , carrot(colors::orange, mediums::ambient::dim, colors::orange, mediums::smoothness::none,
                  mediums::roughness::tight)
         , plum{colors::plum, mediums::ambient::none, colors::plum, mediums::smoothness::none, mediums::roughness::loose}
-        , ground{raytrace::point{0, 0, 0}, R3::basis::Z, 1}
+        , ground{raytrace::point{0, 0, 0}, R3::basis::Z}
         , sn_btm{raytrace::point{0, 0, 2}, 2.5}
         , sn_mid{raytrace::point{0, 0, 5}, 2}
         , sn_top{raytrace::point{0, 0, 7.5}, 1.5}

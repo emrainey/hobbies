@@ -23,7 +23,7 @@ public:
     image::point map(const point& object_surface_point) const override;
 
     bool is_surface_point(const point& world_point) const override;
-    precision get_object_extant(void) const override;
+    precision get_object_extent(void) const override;
 
 private:
     std::array<raytrace::point, 2> m_points;

@@ -78,10 +78,11 @@
 	"settings": {
 		"editor.formatOnSave": false,
 		"cmake.autoSelectActiveFolder": true,
-		"cmake.buildDirectory": "${workspaceFolder}/build",
+		"cmake.buildDirectory": "${workspaceFolder}/../../build/${workspaceFolderBasename}",
 		"cmake.installPrefix": "${workspaceFolder}/../../install",
 		"cmake.configureOnOpen": false,
 		"cmake.generator": "Unix Makefiles",
+		"cmake.parallelJobs": 12,
 		"cmake.environment": {
 			"CMAKE_PREFIX_PATH": "${workspaceFolder}/../../install"
 		},
@@ -96,9 +97,7 @@
 		"cmake.configureArgs": [
 			"-DBUILD_SHARED_LIB=OFF",
 			"-DCMAKE_VERBOSE_MAKEFILE:BOOL=OFF",
-			"-DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE",
-			"-DUSE_PRECISION_AS_FLOAT=ON",
-			"-DUSE_SIMD=OFF"
+			"-DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE"
 		],
 		"cmake.loggingLevel": "debug",
 		"cmake.ctest.allowParallelJobs": true,
@@ -133,17 +132,17 @@
 		"testMate.cpp.discovery.strictPattern": true,
 		"testMate.cpp.log.logpanel": true,
 		"testMate.cpp.debug.configTemplate": {
-			"type": "cppdbg",
-			"MIMode": "lldb",
+			"type": "lldb",
+			"request": "launch",
 			"program": "${exec}",
 			"args": "${argsArray}",
 			"cwd": "${cwd}",
 			"env": "${envObj}",
-			"environment": "${envObjArray}",
+			// "environment": "${envObjArray}",
 			"sourceFileMap": "${sourceFileMapObj}",
 			"externalConsole": false
 		},
-		"testMate.cpp.test.executables": "${workspaceFolder}/build/**/gtest_*",
+		"testMate.cpp.test.executables": "${workspaceFolder}/../../build/**/gtest_*",
 		"files.associations": {
 			".clang-format": "json",
 			"*.yaml": "home-assistant",
@@ -261,7 +260,7 @@
 		"C_Cpp.default.cppStandard": "c++17",
 		"C_Cpp.default.cStandard": "c17",
 		"C_Cpp.default.browse.limitSymbolsToIncludedHeaders": true,
-		"C_Cpp.default.compileCommands": "${workspaceFolder}/build/compile_commands.json",
+		"C_Cpp.default.compileCommands": "${workspaceFolder}/../../build/${workspaceFolderBasename}/compile_commands.json",
 		"C_Cpp.default.browse.path": [
 			"${workspaceFolder}/../../projects/basal/include",
 			"${workspaceFolder}/../../projects/units_of_measure/include",

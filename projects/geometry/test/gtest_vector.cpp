@@ -6,6 +6,7 @@
 #include <linalg/linalg.hpp>
 
 #include "linalg/gtest_helper.hpp"
+#include "geometry/gtest_helper.hpp"
 
 using namespace geometry;
 using namespace geometry::operators;
@@ -153,6 +154,10 @@ TEST(VectorTest, StaticsAndNegation) {
     ASSERT_PRECISION_EQ(0.0, R3::basis::Z[0]);
     ASSERT_PRECISION_EQ(0.0, R3::basis::Z[1]);
     ASSERT_PRECISION_EQ(1.0, R3::basis::Z[2]);
+
+    ASSERT_EQ(3, -R3::basis::X.dimensions);
+    ASSERT_EQ(3, -R3::basis::Y.dimensions);
+    ASSERT_EQ(3, -R3::basis::Z.dimensions);
 
     ASSERT_PRECISION_EQ(-1.0, -R3::basis::X[0]);
     ASSERT_PRECISION_EQ(0.0, -R3::basis::X[1]);

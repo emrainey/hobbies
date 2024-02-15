@@ -4,20 +4,8 @@
 
 #pragma once
 
-#include "basal/gtest_helper.hpp"
-
 #include <iostream>
 #include <linalg/matrix.hpp>
-
-#define ASSERT_VECTOR_EQ(va, vb)                                                              \
-    {                                                                                         \
-        ASSERT_PRECISION_EQ(va.dimensions, vb.dimensions);                                       \
-        for (size_t i = 0; i < vb.dimensions; i++) {                                          \
-            ASSERT_NEAR(va[i], vb[i], basal::epsilon)                                                  \
-                << "at [" << i << "]"                                                         \
-                << " from " << #va << " " << va << " from " << #vb << " " << vb << std::endl; \
-        }                                                                                     \
-    }
 
 #define ASSERT_MATRIX_EQ(a, b)                                                                \
     {                                                                                         \

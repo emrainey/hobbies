@@ -29,7 +29,7 @@ public:
         , beam_of_light{raytrace::vector{-20, 0, -21}, colors::white, 1E3}
         , inner_light{raytrace::point{0, 0, 10}, colors::white, 1E11}
         , look_at{0, 0, 10}
-        , plane0{R3::point{0, 0, 0}, R3::basis::Z, 1.0}
+        , plane0{R3::point{0, 0, 0}, R3::basis::Z}
         , scenes{} {
     }
 

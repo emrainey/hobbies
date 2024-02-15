@@ -4,6 +4,7 @@ set(CMAKE_CXX_STANDARD 17)
 enable_testing()
 
 option(BUILD_SHARED_LIBS "Builds libraries as dynamic objects" OFF)
+option(USE_PRECISION_AS_FLOAT "Use float (ON) as the precision type or double (OFF)" OFF)
 
 add_library(enabled-warnings INTERFACE)
 target_compile_options(enabled-warnings INTERFACE
@@ -50,6 +51,10 @@ target_include_directories(hobbies-basal PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     # Install Tree
     $<INSTALL_INTERFACE:include>
+)
+target_compile_definitions(hobbies-basal
+    PUBLIC
+        $<$<BOOL:${USE_PRECISION_AS_FLOAT}>:USE_PRECISION_AS_FLOAT>
 )
 target_link_libraries(hobbies-basal
     PUBLIC

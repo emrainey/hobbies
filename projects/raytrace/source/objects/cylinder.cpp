@@ -93,7 +93,7 @@ void cylinder::print(const char str[]) const {
               << std::endl;
 }
 
-precision cylinder::get_object_extant(void) const {
+precision cylinder::get_object_extent(void) const {
     return sqrt((m_half_height * m_half_height) + (m_radius * m_radius));
 }
 

@@ -4,12 +4,10 @@
 
 #pragma once
 
-#include "basal/gtest_helper.hpp"
-
-#include <geometry/geometry.hpp>
 #include <iostream>
+#include <geometry/geometry.hpp>
 
-#include "linalg/gtest_helper.hpp"
+#include "basal/gtest_helper.hpp"
 
 #define ASSERT_XYZ_EQ(ax, ay, az, obj) \
     {                                  \
@@ -20,11 +18,21 @@
 
 #define ASSERT_POINT_EQ(pa, pb)                                                               \
     {                                                                                         \
-        ASSERT_PRECISION_EQ(pa.dimensions, pb.dimensions);                                       \
+        ASSERT_PRECISION_EQ(pa.dimensions, pb.dimensions);                                    \
         for (size_t i = 0; i < pa.dimensions; i++) {                                          \
-            ASSERT_NEAR(pa[i], pb[i], basal::epsilon)                                                  \
+            ASSERT_NEAR(pa[i], pb[i], basal::epsilon)                                         \
                 << "at [" << i << "]"                                                         \
                 << " from " << #pa << " " << pa << " from " << #pb << " " << pb << std::endl; \
+        }                                                                                     \
+    }
+
+#define ASSERT_VECTOR_EQ(va, vb)                                                              \
+    {                                                                                         \
+        ASSERT_PRECISION_EQ(va.dimensions, vb.dimensions);                                    \
+        for (size_t i = 0; i < vb.dimensions; i++) {                                          \
+            ASSERT_NEAR(va[i], vb[i], basal::epsilon)                                         \
+                << "at [" << i << "]"                                                         \
+                << " from " << #va << " " << va << " from " << #vb << " " << vb << std::endl; \
         }                                                                                     \
     }
 

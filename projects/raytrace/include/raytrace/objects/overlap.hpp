@@ -17,36 +17,31 @@ public:
     };
 
     /// Constructs an overlap between two objects
-    overlap(const object& A, const object& B, type t);
+    overlap(object const& A, object const& B, type t);
 
     virtual ~overlap() = default;
 
     /// @copydoc raytrace::object::normal
-    vector normal(const point& world_surface_point) const override;
+    vector normal(point const& world_surface_point) const override;
     /// @copydoc raytrace::object::intersect
-    // geometry::intersection intersect(const ray& world_ray) const override;
+    // geometry::intersection intersect(ray const& world_ray) const override;
     /// @copydoc raytrace::object::collision_along
-    hits collisions_along(const ray& object_ray) const override;
+    hits collisions_along(ray const& object_ray) const override;
     /// @copydoc raytrace::object::map
-    image::point map(const point& object_surface_point) const override;
+    image::point map(point const& object_surface_point) const override;
     /// @copydoc basal::printable::print
     void print(const char str[]) const override;
 
-    inline size_t max_collisions() const override {
-        return std::max(m_A.max_collisions(), m_B.max_collisions());
-    }
-
-    inline bool is_closed_surface() const override {
-        return m_A.is_closed_surface() and m_B.is_closed_surface();
-    }
-
-    bool is_surface_point(const point& world_point) const override;
-    precision get_object_extant(void) const override;
+    size_t max_collisions() const override;
+    bool is_closed_surface() const override;
+    bool is_surface_point(point const& world_point) const override;
+    precision get_object_extent(void) const override;
+    bool is_along_infinite_extent(ray const& world_ray) const override;
 
 protected:
-    const object& m_A;
-    const object& m_B;
-    const type m_type;
+    object const& m_A;
+    object const& m_B;
+    type const m_type;
 };
 }  // namespace objects
 }  // namespace raytrace

@@ -23,14 +23,19 @@ class object_
     : public entity_<DIMS>
     , public basal::printable {
 public:
-    object_() : entity_<DIMS>(), m_max_collisions{0}, m_closed_surface{false}, m_medium(&mediums::dull) {
+    object_() : entity_<DIMS>()
+              , m_max_collisions{0}
+              , m_closed_surface{false}
+              , m_medium(&mediums::dull)
+              , m_surface_scale{1.0_p, 1.0_p} {
     }
 
     object_(const point& center, size_t collisions, bool closed = false)
         : entity_<DIMS>(center)
         , m_max_collisions{collisions}
         , m_closed_surface{collisions > 1 ? closed : false}
-        , m_medium{&mediums::dull} {
+        , m_medium{&mediums::dull}
+        , m_surface_scale{1.0_p, 1.0_p} {
     }
 
     object_(point&& center, size_t collisions, bool closed = false)
@@ -205,15 +210,35 @@ public:
         return m_closed_surface;
     }
 
+    /// @brief Used to determine if an open surface and ray could ever possibly intersect.
+    /// @param world_ray The ray in world space to test against.
+    /// @return False if the ray is not along the infinite extent. Closed surfaces will always return false.
+    virtual inline bool is_along_infinite_extent(ray const& world_ray) const {
+        return false;
+    }
+
+    /// @brief Determines if a point is considered "outside" the surface
+    /// by looking at the normal at that point.
+    /// @param world_point The point in world space.
+    /// @warning the default implementation only works for objects with their centers
+    /// on their insides and not concave in some way. Toroids and other objects wiith collisions > 2 will have
+    /// have their own implementations.
+    virtual bool is_outside(point const& world_point) const {
+        raytrace::vector const& N = normal(world_point);
+        raytrace::point const&P = entity_<DIMS>::position();
+        raytrace::vector V = world_point - P;
+        return (dot(N, V) > 0); // if the dot of the Normal on the point from center
+    }
+
     /// Given a world point verify that the point is on the surface of the object.
-    virtual bool is_surface_point(const raytrace::point& world_point) const {
+    virtual bool is_surface_point(raytrace::point const& world_point) const {
         return false;  // override to correct
     };
 
     /// Computes the Axis Aligned Bounding Box in World Coordinates for this object.
     abba get_world_bounds(void) const {
         // finds the object's maximum radial distance from the object origin
-        auto ijk_max = get_object_extant();
+        auto ijk_max = get_object_extent();
         // the 3d corner of a point with those components
         vector v{ijk_max, ijk_max, ijk_max};
         auto r = v.magnitude();
@@ -224,17 +249,28 @@ public:
 
     /// Returns the maximum radial distance from the object origin on the surface of the object.
     /// @warning Objects which are not closed or have infinite dimensionality will return std::nan
-    virtual precision get_object_extant(void) const = 0;
+    virtual precision get_object_extent(void) const = 0;
+
+    /// Allows setting the UV scaling factors independently.
+    virtual void set_surface_scale(precision u, precision v) {
+        m_surface_scale.u = u;
+        m_surface_scale.v = v;
+    }
 
 protected:
     /// The maximum number of collisions with the surface of this object
-    const size_t m_max_collisions;
+    size_t const m_max_collisions;
     /// Some objects may return more than 1 collisions but are not closed surfaces
-    const bool m_closed_surface;
+    bool const m_closed_surface;
     /// The pointer to the medium to use
-    const raytrace::mediums::medium* m_medium;
+    raytrace::mediums::medium const * m_medium;
     /// The std::bind or used to reference the instance of the mapping function
     std::function<geometry::R2::point(const geometry::R3::point&)> m_bound_map;
+    /// The UV surface scaling factors
+    struct {
+            precision u; ///< The scaling factor for U
+            precision v; ///< The scaling factor for V
+    } m_surface_scale;
 };
 
 /// In Raytracing we only consider 3D objects

@@ -171,7 +171,7 @@ void cuboid::print(const char name[]) const {
     std::cout << name << " " << *this << std::endl;
 }
 
-precision cuboid::get_object_extant(void) const {
+precision cuboid::get_object_extent(void) const {
     return vector{x_half_width, y_half_width, z_half_width}.magnitude();
 }
 

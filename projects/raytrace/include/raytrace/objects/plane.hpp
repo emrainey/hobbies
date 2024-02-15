@@ -13,7 +13,7 @@ class plane
     , public object {
 public:
     /// Constructs a plane from a point and a normal.
-    plane(const point& point, const vector& normal, precision surface_scale);
+    plane(const point& point, const vector& normal);
     virtual ~plane() = default;
 
     /// @copydoc raytrace::object::normal
@@ -28,10 +28,10 @@ public:
     void print(const char str[]) const override;
     /// @copydoc raytrace::object::is_surface_point
     bool is_surface_point(const point& world_point) const override;
-    /// @copydoc raytrace::object::get_object_extant
-    precision get_object_extant(void) const override;
-protected:
-    precision m_surface_scale;
+    /// @copydoc raytrace::object::get_object_extent
+    precision get_object_extent(void) const override;
+    /// @copydoc raytrace::object::is_along_infinite_extent
+    bool is_along_infinite_extent(ray const& ray) const override;
 };
 }  // namespace objects
 }  // namespace raytrace

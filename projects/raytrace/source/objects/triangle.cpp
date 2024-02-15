@@ -11,7 +11,7 @@ using namespace geometry;
 using namespace geometry::operators;
 
 triangle::triangle(const R3::point& A, const R3::point& B, const R3::point& C)
-    : plane{centroid(A, B, C), R3::cross(A - B, C - B).normalized(), 1.0}, m_points{} {
+    : plane{centroid(A, B, C), R3::cross(A - B, C - B).normalized()}, m_points{} {
     m_points[0] = A;
     m_points[1] = B;
     m_points[2] = C;
@@ -90,7 +90,7 @@ const std::array<point, 3>& triangle::points() const {
     return m_points;
 }
 
-precision triangle::get_object_extant(void) const {
+precision triangle::get_object_extent(void) const {
     // find the point farthest from origin
     precision d[] = {
         (m_points[0] - R3::origin).magnitude(),

@@ -30,7 +30,7 @@ public:
     /// Returns a read-only reference to an array of 3 points
     const std::array<point, 3>& points() const;
 
-    precision get_object_extant(void) const override;
+    precision get_object_extent(void) const override;
 
 private:
     std::array<point, 3> m_points;

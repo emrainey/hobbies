@@ -127,7 +127,7 @@ void cone::print(const char str[]) const {
               << " Angle:" << m_angle.value << std::endl;
 }
 
-precision cone::get_object_extant(void) const {
+precision cone::get_object_extent(void) const {
     return sqrt((m_height * m_height) + (m_bottom_radius * m_bottom_radius));
 }
 

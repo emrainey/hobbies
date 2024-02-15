@@ -11,7 +11,7 @@ using namespace geometry;
 using namespace geometry::operators;
 
 ring::ring(const point& C, const vector& N, precision inner, precision outer)
-    : raytrace::objects::plane(C, N, outer), m_inner_radius2(inner * inner), m_outer_radius2(outer * outer) {
+    : raytrace::objects::plane(C, N), m_inner_radius2(inner * inner), m_outer_radius2(outer * outer) {
 }
 
 hits ring::collisions_along(const ray& object_ray) const {
@@ -48,7 +48,7 @@ void ring::print(const char str[]) const {
               << " Radii (Squared):" << m_inner_radius2 << ", " << m_outer_radius2 << std::endl;
 }
 
-precision ring::get_object_extant(void) const {
+precision ring::get_object_extent(void) const {
     return m_outer_radius2;
 }
 

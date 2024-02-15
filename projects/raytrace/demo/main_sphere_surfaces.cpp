@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
     vector up = R3::basis::Z;
     vector down = -R3::basis::Z;
 
-    raytrace::objects::plane ground(R3::origin, up, 1.0_p);
+    raytrace::objects::plane ground(R3::origin, up);
     mediums::plain plain_green(colors::green, mediums::ambient::dim, colors::green, mediums::smoothness::barely,
                                mediums::roughness::loose);
     ground.material(&plain_green);

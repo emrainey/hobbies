@@ -37,11 +37,15 @@ public:
     bool is_surface_point(point const& world_point) const override;
     precision get_object_extent(void) const override;
     bool is_along_infinite_extent(ray const& world_ray) const override;
+    bool is_outside(point const& world_point) const override;
 
 protected:
     object const& m_A;
     object const& m_B;
     type const m_type;
+    bool m_closed_two_hit_surfaces_;
+    bool m_open_two_hit_surfaces_;
+    bool m_open_one_hit_surfaces_;
 };
 }  // namespace objects
 }  // namespace raytrace

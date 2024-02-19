@@ -8,9 +8,18 @@ namespace raytrace {
 namespace objects {
 using namespace linalg::operators;
 
-overlap::overlap(const object& A, const object& B, overlap::type type) : m_A{A}, m_B{B}, m_type{type} {
-    throw_exception_if(m_A.max_collisions() != 2, "First item must have a max of %" PRIu32 " collisions", 2u);
-    throw_exception_if(m_B.max_collisions() != 2, "Second item must have a max of %" PRIu32 " collisions", 2u);
+overlap::overlap(const object& A, const object& B, overlap::type type)
+    : object{}
+    , m_A{A}
+    , m_B{B}
+    , m_type{type}
+    , m_closed_two_hit_surfaces_{m_A.max_collisions() == 2 and m_B.max_collisions() == 2 and m_A.is_closed_surface() and m_B.is_closed_surface()}
+    , m_open_two_hit_surfaces_{m_A.max_collisions() == 2 and m_B.max_collisions() == 2 and not m_A.is_closed_surface() and not m_B.is_closed_surface()}
+    , m_open_one_hit_surfaces_{m_A.max_collisions() == 1 and m_B.max_collisions() == 1 and not m_A.is_closed_surface() and not m_B.is_closed_surface()}
+    {
+    // throw_exception_if(m_A.max_collisions() != 2, "First item must have a max of %" PRIu32 " collisions", 2u);
+    // throw_exception_if(m_B.max_collisions() != 2, "Second item must have a max of %" PRIu32 " collisions", 2u);
+    throw_exception_unless(m_closed_two_hit_surfaces_ or m_open_one_hit_surfaces_ or m_open_two_hit_surfaces_, "Must be one of these %lu types", 2);
 }
 
 vector overlap::normal(const point& world_surface_point) const {
@@ -32,11 +41,12 @@ vector overlap::normal(const point& world_surface_point) const {
 }
 
 hits overlap::collisions_along(const ray& overlap_ray) const {
-    /// @note are we going to assume that each of these has zero or two points?
-    // @warning overlap_ray is not in WORLD space, but is in the space of the overlap objects.
+    /// @note overlap_ray is not in WORLD space, but is in the space of the overlap objects.
+    auto object_rayA = m_A.reverse_transform(overlap_ray);
+    auto object_rayB = m_B.reverse_transform(overlap_ray);
 
-    hits hitsA = m_A.collisions_along(m_A.reverse_transform(overlap_ray));
-    hits hitsB = m_B.collisions_along(m_B.reverse_transform(overlap_ray));
+    hits hitsA = m_A.collisions_along(object_rayA);
+    hits hitsB = m_B.collisions_along(object_rayB);
 
     // early exit
     if (hitsA.size() == 0 and hitsB.size() == 0) {
@@ -54,10 +64,6 @@ hits overlap::collisions_along(const ray& overlap_ray) const {
     hitsAB.insert(hitsAB.end(), hitsB.begin(), hitsB.end());
     std::sort(hitsAB.begin(), hitsAB.end(), sorter);
 
-    // classify the type of colliders here
-    bool two_closed_simple_surfaces = (m_A.max_collisions() == 2 and m_B.max_collisions() == 2
-                                       and m_A.is_closed_surface() and m_B.is_closed_surface());
-
     if (m_type == overlap::type::additive) {
         // remove the inner alternating hit from the hits lists
         // if just [A0, A1] or [B0, B1] then return that
@@ -67,7 +73,7 @@ hits overlap::collisions_along(const ray& overlap_ray) const {
         if (hitsB.size() == 0) {
             return hitsA;
         }
-        if (two_closed_simple_surfaces) {
+        if (m_closed_two_hit_surfaces_) {
             // if [A0, A1, B0, B1] then return all
             // if [B0, B1, A0, A1] then return all
             if (std::equal(hitsAB.begin(), hitsAB.begin() + hitsA.size(), hitsA.begin())
@@ -96,7 +102,7 @@ hits overlap::collisions_along(const ray& overlap_ray) const {
             return hitsA;  // should just have A items...
         }
 
-        if (two_closed_simple_surfaces) {
+        if (m_closed_two_hit_surfaces_) {
             // if [A0, A1, B0, B1] then return [A0, A1]
             if (std::equal(hitsAB.begin(), hitsAB.begin() + hitsA.size(), hitsA.begin())) {
                 return hitsA;
@@ -126,7 +132,7 @@ hits overlap::collisions_along(const ray& overlap_ray) const {
         }
     } else if (m_type == overlap::type::inclusive) {
         // return inner hitsAB
-        if (two_closed_simple_surfaces) {
+        if (m_closed_two_hit_surfaces_) {
             // if just [A0, A1] or [B0, B1] then return empty.
             if (hitsA.size() == 0 or hitsB.size() == 0) {
                 return hits();  // empty
@@ -142,7 +148,35 @@ hits overlap::collisions_along(const ray& overlap_ray) const {
             // if [B0, A0, B1, A1] then return [A0, B1]
             // if [A0, B0, B1, A1] then return [B0, B1]
             // if [B0, A0, A1, B1] then return [A0, A1]
-            // if the first and second elements are from differnet objects...
+            // if the first and second elements are from different objects...
+            if ((hitsAB[0] == hitsA[0] and hitsAB[1] == hitsB[0])
+                or (hitsAB[0] == hitsB[0] and hitsAB[1] == hitsA[0])) {
+                return hits(hitsAB.begin() + 1, hitsAB.end() - 1);
+            }
+        }
+        if (m_open_two_hit_surfaces_) {
+            // if just [A0, A1] or [B0, B1] then check to see if those points are inside the other
+            if (hitsA.size() == 0) { // then B has to have hits
+                point const B0 = object_rayB.distance_along(hitsB[0]);
+                point const B1 = object_rayB.distance_along(hitsB[1]);
+                if (not m_A.is_outside(B0) and not m_A.is_outside(B1)) {
+                    return hitsB;
+                }
+                return hits{};
+            }
+            if (hitsB.size() == 0) { // then A has to have hits
+                point const A0 = object_rayA.distance_along(hitsA[0]);
+                point const A1 = object_rayA.distance_along(hitsA[1]);
+                if (not m_B.is_outside(A0) and not m_B.is_outside(A1)) {
+                    return hitsA;
+                }
+                return hits{};
+            }
+            // if [A0, B0, A1, B1] then return [B0, A1]
+            // if [B0, A0, B1, A1] then return [A0, B1]
+            // if [A0, B0, B1, A1] then return [B0, B1]
+            // if [B0, A0, A1, B1] then return [A0, A1]
+            // if the first and second elements are from different objects...
             if ((hitsAB[0] == hitsA[0] and hitsAB[1] == hitsB[0])
                 or (hitsAB[0] == hitsB[0] and hitsAB[1] == hitsA[0])) {
                 return hits(hitsAB.begin() + 1, hitsAB.end() - 1);
@@ -163,6 +197,22 @@ hits overlap::collisions_along(const ray& overlap_ray) const {
 bool overlap::is_surface_point(const point& world_point) const {
     // based on which type determine how they overlap
     return m_A.is_surface_point(world_point) or m_B.is_surface_point(world_point);
+}
+
+bool overlap::is_outside(point const& world_point) const {
+    point const overlap_point = forward_transform(world_point);
+    bool const outside_A = m_A.is_outside(overlap_point);
+    bool const outside_B = m_B.is_outside(overlap_point);
+    if (m_type == overlap::type::additive) {
+        return outside_A and outside_B;
+    } else if (m_type == overlap::type::subtractive) {
+        return not (not outside_A and outside_B);
+    } else if (m_type == overlap::type::inclusive) {
+        return outside_A or outside_B;
+    } else if (m_type == overlap::type::exclusive) {
+        return not (outside_A xor outside_B);
+    }
+    return false;
 }
 
 bool overlap::is_along_infinite_extent(ray const& world_ray) const {

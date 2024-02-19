@@ -59,7 +59,7 @@ if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
             ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_vector.cpp
         )
         target_include_directories(gtest_xmmt SYSTEM PUBLIC ${GTEST_INCLUDE_DIRS})
-        target_link_libraries(gtest_xmmt PRIVATE ${GTEST_BOTH_LIBRARIES} hobbies-xmmt Threads::Threads)
+        target_link_libraries(gtest_xmmt PRIVATE ${GTEST_BOTH_LIBRARIES} hobbies-xmmt Basal::enabled-debugging Threads::Threads)
         add_test(NAME gtest_xmmt COMMAND gtest_xmmt)
     endif()
 endif()

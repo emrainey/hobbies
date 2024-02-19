@@ -89,7 +89,7 @@ if (Threads_FOUND AND GTest_FOUND)
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_vector.cpp
     )
     target_include_directories(gtest_geometry SYSTEM PUBLIC ${GTEST_INCLUDE_DIRS})
-    target_link_libraries(gtest_geometry PRIVATE ${GTEST_BOTH_LIBRARIES} hobbies-geometry Threads::Threads)
+    target_link_libraries(gtest_geometry PRIVATE ${GTEST_BOTH_LIBRARIES} hobbies-geometry Basal::enabled-debugging Threads::Threads)
     add_test(NAME gtest_geometry COMMAND gtest_geometry)
 endif()
 

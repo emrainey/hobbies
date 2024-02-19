@@ -36,6 +36,7 @@
 .DS_Store
 ._.DS_Store
 __pycache__
+*.profraw
 
 # build output and the test install folder
 /build

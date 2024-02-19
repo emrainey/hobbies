@@ -23,6 +23,17 @@ TEST(EntityTest, Basics) {
     ASSERT_POINT_EQ(P, Q);
 }
 
+TEST(EntityTest, MoveBy) {
+    raytrace::point C{14, -18, -1};
+    entity e{C};
+
+    ASSERT_POINT_EQ(C, e.position());
+    raytrace::point D{-3, -3, 19};
+    raytrace::vector V = D - C;
+    e.move_by(V);
+    ASSERT_POINT_EQ(D, e.position());
+}
+
 TEST(EntityTest, Transforms) {
     entity e;
     // Rotate the thing and move it then
@@ -43,4 +54,31 @@ TEST(EntityTest, Transforms) {
     ASSERT_POINT_EQ(p3, p2);
     raytrace::point p4 = e.reverse_transform(p3);
     ASSERT_POINT_EQ(p1, p4);
+}
+
+TEST(EntityTest, Scaling) {
+    raytrace::point C{0, 0, 0};
+    raytrace::point D{2, 2, 2};
+    raytrace::point F{4, 4, 4};
+    raytrace::vector M{1, 1, 1};
+    entity E{C};
+    E.scale(2.0, 2.0, 2.0);
+    E.move_by(M);
+    C += M;
+    ASSERT_POINT_EQ(C, E.position()); // scale shouldn't affect position
+    raytrace::point G = E.forward_transform(D);
+    ASSERT_POINT_EQ((F + M), G); // scaling should effect translations
+}
+
+TEST(EntityTest, UpwardsTranslation) {
+    raytrace::point C{0, 0, 0};
+    raytrace::point D{0, 0, 10};
+    raytrace::point E{0, 0, 12};
+    entity E0{C};
+    raytrace::vector M = D - C;
+    E0.move_by(M);
+    ASSERT_VECTOR_EQ(M, E0.translation());
+    raytrace::point F = E0.reverse_transform(E);
+    raytrace::point G{0, 0, 2};
+    ASSERT_POINT_EQ(G, F);
 }

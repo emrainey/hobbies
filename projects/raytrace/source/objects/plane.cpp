@@ -11,20 +11,27 @@ using namespace geometry::operators;
 
 plane::plane(const point& C, vector const& N)
     : geometry::plane{C, N}, object{C, 1} {
+    // C.print("plane");
+    // N.print("plane");
 }
 
-vector plane::normal(const point&) const {
-    return vector(geometry::plane::normal);
+vector plane::normal(const point& world_point) const {
+    // auto object_point = reverse_transform(world_point);
+    vector world_normal = forward_transform(geometry::plane::normal);
+    // world_normal.print("plane normal");
+    return world_normal;
 }
 
 intersection plane::intersect(const ray& world_ray) const {
-    hits ts = collisions_along(world_ray);
+    auto object_ray = reverse_transform(world_ray);
+    hits ts = collisions_along(object_ray);
     if (ts.size() > 0 and ts[0] >= (0 - basal::epsilon)) {
         // check the orientation of the world ray with the normal
-        precision d = dot(geometry::plane::normal, world_ray.direction());
+        precision d = dot(geometry::plane::normal, object_ray.direction());
         if (d < 0) {  // if the ray points into the plane, yes it collides, else no it's not really colliding
             // only 1 possible element and 1 type
-            point world_point = world_ray.distance_along(ts[0]);
+            auto object_point = object_ray.distance_along(ts[0]);
+            point world_point = forward_transform(object_point);
             statistics::get().intersections_with_objects++;
             return intersection(world_point);
         }
@@ -32,19 +39,19 @@ intersection plane::intersect(const ray& world_ray) const {
     return intersection();
 }
 
-hits plane::collisions_along(const ray& world_ray) const {
+hits plane::collisions_along(const ray& object_ray) const {
     hits ts;
     // is the ray parallel to the plane?
     // @note in object space, the center point is at the origin
     vector const& N = geometry::plane::normal;
-    vector const& V = world_ray.direction();
+    vector const& V = object_ray.direction();
     precision const proj = dot(V, N);
     // if so the projection is not zero they collide *somewhere*
     // could be positive or negative t.
     if (not basal::nearly_zero(proj)) {
-        const point& P = world_ray.location();
+        const point& P = object_ray.location();
         // get the vector of the center to the ray initial
-        vector const C = position() - P;
+        vector const C = geometry::R3::origin - P;
         // t is the ratio of the projection of the arbitrary center vector divided by the projection ray
         precision const t = dot(C, N) / proj;
         ts.push_back(t);

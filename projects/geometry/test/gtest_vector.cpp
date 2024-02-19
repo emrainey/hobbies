@@ -155,21 +155,23 @@ TEST(VectorTest, StaticsAndNegation) {
     ASSERT_PRECISION_EQ(0.0, R3::basis::Z[1]);
     ASSERT_PRECISION_EQ(1.0, R3::basis::Z[2]);
 
-    ASSERT_EQ(3, -R3::basis::X.dimensions);
-    ASSERT_EQ(3, -R3::basis::Y.dimensions);
-    ASSERT_EQ(3, -R3::basis::Z.dimensions);
+    auto neg_X = -R3::basis::X;
+    ASSERT_EQ(3, neg_X.dimensions);
+    ASSERT_EQ(3, (-R3::basis::X).dimensions);
+    ASSERT_EQ(3, (-R3::basis::Y).dimensions);
+    ASSERT_EQ(3, (-R3::basis::Z).dimensions);
 
-    ASSERT_PRECISION_EQ(-1.0, -R3::basis::X[0]);
-    ASSERT_PRECISION_EQ(0.0, -R3::basis::X[1]);
-    ASSERT_PRECISION_EQ(0.0, -R3::basis::X[2]);
+    ASSERT_PRECISION_EQ(-1.0, (-R3::basis::X)[0]);
+    ASSERT_PRECISION_EQ(0.0, (-R3::basis::X)[1]);
+    ASSERT_PRECISION_EQ(0.0, (-R3::basis::X)[2]);
 
-    ASSERT_PRECISION_EQ(0.0, -R3::basis::Y[0]);
-    ASSERT_PRECISION_EQ(-1.0, -R3::basis::Y[1]);
-    ASSERT_PRECISION_EQ(0.0, -R3::basis::Y[2]);
+    ASSERT_PRECISION_EQ(0.0, (-R3::basis::Y)[0]);
+    ASSERT_PRECISION_EQ(-1.0, (-R3::basis::Y)[1]);
+    ASSERT_PRECISION_EQ(0.0, (-R3::basis::Y)[2]);
 
-    ASSERT_PRECISION_EQ(0.0, -R3::basis::Z[0]);
-    ASSERT_PRECISION_EQ(0.0, -R3::basis::Z[1]);
-    ASSERT_PRECISION_EQ(-1.0, -R3::basis::Z[2]);
+    ASSERT_PRECISION_EQ(0.0, (-R3::basis::Z)[0]);
+    ASSERT_PRECISION_EQ(0.0, (-R3::basis::Z)[1]);
+    ASSERT_PRECISION_EQ(-1.0, (-R3::basis::Z)[2]);
 }
 
 TEST(VectorTest, AxisCross) {

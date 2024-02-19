@@ -76,7 +76,7 @@ if (Threads_FOUND AND GTest_FOUND)
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_solvers.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_matrix.cpp
     )
-    target_link_libraries(gtest_linalg PRIVATE hobbies-linalg GTest::gtest GTest::gtest_main Threads::Threads)
+    target_link_libraries(gtest_linalg PRIVATE hobbies-linalg Basal::enabled-debugging GTest::gtest GTest::gtest_main Threads::Threads)
     add_test(NAME gtest_linalg COMMAND gtest_linalg)
 endif()
 

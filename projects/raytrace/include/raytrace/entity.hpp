@@ -40,7 +40,8 @@ public:
     entity_& operator=(entity_&&) = delete;
     virtual ~entity_() = default;
 
-    /// Returns the current position as a point
+    /// Returns the current position as a point in world space!
+    /// @warning Should not be used in object space calculations!
     virtual const point& position() const {
         return m_world_position;
     }
@@ -56,8 +57,8 @@ public:
     }
 
     /// Sets the position
-    virtual void position(const point& np) {
-        m_world_position = np;
+    virtual void position(const point& world_point) {
+        m_world_position = world_point;
         compute_transforms();
     }
 
@@ -69,8 +70,8 @@ public:
     }
 
     /// Moves an object by a world space vector
-    void move_by(const vector& vec) {
-        m_world_position += vec;
+    void move_by(const vector& world_vector) {
+        m_world_position += world_vector;
         compute_transforms();
     }
 

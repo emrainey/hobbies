@@ -86,6 +86,7 @@ public:
     }
 
     /// Computes the reflection vector at the surface point P given the incident vector I
+    /// @note Maintains the space the inputs were in.
     vector reflection(const vector& I, const point& P) const {
         vector N = normal(P);  // MAYBE (Optim) should we already have calculated the normal at this point already?
         vector nI = I.normalized();  // MAYBE (Optim) shouldn't this already be normalized?
@@ -97,6 +98,7 @@ public:
     }
 
     /// Computes the reflection ray at the surface point P given the incident ray I
+    /// @note Maintains the space the inputs were in.
     ray reflection(const ray& I, const point& P) const {
         return ray(P, reflection(I.direction(), P));
     }
@@ -128,13 +130,11 @@ public:
         return ray(P, refraction(I.direction(), P, nu1, nu2));
     }
 
-    ///
-    /// Returns the normal to the surface given an world space point which is presumed to be the collision point, thus on
-    /// the surface.
+    /// Returns the normal to the surface given an world space point which is presumed to
+    /// be the collision point, thus on the surface.
     /// @param world_surface_point The point on the object to use.
     /// @warning It is assumed that the point given is an intersection point.
     /// @retval R3::null indicates that the point is not on the surface.
-    ///
     virtual vector normal(const point& world_surface_point) const = 0;
 
     /// Returns all the intersections with this object along the ray (extended as a line).
@@ -221,13 +221,20 @@ public:
     /// by looking at the normal at that point.
     /// @param world_point The point in world space.
     /// @warning the default implementation only works for objects with their centers
-    /// on their insides and not concave in some way. Toroids and other objects wiith collisions > 2 will have
+    /// on their insides and not concave in some way. Toroids and other objects with collisions > 2 will have
     /// have their own implementations.
+    /// @return True for point outside the object, false for points on the surface or inside.
     virtual bool is_outside(point const& world_point) const {
         raytrace::vector const& N = normal(world_point);
         raytrace::point const&P = entity_<DIMS>::position();
         raytrace::vector V = world_point - P;
-        return (dot(N, V) > 0); // if the dot of the Normal on the point from center
+        P.print("center");
+        world_point.print("world_point");
+        V.print("projected_vector");
+        N.print("world_normal");
+        precision d = dot(N, V);
+        printf("d=%lf\r\n", d);
+        return (d > 0.0); // if the dot of the Normal on the point from center
     }
 
     /// Given a world point verify that the point is on the surface of the object.

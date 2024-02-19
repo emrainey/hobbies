@@ -128,8 +128,16 @@
 			"**/*.xml"
 		],
 		"testExplorer.showOnRun": true,
+		"testExplorer.codeLens": true,
 		"testMate.cpp.test.workingDirectory": "${absDirpath}",
+		"testMate.cpp.test.runtimeLimit": 600,
+		"testMate.cpp.test.executables": "${workspaceFolder}/../../build/*/gtest_*",
+		// "testMate.cpp.test.executables": "${workspaceFolder}/../../build/${workspaceFolderBasename}/gtest_*",
+		// "testmake.cpp.test.addvancedExecutables": "",
+		"testMate.cpp.test.parallelExecutionOfExecutableLimit": 12,
 		"testMate.cpp.discovery.strictPattern": true,
+		"testMate.cpp.discovery.loadOnStartup": true,
+		"testMate.cpp.discovery.runtimeLimit": 15,
 		"testMate.cpp.log.logpanel": true,
 		"testMate.cpp.debug.configTemplate": {
 			"type": "lldb",
@@ -142,7 +150,6 @@
 			"sourceFileMap": "${sourceFileMapObj}",
 			"externalConsole": false
 		},
-		"testMate.cpp.test.executables": "${workspaceFolder}/../../build/**/gtest_*",
 		"files.associations": {
 			".clang-format": "json",
 			"*.yaml": "home-assistant",

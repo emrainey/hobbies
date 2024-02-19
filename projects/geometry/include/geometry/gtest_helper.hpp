@@ -18,7 +18,7 @@
 
 #define ASSERT_POINT_EQ(pa, pb)                                                               \
     {                                                                                         \
-        ASSERT_PRECISION_EQ(pa.dimensions, pb.dimensions);                                    \
+        ASSERT_EQ(pa.dimensions, pb.dimensions);                                              \
         for (size_t i = 0; i < pa.dimensions; i++) {                                          \
             ASSERT_NEAR(pa[i], pb[i], basal::epsilon)                                         \
                 << "at [" << i << "]"                                                         \
@@ -28,7 +28,7 @@
 
 #define ASSERT_VECTOR_EQ(va, vb)                                                              \
     {                                                                                         \
-        ASSERT_PRECISION_EQ(va.dimensions, vb.dimensions);                                    \
+        ASSERT_EQ(va.dimensions, vb.dimensions);                                              \
         for (size_t i = 0; i < vb.dimensions; i++) {                                          \
             ASSERT_NEAR(va[i], vb[i], basal::epsilon)                                         \
                 << "at [" << i << "]"                                                         \

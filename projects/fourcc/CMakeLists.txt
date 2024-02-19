@@ -75,7 +75,7 @@ if (Threads_FOUND AND GTest_FOUND)
     add_executable(gtest_fourcc
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_fourcc.cpp
     )
-    target_link_libraries(gtest_fourcc PRIVATE hobbies-fourcc GTest::gtest GTest::gtest_main Threads::Threads)
+    target_link_libraries(gtest_fourcc PRIVATE hobbies-fourcc Basal::enabled-debugging GTest::gtest GTest::gtest_main Threads::Threads)
     add_test(NAME gtest_fourcc COMMAND gtest_fourcc)
 endif()
 

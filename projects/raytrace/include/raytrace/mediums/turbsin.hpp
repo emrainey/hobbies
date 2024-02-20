@@ -11,7 +11,7 @@ public:
     turbsin(precision xs, precision ys, precision power, precision size, color dark, color light);
     virtual ~turbsin() = default;
 
-    color diffuse(const raytrace::point& volumetric_point) const final;
+    color diffuse(raytrace::point const& volumetric_point) const final;
 
 protected:
     noise::pad m_pad;

@@ -7,15 +7,15 @@
 
 namespace geometry {
 /// Computes the dot product of a vector and a point
-precision dot(const R3::vector& a, const R3::point& b);
+precision dot(R3::vector const& a, R3::point const& b);
 
 /// Computes the dot product of a vector and a point
-inline precision dot(const R3::point& b, const R3::vector& a) {
+inline precision dot(R3::point const& b, R3::vector const& a) {
     return dot(a, b);
 }
 
 /// Finds the centroid of 3 points.
-point centroid(const point& A, const point& B, const point& C);
+point centroid(point const& A, point const& B, point const& C);
 
 ///
 /// Returns a point on each line of skew lines which is closest to the other line.
@@ -23,25 +23,25 @@ point centroid(const point& A, const point& B, const point& C);
 /// @param second Second line
 /// @return std::pair of points. The first and second attributes map back to the first and second lines.
 ///
-std::pair<point, point> closest_points_from_skew_lines(const R3::line& first, const R3::line& second);
+std::pair<point, point> closest_points_from_skew_lines(R3::line const& first, R3::line const& second);
 
 /// Returns a point on the XY plane which is addressed by 2d polar
 /// coordinates within the plane, centered around the axis of
 /// the normal which is based of the point closed to the origin.
 ///
-R2::point polar_to_cartesian(const R2::point& cart);
+R2::point polar_to_cartesian(R2::point const& cart);
 
 /// Returns a polar point on the unit plane given the 2d cartesian coordinates
-R2::point cartesian_to_polar(const R2::point& polar);
+R2::point cartesian_to_polar(R2::point const& polar);
 
 /// Converts a Cartesian 3D point to a 3D spherical coordinate.
 /// @see https://keisan.casio.com/exec/system/1359533867
 ///
-R3::point cartesian_to_spherical(const R3::point& cartesian_point);
+R3::point cartesian_to_spherical(R3::point const& cartesian_point);
 
 /// Converts a 3D Spherical Coordinate to a Cartesian 3D Coordinate
 /// @return R3::point
-R3::point spherical_to_cartesian(const R3::point& spherical_point);
+R3::point spherical_to_cartesian(R3::point const& spherical_point);
 
 /// Returns a 3x3 rotation matrix.
 /// @param in axis The axis to rotate about
@@ -80,5 +80,5 @@ matrix span(const std::vector<geometry::vector_<DATA_TYPE, DIM>>& set) noexcept(
 }
 
 /// Determines if a point is within an AABB (Axis Aligned Bounding Box) defined by 2 points, min and max
-bool contained_within_aabb(const R3::point& P, const R3::point& min, const R3::point& max);
+bool contained_within_aabb(R3::point const& P, R3::point const& min, R3::point const& max);
 }  // namespace geometry

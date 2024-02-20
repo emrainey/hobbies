@@ -6,13 +6,13 @@ namespace raytrace {
 namespace objects {
 using namespace linalg::operators;
 
-cylinder::cylinder(const point& C, precision half_height, precision radius)
+cylinder::cylinder(point const& C, precision half_height, precision radius)
     : object{C, 2, false}  // 2 collisions, not closed
     , m_half_height{half_height}
     , m_radius{radius} {
 }
 
-cylinder::cylinder(const point& base, const point& apex, precision radius)
+cylinder::cylinder(point const& base, point const& apex, precision radius)
     : object{base, 2, false}  // 2 collisions, not closed
     , m_half_height{0.0}
     , m_radius{radius} {
@@ -30,7 +30,7 @@ cylinder::cylinder(const point& base, const point& apex, precision radius)
     rotation(zero, phi, theta);
 }
 
-vector cylinder::normal(const point& world_surface_point) const {
+vector cylinder::normal(point const& world_surface_point) const {
     point object_surface_point = reverse_transform(world_surface_point);
     vector N = object_surface_point - R3::origin;  // position() in object space is the origin
     N[2] = 0.0;  // remove Z component, in object space this is up or down the cylinder
@@ -38,7 +38,7 @@ vector cylinder::normal(const point& world_surface_point) const {
     return forward_transform(N);  // copy constructor output
 }
 
-hits cylinder::collisions_along(const ray& object_ray) const {
+hits cylinder::collisions_along(ray const& object_ray) const {
     hits ts;
     precision px = object_ray.location()[0];
     precision py = object_ray.location()[1];
@@ -65,7 +65,7 @@ hits cylinder::collisions_along(const ray& object_ray) const {
     return ts;
 }
 
-bool cylinder::is_surface_point(const point& world_point) const {
+bool cylinder::is_surface_point(point const& world_point) const {
     point object_point = reverse_transform(world_point);
     precision x = object_point.x;
     precision y = object_point.y;
@@ -73,7 +73,7 @@ bool cylinder::is_surface_point(const point& world_point) const {
     return basal::nearly_equals(m_radius * m_radius, (x * x) + (y * y)) and linalg::within(-m_half_height, z, m_half_height);
 }
 
-image::point cylinder::map(const point& object_surface_point) const {
+image::point cylinder::map(point const& object_surface_point) const {
     geometry::point_<2> cartesian(object_surface_point[0], object_surface_point[1]);
     geometry::point_<2> polar = geometry::cartesian_to_polar(cartesian);
     // some range of z based in the half_height we want -h2 to map to zero and +h2 to 1.0
@@ -88,7 +88,7 @@ image::point cylinder::map(const point& object_surface_point) const {
     return image::point(u, v);
 }
 
-void cylinder::print(const char str[]) const {
+void cylinder::print(char const str[]) const {
     std::cout << str << " cylinder @" << this << " " << position() << " 1/2H" << m_half_height << " Radius:" << m_radius
               << std::endl;
 }

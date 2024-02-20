@@ -19,22 +19,22 @@ public:
     /// @param number_of_samples The number of samples to request to be averaged in order to get a good sampling of the
     /// light.
     ///
-    light(const raytrace::color& C, precision intensity, size_t number_of_samples);
+    light(raytrace::color const& C, precision intensity, size_t number_of_samples);
 
     /// Default Destructor
     virtual ~light() = default;
 
     /// Returns the intensity scaled by the appropriate dropoff at the point
-    virtual precision intensity_at(const point& world_point) const = 0;
+    virtual precision intensity_at(point const& world_point) const = 0;
 
     /// Returns the incident ray back to the light from a given point in the world.
     /// @param world_point The point in world coordinates to form the ray to. The ray must be based at the world_point.
     /// @param sample_index The index of the sample (less than or equal to the number of samples)
     ///
-    virtual ray incident(const point& world_point, size_t sample_index) const = 0;
+    virtual ray incident(point const& world_point, size_t sample_index) const = 0;
 
     /// Returns intensity scaled color at some point in the world
-    color color_at(const point& world_point) const;
+    color color_at(point const& world_point) const;
 
     /// Returns the number of samples which the light uses.
     inline size_t number_of_samples() const {

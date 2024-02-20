@@ -33,7 +33,7 @@ IntersectionType get_type(const intersection &var);
 
 /// Converts an intersection type enum to a string
 /// \return a pointer to a constant "c" string.
-const char *get_type_as_str(IntersectionType obj);
+char const *get_type_as_str(IntersectionType obj);
 
 inline const R3::point &as_point(const intersection &intersector) {
     return std::get<R3::point>(intersector);

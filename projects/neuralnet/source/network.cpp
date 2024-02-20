@@ -143,7 +143,7 @@ void network::reset(void) {
 
 static cv::Scalar black(0);
 
-static void print(cv::Mat& img, cv::Point& pt, const char fmt[], ...) {
+static void print(cv::Mat& img, cv::Point& pt, char const fmt[], ...) {
     char buffer[256] = {0};
     va_list list;
     va_start(list, fmt);
@@ -242,7 +242,7 @@ static void jetImage() {
 
 void network::visualize(std::chrono::milliseconds delay) {
     jetImage();
-    const char windowName[] = "Network";
+    char const windowName[] = "Network";
     if (get(0).values.rows > 16) {
         std::vector<std::vector<std::string>> names(layers.size());
         std::vector<std::vector<cv::Rect>> rects(layers.size());  // the desired, not actual rectangles.

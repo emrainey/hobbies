@@ -8,7 +8,7 @@
 #include "iso/radians.hpp"
 
 namespace iso {
-const char* const suffix_type_rad::suffix;
+char const* const suffix_type_rad::suffix;
 // default
 radians::radians() : measurement{} {
 }
@@ -16,7 +16,7 @@ radians::radians() : measurement{} {
 radians::radians(precision a) : measurement{a} {
 }
 // copy constructor
-radians::radians(const radians& other) : measurement{other} {
+radians::radians(radians const& other) : measurement{other} {
 }
 // move constructor
 radians::radians(radians&& other) : measurement{std::move(other)} {
@@ -34,17 +34,17 @@ radians& radians::operator=(radians&& other) noexcept {
     _value = other.value;
     return (*this);
 }
-bool radians::operator==(const radians& other) const {
+bool radians::operator==(radians const& other) const {
     return basal::equivalent(value, other.value);
 }
-bool radians::operator!=(const radians& other) const {
+bool radians::operator!=(radians const& other) const {
     return !operator==(other);
 }
-radians& radians::operator+=(const radians& other) {
+radians& radians::operator+=(radians const& other) {
     _value += other.value;
     return (*this);
 }
-radians& radians::operator-=(const radians& other) {
+radians& radians::operator-=(radians const& other) {
     _value -= other.value;
     return (*this);
 }
@@ -59,32 +59,32 @@ radians& radians::operator/=(precision factor) {
 radians radians::operator-() const {
     return radians{-value};
 }
-bool radians::operator<(const radians& other) const {
+bool radians::operator<(radians const& other) const {
     return (_value < other.value);
 }
-bool radians::operator<=(const radians& other) const {
+bool radians::operator<=(radians const& other) const {
     return (_value <= other.value);
 }
-bool radians::operator>(const radians& other) const {
+bool radians::operator>(radians const& other) const {
     return (_value > other.value);
 }
-bool radians::operator>=(const radians& other) const {
+bool radians::operator>=(radians const& other) const {
     return (_value >= other.value);
 }
 namespace operators {
-radians operator+(const radians& A, const radians& B) {
+radians operator+(radians const& A, radians const& B) {
     return radians{A.value + B.value};
 }
-radians operator-(const radians& A, const radians& B) {
+radians operator-(radians const& A, radians const& B) {
     return radians{A.value - B.value};
 }
-radians operator*(const radians& A, precision factor) {
+radians operator*(radians const& A, precision factor) {
     return radians{A.value * factor};
 }
-radians operator*(precision factor, const radians& A) {
+radians operator*(precision factor, radians const& A) {
     return radians{A.value * factor};
 }
-radians operator/(const radians& A, precision factor) {
+radians operator/(radians const& A, precision factor) {
     return radians{A.value / factor};
 }
 }  // namespace operators
@@ -95,7 +95,7 @@ iso::radians operator""_rad(long double a) {
 iso::radians operator""_rad(unsigned long long a) {
     return iso::radians(a);
 }
-iso::radians operator""_rad(const char a[]) {
+iso::radians operator""_rad(char const a[]) {
     return iso::radians(atol(a));
 }
 }  // namespace literals

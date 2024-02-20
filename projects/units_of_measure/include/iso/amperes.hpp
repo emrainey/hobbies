@@ -16,7 +16,7 @@ namespace iso {
 
 /// A structure used to hold the postfix for amperes
 struct suffix_type_A {
-    constexpr static const char *suffix = "A";
+    constexpr static char const *suffix = "A";
 };
 
 ///
@@ -36,25 +36,25 @@ public:
     /// Parameter constructor
     explicit amperes(precision value);
     /// Copy Constructor
-    amperes(const amperes& other);
+    amperes(amperes const& other);
     /// Move Constructor
     amperes(amperes&& other);
     /// Destructor
     ~amperes() = default;
     /// Const Copy Assignment
-    amperes& operator=(const amperes& other) noexcept;
+    amperes& operator=(amperes const& other) noexcept;
     /// Copy Assignment
     amperes& operator=(amperes& other) noexcept;
     /// Move Assignment
     amperes& operator=(amperes&& other) noexcept;
     /// Equality Operator
-    bool operator==(const amperes& other) const;
+    bool operator==(amperes const& other) const;
     /// Inequality Operator
-    bool operator!=(const amperes& other) const;
+    bool operator!=(amperes const& other) const;
     /// Accumulation Operator
-    amperes& operator+=(const amperes& other);
+    amperes& operator+=(amperes const& other);
     /// Deccumulation Operator
-    amperes& operator-=(const amperes& other);
+    amperes& operator-=(amperes const& other);
     /// Scaling Operator
     amperes& operator*=(precision factor);
     /// Inverse Scaling Operator
@@ -62,26 +62,26 @@ public:
     /// Negating Operator
     amperes operator-() const;
     /// Less Than Operator
-    bool operator<(const amperes& other) const;
+    bool operator<(amperes const& other) const;
     /// Less Than or Equal Operator
-    bool operator<=(const amperes& other) const;
+    bool operator<=(amperes const& other) const;
     /// Greater Than Operator
-    bool operator>(const amperes& other) const;
+    bool operator>(amperes const& other) const;
     /// Greater Than or Equal Operator
-    bool operator>=(const amperes& other) const;
+    bool operator>=(amperes const& other) const;
 };
 
 namespace operators {
     /// Addition operator
-    amperes operator+(const amperes& A, const amperes& B);
+    amperes operator+(amperes const& A, amperes const& B);
     /// Subtraction operator
-    amperes operator-(const amperes& A, const amperes& B);
+    amperes operator-(amperes const& A, amperes const& B);
     /// Left Scaling Operator
-    amperes operator*(const amperes& A, precision factor);
+    amperes operator*(amperes const& A, precision factor);
     /// Right Scaling Operator
-    amperes operator*(precision factor, const amperes& A);
+    amperes operator*(precision factor, amperes const& A);
     /// Inverse Scaling Operator
-    amperes operator/(const amperes& A, precision factor);
+    amperes operator/(amperes const& A, precision factor);
 }
 
 namespace literals {
@@ -90,7 +90,7 @@ namespace literals {
     /// Literal Int, Quote Operator
     amperes operator""_A(unsigned long long value);
     /// Literal String, Quote Operator
-    iso::amperes operator""_A(const char a[]);
+    iso::amperes operator""_A(char const a[]);
 }
 
 }

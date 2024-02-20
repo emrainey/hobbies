@@ -12,7 +12,7 @@
 
 using namespace raytrace;
 
-void subspheres(std::vector<raytrace::objects::sphere*>& spheres, const raytrace::point& center, precision R,
+void subspheres(std::vector<raytrace::objects::sphere*>& spheres, raytrace::point const& center, precision R,
                 size_t depth) {
     if (depth > 0) {
         // adding 28 spheres of
@@ -78,7 +78,7 @@ public:
         return std::string("world_spheres.tga");
     }
 
-    raytrace::color background(const raytrace::ray&) const override {
+    raytrace::color background(raytrace::ray const&) const override {
         return colors::black;
     }
 

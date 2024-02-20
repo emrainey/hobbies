@@ -9,7 +9,7 @@ using namespace geometry::operators;
 
 constexpr bool debug = false;
 
-const noise::point corners[] = {
+noise::point const corners[] = {
     noise::point{0.0, 0.0},  // top left
     noise::point{1.0, 0.0},  // top right
     noise::point{0.0, 1.0},  // btm left
@@ -38,7 +38,7 @@ vector generate_seed() {
     return convert_to_seed(r);
 }
 
-point floor(const point& pnt) {
+point floor(point const& pnt) {
 #if defined(USE_XMMT)
     return pnt.floor();
 #else
@@ -46,7 +46,7 @@ point floor(const point& pnt) {
 #endif
 }
 
-point fract(const point& pnt) {
+point fract(point const& pnt) {
 #if defined(USE_XMMT)
     return pnt.fract();
 #else
@@ -56,7 +56,7 @@ point fract(const point& pnt) {
 #endif
 }
 
-precision random(const vector& vec, const vector& seeds, precision gain) {
+precision random(vector const& vec, vector const& seeds, precision gain) {
     // use a dot product to create a ratio of how much a particular point
     // is projected unto a set of scalars in a repeatable way.
     // the smaller magnitude vector will control the scale of the value
@@ -70,7 +70,7 @@ precision random(const vector& vec, const vector& seeds, precision gain) {
     return (scaled_value - std::floor(scaled_value));
 }
 
-precision perlin(const point& pnt, precision scale, const vector& seeds, precision gain) {
+precision perlin(point const& pnt, precision scale, vector const& seeds, precision gain) {
     // converts a point into a normalized space ideally (all dims are 0-1)
     noise::point uv_floor = floor(pnt * (1.0 / scale));
     // this point should be the fractional part of uv between 0.0 and 1.0 in each dimension
@@ -112,7 +112,7 @@ precision perlin(const point& pnt, precision scale, const vector& seeds, precisi
     return fade(map(mid, -1.0, 1.0, 0.0, 1.0));
 }
 
-precision smooth(const point& pnt, const pad& map) {
+precision smooth(point const& pnt, pad const& map) {
     point base = floor(pnt);
     point frat = fract(pnt);
 
@@ -139,7 +139,7 @@ precision smooth(const point& pnt, const pad& map) {
     return value;
 }
 
-precision turbulence(const point& pnt, precision size, precision scale, const pad& map) {
+precision turbulence(point const& pnt, precision size, precision scale, pad const& map) {
     precision value = 0.0, initialSize = size;
     while (size >= 1.0) {
         point pnt2{pnt};  // copy
@@ -153,7 +153,7 @@ precision turbulence(const point& pnt, precision size, precision scale, const pa
     return (scale * value) / initialSize;
 }
 
-precision turbulentsin(const point& pnt, precision xs, precision ys, precision power, precision size, precision scale, const pad& map) {
+precision turbulentsin(point const& pnt, precision xs, precision ys, precision power, precision size, precision scale, pad const& map) {
     precision x = pnt.x * xs / map.dimensions;
     precision y = pnt.y * ys / map.dimensions;
     precision xyValue = x + y + power * turbulence(pnt, size, scale, map) / scale;
@@ -168,7 +168,7 @@ static noise::point mix(noise::point a, noise::point b, noise::point s) {
     return noise::point{mix(a.x, b.x, s.x), mix(a.y, b.y, s.y)};
 }
 
-static precision fractal_noise(const point& pnt, const vector& seed, precision rand_gain = 1.0) {
+static precision fractal_noise(point const& pnt, vector const& seed, precision rand_gain = 1.0) {
     noise::point fl = floor(pnt);
     noise::point uv = fract(pnt);
     // the feed vectors
@@ -192,7 +192,7 @@ static precision fractal_noise(const point& pnt, const vector& seed, precision r
     return mix(a, b, ux) + ((c - a) * uy * (1.0 - ux)) + ((d - b) * ux * uy);
 }
 
-precision fractal_brownian(const point& pnt, const vector& seed, size_t octaves, precision lacunarity, precision gain,
+precision fractal_brownian(point const& pnt, vector const& seed, size_t octaves, precision lacunarity, precision gain,
                         precision initial_amplitude, precision initial_frequency) {
     precision value = 0.0;
     precision amplitude = initial_amplitude;

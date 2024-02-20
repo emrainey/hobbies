@@ -16,7 +16,7 @@ Room& Map::get_room(Animate& object) {
     return m_rooms.at(object.location());
 }
 
-const Room& Map::get_room(const Animate& object) const {
+Room const& Map::get_room(Animate const& object) const {
     return m_rooms.at(object.location());
 }
 

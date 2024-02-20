@@ -12,11 +12,11 @@ public:
     module() = delete;  // No default
 
     /// Must give a name of a module to open
-    explicit module(const char name[]);
+    explicit module(char const name[]);
 
     // No copies (looses track of counts)
-    module(const module& other) = delete;
-    module& operator=(const module& other) = delete;
+    module(module const& other) = delete;
+    module& operator=(module const& other) = delete;
 
     /// Move Constructor
     module(module&& other);
@@ -32,7 +32,7 @@ public:
 
     /// Method retrieve a "C" linkage compatible method from the module
     template <class function_type>
-    std::function<function_type> get_symbol(const char symbol_name[]) {
+    std::function<function_type> get_symbol(char const symbol_name[]) {
         static_assert(std::is_function<function_type>::value, "Must be a function type");
         function_type* fp = reinterpret_cast<function_type*>(dlsym(handle, symbol_name));
         printf("Handle %p Function %s returned %p\r\n", handle, symbol_name, fp);

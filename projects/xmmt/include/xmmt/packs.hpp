@@ -44,13 +44,13 @@ public:
     float3(parallel_type a) : data{a} {
     }
     /// Copy Constructor
-    float3(const float3& other) : data{other.data} {}
+    float3(float3 const& other) : data{other.data} {}
     /// Move Constructor
     float3(float3&& other) : data{other.data} {
         other.zero();
     }
     /// Copy Assign
-    float3& operator=(const float3& other) {
+    float3& operator=(float3 const& other) {
         data = other.data;
         return (*this);
     }
@@ -66,7 +66,7 @@ public:
     }
 
     /// Indexing into the datums
-    inline element_type operator[](const size_t& index) const {
+    inline element_type operator[](size_t const& index) const {
         if (index < number_of_elements) {
             return datum[index];
         } else {
@@ -75,7 +75,7 @@ public:
     }
 
     /// Indexing into the datums
-    inline element_type& operator[](const size_t& index) {
+    inline element_type& operator[](size_t const& index) {
         if (index < number_of_elements) {
             return datum[index];
         } else {
@@ -95,7 +95,7 @@ public:
     };
 };
 
-inline std::ostream& operator<<(std::ostream& os, const float3& a) {
+inline std::ostream& operator<<(std::ostream& os, float3 const& a) {
     os << " x=" << a.c.x << ", y=" << a.c.y << ", z=" << a.c.z;
     return os;
 }
@@ -129,13 +129,13 @@ public:
     float4(parallel_type a) : data{a} {
     }
     /// Copy Constructor
-    float4(const float4& other) : data{other.data} {}
+    float4(float4 const& other) : data{other.data} {}
     /// Move Constructor
     float4(float4&& other) : data{other.data} {
         other.zero();
     }
     /// Copy Assign
-    float4& operator=(const float4& other) {
+    float4& operator=(float4 const& other) {
         data = other.data;
         return (*this);
     }
@@ -162,7 +162,7 @@ public:
     };
 };
 
-inline std::ostream& operator<<(std::ostream& os, const float4& a) {
+inline std::ostream& operator<<(std::ostream& os, float4 const& a) {
     os << " x=" << a.c.x << ", y=" << a.c.y << ", z=" << a.c.z << ", w=" << a.c.w;
     return os;
 }
@@ -194,13 +194,13 @@ public:
     double2(parallel_type a) : data{a} {
     }
     /// Copy Constructor
-    double2(const double2& other) : data{other.data} {}
+    double2(double2 const& other) : data{other.data} {}
     /// Move Constructor
     double2(double2&& other) : data{other.data} {
         other.zero();
     }
     /// Copy Assign
-    double2& operator=(const double2& other) {
+    double2& operator=(double2 const& other) {
         data = other.data;
         return (*this);
     }
@@ -215,7 +215,7 @@ public:
         data = _mm_setzero_pd();
     }
     /// Indexing into the datums
-    inline element_type& operator[](const size_t& index) {
+    inline element_type& operator[](size_t const& index) {
         if (index < number_of_elements) {
             return datum[index];
         } else {
@@ -234,7 +234,7 @@ public:
     };
 };
 
-inline std::ostream& operator<<(std::ostream& os, const double2& a) {
+inline std::ostream& operator<<(std::ostream& os, double2 const& a) {
     os << " x=" << a.c.x << ", y=" << a.c.y;
     return os;
 }
@@ -269,13 +269,13 @@ public:
     double3(parallel_type a) : data{a} {
     }
     /// Copy Constructor
-    double3(const double3& other) : data{other.data} {}
+    double3(double3 const& other) : data{other.data} {}
     /// Move Constructor
     double3(double3&& other) : data{other.data} {
         other.zero();
     }
     /// Copy Assign
-    double3& operator=(const double3& other) {
+    double3& operator=(double3 const& other) {
         data = other.data;
         return (*this);
     }
@@ -302,7 +302,7 @@ public:
     };
 };
 
-inline std::ostream& operator<<(std::ostream& os, const double3& a) {
+inline std::ostream& operator<<(std::ostream& os, double3 const& a) {
     os << " x=" << a.c.x << ", y=" << a.c.y << ", z=" << a.c.z;
     return os;
 }
@@ -332,13 +332,13 @@ public:
     /// Parallel Parameter Constructor
     double4(parallel_type a) : data{a} {}
     /// Copy Constructor
-    double4(const double4& other) : data{other.data} {}
+    double4(double4 const& other) : data{other.data} {}
     /// Move Constructor
     double4(double4&& other) : data{other.data} {
         other.zero();
     }
     /// Copy Assign
-    double4& operator=(const double4& other) {
+    double4& operator=(double4 const& other) {
         data = other.data;
         return (*this);
     }
@@ -366,7 +366,7 @@ public:
     };
 };
 
-inline std::ostream& operator<<(std::ostream& os, const double4& a) {
+inline std::ostream& operator<<(std::ostream& os, double4 const& a) {
     os << " x=" << a.c.x << ", y=" << a.c.y << ", z=" << a.c.z << ", w=" << a.c.w;
     return os;
 }

@@ -41,7 +41,7 @@ public:
     }
 
     /// Copy Constructor
-    pixel_(const pixel_& other) : pack_type{other.data} {
+    pixel_(pixel_ const& other) : pack_type{other.data} {
     }
 
     /// Move Construction is just a Copy
@@ -49,7 +49,7 @@ public:
     }
 
     /// Copy Assignment
-    pixel_& operator=(const pixel_& other) {
+    pixel_& operator=(pixel_ const& other) {
         pack_type::operator=(other.data);
         return (*this);
     }
@@ -113,7 +113,7 @@ public:
     }
 
     /// Equality Operator
-    bool operator==(const pixel_& other) {
+    bool operator==(pixel_ const& other) {
         bool ret = true;
         for (size_t n = 0; n < dimensions && ret; n++) {
             ret = (pack_type::datum[n] == other[n]);
@@ -122,11 +122,11 @@ public:
     }
 
     /// Inequality Operator
-    bool operator!=(const pixel_& other) {
+    bool operator!=(pixel_ const& other) {
         return not operator==(other);
     }
 
-    void print(const char name[]) const {
+    void print(char const name[]) const {
         std::cout << name << " " << (*this) << std::endl;
     }
 
@@ -156,7 +156,7 @@ public:
 
 
     /// Pixel Scaling
-    friend inline pixel_ operator*(const pixel_& a, const element_type& b) {
+    friend inline pixel_ operator*(pixel_ const& a, element_type const& b) {
         pixel_ c{};
         if constexpr (pack_type::number_of_elements == 2) {
             c.data = _mm_mul_pd(a.data, _mm_set1_pd(b));
@@ -172,7 +172,7 @@ public:
 
 
     /// Pairwise/Hamard Scaling
-    friend inline pixel_ operator*(const pixel_& a, const pixel_& b) {
+    friend inline pixel_ operator*(pixel_ const& a, pixel_ const& b) {
         pixel_ c{};
         if constexpr (pack_type::number_of_elements == 2) {
             c.data = _mm_mul_pd(a.data, b.data);
@@ -193,7 +193,7 @@ public:
     /// @param b
     /// @param ratio
     /// @return
-    friend inline pixel_ interpolate(const pixel_& a, const pixel_&b, element_type const ratio) {
+    friend inline pixel_ interpolate(pixel_ const& a, pixel_ const&b, element_type const ratio) {
         pixel_ c = a * ratio;
         pixel_ d = b * (1.0 - ratio);
         pixel_ e;
@@ -209,7 +209,7 @@ public:
         return e;
     }
 
-    friend std::ostream& operator<<(std::ostream& os, const pixel_& a) {
+    friend std::ostream& operator<<(std::ostream& os, pixel_ const& a) {
         pack_type const& b = a;
         os << "pixel " << b;
         return os;

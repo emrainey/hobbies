@@ -161,7 +161,7 @@ TEST(MatrixTest, EqualityAndInEquality) {
 
 TEST(MatrixTest, Indexing) {
     using namespace linalg;
-    const matrix m{{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}};
+    matrix const m{{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}};
     matrix n{m};
     ASSERT_THROW(m.at(-1, -1), basal::exception);
     ASSERT_THROW(m.at(0, 0), basal::exception);

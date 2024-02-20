@@ -21,16 +21,16 @@ public:
         m_tightness = roughness::loose;
     }
 
-    color diffuse(const raytrace::point& volumetric_point) const override {
+    color diffuse(raytrace::point const& volumetric_point) const override {
         return colors::black;
     }
 
-    color specular(const raytrace::point& volumetric_point, precision scaling,
-                   const color& light_color) const override {
+    color specular(raytrace::point const& volumetric_point, precision scaling,
+                   color const& light_color) const override {
         return colors::black;
     }
 
-    color emissive(const raytrace::point& volumetric_point) const override {
+    color emissive(raytrace::point const& volumetric_point) const override {
         raytrace::vector obj_vec = volumetric_point - R3::origin;
         iso::radians obj_angle = angle(R3::basis::Z, obj_vec);
         precision scalar = obj_angle.value / (iso::pi / 2.0);
@@ -46,12 +46,12 @@ public:
         }
     }
 
-    void radiosity(const raytrace::point& volumetric_point, precision refractive_index,
-                   const iso::radians& incident_angle, const iso::radians& transmitted_angle, precision& emitted,
+    void radiosity(raytrace::point const& volumetric_point, precision refractive_index,
+                   iso::radians const& incident_angle, iso::radians const& transmitted_angle, precision& emitted,
                    precision& reflected, precision& transmitted) const override {
         emitted = 1.0;
-        reflected = 1.0 - m_transmissivity;
-        transmitted = m_transmissivity;
+        reflected = m_reflectivity;
+        transmitted = 1.0 - m_reflectivity;
     }
 };
 }  // namespace outrun
@@ -90,7 +90,7 @@ public:
         return std::string("world_outrun.tga");
     }
 
-    raytrace::color background(const raytrace::ray& world_ray) const override {
+    raytrace::color background(raytrace::ray const& world_ray) const override {
         // this creates a gradient from top to bottom
         iso::radians sky_angle = angle(R3::basis::Z, world_ray.direction());
         precision scalar = sky_angle.value / (2 * iso::pi);

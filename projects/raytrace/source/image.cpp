@@ -24,7 +24,7 @@ fourcc::rgb8 const& image::at(size_t y, size_t x) const {
     return fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8>::at(y, x);
 }
 
-fourcc::rgb8& image::at(const image::point& p) {
+fourcc::rgb8& image::at(image::point const& p) {
     size_t x = static_cast<size_t>(std::floor(p.x));
     size_t y = static_cast<size_t>(std::floor(p.y));
     return fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8>::at(y, x);

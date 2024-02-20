@@ -53,7 +53,7 @@ public:
         return std::string("world_desktoy.tga");
     }
 
-    raytrace::color background(const raytrace::ray& world_ray) const override {
+    raytrace::color background(raytrace::ray const& world_ray) const override {
         iso::radians A = angle(R3::basis::Z, world_ray.direction());
         precision B = A.value / iso::pi;
         using namespace raytrace::operators;

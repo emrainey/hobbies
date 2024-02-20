@@ -8,7 +8,7 @@
 #include "iso/joules.hpp"
 
 namespace iso {
-const char* const suffix_type_J::suffix;
+char const* const suffix_type_J::suffix;
 // default
 joules::joules() : measurement{} {
 }
@@ -16,7 +16,7 @@ joules::joules() : measurement{} {
 joules::joules(precision a) : measurement{a} {
 }
 // copy constructor
-joules::joules(const joules& other) : measurement{other} {
+joules::joules(joules const& other) : measurement{other} {
 }
 // move constructor
 joules::joules(joules&& other) : measurement{std::move(other)} {
@@ -34,17 +34,17 @@ joules& joules::operator=(joules&& other) noexcept {
     _value = other.value;
     return (*this);
 }
-bool joules::operator==(const joules& other) const {
+bool joules::operator==(joules const& other) const {
     return basal::equivalent(value, other.value);
 }
-bool joules::operator!=(const joules& other) const {
+bool joules::operator!=(joules const& other) const {
     return !operator==(other);
 }
-joules& joules::operator+=(const joules& other) {
+joules& joules::operator+=(joules const& other) {
     _value += other.value;
     return (*this);
 }
-joules& joules::operator-=(const joules& other) {
+joules& joules::operator-=(joules const& other) {
     _value -= other.value;
     return (*this);
 }
@@ -59,32 +59,32 @@ joules& joules::operator/=(precision factor) {
 joules joules::operator-() const {
     return joules{-value};
 }
-bool joules::operator<(const joules& other) const {
+bool joules::operator<(joules const& other) const {
     return (_value < other.value);
 }
-bool joules::operator<=(const joules& other) const {
+bool joules::operator<=(joules const& other) const {
     return (_value <= other.value);
 }
-bool joules::operator>(const joules& other) const {
+bool joules::operator>(joules const& other) const {
     return (_value > other.value);
 }
-bool joules::operator>=(const joules& other) const {
+bool joules::operator>=(joules const& other) const {
     return (_value >= other.value);
 }
 namespace operators {
-joules operator+(const joules& A, const joules& B) {
+joules operator+(joules const& A, joules const& B) {
     return joules{A.value + B.value};
 }
-joules operator-(const joules& A, const joules& B) {
+joules operator-(joules const& A, joules const& B) {
     return joules{A.value - B.value};
 }
-joules operator*(const joules& A, precision factor) {
+joules operator*(joules const& A, precision factor) {
     return joules{A.value * factor};
 }
-joules operator*(precision factor, const joules& A) {
+joules operator*(precision factor, joules const& A) {
     return joules{A.value * factor};
 }
-joules operator/(const joules& A, precision factor) {
+joules operator/(joules const& A, precision factor) {
     return joules{A.value / factor};
 }
 }  // namespace operators
@@ -95,7 +95,7 @@ iso::joules operator""_J(long double a) {
 iso::joules operator""_J(unsigned long long a) {
     return iso::joules(a);
 }
-iso::joules operator""_J(const char a[]) {
+iso::joules operator""_J(char const a[]) {
     return iso::joules(atol(a));
 }
 }  // namespace literals

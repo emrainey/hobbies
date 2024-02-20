@@ -29,7 +29,7 @@ cv::Scalar_<uint8_t> jet(cv::Scalar_<uint8_t>& grey);
 cv::Scalar_<uint8_t> jet(precision v);
 
 /// Converts a point to another point type.
-inline cv::Point_<precision> convert(const geometry::R2::point& a) {
+inline cv::Point_<precision> convert(geometry::R2::point const& a) {
     return cv::Point_<precision>(a.x, a.y);
 }
 

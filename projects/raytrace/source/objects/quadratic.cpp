@@ -4,7 +4,7 @@
 namespace raytrace {
 namespace objects {
 
-quadratic::quadratic(const point& center)
+quadratic::quadratic(point const& center)
     : object{center, 2, true}  // 2 collisions, closed surface (CHECK)
     , m_coefficients{4, 4}     // start zeroed
 {
@@ -12,16 +12,16 @@ quadratic::quadratic(const point& center)
                                    "Must be a 4x4");
 }
 
-quadratic::quadratic(const point& center, raytrace::matrix& C)
+quadratic::quadratic(point const& center, raytrace::matrix& C)
     : object{center, 2, true}  // 2 collisions, closed surface (CHECK)
     , m_coefficients{C} {
     basal::exception::throw_unless(m_coefficients.rows == 4 and m_coefficients.cols == 4, __FILE__, __LINE__,
                                    "Must be a 4x4");
 }
 
-vector quadratic::normal(const point& world_surface_point) const {
+vector quadratic::normal(point const& world_surface_point) const {
     point object_surface_point = reverse_transform(world_surface_point);
-    const raytrace::matrix& Q = m_coefficients;  // ease of reference
+    raytrace::matrix const& Q = m_coefficients;  // ease of reference
     precision x = world_surface_point.x;
     precision y = world_surface_point.y;
     precision z = world_surface_point.z;
@@ -33,7 +33,7 @@ vector quadratic::normal(const point& world_surface_point) const {
     return forward_transform(object_normal);
 }
 
-hits quadratic::collisions_along(const ray& object_ray) const {
+hits quadratic::collisions_along(ray const& object_ray) const {
     hits ts;
     precision x = object_ray.location().x;
     precision y = object_ray.location().y;
@@ -41,7 +41,7 @@ hits quadratic::collisions_along(const ray& object_ray) const {
     precision i = object_ray.direction()[0];
     precision j = object_ray.direction()[1];
     precision k = object_ray.direction()[2];
-    const raytrace::matrix& Q = m_coefficients;  // ease of reference
+    raytrace::matrix const& Q = m_coefficients;  // ease of reference
     precision Q1221 = Q.at(1, 2) + Q.at(2, 1);
     precision Q2332 = Q.at(2, 3) + Q.at(3, 2);
     precision Q1331 = Q.at(1, 3) + Q.at(3, 1);
@@ -70,12 +70,12 @@ hits quadratic::collisions_along(const ray& object_ray) const {
     return ts;
 }
 
-bool quadratic::is_surface_point(const point& world_point) const {
+bool quadratic::is_surface_point(point const& world_point) const {
     point object_point = reverse_transform(world_point);
     precision x = object_point.x;
     precision y = object_point.y;
     precision z = object_point.z;
-    const raytrace::matrix& Q = m_coefficients;  // ease of reference
+    raytrace::matrix const& Q = m_coefficients;  // ease of reference
     precision a = Q(1, 1), b = Q(1, 2), c = Q(1, 3), d = Q(1, 4);
     precision e = Q(2, 2), f = Q(2, 3), g = Q(2, 4), h = Q(3, 3);
     precision i = Q(3, 4), j = Q(4, 4);
@@ -85,7 +85,7 @@ bool quadratic::is_surface_point(const point& world_point) const {
                               + (2 * g * y) + (h * z * z) + (2 * i * z) + j);
 }
 
-image::point quadratic::map(const point& object_surface_point __attribute__((unused))) const {
+image::point quadratic::map(point const& object_surface_point __attribute__((unused))) const {
     // map some range of object 3D points to some 2D u,v pair
     // isolate which axis this is on and return the forward_transformed normal
     precision u = 0.0, v = 0.0;
@@ -93,7 +93,7 @@ image::point quadratic::map(const point& object_surface_point __attribute__((unu
     return image::point(u, v);
 }
 
-void quadratic::print(const char name[]) const {
+void quadratic::print(char const name[]) const {
     std::cout << name << " " << *this << std::endl;
 }
 
@@ -101,7 +101,7 @@ precision quadratic::get_object_extent(void) const {
     return basal::nan;
 }
 
-std::ostream& operator<<(std::ostream& os, const quadratic& q) {
+std::ostream& operator<<(std::ostream& os, quadratic const& q) {
     os << " Quadratic " << q.position() << ", Coefficients {" << q.m_coefficients << "}";
     return os;
 }

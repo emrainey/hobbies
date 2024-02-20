@@ -32,7 +32,7 @@ sparse_word<N> scalar_encoder(size_t value, size_t W) {
     return o;
 }
 
-const std::tm* const now();
+std::tm const* const now();
 
 // TODO fix for leapyears, see leap year rules 4th, 100th, 400th, etc
 sparse_word<365> dayofyear_encoder();

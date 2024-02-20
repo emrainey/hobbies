@@ -52,7 +52,7 @@ int main(int argc __attribute__((unused)), char* argv[] __attribute__((unused)))
         }};
         linalg::matrix labelsetT = labelset.transpose();
         // train
-        const size_t reps = 60000;
+        size_t const reps = 60000;
         nn::precision alpha = -0.25_p;
         nn::precision gamma = -0.9_p;
         nn::precision last_rms = std::numeric_limits<nn::precision>::infinity();

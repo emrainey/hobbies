@@ -9,7 +9,7 @@ grid::grid(precision scale, color dark, color light) : opaque{}, m_scale{scale},
     m_ambient_scale = mediums::ambient::dim;
 }
 
-color grid::diffuse(const raytrace::point& volumetric_point) const {
+color grid::diffuse(raytrace::point const& volumetric_point) const {
     raytrace::point pnt(volumetric_point.x / m_scale, volumetric_point.y / m_scale, volumetric_point.z / m_scale);
     palette pal = {m_dark, m_light};
     if (m_reducing_map) {

@@ -9,7 +9,7 @@ using namespace linalg::operators;
 using namespace geometry;
 using namespace geometry::operators;
 
-torus::torus(const point& C, precision ring_radius, precision tube_radius)
+torus::torus(point const& C, precision ring_radius, precision tube_radius)
     : object{C, 4, true}  // up to 4 collisions, closed surface
     , m_ring_radius{ring_radius}
     , m_tube_radius{tube_radius} {
@@ -17,7 +17,7 @@ torus::torus(const point& C, precision ring_radius, precision tube_radius)
                                "Self-intersecting torus, tube must be smaller than ring radius");
 }
 
-vector torus::normal(const point& world_surface_point) const {
+vector torus::normal(point const& world_surface_point) const {
     point object_surface_point = reverse_transform(world_surface_point);
     // project along the XY plane
     vector ring_vector{{object_surface_point.x, object_surface_point.y, 0}};
@@ -34,7 +34,7 @@ vector torus::normal(const point& world_surface_point) const {
     return vector(world_N);  // copy constructor output
 }
 
-hits torus::collisions_along(const ray& object_ray) const {
+hits torus::collisions_along(ray const& object_ray) const {
     hits ts;
     point A = object_ray.closest(R3::origin);
     vector D = A - R3::origin;
@@ -117,7 +117,7 @@ hits torus::collisions_along(const ray& object_ray) const {
     return ts;
 }
 
-bool torus::is_surface_point(const point& world_point) const {
+bool torus::is_surface_point(point const& world_point) const {
     // (sqrt(x*x + y*y) + R)^2 +z*z = r*r
     point object_point = reverse_transform(world_point);
     precision x = object_point.x;
@@ -130,7 +130,7 @@ bool torus::is_surface_point(const point& world_point) const {
     return basal::nearly_equals(r * r, sqrt_xx_yy_R_zz);
 }
 
-image::point torus::map(const point& object_surface_point __attribute__((unused))) const {
+image::point torus::map(point const& object_surface_point __attribute__((unused))) const {
     // FIXME (Torus) texture mapping a torus is hard but not impossible. define the mapping as a set of 2 angles,
     // one around the Z axis and another around the edge of the ring at that position.
     precision u = 0.0;
@@ -138,7 +138,7 @@ image::point torus::map(const point& object_surface_point __attribute__((unused)
     return image::point(u, v);
 }
 
-void torus::print(const char str[]) const {
+void torus::print(char const str[]) const {
     std::cout << str << " torus @" << this << " " << position() << " Inner Radius" << m_tube_radius
               << " Ring Radius:" << m_ring_radius << std::endl;
 }

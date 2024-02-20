@@ -18,7 +18,7 @@ namespace laws {
 /// @param eta2 The refractive index of the next medium
 /// @retval R3::null when total internal reflection has occurred.
 ///
-inline vector snell(const vector& N, const vector& I, precision eta1, precision eta2) {
+inline vector snell(vector const& N, vector const& I, precision eta1, precision eta2) {
     // Snell's Law here is about the equality eta1 * sin(theta) = eta2 * sin(phi)
     // sin(phi) = eta1/eta2 * sin(theta)
     // we want the value of phi as applied on the outgoing vector
@@ -34,7 +34,7 @@ inline vector snell(const vector& N, const vector& I, precision eta1, precision 
 }
 
 /// Computes the "perfect" reflection vector from a Normal and Incident.
-inline vector reflection(const vector& N, const vector& I) {
+inline vector reflection(vector const& N, vector const& I) {
     // this scales the normal to the incident angle size, precisions that and subtracts that
     // from the normalized incident to essentially flip it around the plane of the normal.
     // r = I - 2*dot(nI,N)*N
@@ -49,8 +49,8 @@ inline vector reflection(const vector& N, const vector& I) {
 /// @param theta_tr The refracted angle to the normal
 /// @return The coefficient of reflectance. The coefficient of refraction is 1 - reflectance.
 ///
-inline precision fresnel(precision n1, precision n2, const iso::radians& theta_i,
-                            const iso::radians& theta_tr) {
+inline precision fresnel(precision n1, precision n2, iso::radians const& theta_i,
+                            iso::radians const& theta_tr) {
     precision cos_theta_i = std::cos(theta_i.value);
     precision cos_theta_t = std::cos(theta_tr.value);
     precision Rs = (n1 * cos_theta_i - n2 * cos_theta_t) / (n1 * cos_theta_i + n2 * cos_theta_t);
@@ -66,7 +66,7 @@ inline precision fresnel(precision n1, precision n2, const iso::radians& theta_i
 /// @param n2 The refractive index of the medium being entered
 /// @param theta the angle between the Normal the the incident light.
 ///
-inline precision schlicks(precision n1, precision n2, const iso::radians& theta) {
+inline precision schlicks(precision n1, precision n2, iso::radians const& theta) {
     precision r0 = (n1 - n2) / (n1 + n2);
     r0 *= r0;
     precision one_minus_cos = 1.0_p - std::cos(theta.value);
@@ -95,7 +95,7 @@ inline precision penetration_depth(precision permeability, precision permittivit
 /// @param C The coefficient of dropoff in the medium. Values can be from 0-1 inclusive. Values under 0.2_p look more
 /// transparent.
 ///
-inline precision beers(const vector& D, precision C) {
+inline precision beers(vector const& D, precision C) {
     return std::exp(-D.magnitude() * C);
 }
 }  // namespace laws

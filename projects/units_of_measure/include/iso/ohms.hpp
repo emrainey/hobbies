@@ -16,7 +16,7 @@ namespace iso {
 
 /// A structure used to hold the postfix for ohms
 struct suffix_type_Ohm {
-    constexpr static const char *suffix = "Ohm";
+    constexpr static char const *suffix = "Ohm";
 };
 
 ///
@@ -36,25 +36,25 @@ public:
     /// Parameter constructor
     explicit ohms(precision value);
     /// Copy Constructor
-    ohms(const ohms& other);
+    ohms(ohms const& other);
     /// Move Constructor
     ohms(ohms&& other);
     /// Destructor
     ~ohms() = default;
     /// Const Copy Assignment
-    ohms& operator=(const ohms& other) noexcept;
+    ohms& operator=(ohms const& other) noexcept;
     /// Copy Assignment
     ohms& operator=(ohms& other) noexcept;
     /// Move Assignment
     ohms& operator=(ohms&& other) noexcept;
     /// Equality Operator
-    bool operator==(const ohms& other) const;
+    bool operator==(ohms const& other) const;
     /// Inequality Operator
-    bool operator!=(const ohms& other) const;
+    bool operator!=(ohms const& other) const;
     /// Accumulation Operator
-    ohms& operator+=(const ohms& other);
+    ohms& operator+=(ohms const& other);
     /// Deccumulation Operator
-    ohms& operator-=(const ohms& other);
+    ohms& operator-=(ohms const& other);
     /// Scaling Operator
     ohms& operator*=(precision factor);
     /// Inverse Scaling Operator
@@ -62,26 +62,26 @@ public:
     /// Negating Operator
     ohms operator-() const;
     /// Less Than Operator
-    bool operator<(const ohms& other) const;
+    bool operator<(ohms const& other) const;
     /// Less Than or Equal Operator
-    bool operator<=(const ohms& other) const;
+    bool operator<=(ohms const& other) const;
     /// Greater Than Operator
-    bool operator>(const ohms& other) const;
+    bool operator>(ohms const& other) const;
     /// Greater Than or Equal Operator
-    bool operator>=(const ohms& other) const;
+    bool operator>=(ohms const& other) const;
 };
 
 namespace operators {
     /// Addition operator
-    ohms operator+(const ohms& A, const ohms& B);
+    ohms operator+(ohms const& A, ohms const& B);
     /// Subtraction operator
-    ohms operator-(const ohms& A, const ohms& B);
+    ohms operator-(ohms const& A, ohms const& B);
     /// Left Scaling Operator
-    ohms operator*(const ohms& A, precision factor);
+    ohms operator*(ohms const& A, precision factor);
     /// Right Scaling Operator
-    ohms operator*(precision factor, const ohms& A);
+    ohms operator*(precision factor, ohms const& A);
     /// Inverse Scaling Operator
-    ohms operator/(const ohms& A, precision factor);
+    ohms operator/(ohms const& A, precision factor);
 }
 
 namespace literals {
@@ -90,7 +90,7 @@ namespace literals {
     /// Literal Int, Quote Operator
     ohms operator""_Ohm(unsigned long long value);
     /// Literal String, Quote Operator
-    iso::ohms operator""_Ohm(const char a[]);
+    iso::ohms operator""_Ohm(char const a[]);
 }
 
 }

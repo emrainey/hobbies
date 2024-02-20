@@ -8,15 +8,15 @@ namespace lights {
 
 using namespace linalg::operators;
 
-bulb::bulb(const point& P, precision radius, const color& C, precision intensity, size_t samples)
+bulb::bulb(point const& P, precision radius, color const& C, precision intensity, size_t samples)
     : light{C, intensity, samples}, entity{P}, m_radius{radius} {
 }
 
-bulb::bulb(point&& P, precision radius, const color& C, precision intensity, size_t samples)
+bulb::bulb(point&& P, precision radius, color const& C, precision intensity, size_t samples)
     : light{C, intensity, samples}, entity{std::move(P)}, m_radius{radius} {
 }
 
-precision bulb::intensity_at(const point& world_point) const {
+precision bulb::intensity_at(point const& world_point) const {
     using namespace geometry::operators;
     vector direction = position() - world_point;
     precision d = direction.magnitude();
@@ -27,7 +27,7 @@ precision bulb::intensity_at(const point& world_point) const {
     }
 }
 
-ray bulb::incident(const point& world_point, size_t sample_index) const {
+ray bulb::incident(point const& world_point, size_t sample_index) const {
     // we'll get a perturbation vector from the golden_ratio_mapper
     raytrace::vector perturb = raytrace::mapping::golden_ratio_mapper(sample_index, m_samples) - geometry::R3::origin;
     raytrace::vector shadow = position() - world_point;
@@ -40,13 +40,13 @@ ray bulb::incident(const point& world_point, size_t sample_index) const {
     return ray(world_point, shadow + perturb);
 }
 
-void bulb::print(const char str[]) const {
+void bulb::print(char const str[]) const {
     std::cout << str << " bulb:" << m_samples << " @" << this << " " << position() << ", " << m_color << std::endl;
 }
 
 }  // namespace lights
 
-std::ostream& operator<<(std::ostream& os, const lights::bulb& l) {
+std::ostream& operator<<(std::ostream& os, lights::bulb const& l) {
     os << " bulb:" << l.number_of_samples() << " " << l.position() << ", " << l.color_at(l.position());
     return os;
 }

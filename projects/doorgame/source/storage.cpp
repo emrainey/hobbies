@@ -5,7 +5,7 @@ namespace doorgame {
 Storage::Storage(size_t limit) : inventory(limit, Item::Nothing) {
 }
 
-const Inventory& Storage::get_inventory() const {
+Inventory const& Storage::get_inventory() const {
     return inventory;
 }
 
@@ -30,7 +30,7 @@ bool Storage::remove(Item item) {
     return false;
 }
 
-const Storage& Storage::as_storage() const {
+Storage const& Storage::as_storage() const {
     return (*this);
 }
 

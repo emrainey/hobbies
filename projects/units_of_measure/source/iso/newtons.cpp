@@ -8,7 +8,7 @@
 #include "iso/newtons.hpp"
 
 namespace iso {
-const char* const suffix_type_N::suffix;
+char const* const suffix_type_N::suffix;
 // default
 newtons::newtons() : measurement{} {
 }
@@ -16,7 +16,7 @@ newtons::newtons() : measurement{} {
 newtons::newtons(precision a) : measurement{a} {
 }
 // copy constructor
-newtons::newtons(const newtons& other) : measurement{other} {
+newtons::newtons(newtons const& other) : measurement{other} {
 }
 // move constructor
 newtons::newtons(newtons&& other) : measurement{std::move(other)} {
@@ -34,17 +34,17 @@ newtons& newtons::operator=(newtons&& other) noexcept {
     _value = other.value;
     return (*this);
 }
-bool newtons::operator==(const newtons& other) const {
+bool newtons::operator==(newtons const& other) const {
     return basal::equivalent(value, other.value);
 }
-bool newtons::operator!=(const newtons& other) const {
+bool newtons::operator!=(newtons const& other) const {
     return !operator==(other);
 }
-newtons& newtons::operator+=(const newtons& other) {
+newtons& newtons::operator+=(newtons const& other) {
     _value += other.value;
     return (*this);
 }
-newtons& newtons::operator-=(const newtons& other) {
+newtons& newtons::operator-=(newtons const& other) {
     _value -= other.value;
     return (*this);
 }
@@ -59,32 +59,32 @@ newtons& newtons::operator/=(precision factor) {
 newtons newtons::operator-() const {
     return newtons{-value};
 }
-bool newtons::operator<(const newtons& other) const {
+bool newtons::operator<(newtons const& other) const {
     return (_value < other.value);
 }
-bool newtons::operator<=(const newtons& other) const {
+bool newtons::operator<=(newtons const& other) const {
     return (_value <= other.value);
 }
-bool newtons::operator>(const newtons& other) const {
+bool newtons::operator>(newtons const& other) const {
     return (_value > other.value);
 }
-bool newtons::operator>=(const newtons& other) const {
+bool newtons::operator>=(newtons const& other) const {
     return (_value >= other.value);
 }
 namespace operators {
-newtons operator+(const newtons& A, const newtons& B) {
+newtons operator+(newtons const& A, newtons const& B) {
     return newtons{A.value + B.value};
 }
-newtons operator-(const newtons& A, const newtons& B) {
+newtons operator-(newtons const& A, newtons const& B) {
     return newtons{A.value - B.value};
 }
-newtons operator*(const newtons& A, precision factor) {
+newtons operator*(newtons const& A, precision factor) {
     return newtons{A.value * factor};
 }
-newtons operator*(precision factor, const newtons& A) {
+newtons operator*(precision factor, newtons const& A) {
     return newtons{A.value * factor};
 }
-newtons operator/(const newtons& A, precision factor) {
+newtons operator/(newtons const& A, precision factor) {
     return newtons{A.value / factor};
 }
 }  // namespace operators
@@ -95,7 +95,7 @@ iso::newtons operator""_N(long double a) {
 iso::newtons operator""_N(unsigned long long a) {
     return iso::newtons(a);
 }
-iso::newtons operator""_N(const char a[]) {
+iso::newtons operator""_N(char const a[]) {
     return iso::newtons(atol(a));
 }
 }  // namespace literals

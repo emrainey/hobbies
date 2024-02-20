@@ -2,7 +2,7 @@
 
 namespace basal {
 
-void debuggable::emit(const char fmt[], ...) const {
+void debuggable::emit(char const fmt[], ...) const {
     char buffer[local_stack_for_print];
     va_list list;
     va_start(list, fmt);

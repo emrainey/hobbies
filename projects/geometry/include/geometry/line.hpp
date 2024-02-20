@@ -68,7 +68,7 @@ public:
     /// Returns the closest point on the line to the point provided
     R3::point closest(const R3::point &p) const;
 
-    virtual void print(const char[]) const;
+    virtual void print(char const[]) const;
 };
 
 /// Equality operator for lines

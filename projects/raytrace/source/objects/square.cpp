@@ -10,17 +10,17 @@ using namespace linalg::operators;
 using namespace geometry;
 using namespace geometry::operators;
 
-square::square(const point& C, const vector& N, precision hh, precision hw)
+square::square(point const& C, vector const& N, precision hh, precision hw)
     : raytrace::objects::plane(C, N), m_points{} {
     m_points[0] = raytrace::point{-hw, -hh, 0};
     m_points[1] = raytrace::point{+hw, +hh, 0};
 }
 
-hits square::collisions_along(const ray& object_ray) const {
+hits square::collisions_along(ray const& object_ray) const {
     hits ts;
     // is the ray parallel to the plane?
-    const vector& N = m_normal;
-    const vector& V = object_ray.direction();
+    vector const& N = m_normal;
+    vector const& V = object_ray.direction();
     precision proj = dot(V, N);       // if so the projection is zero
     if (not basal::nearly_zero(proj)) {  // they collide *somewhere*
         // get the vector of the center to the ray initial
@@ -36,18 +36,18 @@ hits square::collisions_along(const ray& object_ray) const {
     return ts;
 }
 
-bool square::is_surface_point(const point& world_point) const {
+bool square::is_surface_point(point const& world_point) const {
     point object_point = reverse_transform(world_point);
     precision x = object_point.x;
     precision y = object_point.y;
     return linalg::within(m_points[0].x, x, m_points[1].x) and linalg::within(m_points[0].y, y, m_points[1].y);
 }
 
-void square::print(const char str[]) const {
+void square::print(char const str[]) const {
     std::cout << str << " square @" << this << " " << object_<3>::position() << " " << m_normal << std::endl;
 }
 
-image::point square::map(const point& object_surface_point) const {
+image::point square::map(point const& object_surface_point) const {
     return image::point(object_surface_point.x / m_surface_scale.u, object_surface_point.y / m_surface_scale.v);
 }
 

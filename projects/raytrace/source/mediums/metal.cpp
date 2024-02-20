@@ -13,7 +13,7 @@ metal::metal(color diffuse, precision smoothness, precision tightness, precision
     m_tightness = tightness;
 }
 
-color metal::specular(const raytrace::point& volumetric_point, precision scaling, const color& light_color) const {
+color metal::specular(raytrace::point const& volumetric_point, precision scaling, color const& light_color) const {
     using namespace operators;
     // metals can alter the incoming light in specular highlights
     // we multiply by the color to emulate surfaces which would reject the light color by being a different color.
@@ -22,7 +22,7 @@ color metal::specular(const raytrace::point& volumetric_point, precision scaling
     return std::pow(scaling, specular_tightness(volumetric_point)) * new_spec;
 }
 
-raytrace::vector metal::perturbation(const raytrace::point& volumetric_point) const {
+raytrace::vector metal::perturbation(raytrace::point const& volumetric_point) const {
     if (m_fuzz_scale > 0) {
         size_t denom = 79;
         size_t num = rand() % denom;

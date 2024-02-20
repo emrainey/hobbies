@@ -16,7 +16,7 @@ namespace iso {
 
 /// A structure used to hold the postfix for hertz
 struct suffix_type_Hz {
-    constexpr static const char *suffix = "Hz";
+    constexpr static char const *suffix = "Hz";
 };
 
 ///
@@ -36,25 +36,25 @@ public:
     /// Parameter constructor
     explicit hertz(precision value);
     /// Copy Constructor
-    hertz(const hertz& other);
+    hertz(hertz const& other);
     /// Move Constructor
     hertz(hertz&& other);
     /// Destructor
     ~hertz() = default;
     /// Const Copy Assignment
-    hertz& operator=(const hertz& other) noexcept;
+    hertz& operator=(hertz const& other) noexcept;
     /// Copy Assignment
     hertz& operator=(hertz& other) noexcept;
     /// Move Assignment
     hertz& operator=(hertz&& other) noexcept;
     /// Equality Operator
-    bool operator==(const hertz& other) const;
+    bool operator==(hertz const& other) const;
     /// Inequality Operator
-    bool operator!=(const hertz& other) const;
+    bool operator!=(hertz const& other) const;
     /// Accumulation Operator
-    hertz& operator+=(const hertz& other);
+    hertz& operator+=(hertz const& other);
     /// Deccumulation Operator
-    hertz& operator-=(const hertz& other);
+    hertz& operator-=(hertz const& other);
     /// Scaling Operator
     hertz& operator*=(precision factor);
     /// Inverse Scaling Operator
@@ -62,26 +62,26 @@ public:
     /// Negating Operator
     hertz operator-() const;
     /// Less Than Operator
-    bool operator<(const hertz& other) const;
+    bool operator<(hertz const& other) const;
     /// Less Than or Equal Operator
-    bool operator<=(const hertz& other) const;
+    bool operator<=(hertz const& other) const;
     /// Greater Than Operator
-    bool operator>(const hertz& other) const;
+    bool operator>(hertz const& other) const;
     /// Greater Than or Equal Operator
-    bool operator>=(const hertz& other) const;
+    bool operator>=(hertz const& other) const;
 };
 
 namespace operators {
     /// Addition operator
-    hertz operator+(const hertz& A, const hertz& B);
+    hertz operator+(hertz const& A, hertz const& B);
     /// Subtraction operator
-    hertz operator-(const hertz& A, const hertz& B);
+    hertz operator-(hertz const& A, hertz const& B);
     /// Left Scaling Operator
-    hertz operator*(const hertz& A, precision factor);
+    hertz operator*(hertz const& A, precision factor);
     /// Right Scaling Operator
-    hertz operator*(precision factor, const hertz& A);
+    hertz operator*(precision factor, hertz const& A);
     /// Inverse Scaling Operator
-    hertz operator/(const hertz& A, precision factor);
+    hertz operator/(hertz const& A, precision factor);
 }
 
 namespace literals {
@@ -90,7 +90,7 @@ namespace literals {
     /// Literal Int, Quote Operator
     hertz operator""_Hz(unsigned long long value);
     /// Literal String, Quote Operator
-    iso::hertz operator""_Hz(const char a[]);
+    iso::hertz operator""_Hz(char const a[]);
 }
 
 }

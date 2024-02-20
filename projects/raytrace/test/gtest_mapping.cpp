@@ -8,7 +8,7 @@ using namespace raytrace::colors;
 using namespace raytrace::operators;
 
 TEST(MappingTest, GoldenRatio) {
-    const size_t count = 100;
+    size_t const count = 100;
     std::vector<geometry::R3::point> points(count);
     for (size_t i = 0; i < count; i++) {
         points[i] = raytrace::mapping::golden_ratio_mapper(i, count);

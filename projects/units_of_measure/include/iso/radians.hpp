@@ -16,7 +16,7 @@ namespace iso {
 
 /// A structure used to hold the postfix for radians
 struct suffix_type_rad {
-    constexpr static const char *suffix = "rad";
+    constexpr static char const *suffix = "rad";
 };
 
 ///
@@ -36,25 +36,25 @@ public:
     /// Parameter constructor
     explicit radians(precision value);
     /// Copy Constructor
-    radians(const radians& other);
+    radians(radians const& other);
     /// Move Constructor
     radians(radians&& other);
     /// Destructor
     ~radians() = default;
     /// Const Copy Assignment
-    radians& operator=(const radians& other) noexcept;
+    radians& operator=(radians const& other) noexcept;
     /// Copy Assignment
     radians& operator=(radians& other) noexcept;
     /// Move Assignment
     radians& operator=(radians&& other) noexcept;
     /// Equality Operator
-    bool operator==(const radians& other) const;
+    bool operator==(radians const& other) const;
     /// Inequality Operator
-    bool operator!=(const radians& other) const;
+    bool operator!=(radians const& other) const;
     /// Accumulation Operator
-    radians& operator+=(const radians& other);
+    radians& operator+=(radians const& other);
     /// Deccumulation Operator
-    radians& operator-=(const radians& other);
+    radians& operator-=(radians const& other);
     /// Scaling Operator
     radians& operator*=(precision factor);
     /// Inverse Scaling Operator
@@ -62,26 +62,26 @@ public:
     /// Negating Operator
     radians operator-() const;
     /// Less Than Operator
-    bool operator<(const radians& other) const;
+    bool operator<(radians const& other) const;
     /// Less Than or Equal Operator
-    bool operator<=(const radians& other) const;
+    bool operator<=(radians const& other) const;
     /// Greater Than Operator
-    bool operator>(const radians& other) const;
+    bool operator>(radians const& other) const;
     /// Greater Than or Equal Operator
-    bool operator>=(const radians& other) const;
+    bool operator>=(radians const& other) const;
 };
 
 namespace operators {
     /// Addition operator
-    radians operator+(const radians& A, const radians& B);
+    radians operator+(radians const& A, radians const& B);
     /// Subtraction operator
-    radians operator-(const radians& A, const radians& B);
+    radians operator-(radians const& A, radians const& B);
     /// Left Scaling Operator
-    radians operator*(const radians& A, precision factor);
+    radians operator*(radians const& A, precision factor);
     /// Right Scaling Operator
-    radians operator*(precision factor, const radians& A);
+    radians operator*(precision factor, radians const& A);
     /// Inverse Scaling Operator
-    radians operator/(const radians& A, precision factor);
+    radians operator/(radians const& A, precision factor);
 }
 
 namespace literals {
@@ -90,7 +90,7 @@ namespace literals {
     /// Literal Int, Quote Operator
     radians operator""_rad(unsigned long long value);
     /// Literal String, Quote Operator
-    iso::radians operator""_rad(const char a[]);
+    iso::radians operator""_rad(char const a[]);
 }
 
 }

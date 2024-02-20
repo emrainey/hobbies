@@ -13,7 +13,7 @@ stereo_camera::stereo_camera(size_t image_height, size_t image_width, iso::degre
     basal::exception::throw_if((m_separation < 0.0), __FILE__, __LINE__, "The camera separation %lf must be greater than 0.", m_separation);
 }
 
-void stereo_camera::move_to(const point& look_from, const point& look_at) {
+void stereo_camera::move_to(point const& look_from, point const& look_at) {
     raytrace::vector look = (look_at - look_from).normalized();
     // presume that +Z is the up vector for now and normalize the value
     raytrace::vector right = cross(look, geometry::R3::basis::Z).normalized();
@@ -41,7 +41,7 @@ void stereo_camera::move_to(const point& look_from, const point& look_at) {
     m_look_at = look_at;
 }
 
-void stereo_camera::print(const char str[]) const {
+void stereo_camera::print(char const str[]) const {
     m_cameras[0].print(str);
     m_cameras[1].print(str);
 }

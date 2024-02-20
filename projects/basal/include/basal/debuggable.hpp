@@ -56,14 +56,14 @@ protected:
 
     static constexpr size_t local_stack_for_print = 250;
 
-    virtual void emit(const char fmt[], ...) const;
+    virtual void emit(char const fmt[], ...) const;
 
 public:
     inline zone_mask& mask() noexcept {
         return m_mask;
     }
 
-    inline const zone_mask& mask() const noexcept {
+    inline zone_mask const& mask() const noexcept {
         return m_mask;
     }
 };

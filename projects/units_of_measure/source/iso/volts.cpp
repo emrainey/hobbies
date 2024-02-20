@@ -8,7 +8,7 @@
 #include "iso/volts.hpp"
 
 namespace iso {
-const char* const suffix_type_V::suffix;
+char const* const suffix_type_V::suffix;
 // default
 volts::volts() : measurement{} {
 }
@@ -16,7 +16,7 @@ volts::volts() : measurement{} {
 volts::volts(precision a) : measurement{a} {
 }
 // copy constructor
-volts::volts(const volts& other) : measurement{other} {
+volts::volts(volts const& other) : measurement{other} {
 }
 // move constructor
 volts::volts(volts&& other) : measurement{std::move(other)} {
@@ -34,17 +34,17 @@ volts& volts::operator=(volts&& other) noexcept {
     _value = other.value;
     return (*this);
 }
-bool volts::operator==(const volts& other) const {
+bool volts::operator==(volts const& other) const {
     return basal::equivalent(value, other.value);
 }
-bool volts::operator!=(const volts& other) const {
+bool volts::operator!=(volts const& other) const {
     return !operator==(other);
 }
-volts& volts::operator+=(const volts& other) {
+volts& volts::operator+=(volts const& other) {
     _value += other.value;
     return (*this);
 }
-volts& volts::operator-=(const volts& other) {
+volts& volts::operator-=(volts const& other) {
     _value -= other.value;
     return (*this);
 }
@@ -59,32 +59,32 @@ volts& volts::operator/=(precision factor) {
 volts volts::operator-() const {
     return volts{-value};
 }
-bool volts::operator<(const volts& other) const {
+bool volts::operator<(volts const& other) const {
     return (_value < other.value);
 }
-bool volts::operator<=(const volts& other) const {
+bool volts::operator<=(volts const& other) const {
     return (_value <= other.value);
 }
-bool volts::operator>(const volts& other) const {
+bool volts::operator>(volts const& other) const {
     return (_value > other.value);
 }
-bool volts::operator>=(const volts& other) const {
+bool volts::operator>=(volts const& other) const {
     return (_value >= other.value);
 }
 namespace operators {
-volts operator+(const volts& A, const volts& B) {
+volts operator+(volts const& A, volts const& B) {
     return volts{A.value + B.value};
 }
-volts operator-(const volts& A, const volts& B) {
+volts operator-(volts const& A, volts const& B) {
     return volts{A.value - B.value};
 }
-volts operator*(const volts& A, precision factor) {
+volts operator*(volts const& A, precision factor) {
     return volts{A.value * factor};
 }
-volts operator*(precision factor, const volts& A) {
+volts operator*(precision factor, volts const& A) {
     return volts{A.value * factor};
 }
-volts operator/(const volts& A, precision factor) {
+volts operator/(volts const& A, precision factor) {
     return volts{A.value / factor};
 }
 }  // namespace operators
@@ -95,7 +95,7 @@ iso::volts operator""_V(long double a) {
 iso::volts operator""_V(unsigned long long a) {
     return iso::volts(a);
 }
-iso::volts operator""_V(const char a[]) {
+iso::volts operator""_V(char const a[]) {
     return iso::volts(atol(a));
 }
 }  // namespace literals

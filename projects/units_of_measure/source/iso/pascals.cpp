@@ -8,7 +8,7 @@
 #include "iso/pascals.hpp"
 
 namespace iso {
-const char* const suffix_type_Pa::suffix;
+char const* const suffix_type_Pa::suffix;
 // default
 pascals::pascals() : measurement{} {
 }
@@ -16,7 +16,7 @@ pascals::pascals() : measurement{} {
 pascals::pascals(precision a) : measurement{a} {
 }
 // copy constructor
-pascals::pascals(const pascals& other) : measurement{other} {
+pascals::pascals(pascals const& other) : measurement{other} {
 }
 // move constructor
 pascals::pascals(pascals&& other) : measurement{std::move(other)} {
@@ -34,17 +34,17 @@ pascals& pascals::operator=(pascals&& other) noexcept {
     _value = other.value;
     return (*this);
 }
-bool pascals::operator==(const pascals& other) const {
+bool pascals::operator==(pascals const& other) const {
     return basal::equivalent(value, other.value);
 }
-bool pascals::operator!=(const pascals& other) const {
+bool pascals::operator!=(pascals const& other) const {
     return !operator==(other);
 }
-pascals& pascals::operator+=(const pascals& other) {
+pascals& pascals::operator+=(pascals const& other) {
     _value += other.value;
     return (*this);
 }
-pascals& pascals::operator-=(const pascals& other) {
+pascals& pascals::operator-=(pascals const& other) {
     _value -= other.value;
     return (*this);
 }
@@ -59,32 +59,32 @@ pascals& pascals::operator/=(precision factor) {
 pascals pascals::operator-() const {
     return pascals{-value};
 }
-bool pascals::operator<(const pascals& other) const {
+bool pascals::operator<(pascals const& other) const {
     return (_value < other.value);
 }
-bool pascals::operator<=(const pascals& other) const {
+bool pascals::operator<=(pascals const& other) const {
     return (_value <= other.value);
 }
-bool pascals::operator>(const pascals& other) const {
+bool pascals::operator>(pascals const& other) const {
     return (_value > other.value);
 }
-bool pascals::operator>=(const pascals& other) const {
+bool pascals::operator>=(pascals const& other) const {
     return (_value >= other.value);
 }
 namespace operators {
-pascals operator+(const pascals& A, const pascals& B) {
+pascals operator+(pascals const& A, pascals const& B) {
     return pascals{A.value + B.value};
 }
-pascals operator-(const pascals& A, const pascals& B) {
+pascals operator-(pascals const& A, pascals const& B) {
     return pascals{A.value - B.value};
 }
-pascals operator*(const pascals& A, precision factor) {
+pascals operator*(pascals const& A, precision factor) {
     return pascals{A.value * factor};
 }
-pascals operator*(precision factor, const pascals& A) {
+pascals operator*(precision factor, pascals const& A) {
     return pascals{A.value * factor};
 }
-pascals operator/(const pascals& A, precision factor) {
+pascals operator/(pascals const& A, precision factor) {
     return pascals{A.value / factor};
 }
 }  // namespace operators
@@ -95,7 +95,7 @@ iso::pascals operator""_Pa(long double a) {
 iso::pascals operator""_Pa(unsigned long long a) {
     return iso::pascals(a);
 }
-iso::pascals operator""_Pa(const char a[]) {
+iso::pascals operator""_Pa(char const a[]) {
     return iso::pascals(atol(a));
 }
 }  // namespace literals

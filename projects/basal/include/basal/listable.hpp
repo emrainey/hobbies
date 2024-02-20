@@ -17,9 +17,9 @@ public:
     /// default ctor
     listable() noexcept : UNIT_TYPE{}, _next{nullptr}, _prev{nullptr} {} // must be default constructable
     /// subclass copy
-    listable(const UNIT_TYPE& sub) : UNIT_TYPE{sub}, _next{nullptr}, _prev{nullptr} {} // must be copy constructable
+    listable(UNIT_TYPE const& sub) : UNIT_TYPE{sub}, _next{nullptr}, _prev{nullptr} {} // must be copy constructable
     /// copy ctor (not supported)
-    listable(const listable&) noexcept = delete;
+    listable(listable const&) noexcept = delete;
     /// move constructor (replace the other in the list)
     listable(listable &&other) noexcept : UNIT_TYPE{std::move(other)}, _next{other._next}, _prev{other._prev} {
         if (_next) {
@@ -125,7 +125,7 @@ public:
         return this;
     }
 
-    const UNIT_TYPE& as_base() const noexcept {
+    UNIT_TYPE const& as_base() const noexcept {
         return (*this);
     }
 };

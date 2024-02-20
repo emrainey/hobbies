@@ -34,7 +34,7 @@ public:
     /// @param [in] desired A rowsx1 column matrix.
     /// @{
     ///
-    void learn_label(const linalg::matrix& desired);
+    void learn_label(linalg::matrix const& desired);
     void learn_label(linalg::matrix&& desired);
     /// @}
 

@@ -30,7 +30,7 @@ TEST(GeomExtraTests, ClosestPointsFromSkewLines) {
 }
 
 TEST(GeomExtraTests, RotationAroundAxis) {
-    const iso::radians theta(iso::pi / 2);
+    iso::radians const theta(iso::pi / 2);
     precision cos_t = std::cos(theta.value);
     precision sin_t = std::sin(theta.value);
 
@@ -51,7 +51,7 @@ TEST(GeomExtraTests, RotationAroundAxis) {
 
 TEST(GeomExtraTests, RotationOfAxes) {
     R3::vector _vy = -R3::basis::Y;
-    const iso::radians theta(iso::tau / 4);
+    iso::radians const theta(iso::tau / 4);
     matrix Rxz = rotation(_vy, theta);
     R3::vector rx = R3::vector(Rxz * R3::basis::X);
     ASSERT_VECTOR_EQ(R3::basis::Z, rx);
@@ -64,7 +64,7 @@ TEST(GeomExtraTests, RotationOfAxes) {
 }
 
 TEST(GeomExtraTests, RotationMatch) {
-    const iso::radians theta(iso::tau / 4);
+    iso::radians const theta(iso::tau / 4);
     matrix rz = rotation(R3::basis::Z, theta);
     // this rotates around Z
     matrix R2z{{{0.0, -1.0, 0.0}, {1.0, 0.0, 0.0}, {0.0, 0.0, 1.0}}};

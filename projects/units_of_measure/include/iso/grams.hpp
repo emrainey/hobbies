@@ -16,7 +16,7 @@ namespace iso {
 
 /// A structure used to hold the postfix for grams
 struct suffix_type_g {
-    constexpr static const char *suffix = "g";
+    constexpr static char const *suffix = "g";
 };
 
 ///
@@ -36,25 +36,25 @@ public:
     /// Parameter constructor
     explicit grams(precision value);
     /// Copy Constructor
-    grams(const grams& other);
+    grams(grams const& other);
     /// Move Constructor
     grams(grams&& other);
     /// Destructor
     ~grams() = default;
     /// Const Copy Assignment
-    grams& operator=(const grams& other) noexcept;
+    grams& operator=(grams const& other) noexcept;
     /// Copy Assignment
     grams& operator=(grams& other) noexcept;
     /// Move Assignment
     grams& operator=(grams&& other) noexcept;
     /// Equality Operator
-    bool operator==(const grams& other) const;
+    bool operator==(grams const& other) const;
     /// Inequality Operator
-    bool operator!=(const grams& other) const;
+    bool operator!=(grams const& other) const;
     /// Accumulation Operator
-    grams& operator+=(const grams& other);
+    grams& operator+=(grams const& other);
     /// Deccumulation Operator
-    grams& operator-=(const grams& other);
+    grams& operator-=(grams const& other);
     /// Scaling Operator
     grams& operator*=(precision factor);
     /// Inverse Scaling Operator
@@ -62,26 +62,26 @@ public:
     /// Negating Operator
     grams operator-() const;
     /// Less Than Operator
-    bool operator<(const grams& other) const;
+    bool operator<(grams const& other) const;
     /// Less Than or Equal Operator
-    bool operator<=(const grams& other) const;
+    bool operator<=(grams const& other) const;
     /// Greater Than Operator
-    bool operator>(const grams& other) const;
+    bool operator>(grams const& other) const;
     /// Greater Than or Equal Operator
-    bool operator>=(const grams& other) const;
+    bool operator>=(grams const& other) const;
 };
 
 namespace operators {
     /// Addition operator
-    grams operator+(const grams& A, const grams& B);
+    grams operator+(grams const& A, grams const& B);
     /// Subtraction operator
-    grams operator-(const grams& A, const grams& B);
+    grams operator-(grams const& A, grams const& B);
     /// Left Scaling Operator
-    grams operator*(const grams& A, precision factor);
+    grams operator*(grams const& A, precision factor);
     /// Right Scaling Operator
-    grams operator*(precision factor, const grams& A);
+    grams operator*(precision factor, grams const& A);
     /// Inverse Scaling Operator
-    grams operator/(const grams& A, precision factor);
+    grams operator/(grams const& A, precision factor);
 }
 
 namespace literals {
@@ -90,7 +90,7 @@ namespace literals {
     /// Literal Int, Quote Operator
     grams operator""_g(unsigned long long value);
     /// Literal String, Quote Operator
-    iso::grams operator""_g(const char a[]);
+    iso::grams operator""_g(char const a[]);
 }
 
 }

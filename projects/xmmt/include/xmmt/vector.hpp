@@ -41,7 +41,7 @@ public:
     }
 
     /// Copy Constructor
-    vector_(const vector_& other) : pack_type{other.data} {
+    vector_(vector_ const& other) : pack_type{other.data} {
     }
 
     /// Move Construction is just a Copy
@@ -49,7 +49,7 @@ public:
     }
 
     /// Copy Assignment
-    vector_& operator=(const vector_& other) {
+    vector_& operator=(vector_ const& other) {
         pack_type::operator=(other.data);
         return (*this);
     }
@@ -152,7 +152,7 @@ public:
         return (*this);
     }
 
-    inline vector_& operator-=(const vector_& a) {
+    inline vector_& operator-=(vector_ const& a) {
         if constexpr (pack_type::number_of_elements == 2) {
             pack_type::data = _mm_sub_pd(pack_type::data, a.data);
         } else {
@@ -166,7 +166,7 @@ public:
     }
 
     /// Equality Operator
-    bool operator==(const vector_& other) {
+    bool operator==(vector_ const& other) {
         bool ret = true;
         for (size_t n = 0; n < dimensions && ret; n++) {
             ret = (pack_type::datum[n] == other[n]);
@@ -175,7 +175,7 @@ public:
     }
 
     /// Inequality Operator
-    bool operator!=(const vector_& other) {
+    bool operator!=(vector_ const& other) {
         return not operator==(other);
     }
 
@@ -185,13 +185,13 @@ public:
         return (c - (*this));
     }
 
-    void print(const char name[]) const {
+    void print(char const name[]) const {
         std::cout << name << " " << (*this) << std::endl;
     }
 
     /****** FRIENDS **************************************************************/
 
-    friend inline vector_ operator+(const vector_& a, const vector_& b) {
+    friend inline vector_ operator+(vector_ const& a, vector_ const& b) {
         vector_ c{};
         if constexpr (pack_type::number_of_elements == 2) {
             c.data = _mm_add_pd(a.data, b.data);
@@ -205,7 +205,7 @@ public:
         return c;
     }
 
-    friend inline vector_ operator-(const vector_& a, const vector_& b) {
+    friend inline vector_ operator-(vector_ const& a, vector_ const& b) {
         vector_ c{};
         if constexpr (pack_type::number_of_elements == 2) {
             c.data = _mm_sub_pd(a.data, b.data);
@@ -220,7 +220,7 @@ public:
     }
 
     /// Pairwise/Hamard Scaling
-    friend inline vector_ operator*(const vector_& a, const vector_& b) {
+    friend inline vector_ operator*(vector_ const& a, vector_ const& b) {
         vector_ c{};
         if constexpr (pack_type::number_of_elements == 2) {
             c.data = _mm_mul_pd(a.data, b.data);
@@ -234,7 +234,7 @@ public:
         return c;
     }
 
-    friend element_type dot(const vector_& a, const vector_& b) {
+    friend element_type dot(vector_ const& a, vector_ const& b) {
         element_type d = 0.0_p;
         if constexpr (pack_type::number_of_elements == 2) {
             if constexpr (std::is_same_v<element_type, float>) {
@@ -270,7 +270,7 @@ public:
         return d;
     };
 
-    friend vector_ cross(const vector_& a, const vector_& b) {
+    friend vector_ cross(vector_ const& a, vector_ const& b) {
         static_assert(dimensions == 3, "Can't preform a cross product on anything but 3d");
         vector_ c{};
         if constexpr (dimensions == 3) {
@@ -295,7 +295,7 @@ public:
         return c;
     }
 
-    friend std::ostream& operator<<(std::ostream& os, const vector_& a) {
+    friend std::ostream& operator<<(std::ostream& os, vector_ const& a) {
         pack_type const& b = a;
         os << "vector " << b;
         return os;

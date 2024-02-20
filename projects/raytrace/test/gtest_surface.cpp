@@ -29,7 +29,7 @@ TEST(SurfaceTest, DISABLED_CheckerboardDiffuse) {
     using namespace raytrace;
     image img(480, 480);
     raytrace::mediums::checkerboard board(6.0, colors::red, colors::green);
-    img.generate_each([&](const image::point& p1) {
+    img.generate_each([&](image::point const& p1) {
         raytrace::point p3{p1.x / img.width, p1.y / img.height, 0.0};
         return board.diffuse(p3);
     });
@@ -40,7 +40,7 @@ TEST(SurfaceTest, DISABLED_MarbleWeirdSurface) {
     using namespace raytrace;
     image img(512, 512);
     mediums::perlin weird(13 * iso::pi / 19, 0.032, 72.9828302, colors::black, colors::white);
-    img.generate_each([&](const image::point& p1) {
+    img.generate_each([&](image::point const& p1) {
         raytrace::point p3{p1.x / img.width, p1.y / img.height, 0.0};
         return weird.diffuse(p3);
     });
@@ -53,7 +53,7 @@ TEST(FunctionTest, DISABLED_CheckerboardFunction) {
     palette pal = {colors::blue, colors::yellow, colors::blue, colors::yellow,
                    colors::blue, colors::yellow, colors::blue, colors::yellow};
     precision s = 10.0;
-    img.generate_each([&](const image::point& p1) {
+    img.generate_each([&](image::point const& p1) {
         // using one divisor will make it even
         image::point p2{s * p1.x / img.width, s * p1.y / img.height};
         return functions::checkerboard(p2, pal);
@@ -66,7 +66,7 @@ TEST(FunctionTest, DISABLED_Grid) {
     image img(480, 480);
     palette pal = {colors::black, colors::green};
     precision s = 10.0;
-    img.generate_each([&](const image::point& p1) {
+    img.generate_each([&](image::point const& p1) {
         // using one divisor will make it even
         image::point p2{s * p1.x / img.height, s * p1.y / img.height};
         return functions::grid(p2, pal);
@@ -79,7 +79,7 @@ TEST(FunctionTest, DISABLED_Polka) {
     image img(480, 480);
     precision s = 10.0;
     palette pal = {colors::cyan, colors::magenta};
-    img.generate_each([&](const image::point& p1) {
+    img.generate_each([&](image::point const& p1) {
         image::point p2{s * p1.x / img.width, s * p1.y / img.height};
         return functions::dots(p2, pal);
     });
@@ -91,7 +91,7 @@ TEST(FunctionTest, DISABLED_Diagonal) {
     image img(480, 480);
     precision s = 10.0;
     palette pal = {colors::red, colors::white};
-    img.generate_each([&](const image::point& p1) {
+    img.generate_each([&](image::point const& p1) {
         image::point p2{s * p1.x / img.width, s * p1.y / img.height};
         return functions::diagonal(p2, pal);
     });
@@ -103,7 +103,7 @@ TEST(FunctionTest, DISABLED_RandomNoise) {
     image img(480, 480);
     precision s = 1.0;
     palette pal;  // not really used
-    img.generate_each([&](const image::point& p1) {
+    img.generate_each([&](image::point const& p1) {
         image::point p2{s * p1.x / img.width, s * p1.y / img.height};
         return functions::pseudo_random_noise(p2, pal);
     });
@@ -118,7 +118,7 @@ TEST(VolumetricTest, DISABLED_Checkerboard) {
     for (size_t i = 0; i < pixels; i++) {
         char buffer[256];
         snprintf(buffer, sizeof(buffer), "volumetric_checkers_%03zu.ppm", i);
-        img.generate_each([&](const image::point& p1) {
+        img.generate_each([&](image::point const& p1) {
             precision u = 2.0 * (p1.x / img.width) - 1.0;
             precision v = 2.0 * (p1.y / img.height) - 1.0;
             precision w = 2.0 * ((precision)i / pixels) - 1.0;
@@ -137,7 +137,7 @@ TEST(VolumetricTest, DISABLED_Dots) {
     for (size_t i = 0; i < pixels; i++) {
         char buffer[256];
         snprintf(buffer, sizeof(buffer), "volumetric_dots_%03zu.ppm", i);
-        img.generate_each([&](const image::point& p1) {
+        img.generate_each([&](image::point const& p1) {
             precision u = 2.0 * (p1.x / img.width) - 1.0;
             precision v = 2.0 * (p1.y / img.height) - 1.0;
             precision w = 2.0 * ((precision)i / pixels) - 1.0;
@@ -156,7 +156,7 @@ TEST(VolumetricTest, DISABLED_Grid) {
     for (size_t i = 0; i < pixels; i++) {
         char buffer[256];
         snprintf(buffer, sizeof(buffer), "volumetric_grid_%03zu.ppm", i);
-        img.generate_each([&](const image::point& p1) {
+        img.generate_each([&](image::point const& p1) {
             precision u = 2.0 * (p1.x / img.width) - 1.0;
             precision v = 2.0 * (p1.y / img.height) - 1.0;
             precision w = 2.0 * ((precision)i / pixels) - 1.0;

@@ -76,7 +76,7 @@ public:
         }
     }
 
-    void render_all(const char name[]) {
+    void render_all(char const name[]) {
         constexpr size_t len = 128;
 
         for (size_t i = 0; i < number_of_scenes; i++) {
@@ -90,8 +90,8 @@ public:
 protected:
     constexpr static size_t number_of_scenes{3ul};
 
-    const size_t image_height;
-    const size_t image_width;
+    size_t const image_height;
+    size_t const image_width;
     iso::degrees field_of_view;
     mediums::checkerboard checkers;
     mediums::checkerboard checkers2;

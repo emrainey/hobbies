@@ -51,7 +51,7 @@ public:
         return std::string("world_planet.tga");
     }
 
-    raytrace::color background(const raytrace::ray& world_ray) const override {
+    raytrace::color background(raytrace::ray const& world_ray) const override {
         // FIXME add starfield background
         return colors::black;
     }

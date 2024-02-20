@@ -27,12 +27,12 @@ enum class prefix : short
 
 typedef struct prefix_name {
     SI::prefix _prefix;
-    const char *name;
+    char const *name;
 } prefix_name;
 
 #define PREFIX_NAME_(__X__) SI::prefix::__X__, #__X__
 
-constexpr const prefix_name prefixes[] = {
+constexpr prefix_name const prefixes[] = {
     {PREFIX_NAME_(femto)}, {PREFIX_NAME_(pico)},  {PREFIX_NAME_(atto)}, {PREFIX_NAME_(nano)}, {PREFIX_NAME_(micro)},
     {PREFIX_NAME_(milli)}, {PREFIX_NAME_(centi)}, {PREFIX_NAME_(deci)}, {PREFIX_NAME_(none)}, {PREFIX_NAME_(deka)},
     {PREFIX_NAME_(hecto)}, {PREFIX_NAME_(kilo)},  {PREFIX_NAME_(mega)}, {PREFIX_NAME_(giga)}, {PREFIX_NAME_(tera)},

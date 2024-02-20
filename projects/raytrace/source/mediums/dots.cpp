@@ -9,7 +9,7 @@ dots::dots(precision r, color dot, color background) : opaque{}, m_repeat{r}, m_
     m_ambient_scale = mediums::ambient::dim;
 }
 
-color dots::diffuse(const raytrace::point& volumetric_point) const {
+color dots::diffuse(raytrace::point const& volumetric_point) const {
     palette pal = {m_background, m_dot};
     if (m_reducing_map) {
         image::point texture_point = m_reducing_map(volumetric_point);

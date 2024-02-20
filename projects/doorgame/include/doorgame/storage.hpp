@@ -18,10 +18,10 @@ class Storage {
 public:
     Storage(size_t limit);
     virtual ~Storage() = default;
-    const Inventory& get_inventory() const;
+    Inventory const& get_inventory() const;
     bool add(Item item);
     bool remove(Item item);
-    const Storage& as_storage() const;
+    Storage const& as_storage() const;
     Storage& as_storage();
 
 protected:

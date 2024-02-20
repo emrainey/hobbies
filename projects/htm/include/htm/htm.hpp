@@ -21,9 +21,9 @@
 namespace htm {
 using precision = basal::precision;
 using namespace basal::literals;
-constexpr const uint32_t NUM_SYNAPSES = 20;
-constexpr const uint32_t NUM_DENDRITES = 5;
-constexpr const uint32_t NUM_NEURONS = 8;
+constexpr uint32_t const NUM_SYNAPSES = 20;
+constexpr uint32_t const NUM_DENDRITES = 5;
+constexpr uint32_t const NUM_NEURONS = 8;
 /// The structure that connects neurons in a one-way directed graph
 struct synapse {
     float strength;   ///< Contains the strength of the connection
@@ -49,15 +49,15 @@ struct neuron {
 
     /// Returns the total number of synapses in the neuron
     inline size_t num_synapses() const {
-        const size_t proxial_synapses = (proxial.size() * proxial[0].synapses.size());
-        const size_t distal_synapses = (distal.size() * distal[0].synapses.size());
+        size_t const proxial_synapses = (proxial.size() * proxial[0].synapses.size());
+        size_t const distal_synapses = (distal.size() * distal[0].synapses.size());
         return proxial_synapses + distal_synapses;
     }
 
     /// Indexes a synapse from a neuron's point of view
     inline synapse& operator[](size_t synapse_index) {
-        const size_t proxial_synapses = (proxial.size() * proxial[0].synapses.size());
-        // /const size_t distal_synapses = (distal.size() * distal[0].synapses.size());
+        size_t const proxial_synapses = (proxial.size() * proxial[0].synapses.size());
+        // /size_t const distal_synapses = (distal.size() * distal[0].synapses.size());
 
         if (synapse_index < proxial_synapses) {
             return proxial[0].synapses[synapse_index];
@@ -77,7 +77,7 @@ struct column {
     uint32_t overlap_count;
     uint32_t overlap_threshold;
     bool overlap;
-    bool overlapped(const sparse_word& data) {
+    bool overlapped(sparse_word const& data) {
         overlap = false;
         if (overlap > overlap_threshold) {
             overlap = true;
@@ -95,9 +95,9 @@ class network {
 protected:
     /// The grid of columns
     std::array<std::array<column<NUM_NEURONS>, W>, H> grid;
-    const float minOverlap;
-    const float minActivate;
-    const float minStrength;
+    float const minOverlap;
+    float const minActivate;
+    float const minStrength;
 
 public:
     network() : minOverlap(2.0_p), minActivate(0.8_p), minStrength(0.7_p) {
@@ -141,7 +141,7 @@ public:
         }
     }
 
-    void to_image(const char* filename) {
+    void to_image(char const* filename) {
         FILE* fp = fopen(filename, "wb");
         fprintf(fp, "P5\n");
         fprintf(fp, "%u %u\n", W, H);

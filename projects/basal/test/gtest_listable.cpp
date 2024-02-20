@@ -10,7 +10,7 @@ public:
     Dummy() : value{0u} {}
     Dummy(uint32_t x) : value{x} {
     }
-    bool operator==(const Dummy& v) const {
+    bool operator==(Dummy const& v) const {
         return value == v.value;
     }
     bool operator==(uint32_t b) const {
@@ -81,7 +81,7 @@ TEST(Listable, Iteration) {
     e.insert_prev(&d);
     e.insert_next(&f);
 
-    const listable<Dummy>* tmp = d.as_listable();
+    listable<Dummy> const* tmp = d.as_listable();
     ASSERT_NE(nullptr, tmp);
     ASSERT_EQ((void*)&d, (void*)tmp);
     ASSERT_EQ((void*)&e, (void*)tmp->next());

@@ -3,11 +3,11 @@
 
 namespace raytrace {
 namespace objects {
-const vector cuboid::m_normals[6] = {
+vector const cuboid::m_normals[6] = {
     R3::basis::X, -R3::basis::X, R3::basis::Y, -R3::basis::Y, R3::basis::Z, -R3::basis::Z,
 };
 
-cuboid::cuboid(const point& center, precision xhw, precision yhw, precision zhw)
+cuboid::cuboid(point const& center, precision xhw, precision yhw, precision zhw)
     : object{center, 2, true}  // max 2 collisions, closed surface
     , x_half_width{m_half_widths[0]}
     , y_half_width{m_half_widths[1]}
@@ -47,7 +47,7 @@ cuboid::cuboid(point&& center, precision xhw, precision yhw, precision zhw)
     m_faces[5] = point(0, 0, -z_half_width);
 }
 
-vector cuboid::normal(const point& world_surface_point) const {
+vector cuboid::normal(point const& world_surface_point) const {
     point object_surface_point = reverse_transform(world_surface_point);
     vector object_normal = R3::null;
     // isolate which axis this is on and return the forward_transformed normal
@@ -73,18 +73,18 @@ vector cuboid::normal(const point& world_surface_point) const {
     return forward_transform(object_normal);
 }
 
-hits cuboid::collisions_along(const ray& object_ray) const {
+hits cuboid::collisions_along(ray const& object_ray) const {
     hits ts;
-    const bool disable_optimization = true;  // to allow cuboids to be overlap objects, this has to be turned off.
+    bool const disable_optimization = true;  // to allow cuboids to be overlap objects, this has to be turned off.
 
     // given the direction of the vector, only certain sides of the AABB are colliable.
     // the sign of the vector component is the opposite of the side that may be collidable.
-    const precision& x = object_ray.location().x;
-    const precision& y = object_ray.location().y;
-    const precision& z = object_ray.location().z;
-    const precision& i = object_ray.direction()[0];
-    const precision& j = object_ray.direction()[1];
-    const precision& k = object_ray.direction()[2];
+    precision const& x = object_ray.location().x;
+    precision const& y = object_ray.location().y;
+    precision const& z = object_ray.location().z;
+    precision const& i = object_ray.direction()[0];
+    precision const& j = object_ray.direction()[1];
+    precision const& k = object_ray.direction()[2];
 
     precision t;
 
@@ -120,7 +120,7 @@ hits cuboid::collisions_along(const ray& object_ray) const {
     return ts;
 }
 
-image::point cuboid::map(const point& object_surface_point) const {
+image::point cuboid::map(point const& object_surface_point) const {
     // map some range of object 3D points to some 2D u,v pair
     // isolate which axis this is on and return the forward_transformed normal
     precision u = 0.0, v = 0.0;
@@ -167,7 +167,7 @@ image::point cuboid::map(const point& object_surface_point) const {
     return image::point(u, v);
 }
 
-void cuboid::print(const char name[]) const {
+void cuboid::print(char const name[]) const {
     std::cout << name << " " << *this << std::endl;
 }
 
@@ -177,7 +177,7 @@ precision cuboid::get_object_extent(void) const {
 
 }  // namespace objects
 
-std::ostream& operator<<(std::ostream& os, const objects::cuboid& c) {
+std::ostream& operator<<(std::ostream& os, objects::cuboid const& c) {
     os << " Cube " << c.position() << ", Half-Widths {" << c.x_half_width << "," << c.y_half_width << ","
        << c.z_half_width << "}";
     return os;

@@ -9,7 +9,7 @@ using namespace operators;
 
 namespace R3 {
 
-vector cross(const vector& a, const vector& b) noexcept(false) {
+vector cross(vector const& a, vector const& b) noexcept(false) {
     precision x, y, z;
     x = (a[1] * b[2]) - (a[2] * b[1]);
     y = (a[2] * b[0]) - (a[0] * b[2]);
@@ -22,7 +22,7 @@ bool parallel(const vector_<precision, 3>& a, const vector_<precision, 3>& b) {
     return (R3::null == cross(a, b));
 }
 
-vector rodrigues(const vector& k, const vector& v, iso::radians theta) {
+vector rodrigues(vector const& k, vector const& v, iso::radians theta) {
     vector v_prj_k = dot(v, k) * k;
     vector v_rej_k = v - v_prj_k;
     vector w{cross(k, v)};
@@ -30,7 +30,7 @@ vector rodrigues(const vector& k, const vector& v, iso::radians theta) {
     return v_ort_rot + v_prj_k;
 }
 
-precision triple(const vector& u, const vector& v, const vector& w) noexcept(false) {
+precision triple(vector const& u, vector const& v, vector const& w) noexcept(false) {
     vector vw{cross(v, w)};
     return dot(u, vw);
 }

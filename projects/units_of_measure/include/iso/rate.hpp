@@ -21,15 +21,15 @@ protected:
     type _value;
 
 public:
-    const type& value;
+    type const& value;
 
 protected:
     NumeratorType _numerator;
     DenominatorType _denominator;
 
 public:
-    const NumeratorType& numerator;
-    const DenominatorType& denominator;
+    NumeratorType const& numerator;
+    DenominatorType const& denominator;
 
 protected:
     char suffix[12];
@@ -46,7 +46,7 @@ public:
         snprintf(suffix, sizeof(suffix), "%s/%s", _numerator.get_suffix(), _denominator.get_suffix());
     }
 
-    rate(const NumeratorType& num, const DenominatorType& denom)
+    rate(NumeratorType const& num, DenominatorType const& denom)
         : _value{0}
         , value{_value}
         , _numerator{num}
@@ -68,7 +68,7 @@ public:
         snprintf(suffix, sizeof(suffix), "%s/%s", _numerator.get_suffix(), _denominator.get_suffix());
     }
 
-    rate(const rate& other)
+    rate(rate const& other)
         : _value{other.value}
         , value{_value}
         , _numerator{other.numerator}
@@ -79,7 +79,7 @@ public:
         suffix[sizeof(suffix) - 1] = '\0';
     }
 
-    rate& operator=(const rate& other) {
+    rate& operator=(rate const& other) {
         std::strncpy(suffix, other.suffix, sizeof(suffix));
         suffix[sizeof(suffix) - 1] = '\0';
         _value = other.value;
@@ -99,31 +99,31 @@ public:
         return _value;
     }
 
-    bool operator==(const rate& other) {
+    bool operator==(rate const& other) {
         return basal::equivalent(_value, other.value);
     }
 
-    bool operator!=(const rate& other) {
+    bool operator!=(rate const& other) {
         return !operator==(other);
     }
 
-    bool operator<(const rate& other) {
+    bool operator<(rate const& other) {
         return (_value < other.value);
     }
 
-    bool operator>(const rate& other) {
+    bool operator>(rate const& other) {
         return (_value > other.value);
     }
 
-    bool operator<=(const rate& other) {
+    bool operator<=(rate const& other) {
         return (_value <= other.value);
     }
 
-    bool operator>=(const rate& other) {
+    bool operator>=(rate const& other) {
         return (_value >= other.value);
     }
 
-    const char* get_suffix() const {
+    char const* get_suffix() const {
         return suffix;
     }
 };

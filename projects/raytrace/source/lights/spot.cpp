@@ -2,12 +2,12 @@
 
 namespace raytrace {
 namespace lights {
-spot::spot(const raytrace::ray& r, const raytrace::color& C, precision intensity, const iso::degrees& incoming_angle)
+spot::spot(raytrace::ray const& r, raytrace::color const& C, precision intensity, iso::degrees const& incoming_angle)
     : light{C, intensity, 1}, entity{r.location()}, m_direction{r.direction()}, m_incoming_angle{incoming_angle} {
     basal::exception::throw_unless(incoming_angle.value > 0, __FILE__, __LINE__, "Must be positive angle.");
 }
 
-spot::spot(raytrace::ray&& r, const raytrace::color& C, precision intensity, const iso::degrees& incoming_angle)
+spot::spot(raytrace::ray&& r, raytrace::color const& C, precision intensity, iso::degrees const& incoming_angle)
     : light{C, intensity, 1}
     , entity{std::move(r.location())}
     , m_direction{std::move(r.direction())}
@@ -15,7 +15,7 @@ spot::spot(raytrace::ray&& r, const raytrace::color& C, precision intensity, con
     basal::exception::throw_unless(incoming_angle.value > 0, __FILE__, __LINE__, "Must be positive angle.");
 }
 
-precision spot::intensity_at(const point& world_point) const {
+precision spot::intensity_at(point const& world_point) const {
     // with spotlights, we draw the direction vector differently.
     // we're going to measure the angle between the direction of the spotlight
     // and the direction of the world point.
@@ -36,17 +36,17 @@ precision spot::intensity_at(const point& world_point) const {
     }
 }
 
-ray spot::incident(const point& world_point, size_t sample_index __attribute__((unused))) const {
+ray spot::incident(point const& world_point, size_t sample_index __attribute__((unused))) const {
     return ray(world_point, position() - world_point);
 }
 
-void spot::print(const char str[]) const {
+void spot::print(char const str[]) const {
     std::cout << str << " spot @" << this << " pointing: " << m_direction << ", " << m_color << std::endl;
 }
 
 }  // namespace lights
 
-std::ostream& operator<<(std::ostream& os, const lights::spot& l) {
+std::ostream& operator<<(std::ostream& os, lights::spot const& l) {
     os << " spot " << l.incident(geometry::R3::origin, 0) << " " << l.color_at(geometry::R3::origin);
     return os;
 }

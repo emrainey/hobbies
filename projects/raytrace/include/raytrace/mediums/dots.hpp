@@ -14,7 +14,7 @@ public:
     dots(precision r, color dot, color background);
     virtual ~dots() = default;
 
-    color diffuse(const raytrace::point& volumetric_point) const final;
+    color diffuse(raytrace::point const& volumetric_point) const final;
 
 protected:
     precision m_repeat;

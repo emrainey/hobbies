@@ -36,7 +36,7 @@ public:
     Map(size_t num, size_t start, size_t end);
     Room& operator[](size_t index) noexcept(false);
     Room& get_room(Animate& object);
-    const Room& get_room(const Animate& object) const;
+    Room const& get_room(Animate const& object) const;
     bool get_adjacent(Animate& object, Direction dir, size_t& index);
     bool is_done(Animate& object) const;
     bool move(Animate& object, Direction dir);

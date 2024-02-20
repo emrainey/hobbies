@@ -21,17 +21,17 @@ TEST(ImageTest, IteratorsTest) {
     image img3(2, 2);
     image::point p{0, 0};
 
-    img3.generate_each([&](const image::point&) -> color { return colors::red; });
+    img3.generate_each([&](image::point const&) -> color { return colors::red; });
     ASSERT_EQ(255, img3.at(p).r);
     ASSERT_EQ(0, img3.at(p).g);
     ASSERT_EQ(0, img3.at(p).b);
 
-    img3.generate_each([&](const image::point&) -> color { return colors::green; });
+    img3.generate_each([&](image::point const&) -> color { return colors::green; });
     ASSERT_EQ(0, img3.at(p).r);
     ASSERT_EQ(255, img3.at(p).g);
     ASSERT_EQ(0, img3.at(p).b);
 
-    img3.generate_each([&](const image::point&) -> color { return colors::blue; });
+    img3.generate_each([&](image::point const&) -> color { return colors::blue; });
     ASSERT_EQ(0, img3.at(p).r);
     ASSERT_EQ(0, img3.at(p).g);
     ASSERT_EQ(255, img3.at(p).b);
@@ -41,7 +41,7 @@ TEST(ImageTest, SubsamplingCount) {
     raytrace::image img(2, 2);
     size_t counter = 0;
     img.generate_each(
-        [&](const image::point&) -> color {
+        [&](image::point const&) -> color {
             counter++;
             return colors::yellow;
         },
@@ -51,13 +51,13 @@ TEST(ImageTest, SubsamplingCount) {
 
 TEST(ImageTest, SingleColors) {
     image img3(480, 640);
-    img3.generate_each([&](const image::point&) -> color { return colors::red; });
+    img3.generate_each([&](image::point const&) -> color { return colors::red; });
     img3.save("allred.ppm");
 
-    img3.generate_each([&](const image::point&) -> color { return colors::green; });
+    img3.generate_each([&](image::point const&) -> color { return colors::green; });
     img3.save("allgreen.ppm");
 
-    img3.generate_each([&](const image::point&) -> color { return colors::blue; });
+    img3.generate_each([&](image::point const&) -> color { return colors::blue; });
     img3.save("allblue.ppm");
 }
 
@@ -76,7 +76,7 @@ TEST(ImageTest, SubsamplerTest) {
     // this will fail if you don't block the multiple render threads from competing to
     // increment i. If it's single threaded it will pass.
     auto lock = std::mutex{};
-    auto subsampler = [&](const image::point& pnt) -> color {
+    auto subsampler = [&](image::point const& pnt) -> color {
         lock.lock();
         auto tmp = samples[i];
         i = (i + 1) % samples.size();
@@ -100,11 +100,11 @@ TEST(ImageTest, SubsamplingChecker) {
     // this is going to show how the random subsample spread out
     // we'll take the cast point and render it into a larger (20x) image
     image image5(480, 640);
-    image5.generate_each([&](const image::point&) -> color { return colors::white; });
+    image5.generate_each([&](image::point const&) -> color { return colors::white; });
     image image6(24, 32);
     precision ratio = (image5.height / image6.height);
     image6.generate_each(
-        [&](const image::point& p) -> color {
+        [&](image::point const& p) -> color {
             image::point n{static_cast<precision>(p.x * ratio), static_cast<precision>(p.y * ratio)};
             precision fx = std::floor(p.x);
             bool ix = (static_cast<int>(fx) & 1);

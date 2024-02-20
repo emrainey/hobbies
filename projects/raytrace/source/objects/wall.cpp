@@ -10,13 +10,13 @@ using namespace linalg::operators;
 using namespace geometry;
 using namespace geometry::operators;
 
-wall::wall(const point& C, const vector& N, precision thickness)
+wall::wall(point const& C, vector const& N, precision thickness)
     : object{C, 2, false} // a wall is not a closed surface
     , m_front_{R3::origin + (N.normalized() * thickness/2.0_p), N.normalized()}
     , m_back_{R3::origin + ((-N.normalized()) * thickness/2.0_p), -N.normalized()} {
 }
 
-vector wall::normal(const point& world_point) const {
+vector wall::normal(point const& world_point) const {
     using namespace geometry::operators;
     world_point.print("request normal from");
     auto const wall_point = reverse_transform(world_point);
@@ -43,7 +43,7 @@ vector wall::normal(const point& world_point) const {
     return geometry::R3::null;
 }
 
-// intersection wall::intersect(const ray& world_ray) const {
+// intersection wall::intersect(ray const& world_ray) const {
 //     auto object_ray = reverse_transform(world_ray);
 //     hits ts = collisions_along(object_ray); // either 0 or two
 //     if (ts.size() == 2 and ts[0] >= (0 - basal::epsilon) and ts[1] >= (0 - basal::epsilon)) {
@@ -56,7 +56,7 @@ vector wall::normal(const point& world_point) const {
 //     return intersection();
 // }
 
-hits wall::collisions_along(const ray& wall_ray) const {
+hits wall::collisions_along(ray const& wall_ray) const {
     auto plane_rayA = m_front_.reverse_transform(wall_ray);
     hits ts0 = m_front_.collisions_along(plane_rayA);
     auto plane_rayB = m_back_.reverse_transform(wall_ray);
@@ -65,11 +65,11 @@ hits wall::collisions_along(const ray& wall_ray) const {
     return ts0;
 }
 
-bool wall::is_surface_point(const point& world_point) const {
+bool wall::is_surface_point(point const& world_point) const {
     return m_front_.is_surface_point(world_point) or m_back_.is_surface_point(world_point);
 }
 
-image::point wall::map(const point& object_surface_point) const {
+image::point wall::map(point const& object_surface_point) const {
     if (m_front_.is_surface_point(object_surface_point)) {
         return m_front_.map(object_surface_point);
     }
@@ -83,7 +83,7 @@ precision wall::get_object_extent(void) const {
     return basal::nan;
 }
 
-void wall::print(const char str[]) const {
+void wall::print(char const str[]) const {
     m_front_.print(str);
     m_back_.print(str);
 }

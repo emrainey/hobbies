@@ -14,7 +14,7 @@ enum class prefix : short
     none = 1
 };
 struct suffix_type_ft {
-    constexpr static const char *const suffix = "ft";
+    constexpr static char const *const suffix = "ft";
 };
 }  // namespace imperial
 
@@ -37,6 +37,6 @@ public:
 
 namespace literals {
 iso::feet operator""_ft(long double a);
-iso::feet operator""_ft(const char a[]);
+iso::feet operator""_ft(char const a[]);
 }  // namespace literals
 }  // namespace iso

@@ -13,7 +13,7 @@ perlin::perlin(precision seed, precision scale, precision gain, color dark, colo
     m_seed = noise::convert_to_seed(iso::radians{seed});
 }
 
-color perlin::diffuse(const raytrace::point& volumetric_point) const {
+color perlin::diffuse(raytrace::point const& volumetric_point) const {
     if (m_reducing_map) {
         image::point pnt = m_reducing_map(volumetric_point);
         precision alpha = noise::perlin(pnt, m_scale, m_seed, m_gain);

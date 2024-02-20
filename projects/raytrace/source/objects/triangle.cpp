@@ -10,7 +10,7 @@ using namespace linalg::operators;
 using namespace geometry;
 using namespace geometry::operators;
 
-triangle::triangle(const R3::point& A, const R3::point& B, const R3::point& C)
+triangle::triangle(R3::point const& A, R3::point const& B, R3::point const& C)
     : plane{centroid(A, B, C), R3::cross(A - B, C - B).normalized()}, m_points{} {
     m_points[0] = A;
     m_points[1] = B;
@@ -22,7 +22,7 @@ triangle::triangle(const R3::point& A, const R3::point& B, const R3::point& C)
     m_radius2 *= m_radius2;
 }
 
-bool triangle::is_contained(const point& D) const {
+bool triangle::is_contained(point const& D) const {
     precision r2 = (position() - D).quadrance();
     // do we need to do a more in depth test?
     if (r2 < m_radius2) {
@@ -57,7 +57,7 @@ bool triangle::is_contained(const point& D) const {
     return false;
 }
 
-intersection triangle::intersect(const ray& world_ray) const {
+intersection triangle::intersect(ray const& world_ray) const {
     intersection inter = plane::intersect(world_ray);
     if (get_type(inter) == IntersectionType::Point) {
         point D = as_point(inter);
@@ -75,13 +75,13 @@ intersection triangle::intersect(const ray& world_ray) const {
     return intersection();
 }
 
-bool triangle::is_surface_point(const point& world_point) const {
+bool triangle::is_surface_point(point const& world_point) const {
     point object_point = reverse_transform(world_point);
     vector T = object_point - position();
     return basal::nearly_zero(dot(geometry::plane::normal, T)) and is_contained(world_point);
 }
 
-void triangle::print(const char str[]) const {
+void triangle::print(char const str[]) const {
     std::cout << str << " Triangle @" << this << " " << m_points[0] << "," << m_points[1] << "," << m_points[2]
               << std::endl;
 }
@@ -102,7 +102,7 @@ precision triangle::get_object_extent(void) const {
 
 }  // namespace objects
 
-geometry::plane as_plane(const objects::triangle& tri) {
+geometry::plane as_plane(objects::triangle const& tri) {
     return tri;  // now a triangle is a special plane
 }
 

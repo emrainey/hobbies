@@ -34,7 +34,7 @@ checkerboard::checkerboard(precision repeat, color q1_dark, color q1_light, colo
     m_pal[7] = q4_light;
 }
 
-color checkerboard::diffuse(const raytrace::point& volumetric_point) const {
+color checkerboard::diffuse(raytrace::point const& volumetric_point) const {
     if (m_reducing_map) {
         image::point texture_point = m_reducing_map(volumetric_point) * m_repeat;
         return functions::checkerboard(texture_point, m_pal);

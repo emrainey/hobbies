@@ -29,12 +29,12 @@ void sobel_mask(const image<iyu2, pixel_format::IYU2>& iyu2_image, image<uint8_t
     size_t width = iyu2_image.width;
 
     // create a x and Y gradient image and then sum them and down scale to the mask
-    const int16_t sobel_x[3][3] = {
+    int16_t const sobel_x[3][3] = {
         {-1, 0, +1},
         {-2, 0, +2},
         {-1, 0, +1},
     };
-    const int16_t sobel_y[3][3] = {
+    int16_t const sobel_y[3][3] = {
         {-1, -2, -1},
         {0, 0, 0},
         {+1, +2, +1},
@@ -148,7 +148,7 @@ void convolve(image<int16_t, pixel_format::Y16>& out, const int16_t (&kernel)[3]
 
 // use a simple kernel like -1, 2, -1 or if you use one which does not sum to 0.
 void filter(image<rgb8, pixel_format::RGB8>& output, const image<rgb8, pixel_format::RGB8>& input,
-            const int16_t kernel[3]) {
+            int16_t const kernel[3]) {
     basal::exception::throw_unless(output.width == input.width, __FILE__, __LINE__);
     basal::exception::throw_unless(output.height == input.height, __FILE__, __LINE__);
     for (int y = 0; y < input.height - 1; y++) {

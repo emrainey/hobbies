@@ -11,23 +11,23 @@ using namespace linalg::operators;
 using namespace geometry;
 using namespace geometry::operators;
 
-sphere::sphere(const point& c, precision r)
+sphere::sphere(point const& c, precision r)
     : geometry::R3::sphere(r)
     , object(c, 2, true)  // up to 2 collisions, closed surface
 {
 }
 
-bool sphere::is_surface_point(const point& world_surface_point) const {
+bool sphere::is_surface_point(point const& world_surface_point) const {
     point object_surface_point = reverse_transform(world_surface_point);
     return geometry::R3::sphere::surface(object_surface_point);
 }
 
-vector sphere::normal(const point& world_surface_point) const {
+vector sphere::normal(point const& world_surface_point) const {
     point object_surface_point = reverse_transform(world_surface_point);
     return forward_transform(geometry::R3::sphere::normal(object_surface_point));
 }
 
-hits sphere::collisions_along(const ray& object_ray) const {
+hits sphere::collisions_along(ray const& object_ray) const {
     hits ts;
     precision px = object_ray.location().x;
     precision py = object_ray.location().y;
@@ -46,7 +46,7 @@ hits sphere::collisions_along(const ray& object_ray) const {
     return ts;
 }
 
-image::point sphere::map(const point& object_surface_point) const {
+image::point sphere::map(point const& object_surface_point) const {
     // in object space in a sphere, it's a unit sphere.
     // get the polar coordinates
     point pol = geometry::R3::sphere::cart_to_polar(object_surface_point);
@@ -58,7 +58,7 @@ image::point sphere::map(const point& object_surface_point) const {
     return uv;
 }
 
-void sphere::print(const char str[]) const {
+void sphere::print(char const str[]) const {
     std::cout << str << " Sphere @" << this << " " << position() << " Radius " << radius << std::endl;
 }
 

@@ -20,11 +20,11 @@ namespace functions {
 /// @param p A point in unit R2 u,v space (or repeated)
 /// @param pal The palette of colors to chose from.
 ///
-using texture_color_map = std::function<raytrace::color(const image::point& p, const palette& pal)>;
+using texture_color_map = std::function<raytrace::color(image::point const& p, palette const& pal)>;
 
 /// A scalar map takes an image::point (u,v) which in the range of [0.0_p, 1.0_p)
 /// and returns a scalar value to describe that point
-using texture_scalar_map = std::function<raytrace::color(const image::point&)>;
+using texture_scalar_map = std::function<raytrace::color(image::point const&)>;
 
 ///
 /// A volumetric color map takes an raytrace::point (R3) (x,y,z) and fmods it into the range of [0.0_p, 1.0_p) to make a
@@ -33,38 +33,38 @@ using texture_scalar_map = std::function<raytrace::color(const image::point&)>;
 /// @param p A point in unit R3 space (or repeated)
 /// @param pal The palette of colors to chose from.
 ///
-using volumetric_color_map = std::function<raytrace::color(const raytrace::point& p, const palette& pal)>;
+using volumetric_color_map = std::function<raytrace::color(raytrace::point const& p, palette const& pal)>;
 
 /// A scalar map takes an image::point (u,v) which in the range of [0.0_p, 1.0_p)
 /// and returns a scalar value to describe that point
-using volumetric_scalar_map = std::function<raytrace::color(const raytrace::point&)>;
+using volumetric_scalar_map = std::function<raytrace::color(raytrace::point const&)>;
 
 /// Just returns the first color in the palette
-color simple(const image::point& p, const palette& pal);
+color simple(image::point const& p, palette const& pal);
 
 /// Produces a diagonal pattern from 2D points and 2 colors
-color diagonal(const image::point& p2, const palette& pal);
+color diagonal(image::point const& p2, palette const& pal);
 
 /// Produces a dot pattern
-color dots(const image::point& p, const palette& pal);
+color dots(image::point const& p, palette const& pal);
 
 /// Produces a volumetric dot pattern
-color dots(const raytrace::point& p, const palette& pal);
+color dots(raytrace::point const& p, palette const& pal);
 
 /// Produces a grid on a surface
-color grid(const image::point& p, const palette& pal);
+color grid(image::point const& p, palette const& pal);
 
 /// Produces a grid in a volume
-color grid(const raytrace::point& p, const palette& pal);
+color grid(raytrace::point const& p, palette const& pal);
 
 /// Normal checkerboards
-color checkerboard(const image::point& p, const palette& pal);
+color checkerboard(image::point const& p, palette const& pal);
 
 /// Volumetric Checkerboard (looks like a woodturned object etc)
-color checkerboard(const raytrace::point& p, const palette& pal);
+color checkerboard(raytrace::point const& p, palette const& pal);
 
 /// Randomly generates a color for each pixel (palette is unused)
-color pseudo_random_noise(const image::point& p, const palette& pal);
+color pseudo_random_noise(image::point const& p, palette const& pal);
 
 }  // namespace functions
 

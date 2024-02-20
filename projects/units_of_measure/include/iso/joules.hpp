@@ -16,7 +16,7 @@ namespace iso {
 
 /// A structure used to hold the postfix for joules
 struct suffix_type_J {
-    constexpr static const char *suffix = "J";
+    constexpr static char const *suffix = "J";
 };
 
 ///
@@ -36,25 +36,25 @@ public:
     /// Parameter constructor
     explicit joules(precision value);
     /// Copy Constructor
-    joules(const joules& other);
+    joules(joules const& other);
     /// Move Constructor
     joules(joules&& other);
     /// Destructor
     ~joules() = default;
     /// Const Copy Assignment
-    joules& operator=(const joules& other) noexcept;
+    joules& operator=(joules const& other) noexcept;
     /// Copy Assignment
     joules& operator=(joules& other) noexcept;
     /// Move Assignment
     joules& operator=(joules&& other) noexcept;
     /// Equality Operator
-    bool operator==(const joules& other) const;
+    bool operator==(joules const& other) const;
     /// Inequality Operator
-    bool operator!=(const joules& other) const;
+    bool operator!=(joules const& other) const;
     /// Accumulation Operator
-    joules& operator+=(const joules& other);
+    joules& operator+=(joules const& other);
     /// Deccumulation Operator
-    joules& operator-=(const joules& other);
+    joules& operator-=(joules const& other);
     /// Scaling Operator
     joules& operator*=(precision factor);
     /// Inverse Scaling Operator
@@ -62,26 +62,26 @@ public:
     /// Negating Operator
     joules operator-() const;
     /// Less Than Operator
-    bool operator<(const joules& other) const;
+    bool operator<(joules const& other) const;
     /// Less Than or Equal Operator
-    bool operator<=(const joules& other) const;
+    bool operator<=(joules const& other) const;
     /// Greater Than Operator
-    bool operator>(const joules& other) const;
+    bool operator>(joules const& other) const;
     /// Greater Than or Equal Operator
-    bool operator>=(const joules& other) const;
+    bool operator>=(joules const& other) const;
 };
 
 namespace operators {
     /// Addition operator
-    joules operator+(const joules& A, const joules& B);
+    joules operator+(joules const& A, joules const& B);
     /// Subtraction operator
-    joules operator-(const joules& A, const joules& B);
+    joules operator-(joules const& A, joules const& B);
     /// Left Scaling Operator
-    joules operator*(const joules& A, precision factor);
+    joules operator*(joules const& A, precision factor);
     /// Right Scaling Operator
-    joules operator*(precision factor, const joules& A);
+    joules operator*(precision factor, joules const& A);
     /// Inverse Scaling Operator
-    joules operator/(const joules& A, precision factor);
+    joules operator/(joules const& A, precision factor);
 }
 
 namespace literals {
@@ -90,7 +90,7 @@ namespace literals {
     /// Literal Int, Quote Operator
     joules operator""_J(unsigned long long value);
     /// Literal String, Quote Operator
-    iso::joules operator""_J(const char a[]);
+    iso::joules operator""_J(char const a[]);
 }
 
 }

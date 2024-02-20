@@ -24,7 +24,7 @@ public:
         , m_inv_transform{matrix::identity(DIMS + 1, DIMS + 1)} {
     }
 
-    entity_(const point& position) : entity_{} {
+    entity_(point const& position) : entity_{} {
         m_world_position = position;
         compute_transforms();
     }
@@ -34,43 +34,43 @@ public:
         compute_transforms();
     }
 
-    entity_(const entity_&) = delete;
+    entity_(entity_ const&) = delete;
     entity_(entity_&&) = delete;
-    entity_& operator=(const entity_&) = delete;
+    entity_& operator=(entity_ const&) = delete;
     entity_& operator=(entity_&&) = delete;
     virtual ~entity_() = default;
 
     /// Returns the current position as a point in world space!
     /// @warning Should not be used in object space calculations!
-    virtual const point& position() const {
+    virtual point const& position() const {
         return m_world_position;
     }
 
     /// Returns the current position as a translation vector from the origin
-    const vector translation() const {
+    vector const translation() const {
         return vector{{m_world_position[0], m_world_position[1], m_world_position[2]}};
     }
 
     /// Returns the current rotation
-    const matrix& rotation() const {
+    matrix const& rotation() const {
         return m_rotation;
     }
 
     /// Sets the position
-    virtual void position(const point& world_point) {
+    virtual void position(point const& world_point) {
         m_world_position = world_point;
         compute_transforms();
     }
 
     /// Sets the rotation as a single matrix
-    void rotation(const matrix& nr) {
+    void rotation(matrix const& nr) {
         m_rotation = nr;
         m_inv_rotation = nr.inverse();
         compute_transforms();
     }
 
     /// Moves an object by a world space vector
-    void move_by(const vector& world_vector) {
+    void move_by(vector const& world_vector) {
         m_world_position += world_vector;
         compute_transforms();
     }
@@ -100,39 +100,39 @@ public:
     }
 
     /// Finds the point in world space given the object point
-    raytrace::point forward_transform(const raytrace::point& object_point) const {
+    raytrace::point forward_transform(raytrace::point const& object_point) const {
         geometry::point_<4> o(object_point);
         geometry::point_<4> w(m_transform * o);
         return point(w[0], w[1], w[2]);
     }
 
     /// Rotates the vector into the world space from the object space
-    raytrace::vector forward_transform(const raytrace::vector& vec) const {
+    raytrace::vector forward_transform(raytrace::vector const& vec) const {
         return vector(m_rotation * vec);
     }
 
     /// Transforms a object ray into a world ray
-    raytrace::ray forward_transform(const raytrace::ray& object_ray) const {
+    raytrace::ray forward_transform(raytrace::ray const& object_ray) const {
         raytrace::point world_point = forward_transform(object_ray.location());
         vector world_vector = forward_transform(object_ray.direction());
         return ray(world_point, world_vector);
     }
 
     /// Finds the point in object space which maps to the given world space point
-    raytrace::point reverse_transform(const raytrace::point& world_point) const {
+    raytrace::point reverse_transform(raytrace::point const& world_point) const {
         geometry::point_<4> w(world_point);          // create homogenized point
         geometry::point_<4> o(m_inv_transform * w);  // 4x4 mult
         return point(o[0], o[1], o[2]);              // drop the last var
     }
 
     /// Rotates the vector into the object space.
-    raytrace::vector reverse_transform(const raytrace::vector& vec) const {
+    raytrace::vector reverse_transform(raytrace::vector const& vec) const {
         vector v = m_inv_rotation * vec;
         return vector(v);
     }
 
     /// Transforms the world space ray into the object space ray
-    raytrace::ray reverse_transform(const raytrace::ray& world_ray) const {
+    raytrace::ray reverse_transform(raytrace::ray const& world_ray) const {
         point object_point = reverse_transform(world_ray.location());
         vector object_vector = reverse_transform(world_ray.direction());
         return ray(object_point, object_vector);

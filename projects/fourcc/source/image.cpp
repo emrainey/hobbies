@@ -12,7 +12,7 @@ namespace fourcc {
 static bool is_extension(std::string filename, std::string ext) {
     // std::filesystem::path fp = filename;
     // return fp.extension() == ext;
-    const char* pext = strrchr(filename.c_str(), '.');
+    char const* pext = strrchr(filename.c_str(), '.');
     if (strcmp(pext, ext.c_str()) == 0) {
         return true;
     }
@@ -24,7 +24,7 @@ bool image<rgba, pixel_format::RGBA>::save(std::string filename) const {
     if (is_extension(filename, ".rgb")) {
         FILE* fp = fopen(filename.c_str(), "wb");
         if (fp) {
-            for_each ([&](const fourcc::rgba& pixel) -> void {
+            for_each ([&](fourcc::rgba const& pixel) -> void {
                 fwrite(&pixel.r, 1, sizeof(pixel.r), fp);
                 fwrite(&pixel.g, 1, sizeof(pixel.g), fp);
                 fwrite(&pixel.b, 1, sizeof(pixel.b), fp);
@@ -35,7 +35,7 @@ bool image<rgba, pixel_format::RGBA>::save(std::string filename) const {
     } else if (is_extension(filename, ".bgr")) {
         FILE* fp = fopen(filename.c_str(), "wb");
         if (fp) {
-            for_each ([&](const fourcc::rgba& pixel) -> void {
+            for_each ([&](fourcc::rgba const& pixel) -> void {
                 fwrite(&pixel.b, 1, sizeof(pixel.b), fp);
                 fwrite(&pixel.g, 1, sizeof(pixel.g), fp);
                 fwrite(&pixel.r, 1, sizeof(pixel.r), fp);
@@ -51,7 +51,7 @@ bool image<rgba, pixel_format::RGBA>::save(std::string filename) const {
             fprintf(fp, "MAXVAL %u\n", 255u);
             fprintf(fp, "TUPLTYPE %s\n", channel_order(format));
             fprintf(fp, "ENDHDR\n");
-            for_each ([&](const rgba& pixel) -> void {
+            for_each ([&](rgba const& pixel) -> void {
                 fwrite(&pixel.r, 1, sizeof(pixel.r), fp);
                 fwrite(&pixel.g, 1, sizeof(pixel.g), fp);
                 fwrite(&pixel.b, 1, sizeof(pixel.b), fp);
@@ -81,7 +81,7 @@ bool image<rgba, pixel_format::RGBA>::save(std::string filename) const {
             // image data as B. then G, then R. but y is inverted
             for (size_t y = (height - 1); /* y >= 0 */; y--) {
                 for (size_t x = 0; x < width; x++) {
-                    const rgba& pixel = at(y, x);
+                    rgba const& pixel = at(y, x);
                     fwrite(&pixel.b, 1, sizeof(pixel.b), fp);
                     fwrite(&pixel.g, 1, sizeof(pixel.g), fp);
                     fwrite(&pixel.r, 1, sizeof(pixel.r), fp);
@@ -105,7 +105,7 @@ bool image<abgr, pixel_format::ABGR>::save(std::string filename) const {
         fprintf(fp, "MAXVAL %u\n", 255u);
         fprintf(fp, "TUPLTYPE %s\n", channel_order(format));
         fprintf(fp, "ENDHDR\n");
-        for_each ([&](const abgr& pixel) -> void {
+        for_each ([&](abgr const& pixel) -> void {
             fwrite(&pixel.b, 1, sizeof(uint8_t), fp);
             fwrite(&pixel.g, 1, sizeof(uint8_t), fp);
             fwrite(&pixel.r, 1, sizeof(uint8_t), fp);
@@ -126,7 +126,7 @@ bool image<rgb8, pixel_format::RGB8>::save(std::string filename) const {
             fprintf(fp, "MAXVAL %u\n", 255u);
             fprintf(fp, "TUPLTYPE %s\n", channel_order(format));
             fprintf(fp, "ENDHDR\n");
-            for_each ([&](const rgb8& pixel) -> void {
+            for_each ([&](rgb8 const& pixel) -> void {
                 fwrite(&pixel, 1, sizeof(rgb8), fp);
             });
             fclose(fp);
@@ -154,7 +154,7 @@ bool image<rgb8, pixel_format::RGB8>::save(std::string filename) const {
             // image data as B, then G, then R. but upside down where y is inverted
             for (size_t y = (height - 1); /* y >= 0 */; y--) {
                 for (size_t x = 0; x < width; x++) {
-                    const rgb8& pixel = at(y, x);
+                    rgb8 const& pixel = at(y, x);
                     fwrite(&pixel.b, 1, sizeof(pixel.b), fp);
                     fwrite(&pixel.g, 1, sizeof(pixel.g), fp);
                     fwrite(&pixel.r, 1, sizeof(pixel.r), fp);
@@ -178,7 +178,7 @@ bool image<bgr8, pixel_format::BGR8>::save(std::string filename) const {
         fprintf(fp, "MAXVAL %u\n", 255u);
         fprintf(fp, "TUPLTYPE %s\n", channel_order(format));
         fprintf(fp, "ENDHDR\n");
-        for_each([&](const bgr8& pixel) -> void {
+        for_each([&](bgr8 const& pixel) -> void {
             fwrite(&pixel, 1, sizeof(bgr8), fp);
         });
         fclose(fp);
@@ -194,7 +194,7 @@ bool image<uint8_t, pixel_format::GREY8>::save(std::string filename) const {
         fprintf(fp, "P5\n");
         fprintf(fp, "%zu %zu\n", width, height);
         fprintf(fp, "%" PRIu32 "\n", uint32_t(1 << (8 * depth)) - 1);
-        for_each([&](const uint8_t& pixel) -> void {
+        for_each([&](uint8_t const& pixel) -> void {
             fwrite(&pixel, 1, sizeof(pixel), fp);
         });
         fclose(fp);
@@ -210,7 +210,7 @@ bool image<uint8_t, pixel_format::Y8>::save(std::string filename) const {
         fprintf(fp, "P5\n");
         fprintf(fp, "%zu %zu\n", width, height);
         fprintf(fp, "%" PRIu32 "\n", uint32_t(1 << (8 * depth)) - 1);
-        for_each([&](const uint8_t& pixel) -> void {
+        for_each([&](uint8_t const& pixel) -> void {
             fwrite(&pixel, 1, sizeof(pixel), fp);
         });
         fclose(fp);
@@ -226,7 +226,7 @@ bool image<uint16_t, pixel_format::Y16>::save(std::string filename) const {
         fprintf(fp, "P5\n");
         fprintf(fp, "%zu %zu\n", width, height);
         fprintf(fp, "%" PRIu32 "\n", uint32_t(1 << (8 * depth)) - 1);
-        for_each([&](const uint16_t& pixel) -> void {
+        for_each([&](uint16_t const& pixel) -> void {
             fwrite(&pixel, 1, sizeof(pixel), fp);
         });
         fclose(fp);
@@ -242,7 +242,7 @@ bool image<rgb565, pixel_format::RGBP>::save(std::string filename) const {
         fprintf(fp, "P565\n");
         fprintf(fp, "%zu %zu\n", width, height);
         fprintf(fp, "%" PRIu32 "\n", uint32_t(1 << (8 * depth)) - 1);
-        for_each([&](const rgb565& pixel) -> void {
+        for_each([&](rgb565 const& pixel) -> void {
             fwrite(&pixel, 1, sizeof(pixel), fp);
         });
         fclose(fp);
@@ -258,7 +258,7 @@ bool image<uint32_t, pixel_format::Y32>::save(std::string filename) const {
         fprintf(fp, "P5\n");
         fprintf(fp, "%zu %zu\n", width, height);
         fprintf(fp, "%" PRIu32 "\n", uint32_t(1 << (8 * depth)) - 1);
-        for_each([&](const uint32_t& pixel) -> void {
+        for_each([&](uint32_t const& pixel) -> void {
             fwrite(&pixel, 1, sizeof(pixel), fp);
         });
         fclose(fp);

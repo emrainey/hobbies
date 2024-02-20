@@ -14,8 +14,8 @@ using namespace geometry::operators;
 using namespace linalg;
 using namespace linalg::operators;
 
-const char *get_type_as_str(IntersectionType obj) {
-    static const char *names[] = {"NONE", "POINT", "SET OF POINTS", "LINE", "PLANE"};
+char const *get_type_as_str(IntersectionType obj) {
+    static char const *names[] = {"NONE", "POINT", "SET OF POINTS", "LINE", "PLANE"};
     return names[basal::to_underlying(obj)];
 }
 

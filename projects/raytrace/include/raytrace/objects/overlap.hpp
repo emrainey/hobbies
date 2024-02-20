@@ -30,7 +30,7 @@ public:
     /// @copydoc raytrace::object::map
     image::point map(point const& object_surface_point) const override;
     /// @copydoc basal::printable::print
-    void print(const char str[]) const override;
+    void print(char const str[]) const override;
 
     size_t max_collisions() const override;
     bool is_closed_surface() const override;

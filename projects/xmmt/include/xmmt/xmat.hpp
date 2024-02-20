@@ -29,13 +29,13 @@ public:
     xmat_() {
         zero();
     }
-    xmat_(const xmat_& o) : xmat_{} {
+    xmat_(xmat_ const& o) : xmat_{} {
         copy_from(o);
     }
     xmat_(xmat_&& o) : xmat_{} {
         copy_from(o);
     }
-    xmat_& operator=(const xmat_& o) {
+    xmat_& operator=(xmat_ const& o) {
         copy_from(o);
         return (*this);
     }
@@ -67,7 +67,7 @@ public:
     }
 
     /// Copies all data over from one array to the other
-    inline void copy_from(const xmat_& o) {
+    inline void copy_from(xmat_ const& o) {
         for (size_t j = 0; j < rows; j++) {
             data[j].m512[0] = o.data[j].m512[0];
         }
@@ -83,7 +83,7 @@ public:
         }
     }
 
-    inline const double& at(size_t j, size_t i) const {
+    inline double const& at(size_t j, size_t i) const {
         basal::exception::throw_unless(j < rows and i < cols, __FILE__, __LINE__, "Must be within bounds");
         return data[j].m064[i];
     }
@@ -97,26 +97,26 @@ public:
         return &data[index].m064[0];
     }
 
-    inline const double* operator[](size_t index) const {
+    inline double const* operator[](size_t index) const {
         return &data[index].m064[0];
     }
 
-    inline xmat_ operator*(const double b) {
+    inline xmat_ operator*(double const b) {
         xmat_ C = (*this);  // copy
         C *= b;
         return C;
     }
 
-    inline xmat_ operator/(const double b) {
+    inline xmat_ operator/(double const b) {
         xmat_ C = (*this);  // copy
         C /= b;
         return C;
     }
 
-    // [shortcut] Do not implement xmat_ operator+(const double b);
-    // [shortcut] Do not implement xmat_ operator-(const double b);
+    // [shortcut] Do not implement xmat_ operator+(double const b);
+    // [shortcut] Do not implement xmat_ operator-(double const b);
 
-    inline xmat_& operator+=(const xmat_& B) {
+    inline xmat_& operator+=(xmat_ const& B) {
         for (size_t j = 0; j < rows; j++) {
             if constexpr (cols == 2) {
                 data[j].m128[0] = _mm_add_pd(data[j].m128[0], B.data[j].m128[0]);
@@ -129,7 +129,7 @@ public:
         return (*this);
     }
 
-    inline xmat_& operator-=(const xmat_& B) {
+    inline xmat_& operator-=(xmat_ const& B) {
         for (size_t j = 0; j < rows; j++) {
             if constexpr (cols == 2) {
                 data[j].m128[0] = _mm_sub_pd(data[j].m128[0], B.data[j].m128[0]);
@@ -142,11 +142,11 @@ public:
         return (*this);
     }
 
-    // [shortcut] Do not implement xmat_& operator*=(const xmat& b);
-    // [shortcut] Do not implement xmat_& operator/=(const xmat& b);
+    // [shortcut] Do not implement xmat_& operator*=(xmat const& b);
+    // [shortcut] Do not implement xmat_& operator/=(xmat const& b);
 
     /// Equivalent to adding a same sized matrix with every element being the value given
-    inline xmat_& operator+=(const double value) {
+    inline xmat_& operator+=(double const value) {
         for (size_t j = 0; j < rows; j++) {
             if constexpr (cols == 2) {
                 __m128d v = _mm_set1_pd(value);
@@ -163,7 +163,7 @@ public:
     }
 
     /// Equivalent to subtracting a same sized matrix with every element being the value given
-    inline xmat_& operator-=(const double value) {
+    inline xmat_& operator-=(double const value) {
         for (size_t j = 0; j < rows; j++) {
             if constexpr (cols == 2) {
                 __m128d v = _mm_set1_pd(value);
@@ -180,7 +180,7 @@ public:
     }
 
     /// Scales the matrix
-    inline xmat_& operator*=(const double value) {
+    inline xmat_& operator*=(double const value) {
         for (size_t j = 0; j < rows; j++) {
             if constexpr (cols == 2) {
                 __m128d v = _mm_set1_pd(value);
@@ -197,7 +197,7 @@ public:
     }
 
     /// Divides the matrix
-    inline xmat_& operator/=(const double value) {
+    inline xmat_& operator/=(double const value) {
         for (size_t j = 0; j < rows; j++) {
             if constexpr (cols == 2) {
                 __m128d v = _mm_set1_pd(value);
@@ -214,7 +214,7 @@ public:
     }
 
     /// The fill operator
-    xmat_& operator=(const double v) {
+    xmat_& operator=(double const v) {
         for (size_t j = 0; j < rows; j++) {
             for (size_t i = 0; i < cols; i++) {
                 data[j][i] = v;
@@ -222,7 +222,7 @@ public:
         }
     }
 
-    // TODO bool operator!=(const xmat_& o);
+    // TODO bool operator!=(xmat_ const& o);
     // TODO xmat_ inverse();
 
     /// Returns the transpose matrix
@@ -258,7 +258,7 @@ xmat_<ROWS0, COLS1> operator*(const xmat_<ROWS0, COLS0>& a, const xmat_<COLS0, C
     return C;
 }
 
-// TODO xmat_ operator/(const xmat_& b); // same as multiply by inverse
+// TODO xmat_ operator/(xmat_ const& b); // same as multiply by inverse
 
 template <size_t ROWS, size_t COLS>
 xmat_<ROWS, COLS> operator+(const xmat_<ROWS, COLS>& a, const xmat_<ROWS, COLS>& b) {

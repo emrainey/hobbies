@@ -15,9 +15,9 @@ namespace nn {
 class mnist {
 public:
     /// This dataset is all 28x28 images.
-    constexpr static const uint32_t dim = 28;
+    constexpr static uint32_t const dim = 28;
     /// The number of inputs a network would need to cover all the possible values
-    constexpr static const uint32_t inputs = dim * dim;
+    constexpr static uint32_t const inputs = dim * dim;
 
     /// The storage for each image in the dataset.
     struct image {
@@ -44,7 +44,7 @@ public:
     uint8_t get_label(size_t index);
 
 protected:
-    constexpr static const uint32_t magic = 2049;  ///< Just some number they picked.
+    constexpr static uint32_t const magic = 2049;  ///< Just some number they picked.
     std::string image_file;
     std::string index_file;
     uint32_t num_entries;

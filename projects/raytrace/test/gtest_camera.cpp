@@ -31,9 +31,9 @@ public:
     }
 
 protected:
-    const size_t image_height;
-    const size_t image_width;
-    const vector camera_translation;
+    size_t const image_height;
+    size_t const image_width;
+    vector const camera_translation;
     iso::degrees field_of_view;
     std::unique_ptr<raytrace::camera> m_camera;
 };
@@ -44,7 +44,7 @@ TEST_F(CameraTest, DefaultAttributesTest) {
     raytrace::vector camera_up = R3::basis::Z;
     raytrace::point look_at(1.0_p, 0.0_p, 0.0_p);
     raytrace::point look_from = geometry::R3::origin;
-    const linalg::matrix camera_intrinsics{{{1, 0, -1}, {0, 1, -1}, {0, 0, 1}}};
+    linalg::matrix const camera_intrinsics{{{1, 0, -1}, {0, 1, -1}, {0, 0, 1}}};
 
     // the default camera point is the origin
     ASSERT_POINT_EQ(m_camera.get()->position(), look_from);
@@ -65,7 +65,7 @@ TEST_F(CameraTest, AttributesTest) {
     raytrace::vector camera_up{{-2.0_p, -10.0_p, 26.0_p}};
     precision f = camera_forward.magnitude();
     // approximately correct
-    const linalg::matrix camera_intrinsics{{{f, 0.0_p, -f}, {0.0_p, f, -f}, {0.0_p, 0.0_p, f}}};
+    linalg::matrix const camera_intrinsics{{{f, 0.0_p, -f}, {0.0_p, f, -f}, {0.0_p, 0.0_p, f}}};
 
     // move the camera position.
     m_camera.get()->position(look_from);
@@ -91,7 +91,7 @@ TEST_F(CameraTest, CastingRays) {
         m_camera.get()->rotation(rs[0], rs[1], rs[2]);
         ASSERT_TRUE(m_camera.get()->rotation() == linalg::matrix::identity(3, 3));
 
-        constexpr const size_t count = 4;
+        constexpr size_t const count = 4;
         image::point points[count]
             = {image::point(0.5_p, 0.5_p), image::point(1.5_p, 0.5_p), image::point(0.5_p, 1.5_p), image::point(1.5_p, 1.5_p)};
         ray rays[count] = {
@@ -122,8 +122,8 @@ TEST_F(CameraTest, CastingRays) {
 TEST(CameraTest2, CodedImage) {
     using namespace raytrace;
     iso::degrees fov(90);
-    const size_t width = 240;
-    const size_t height = 120;
+    size_t const width = 240;
+    size_t const height = 120;
     camera cam(height, width, fov);
     raytrace::point look_from(-119, 0, 0);
     raytrace::point look_at(1, 0, 0);
@@ -134,9 +134,9 @@ TEST(CameraTest2, CodedImage) {
     ASSERT_VECTOR_EQ(R3::basis::Y, cam.left().direction().normalized());
     ASSERT_VECTOR_EQ(R3::basis::Z, cam.up().direction().normalized());
 
-    cam.capture.generate_each([&](const image::point& img_point) -> color {
-        const ray world_ray = cam.cast(img_point);
-        const raytrace::point wrp = world_ray.location();  // just copy
+    cam.capture.generate_each([&](image::point const& img_point) -> color {
+        ray const world_ray = cam.cast(img_point);
+        raytrace::point const wrp = world_ray.location();  // just copy
         if (wrp.y > 0) {
             if (wrp.z > 0) {
                 return colors::green;

@@ -41,7 +41,7 @@ public:
     }
 
     /// Copy Constructor
-    point_(const point_& other) : pack_type{other.data} {
+    point_(point_ const& other) : pack_type{other.data} {
     }
 
     /// Move Construction is just a Copy
@@ -49,7 +49,7 @@ public:
     }
 
     /// Copy Assignment
-    point_& operator=(const point_& other) {
+    point_& operator=(point_ const& other) {
         pack_type::data = other.data;
     }
 
@@ -101,7 +101,7 @@ public:
     // }
 
     /// Equality Operator
-    bool operator==(const point_& other) {
+    bool operator==(point_ const& other) {
         bool ret = true;
         for (size_t n = 0; n < dimensions && ret; n++) {
             ret = (pack_type::datum[n] == other[n]);
@@ -110,11 +110,11 @@ public:
     }
 
     /// Inequality Operator
-    bool operator!=(const point_& other) {
+    bool operator!=(point_ const& other) {
         return not operator==(other);
     }
 
-    void print(const char name[]) const {
+    void print(char const name[]) const {
         std::cout << name << " " << (*this) << std::endl;
     }
 
@@ -180,7 +180,7 @@ public:
     }
 
     /// A Point minus a point is a vector from the last to the first.
-    // friend vector_ operator-(const point_& a, const point_& b) {
+    // friend vector_ operator-(point_ const& a, point_ const& b) {
     //     vector_ c{};
     //     if constexpr (point_::number_of_elements == 2) {
     //         c.data = _mm_sub_pd(a.data, b.data);
@@ -195,7 +195,7 @@ public:
     // }
 
     /// A Point plus a vector is a point.
-    friend point_ operator+(const point_& a, const vector_<pack_type, dimensions>& b) {
+    friend point_ operator+(point_ const& a, const vector_<pack_type, dimensions>& b) {
         point_ c{};
         if constexpr (point_::number_of_elements == 2) {
             c.data = _mm_add_pd(a.data, b.data);
@@ -209,7 +209,7 @@ public:
         return c;
     }
 
-    friend std::ostream& operator<<(std::ostream& os, const point_& a) {
+    friend std::ostream& operator<<(std::ostream& os, point_ const& a) {
         pack_type const& b = a;
         os << "point " << b;
         return os;

@@ -15,7 +15,7 @@ using namespace raytrace;
 
 class Tree : public group {
 public:
-    Tree(const raytrace::point& base)
+    Tree(raytrace::point const& base)
         : group{}
         , leaves{colors::forest_green, 0.0, colors::forest_green, 0.01, 100}
         , bark{colors::brown, 0.0, colors::brown, 0.01, 100}
@@ -138,7 +138,7 @@ public:
         return std::string("world_snowman.tga");
     }
 
-    raytrace::color background(const raytrace::ray&) const override {
+    raytrace::color background(raytrace::ray const&) const override {
         // FIXME randomly distribute stars to all points on a sphere?
         return colors::black;
     }

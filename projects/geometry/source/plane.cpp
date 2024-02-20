@@ -125,7 +125,7 @@ bool plane::perpendicular(const plane &a) const {
     return (m_normal | a.normal);  // check for orthogonal
 }
 
-void plane::print(const char name[]) const {
+void plane::print(char const name[]) const {
     std::cout << name << " " << (*this) << " hessian " << m_normal << ", " << m_center_point << std::endl;
 }
 
@@ -146,7 +146,7 @@ bool plane::contains(const R3::point &pt) const {
     } else {
         value = 1.0;
     }
-    const bool vector_method = basal::nearly_zero(value);
+    bool const vector_method = basal::nearly_zero(value);
 
     if constexpr (use_equation_method) {
         // solve the equation with this point and it must be zero
@@ -154,7 +154,7 @@ bool plane::contains(const R3::point &pt) const {
     } else {
         value = 1.0;
     }
-    const bool equation_method = basal::nearly_zero(value);
+    bool const equation_method = basal::nearly_zero(value);
 
     if constexpr (use_distance_method) {
         // find the distance from the plane
@@ -162,7 +162,7 @@ bool plane::contains(const R3::point &pt) const {
     } else {
         value = 1.0;
     }
-    const bool distance_method = basal::nearly_zero(value);
+    bool const distance_method = basal::nearly_zero(value);
 
     // these can disagree in very minor values (around a millionth of a unit)
     // basal::exception::throw_unless(vector_method == eq_method && eq_method == distance_method, __FILE__, __LINE__);

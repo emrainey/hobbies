@@ -27,7 +27,7 @@ public:
     using point = geometry::point_<2>;
 
     /// A function which gives an image point and expects a color returned.
-    using subsampler = std::function<color(const image::point&)>;
+    using subsampler = std::function<color(image::point const&)>;
 
     /// A function callback which is called when a line is complete
     using rendered_line = std::function<void(size_t row_index, bool completed)>;
@@ -48,7 +48,7 @@ public:
                        uint8_t mask_threshold = AAA_MASK_DISABLED);
 
     /// Returns the image pixel at the point (rounded raster coordinates)
-    fourcc::rgb8& at(const point& p);
+    fourcc::rgb8& at(point const& p);
 
     // declared const override
     fourcc::rgb8 const& at(size_t y, size_t x) const override;

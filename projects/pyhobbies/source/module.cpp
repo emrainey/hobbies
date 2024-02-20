@@ -20,7 +20,7 @@ PYBIND11_MODULE(pyhobbies, module) {
             // .def("blue", &raytrace::color::blue)
             .def("clamp", &raytrace::color::clamp)
             .def(
-                "__repr__", [](const raytrace::color& c) -> auto {
+                "__repr__", [](raytrace::color const& c) -> auto {
                     return "<raytrace.color = R:" + std::to_string(c.red()) + " G:" + std::to_string(c.green())
                            + " B:" + std::to_string(c.blue()) + ">";
                 });

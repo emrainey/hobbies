@@ -94,7 +94,7 @@ public:
     /// Returns a const reference to the coefficients
     const coefficients_t &coefficient() const;
 
-    virtual void print(const char name[]) const;
+    virtual void print(char const name[]) const;
 
     bool operator==(const plane &other) const;
     bool operator!=(const plane &other) const;

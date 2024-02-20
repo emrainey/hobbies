@@ -8,7 +8,7 @@
 #include "iso/degrees.hpp"
 
 namespace iso {
-const char* const suffix_type_d::suffix;
+char const* const suffix_type_d::suffix;
 // default
 degrees::degrees() : measurement{} {
 }
@@ -16,7 +16,7 @@ degrees::degrees() : measurement{} {
 degrees::degrees(precision a) : measurement{a} {
 }
 // copy constructor
-degrees::degrees(const degrees& other) : measurement{other} {
+degrees::degrees(degrees const& other) : measurement{other} {
 }
 // move constructor
 degrees::degrees(degrees&& other) : measurement{std::move(other)} {
@@ -34,17 +34,17 @@ degrees& degrees::operator=(degrees&& other) noexcept {
     _value = other.value;
     return (*this);
 }
-bool degrees::operator==(const degrees& other) const {
+bool degrees::operator==(degrees const& other) const {
     return basal::equivalent(value, other.value);
 }
-bool degrees::operator!=(const degrees& other) const {
+bool degrees::operator!=(degrees const& other) const {
     return !operator==(other);
 }
-degrees& degrees::operator+=(const degrees& other) {
+degrees& degrees::operator+=(degrees const& other) {
     _value += other.value;
     return (*this);
 }
-degrees& degrees::operator-=(const degrees& other) {
+degrees& degrees::operator-=(degrees const& other) {
     _value -= other.value;
     return (*this);
 }
@@ -59,32 +59,32 @@ degrees& degrees::operator/=(precision factor) {
 degrees degrees::operator-() const {
     return degrees{-value};
 }
-bool degrees::operator<(const degrees& other) const {
+bool degrees::operator<(degrees const& other) const {
     return (_value < other.value);
 }
-bool degrees::operator<=(const degrees& other) const {
+bool degrees::operator<=(degrees const& other) const {
     return (_value <= other.value);
 }
-bool degrees::operator>(const degrees& other) const {
+bool degrees::operator>(degrees const& other) const {
     return (_value > other.value);
 }
-bool degrees::operator>=(const degrees& other) const {
+bool degrees::operator>=(degrees const& other) const {
     return (_value >= other.value);
 }
 namespace operators {
-degrees operator+(const degrees& A, const degrees& B) {
+degrees operator+(degrees const& A, degrees const& B) {
     return degrees{A.value + B.value};
 }
-degrees operator-(const degrees& A, const degrees& B) {
+degrees operator-(degrees const& A, degrees const& B) {
     return degrees{A.value - B.value};
 }
-degrees operator*(const degrees& A, precision factor) {
+degrees operator*(degrees const& A, precision factor) {
     return degrees{A.value * factor};
 }
-degrees operator*(precision factor, const degrees& A) {
+degrees operator*(precision factor, degrees const& A) {
     return degrees{A.value * factor};
 }
-degrees operator/(const degrees& A, precision factor) {
+degrees operator/(degrees const& A, precision factor) {
     return degrees{A.value / factor};
 }
 }  // namespace operators
@@ -95,7 +95,7 @@ iso::degrees operator""_d(long double a) {
 iso::degrees operator""_d(unsigned long long a) {
     return iso::degrees(a);
 }
-iso::degrees operator""_d(const char a[]) {
+iso::degrees operator""_d(char const a[]) {
     return iso::degrees(atol(a));
 }
 }  // namespace literals

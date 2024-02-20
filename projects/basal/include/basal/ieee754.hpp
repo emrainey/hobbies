@@ -76,7 +76,7 @@ inline bool is_exactly_zero(precision a) {
 }
 
 /// A comparison which neither value is larger than the other, effectively equivalent
-inline bool equivalent(const precision a, const precision b) {
+inline bool equivalent(precision const a, precision const b) {
     return not(a > b) and not(a < b);
 }
 

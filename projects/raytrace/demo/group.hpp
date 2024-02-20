@@ -11,7 +11,7 @@ public:
 
     virtual ~group() = default;
 
-    inline void move_by(const raytrace::vector& vec) {
+    inline void move_by(raytrace::vector const& vec) {
         for (auto& obj : m_objects) {
             obj->move_by(vec);
         }

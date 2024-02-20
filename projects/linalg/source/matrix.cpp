@@ -15,7 +15,7 @@ namespace linalg {
 // ****************************************************************************
 // STATIC METHODS
 // ****************************************************************************
-static const char* g_filename = __FILE__;
+static char const* g_filename = __FILE__;
 
 matrix matrix::zeros(size_t rows, size_t cols) {
     return matrix{rows, cols}.fill(0.0);
@@ -82,7 +82,7 @@ matrix::matrix(size_t rs, size_t cs, precision mat[])
     }
 }
 
-matrix::matrix(const std::vector<std::vector<precision>>& a)
+matrix::matrix(std::vector<std::vector<precision>> const& a)
     : rows{a.size()}
     , cols{a[0].size()}
     , bytes{static_cast<size_t>(rows * cols) * sizeof(precision)}
@@ -102,7 +102,7 @@ matrix::matrix(const std::vector<std::vector<precision>>& a)
 }
 
 // copy constructor, shallow copy
-matrix::matrix(const matrix& other) noexcept(false)
+matrix::matrix(matrix const& other) noexcept(false)
     : rows{other.rows}, cols{other.cols}, bytes{other.bytes}, external_memory{false}, memory{nullptr}, array{nullptr} {
     if (create(rows, cols, bytes)) {
         memcpy(memory, other.memory, bytes);
@@ -142,7 +142,7 @@ matrix::matrix(precision m[4][4]) : matrix(4, 4, m[0]) {
 }
 
 // copy assignment
-matrix& matrix::operator=(const matrix& other) noexcept(false) {
+matrix& matrix::operator=(matrix const& other) noexcept(false) {
     basal::exception::throw_unless(this->rows == other.rows, g_filename, __LINE__,
                                    "Must match rows (copy constructor)");
     basal::exception::throw_unless(this->cols == other.cols, g_filename, __LINE__,
@@ -188,7 +188,7 @@ matrix& matrix::operator=(matrix&& other) noexcept(false) {
     return *this;
 }
 
-void matrix::operator=(const precision value) {
+void matrix::operator=(precision const value) {
     fill(value);
 }
 
@@ -290,7 +290,7 @@ precision* matrix::operator[](size_t row) noexcept(false) {
     return array[row];
 }
 
-const precision* matrix::operator[](size_t row) const noexcept(false) {
+precision const* matrix::operator[](size_t row) const noexcept(false) {
     basal::exception::throw_unless(row < rows, g_filename, __LINE__);
     return array[row];
 }
@@ -301,7 +301,7 @@ precision& matrix::index(size_t row, size_t col) noexcept(false) {
     return array[row][col];
 }
 
-precision matrix::index(const size_t row, const size_t col) const noexcept(false) {
+precision matrix::index(size_t const row, size_t const col) const noexcept(false) {
     basal::exception::throw_unless(row < rows, g_filename, __LINE__);
     basal::exception::throw_unless(col < cols, g_filename, __LINE__);
     return array[row][col];
@@ -314,7 +314,7 @@ precision& matrix::index(size_t idx) noexcept(false) {
     return array[row][col];
 }
 
-precision matrix::index(const size_t idx) const noexcept(false) {
+precision matrix::index(size_t const idx) const noexcept(false) {
     basal::exception::throw_unless(idx < (rows * cols), g_filename, __LINE__);
     size_t row = idx / cols;
     size_t col = idx % cols;
@@ -327,7 +327,7 @@ precision& matrix::operator()(size_t row, size_t col) noexcept(false) {
     return array[row][col];
 }
 
-precision matrix::operator()(const size_t row, const size_t col) const noexcept(false) {
+precision matrix::operator()(size_t const row, size_t const col) const noexcept(false) {
     basal::exception::throw_unless(row < rows, g_filename, __LINE__);
     basal::exception::throw_unless(col < cols, g_filename, __LINE__);
     return array[row][col];
@@ -384,7 +384,7 @@ void matrix::assignInto(matrix& dst, size_t start_row, size_t start_col) {
         ;
 }
 
-bool matrix::operator==(const matrix& a) const {
+bool matrix::operator==(matrix const& a) const {
     basal::exception::throw_unless(a.rows == rows && a.cols == cols, g_filename, __LINE__, "Must be equal dimensions");
     bool match = true;
     const_coord_iterator iter = [&](size_t r, size_t c, precision v) {
@@ -395,7 +395,7 @@ bool matrix::operator==(const matrix& a) const {
     return match;
 }
 
-bool matrix::operator!=(const matrix& a) const {
+bool matrix::operator!=(matrix const& a) const {
     basal::exception::throw_unless(a.rows == rows && a.cols == cols, g_filename, __LINE__, "Must be equal dimensions");
     bool match = true;
     const_coord_iterator iter = [&](size_t r, size_t c, precision v) {
@@ -406,12 +406,12 @@ bool matrix::operator!=(const matrix& a) const {
     return !match;
 }
 
-matrix& matrix::operator*=(const precision a) {
+matrix& matrix::operator*=(precision const a) {
     ref_iterator iter = [&](precision& v) { v *= a; };
     return for_each (iter);
 }
 
-matrix& matrix::operator/=(const precision a) {
+matrix& matrix::operator/=(precision const a) {
     ref_iterator iter = [&](precision& v) { v /= a; };
     return for_each (iter);
 }
@@ -683,7 +683,7 @@ matrix& matrix::random(precision min, precision max, precision p) {
 }
 
 // element-wise accumulator
-matrix& matrix::operator+=(const matrix& a) {
+matrix& matrix::operator+=(matrix const& a) {
     basal::exception::throw_unless(a.rows == rows, g_filename, __LINE__);
     basal::exception::throw_unless(a.cols == cols, g_filename, __LINE__);
     ref_coord_iterator iter = [&](size_t r, size_t c, precision& v) { v += a[r][c]; };
@@ -691,14 +691,14 @@ matrix& matrix::operator+=(const matrix& a) {
 }
 
 // element-wise decumulator
-matrix& matrix::operator-=(const matrix& a) {
+matrix& matrix::operator-=(matrix const& a) {
     basal::exception::throw_unless(a.rows == rows, g_filename, __LINE__);
     basal::exception::throw_unless(a.cols == cols, g_filename, __LINE__);
     ref_coord_iterator iter = [&](size_t r, size_t c, precision& v) { v -= a[r][c]; };
     return for_each (iter);
 }
 
-void matrix::print(const char name[]) const {
+void matrix::print(char const name[]) const {
     fprintf(stdout, "%p = %s[%" PRIz "][%" PRIz "] = {\n", (void*)memory, name, rows, cols);
     for (size_t r = 0; r < rows; r++) {
         fprintf(stdout, "\t{");
@@ -709,7 +709,7 @@ void matrix::print(const char name[]) const {
     }
 }
 
-std::ostream& operator<<(std::ostream& os, const matrix& m) {
+std::ostream& operator<<(std::ostream& os, matrix const& m) {
     os << "matrix = " << std::endl;
     for (size_t r = 0; r < m.rows; r++) {
         os << "\t{";
@@ -767,14 +767,14 @@ void matrix::row_sub(size_t row_dst, size_t row_src, precision a) {
 }
 
 // normal multiply
-matrix& matrix::operator*=(const matrix& a) {
+matrix& matrix::operator*=(matrix const& a) {
     using namespace operators;
     matrix m = (*this) * a;  // create new matrix
     (*this) = m;             // copy assignment
     return *this;
 }
 
-matrix& matrix::operator/=(const matrix& a) {
+matrix& matrix::operator/=(matrix const& a) {
     using namespace operators;
     matrix m = (*this) / a;
     (*this) = m;
@@ -1126,14 +1126,14 @@ matrix operator^(matrix& a, letters l) noexcept(false) {
         return matrix::identity(a.rows, a.cols);
 }
 
-matrix operator^(const matrix& a, letters l) noexcept(false) {
+matrix operator^(matrix const& a, letters l) noexcept(false) {
     matrix b{a};  // const copy
     return operator^(b, l);
 }
 
 }  // namespace operators
 
-matrix addition(const matrix& a, const matrix& b) noexcept(false) {
+matrix addition(matrix const& a, matrix const& b) noexcept(false) {
     // a.print("a");
     // b.print("b");
     basal::exception::throw_unless(a.rows == b.rows, g_filename, __LINE__);
@@ -1143,7 +1143,7 @@ matrix addition(const matrix& a, const matrix& b) noexcept(false) {
     return c;     // returns a full object?
 }
 
-matrix subtraction(const matrix& a, const matrix& b) noexcept(false) {
+matrix subtraction(matrix const& a, matrix const& b) noexcept(false) {
     basal::exception::throw_unless(a.rows == b.rows, g_filename, __LINE__);
     basal::exception::throw_unless(a.cols == b.cols, g_filename, __LINE__);
     matrix c{a};  // copy constructor
@@ -1151,7 +1151,7 @@ matrix subtraction(const matrix& a, const matrix& b) noexcept(false) {
     return c;     // returns a full object?
 }
 
-matrix multiply(const matrix& a, const matrix& b) noexcept(false) {
+matrix multiply(matrix const& a, matrix const& b) noexcept(false) {
     basal::exception::throw_unless(a.cols == b.rows, g_filename, __LINE__, "Columns and Rows must match!");
     matrix m{a.rows, b.cols};
     statistics::get().matrix_multiply++;
@@ -1167,16 +1167,16 @@ matrix multiply(const matrix& a, const matrix& b) noexcept(false) {
     return m;
 }
 
-matrix multiply(const matrix& a, const precision r) noexcept(false) {
+matrix multiply(matrix const& a, precision const r) noexcept(false) {
     matrix m{a};  // copy
     return m *= r;
 }
 
-matrix multiply(const precision r, const matrix& a) noexcept(false) {
+matrix multiply(precision const r, matrix const& a) noexcept(false) {
     return multiply(a, r);
 }
 
-matrix hadamard(const matrix& a, const matrix& b) noexcept(false) {
+matrix hadamard(matrix const& a, matrix const& b) noexcept(false) {
     basal::exception::throw_unless(a.rows == b.rows, g_filename, __LINE__);
     basal::exception::throw_unless(a.cols == b.cols, g_filename, __LINE__);
     matrix c{a.rows, b.cols};
@@ -1184,7 +1184,7 @@ matrix hadamard(const matrix& a, const matrix& b) noexcept(false) {
 }
 
 namespace pairwise {
-matrix multiply(const matrix& A, const matrix& B) noexcept(false) {
+matrix multiply(matrix const& A, matrix const& B) noexcept(false) {
     basal::exception::throw_unless(A.rows == 1 and B.cols == 1, g_filename, __LINE__, "A[%dx%d] (pair) B[%dx%d]",
                                    A.rows, A.cols, B.rows, B.cols);
     matrix C{B.rows, A.cols};
@@ -1193,7 +1193,7 @@ matrix multiply(const matrix& A, const matrix& B) noexcept(false) {
 }  // namespace pairwise
 
 namespace rowwise {
-matrix scale(const matrix& a, const matrix& b) noexcept(false) {
+matrix scale(matrix const& a, matrix const& b) noexcept(false) {
     basal::exception::throw_unless(b.cols == 1, g_filename, __LINE__, "Must be a column matrix (%u)", b.cols);
     matrix m{a.rows, a.cols};
     return m.for_each ([&](size_t y, size_t x, precision& v) { v = a[y][x] * b[y][0]; });
@@ -1220,7 +1220,7 @@ matrix rowjoin(matrix& a, matrix& b) noexcept(false) {
     return matrix(a.rows, a.cols + b.cols).for_each (iter);
 }
 
-matrix coljoin(const matrix& a, const matrix& b) noexcept(false) {
+matrix coljoin(matrix const& a, matrix const& b) noexcept(false) {
     basal::exception::throw_unless(a.cols == b.cols, g_filename, __LINE__, "To join, the number of cols must be equal");
     matrix::ref_coord_iterator iter = [&](size_t r, size_t c, precision& v) {
         if (r < a.rows)
@@ -1243,7 +1243,7 @@ bool matrix::to_file(std::string path) const {
         size_t elem = 0;
         elem += fwrite(&rows, sizeof(rows), 1, fp);
         elem += fwrite(&cols, sizeof(cols), 1, fp);
-        for_each ([&](const precision& v) { elem += fwrite(&v, sizeof(v), 1, fp); })
+        for_each ([&](precision const& v) { elem += fwrite(&v, sizeof(v), 1, fp); })
             ;
         fclose(fp);
         return (elem == (rows * cols) + 2);

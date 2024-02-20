@@ -22,7 +22,7 @@ public:
     /// Default empty network
     network();
     /// Removed copy constructor
-    network(const network& other) = delete;
+    network(network const& other) = delete;
     /// Explicit List Initializer Constructor
     explicit network(std::initializer_list<size_t> list);
     /// Promoted Vector Constructor

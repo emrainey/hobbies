@@ -11,18 +11,18 @@ namespace objects {
 class pyramid : public object {
 public:
     /// Constructs a pyramid at a point of a given height. The slope is fixed
-    pyramid(const point& base, precision height);
+    pyramid(point const& base, precision height);
     virtual ~pyramid() = default;
 
     /// @copydoc raytrace::object::normal
-    vector normal(const point& world_surface_point) const override;
+    vector normal(point const& world_surface_point) const override;
     /// @copydoc raytrace::object::collision_along
-    hits collisions_along(const ray& object_ray) const override;
+    hits collisions_along(ray const& object_ray) const override;
     /// @copydoc raytrace::object::map
-    image::point map(const point& object_surface_point) const override;
+    image::point map(point const& object_surface_point) const override;
     /// @copydoc basal::printable::print
-    void print(const char str[]) const override;
-    bool is_surface_point(const point& world_point) const override;
+    void print(char const str[]) const override;
+    bool is_surface_point(point const& world_point) const override;
     precision get_object_extent(void) const override;
 
 protected:

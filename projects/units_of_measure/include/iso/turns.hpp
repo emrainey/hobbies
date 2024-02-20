@@ -16,7 +16,7 @@ namespace iso {
 
 /// A structure used to hold the postfix for turns
 struct suffix_type_Tau {
-    constexpr static const char *suffix = "Tau";
+    constexpr static char const *suffix = "Tau";
 };
 
 ///
@@ -36,25 +36,25 @@ public:
     /// Parameter constructor
     explicit turns(precision value);
     /// Copy Constructor
-    turns(const turns& other);
+    turns(turns const& other);
     /// Move Constructor
     turns(turns&& other);
     /// Destructor
     ~turns() = default;
     /// Const Copy Assignment
-    turns& operator=(const turns& other) noexcept;
+    turns& operator=(turns const& other) noexcept;
     /// Copy Assignment
     turns& operator=(turns& other) noexcept;
     /// Move Assignment
     turns& operator=(turns&& other) noexcept;
     /// Equality Operator
-    bool operator==(const turns& other) const;
+    bool operator==(turns const& other) const;
     /// Inequality Operator
-    bool operator!=(const turns& other) const;
+    bool operator!=(turns const& other) const;
     /// Accumulation Operator
-    turns& operator+=(const turns& other);
+    turns& operator+=(turns const& other);
     /// Deccumulation Operator
-    turns& operator-=(const turns& other);
+    turns& operator-=(turns const& other);
     /// Scaling Operator
     turns& operator*=(precision factor);
     /// Inverse Scaling Operator
@@ -62,26 +62,26 @@ public:
     /// Negating Operator
     turns operator-() const;
     /// Less Than Operator
-    bool operator<(const turns& other) const;
+    bool operator<(turns const& other) const;
     /// Less Than or Equal Operator
-    bool operator<=(const turns& other) const;
+    bool operator<=(turns const& other) const;
     /// Greater Than Operator
-    bool operator>(const turns& other) const;
+    bool operator>(turns const& other) const;
     /// Greater Than or Equal Operator
-    bool operator>=(const turns& other) const;
+    bool operator>=(turns const& other) const;
 };
 
 namespace operators {
     /// Addition operator
-    turns operator+(const turns& A, const turns& B);
+    turns operator+(turns const& A, turns const& B);
     /// Subtraction operator
-    turns operator-(const turns& A, const turns& B);
+    turns operator-(turns const& A, turns const& B);
     /// Left Scaling Operator
-    turns operator*(const turns& A, precision factor);
+    turns operator*(turns const& A, precision factor);
     /// Right Scaling Operator
-    turns operator*(precision factor, const turns& A);
+    turns operator*(precision factor, turns const& A);
     /// Inverse Scaling Operator
-    turns operator/(const turns& A, precision factor);
+    turns operator/(turns const& A, precision factor);
 }
 
 namespace literals {
@@ -90,7 +90,7 @@ namespace literals {
     /// Literal Int, Quote Operator
     turns operator""_Tau(unsigned long long value);
     /// Literal String, Quote Operator
-    iso::turns operator""_Tau(const char a[]);
+    iso::turns operator""_Tau(char const a[]);
 }
 
 }

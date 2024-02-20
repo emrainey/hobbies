@@ -78,7 +78,7 @@ bool line::solve(const point &P, precision &t) const {
         t = 0.0;
         return true;
     }
-    const size_t dims = position().dimensions;
+    size_t const dims = position().dimensions;
     std::vector<precision> ts;
     for (size_t i = 0; i < dims; i++) {
         precision d = m_udir[i];
@@ -101,7 +101,7 @@ bool line::solve(const point &P, precision &t) const {
     return false;
 }
 
-void line::print(const char name[]) const {
+void line::print(char const name[]) const {
     position().print(name);
     direction().print(name);
 }

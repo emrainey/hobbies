@@ -76,19 +76,19 @@ exception::exception(std::string desc, std::string loc, std::size_t line)
 exception::~exception() {
 }
 
-const char *exception::why() const {
+char const *exception::why() const {
     return description.c_str();
 }
 
-const char *exception::where() const {
+char const *exception::where() const {
     static char buffer[256 + 20] = {0};
     snprintf(buffer, sizeof(buffer), "%s:%zu", location.c_str(), line_number);
     return buffer;
 }
 
-void exception::throw_if(bool condition, const char loc[], std::size_t line, const char fmt[], ...) noexcept(false) {
+void exception::throw_if(bool condition, char const loc[], std::size_t line, char const fmt[], ...) noexcept(false) {
     if (condition) {
-        const char *value = std::getenv("ABORT");
+        char const *value = std::getenv("ABORT");
         if (value) {
             fprintf(stdout, "ABORT=%s\n", value);
             std::string state{value};
@@ -107,9 +107,9 @@ void exception::throw_if(bool condition, const char loc[], std::size_t line, con
     }
 }
 
-void exception::throw_if(bool condition, const char loc[], std::size_t line) noexcept(false) {
+void exception::throw_if(bool condition, char const loc[], std::size_t line) noexcept(false) {
     if (condition) {
-        const char *value = std::getenv("ABORT");
+        char const *value = std::getenv("ABORT");
         if (value) {
             fprintf(stdout, "ABORT=%s\n", value);
             std::string state{value};
@@ -121,10 +121,10 @@ void exception::throw_if(bool condition, const char loc[], std::size_t line) noe
     }
 }
 
-void exception::throw_unless(bool condition, const char loc[], std::size_t line, const char fmt[],
+void exception::throw_unless(bool condition, char const loc[], std::size_t line, char const fmt[],
                              ...) noexcept(false) {
     if (not condition) {
-        const char *value = std::getenv("ABORT");
+        char const *value = std::getenv("ABORT");
         if (value) {
             fprintf(stdout, "ABORT=%s\n", value);
             std::string state{value};
@@ -142,9 +142,9 @@ void exception::throw_unless(bool condition, const char loc[], std::size_t line,
     }
 }
 
-void exception::throw_unless(bool condition, const char loc[], std::size_t line) noexcept(false) {
+void exception::throw_unless(bool condition, char const loc[], std::size_t line) noexcept(false) {
     if (not condition) {
-        const char *value = std::getenv("ABORT");
+        char const *value = std::getenv("ABORT");
         if (value) {
             fprintf(stdout, "ABORT=%s\n", value);
             std::string state{value};
@@ -157,7 +157,7 @@ void exception::throw_unless(bool condition, const char loc[], std::size_t line)
 }
 
 /// Simplifies catch the same exception within code blocks
-void assert_if_thrown(const char statement[], std::function<void(void) noexcept(false)> block) noexcept {
+void assert_if_thrown(char const statement[], std::function<void(void) noexcept(false)> block) noexcept {
     try {
         block();
         fprintf(stdout, "%s did not throw! Success!\n", statement);
@@ -174,7 +174,7 @@ void assert_if_thrown(const char statement[], std::function<void(void) noexcept(
 }
 
 /// Allows the execution of a block which must throw an exception
-void assert_if_not_thrown(const char statement[], std::function<void(void) noexcept(false)> block) noexcept {
+void assert_if_not_thrown(char const statement[], std::function<void(void) noexcept(false)> block) noexcept {
     try {
         block();
         fprintf(stderr, "ERROR: %s did not throw an exception\n", statement);

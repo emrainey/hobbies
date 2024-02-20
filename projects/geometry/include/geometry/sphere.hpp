@@ -19,7 +19,7 @@ protected:
     precision m_radius;
 
 public:
-    const precision &radius = m_radius;
+    precision const &radius = m_radius;
 
     sphere() = delete;
     /// Generic Constructor

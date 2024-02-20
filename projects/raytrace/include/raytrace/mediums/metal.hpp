@@ -12,10 +12,10 @@ public:
     virtual ~metal() = default;
 
     // metals can alter the specular light given off from them.
-    color specular(const raytrace::point& volumetric_point, precision scaling,
-                   const color& light_color) const override;
+    color specular(raytrace::point const& volumetric_point, precision scaling,
+                   color const& light_color) const override;
 
-    vector perturbation(const raytrace::point& volumetric_point) const override;
+    vector perturbation(raytrace::point const& volumetric_point) const override;
 
 protected:
     /// The color filter of the specular highlight (used only with metals)
@@ -25,16 +25,16 @@ protected:
 };
 
 namespace metals {
-const metal aluminum(colors::aluminum, smoothness::small, roughness::loose);
-const metal brass(colors::brass, smoothness::polished - 0.1_p, roughness::tight);
-const metal bronze(colors::bronze, smoothness::small, roughness::loose);
-const metal chrome(colors::chrome, smoothness::polished + 0.2_p, roughness::tight);
-const metal copper(colors::copper, smoothness::polished + 0.2_p, roughness::tight);
-const metal gold(colors::gold, smoothness::polished, roughness::tight);
-const metal silver(colors::silver, smoothness::polished + 0.2_p, roughness::tight);
-const metal stainless(colors::stainless, smoothness::polished + 0.2_p, roughness::tight);
-const metal steel(colors::steel, smoothness::polished, roughness::tight);
-const metal tin(colors::tin, smoothness::barely, roughness::loose);
+metal const aluminum(colors::aluminum, smoothness::small, roughness::loose);
+metal const brass(colors::brass, smoothness::polished - 0.1_p, roughness::tight);
+metal const bronze(colors::bronze, smoothness::small, roughness::loose);
+metal const chrome(colors::chrome, smoothness::polished + 0.2_p, roughness::tight);
+metal const copper(colors::copper, smoothness::polished + 0.2_p, roughness::tight);
+metal const gold(colors::gold, smoothness::polished, roughness::tight);
+metal const silver(colors::silver, smoothness::polished + 0.2_p, roughness::tight);
+metal const stainless(colors::stainless, smoothness::polished + 0.2_p, roughness::tight);
+metal const steel(colors::steel, smoothness::polished, roughness::tight);
+metal const tin(colors::tin, smoothness::barely, roughness::loose);
 }  // namespace metals
 
 }  // namespace mediums

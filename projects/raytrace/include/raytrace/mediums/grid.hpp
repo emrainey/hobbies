@@ -12,7 +12,7 @@ public:
     grid(precision scale, color dark, color light);
     virtual ~grid() = default;
 
-    color diffuse(const raytrace::point& volumetric_point) const final;
+    color diffuse(raytrace::point const& volumetric_point) const final;
 
 protected:
     precision m_scale;

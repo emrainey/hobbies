@@ -45,7 +45,7 @@ void Animate::give_healing(size_t amount) {
     }
 }
 
-const Animate& Animate::as_animate() const {
+Animate const& Animate::as_animate() const {
     return *this;
 }
 

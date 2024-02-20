@@ -41,13 +41,13 @@ constexpr precision map(precision value, precision in_low, precision in_hi, prec
 }
 
 /// Returns the integer portion of a pair of numbers.
-point floor(const point& pnt);
+point floor(point const& pnt);
 
 /// Returns the fractional portion of a pair of numbers.
-point fract(const point& pnt);
+point fract(point const& pnt);
 
 /// Computes a seemingly random, repeatable number from a 2d point and 2d scalars.
-precision random(const vector& pnt, const vector& scalars, precision gain);
+precision random(vector const& pnt, vector const& scalars, precision gain);
 
 /// Improved Perlin Fade, which is defined as 6t^5 - 15t^4 + 10t^3
 constexpr precision fade(precision t) {
@@ -76,7 +76,7 @@ static_assert(fade(2.0_p) == 32.0_p, "Must be equal");
 /// @see https://flafla2.github.io/2014/08/09/perlinnoise.html
 /// @see https://mzucker.github.io/html/perlin-noise-math-faq.html
 ///
-precision perlin(const point& pnt, precision scale, const vector& seeds, precision gain);
+precision perlin(point const& pnt, precision scale, vector const& seeds, precision gain);
 
 /// Builds an internal 2D map of random values between 0.0_p and 1.0_p.
 template <typename T, size_t DIM>
@@ -109,7 +109,7 @@ public:
         return at(_y, _x);
     }
 
-    T at(const point& pnt) const {
+    T at(point const& pnt) const {
         return at(pnt[1], pnt[0]);
     }
 
@@ -124,7 +124,7 @@ using pad = pad_<precision, 128>;
 /// @param map The input noise map
 /// @return precision
 ///
-precision smooth(const point& pnt, const pad& m);
+precision smooth(point const& pnt, pad const& m);
 
 ///
 /// Generates some turbulence from the point.
@@ -132,7 +132,7 @@ precision smooth(const point& pnt, const pad& m);
 /// @param size
 /// @return precision
 ///
-precision turbulence(const point& pnt, precision size, precision scale, const pad& m);
+precision turbulence(point const& pnt, precision size, precision scale, pad const& m);
 
 ///
 /// Turbulent Sine Noise
@@ -145,7 +145,7 @@ precision turbulence(const point& pnt, precision size, precision scale, const pa
 /// @param map The noise pad to pull values from
 /// @see https://lodev.org/cgtutor/randomnoise.html
 ///
-precision turbulentsin(const point& pnt, precision xs, precision ys, precision power, precision size, precision scale, const pad& map);
+precision turbulentsin(point const& pnt, precision xs, precision ys, precision power, precision size, precision scale, pad const& map);
 
 namespace gains {
 constexpr precision pink = 1.0_p;
@@ -166,7 +166,7 @@ constexpr precision yellow = 0.5_p;
 /// @param initial_amplitude The initial amplitude
 /// @param initial_frequency The initial starting frequency
 ///
-precision fractal_brownian(const point& pnt, const vector& seed, size_t octaves, precision lacunarity = 2.0_p,
+precision fractal_brownian(point const& pnt, vector const& seed, size_t octaves, precision lacunarity = 2.0_p,
                         precision gain = 0.5_p, precision initial_amplitude = 1.0_p, precision initial_frequency = 1.0_p);
 
 }  // namespace noise

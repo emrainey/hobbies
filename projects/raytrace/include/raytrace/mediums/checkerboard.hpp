@@ -16,7 +16,7 @@ public:
                  color q3_light, color q4_dark, color q4_light);
     virtual ~checkerboard() = default;
 
-    color diffuse(const raytrace::point& volumetric_point) const final;
+    color diffuse(raytrace::point const& volumetric_point) const final;
 
 protected:
     precision m_repeat;

@@ -31,7 +31,7 @@ inner::inner(layer::type _type, size_t inputs, size_t num)
     delta_weights.zero();
 }
 
-inner::inner(const inner& other) : layer(other.layer_type, other.values.rows) {
+inner::inner(inner const& other) : layer(other.layer_type, other.values.rows) {
     type = other.type;
     values = other.values;
     weights = other.weights;
@@ -64,7 +64,7 @@ inner::inner(inner&& other) : layer(other.layer_type, other.values.rows) {
 inner::~inner() {
 }
 
-inner& inner::operator=(const inner& other) {
+inner& inner::operator=(inner const& other) {
     // have to be the same size!
     basal::exception::throw_if(other.values.rows != values.rows or other.weights.rows != weights.rows
                                    or other.weights.cols != weights.cols or other.biases.rows != biases.rows

@@ -11,23 +11,23 @@ class speck
     : public light
     , public entity {
 public:
-    speck(const point& P, const raytrace::color& C, precision intensity);
-    speck(point&& P, const raytrace::color& C, precision intensity);
+    speck(point const& P, raytrace::color const& C, precision intensity);
+    speck(point&& P, raytrace::color const& C, precision intensity);
     virtual ~speck() = default;
 
     /// @copydoc raytrace::light::intensity_at()
-    precision intensity_at(const point& world_point) const override;
+    precision intensity_at(point const& world_point) const override;
 
     /// @copydoc raytrace::light::incident()
-    ray incident(const point& world_point, size_t sample_index) const override;
+    ray incident(point const& world_point, size_t sample_index) const override;
 
     /// @copydoc basal::printable::print
-    void print(const char str[]) const override;
+    void print(char const str[]) const override;
 };
 
 }  // namespace lights
 
 /// Helper to print specks of light
-std::ostream& operator<<(std::ostream& os, const lights::speck& l);
+std::ostream& operator<<(std::ostream& os, lights::speck const& l);
 
 }  // namespace raytrace

@@ -8,7 +8,7 @@
 #include "iso/watts.hpp"
 
 namespace iso {
-const char* const suffix_type_W::suffix;
+char const* const suffix_type_W::suffix;
 // default
 watts::watts() : measurement{} {
 }
@@ -16,7 +16,7 @@ watts::watts() : measurement{} {
 watts::watts(precision a) : measurement{a} {
 }
 // copy constructor
-watts::watts(const watts& other) : measurement{other} {
+watts::watts(watts const& other) : measurement{other} {
 }
 // move constructor
 watts::watts(watts&& other) : measurement{std::move(other)} {
@@ -34,17 +34,17 @@ watts& watts::operator=(watts&& other) noexcept {
     _value = other.value;
     return (*this);
 }
-bool watts::operator==(const watts& other) const {
+bool watts::operator==(watts const& other) const {
     return basal::equivalent(value, other.value);
 }
-bool watts::operator!=(const watts& other) const {
+bool watts::operator!=(watts const& other) const {
     return !operator==(other);
 }
-watts& watts::operator+=(const watts& other) {
+watts& watts::operator+=(watts const& other) {
     _value += other.value;
     return (*this);
 }
-watts& watts::operator-=(const watts& other) {
+watts& watts::operator-=(watts const& other) {
     _value -= other.value;
     return (*this);
 }
@@ -59,32 +59,32 @@ watts& watts::operator/=(precision factor) {
 watts watts::operator-() const {
     return watts{-value};
 }
-bool watts::operator<(const watts& other) const {
+bool watts::operator<(watts const& other) const {
     return (_value < other.value);
 }
-bool watts::operator<=(const watts& other) const {
+bool watts::operator<=(watts const& other) const {
     return (_value <= other.value);
 }
-bool watts::operator>(const watts& other) const {
+bool watts::operator>(watts const& other) const {
     return (_value > other.value);
 }
-bool watts::operator>=(const watts& other) const {
+bool watts::operator>=(watts const& other) const {
     return (_value >= other.value);
 }
 namespace operators {
-watts operator+(const watts& A, const watts& B) {
+watts operator+(watts const& A, watts const& B) {
     return watts{A.value + B.value};
 }
-watts operator-(const watts& A, const watts& B) {
+watts operator-(watts const& A, watts const& B) {
     return watts{A.value - B.value};
 }
-watts operator*(const watts& A, precision factor) {
+watts operator*(watts const& A, precision factor) {
     return watts{A.value * factor};
 }
-watts operator*(precision factor, const watts& A) {
+watts operator*(precision factor, watts const& A) {
     return watts{A.value * factor};
 }
-watts operator/(const watts& A, precision factor) {
+watts operator/(watts const& A, precision factor) {
     return watts{A.value / factor};
 }
 }  // namespace operators
@@ -95,7 +95,7 @@ iso::watts operator""_W(long double a) {
 iso::watts operator""_W(unsigned long long a) {
     return iso::watts(a);
 }
-iso::watts operator""_W(const char a[]) {
+iso::watts operator""_W(char const a[]) {
     return iso::watts(atol(a));
 }
 }  // namespace literals

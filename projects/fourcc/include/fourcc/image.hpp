@@ -127,7 +127,7 @@ enum class pixel_format : uint32_t {
 };
 
 /// Returns the string name of the format
-constexpr const char* channel_order(pixel_format fmt) {
+constexpr char const* channel_order(pixel_format fmt) {
     switch (fmt) {
         case pixel_format::RGBA:
             [[fallthrough]];
@@ -249,15 +249,15 @@ template <typename PIXEL_TYPE, pixel_format PIXEL_FORMAT>
 class image {
 public:
     /// The number of channels in the pixel
-    const size_t depth;
+    size_t const depth;
     /// The number of pixels per row
-    const size_t width;
+    size_t const width;
     /// The number of rows per plane
-    const size_t height;
+    size_t const height;
     /// The number of planes per image
-    const size_t planes;
+    size_t const planes;
     /// The format for the image
-    const pixel_format format;
+    pixel_format const format;
 
     /// Default Constructor
     image() : depth{1}, width{0}, height{0}, planes{1}, format{PIXEL_FORMAT}, data{} {
@@ -278,7 +278,7 @@ public:
     }
 
     /// Copy constructor
-    image(const image& other)
+    image(image const& other)
         : depth{channels_in_format(PIXEL_FORMAT)}
         , width{other.width}
         , height{other.height}
@@ -300,7 +300,7 @@ public:
     virtual ~image() = default;
 
     /// Copy Assignment
-    image& operator=(const image& other) = delete;
+    image& operator=(image const& other) = delete;
     /// Move Assignment
     image& operator=(image&& other) = delete;
 
@@ -308,13 +308,13 @@ public:
     using coord_ref_pixel = std::function<void(size_t y, size_t x, PIXEL_TYPE& pixel)>;
 
     /// Used to read each pixel
-    using coord_const_ref_pixel = std::function<void(size_t y, size_t x, const PIXEL_TYPE& pixel)>;
+    using coord_const_ref_pixel = std::function<void(size_t y, size_t x, PIXEL_TYPE const& pixel)>;
 
     /// Used to change each pixel
     using ref_pixel = std::function<void(PIXEL_TYPE& pixel)>;
 
     /// Used to read each pixel
-    using const_ref_pixel = std::function<void(const PIXEL_TYPE& pixel)>;
+    using const_ref_pixel = std::function<void(PIXEL_TYPE const& pixel)>;
 
     /// Iterates over each pixel giving a mutable reference to the iterator
     image& for_each (coord_ref_pixel iter) {
@@ -391,7 +391,7 @@ public:
     }
 
     /// Gets the pixel data a specific location (Const)
-    virtual const PIXEL_TYPE& at(size_t y, size_t x) const {
+    virtual PIXEL_TYPE const& at(size_t y, size_t x) const {
         basal::exception::throw_if(y >= height or x >= width, __FILE__, __LINE__, "Out of bounds x,y=%z,%z", x, y);
         size_t offset = (y * width) + x;
         return data[0][offset];

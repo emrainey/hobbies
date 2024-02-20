@@ -11,7 +11,7 @@ public:
     virtual raytrace::point& looking_at() = 0;
     virtual std::string window_name() const = 0;
     virtual std::string output_filename() const = 0;
-    virtual raytrace::color background(const raytrace::ray&) const = 0;
+    virtual raytrace::color background(raytrace::ray const&) const = 0;
     /// Adds all the objects and lights to the scene.
     virtual void add_to(raytrace::scene& scene) = 0;
 

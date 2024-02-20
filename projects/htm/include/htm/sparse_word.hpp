@@ -18,13 +18,13 @@ public:
     sparse_word() : bits{} {
         bits.clear();
     }
-    sparse_word(const std::vector<uint16_t>& that) : bits{} {
+    sparse_word(std::vector<uint16_t> const& that) : bits{} {
         bits.clear();
         bits = that;  // copy
         correct();
     }
-    // sparse_word(const std::initializer_list& list) : sparse_word(std::vector(list)) {}
-    sparse_word(const dense_word<BITS>& dense) : bits{} {
+    // sparse_word(std::initializer_list const& list) : sparse_word(std::vector(list)) {}
+    sparse_word(dense_word<BITS> const& dense) : bits{} {
         bits.clear();
         for (size_t b = 0; b < BITS; b++) {
             if (dense.test(b)) {
@@ -89,7 +89,7 @@ public:
         return (float)population() / (float)BITS;
     }
 
-    sparse_word& operator=(const dense_word<BITS>& dense) {
+    sparse_word& operator=(dense_word<BITS> const& dense) {
         bits.clear();
         for (size_t b = 0; b < BITS; b++) {
             if (dense.test(b)) {
@@ -107,13 +107,13 @@ public:
         printf("\n");
     }
 
-    void to_image(const char* filename) {
+    void to_image(char const* filename) {
         to_image(filename, 0);
     }
 
-    void to_image(const char* filename, size_t cols) {
-        const uint32_t SQ = static_cast<uint32_t>(std::ceil(std::sqrt(BITS)));
-        const uint32_t W = (cols == 0 ? SQ : cols);
+    void to_image(char const* filename, size_t cols) {
+        uint32_t const SQ = static_cast<uint32_t>(std::ceil(std::sqrt(BITS)));
+        uint32_t const W = (cols == 0 ? SQ : cols);
         uint32_t H = (cols == 0 ? SQ : BITS / W);
         if ((BITS % W) > 0) {
             H++;  // add an extra row
@@ -157,20 +157,20 @@ protected:
         bits.erase(last, bits.end());
     }
     template <size_t B2>
-    friend sparse_word<B2> operator&(const sparse_word<B2>& a, const sparse_word<B2>& b);
+    friend sparse_word<B2> operator&(sparse_word<B2> const& a, sparse_word<B2> const& b);
     template <size_t B2>
-    friend sparse_word<B2> operator|(const sparse_word<B2>& a, const sparse_word<B2>& b);
+    friend sparse_word<B2> operator|(sparse_word<B2> const& a, sparse_word<B2> const& b);
     template <size_t B2>
-    friend sparse_word<B2> operator^(const sparse_word<B2>& a, const sparse_word<B2>& b);
+    friend sparse_word<B2> operator^(sparse_word<B2> const& a, sparse_word<B2> const& b);
     template <size_t B2>
-    friend sparse_word<B2> operator!(const sparse_word<B2>& a);
+    friend sparse_word<B2> operator!(sparse_word<B2> const& a);
     // template <size_t B1, size_t B2> friend sparse_word<B1+B2> operator<<(const sparse_word<B1> &, const
     // sparse_word<B2>&);
     std::vector<uint16_t> bits;
 };
 
 template <size_t B1, size_t B2>
-sparse_word<B1 + B2> operator<<(const sparse_word<B1>& a, const sparse_word<B2>& b) {
+sparse_word<B1 + B2> operator<<(sparse_word<B1> const& a, sparse_word<B2> const& b) {
     sparse_word<B1 + B2> o;
     for (size_t i = 0; i < B1; i++) {
         if (a.test(i)) {
@@ -186,21 +186,21 @@ sparse_word<B1 + B2> operator<<(const sparse_word<B1>& a, const sparse_word<B2>&
 }
 
 template <size_t BITS>
-sparse_word<BITS> operator&(const sparse_word<BITS>& a, const sparse_word<BITS>& b) {
+sparse_word<BITS> operator&(sparse_word<BITS> const& a, sparse_word<BITS> const& b) {
     std::vector<uint16_t> o;
     std::set_intersection(a.bits.begin(), a.bits.end(), b.bits.begin(), b.bits.end(), std::back_inserter(o));
     return sparse_word<BITS>(o);
 }
 
 template <size_t BITS>
-sparse_word<BITS> operator|(const sparse_word<BITS>& a, const sparse_word<BITS>& b) {
+sparse_word<BITS> operator|(sparse_word<BITS> const& a, sparse_word<BITS> const& b) {
     std::vector<uint16_t> o;
     std::set_union(a.bits.begin(), a.bits.end(), b.bits.begin(), b.bits.end(), std::back_inserter(o));
     return sparse_word<BITS>(o);
 }
 
 template <size_t BITS>
-sparse_word<BITS> operator^(const sparse_word<BITS>& a, const sparse_word<BITS>& b) {
+sparse_word<BITS> operator^(sparse_word<BITS> const& a, sparse_word<BITS> const& b) {
     std::vector<uint16_t> o;
     std::set_difference(a.bits.begin(), a.bits.end(), b.bits.begin(), b.bits.end(), std::back_inserter(o));
     return sparse_word<BITS>(o);

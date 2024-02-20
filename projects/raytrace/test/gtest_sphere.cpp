@@ -36,14 +36,14 @@ TEST(SphereTest, Mapping) {
         raytrace::point{0, 1, 0},
         raytrace::point{0, -1, 0},
     };
-    const size_t dimof_sp = dimof(surface_points);
+    size_t const dimof_sp = dimof(surface_points);
     image::point uv_points_truth[] = {
         image::point(0.0, 0.5),
         image::point(0.5, 0.5),
         image::point(0.25, 0.5),
         image::point(0.75, 0.5),
     };
-    const size_t dimof_uv = dimof(uv_points_truth);
+    size_t const dimof_uv = dimof(uv_points_truth);
 
     static_assert(dimof_sp == dimof_uv, "Must be equal");
     for (size_t i = 0; i < dimof_uv; i++) {

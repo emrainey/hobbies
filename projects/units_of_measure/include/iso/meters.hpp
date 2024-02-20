@@ -16,7 +16,7 @@ namespace iso {
 
 /// A structure used to hold the postfix for meters
 struct suffix_type_m {
-    constexpr static const char *suffix = "m";
+    constexpr static char const *suffix = "m";
 };
 
 ///
@@ -36,25 +36,25 @@ public:
     /// Parameter constructor
     explicit meters(precision value);
     /// Copy Constructor
-    meters(const meters& other);
+    meters(meters const& other);
     /// Move Constructor
     meters(meters&& other);
     /// Destructor
     ~meters() = default;
     /// Const Copy Assignment
-    meters& operator=(const meters& other) noexcept;
+    meters& operator=(meters const& other) noexcept;
     /// Copy Assignment
     meters& operator=(meters& other) noexcept;
     /// Move Assignment
     meters& operator=(meters&& other) noexcept;
     /// Equality Operator
-    bool operator==(const meters& other) const;
+    bool operator==(meters const& other) const;
     /// Inequality Operator
-    bool operator!=(const meters& other) const;
+    bool operator!=(meters const& other) const;
     /// Accumulation Operator
-    meters& operator+=(const meters& other);
+    meters& operator+=(meters const& other);
     /// Deccumulation Operator
-    meters& operator-=(const meters& other);
+    meters& operator-=(meters const& other);
     /// Scaling Operator
     meters& operator*=(precision factor);
     /// Inverse Scaling Operator
@@ -62,26 +62,26 @@ public:
     /// Negating Operator
     meters operator-() const;
     /// Less Than Operator
-    bool operator<(const meters& other) const;
+    bool operator<(meters const& other) const;
     /// Less Than or Equal Operator
-    bool operator<=(const meters& other) const;
+    bool operator<=(meters const& other) const;
     /// Greater Than Operator
-    bool operator>(const meters& other) const;
+    bool operator>(meters const& other) const;
     /// Greater Than or Equal Operator
-    bool operator>=(const meters& other) const;
+    bool operator>=(meters const& other) const;
 };
 
 namespace operators {
     /// Addition operator
-    meters operator+(const meters& A, const meters& B);
+    meters operator+(meters const& A, meters const& B);
     /// Subtraction operator
-    meters operator-(const meters& A, const meters& B);
+    meters operator-(meters const& A, meters const& B);
     /// Left Scaling Operator
-    meters operator*(const meters& A, precision factor);
+    meters operator*(meters const& A, precision factor);
     /// Right Scaling Operator
-    meters operator*(precision factor, const meters& A);
+    meters operator*(precision factor, meters const& A);
     /// Inverse Scaling Operator
-    meters operator/(const meters& A, precision factor);
+    meters operator/(meters const& A, precision factor);
 }
 
 namespace literals {
@@ -90,7 +90,7 @@ namespace literals {
     /// Literal Int, Quote Operator
     meters operator""_m(unsigned long long value);
     /// Literal String, Quote Operator
-    iso::meters operator""_m(const char a[]);
+    iso::meters operator""_m(char const a[]);
 }
 
 }

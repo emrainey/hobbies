@@ -40,13 +40,13 @@ fourcc::bgr8 color::to_bgr8() const {
     return pixel;
 }
 
-color::color(const color& other) : color(other.red(), other.green(), other.blue()) {
+color::color(color const& other) : color(other.red(), other.green(), other.blue()) {
 }
 
 color::color(color&& other) : color(other.red(), other.green(), other.blue()) {
 }
 
-color& color::operator=(const color& other) {
+color& color::operator=(color const& other) {
     representation = other.representation;
     for (size_t i = 0; i < NUM_CHANNELS; i++) {
         channels[i] = other.channels[i];
@@ -68,7 +68,7 @@ void color::per_channel(std::function<precision(precision c)> iter) {
     }
 }
 
-color& color::operator+=(const color& other) {
+color& color::operator+=(color const& other) {
     for (size_t i = 0; i < NUM_CHANNELS; i++) {
         channels[i] += other.channels[i];
     }
@@ -94,7 +94,7 @@ void color::to_space(space desired) {
 
 constexpr static bool enforce_contract = false;
 
-precision gamma_interpolate(const precision a, const precision b, const precision s) {
+precision gamma_interpolate(precision const a, precision const b, precision const s) {
     if (enforce_contract) {
         basal::exception::throw_unless(0.0_p <= a and a <= 1.0_p, __FILE__, __LINE__, "Channel is incorrect");
         basal::exception::throw_unless(0.0_p <= b and b <= 1.0_p, __FILE__, __LINE__, "Channel is incorrect");
@@ -112,21 +112,21 @@ precision gamma_interpolate(const precision a, const precision b, const precisio
     return std::clamp(c, constants[0], constants[1]);
 }
 
-color blend(const color& x, const color& y) {
+color blend(color const& x, color const& y) {
     return interpolate(x, y, 0.5_p);
 }
 
-color interpolate(const color& x, const color& y, precision a) {
+color interpolate(color const& x, color const& y, precision a) {
     return color(gamma_interpolate(x.red(), y.red(), a), gamma_interpolate(x.green(), y.green(), a),
                  gamma_interpolate(x.blue(), y.blue(), a));
 }
 
-bool operator==(const color& a, const color& b) {
+bool operator==(color const& a, color const& b) {
     return basal::nearly_equals(a.red(), b.red(), color::equality_limit) and basal::nearly_equals(a.green(), b.green(), color::equality_limit)
            and basal::nearly_equals(a.blue(), b.blue(), color::equality_limit);
 }
 
-color color::blend_samples(const std::vector<color>& subsamples) {
+color color::blend_samples(std::vector<color> const& subsamples) {
     color tmp;
     tmp.to_space(color::space::logarithmic);
     precision div = subsamples.size();
@@ -140,7 +140,7 @@ color color::blend_samples(const std::vector<color>& subsamples) {
     return tmp;
 }
 
-color color::accumulate_samples(const std::vector<color>& samples) {
+color color::accumulate_samples(std::vector<color> const& samples) {
     color tmp;
     // tmp.to_space(color::space::logarithmic);
     for (auto& sample : samples) {
@@ -202,7 +202,7 @@ color color::random() {
 }
 
 namespace operators {
-color operator*(const color& a, const color& b) {
+color operator*(color const& a, color const& b) {
     return color(a.red() * b.red(), a.green() * b.green(), a.blue() * b.blue());
 }
 }  // namespace operators
@@ -230,8 +230,8 @@ static precision gaussian_peak(precision x, precision low, precision high) {
 color wavelength_to_color(iso::meters lambda) noexcept(false) {
     using namespace iso::literals;
 
-    static const iso::meters near_infrared = 780E-9_m;
-    static const iso::meters ultra_violet = 380E-9_m;
+    static iso::meters const near_infrared = 780E-9_m;
+    static iso::meters const ultra_violet = 380E-9_m;
     basal::exception::throw_unless(near_infrared >= lambda and lambda >= ultra_violet, __FILE__, __LINE__,
                                    "Must be in the visible range");
     // we'll express lambda in nm now, so pull up from there

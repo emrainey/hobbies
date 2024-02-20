@@ -5,7 +5,7 @@
 namespace raytrace {
 namespace objects {
 // FIXME delete or modify!
-cone::cone(const point& C, iso::radians angle)
+cone::cone(point const& C, iso::radians angle)
     : object{C, 2, true}  // 2 collisions, closed (infinite)
     , m_bottom_radius{0.0}
     , m_height{0.0}
@@ -13,14 +13,14 @@ cone::cone(const point& C, iso::radians angle)
     basal::exception::throw_if(m_angle >= iso::radians(iso::pi / 2), __FILE__, __LINE__, "Angle %lf is too large", m_angle.value);
 }
 
-cone::cone(const point& C, precision bottom_radius, precision height)
+cone::cone(point const& C, precision bottom_radius, precision height)
     : object{C, 2, false}  // 2 collisions, not closed
     , m_bottom_radius{bottom_radius}
     , m_height{height}
     , m_angle{std::atan2(bottom_radius, height)} {
 }
 
-vector cone::normal(const point& world_surface_point) const {
+vector cone::normal(point const& world_surface_point) const {
     point object_surface_point = reverse_transform(world_surface_point);
     precision height = m_height;
     precision radius = m_bottom_radius;
@@ -47,7 +47,7 @@ vector cone::normal(const point& world_surface_point) const {
     return vector(N);  // copy constructor output
 }
 
-hits cone::collisions_along(const ray& object_ray) const {
+hits cone::collisions_along(ray const& object_ray) const {
     hits ts;
     // i used the base formula of
     // z^2 = x^2 + y^2
@@ -99,7 +99,7 @@ hits cone::collisions_along(const ray& object_ray) const {
     return ts;
 }
 
-bool cone::is_surface_point(const point& world_point) const {
+bool cone::is_surface_point(point const& world_point) const {
     point object_point = reverse_transform(world_point);
     precision x = object_point.x;
     precision y = object_point.y;
@@ -107,7 +107,7 @@ bool cone::is_surface_point(const point& world_point) const {
     return basal::nearly_equals(z * z, (x * x) + (y * y));
 }
 
-image::point cone::map(const point& object_surface_point) const {
+image::point cone::map(point const& object_surface_point) const {
     geometry::point_<2> cartesian(object_surface_point[0], object_surface_point[1]);
     geometry::point_<2> polar = geometry::cartesian_to_polar(cartesian);
     // some range of z based in the half_height we want -h2 to map to zero and +h2 to 1.0
@@ -122,7 +122,7 @@ image::point cone::map(const point& object_surface_point) const {
     return image::point(u, v);
 }
 
-void cone::print(const char str[]) const {
+void cone::print(char const str[]) const {
     std::cout << str << " cone @" << this << " " << position() << " Height" << m_height << " Radius:" << m_bottom_radius
               << " Angle:" << m_angle.value << std::endl;
 }

@@ -11,7 +11,7 @@ public:
     perlin(precision seed, precision scale, precision gain, color dark, color light);
     virtual ~perlin() = default;
 
-    color diffuse(const raytrace::point& volumetric_point) const final;
+    color diffuse(raytrace::point const& volumetric_point) const final;
 
 protected:
     color m_dark, m_light;

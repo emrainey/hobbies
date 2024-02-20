@@ -11,7 +11,7 @@ public:
     random_noise();
     virtual ~random_noise() = default;
 
-    color diffuse(const raytrace::point& volumetric_point) const final;
+    color diffuse(raytrace::point const& volumetric_point) const final;
 };
 
 }  // namespace mediums

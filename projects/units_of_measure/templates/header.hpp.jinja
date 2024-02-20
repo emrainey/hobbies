@@ -16,7 +16,7 @@ namespace {{namespace}} {
 
 /// A structure used to hold the postfix for {{classname}}
 struct suffix_type_{{postfix}} {
-    constexpr static const char *suffix = "{{postfix}}";
+    constexpr static char const *suffix = "{{postfix}}";
 };
 
 ///
@@ -90,7 +90,7 @@ namespace literals {
     /// Literal Int, Quote Operator
     {{classname}} operator""_{{postfix}}(unsigned long long value);
     /// Literal String, Quote Operator
-    iso::{{classname}} operator""_{{postfix}}(const char a[]);
+    iso::{{classname}} operator""_{{postfix}}(char const a[]);
 }
 
 }

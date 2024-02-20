@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
         {"-di", "--data-images", data_images.c_str(), "Data Images"},
     };
     try {
-        constexpr const uint32_t num = nn::mnist::inputs;
+        constexpr uint32_t const num = nn::mnist::inputs;
         char path[256] = {0};
         (void)getcwd(path, sizeof(path));
         printf("Currently running in %s\n", path);
@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
         nn::output& out = net.as_output(3);
 
         // these are the visualization images of the hidden layers
-        const char* named_i1 = "input";
+        char const* named_i1 = "input";
 
         basal::options::process(basal::dimof(opts), opts, argc, argv);
         basal::options::find(opts, "--train-labels", training_labels);
@@ -60,8 +60,8 @@ int main(int argc, char* argv[]) {
         if (not testdata.load()) {
             return -1;
         }
-        constexpr static const uint32_t reps = 600;
-        const int minibatch = 2000;
+        constexpr static uint32_t const reps = 600;
+        int const minibatch = 2000;
 
         for (uint32_t r = 0; r < reps; r++) {
             printf("Starting rep %u...\n", r);

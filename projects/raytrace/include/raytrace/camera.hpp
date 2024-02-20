@@ -27,7 +27,7 @@ public:
     camera(size_t image_height, size_t image_width, iso::degrees field_of_view);
 
     /// No Copy
-    camera(const camera& other) = delete;
+    camera(camera const& other) = delete;
     /// No Move
     camera(camera&& other);  // need this for multiview
 
@@ -35,27 +35,27 @@ public:
     virtual ~camera() = default;
 
     // Overload Entity Position Set to allow updating internal values
-    /// @copydoc entity_::position(const point&)
-    void position(const point& p) override final;
+    /// @copydoc entity_::position(point const&)
+    void position(point const& p) override final;
 
     // shouldn't have to overload this but since we overload the setter,
     // it's going to get confused
     /// @copydoc entity_::position
-    const point& position() const override final;
+    point const& position() const override final;
 
     /// @copydoc basal::printable::print
-    void print(const char[]) const override final;
+    void print(char const[]) const override final;
 
     /// Sets the at() location (will update other properties as needed)
-    void at(const point& a);
+    void at(point const& a);
 
     /// Returns the at() location
-    const point& at() const;
+    point const& at() const;
 
     /// Returns the World ray from the 2d point in the image plane.
     /// @param p The point in the image plane in raster coordinates.
     /// @return ray
-    ray cast(const image::point& p) const;
+    ray cast(image::point const& p) const;
 
     /// Returns the forward ray of the camera (principal point to camera origin)
     /// in world coordinates (used to check the orientation of the camera)
@@ -86,10 +86,10 @@ public:
     /// @throw If the cross between the look vector and uppish is zero, will throw an exception
     /// @note Objects behind the principal point will not be rendered as rays will start _from the image plane_.
     ///
-    void move_to(const point& look_from, const point& look_at) noexcept(false);
+    void move_to(point const& look_from, point const& look_at) noexcept(false);
 
     /// Returns the camera intrinsics for inspection
-    const linalg::matrix& intrinsics() const;
+    linalg::matrix const& intrinsics() const;
 
     raytrace::image capture;                                ///< The image projected on the plane
     fourcc::image<uint8_t, fourcc::pixel_format::Y8> mask;  ///< The mask of the capture image

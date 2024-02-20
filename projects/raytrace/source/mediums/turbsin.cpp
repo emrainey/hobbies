@@ -12,7 +12,7 @@ turbsin::turbsin(precision xs, precision ys, precision power, precision size, co
     m_tightness = mediums::roughness::tight;
 }
 
-color turbsin::diffuse(const raytrace::point& volumetric_point) const {
+color turbsin::diffuse(raytrace::point const& volumetric_point) const {
     if (m_reducing_map) {
         image::point pnt = m_reducing_map(volumetric_point);
         precision alpha = noise::turbulentsin(pnt, m_xs, m_ys, m_power, m_size, 1.0, m_pad);

@@ -15,8 +15,8 @@ using namespace linalg;
 TEST(StereoCameraTest, CodedImageLeftRight) {
     using namespace raytrace;
     iso::degrees fov(90);
-    const size_t width = 240;
-    const size_t height = 120;
+    size_t const width = 240;
+    size_t const height = 120;
     stereo_camera cam(height, width, fov, 0.0, stereo_camera::Layout::LeftRight);
     raytrace::point look_from(-6000, 0, 0);
     raytrace::point look_at(0, 0, 0);
@@ -25,9 +25,9 @@ TEST(StereoCameraTest, CodedImageLeftRight) {
     camera& first = *cam.begin();
     camera& second = *std::next(cam.begin());
 
-    first.capture.generate_each([&](const image::point& img_point) -> color {
-        const ray world_ray = first.cast(img_point);
-        const raytrace::point wrp = world_ray.location();  // just copy
+    first.capture.generate_each([&](image::point const& img_point) -> color {
+        ray const world_ray = first.cast(img_point);
+        raytrace::point const wrp = world_ray.location();  // just copy
         if (wrp.y > 0) {
             if (wrp.z > 0) {
                 return colors::green;
@@ -49,9 +49,9 @@ TEST(StereoCameraTest, CodedImageLeftRight) {
         }
     });
 
-    second.capture.generate_each([&](const image::point& img_point) -> color {
-        const ray world_ray = second.cast(img_point);
-        const raytrace::point wrp = world_ray.location();  // just copy
+    second.capture.generate_each([&](image::point const& img_point) -> color {
+        ray const world_ray = second.cast(img_point);
+        raytrace::point const wrp = world_ray.location();  // just copy
         if (wrp.y > 0) {
             if (wrp.z > 0) {
                 return colors::cyan;
@@ -81,8 +81,8 @@ TEST(StereoCameraTest, CodedImageLeftRight) {
 TEST(StereoCameraTest, CodedImageTopBottom) {
     using namespace raytrace;
     iso::degrees fov(90);
-    const size_t width = 240;
-    const size_t height = 120;
+    size_t const width = 240;
+    size_t const height = 120;
     stereo_camera cam(height, width, fov, 0.0, stereo_camera::Layout::TopBottom);
     raytrace::point look_from(-6000, 0, 0);
     raytrace::point look_at(0, 0, 0);
@@ -91,9 +91,9 @@ TEST(StereoCameraTest, CodedImageTopBottom) {
     camera& first = *cam.begin();
     camera& second = *std::next(cam.begin());
 
-    first.capture.generate_each([&](const image::point& img_point) -> color {
-        const ray world_ray = first.cast(img_point);
-        const raytrace::point wrp = world_ray.location();  // just copy
+    first.capture.generate_each([&](image::point const& img_point) -> color {
+        ray const world_ray = first.cast(img_point);
+        raytrace::point const wrp = world_ray.location();  // just copy
         if (wrp.y > 0) {
             if (wrp.z > 0) {
                 return colors::green;
@@ -115,9 +115,9 @@ TEST(StereoCameraTest, CodedImageTopBottom) {
         }
     });
 
-    second.capture.generate_each([&](const image::point& img_point) -> color {
-        const ray world_ray = second.cast(img_point);
-        const raytrace::point wrp = world_ray.location();  // just copy
+    second.capture.generate_each([&](image::point const& img_point) -> color {
+        ray const world_ray = second.cast(img_point);
+        raytrace::point const wrp = world_ray.location();  // just copy
         if (wrp.y > 0) {
             if (wrp.z > 0) {
                 return colors::cyan;
@@ -148,11 +148,11 @@ TEST(StereoCameraTest, CodedImageTopBottom) {
 TEST(StereoCameraTest, Separation) {
     using namespace raytrace;
     iso::degrees fov(90);
-    const size_t width = 240;
-    const size_t height = 120;
-    const double separation = 10.0;
-    const double sqrt2 = std::sqrt(2.0);
-    const double hsepsqrt2 = separation / (2 * sqrt2);
+    size_t const width = 240;
+    size_t const height = 120;
+    double const separation = 10.0;
+    double const sqrt2 = std::sqrt(2.0);
+    double const hsepsqrt2 = separation / (2 * sqrt2);
     using set = raytrace::point[4];
     set sets[] = {
         {raytrace::point{0.0,0.0,0.0}, raytrace::point{0.0, 100, 0.0}, raytrace::point{-5.0, 0.0, 0.0}, raytrace::point{5.0, 0.0, 0.0}},

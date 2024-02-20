@@ -8,7 +8,7 @@
 #include "{{namespace}}/{{classname}}.hpp"
 
 namespace {{namespace}} {
-const char* const suffix_type_{{postfix}}::suffix;
+char const* const suffix_type_{{postfix}}::suffix;
 // default
 {{classname}}::{{classname}}() : measurement{} {
 }
@@ -95,7 +95,7 @@ iso::{{classname}} operator""_{{postfix}}(long double a) {
 iso::{{classname}} operator""_{{postfix}}(unsigned long long a) {
     return iso::{{classname}}(a);
 }
-iso::{{classname}} operator""_{{postfix}}(const char a[]) {
+iso::{{classname}} operator""_{{postfix}}(char const a[]) {
     return iso::{{classname}}(atol(a));
 }
 }  // namespace literals

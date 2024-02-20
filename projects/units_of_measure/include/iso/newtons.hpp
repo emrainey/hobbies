@@ -16,7 +16,7 @@ namespace iso {
 
 /// A structure used to hold the postfix for newtons
 struct suffix_type_N {
-    constexpr static const char *suffix = "N";
+    constexpr static char const *suffix = "N";
 };
 
 ///
@@ -36,25 +36,25 @@ public:
     /// Parameter constructor
     explicit newtons(precision value);
     /// Copy Constructor
-    newtons(const newtons& other);
+    newtons(newtons const& other);
     /// Move Constructor
     newtons(newtons&& other);
     /// Destructor
     ~newtons() = default;
     /// Const Copy Assignment
-    newtons& operator=(const newtons& other) noexcept;
+    newtons& operator=(newtons const& other) noexcept;
     /// Copy Assignment
     newtons& operator=(newtons& other) noexcept;
     /// Move Assignment
     newtons& operator=(newtons&& other) noexcept;
     /// Equality Operator
-    bool operator==(const newtons& other) const;
+    bool operator==(newtons const& other) const;
     /// Inequality Operator
-    bool operator!=(const newtons& other) const;
+    bool operator!=(newtons const& other) const;
     /// Accumulation Operator
-    newtons& operator+=(const newtons& other);
+    newtons& operator+=(newtons const& other);
     /// Deccumulation Operator
-    newtons& operator-=(const newtons& other);
+    newtons& operator-=(newtons const& other);
     /// Scaling Operator
     newtons& operator*=(precision factor);
     /// Inverse Scaling Operator
@@ -62,26 +62,26 @@ public:
     /// Negating Operator
     newtons operator-() const;
     /// Less Than Operator
-    bool operator<(const newtons& other) const;
+    bool operator<(newtons const& other) const;
     /// Less Than or Equal Operator
-    bool operator<=(const newtons& other) const;
+    bool operator<=(newtons const& other) const;
     /// Greater Than Operator
-    bool operator>(const newtons& other) const;
+    bool operator>(newtons const& other) const;
     /// Greater Than or Equal Operator
-    bool operator>=(const newtons& other) const;
+    bool operator>=(newtons const& other) const;
 };
 
 namespace operators {
     /// Addition operator
-    newtons operator+(const newtons& A, const newtons& B);
+    newtons operator+(newtons const& A, newtons const& B);
     /// Subtraction operator
-    newtons operator-(const newtons& A, const newtons& B);
+    newtons operator-(newtons const& A, newtons const& B);
     /// Left Scaling Operator
-    newtons operator*(const newtons& A, precision factor);
+    newtons operator*(newtons const& A, precision factor);
     /// Right Scaling Operator
-    newtons operator*(precision factor, const newtons& A);
+    newtons operator*(precision factor, newtons const& A);
     /// Inverse Scaling Operator
-    newtons operator/(const newtons& A, precision factor);
+    newtons operator/(newtons const& A, precision factor);
 }
 
 namespace literals {
@@ -90,7 +90,7 @@ namespace literals {
     /// Literal Int, Quote Operator
     newtons operator""_N(unsigned long long value);
     /// Literal String, Quote Operator
-    iso::newtons operator""_N(const char a[]);
+    iso::newtons operator""_N(char const a[]);
 }
 
 }

@@ -5,7 +5,7 @@
 namespace raytrace {
 using namespace geometry::operators;
 using namespace geometry::R3;  // only 3D functions
-constexpr const static size_t dimensions = geometry::R3::dimensions;
+constexpr static const size_t dimensions = geometry::R3::dimensions;
 /// Reuse the element type
 using precision = geometry::precision;
 /// We only consider 3D points in space

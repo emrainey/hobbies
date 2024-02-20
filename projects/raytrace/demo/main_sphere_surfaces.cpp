@@ -99,7 +99,7 @@ int main(int argc, char* argv[]) {
             printf("Starting Render (depth=%zu, samples=%zu)...\r\n", reflection_depth, subsamples);
             scene.render(view, "demo_sphere_surfaces.tga", subsamples, reflection_depth, std::nullopt, show_bar);
             // copy to the cv::Mat
-            view.capture.for_each ([&](size_t y, size_t x, const fourcc::rgb8& pixel) -> void {
+            view.capture.for_each ([&](size_t y, size_t x, fourcc::rgb8 const& pixel) -> void {
                 render_image.at<cv::Vec3b>(y, x)[0] = pixel.b;
                 render_image.at<cv::Vec3b>(y, x)[1] = pixel.g;
                 render_image.at<cv::Vec3b>(y, x)[2] = pixel.r;

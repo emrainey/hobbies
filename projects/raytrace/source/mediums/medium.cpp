@@ -9,21 +9,22 @@ medium::medium()
     , m_diffuse{colors::grey}
     , m_tightness{0.0_p}
     , m_smoothness{mediums::smoothness::none}
+    , m_reflectivity{0.5} // start semi gloss
     , m_transmissivity{0.0}
     , m_refractive_index{0.0}
     , m_reducing_map{nullptr} {
 }
 
-color medium::ambient(const raytrace::point& volumetric_point __attribute__((unused))) const {
+color medium::ambient(raytrace::point const& volumetric_point __attribute__((unused))) const {
     using namespace operators;
     return m_ambient * m_ambient_scale;
 }
 
-color medium::diffuse(const raytrace::point& volumetric_point __attribute__((unused))) const {
+color medium::diffuse(raytrace::point const& volumetric_point __attribute__((unused))) const {
     return m_diffuse;
 }
 
-color medium::specular(const raytrace::point& volumetric_point, precision scaling, const color& light_color) const {
+color medium::specular(raytrace::point const& volumetric_point, precision scaling, color const& light_color) const {
     using namespace operators;
     // phong model?
     if (scaling > 0) {
@@ -33,38 +34,39 @@ color medium::specular(const raytrace::point& volumetric_point, precision scalin
     }
 }
 
-precision medium::specular_tightness(const raytrace::point& volumetric_point __attribute__((unused))) const {
+precision medium::specular_tightness(raytrace::point const& volumetric_point __attribute__((unused))) const {
     return m_tightness;
 }
 
-color medium::emissive(const raytrace::point& volumetric_point __attribute__((unused))) const {
+color medium::emissive(raytrace::point const& volumetric_point __attribute__((unused))) const {
     return colors::black;
 }
 
-color medium::bounced(const raytrace::point& volumetic_point __attribute__((unused)), const color& incoming) const {
+color medium::bounced(raytrace::point const& volumetric_point __attribute__((unused)), color const& incoming) const {
     // just return incoming
     return incoming;
 }
 
-precision medium::smoothness(const raytrace::point& volumetric_point __attribute__((unused))) const {
+precision medium::smoothness(raytrace::point const& volumetric_point __attribute__((unused))) const {
     return m_smoothness;
 }
 
-void medium::radiosity(const raytrace::point& volumetric_point __attribute__((unused)),
+void medium::radiosity(raytrace::point const& volumetric_point __attribute__((unused)),
                        precision refractive_index __attribute__((unused)),
-                       const iso::radians& incident_angle __attribute__((unused)),
-                       const iso::radians& transmitted_angle __attribute__((unused)), precision& emitted,
+                       iso::radians const& incident_angle __attribute__((unused)),
+                       iso::radians const& transmitted_angle __attribute__((unused)),
+                       precision& emitted,
                        precision& reflected, precision& transmitted) const {
-    emitted = 0;
-    reflected = 1.0 - m_transmissivity;
-    transmitted = m_transmissivity;
+    emitted = 0; //@FIXME when adding luminescence, do it here.
+    reflected = m_reflectivity;
+    transmitted = 1.0 - m_reflectivity;
 }
 
-precision medium::refractive_index(const raytrace::point& volumetric_point __attribute__((unused))) const {
+precision medium::refractive_index(raytrace::point const& volumetric_point __attribute__((unused))) const {
     return m_refractive_index;
 }
 
-color medium::absorbance(precision /*distance*/, const color& given_color) const {
+color medium::absorbance(precision /*distance*/, color const& given_color) const {
     return given_color;
 }
 
@@ -76,7 +78,7 @@ void medium::mapper(mapping::reducer mapper) {
     m_reducing_map = mapper;
 }
 
-raytrace::vector medium::perturbation(const raytrace::point&) const {
+raytrace::vector medium::perturbation(raytrace::point const&) const {
     return geometry::R3::null;
 }
 

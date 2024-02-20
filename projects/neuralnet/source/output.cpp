@@ -16,7 +16,7 @@ output::~output() {
 size_t output::infer_label(precision& out) {
     precision tmp = 0.0;
     size_t index = 0;
-    values.for_each ([&](size_t y, size_t x, const precision& v) {
+    values.for_each ([&](size_t y, size_t x, precision const& v) {
         x |= 0;
         if (tmp < v) {
             tmp = v;
@@ -50,7 +50,7 @@ void output::learn_label(size_t index, precision min, precision max) {
     delta = linalg::hadamard(values - desired, activation_derivative(zeta));
 }
 
-void output::learn_label(const linalg::matrix& desired) {
+void output::learn_label(linalg::matrix const& desired) {
     basal::exception::throw_unless(desired.rows == values.rows and desired.cols == 1, __FILE__, __LINE__);
     beta = desired - values;
     rms += linalg::hadamard(beta, beta);

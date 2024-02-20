@@ -8,7 +8,7 @@
 #include "iso/seconds.hpp"
 
 namespace iso {
-const char* const suffix_type_sec::suffix;
+char const* const suffix_type_sec::suffix;
 // default
 seconds::seconds() : measurement{} {
 }
@@ -16,7 +16,7 @@ seconds::seconds() : measurement{} {
 seconds::seconds(precision a) : measurement{a} {
 }
 // copy constructor
-seconds::seconds(const seconds& other) : measurement{other} {
+seconds::seconds(seconds const& other) : measurement{other} {
 }
 // move constructor
 seconds::seconds(seconds&& other) : measurement{std::move(other)} {
@@ -34,17 +34,17 @@ seconds& seconds::operator=(seconds&& other) noexcept {
     _value = other.value;
     return (*this);
 }
-bool seconds::operator==(const seconds& other) const {
+bool seconds::operator==(seconds const& other) const {
     return basal::equivalent(value, other.value);
 }
-bool seconds::operator!=(const seconds& other) const {
+bool seconds::operator!=(seconds const& other) const {
     return !operator==(other);
 }
-seconds& seconds::operator+=(const seconds& other) {
+seconds& seconds::operator+=(seconds const& other) {
     _value += other.value;
     return (*this);
 }
-seconds& seconds::operator-=(const seconds& other) {
+seconds& seconds::operator-=(seconds const& other) {
     _value -= other.value;
     return (*this);
 }
@@ -59,32 +59,32 @@ seconds& seconds::operator/=(precision factor) {
 seconds seconds::operator-() const {
     return seconds{-value};
 }
-bool seconds::operator<(const seconds& other) const {
+bool seconds::operator<(seconds const& other) const {
     return (_value < other.value);
 }
-bool seconds::operator<=(const seconds& other) const {
+bool seconds::operator<=(seconds const& other) const {
     return (_value <= other.value);
 }
-bool seconds::operator>(const seconds& other) const {
+bool seconds::operator>(seconds const& other) const {
     return (_value > other.value);
 }
-bool seconds::operator>=(const seconds& other) const {
+bool seconds::operator>=(seconds const& other) const {
     return (_value >= other.value);
 }
 namespace operators {
-seconds operator+(const seconds& A, const seconds& B) {
+seconds operator+(seconds const& A, seconds const& B) {
     return seconds{A.value + B.value};
 }
-seconds operator-(const seconds& A, const seconds& B) {
+seconds operator-(seconds const& A, seconds const& B) {
     return seconds{A.value - B.value};
 }
-seconds operator*(const seconds& A, precision factor) {
+seconds operator*(seconds const& A, precision factor) {
     return seconds{A.value * factor};
 }
-seconds operator*(precision factor, const seconds& A) {
+seconds operator*(precision factor, seconds const& A) {
     return seconds{A.value * factor};
 }
-seconds operator/(const seconds& A, precision factor) {
+seconds operator/(seconds const& A, precision factor) {
     return seconds{A.value / factor};
 }
 }  // namespace operators
@@ -95,7 +95,7 @@ iso::seconds operator""_sec(long double a) {
 iso::seconds operator""_sec(unsigned long long a) {
     return iso::seconds(a);
 }
-iso::seconds operator""_sec(const char a[]) {
+iso::seconds operator""_sec(char const a[]) {
     return iso::seconds(atol(a));
 }
 }  // namespace literals

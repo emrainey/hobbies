@@ -12,7 +12,7 @@ enum class prefix : short
     exbi = 60,
 };
 }  // namespace IEC
-uint64_t operator*(const uint64_t a, IEC::prefix p);
+uint64_t operator*(uint64_t const a, IEC::prefix p);
 
 inline uint64_t operator""_kibibytes(long long unsigned int a) {
     return a * IEC::prefix::kibi;

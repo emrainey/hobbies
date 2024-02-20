@@ -16,7 +16,7 @@ namespace iso {
 
 /// A structure used to hold the postfix for volts
 struct suffix_type_V {
-    constexpr static const char *suffix = "V";
+    constexpr static char const *suffix = "V";
 };
 
 ///
@@ -36,25 +36,25 @@ public:
     /// Parameter constructor
     explicit volts(precision value);
     /// Copy Constructor
-    volts(const volts& other);
+    volts(volts const& other);
     /// Move Constructor
     volts(volts&& other);
     /// Destructor
     ~volts() = default;
     /// Const Copy Assignment
-    volts& operator=(const volts& other) noexcept;
+    volts& operator=(volts const& other) noexcept;
     /// Copy Assignment
     volts& operator=(volts& other) noexcept;
     /// Move Assignment
     volts& operator=(volts&& other) noexcept;
     /// Equality Operator
-    bool operator==(const volts& other) const;
+    bool operator==(volts const& other) const;
     /// Inequality Operator
-    bool operator!=(const volts& other) const;
+    bool operator!=(volts const& other) const;
     /// Accumulation Operator
-    volts& operator+=(const volts& other);
+    volts& operator+=(volts const& other);
     /// Deccumulation Operator
-    volts& operator-=(const volts& other);
+    volts& operator-=(volts const& other);
     /// Scaling Operator
     volts& operator*=(precision factor);
     /// Inverse Scaling Operator
@@ -62,26 +62,26 @@ public:
     /// Negating Operator
     volts operator-() const;
     /// Less Than Operator
-    bool operator<(const volts& other) const;
+    bool operator<(volts const& other) const;
     /// Less Than or Equal Operator
-    bool operator<=(const volts& other) const;
+    bool operator<=(volts const& other) const;
     /// Greater Than Operator
-    bool operator>(const volts& other) const;
+    bool operator>(volts const& other) const;
     /// Greater Than or Equal Operator
-    bool operator>=(const volts& other) const;
+    bool operator>=(volts const& other) const;
 };
 
 namespace operators {
     /// Addition operator
-    volts operator+(const volts& A, const volts& B);
+    volts operator+(volts const& A, volts const& B);
     /// Subtraction operator
-    volts operator-(const volts& A, const volts& B);
+    volts operator-(volts const& A, volts const& B);
     /// Left Scaling Operator
-    volts operator*(const volts& A, precision factor);
+    volts operator*(volts const& A, precision factor);
     /// Right Scaling Operator
-    volts operator*(precision factor, const volts& A);
+    volts operator*(precision factor, volts const& A);
     /// Inverse Scaling Operator
-    volts operator/(const volts& A, precision factor);
+    volts operator/(volts const& A, precision factor);
 }
 
 namespace literals {
@@ -90,7 +90,7 @@ namespace literals {
     /// Literal Int, Quote Operator
     volts operator""_V(unsigned long long value);
     /// Literal String, Quote Operator
-    iso::volts operator""_V(const char a[]);
+    iso::volts operator""_V(char const a[]);
 }
 
 }

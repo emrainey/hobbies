@@ -13,10 +13,10 @@ using namespace linalg::operators;
 using namespace geometry;
 using namespace geometry::operators;
 
-pyramid::pyramid(const point& base, precision height) : object(base, 2) {
+pyramid::pyramid(point const& base, precision height) : object(base, 2) {
 }
 
-vector pyramid::normal(const point& world_surface_point) const {
+vector pyramid::normal(point const& world_surface_point) const {
     point object_surface_point = reverse_transform(world_surface_point);
     bool positive_x = (object_surface_point.x > 0.0_p);
     bool positive_y = (object_surface_point.y > 0.0_p);
@@ -29,7 +29,7 @@ inline bool is_positive(precision p, precision d, precision t) {
     return ((p + d * t) > 0);
 }
 
-hits pyramid::collisions_along(const ray& object_ray) const {
+hits pyramid::collisions_along(ray const& object_ray) const {
     hits ts;
     precision h = m_height;
     precision px = object_ray.location().x;
@@ -86,7 +86,7 @@ hits pyramid::collisions_along(const ray& object_ray) const {
     return ts;
 }
 
-bool pyramid::is_surface_point(const point& world_point) const {
+bool pyramid::is_surface_point(point const& world_point) const {
     // follow z = h - |x| - |y|
     point object_point = reverse_transform(world_point);
     precision x = object_point.x;
@@ -95,11 +95,11 @@ bool pyramid::is_surface_point(const point& world_point) const {
     return basal::nearly_equals(z, m_height - std::abs(x) - std::abs(y));
 }
 
-image::point pyramid::map(const point& object_surface_point) const {
+image::point pyramid::map(point const& object_surface_point) const {
     return image::point(0, 0);  // no mapping for now
 }
 
-void pyramid::print(const char str[]) const {
+void pyramid::print(char const str[]) const {
     std::cout << str << " Pyramid @" << this << " " << position() << " Height " << m_height << std::endl;
 }
 

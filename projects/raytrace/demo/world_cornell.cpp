@@ -60,7 +60,7 @@ public:
         return std::string("world_cornell.tga");
     }
 
-    color background(const raytrace::ray&) const override {
+    color background(raytrace::ray const&) const override {
         return colors::black;
     }
 

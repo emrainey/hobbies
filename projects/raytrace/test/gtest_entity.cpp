@@ -67,7 +67,8 @@ TEST(EntityTest, Scaling) {
     C += M;
     ASSERT_POINT_EQ(C, E.position()); // scale shouldn't affect position
     raytrace::point G = E.forward_transform(D);
-    ASSERT_POINT_EQ((F + M), G); // scaling should effect translations
+    raytrace::point H = F + M;
+    ASSERT_POINT_EQ(H, G); // scaling should effect translations
 }
 
 TEST(EntityTest, UpwardsTranslation) {

@@ -25,18 +25,18 @@ public:
     bool isa(type t) const;
 
     /// A Constant View of the layer type
-    const type& layer_type;
+    type const& layer_type;
 
     /// No Default or Just inputs?
     layer();
     /// Parameter Ctor
     layer(type _t, size_t num);
     /// Copy Ctor
-    layer(const layer& other);
+    layer(layer const& other);
     /// Move Ctor
     layer(layer&& other);
     /// Copy Assign
-    layer& operator=(const layer& other);
+    layer& operator=(layer const& other);
     /// Move Assign
     layer& operator=(layer&& other);
     /// Virtual Dtor

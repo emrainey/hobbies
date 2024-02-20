@@ -5,7 +5,7 @@
 
 namespace raytrace {
 
-scene::intersect_set::intersect_set(precision d, const geometry::intersection& i, const objects::object* o)
+scene::intersect_set::intersect_set(precision d, geometry::intersection const& i, objects::object const* o)
     : distance{d}, intersector{i}, objptr{o} {
 }
 
@@ -23,7 +23,7 @@ scene::scene(double art)
     : adaptive_reflection_threshold{art}
     , m_objects{}
     , m_lights{}
-    , m_background{[](const raytrace::ray&) { return colors::black; }}
+    , m_background{[](raytrace::ray const&) { return colors::black; }}
     , m_media{&mediums::vaccum}  // default to a vaccum
 {
 }
@@ -33,15 +33,15 @@ scene::~scene() {
     m_lights.clear();
 }
 
-void scene::add_object(const objects::object* obj) {
+void scene::add_object(objects::object const* obj) {
     m_objects.push_back(obj);
 }
 
-void scene::add_light(const lights::light* lit) {
+void scene::add_light(lights::light const* lit) {
     m_lights.push_back(lit);
 }
 
-void scene::add_media(const mediums::medium* media) {
+void scene::add_media(mediums::medium const* media) {
     if (media) {
         m_media = media;
     }
@@ -60,7 +60,7 @@ size_t scene::number_of_lights(void) const {
     return m_lights.size();
 }
 
-scene::intersect_list scene::find_intersections(const ray& world_ray, const object_list& objects) {
+scene::intersect_list scene::find_intersections(ray const& world_ray, object_list const& objects) {
     // find collisions (objects determine number of collisions) with the environment
     intersect_list intersections;
     for (auto objptr : objects) {
@@ -70,14 +70,14 @@ scene::intersect_list scene::find_intersections(const ray& world_ray, const obje
     return intersections;
 }
 
-scene::intersect_set scene::nearest_object(const ray& world_ray, const intersect_list& intersections,
-                                           const object_list& objects) {
+scene::intersect_set scene::nearest_object(ray const& world_ray, intersect_list const& intersections,
+                                           object_list const& objects) {
     basal::exception::throw_unless(intersections.size() == objects.size(), __FILE__, __LINE__, "Lists must match!");
-    const objects::object* closest_object = nullptr;
+    objects::object const* closest_object = nullptr;
     precision closest_distance2 = std::numeric_limits<precision>::max();
     geometry::intersection closest_intersection;
     for (size_t i = 0; i < intersections.size(); i++) {
-        const geometry::intersection& inter = intersections[i];
+        geometry::intersection const& inter = intersections[i];
         if (get_type(inter) == IntersectionType::Point) {
             if constexpr (debug) {
                 std::cout << inter << std::endl;
@@ -112,7 +112,7 @@ scene::intersect_set scene::nearest_object(const ray& world_ray, const intersect
     return intersect_set(std::sqrt(closest_distance2), closest_intersection, closest_object);
 }
 
-color scene::trace(const ray& world_ray, const mediums::medium& media, size_t reflection_depth,
+color scene::trace(ray const& world_ray, mediums::medium const& media, size_t reflection_depth,
                    precision recursive_contribution) {
     using namespace operators;
 
@@ -129,9 +129,9 @@ color scene::trace(const ray& world_ray, const mediums::medium& media, size_t re
     if (get_type(nearest.intersector) == IntersectionType::Point) {
         assert(nearest.objptr != nullptr);
         // temporary for not using pointer.
-        const objects::object& obj = *nearest.objptr;
+        objects::object const& obj = *nearest.objptr;
         // temporary for the object's medium
-        const mediums::medium& medium = obj.material();
+        mediums::medium const& medium = obj.material();
         // the intersection point in world space
         raytrace::point world_surface_point = as_point(nearest.intersector);
         // find produce the object surface point
@@ -197,7 +197,7 @@ color scene::trace(const ray& world_ray, const mediums::medium& media, size_t re
             statistics::get().shadow_rays++;
             for (auto& light_ : m_lights) {
                 // convenience variable
-                const lights::light& scene_light = *light_;
+                lights::light const& scene_light = *light_;
                 // the samples for this light
                 std::vector<color> surface_color_samples(
                     scene_light.number_of_samples());  // should initialize to all black
@@ -207,7 +207,7 @@ color scene::trace(const ray& world_ray, const mediums::medium& media, size_t re
                     // get the ray to the light source (full magnitude)
                     ray ray_to_light = scene_light.incident(world_surface_point, sample_index);
                     // just the vector to the light from P
-                    const vector& light_direction = ray_to_light.direction();
+                    vector const& light_direction = ray_to_light.direction();
                     // normalized light vector
                     vector normalized_light_direction = light_direction.normalized();
                     // construct a world ray from that point and normalized vector
@@ -258,9 +258,9 @@ color scene::trace(const ray& world_ray, const mediums::medium& media, size_t re
                         // not if it's out of line!
                         if (object_is_transparent) {
                             // convenience reference
-                            const raytrace::objects::object& obj = *nearest.objptr;
+                            raytrace::objects::object const& obj = *nearest.objptr;
                             // convenience reference
-                            const raytrace::mediums::medium& mat = obj.material();
+                            raytrace::mediums::medium const& mat = obj.material();
                             // trace another ray through the object
                             surface_color_samples[sample_index]
                                 += trace(world_ray, mat, reflection_depth - 1, recursive_contribution);
@@ -336,7 +336,7 @@ void scene::render(camera& view, std::string filename, size_t number_of_samples,
     if constexpr (debug) {
         view.print("Camera Info:\n");
     }
-    auto tracer = [&](const image::point& pnt) -> color {
+    auto tracer = [&](image::point const& pnt) -> color {
         // create the ray at each point in the image along the vector
         // from the image plane along the camera ray.
         ray world_ray = view.cast(pnt);
@@ -372,7 +372,7 @@ void scene::render(camera& view, std::string filename, size_t number_of_samples,
     view.capture.save(filename);
 }
 
-void scene::print(const char str[]) const {
+void scene::print(char const str[]) const {
     std::cout << str << std::endl;
     for (auto obj : m_objects) {
         obj->print(str);

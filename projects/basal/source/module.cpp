@@ -9,8 +9,8 @@
 
 namespace basal {
 
-module::module(const char name[]) : handle{nullptr} {
-    static const char* const formats[]
+module::module(char const name[]) : handle{nullptr} {
+    static char const* const formats[]
         = { "%s",
 #if defined(__APPLE__)
             "lib%s.dylib",

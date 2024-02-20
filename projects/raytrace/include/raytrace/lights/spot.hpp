@@ -12,18 +12,18 @@ class spot
     : public light
     , public entity {
 public:
-    spot(const raytrace::ray& r, const raytrace::color& C, precision intensity, const iso::degrees& incoming_angle);
-    spot(raytrace::ray&& r, const raytrace::color& C, precision intensity, const iso::degrees& incoming_angle);
+    spot(raytrace::ray const& r, raytrace::color const& C, precision intensity, iso::degrees const& incoming_angle);
+    spot(raytrace::ray&& r, raytrace::color const& C, precision intensity, iso::degrees const& incoming_angle);
     virtual ~spot() = default;
 
     /// @copydoc raytrace::light::intensity_at()
-    precision intensity_at(const point& world_point) const override;
+    precision intensity_at(point const& world_point) const override;
 
     /// @copydoc raytrace::light::incident()
-    ray incident(const point& world_point, size_t sample_index) const override;
+    ray incident(point const& world_point, size_t sample_index) const override;
 
     /// @copydoc basal::printable::print
-    void print(const char str[]) const override;
+    void print(char const str[]) const override;
 
 protected:
     /// The direction which the light is facing from the location
@@ -35,6 +35,6 @@ protected:
 }  // namespace lights
 
 /// Helper to print specks of light
-std::ostream& operator<<(std::ostream& os, const lights::spot& l);
+std::ostream& operator<<(std::ostream& os, lights::spot const& l);
 
 }  // namespace raytrace

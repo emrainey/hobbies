@@ -16,7 +16,7 @@ namespace iso {
 
 /// A structure used to hold the postfix for pascals
 struct suffix_type_Pa {
-    constexpr static const char *suffix = "Pa";
+    constexpr static char const *suffix = "Pa";
 };
 
 ///
@@ -36,25 +36,25 @@ public:
     /// Parameter constructor
     explicit pascals(precision value);
     /// Copy Constructor
-    pascals(const pascals& other);
+    pascals(pascals const& other);
     /// Move Constructor
     pascals(pascals&& other);
     /// Destructor
     ~pascals() = default;
     /// Const Copy Assignment
-    pascals& operator=(const pascals& other) noexcept;
+    pascals& operator=(pascals const& other) noexcept;
     /// Copy Assignment
     pascals& operator=(pascals& other) noexcept;
     /// Move Assignment
     pascals& operator=(pascals&& other) noexcept;
     /// Equality Operator
-    bool operator==(const pascals& other) const;
+    bool operator==(pascals const& other) const;
     /// Inequality Operator
-    bool operator!=(const pascals& other) const;
+    bool operator!=(pascals const& other) const;
     /// Accumulation Operator
-    pascals& operator+=(const pascals& other);
+    pascals& operator+=(pascals const& other);
     /// Deccumulation Operator
-    pascals& operator-=(const pascals& other);
+    pascals& operator-=(pascals const& other);
     /// Scaling Operator
     pascals& operator*=(precision factor);
     /// Inverse Scaling Operator
@@ -62,26 +62,26 @@ public:
     /// Negating Operator
     pascals operator-() const;
     /// Less Than Operator
-    bool operator<(const pascals& other) const;
+    bool operator<(pascals const& other) const;
     /// Less Than or Equal Operator
-    bool operator<=(const pascals& other) const;
+    bool operator<=(pascals const& other) const;
     /// Greater Than Operator
-    bool operator>(const pascals& other) const;
+    bool operator>(pascals const& other) const;
     /// Greater Than or Equal Operator
-    bool operator>=(const pascals& other) const;
+    bool operator>=(pascals const& other) const;
 };
 
 namespace operators {
     /// Addition operator
-    pascals operator+(const pascals& A, const pascals& B);
+    pascals operator+(pascals const& A, pascals const& B);
     /// Subtraction operator
-    pascals operator-(const pascals& A, const pascals& B);
+    pascals operator-(pascals const& A, pascals const& B);
     /// Left Scaling Operator
-    pascals operator*(const pascals& A, precision factor);
+    pascals operator*(pascals const& A, precision factor);
     /// Right Scaling Operator
-    pascals operator*(precision factor, const pascals& A);
+    pascals operator*(precision factor, pascals const& A);
     /// Inverse Scaling Operator
-    pascals operator/(const pascals& A, precision factor);
+    pascals operator/(pascals const& A, precision factor);
 }
 
 namespace literals {
@@ -90,7 +90,7 @@ namespace literals {
     /// Literal Int, Quote Operator
     pascals operator""_Pa(unsigned long long value);
     /// Literal String, Quote Operator
-    iso::pascals operator""_Pa(const char a[]);
+    iso::pascals operator""_Pa(char const a[]);
 }
 
 }

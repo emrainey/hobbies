@@ -39,7 +39,7 @@
 #define ASSERT_RAY3_EQ(px, py, pz, vx, vy, vz, r) _assert_ray3_eq(px, py, pz, vx, vy, vz, #r, r)
 
 inline void _assert_ray3_eq(geometry::precision px, geometry::precision py, geometry::precision pz, geometry::precision vx, geometry::precision vy, geometry::precision vz,
-                            const char* name __attribute__((unused)), const geometry::ray_<3>& r) {
+                            char const* name __attribute__((unused)), geometry::ray_<3> const& r) {
     ASSERT_XYZ_EQ(px, py, pz, r.location());
     ASSERT_XYZ_EQ(vx, vy, vz, r.direction());
 }

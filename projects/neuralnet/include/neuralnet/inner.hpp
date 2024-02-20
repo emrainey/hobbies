@@ -23,11 +23,11 @@ public:
     /// Constructor which takes parameters from childern */
     inner(layer::type _type, size_t inputs, size_t num);
     /// Copy
-    inner(const inner& other);
+    inner(inner const& other);
     /// Move
     inner(inner&& other);
     /// Copy
-    inner& operator=(const inner& other);
+    inner& operator=(inner const& other);
     /// Move
     inner& operator=(inner&& other);
     // Dtor

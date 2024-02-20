@@ -27,15 +27,15 @@ using namespace basal::literals;
 class matrix : public basal::printable {
 public:
     /// The constant number of rows in the matrix
-    const size_t rows;
+    size_t const rows;
     /// The constant number of columns in the matrix
-    const size_t cols;
+    size_t const cols;
 
 protected:
     /// The size of the allocation in bytes
-    const size_t bytes;
+    size_t const bytes;
     /// Used to remember if the memory was imported from an external allocator
-    const bool external_memory;
+    bool const external_memory;
     /// The pointer to the internal memory allocation
     precision *memory;
     /// The array of memory pointers
@@ -75,7 +75,7 @@ public:
     /// Move assignment
     matrix &operator=(matrix &&a) noexcept(false);
     /// Assignment operator, fills each matrix value with v
-    void operator=(const precision v);
+    void operator=(precision const v);
     /// Virtual Destructor
     virtual ~matrix();
 
@@ -115,20 +115,20 @@ public:
     /// Returns the value at the row and column. 0 based indexing.
     virtual precision &index(size_t idx) noexcept(false);
     /// Returns the value at the row and column. 0 based indexing.
-    virtual precision index(const size_t idx) const noexcept(false);
+    virtual precision index(size_t const idx) const noexcept(false);
 
     /// Returns the value at the row and column. 0 based indexing.
     virtual precision &index(size_t row, size_t col) noexcept(false);
     /// Returns the value at the row and column. 0 based indexing.
-    virtual precision index(const size_t row, const size_t col) const noexcept(false);
+    virtual precision index(size_t const row, size_t const col) const noexcept(false);
 
     /// Returns the value at the row and column. 0 based indexing.
-    precision operator()(const size_t row, const size_t col) const noexcept(false);
+    precision operator()(size_t const row, size_t const col) const noexcept(false);
     /// Returns the value at the row and column. 0 based indexing.
     precision &operator()(size_t row, size_t col) noexcept(false);
 
     /// Returns a pointer of a row which can be further indexed
-    virtual const precision *operator[](size_t idx) const noexcept(false);
+    virtual precision const *operator[](size_t idx) const noexcept(false);
     /// Returns a const pointer to a const value row
     virtual precision *operator[](size_t idx) noexcept(false);
 
@@ -152,8 +152,8 @@ public:
     matrix &operator/=(const matrix &a);
 
     // scalar ops
-    matrix &operator*=(const precision r);
-    matrix &operator/=(const precision r);
+    matrix &operator*=(precision const r);
+    matrix &operator/=(precision const r);
 
     // comparisons
     bool operator==(const matrix &a) const;
@@ -264,13 +264,13 @@ public:
     std::tuple<matrix, matrix, matrix> PLU() const noexcept(false);
 
     /// For use with const methods
-    typedef std::function<void(size_t, size_t, const precision &)> const_coord_iterator;
+    typedef std::function<void(size_t, size_t, precision const &)> const_coord_iterator;
 
     /// For use with non-const methods
     typedef std::function<void(size_t, size_t, precision &)> ref_coord_iterator;
 
     /// For use with filling non-const methods
-    typedef std::function<void(const precision &)> const_ref_iterator;
+    typedef std::function<void(precision const &)> const_ref_iterator;
 
     /// For use with filling non-const methods
     typedef std::function<void(precision &)> ref_iterator;
@@ -321,7 +321,7 @@ public:
     matrix basis() const noexcept(false);
 
     /// Print the matrix to stdout
-    void print(const char[]) const override;
+    void print(char const[]) const override;
 
     /// Save the values of this matrix to a file.
     bool to_file(std::string path) const;
@@ -395,10 +395,10 @@ matrix subtraction(const matrix &a, const matrix &b) noexcept(false);
 matrix multiply(const matrix &a, const matrix &b) noexcept(false);
 
 /// Multiplies matrix a by scalar r
-matrix multiply(const matrix &a, const precision r) noexcept(false);
+matrix multiply(const matrix &a, precision const r) noexcept(false);
 
 /// Multiplies matrix a by scalar r
-matrix multiply(const precision r, const matrix &a) noexcept(false);
+matrix multiply(precision const r, const matrix &a) noexcept(false);
 
 namespace operators {
 inline matrix operator+(const matrix &a, const matrix &b) noexcept(false) {
@@ -413,11 +413,11 @@ inline matrix operator*(const matrix &a, const matrix &b) noexcept(false) {
     return multiply(a, b);
 }
 
-inline matrix operator*(const matrix &a, const precision r) noexcept(false) {
+inline matrix operator*(const matrix &a, precision const r) noexcept(false) {
     return multiply(a, r);
 }
 
-inline matrix operator*(const precision r, const matrix &a) noexcept(false) {
+inline matrix operator*(precision const r, const matrix &a) noexcept(false) {
     return multiply(a, r);
 }
 
@@ -427,11 +427,11 @@ inline matrix operator/(const matrix &a, const matrix &b) noexcept(false) {
     return multiply(a, binv);
 }
 
-inline matrix operator/(const matrix &a, const precision r) noexcept(false) {
+inline matrix operator/(const matrix &a, precision const r) noexcept(false) {
     return multiply(a, (1.0_p / r));
 }
 
-inline matrix operator/(const precision r, const matrix &a) noexcept(false) {
+inline matrix operator/(precision const r, const matrix &a) noexcept(false) {
     return multiply(a, (1.0_p / r));
 }
 

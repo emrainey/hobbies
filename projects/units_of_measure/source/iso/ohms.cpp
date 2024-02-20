@@ -8,7 +8,7 @@
 #include "iso/ohms.hpp"
 
 namespace iso {
-const char* const suffix_type_Ohm::suffix;
+char const* const suffix_type_Ohm::suffix;
 // default
 ohms::ohms() : measurement{} {
 }
@@ -16,7 +16,7 @@ ohms::ohms() : measurement{} {
 ohms::ohms(precision a) : measurement{a} {
 }
 // copy constructor
-ohms::ohms(const ohms& other) : measurement{other} {
+ohms::ohms(ohms const& other) : measurement{other} {
 }
 // move constructor
 ohms::ohms(ohms&& other) : measurement{std::move(other)} {
@@ -34,17 +34,17 @@ ohms& ohms::operator=(ohms&& other) noexcept {
     _value = other.value;
     return (*this);
 }
-bool ohms::operator==(const ohms& other) const {
+bool ohms::operator==(ohms const& other) const {
     return basal::equivalent(value, other.value);
 }
-bool ohms::operator!=(const ohms& other) const {
+bool ohms::operator!=(ohms const& other) const {
     return !operator==(other);
 }
-ohms& ohms::operator+=(const ohms& other) {
+ohms& ohms::operator+=(ohms const& other) {
     _value += other.value;
     return (*this);
 }
-ohms& ohms::operator-=(const ohms& other) {
+ohms& ohms::operator-=(ohms const& other) {
     _value -= other.value;
     return (*this);
 }
@@ -59,32 +59,32 @@ ohms& ohms::operator/=(precision factor) {
 ohms ohms::operator-() const {
     return ohms{-value};
 }
-bool ohms::operator<(const ohms& other) const {
+bool ohms::operator<(ohms const& other) const {
     return (_value < other.value);
 }
-bool ohms::operator<=(const ohms& other) const {
+bool ohms::operator<=(ohms const& other) const {
     return (_value <= other.value);
 }
-bool ohms::operator>(const ohms& other) const {
+bool ohms::operator>(ohms const& other) const {
     return (_value > other.value);
 }
-bool ohms::operator>=(const ohms& other) const {
+bool ohms::operator>=(ohms const& other) const {
     return (_value >= other.value);
 }
 namespace operators {
-ohms operator+(const ohms& A, const ohms& B) {
+ohms operator+(ohms const& A, ohms const& B) {
     return ohms{A.value + B.value};
 }
-ohms operator-(const ohms& A, const ohms& B) {
+ohms operator-(ohms const& A, ohms const& B) {
     return ohms{A.value - B.value};
 }
-ohms operator*(const ohms& A, precision factor) {
+ohms operator*(ohms const& A, precision factor) {
     return ohms{A.value * factor};
 }
-ohms operator*(precision factor, const ohms& A) {
+ohms operator*(precision factor, ohms const& A) {
     return ohms{A.value * factor};
 }
-ohms operator/(const ohms& A, precision factor) {
+ohms operator/(ohms const& A, precision factor) {
     return ohms{A.value / factor};
 }
 }  // namespace operators
@@ -95,7 +95,7 @@ iso::ohms operator""_Ohm(long double a) {
 iso::ohms operator""_Ohm(unsigned long long a) {
     return iso::ohms(a);
 }
-iso::ohms operator""_Ohm(const char a[]) {
+iso::ohms operator""_Ohm(char const a[]) {
     return iso::ohms(atol(a));
 }
 }  // namespace literals

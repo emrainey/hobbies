@@ -24,7 +24,7 @@ iso::feet operator""_ft(long double a) {
     return iso::feet(static_cast<precision>(a));
 }
 
-iso::feet operator""_ft(const char a[]) {
+iso::feet operator""_ft(char const a[]) {
     return iso::feet(atol(a));
 }
 }  // namespace literals

@@ -5,7 +5,7 @@ namespace geometry {
 
 using namespace linalg::operators;
 
-point::point(const size_t d) : m_data{nullptr}, dimensions{d} {
+point::point(size_t const d) : m_data{nullptr}, dimensions{d} {
     basal::exception::throw_if(dimensions > 4, __FILE__, __LINE__, "Small dimensionality for now");
     basal::exception::throw_if(dimensions == 0, __FILE__, __LINE__, "Must be larger than zero");
     m_data = std::make_unique<precision[]>(dimensions);
@@ -17,7 +17,7 @@ point::point(const size_t d) : m_data{nullptr}, dimensions{d} {
 }
 
 /// Constructor from a pointer to an array
-point::point(const precision a[], size_t len) noexcept(false) : point{len} {
+point::point(precision const a[], size_t len) noexcept(false) : point{len} {
     if (m_data) {
         for (size_t i = 0; i < dimensions; i++) {
             m_data[i] = a[i];
@@ -26,7 +26,7 @@ point::point(const precision a[], size_t len) noexcept(false) : point{len} {
 }
 
 /// Constructor from an initialization list {{}};
-point::point(const std::vector<precision>& list) noexcept(false) : point(list.size()) {
+point::point(std::vector<precision> const& list) noexcept(false) : point(list.size()) {
     if (m_data) {
         for (size_t i = 0; i < list.size(); i++) {
             m_data[i] = list[i];
@@ -35,7 +35,7 @@ point::point(const std::vector<precision>& list) noexcept(false) : point(list.si
 }
 
 /// Copy Constructor
-point::point(const point& other) : point(other.dimensions) {
+point::point(point const& other) : point(other.dimensions) {
     std::copy_n(other.m_data.get(), other.dimensions, m_data.get());
 }
 
@@ -50,7 +50,7 @@ point::~point() {
 }
 
 /// Copy Assignment
-point& point::operator=(const point& other) noexcept(false) {
+point& point::operator=(point const& other) noexcept(false) {
     basal::exception::throw_unless(other.dimensions == dimensions, __FILE__, __LINE__,
                                    "Point dimensions (copy) must match point dimensions\n");
     std::copy_n(other.m_data.get(), other.dimensions, m_data.get());
@@ -80,11 +80,11 @@ void point::zero(void) {
     }
 }
 
-void point::print(const char name[]) const {
+void point::print(char const name[]) const {
     std::cout << name << " " << *this << std::endl;
 }
 
-std::ostream& operator<<(std::ostream& os, const point& p) {
+std::ostream& operator<<(std::ostream& os, point const& p) {
     os << "point(";
     for (size_t r = 0; r < p.dimensions; r++) {
         os << p[r] << (r == (p.dimensions - 1) ? "" : ", ");
@@ -104,7 +104,7 @@ point& point::operator*=(precision s) noexcept(false) {
 namespace operators {
 
 /// Equality Operator
-bool operator==(const point& a, const point& b) noexcept(false) {
+bool operator==(point const& a, point const& b) noexcept(false) {
     basal::exception::throw_if(a.dimensions != b.dimensions, __FILE__, __LINE__, "Points must have same dim");
     bool equal = true;
     for (size_t n = 0; n < a.dimensions; n++) {
@@ -116,7 +116,7 @@ bool operator==(const point& a, const point& b) noexcept(false) {
     return equal;
 }
 
-point operator*(const linalg::matrix& a, const point& b) noexcept(false) {
+point operator*(linalg::matrix const& a, point const& b) noexcept(false) {
     basal::exception::throw_unless(a.rows == b.dimensions, __FILE__, __LINE__, "");
     point c{a.rows};
     for (size_t y = 0; y < a.rows; y++) {
@@ -127,7 +127,7 @@ point operator*(const linalg::matrix& a, const point& b) noexcept(false) {
     return point(c);
 }
 
-bool operator!=(const point& a, const point& b) noexcept(false) {
+bool operator!=(point const& a, point const& b) noexcept(false) {
     return (not operator==(a, b));
 }
 
@@ -145,13 +145,13 @@ bool operator==(point& a, point& b) noexcept(false) {
 
 }  // namespace operators
 
-point multiply(const point& a, precision s) noexcept(false) {
+point multiply(point const& a, precision s) noexcept(false) {
     point c{a};
     c *= s;
     return point(c);
 }
 
-point multiply(precision s, const point& a) noexcept(false) {
+point multiply(precision s, point const& a) noexcept(false) {
     point c{a};
     c *= s;
     return point(c);
@@ -159,7 +159,7 @@ point multiply(precision s, const point& a) noexcept(false) {
 
 namespace pairwise {
 
-point multiply(const point& a, const point& b) noexcept(false) {
+point multiply(point const& a, point const& b) noexcept(false) {
     basal::exception::throw_unless(a.dimensions == b.dimensions, __FILE__, __LINE__, "");
     point c{a.dimensions};
     for (size_t n = 0; n < a.dimensions; n++) {
@@ -168,7 +168,7 @@ point multiply(const point& a, const point& b) noexcept(false) {
     return point(c);
 }
 
-point divide(const point& a, const point& b) noexcept(false) {
+point divide(point const& a, point const& b) noexcept(false) {
     basal::exception::throw_unless(a.dimensions == b.dimensions, __FILE__, __LINE__, "");
     point c{a.dimensions};
     for (size_t n = 0; n < a.dimensions; n++) {

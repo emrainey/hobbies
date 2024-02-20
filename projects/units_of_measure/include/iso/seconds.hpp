@@ -16,7 +16,7 @@ namespace iso {
 
 /// A structure used to hold the postfix for seconds
 struct suffix_type_sec {
-    constexpr static const char *suffix = "sec";
+    constexpr static char const *suffix = "sec";
 };
 
 ///
@@ -36,25 +36,25 @@ public:
     /// Parameter constructor
     explicit seconds(precision value);
     /// Copy Constructor
-    seconds(const seconds& other);
+    seconds(seconds const& other);
     /// Move Constructor
     seconds(seconds&& other);
     /// Destructor
     ~seconds() = default;
     /// Const Copy Assignment
-    seconds& operator=(const seconds& other) noexcept;
+    seconds& operator=(seconds const& other) noexcept;
     /// Copy Assignment
     seconds& operator=(seconds& other) noexcept;
     /// Move Assignment
     seconds& operator=(seconds&& other) noexcept;
     /// Equality Operator
-    bool operator==(const seconds& other) const;
+    bool operator==(seconds const& other) const;
     /// Inequality Operator
-    bool operator!=(const seconds& other) const;
+    bool operator!=(seconds const& other) const;
     /// Accumulation Operator
-    seconds& operator+=(const seconds& other);
+    seconds& operator+=(seconds const& other);
     /// Deccumulation Operator
-    seconds& operator-=(const seconds& other);
+    seconds& operator-=(seconds const& other);
     /// Scaling Operator
     seconds& operator*=(precision factor);
     /// Inverse Scaling Operator
@@ -62,26 +62,26 @@ public:
     /// Negating Operator
     seconds operator-() const;
     /// Less Than Operator
-    bool operator<(const seconds& other) const;
+    bool operator<(seconds const& other) const;
     /// Less Than or Equal Operator
-    bool operator<=(const seconds& other) const;
+    bool operator<=(seconds const& other) const;
     /// Greater Than Operator
-    bool operator>(const seconds& other) const;
+    bool operator>(seconds const& other) const;
     /// Greater Than or Equal Operator
-    bool operator>=(const seconds& other) const;
+    bool operator>=(seconds const& other) const;
 };
 
 namespace operators {
     /// Addition operator
-    seconds operator+(const seconds& A, const seconds& B);
+    seconds operator+(seconds const& A, seconds const& B);
     /// Subtraction operator
-    seconds operator-(const seconds& A, const seconds& B);
+    seconds operator-(seconds const& A, seconds const& B);
     /// Left Scaling Operator
-    seconds operator*(const seconds& A, precision factor);
+    seconds operator*(seconds const& A, precision factor);
     /// Right Scaling Operator
-    seconds operator*(precision factor, const seconds& A);
+    seconds operator*(precision factor, seconds const& A);
     /// Inverse Scaling Operator
-    seconds operator/(const seconds& A, precision factor);
+    seconds operator/(seconds const& A, precision factor);
 }
 
 namespace literals {
@@ -90,7 +90,7 @@ namespace literals {
     /// Literal Int, Quote Operator
     seconds operator""_sec(unsigned long long value);
     /// Literal String, Quote Operator
-    iso::seconds operator""_sec(const char a[]);
+    iso::seconds operator""_sec(char const a[]);
 }
 
 }

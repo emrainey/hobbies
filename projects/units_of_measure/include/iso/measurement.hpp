@@ -23,11 +23,11 @@ protected:
 
 public:
     /// A read-only reference of the value at the default scale
-    const UNIT_TYPE& value;
+    UNIT_TYPE const& value;
 
 protected:
     /// The constant string which has our unit
-    const char* const _suffix;
+    char const* const _suffix;
 
 public:
     /// The declared type of the value
@@ -40,7 +40,7 @@ public:
     measurement(UNIT_TYPE v) : _value{v}, value{_value}, _suffix{SUFFIX_TYPE::suffix} {
     }
     /// Const Copy Constructor
-    measurement(const measurement& other) : _value{other.value}, value{_value}, _suffix{other._suffix} {
+    measurement(measurement const& other) : _value{other.value}, value{_value}, _suffix{other._suffix} {
     }
     /// Copy Constructor
     measurement(measurement& other) : _value{other.value}, value{_value}, _suffix{other._suffix} {
@@ -56,7 +56,7 @@ public:
     // Child classes must overload any operators
 
     /// Returns the units as a string
-    const char* get_suffix() const {
+    char const* get_suffix() const {
         return _suffix;
     }
 

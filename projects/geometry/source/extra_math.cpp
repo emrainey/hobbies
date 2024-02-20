@@ -4,7 +4,7 @@
 
 namespace geometry {
 
-precision dot(const R3::vector& a, const R3::point& b) {
+precision dot(R3::vector const& a, R3::point const& b) {
     basal::exception::throw_unless(a.dimensions == b.dimensions, __FILE__, __LINE__, "");
     precision d = 0.0;
     for (size_t i = 0; i < b.dimensions; i++) {
@@ -13,7 +13,7 @@ precision dot(const R3::vector& a, const R3::point& b) {
     return d;
 }
 
-point centroid(const point& A, const point& B, const point& C) {
+point centroid(point const& A, point const& B, point const& C) {
     basal::exception::throw_unless(A.dimensions == B.dimensions and B.dimensions == C.dimensions, __FILE__, __LINE__,
                                    "Must have same dimensionality");
     point D{B.dimensions};
@@ -23,7 +23,7 @@ point centroid(const point& A, const point& B, const point& C) {
     return point(D);
 }
 
-std::pair<point, point> closest_points_from_skew_lines(const R3::line& first, const R3::line& second) {
+std::pair<point, point> closest_points_from_skew_lines(R3::line const& first, R3::line const& second) {
     // get a normal which is orthagonal to both lines.
     R3::vector N1 = R3::cross(first.direction(), second.direction());
     // create another vector which is orthagonal to the first normal
@@ -43,7 +43,7 @@ std::pair<point, point> closest_points_from_skew_lines(const R3::line& first, co
     return std::make_pair(A, B);
 }
 
-R2::point cartesian_to_polar(const R2::point& cartesian_point) {
+R2::point cartesian_to_polar(R2::point const& cartesian_point) {
     precision x = cartesian_point.x;
     precision y = cartesian_point.y;
     precision r = sqrt(x * x + y * y);
@@ -51,7 +51,7 @@ R2::point cartesian_to_polar(const R2::point& cartesian_point) {
     return R2::point(r, theta);
 }
 
-R2::point polar_to_cartesian(const R2::point& polar) {
+R2::point polar_to_cartesian(R2::point const& polar) {
     precision r = polar.x;
     precision theta = polar.y;
     precision x = r * std::sin(theta);
@@ -59,7 +59,7 @@ R2::point polar_to_cartesian(const R2::point& polar) {
     return R2::point(x, y);
 }
 
-R3::point cartesian_to_spherical(const R3::point& cartesian_point) {
+R3::point cartesian_to_spherical(R3::point const& cartesian_point) {
     precision x = cartesian_point.x;
     precision y = cartesian_point.y;
     precision z = cartesian_point.z;
@@ -69,7 +69,7 @@ R3::point cartesian_to_spherical(const R3::point& cartesian_point) {
     return R3::point(r, theta, phi);
 }
 
-R3::point spherical_to_cartesian(const R3::point& spherical_point) {
+R3::point spherical_to_cartesian(R3::point const& spherical_point) {
     precision radius = spherical_point.x;
     precision theta = spherical_point.y;
     precision phi = spherical_point.z;
@@ -79,7 +79,7 @@ R3::point spherical_to_cartesian(const R3::point& spherical_point) {
     return R3::point(x, y, z);
 }
 
-linalg::matrix rotation(const R3::vector& axis, const iso::radians theta) {
+linalg::matrix rotation(R3::vector const& axis, iso::radians const theta) {
     precision a = axis[0];
     precision b = axis[1];
     precision c = axis[2];
@@ -94,7 +94,7 @@ linalg::matrix rotation(const R3::vector& axis, const iso::radians theta) {
     return r;
 }
 
-bool contained_within_aabb(const R3::point& P, const R3::point& min, const R3::point& max) {
+bool contained_within_aabb(R3::point const& P, R3::point const& min, R3::point const& max) {
     return (min.x - basal::epsilon < P.x and P.x < max.x + basal::epsilon)
            and (min.y - basal::epsilon < P.y and P.y < max.y + basal::epsilon)
            and (min.z - basal::epsilon < P.z and P.z < max.z + basal::epsilon);

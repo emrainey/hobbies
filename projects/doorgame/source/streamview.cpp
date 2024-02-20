@@ -339,9 +339,9 @@ void StreamView::complete(Event event, bool result) noexcept(false) {
             break;
     }
 }
-void StreamView::display(const Actions& actions) {
+void StreamView::display(Actions const& actions) {
     static int rando = 0;
-    static const int mod = 7;
+    static int const mod = 7;
     switch (rando % mod) {
         case 0:
             std::cout << "You feel an imperative to leave this place." << std::endl;
@@ -363,54 +363,54 @@ void StreamView::display(const Actions& actions) {
     }
 }
 
-void StreamView::display(const Damages& damages) {
+void StreamView::display(Damages const& damages) {
     std::cout << "Damage:" << std::endl;
     for (auto d : damages) {
         std::cout << "\t" << d << std::endl;
     }
 }
 
-void StreamView::display(const Directions& directions) {
+void StreamView::display(Directions const& directions) {
     std::cout << "Direction:" << std::endl;
     for (auto d : directions) {
         std::cout << "\t" << d << std::endl;
     }
 }
 
-void StreamView::display(const Items& items) {
+void StreamView::display(Items const& items) {
     std::cout << "Items: " << std::endl;
     for (auto i : items) {
         std::cout << "\t" << i << std::endl;
     }
 }
 
-void StreamView::display(const Targets& targets) {
+void StreamView::display(Targets const& targets) {
     std::cout << "Targets: " << std::endl;
     for (auto& target : targets) {
         std::cout << "\t" << target << std::endl;
     }
 }
 
-void StreamView::display(const Animate& object, std::string preface) {
+void StreamView::display(Animate const& object, std::string preface) {
     std::cout << preface << " Health: " << object.get_health() << ". Location is room " << object.location() << "."
               << std::endl;
 }
 
-void StreamView::display(const Player& player) {
+void StreamView::display(Player const& player) {
     display(player.as_animate(), "Player");
     display(player.as_storage(), "Player");
 }
 
-void StreamView::display(const Map& map) {
+void StreamView::display(Map const& map) {
     return;
 }
 
-void StreamView::display(const Monster& monster) {
+void StreamView::display(Monster const& monster) {
     display(monster.as_animate(), "Monster");
     display(monster.as_storage(), "Monster");
 }
 
-void StreamView::display(const Storage& storage, std::string preface) {
+void StreamView::display(Storage const& storage, std::string preface) {
     std::cout << preface << " Inventory: ";
     for (auto& inv : storage.get_inventory()) {
         std::cout << inv << " ";
@@ -418,7 +418,7 @@ void StreamView::display(const Storage& storage, std::string preface) {
     std::cout << std::endl;
 }
 
-void StreamView::display(const Room& room) {
+void StreamView::display(Room const& room) {
     Directions directions = room.get_directions();
     std::cout << "The directions to travel in room " << room.get_id() << " are ";
     for (auto& dir : directions) {
@@ -430,7 +430,7 @@ void StreamView::display(const Room& room) {
     }
 }
 
-Action StreamView::choose(const Actions& actions) {
+Action StreamView::choose(Actions const& actions) {
     display(actions);
     std::cout << " ? " << std::flush;
     char c;
@@ -439,7 +439,7 @@ Action StreamView::choose(const Actions& actions) {
     return (is_valid(a) ? a : Action::Nothing);
 }
 
-Damage StreamView::choose(const Damages& damages) {
+Damage StreamView::choose(Damages const& damages) {
     display(damages);
     std::string str_value;
     std::cin >> str_value;
@@ -449,7 +449,7 @@ Damage StreamView::choose(const Damages& damages) {
     return (is_valid(d) ? d : Damage::None);
 }
 
-Direction StreamView::choose(const Directions& directions) {
+Direction StreamView::choose(Directions const& directions) {
     display(directions);
     char c;
     std::cin >> c;
@@ -457,7 +457,7 @@ Direction StreamView::choose(const Directions& directions) {
     return (is_valid(d) ? d : Direction::Here);
 }
 
-Item StreamView::choose(const Items& items) {
+Item StreamView::choose(Items const& items) {
     display(items);
     char c;
     std::cin >> c;
@@ -465,7 +465,7 @@ Item StreamView::choose(const Items& items) {
     return (is_valid(i) ? i : Item::Nothing);
 }
 
-Target StreamView::choose(const Targets& targets) {
+Target StreamView::choose(Targets const& targets) {
     display(targets);
     char c;
     std::cin >> c;

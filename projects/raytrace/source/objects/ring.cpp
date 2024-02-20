@@ -10,15 +10,15 @@ using namespace linalg::operators;
 using namespace geometry;
 using namespace geometry::operators;
 
-ring::ring(const point& C, const vector& N, precision inner, precision outer)
+ring::ring(point const& C, vector const& N, precision inner, precision outer)
     : raytrace::objects::plane(C, N), m_inner_radius2(inner * inner), m_outer_radius2(outer * outer) {
 }
 
-hits ring::collisions_along(const ray& object_ray) const {
+hits ring::collisions_along(ray const& object_ray) const {
     hits ts;
     // is the ray parallel to the plane?
-    const vector& N = m_normal;
-    const vector& V = object_ray.direction();
+    vector const& N = m_normal;
+    vector const& V = object_ray.direction();
     precision proj = dot(V, N);       // if so the projection is zero
     if (not basal::nearly_zero(proj)) {  // they collide *somewhere*
         // get the vector of the center to the ray initial
@@ -35,7 +35,7 @@ hits ring::collisions_along(const ray& object_ray) const {
     return ts;
 }
 
-bool ring::is_surface_point(const point& world_point) const {
+bool ring::is_surface_point(point const& world_point) const {
     point object_point = reverse_transform(world_point);
     precision x = object_point.x;
     precision y = object_point.y;
@@ -43,7 +43,7 @@ bool ring::is_surface_point(const point& world_point) const {
     return m_inner_radius2 <= dd and dd <= m_outer_radius2;
 }
 
-void ring::print(const char str[]) const {
+void ring::print(char const str[]) const {
     std::cout << str << " ring @" << this << " " << object_<3>::position() << " " << m_normal
               << " Radii (Squared):" << m_inner_radius2 << ", " << m_outer_radius2 << std::endl;
 }

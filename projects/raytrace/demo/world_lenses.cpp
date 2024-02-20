@@ -79,7 +79,7 @@ public:
         return std::string("world_lenses.tga");
     }
 
-    raytrace::color background(const raytrace::ray& world_ray) const override {
+    raytrace::color background(raytrace::ray const& world_ray) const override {
         return colors::black;
     }
 

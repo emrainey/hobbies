@@ -106,7 +106,7 @@ public:
         return std::string("world_example.tga");
     }
 
-    raytrace::color background(const raytrace::ray&) const override {
+    raytrace::color background(raytrace::ray const&) const override {
         return colors::black;
     }
 

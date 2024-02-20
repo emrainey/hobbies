@@ -34,48 +34,48 @@ seconds convert(hertz& B) {
     return seconds{C / B.value};
 }
 
-void convert(feet& f, const meters& m) {
+void convert(feet& f, meters const& m) {
     constexpr precision const C = 3.28084_p;
     f = feet(m.value * C);
 }
 
-void convert(meters& m, const feet& f) {
+void convert(meters& m, feet const& f) {
     constexpr precision const C = 0.3048000097536_p; // a double value I think?
     m = meters(static_cast<precision>(f.value * C));
 }
 
-void convert(radians& r, const turns& t) {
+void convert(radians& r, turns const& t) {
     r = radians(t.value * tau);
 }
 
-void convert(turns& t, const radians& r) {
+void convert(turns& t, radians const& r) {
     t = turns(r.value / tau);
 }
 
-void convert(degrees& d, const radians& r) {
+void convert(degrees& d, radians const& r) {
     d = degrees(r.value * (180.0_p / pi));
 }
 
-void convert(radians& r, const degrees& d) {
+void convert(radians& r, degrees const& d) {
     r = radians(d.value * (pi / 180.0_p));
 }
 
-void convert(hertz& hz, const seconds& sec) {
+void convert(hertz& hz, seconds const& sec) {
     constexpr precision const C = 1.0_p;
     hz = C / sec;
 }
 
-void convert(seconds& sec, const hertz& hz) {
+void convert(seconds& sec, hertz const& hz) {
     constexpr precision const C = 1.0_p;
     sec = C / hz;
 }
 
 namespace operators {
-hertz operator/(precision const num, const seconds& denom) {
+hertz operator/(precision const num, seconds const& denom) {
     return hertz{num / denom.value};
 }
 
-seconds operator/(precision const num, const hertz& denom) {
+seconds operator/(precision const num, hertz const& denom) {
     return seconds{num / denom.value};
 }
 }  // namespace operators

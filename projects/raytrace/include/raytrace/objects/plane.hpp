@@ -13,21 +13,21 @@ class plane
     , public object {
 public:
     /// Constructs a plane from a point and a normal.
-    plane(const point& point, const vector& normal);
+    plane(point const& point, vector const& normal);
     virtual ~plane() = default;
 
     /// @copydoc raytrace::object::normal
-    vector normal(const point& world_surface_point) const override;
+    vector normal(point const& world_surface_point) const override;
     /// @copydoc raytrace::object::intersect
-    intersection intersect(const ray& world_ray) const override;
+    intersection intersect(ray const& world_ray) const override;
     /// @copydoc raytrace::object::collisions_along
-    hits collisions_along(const ray& object_ray) const override;
+    hits collisions_along(ray const& object_ray) const override;
     /// @copydoc raytrace::object::map
-    image::point map(const point& object_surface_point) const override;
+    image::point map(point const& object_surface_point) const override;
     /// @copydoc basal::printable::print
-    void print(const char str[]) const override;
+    void print(char const str[]) const override;
     /// @copydoc raytrace::object::is_surface_point
-    bool is_surface_point(const point& world_point) const override;
+    bool is_surface_point(point const& world_point) const override;
     /// @copydoc raytrace::object::get_object_extent
     precision get_object_extent(void) const override;
     /// @copydoc raytrace::object::is_along_infinite_extent

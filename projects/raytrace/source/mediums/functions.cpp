@@ -4,12 +4,12 @@ namespace raytrace {
 
 namespace functions {
 
-color simple(const image::point& p __attribute__((unused)), const palette& pal __attribute__((unused))) {
+color simple(image::point const& p __attribute__((unused)), palette const& pal __attribute__((unused))) {
     basal::exception::throw_if(pal.size() == 0, __FILE__, __LINE__, "Must have at least 1 color");
     return pal[0];
 }
 
-color checkerboard(const image::point& p, const palette& pal) {
+color checkerboard(image::point const& p, palette const& pal) {
     basal::exception::throw_unless(pal.size() == 8, __FILE__, __LINE__, "Must have all 8 colors in checkerboard");
     precision h = 0.5;
     precision u = std::fmod(p.x, 1.0);  // values between -1.0 and 1.0 exclusive
@@ -45,7 +45,7 @@ color checkerboard(const image::point& p, const palette& pal) {
     return colors::cyan;
 }
 
-color checkerboard(const raytrace::point& p, const palette& pal) {
+color checkerboard(raytrace::point const& p, palette const& pal) {
     // palette could have up to 8 colors, don't worry about it here
     basal::exception::throw_unless(pal.size() >= 2, __FILE__, __LINE__, "Must have at least two colors in checkerboard");
     static constexpr precision h = 0.5;
@@ -105,7 +105,7 @@ color checkerboard(const raytrace::point& p, const palette& pal) {
     }
 }
 
-color diagonal(const image::point& p, const palette& pal) {
+color diagonal(image::point const& p, palette const& pal) {
     basal::exception::throw_unless(pal.size() == 2, __FILE__, __LINE__, "Must have only two colors in checkerboard");
     precision u = std::fmod(p.x, 1.0);
     precision v = std::fmod(p.y, 1.0);
@@ -121,7 +121,7 @@ color diagonal(const image::point& p, const palette& pal) {
     }
 }
 
-color dots(const image::point& p, const palette& pal) {
+color dots(image::point const& p, palette const& pal) {
     basal::exception::throw_unless(pal.size() == 2, __FILE__, __LINE__, "Must have only two colors in checkerboard");
     precision u = std::abs(std::fmod(p.x, 1.0));
     precision v = std::abs(std::fmod(p.y, 1.0));
@@ -136,7 +136,7 @@ color dots(const image::point& p, const palette& pal) {
     }
 }
 
-color dots(const raytrace::point& p, const palette& pal) {
+color dots(raytrace::point const& p, palette const& pal) {
     basal::exception::throw_unless(pal.size() == 2, __FILE__, __LINE__, "Must have only two colors in checkerboard");
     precision u = std::abs(std::fmod(p.x, 1.0));
     precision v = std::abs(std::fmod(p.y, 1.0));
@@ -153,12 +153,12 @@ color dots(const raytrace::point& p, const palette& pal) {
     }
 }
 
-color grid(const image::point& p, const palette& pal) {
+color grid(image::point const& p, palette const& pal) {
     basal::exception::throw_unless(pal.size() == 2, __FILE__, __LINE__, "Must have only two colors in checkerboard");
     precision u = std::abs(std::fmod(p.x, 1.0));
     precision v = std::abs(std::fmod(p.y, 1.0));
-    const precision l = 0.0625;  // a 1/16
-    const precision a = 1.0 - l;
+    precision const l = 0.0625;  // a 1/16
+    precision const a = 1.0 - l;
     if (l < u and u <= a and l < v and v <= a) {
         return pal[1];
     } else {
@@ -166,13 +166,13 @@ color grid(const image::point& p, const palette& pal) {
     }
 }
 
-color grid(const raytrace::point& p, const palette& pal) {
+color grid(raytrace::point const& p, palette const& pal) {
     basal::exception::throw_unless(pal.size() == 2, __FILE__, __LINE__, "Must have only two colors in checkerboard");
     precision u = std::abs(std::fmod(p.x, 1.0));
     precision v = std::abs(std::fmod(p.y, 1.0));
     precision w = std::abs(std::fmod(p.z, 1.0));
-    const precision l = 0.0625;
-    const precision a = 1.0 - l;
+    precision const l = 0.0625;
+    precision const a = 1.0 - l;
     if (l < u and u <= a and l < v and v <= a and l < w and w <= a) {
         return pal[1];
     } else {
@@ -180,7 +180,7 @@ color grid(const raytrace::point& p, const palette& pal) {
     }
 }
 
-color pseudo_random_noise(const image::point& p, const palette& pal __attribute__((unused))) {
+color pseudo_random_noise(image::point const& p, palette const& pal __attribute__((unused))) {
     noise::vector vec{{p.x, p.y}};
     vec = (vec == geometry::R2::null) ? geometry::R2::null : vec.normalized();
     precision _r,

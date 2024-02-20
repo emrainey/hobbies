@@ -19,7 +19,7 @@ public:
     void take(Damage amount);
     void resurrect();
     void give_healing(size_t amount);
-    const Animate& as_animate() const;
+    Animate const& as_animate() const;
     Animate& as_animate();
 
 protected:

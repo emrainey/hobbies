@@ -16,7 +16,7 @@ namespace iso {
 
 /// A structure used to hold the postfix for degrees
 struct suffix_type_d {
-    constexpr static const char *suffix = "d";
+    constexpr static char const *suffix = "d";
 };
 
 ///
@@ -36,25 +36,25 @@ public:
     /// Parameter constructor
     explicit degrees(precision value);
     /// Copy Constructor
-    degrees(const degrees& other);
+    degrees(degrees const& other);
     /// Move Constructor
     degrees(degrees&& other);
     /// Destructor
     ~degrees() = default;
     /// Const Copy Assignment
-    degrees& operator=(const degrees& other) noexcept;
+    degrees& operator=(degrees const& other) noexcept;
     /// Copy Assignment
     degrees& operator=(degrees& other) noexcept;
     /// Move Assignment
     degrees& operator=(degrees&& other) noexcept;
     /// Equality Operator
-    bool operator==(const degrees& other) const;
+    bool operator==(degrees const& other) const;
     /// Inequality Operator
-    bool operator!=(const degrees& other) const;
+    bool operator!=(degrees const& other) const;
     /// Accumulation Operator
-    degrees& operator+=(const degrees& other);
+    degrees& operator+=(degrees const& other);
     /// Deccumulation Operator
-    degrees& operator-=(const degrees& other);
+    degrees& operator-=(degrees const& other);
     /// Scaling Operator
     degrees& operator*=(precision factor);
     /// Inverse Scaling Operator
@@ -62,26 +62,26 @@ public:
     /// Negating Operator
     degrees operator-() const;
     /// Less Than Operator
-    bool operator<(const degrees& other) const;
+    bool operator<(degrees const& other) const;
     /// Less Than or Equal Operator
-    bool operator<=(const degrees& other) const;
+    bool operator<=(degrees const& other) const;
     /// Greater Than Operator
-    bool operator>(const degrees& other) const;
+    bool operator>(degrees const& other) const;
     /// Greater Than or Equal Operator
-    bool operator>=(const degrees& other) const;
+    bool operator>=(degrees const& other) const;
 };
 
 namespace operators {
     /// Addition operator
-    degrees operator+(const degrees& A, const degrees& B);
+    degrees operator+(degrees const& A, degrees const& B);
     /// Subtraction operator
-    degrees operator-(const degrees& A, const degrees& B);
+    degrees operator-(degrees const& A, degrees const& B);
     /// Left Scaling Operator
-    degrees operator*(const degrees& A, precision factor);
+    degrees operator*(degrees const& A, precision factor);
     /// Right Scaling Operator
-    degrees operator*(precision factor, const degrees& A);
+    degrees operator*(precision factor, degrees const& A);
     /// Inverse Scaling Operator
-    degrees operator/(const degrees& A, precision factor);
+    degrees operator/(degrees const& A, precision factor);
 }
 
 namespace literals {
@@ -90,7 +90,7 @@ namespace literals {
     /// Literal Int, Quote Operator
     degrees operator""_d(unsigned long long value);
     /// Literal String, Quote Operator
-    iso::degrees operator""_d(const char a[]);
+    iso::degrees operator""_d(char const a[]);
 }
 
 }

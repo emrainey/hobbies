@@ -89,7 +89,7 @@ A flat circular disc like a planetary ring.
 * Defined by: A point and a two radii
 * Solved By: `plane` first, then 2 polar coordinate checks.
 
-#### Plane
+#### Square
 
 A flat square upon a plane.
 
@@ -180,12 +180,12 @@ An exclusive overlap is then responds by removing the overlapping parts. Looks s
 
 ### `medium`
 
-The material (or lack thereof) in which rays pass. The `vaccum` is a medium, as is glass or rubber. Some mediums are opaque and diffuse while others are shiny. The ray trace is started in a medium. You could trace from the inside of a non transparent medium, which would be largely pointless.
+The material (or lack thereof) in which rays pass. The `vacuum` is a medium, as is glass or rubber. Some mediums are opaque and diffuse while others are shiny. The ray trace is started in a medium. You could trace from the inside of a non transparent medium, which would be largely pointless.
 
 Some attributes:
 
 * Mediums can cause dropoff in the intensity of light due to effects like Beer's Law.
- /// _This emulates haze or a semi-transparent medium_.
+  * _This emulates haze or a semi-transparent medium_.
 * Mediums take volumetric coordinates.
 * Mediums can be _mapped_ to 2D coordinates for flat surfaces (like planes)
 
@@ -200,19 +200,19 @@ Medium's attribute calls take volumetric coordinates (xyz space).
 The raytrace library currently supports this object hierarchy for mediums.
 
 * `medium`
- /// `conductor` - Nearly all light is reflected, very low transmitted.
-   /// `metal`
-     /// `chrome`, `steel`, `copper`, `silver`, etc
- /// `dielectric`
-   /// `opaque` - majority reflected light, but diffuse coloring and can have specular highlights
-     /// `plain` - no specular highlights, or at least _super_ rough
-     /// `dots` - a plain dotted pattern
-     /// `checkerboard` - common shiny floor in raytracing
-     /// perlin noise patterns like `marble`
-   /// `transparent` - majority transmitted light, some reflected (2%)
-     /// `glass`
-     /// `air`
-     /// `vacuum` - The most basic medium (which has no substance)
+  * `conductor` - Nearly all light is reflected, very low transmitted.
+    * `metal`
+      * `chrome`, `steel`, `copper`, `silver`, etc
+* `dielectric`
+  * `opaque` - majority reflected light, but diffuse coloring and can have specular highlights
+    * `plain` - no specular highlights, or at least _super_ rough
+    * `dots` - a plain dotted pattern
+    * `checkerboard` - common shiny floor in raytracing
+    * perlin noise patterns like `marble`
+  * `transparent` - majority transmitted light, some reflected (2%)
+    * `glass`
+    * `air`
+    * `vacuum` - The most basic medium (which has no substance)
 
 ### `light`
 
@@ -262,8 +262,8 @@ This is also a useful project to understand how to optimize with SSE2/AVX as wel
 ## Design Assumptions
 
 * When computing a collision with a ray on a surface and the point of the ray is _on_ the surface, there are two situations.
- /// The ray points into the surface - this is a collision (`dot(R,N) < 0`)
- /// The ray points away (or tangent) from the surface - this is not a collision (`dot(R, N) > -basal::epsilon`)
+  * The ray points into the surface - this is a collision (`dot(R,N) < 0`)
+  * The ray points away (or tangent) from the surface - this is not a collision (`dot(R, N) > -basal::epsilon`)
 
 ## TODOs
 

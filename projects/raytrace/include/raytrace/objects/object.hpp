@@ -30,7 +30,7 @@ public:
               , m_surface_scale{1.0_p, 1.0_p} {
     }
 
-    object_(const point& center, size_t collisions, bool closed = false)
+    object_(point const& center, size_t collisions, bool closed = false)
         : entity_<DIMS>(center)
         , m_max_collisions{collisions}
         , m_closed_surface{collisions > 1 ? closed : false}
@@ -46,7 +46,7 @@ public:
     }
 
     /// Copy Constructor for the object. This is allowed as the medium is constant!
-    object_(const object_& that) : entity_<DIMS>(), m_max_collisions{that.m_max_collisions}, m_closed_surface{that.m_closed_surface}, m_medium(that.m_medium) {
+    object_(object_ const& that) : entity_<DIMS>(), m_max_collisions{that.m_max_collisions}, m_closed_surface{that.m_closed_surface}, m_medium(that.m_medium) {
     }
 
     /// Move Constructor for the object. This is allowed as the medium is constant!
@@ -54,7 +54,7 @@ public:
     }
 
     /// Copy Assignment for the object. This is allowed as the medium is constant!
-    object_& operator=(const object_& that) {
+    object_& operator=(object_ const& that) {
         m_max_collisions = that.m_max_collisions;
         m_closed_surface = that.m_closed_surface;
         m_medium = that.m_medium;
@@ -74,20 +74,20 @@ public:
     }
 
     /// Gives a read-only version of the medium of the object
-    const medium& material() const {
+    medium const& material() const {
         basal::exception::throw_if(m_medium == nullptr, __FILE__, __LINE__, "Can not request a nullptr.");
         return *m_medium;
     }
 
     /// Sets the material to the given parameter medium
-    virtual void material(const medium* new_medium) {
+    virtual void material(medium const* new_medium) {
         basal::exception::throw_if(new_medium == nullptr, __FILE__, __LINE__, "Can not set a nullptr to material()");
         m_medium = new_medium;
     }
 
     /// Computes the reflection vector at the surface point P given the incident vector I
     /// @note Maintains the space the inputs were in.
-    vector reflection(const vector& I, const point& P) const {
+    vector reflection(vector const& I, point const& P) const {
         vector N = normal(P);  // MAYBE (Optim) should we already have calculated the normal at this point already?
         vector nI = I.normalized();  // MAYBE (Optim) shouldn't this already be normalized?
         vector R = laws::reflection(N, nI);
@@ -99,7 +99,7 @@ public:
 
     /// Computes the reflection ray at the surface point P given the incident ray I
     /// @note Maintains the space the inputs were in.
-    ray reflection(const ray& I, const point& P) const {
+    ray reflection(ray const& I, point const& P) const {
         return ray(P, reflection(I.direction(), P));
     }
 
@@ -109,7 +109,7 @@ public:
     /// @param nu1 Material Refractivity Index
     /// @param nu2 Material Refractivity Index
     ///
-    vector refraction(const vector& I, const point& P, precision nu1, precision nu2) const {
+    vector refraction(vector const& I, point const& P, precision nu1, precision nu2) const {
         vector N = normal(P);  // MAYBE (Optim) should we already have calculated the normal at this point already?
         vector nI = I.normalized();  // MAYBE (Optim) shouldn't this already be normalized?
         // if the Incident and the Normal have a positive dot then they are not arranged properly
@@ -126,7 +126,7 @@ public:
     /// @param nu1 Material Refractivity Index
     /// @param nu2 Material Refractivity Index
     ///
-    ray refraction(const ray& I, const point& P, precision nu1, precision nu2) const {
+    ray refraction(ray const& I, point const& P, precision nu1, precision nu2) const {
         return ray(P, refraction(I.direction(), P, nu1, nu2));
     }
 
@@ -135,18 +135,18 @@ public:
     /// @param world_surface_point The point on the object to use.
     /// @warning It is assumed that the point given is an intersection point.
     /// @retval R3::null indicates that the point is not on the surface.
-    virtual vector normal(const point& world_surface_point) const = 0;
+    virtual vector normal(point const& world_surface_point) const = 0;
 
     /// Returns all the intersections with this object along the ray (extended as a line).
 /// @param object_ray The ray in object space.
 /// @return The unordered set of intersection distances along the world ray.
-    virtual hits collisions_along(const ray& object_ray) const = 0;
+    virtual hits collisions_along(ray const& object_ray) const = 0;
 
     /// Returns an intersection with this object
     /// @param world_ray The ray from the world space to test the intersection with.
     /// @return Returns the first intersection with the object.
     ///
-    virtual intersection intersect(const ray& world_ray) const {
+    virtual intersection intersect(ray const& world_ray) const {
         /// @note While we could be pedantic about having a unit normal, it doesn't really stop us from working.
         // basal::exception::throw_unless(basal::nearly_equals(world_ray.direction().quadrance(), 1.0_p), __FILE__, __LINE__,
         // "The ray must have a unit vector");
@@ -164,8 +164,8 @@ public:
                 }
                 if constexpr (can_ray_origin_be_collision) {
                     if (basal::nearly_zero(t)) {
-                        const vector N = normal(world_ray.location());
-                        const vector& I = world_ray.direction();
+                        vector const N = normal(world_ray.location());
+                        vector const& I = world_ray.direction();
                         precision d = dot(N, I);
                         if (d < 0) {  // the ray points "into" the material so it's a collision
                             // however if the material is transparent, that's ok and it should not count as a collision
@@ -195,7 +195,7 @@ public:
 
     /// Maps a surface point (in R3 object space) to a image::point in u,v coordinates (R2)
 /// @param object_surface_point The point on the surface of the object in object space coordinates
-    virtual image::point map(const point& object_surface_point) const = 0;
+    virtual image::point map(point const& object_surface_point) const = 0;
 
     /// Returns the maximum number of surface collisions that the object can return.
     /// It is assumed that the actual collisions could be between 0 and this number.
@@ -272,7 +272,7 @@ protected:
     /// The pointer to the medium to use
     raytrace::mediums::medium const * m_medium;
     /// The std::bind or used to reference the instance of the mapping function
-    std::function<geometry::R2::point(const geometry::R3::point&)> m_bound_map;
+    std::function<geometry::R2::point(geometry::R3::point const&)> m_bound_map;
     /// The UV surface scaling factors
     struct {
             precision u; ///< The scaling factor for U

@@ -8,7 +8,7 @@
 #include "iso/amperes.hpp"
 
 namespace iso {
-const char* const suffix_type_A::suffix;
+char const* const suffix_type_A::suffix;
 // default
 amperes::amperes() : measurement{} {
 }
@@ -16,7 +16,7 @@ amperes::amperes() : measurement{} {
 amperes::amperes(precision a) : measurement{a} {
 }
 // copy constructor
-amperes::amperes(const amperes& other) : measurement{other} {
+amperes::amperes(amperes const& other) : measurement{other} {
 }
 // move constructor
 amperes::amperes(amperes&& other) : measurement{std::move(other)} {
@@ -34,17 +34,17 @@ amperes& amperes::operator=(amperes&& other) noexcept {
     _value = other.value;
     return (*this);
 }
-bool amperes::operator==(const amperes& other) const {
+bool amperes::operator==(amperes const& other) const {
     return basal::equivalent(value, other.value);
 }
-bool amperes::operator!=(const amperes& other) const {
+bool amperes::operator!=(amperes const& other) const {
     return !operator==(other);
 }
-amperes& amperes::operator+=(const amperes& other) {
+amperes& amperes::operator+=(amperes const& other) {
     _value += other.value;
     return (*this);
 }
-amperes& amperes::operator-=(const amperes& other) {
+amperes& amperes::operator-=(amperes const& other) {
     _value -= other.value;
     return (*this);
 }
@@ -59,32 +59,32 @@ amperes& amperes::operator/=(precision factor) {
 amperes amperes::operator-() const {
     return amperes{-value};
 }
-bool amperes::operator<(const amperes& other) const {
+bool amperes::operator<(amperes const& other) const {
     return (_value < other.value);
 }
-bool amperes::operator<=(const amperes& other) const {
+bool amperes::operator<=(amperes const& other) const {
     return (_value <= other.value);
 }
-bool amperes::operator>(const amperes& other) const {
+bool amperes::operator>(amperes const& other) const {
     return (_value > other.value);
 }
-bool amperes::operator>=(const amperes& other) const {
+bool amperes::operator>=(amperes const& other) const {
     return (_value >= other.value);
 }
 namespace operators {
-amperes operator+(const amperes& A, const amperes& B) {
+amperes operator+(amperes const& A, amperes const& B) {
     return amperes{A.value + B.value};
 }
-amperes operator-(const amperes& A, const amperes& B) {
+amperes operator-(amperes const& A, amperes const& B) {
     return amperes{A.value - B.value};
 }
-amperes operator*(const amperes& A, precision factor) {
+amperes operator*(amperes const& A, precision factor) {
     return amperes{A.value * factor};
 }
-amperes operator*(precision factor, const amperes& A) {
+amperes operator*(precision factor, amperes const& A) {
     return amperes{A.value * factor};
 }
-amperes operator/(const amperes& A, precision factor) {
+amperes operator/(amperes const& A, precision factor) {
     return amperes{A.value / factor};
 }
 }  // namespace operators
@@ -95,7 +95,7 @@ iso::amperes operator""_A(long double a) {
 iso::amperes operator""_A(unsigned long long a) {
     return iso::amperes(a);
 }
-iso::amperes operator""_A(const char a[]) {
+iso::amperes operator""_A(char const a[]) {
     return iso::amperes(atol(a));
 }
 }  // namespace literals

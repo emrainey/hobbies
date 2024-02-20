@@ -56,7 +56,7 @@ camera::camera(camera&& other)
     , m_world_left{R3::basis::Y} {
 }
 
-void camera::move_to(const point& look_from, const point& look_at) {
+void camera::move_to(point const& look_from, point const& look_at) {
     using namespace iso::operators;
     // incoming values are *WORLD* coordinates
 
@@ -147,7 +147,7 @@ void camera::move_to(const point& look_from, const point& look_at) {
     }
 }
 
-void camera::print(const char str[]) const {
+void camera::print(char const str[]) const {
     printf("%s", str);
     m_intrinsics.print("Camera Intrinsics");
     m_world_position.print("Camera Look From");
@@ -159,7 +159,7 @@ void camera::print(const char str[]) const {
     m_rotation.print("Object to World Rotation");
 }
 
-ray camera::cast(const image::point& image_point) const {
+ray camera::cast(image::point const& image_point) const {
     constexpr static bool cast_debug = false;
     // the input point may have some subsampling offset around
     // the point, so don't expect whole numbers
@@ -216,23 +216,23 @@ ray camera::left() const {
     return ray(position(), m_world_left);
 }
 
-const point& camera::at() const {
+point const& camera::at() const {
     return m_world_look_at;
 }
 
-void camera::at(const point& look_at) {
+void camera::at(point const& look_at) {
     move_to(position(), look_at);
 }
 
-void camera::position(const point& look_from) {
+void camera::position(point const& look_from) {
     move_to(look_from, m_world_look_at);
 }
 
-const point& camera::position() const {
+point const& camera::position() const {
     return m_world_position;
 }
 
-const matrix& camera::intrinsics() const {
+matrix const& camera::intrinsics() const {
     return m_intrinsics;
 }
 

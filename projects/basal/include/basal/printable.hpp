@@ -17,7 +17,7 @@ namespace basal {
 class printable {
 public:
     /// Character Array printing mechanism
-    virtual void print(const char[]) const = 0;
+    virtual void print(char const[]) const = 0;
 
     /// String printing mechanism.
     inline void print(std::string str) const {

@@ -55,7 +55,7 @@ constexpr precision apply_correction(precision value) {
 /// Adds two channels together after gamma correction by the scalar given.
 /// @note the scalar must be 0.0_p <= s <= 1.0_p.
 /// @retval precision will be clamped from 0.0_p to 1.0_p
-precision gamma_interpolate(const precision a, const precision b, const precision s);
+precision gamma_interpolate(precision const a, precision const b, precision const s);
 
 #if defined(USE_PRECISION_AS_FLOAT)
 using precision4 = intel::float4;
@@ -84,11 +84,11 @@ public:
     }
 
     // Copy Constructor
-    color(const color& other);
+    color(color const& other);
     // Move constructor
     color(color&& other);
     // Copy Assign
-    color& operator=(const color&);
+    color& operator=(color const&);
     // Move Assign
     color& operator=(color&&);  // this is used in the get_color() assignment
     // Destructor
@@ -111,7 +111,7 @@ public:
     void to_space(space desired);
 
     /// Scaling operator
-    inline void scale(const precision a) {
+    inline void scale(precision const a) {
         for (auto& c : channels) {
             c *= a;
         }
@@ -125,7 +125,7 @@ public:
     }
 
     /// Scale Wrapper
-    inline color& operator*=(const precision a) {
+    inline color& operator*=(precision const a) {
         scale(a);
         return (*this);
     }
@@ -139,7 +139,7 @@ public:
     void per_channel(std::function<precision(precision c)> iter);
 
     /// Accumulates colors together (does not gamma correct)
-    color& operator+=(const color& other);
+    color& operator+=(color const& other);
 
     /// The comparison precision for equal colors (to a millionth)
     constexpr static precision equality_limit = 1.0E-6;
@@ -147,10 +147,10 @@ public:
     /// Blends all colors together in a equal weighted average with gamma
 /// correction.
 /// @param subsamples The vector of color samples
-    static color blend_samples(const std::vector<color>& subsamples);
+    static color blend_samples(std::vector<color> const& subsamples);
 
     /// Accumulates all the samples together into a summed color in the linear space
-    static color accumulate_samples(const std::vector<color>& samples);
+    static color accumulate_samples(std::vector<color> const& samples);
 
     /// Map numbers near the range -1.0_p to 1.0_p to a color in the spectrum.
 /// Bluer for negatives, Reds for Positives.
@@ -281,40 +281,40 @@ constexpr color tin(0.72_p, 0.71_p, 0.61_p);
 }  // namespace colors
 
 /// Assumes a 50% blend (uses gamma correct)
-color blend(const color& x, const color& y);
+color blend(color const& x, color const& y);
 
 /// Allows for user blend ratio (uses gamma correct)
-color interpolate(const color& x, const color& y, precision a);
+color interpolate(color const& x, color const& y, precision a);
 
 namespace operators {
 /// Blend the colors together (uses gamma correct)
-inline color operator+(const color& x, const color& y) {
+inline color operator+(color const& x, color const& y) {
     return blend(x, y);
 }
 
 /// Scale all the channels together
-inline color operator*(const color& x, precision a) {
+inline color operator*(color const& x, precision a) {
     color y = x;
     y.scale(a);
     return y;
 }
 
 /// Scale all the channels together
-inline color operator*(precision a, const color& x) {
+inline color operator*(precision a, color const& x) {
     return operator*(x, a);
 }
 
 /// Pairwise Color Mixing (when a light and a surface color self select the output color)
-color operator*(const color& a, const color& b);
+color operator*(color const& a, color const& b);
 }  // namespace operators
 
-inline std::ostream& operator<<(std::ostream& os, const color& c) {
+inline std::ostream& operator<<(std::ostream& os, color const& c) {
     os << "color(" << c.red() << ", " << c.green() << ", " << c.blue() << ")";
     return os;
 }
 
 /// Compares two colors within the epsilon
-bool operator==(const color& a, const color& b);
+bool operator==(color const& a, color const& b);
 
 ///
 /// Converts a specific wavelength of light into an LMS color.

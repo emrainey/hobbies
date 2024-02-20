@@ -9,20 +9,20 @@ using namespace linalg::operators;
 using namespace geometry;
 using namespace geometry::operators;
 
-plane::plane(const point& C, vector const& N)
+plane::plane(point const& C, vector const& N)
     : geometry::plane{C, N}, object{C, 1} {
     // C.print("plane");
     // N.print("plane");
 }
 
-vector plane::normal(const point& world_point) const {
+vector plane::normal(point const& world_point) const {
     // auto object_point = reverse_transform(world_point);
     vector world_normal = forward_transform(geometry::plane::normal);
     // world_normal.print("plane normal");
     return world_normal;
 }
 
-intersection plane::intersect(const ray& world_ray) const {
+intersection plane::intersect(ray const& world_ray) const {
     auto object_ray = reverse_transform(world_ray);
     hits ts = collisions_along(object_ray);
     if (ts.size() > 0 and ts[0] >= (0 - basal::epsilon)) {
@@ -39,7 +39,7 @@ intersection plane::intersect(const ray& world_ray) const {
     return intersection();
 }
 
-hits plane::collisions_along(const ray& object_ray) const {
+hits plane::collisions_along(ray const& object_ray) const {
     hits ts;
     // is the ray parallel to the plane?
     // @note in object space, the center point is at the origin
@@ -49,7 +49,7 @@ hits plane::collisions_along(const ray& object_ray) const {
     // if so the projection is not zero they collide *somewhere*
     // could be positive or negative t.
     if (not basal::nearly_zero(proj)) {
-        const point& P = object_ray.location();
+        point const& P = object_ray.location();
         // get the vector of the center to the ray initial
         vector const C = geometry::R3::origin - P;
         // t is the ratio of the projection of the arbitrary center vector divided by the projection ray
@@ -59,13 +59,13 @@ hits plane::collisions_along(const ray& object_ray) const {
     return ts;
 }
 
-bool plane::is_surface_point(const point& world_point) const {
+bool plane::is_surface_point(point const& world_point) const {
     point object_point = reverse_transform(world_point);
     vector T = object_point - position();
     return basal::nearly_zero(dot(geometry::plane::normal, T));
 }
 
-image::point plane::map(const point& object_surface_point) const {
+image::point plane::map(point const& object_surface_point) const {
     // the pattern will map around the point in a polar fashion
     geometry::R2::point cartesian(object_surface_point[0] / m_surface_scale.u, object_surface_point[1] / m_surface_scale.v);
     geometry::R2::point polar_space = geometry::cartesian_to_polar(cartesian);

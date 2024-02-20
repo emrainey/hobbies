@@ -20,15 +20,15 @@ protected:
 
 public:
     /// The read-only simplified value
-    const type& value;
+    type const& value;
 
 protected:
     LeftType _first;
     RightType _second;
 
 public:
-    const LeftType& first;
-    const RightType& second;
+    LeftType const& first;
+    RightType const& second;
 
 protected:
     char suffix[10];
@@ -43,13 +43,13 @@ public:
         snprintf(suffix, sizeof(suffix), "%s%s", _first.get_suffix(), _second.get_suffix());
     }
 
-    compound(const LeftType& f, const RightType& s)
+    compound(LeftType const& f, RightType const& s)
         : _value{0}, value{_value}, _first{f}, _second{s}, first{_first}, second{_second} {
         _value = reduce();
         snprintf(suffix, sizeof(suffix), "%s%s", _first.get_suffix(), _second.get_suffix());
     }
 
-    compound& operator=(const compound& other) {
+    compound& operator=(compound const& other) {
         _value = other.value;
         _first = other._first;
         _second = other._second;
@@ -68,30 +68,30 @@ public:
         return _value;
     }
 
-    bool operator==(const compound& other) {
+    bool operator==(compound const& other) {
         return equivalent(_value, other.value);
     }
-    bool operator!=(const compound& other) {
+    bool operator!=(compound const& other) {
         return !operator==(other);
     }
 
-    bool operator<(const compound& other) {
+    bool operator<(compound const& other) {
         return (_value < other.value);
     }
 
-    bool operator>(const compound& other) {
+    bool operator>(compound const& other) {
         return (_value > other.value);
     }
 
-    bool operator<=(const compound& other) {
+    bool operator<=(compound const& other) {
         return (_value <= other.value);
     }
 
-    bool operator>=(const compound& other) {
+    bool operator>=(compound const& other) {
         return (_value >= other.value);
     }
 
-    const char* get_suffix() const {
+    char const* get_suffix() const {
         return suffix;
     }
 };

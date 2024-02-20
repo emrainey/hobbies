@@ -8,7 +8,7 @@
 #include <type_traits>
 
 namespace basal {
-const char *boolean(bool b);
+char const *boolean(bool b);
 
 template <typename TYPE>
 constexpr typename std::underlying_type<TYPE>::type to_underlying(TYPE e) {

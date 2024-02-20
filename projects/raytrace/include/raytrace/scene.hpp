@@ -13,26 +13,26 @@
 namespace raytrace {
 
 /// A functor type that can return a color given the world ray
-using background_mapper = std::function<color(const ray&)>;
+using background_mapper = std::function<color(ray const&)>;
 
 /// A Class to hold all the components needed to render a scene
 class scene : public basal::printable {
 public:
-    using object_list = std::vector<const objects::object*>;
-    using light_list = std::vector<const lights::light*>;
+    using object_list = std::vector<objects::object const*>;
+    using light_list = std::vector<lights::light const*>;
     using intersect_list = std::vector<geometry::intersection>;
 
     /// A complete set of information about the intersection information relative to an
 /// unmentioned point.
     struct intersect_set {
         /// Simple Constructor
-        explicit intersect_set(precision d, const geometry::intersection& i, const objects::object* o);
+        explicit intersect_set(precision d, geometry::intersection const& i, objects::object const* o);
         // Default Copy
-        explicit intersect_set(const intersect_set&) = default;
+        explicit intersect_set(intersect_set const&) = default;
         // No move construct
         intersect_set(intersect_set&&) = delete;
         // Default Copy Assign
-        intersect_set& operator=(const intersect_set&) = default;
+        intersect_set& operator=(intersect_set const&) = default;
         // No move assign
         intersect_set& operator=(intersect_set&&) = delete;
         // Default destructor
@@ -43,7 +43,7 @@ public:
         /// The intersection information
         geometry::intersection intersector;
         /// The pointer to the const object of *closest* intersection
-        const objects::object* objptr;
+        objects::object const* objptr;
     };
 
     /// Constructor
@@ -61,7 +61,7 @@ public:
     /// @param objects [in] The list of objects in the scene.
     /// @return
     ///
-    static intersect_list find_intersections(const ray& world_ray, const object_list& objects);
+    static intersect_list find_intersections(ray const& world_ray, object_list const& objects);
 
     ///
     /// Given a set of intersections, finds the closest intersection to a point.
@@ -70,7 +70,7 @@ public:
     /// @param [in] objects The list of objects in the scene.
     /// @return Returns the pointer to the nearest object to the point.
     ///
-    static intersect_set nearest_object(const ray& world_ray, const intersect_list& intersections, const object_list&);
+    static intersect_set nearest_object(ray const& world_ray, intersect_list const& intersections, object_list const&);
 
     ///
     /// Traces the path of a world ray within the scene and returns the color.
@@ -81,7 +81,7 @@ public:
     ///                               When it falls below a global limit, the reflection will not be considered.
     ///                               @see adaptive_reflection_threshold
     ///
-    color trace(const ray& world_ray, const mediums::medium& media, size_t depth = 1,
+    color trace(ray const& world_ray, mediums::medium const& media, size_t depth = 1,
                 precision recursive_contribution = 1.0_p);
 
     ///
@@ -104,19 +104,19 @@ public:
     void set_background_mapper(background_mapper bgm);
 
     /// Adds an object to the scene
-    void add_object(const objects::object* obj);
+    void add_object(objects::object const* obj);
 
     /// Adds a light to the scene
-    void add_light(const lights::light* lit);
+    void add_light(lights::light const* lit);
 
     /// Adds a media which the entire scene is set into
-    void add_media(const mediums::medium* media);
+    void add_media(mediums::medium const* media);
 
     /// Removes all objects and lights from a scene
     void clear();
 
     /// @copydoc basal::printable::print
-    void print(const char str[]) const override;
+    void print(char const str[]) const override;
 
     /// Returns the number of objects in the scene
     size_t number_of_objects(void) const;
@@ -135,7 +135,7 @@ protected:
     background_mapper m_background;
 
     /// The media which the scene starts in
-    const mediums::medium* m_media;
+    mediums::medium const* m_media;
 };
 
 }  // namespace raytrace

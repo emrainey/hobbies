@@ -13,19 +13,19 @@ class triangle : public plane {
 public:
     /// Constructs a triangle from three points.
 /// Point B is considered the middle point for computation of the normal.
-    triangle(const point& A, const point& B, const point& C);
+    triangle(point const& A, point const& B, point const& C);
     virtual ~triangle() = default;
 
     /// @copydoc raytrace::object::intersect
-    geometry::intersection intersect(const ray& world_ray) const override;
+    geometry::intersection intersect(ray const& world_ray) const override;
 
     /// @copydoc basal::printable::print
-    void print(const char str[]) const override;
+    void print(char const str[]) const override;
 
-    bool is_surface_point(const point& world_point) const override;
+    bool is_surface_point(point const& world_point) const override;
 
     /// Determines if a point on the plane is contained within the array of three points
-    bool is_contained(const point& object_point) const;
+    bool is_contained(point const& object_point) const;
 
     /// Returns a read-only reference to an array of 3 points
     const std::array<point, 3>& points() const;
@@ -39,6 +39,6 @@ private:
 };
 }  // namespace objects
 /// Returns the plane in which the three points we co-planar
-geometry::plane as_plane(const objects::triangle& tri);
+geometry::plane as_plane(objects::triangle const& tri);
 
 }  // namespace raytrace

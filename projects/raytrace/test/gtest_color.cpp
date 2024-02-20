@@ -152,7 +152,7 @@ TEST(ColorTest, BlendingSamples) {
 
 TEST(ColorTest, LMSImage) {
     image img(100, 800);
-    img.generate_each([&](const image::point& pnt) -> color {
+    img.generate_each([&](image::point const& pnt) -> color {
         // x is 0 - 800
         // w should be in the range of 380 to 780
         precision w = (pnt.x / 2) + 380;

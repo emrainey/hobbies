@@ -8,7 +8,7 @@ namespace raytrace {
 namespace objects {
 using namespace linalg::operators;
 
-overlap::overlap(const object& A, const object& B, overlap::type type)
+overlap::overlap(object const& A, object const& B, overlap::type type)
     : object{}
     , m_A{A}
     , m_B{B}
@@ -22,7 +22,7 @@ overlap::overlap(const object& A, const object& B, overlap::type type)
     throw_exception_unless(m_closed_two_hit_surfaces_ or m_open_one_hit_surfaces_ or m_open_two_hit_surfaces_, "Must be one of these %lu types", 2);
 }
 
-vector overlap::normal(const point& world_surface_point) const {
+vector overlap::normal(point const& world_surface_point) const {
     // normals are computed from points where the objects have a collision, this it should be a surface point.
     raytrace::point overlap_point = reverse_transform(world_surface_point);
     vector vA = m_A.normal(overlap_point);
@@ -40,7 +40,7 @@ vector overlap::normal(const point& world_surface_point) const {
     }
 }
 
-hits overlap::collisions_along(const ray& overlap_ray) const {
+hits overlap::collisions_along(ray const& overlap_ray) const {
     /// @note overlap_ray is not in WORLD space, but is in the space of the overlap objects.
     auto object_rayA = m_A.reverse_transform(overlap_ray);
     auto object_rayB = m_B.reverse_transform(overlap_ray);
@@ -194,7 +194,7 @@ hits overlap::collisions_along(const ray& overlap_ray) const {
     return hits();  // empty
 }
 
-bool overlap::is_surface_point(const point& world_point) const {
+bool overlap::is_surface_point(point const& world_point) const {
     // based on which type determine how they overlap
     return m_A.is_surface_point(world_point) or m_B.is_surface_point(world_point);
 }
@@ -219,13 +219,13 @@ bool overlap::is_along_infinite_extent(ray const& world_ray) const {
     return m_A.is_along_infinite_extent(world_ray) and m_B.is_along_infinite_extent(world_ray);
 }
 
-image::point overlap::map(const point& object_surface_point __attribute__((unused))) const {
+image::point overlap::map(point const& object_surface_point __attribute__((unused))) const {
     image::point uv{0, 0};
     // @TODO check if it's a surface point for the objects then call their map.
     return uv;
 }
 
-void overlap::print(const char str[]) const {
+void overlap::print(char const str[]) const {
     m_A.print(str);
     m_B.print(str);
 }

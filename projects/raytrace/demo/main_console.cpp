@@ -101,7 +101,7 @@ public:
         ::refresh();
     }
 
-    void print(size_t y, size_t x, const char fmt[], ...) {
+    void print(size_t y, size_t x, char const fmt[], ...) {
         va_list list;
         va_start(list, fmt);
         vsnprintf(m_buffer, sizeof(m_buffer), fmt, list);
@@ -130,8 +130,8 @@ protected:
     int m_width;
     int m_height;
     char m_buffer[1024];
-    static const int INFO_PAIR = 1;
-    static const int PROGRESS_PAIR = 2;
+    static int const INFO_PAIR = 1;
+    static int const PROGRESS_PAIR = 2;
 };
 
 #define my_assert(condition, statement)                       \
@@ -306,7 +306,7 @@ int main(int argc, char* argv[]) {
                     try {
                         scene.render(view, world.output_filename(), params.subsamples, params.reflections,
                                         row_notifier, params.mask_threshold);
-                    } catch (const basal::exception& e) {
+                    } catch (basal::exception const& e) {
                         std::cout << "Caught basal::exception in scene.render()! " << std::endl;
                         std::cout << "What:" << e.what() << " Why:" << e.why() << " Where:" << e.where()
                                     << std::endl;

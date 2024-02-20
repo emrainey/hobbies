@@ -42,7 +42,7 @@ void kmeans::initial(InitialMethod method) {
 precision kmeans::iteration(IterationMethod method) {
     precision error = 0.0;
 
-    auto euclidean = [](const R2::point& A, const R2::point& B) -> precision { return (A - B).quadrance(); };
+    auto euclidean = [](R2::point const& A, R2::point const& B) -> precision { return (A - B).quadrance(); };
 
     for (auto& cnt : m_centroids) {
         cnt.print("Centroid:");
@@ -109,12 +109,12 @@ precision kmeans::iteration(IterationMethod method) {
 }
 
 /// Returns the vector of centroids.
-const std::vector<R2::point>& kmeans::centroids() const {
+std::vector<R2::point> const& kmeans::centroids() const {
     return m_centroids;
 }
 
 /// Returns the vector of indexes.
-const std::vector<size_t>& kmeans::indexes() const {
+std::vector<size_t> const& kmeans::indexes() const {
     return m_cluster_assignment;
 }
 

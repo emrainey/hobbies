@@ -60,7 +60,6 @@ inline bool nearly_equals(precision a, precision b, precision range) {
 /// Allows two precisions to be compared for equality.
 inline bool nearly_equals(precision a, precision b) {
     return nearly_equals(a, b, basal::epsilon);
-    // bool ngth_and_nlth = (not(a > b) and not(a < b));
 }
 
 /// Determines if a precision is very close to zero

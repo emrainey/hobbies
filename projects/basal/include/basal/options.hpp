@@ -34,9 +34,9 @@ template <size_t NUM_OPTS, typename T>
 bool find(const config (&options)[NUM_OPTS], std::string long_name, T& value) {
     for (size_t j = 0; j < NUM_OPTS; j++) {
         if (not options[j].long_switch.empty() and options[j].long_switch == long_name) {
-            auto pval = std::get_if<T>(&options[j].value);
-            if (pval) {
-                value = *pval;
+            auto value_pointer = std::get_if<T>(&options[j].value);
+            if (value_pointer) {
+                value = *value_pointer;
                 return true;
             } else {
                 printf("Could not get type with matching name %s!\n", long_name.c_str());

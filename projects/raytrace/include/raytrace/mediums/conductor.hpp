@@ -12,7 +12,7 @@ public:
     conductor();
 
     // bounced light will be altered by conductors
-    color bounced(raytrace::point const& volumetic_point, color const& incoming) const override;
+    color bounced(raytrace::point const& volumetric_point, color const& incoming) const override;
 
     virtual ~conductor() = default;
 };

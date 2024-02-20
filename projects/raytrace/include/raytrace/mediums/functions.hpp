@@ -13,13 +13,11 @@ using palette = std::vector<color>;
 
 namespace functions {
 
-///
 /// A color map takes an image::point (u,v) and fmods it into the range of [0.0_p, 1.0_p) to make a pattern
 /// and a set of colors as a palette and produces a color. Each map may take it's own number
 /// of colors in the palette.
 /// @param p A point in unit R2 u,v space (or repeated)
 /// @param pal The palette of colors to chose from.
-///
 using texture_color_map = std::function<raytrace::color(image::point const& p, palette const& pal)>;
 
 /// A scalar map takes an image::point (u,v) which in the range of [0.0_p, 1.0_p)
@@ -60,7 +58,7 @@ color grid(raytrace::point const& p, palette const& pal);
 /// Normal checkerboards
 color checkerboard(image::point const& p, palette const& pal);
 
-/// Volumetric Checkerboard (looks like a woodturned object etc)
+/// Volumetric Checkerboard (looks like a wood-turned object etc)
 color checkerboard(raytrace::point const& p, palette const& pal);
 
 /// Randomly generates a color for each pixel (palette is unused)

@@ -5,86 +5,78 @@ namespace geometry {
 
 using namespace linalg::operators;
 
-point::point(size_t const d) : m_data{nullptr}, dimensions{d} {
-    basal::exception::throw_if(dimensions > 4, __FILE__, __LINE__, "Small dimensionality for now");
-    basal::exception::throw_if(dimensions == 0, __FILE__, __LINE__, "Must be larger than zero");
-    m_data = std::make_unique<precision[]>(dimensions);
-    if (m_data) {
-        for (size_t i = 0; i < dimensions; i++) {
-            m_data[i] = 0.0;
-        }
-    }
+template <size_t DIMS>
+point<DIMS>::point() {
+    zero();
 }
 
 /// Constructor from a pointer to an array
-point::point(precision const a[], size_t len) noexcept(false) : point{len} {
-    if (m_data) {
-        for (size_t i = 0; i < dimensions; i++) {
-            m_data[i] = a[i];
-        }
+template <size_t DIMS>
+point<DIMS>::point(precision const a[], size_t len) noexcept(false) {
+    for (size_t i = 0; i < dimensions; i++) {
+        m_data[i] = a[i];
     }
 }
 
 /// Constructor from an initialization list {{}};
-point::point(std::vector<precision> const& list) noexcept(false) : point(list.size()) {
-    if (m_data) {
-        for (size_t i = 0; i < list.size(); i++) {
-            m_data[i] = list[i];
-        }
+template <size_t DIMS>
+point<DIMS>::point(precision const (&list)[DIMS]) noexcept(false) {
+    for (size_t i = 0; i < DIMS; i++) {
+        m_data[i] = list[i];
     }
 }
 
 /// Copy Constructor
-point::point(point const& other) : point(other.dimensions) {
-    std::copy_n(other.m_data.get(), other.dimensions, m_data.get());
+template <size_t DIMS>
+point<DIMS>::point(point<DIMS> const& other) : point{} {
+    memcpy(m_data, other.m_data, sizeof(precision) * dimensions);
 }
 
 /// Move Constructor
-point::point(point&& other) : m_data(std::move(other.m_data)), dimensions(other.dimensions) {
-    other.m_data = nullptr;
-}
-
-/// Destructor
-point::~point() {
-    m_data.reset();
+template <size_t DIMS>
+point<DIMS>::point(point<DIMS>&& other) : m_data{} {
+    memcpy(m_data, other.m_data, sizeof(precision) * dimensions);
 }
 
 /// Copy Assignment
-point& point::operator=(point const& other) noexcept(false) {
-    basal::exception::throw_unless(other.dimensions == dimensions, __FILE__, __LINE__,
-                                   "Point dimensions (copy) must match point dimensions\n");
-    std::copy_n(other.m_data.get(), other.dimensions, m_data.get());
+template <size_t DIMS>
+point<DIMS>& point<DIMS>::operator=(point<DIMS> const& other) {
+    memcpy(m_data, other.m_data, sizeof(precision) * dimensions);
     return (*this);
 }
 
 /// Move Assignment
-point& point::operator=(point&& other) noexcept(false) {
-    basal::exception::throw_unless(other.dimensions == dimensions, __FILE__, __LINE__,
-                                   "Point dimensions (move) must match point dimensions\n");
-    m_data = std::move(other.m_data);
+template <size_t DIMS>
+point<DIMS>& point<DIMS>::operator=(point<DIMS>&& other) {
+    std::copy_n(other.m_data, other.dimensions, m_data);
     return (*this);
 }
 
 /// Indexer
-precision& point::operator[](int i) {
+template <size_t DIMS>
+precision& point<DIMS>::operator[](int i) {
     return m_data[static_cast<size_t>(i)];
 }
 
-precision point::operator[](int i) const {
+template <size_t DIMS>
+precision point<DIMS>::operator[](int i) const {
     return m_data[static_cast<size_t>(i)];
 }
 
-void point::zero(void) {
+template <size_t DIMS>
+void point<DIMS>::zero(void) {
     for (size_t r = 0; r < dimensions; r++) {
         m_data[r] = 0.0;
     }
 }
 
-void point::print(char const name[]) const {
+template <size_t DIMS>
+void point<DIMS>::print(char const name[]) const {
     std::cout << name << " " << *this << std::endl;
 }
 
-std::ostream& operator<<(std::ostream& os, point const& p) {
+template <size_t DIMS>
+std::ostream& operator<<(std::ostream& os, point<DIMS> const& p) {
     os << "point(";
     for (size_t r = 0; r < p.dimensions; r++) {
         os << p[r] << (r == (p.dimensions - 1) ? "" : ", ");
@@ -93,7 +85,8 @@ std::ostream& operator<<(std::ostream& os, point const& p) {
     return os;
 }
 
-point& point::operator*=(precision s) noexcept(false) {
+template <size_t DIMS>
+point<DIMS>& point<DIMS>::operator*=(precision s) {
     for (size_t i = 0; i < dimensions; i++) {
         m_data[i] *= s;
     }
@@ -104,8 +97,8 @@ point& point::operator*=(precision s) noexcept(false) {
 namespace operators {
 
 /// Equality Operator
-bool operator==(point const& a, point const& b) noexcept(false) {
-    basal::exception::throw_if(a.dimensions != b.dimensions, __FILE__, __LINE__, "Points must have same dim");
+template <size_t DIMS>
+bool operator==(point<DIMS> const& a, point<DIMS> const& b) {
     bool equal = true;
     for (size_t n = 0; n < a.dimensions; n++) {
         if (not basal::nearly_equals(a[n], b[n])) {
@@ -116,22 +109,25 @@ bool operator==(point const& a, point const& b) noexcept(false) {
     return equal;
 }
 
-point operator*(linalg::matrix const& a, point const& b) noexcept(false) {
+template <size_t DIMS>
+point<DIMS> operator*(linalg::matrix const& a, point<DIMS> const& b) noexcept(false) {
     basal::exception::throw_unless(a.rows == b.dimensions, __FILE__, __LINE__, "");
-    point c{a.rows};
+    point<DIMS> c;
     for (size_t y = 0; y < a.rows; y++) {
         for (size_t x = 0; x < a.cols; x++) {
             c[y] += a[y][x] * b[x];
         }
     }
-    return point(c);
+    return c;
 }
 
-bool operator!=(point const& a, point const& b) noexcept(false) {
+template <size_t DIMS>
+bool operator!=(point<DIMS> const& a, point<DIMS> const& b) noexcept(false) {
     return (not operator==(a, b));
 }
 
-bool operator==(point& a, point& b) noexcept(false) {
+template <size_t DIMS>
+bool operator==(point<DIMS>& a, point<DIMS>& b) noexcept(false) {
     basal::exception::throw_unless(a.dimensions == b.dimensions, __FILE__, __LINE__);
     bool equal = true;
     for (size_t n = 0; n < a.dimensions; n++) {
@@ -145,38 +141,73 @@ bool operator==(point& a, point& b) noexcept(false) {
 
 }  // namespace operators
 
-point multiply(point const& a, precision s) noexcept(false) {
-    point c{a};
+template <size_t DIMS>
+point<DIMS> multiply(point<DIMS> const& a, precision s) noexcept(false) {
+    point<DIMS> c{a};
     c *= s;
-    return point(c);
+    return c;
 }
 
-point multiply(precision s, point const& a) noexcept(false) {
-    point c{a};
+template <size_t DIMS>
+point<DIMS> multiply(precision s, point<DIMS> const& a) noexcept(false) {
+    point<DIMS> c{a};
     c *= s;
-    return point(c);
+    return c;
 }
 
 namespace pairwise {
 
-point multiply(point const& a, point const& b) noexcept(false) {
+template <size_t DIMS>
+point<DIMS> multiply(point<DIMS> const& a, point<DIMS> const& b) noexcept(false) {
     basal::exception::throw_unless(a.dimensions == b.dimensions, __FILE__, __LINE__, "");
-    point c{a.dimensions};
+    point<DIMS> c;
     for (size_t n = 0; n < a.dimensions; n++) {
         c[n] = a[n] * b[n];
     }
-    return point(c);
+    return c;
 }
 
-point divide(point const& a, point const& b) noexcept(false) {
+template <size_t DIMS>
+point<DIMS> divide(point<DIMS> const& a, point<DIMS> const& b) noexcept(false) {
     basal::exception::throw_unless(a.dimensions == b.dimensions, __FILE__, __LINE__, "");
-    point c{a.dimensions};
+    point<DIMS> c;
     for (size_t n = 0; n < a.dimensions; n++) {
         c[n] = a[n] / b[n];
     }
-    return point(c);
+    return c;
 }
 
 }  // namespace pairwise
+
+// Explicit Instantiations for 2D
+template class point<2>;
+template bool operators::operator==<2ul>(point<2ul> const&, point<2ul> const&);
+template bool operators::operator!=<2ul>(point<2ul> const&, point<2ul> const&);
+template point<2ul> operators::operator*<2ul>(linalg::matrix const&, point<2ul> const&) noexcept(false);
+template point<2ul> multiply<2ul>(point<2ul> const&, double);
+template point<2ul> multiply<2ul>(double, point<2ul> const&);
+template point<2ul> pairwise::divide<2ul>(point<2ul> const&, point<2ul> const&);
+template point<2ul> pairwise::multiply<2ul>(point<2ul> const&, point<2ul> const&);
+
+// Explicit Instantiations for 3D
+template class point<3>;
+template bool operators::operator==<3ul>(point<3ul> const&, point<3ul> const&);
+template bool operators::operator!=<3ul>(point<3ul> const&, point<3ul> const&);
+template point<3ul> operators::operator*<3ul>(linalg::matrix const&, point<3ul> const&) noexcept(false);
+template point<3ul> multiply<3ul>(point<3ul> const&, double);
+template point<3ul> multiply<3ul>(double, point<3ul> const&);
+template point<3ul> pairwise::divide<3ul>(point<3ul> const&, point<3ul> const&);
+template point<3ul> pairwise::multiply<3ul>(point<3ul> const&, point<3ul> const&);
+
+// Explicit Instantiations for 4D
+template class point<4ul>;
+template bool operators::operator==<4ul>(point<4ul> const&, point<4ul> const&);
+template bool operators::operator!=<4ul>(point<4ul> const&, point<4ul> const&);
+template point<4ul> operators::operator*<4ul>(linalg::matrix const&, point<4ul> const&) noexcept(false);
+template point<4ul> multiply<4ul>(point<4ul> const&, double);
+template point<4ul> multiply<4ul>(double, point<4ul> const&);
+template point<4ul> pairwise::divide<4ul>(point<4ul> const&, point<4ul> const&);
+template point<4ul> pairwise::multiply<4ul>(point<4ul> const&, point<4ul> const&);
+
 
 }  // namespace geometry

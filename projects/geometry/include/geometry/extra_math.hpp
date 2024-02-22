@@ -15,15 +15,14 @@ inline precision dot(R3::point const& b, R3::vector const& a) {
 }
 
 /// Finds the centroid of 3 points.
-point centroid(point const& A, point const& B, point const& C);
+R3::point centroid(R3::point const& A, R3::point const& B, R3::point const& C);
 
 ///
 /// Returns a point on each line of skew lines which is closest to the other line.
 /// @param first First line
 /// @param second Second line
 /// @return std::pair of points. The first and second attributes map back to the first and second lines.
-///
-std::pair<point, point> closest_points_from_skew_lines(R3::line const& first, R3::line const& second);
+std::pair<R3::point, R3::point> closest_points_from_skew_lines(R3::line const& first, R3::line const& second);
 
 /// Returns a point on the XY plane which is addressed by 2d polar
 /// coordinates within the plane, centered around the axis of
@@ -46,7 +45,7 @@ R3::point spherical_to_cartesian(R3::point const& spherical_point);
 /// Returns a 3x3 rotation matrix.
 /// @param in axis The axis to rotate about
 /// @param in theta The amount in radians (following the right hand rule) to rotate around the axis
-linalg::matrix rotation(const geometry::vector_<precision, 3>& axis, const iso::radians theta);
+linalg::matrix rotation(R3::vector const& axis, iso::radians const theta);
 
 /// Joins the matricies horizontally, mxn and mxk to make a mx(n+k) matrix
 template <typename DATA_TYPE, size_t DIMS>

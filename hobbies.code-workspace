@@ -103,7 +103,7 @@
 		"cmake.ctest.allowParallelJobs": true,
 		"cmake.ctest.parallelJobs": 2,
 		"cmakeExplorer.cmakeIntegration": true,
-		"cmakeExplorer.buildDir": "${workspaceFolder}/build",
+		"cmakeExplorer.buildDir": "${buildDirectory}",
 		"cmakeExplorer.debugConfig": "Debug",
 		"cmakeExplorer.parallelJobs": 12,
 		"clang.completion.enable": true,
@@ -115,8 +115,7 @@
 		"C_Cpp.configurationWarnings": "enabled",
 		"C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
 		"C_Cpp.default.includePath": [
-			"${workspaceRoot}/include",
-			"${workspaceRoot}/../../install/include",
+			"${workspaceFolder}/include",
 			"${workspaceFolder}/../../install/include",
 			"${workspaceFolder}/../../projects/noise/demo",
 			"${workspaceFolder}/../../projects/raytrace/demo",
@@ -195,6 +194,8 @@
 			"sourceFileMap": "${sourceFileMapObj}",
 			"externalConsole": false
 		},
+		"python.testing.pytestEnabled": true,
+		"python.envFile": "${workspaceFolder}/../../.env",
 		"files.associations": {
 			".clang-format": "json",
 			"*.yaml": "home-assistant",
@@ -306,7 +307,10 @@
 			},
 			{
 				"label": "Build Everything with Conan",
-				"command": "(cd ../../ && ./separate_builds.sh -c)",
+				"command": "./separate_builds.sh",
+				"options": {
+					"cwd": "${workspaceFolder}/../../",
+				},
 				"type": "shell",
 				"args": [],
 				"group": "build",
@@ -314,9 +318,12 @@
 			},
 			{
 				"label": "Build Everything with CMake",
-				"command": "(cd ../../ && ./separate_builds.sh)",
+				"command": "./separate_builds.sh",
+				"options": {
+					"cwd": "${workspaceFolder}/../../",
+				},
 				"type": "shell",
-				"args": [],
+				"args": ["-cmake"],
 				"group": "build",
 				"problemMatcher": "$gcc"
 			}

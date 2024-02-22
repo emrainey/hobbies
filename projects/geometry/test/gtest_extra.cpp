@@ -20,8 +20,8 @@ TEST(GeomExtraTests, ClosestPointsFromSkewLines) {
 
     ASSERT_TRUE(skew(L1, L2));
 
-    point P1{{1, -1, 0}};
-    point P2{{1, 1, 0}};
+    R3::point P1{1, -1, 0};
+    R3::point P2{1, 1, 0};
 
     auto points = closest_points_from_skew_lines(L1, L2);
 

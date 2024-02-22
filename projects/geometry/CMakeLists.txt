@@ -80,6 +80,7 @@ find_package(Threads)
 find_package(GTest)
 if (Threads_FOUND AND GTest_FOUND)
     add_executable(gtest_geometry
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_point.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_extra.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_intersections.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_line.cpp

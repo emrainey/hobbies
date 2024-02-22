@@ -55,7 +55,7 @@ inline const plane &as_plane(const intersection &intersector) {
 std::ostream &operator<<(std::ostream &os, const intersection &intersector);
 
 /// Determines if a point is on a line.
-bool intersects(const point &p, const R3::line &l);
+bool intersects(const R3::point &p, const R3::line &l);
 
 /// Determines if a point is on a line.
 inline bool intersects(const R3::line &l, const R3::point &p) {

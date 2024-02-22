@@ -51,7 +51,7 @@ std::ostream &operator<<(std::ostream &os, const intersection &intersector) {
     return os;
 }
 
-bool intersects(const point &pt, const R3::line &lin) {
+bool intersects(const R3::point &pt, const R3::line &lin) {
     if (pt == lin.position()) {  // is it the point already on the line?
         return true;
     } else {
@@ -191,8 +191,8 @@ intersection intersects(const R3::sphere &S, const R3::line &l) noexcept(false) 
         } else {  // deduce geometrically
             // there IS an intersection but there's two points!
             // more shortcuts
-            R3::point R{3};
-            R3::point Q{3};
+            R3::point R;
+            R3::point Q;
             R3::point C = R3::origin;
             R3::point Z0 = l.position();
 

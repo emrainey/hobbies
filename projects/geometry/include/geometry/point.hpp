@@ -12,32 +12,33 @@
 namespace geometry {
 
 /// A N-dimensional point in space
+template <size_t DIMS>
 class point : public basal::printable {
 protected:
     /// The storage of the data
-    std::unique_ptr<precision[]> m_data;
+    precision m_data[DIMS];
 
 public:
     /// The dimensionality of the point
-    size_t const dimensions;
+    constexpr static size_t const dimensions{DIMS};
 
     /// Default
-    point(size_t const dim = 3);
+    point();
 
     /// Constructor from a pointer to an array
     explicit point(precision const a[], size_t len) noexcept(false);
 
-    /// Constructor from an initialization list {{}};
-    explicit point(std::vector<precision> const& list) noexcept(false);
+    /// Constructor from a reference to an array of values
+    explicit point(precision const (&a)[DIMS]) noexcept(false);
 
-    /// Copy Constructor
+    /// Copy Constructor`
     point(point const& other);
 
     /// Move Constructor
     point(point&& other);
 
     /// Deconstructor
-    virtual ~point();
+    virtual ~point() = default;
 
     /// Copy Assignment
     point& operator=(point const& other) noexcept(false);
@@ -83,26 +84,29 @@ public:
     void print(char const name[]) const override;
 };
 
-point multiply(point const& a, precision s) noexcept(false);
+template <size_t DIMS>
+point<DIMS> multiply(point<DIMS> const& a, precision s);
 
-point multiply(precision s, point const& a) noexcept(false);
+template <size_t DIMS>
+point<DIMS> multiply(precision s, point<DIMS> const& a);
 
 namespace operators {
 
 /// Equality Operator
-bool operator==(point const& a, point const& b) noexcept(false);
-
-/// Comparing two points
-bool operator==(point& a, point& b) noexcept(false);
+template <size_t DIMS>
+bool operator==(point<DIMS> const& a, point<DIMS> const& b);
 
 /// Inequality Operator
-bool operator!=(point const& a, point const& b) noexcept(false);
+template <size_t DIMS>
+bool operator!=(point<DIMS> const& a, point<DIMS> const& b) noexcept(false);
 
-inline point operator*(point const& a, precision s) noexcept(false) {
+template <size_t DIMS>
+inline point<DIMS> operator*(point<DIMS> const& a, precision s) noexcept(false) {
     return multiply(a, s);
 }
 
-inline point operator*(precision s, point const& a) noexcept(false) {
+template <size_t DIMS>
+inline point<DIMS> operator*(precision s, point<DIMS> const& a) noexcept(false) {
     return multiply(s, a);
 }
 
@@ -113,20 +117,25 @@ inline point operator*(precision s, point const& a) noexcept(false) {
 /// @param p The input point.
 /// @throws basal::exception if the dimensions are incorrect.
 ///
-point operator*(linalg::matrix const& m, point const& p);
+template <size_t DIMS>
+point<DIMS> operator*(linalg::matrix const& m, point<DIMS> const& p);
 }  // namespace operators
 
 namespace pairwise {
 /// Does a pairwise multiply
-point multiply(point const& a, point const& b) noexcept(false);
+template <size_t DIMS>
+point<DIMS> multiply(point<DIMS> const& a, point<DIMS> const& b);
 /// Does a pairwise divide
-point divide(point const& a, point const& b) noexcept(false);
+template <size_t DIMS>
+point<DIMS> divide(point<DIMS> const& a, point<DIMS> const& b);
 
 namespace operators {
-inline point operator*(point const& a, point const& b) noexcept(false) {
+template <size_t DIMS>
+inline point<DIMS> operator*(point<DIMS> const& a, point<DIMS> const& b) noexcept(false) {
     return multiply(a, b);
 }
-inline point operator/(point const& a, point const& b) noexcept(false) {
+template <size_t DIMS>
+inline point<DIMS> operator/(point<DIMS> const& a, point<DIMS> const& b) noexcept(false) {
     return divide(a, b);
 }
 }  // namespace operators
@@ -134,7 +143,7 @@ inline point operator/(point const& a, point const& b) noexcept(false) {
 
 /// Generic template class wrapper
 template <size_t N>
-class point_ : public point {
+class point_ : public point<N> {
     // No move constructor
     point_(point_&&) = delete;
     // No move assign
@@ -143,16 +152,15 @@ class point_ : public point {
 
 /// Specific 2d point template wrapper to define easy access reference to \ref x and \ref y
 template <>
-class point_<2> : public point {
+class point_<2> : public point<2> {
 public:
     precision& x; ///< First dimensional reference
     precision& y; ///< Second dimensional reference
     /// Custom empty constructor
-    point_() : point{2}, x(m_data[0]), y(m_data[1]) {
+    point_() : point<2>{}, x(m_data[0]), y(m_data[1]) {
     }
     /// Base type Constructor
-    point_(point const& p) : point_{} {
-        basal::exception::throw_unless(p.dimensions == 2, __FILE__, __LINE__, "Must match the number of dimensions");
+    point_(point<2> const& p) : point_{} {
         x = p[0];
         y = p[1];
     }
@@ -180,7 +188,7 @@ public:
         for (size_t i = 0; i < c.dimensions; i++) {
             c[i] = a[i] + b[i];
         }
-        return vector_<precision, 2>(c);
+        return c;
     }
 
     /// Subtracting points creates a vector
@@ -189,26 +197,26 @@ public:
         for (size_t i = 0; i < c.dimensions; i++) {
             c[i] = a[i] - b[i];
         }
-        return vector_<precision, 2>(c);
+        return c;
     }
 
     /// Adding a vector to a point creates a new point
-    friend point operator+(point_ const& a, const vector_<precision, 2>& b) noexcept(false) {
-        point c{a};
+    friend point_ operator+(point_ const& a, const vector_<precision, 2>& b) noexcept(false) {
+        point_ c{a};
         c += b;
-        return point(c);
+        return c;
     }
 };
 
 /// Specific 3d point template wrapper to define easy access reference to \ref x, \ref y and \ref z
 template <>
-class point_<3> : public point {
+class point_<3> : public point<3> {
 public:
     precision& x; ///< First dimensional reference
     precision& y; ///< Second dimensional reference
     precision& z; ///< Third dimensional reference
     /// Custom empty constructor
-    point_() : point{3}, x(m_data[0]), y(m_data[1]), z(m_data[2]) {
+    point_() : point<3>{}, x(m_data[0]), y(m_data[1]), z(m_data[2]) {
     }
     /// Custom Homogenizing Constructor
     point_(point_<2> const& p) : point_{} {
@@ -217,8 +225,7 @@ public:
         z = 1.0_p;
     }
     /// Base type Constructor
-    point_(point const& p) : point_{} {
-        basal::exception::throw_unless(p.dimensions == 3, __FILE__, __LINE__, "Must match the number of dimensions");
+    point_(point<3> const& p) : point_{} {
         x = p[0];
         y = p[1];
         z = p[2];
@@ -249,7 +256,7 @@ public:
         for (size_t i = 0; i < c.dimensions; i++) {
             c[i] = a[i] + b[i];
         }
-        return vector_<precision, 3>(c);
+        return c;
     }
 
     /// Subtracting points creates a vector
@@ -258,34 +265,34 @@ public:
         for (size_t i = 0; i < c.dimensions; i++) {
             c[i] = a[i] - b[i];
         }
-        return vector_<precision, 3>(c);
+        return c;
     }
 
     /// Adding a vector to a point creates a new point
-    friend point operator+(point_ const& a, const vector_<precision, 3>& b) noexcept(false) {
-        point c{a};
+    friend point_ operator+(point_ const& a, const vector_<precision, 3>& b) noexcept(false) {
+        point_ c{a};
         c += b;
-        return point(c);
+        return c;
     }
 
     /// Adding a vector to a point creates a new point
-    friend point operator-(point_ const& a, const vector_<precision, 3>& b) noexcept(false) {
-        point c{a};
+    friend point_ operator-(point_ const& a, const vector_<precision, 3>& b) noexcept(false) {
+        point_ c{a};
         c -= b;
-        return point(c);
+        return c;
     }
 };
 
 /// Specific 4d point template wrapper to define easy access reference to \ref x, \ref y and \ref z
 template <>
-class point_<4> : public point {
+class point_<4> : public point<4> {
 public:
     precision& x; ///< First dimensional reference
     precision& y; ///< Second dimensional reference
     precision& z; ///< Third dimensional reference
     precision& w; ///< Fourth dimensional reference
     /// Custom empty constructor
-    point_() : point{4}, x(m_data[0]), y(m_data[1]), z(m_data[2]), w(m_data[3]) {
+    point_() : point<4>{}, x(m_data[0]), y(m_data[1]), z(m_data[2]), w(m_data[3]) {
     }
     /// Custom Homogenizing Constructor
     point_(point_<3> const& p) : point_{} {
@@ -295,8 +302,7 @@ public:
         w = 1.0_p;
     }
     /// Base type Constructor
-    point_(point const& p) : point_{} {
-        basal::exception::throw_unless(p.dimensions == 4, __FILE__, __LINE__, "Must match the number of dimensions");
+    point_(point<4> const& p) : point_{} {
         x = p[0];
         y = p[1];
         z = p[2];
@@ -331,7 +337,7 @@ public:
         for (size_t i = 0; i < c.dimensions; i++) {
             c[i] = a[i] + b[i];
         }
-        return vector_<precision, 4>(c);
+        return c;
     }
 
     /// Subtracting points creates a vector
@@ -340,18 +346,19 @@ public:
         for (size_t i = 0; i < c.dimensions; i++) {
             c[i] = a[i] - b[i];
         }
-        return vector_<precision, 4>(c);
+        return c;
     }
 
     /// Adding a vector to a point creates a new point
     friend point operator+(point_ const& a, const vector_<precision, 4>& b) noexcept(false) {
         point c{a};
         c += b;
-        return point(c);
+        return c;
     }
 };
 
-std::ostream& operator<<(std::ostream& os, point const& p);
+template <size_t DIMS>
+std::ostream& operator<<(std::ostream& os, point<DIMS> const& p);
 
 /// Converts a vector to a point
 template <typename DATA_TYPE, size_t DIM>
@@ -360,22 +367,22 @@ point_<DIM> as_point(const vector_<DATA_TYPE, DIM>& v) {
     for (size_t i = 0; i < P.dimensions; i++) {
         P[i] = v[i];
     }
-    return point_<DIM>(P);
+    return P;
 }
 
 namespace R2 {
 using point = point_<2>;
-static point const origin(0.0_p, 0.0_p);
+static point const origin{0.0_p, 0.0_p};
 }  // namespace R2
 
 namespace R3 {
 using point = point_<3>;
-static point const origin(0.0_p, 0.0_p, 0.0_p);
+static point const origin{0.0_p, 0.0_p, 0.0_p};
 }  // namespace R3
 
 namespace R4 {
 using point = point_<4>;
-static point const origin(0.0_p, 0.0_p, 0.0_p, 0.0_p);
+static point const origin{0.0_p, 0.0_p, 0.0_p, 0.0_p};
 }  // namespace R4
 
 }  // namespace geometry

@@ -13,17 +13,15 @@ precision dot(R3::vector const& a, R3::point const& b) {
     return d;
 }
 
-point centroid(point const& A, point const& B, point const& C) {
-    basal::exception::throw_unless(A.dimensions == B.dimensions and B.dimensions == C.dimensions, __FILE__, __LINE__,
-                                   "Must have same dimensionality");
-    point D{B.dimensions};
+R3::point centroid(R3::point const& A, R3::point const& B, R3::point const& C) {
+    R3::point D;
     for (size_t i = 0; i < D.dimensions; i++) {
         D[i] = (A[i] + B[i] + C[i]) / 3;
     }
-    return point(D);
+    return D;
 }
 
-std::pair<point, point> closest_points_from_skew_lines(R3::line const& first, R3::line const& second) {
+std::pair<R3::point, R3::point> closest_points_from_skew_lines(R3::line const& first, R3::line const& second) {
     // get a normal which is orthagonal to both lines.
     R3::vector N1 = R3::cross(first.direction(), second.direction());
     // create another vector which is orthagonal to the first normal

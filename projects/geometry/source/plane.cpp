@@ -37,7 +37,7 @@ plane::plane(const std::vector<precision> &list) : plane(list[0], list[1], list[
 }
 
 plane::plane(precision a, precision b, precision c, precision d)
-    : m_normal{{a, b, c}}, m_center_point{3}, normal{m_normal} {
+    : m_normal{{a, b, c}}, m_center_point{}, normal{m_normal} {
     // before we normalize, we solve for the point
     // normal line through the origin
     R3::line l{m_normal, geometry::R3::origin};

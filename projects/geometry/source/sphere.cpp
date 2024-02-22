@@ -53,14 +53,14 @@ R3::vector sphere::normal(const R3::point &object_point) const {
 }
 
 R3::point sphere::cart_to_polar(const R3::point &object_point) const {
-    point pol(object_point.dimensions);
+    R3::point pol;
     // Any number > 0
     pol[0] = m_radius;
     // 0 to Tau
     pol[1] = std::atan2(object_point[1], object_point[0]);
     // 0 to Pi
     pol[2] = std::acos(object_point[2] / m_radius);
-    return point(pol);
+    return pol;
 }
 
 }  // namespace R3

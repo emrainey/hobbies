@@ -26,8 +26,7 @@ public:
 
 protected:
     /// Virtual deconstructor
-    virtual ~printable() {
-    }
+    ~printable() = default;
 };
 
 }  // namespace basal

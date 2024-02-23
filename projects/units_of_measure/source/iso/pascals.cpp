@@ -22,7 +22,7 @@ pascals::pascals(pascals const& other) : measurement{other} {
 pascals::pascals(pascals&& other) : measurement{std::move(other)} {
 }
 
-pascals& pascals::operator=(const pascals &other) noexcept {
+pascals& pascals::operator=(pascals const& other) noexcept {
     _value = other.value;
     return (*this);
 }

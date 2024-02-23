@@ -19,7 +19,7 @@ char const *get_type_as_str(IntersectionType obj) {
     return names[basal::to_underlying(obj)];
 }
 
-IntersectionType get_type(const intersection &var) {
+IntersectionType get_type(intersection const& var) {
     if (std::holds_alternative<geometry::R3::point>(var)) {
         return IntersectionType::Point;
     } else if (std::holds_alternative<set_of_points>(var)) {
@@ -33,7 +33,7 @@ IntersectionType get_type(const intersection &var) {
     }
 }
 
-std::ostream &operator<<(std::ostream &os, const intersection &intersector) {
+std::ostream &operator<<(std::ostream &os, intersection const& intersector) {
     IntersectionType type = get_type(intersector);
     os << " Intersection Type: " << get_type_as_str(type) << std::endl;
     os << "\tIntersection => ";
@@ -51,7 +51,7 @@ std::ostream &operator<<(std::ostream &os, const intersection &intersector) {
     return os;
 }
 
-bool intersects(const R3::point &pt, const R3::line &lin) {
+bool intersects(R3::point const& pt, R3::line const& lin) {
     if (pt == lin.position()) {  // is it the point already on the line?
         return true;
     } else {
@@ -61,7 +61,7 @@ bool intersects(const R3::point &pt, const R3::line &lin) {
     }
 }
 
-intersection intersects(const R3::line &L0, const R3::line &L1) {
+intersection intersects(R3::line const& L0, R3::line const& L1) {
     // print_this(L0);
     // print_this(L1);
     if (L0 == L1) {  // if same line
@@ -82,7 +82,7 @@ intersection intersects(const R3::line &L0, const R3::line &L1) {
     }
 }
 
-intersection intersects(const R3::line &l, const plane &P) {
+intersection intersects(R3::line const& l, plane const& P) {
     /// \see http://mathworld.wolfram.com/Line-PlaneIntersection.html
     if (P.contains(l)) {  // line is in the plane
         return intersection(l);
@@ -122,7 +122,7 @@ intersection intersects(const R3::line &l, const plane &P) {
     }
 }
 
-intersection intersects(const plane &P1, const plane &P2) {
+intersection intersects(plane const& P1, plane const& P2) {
     if (P1 == P2) {  // same planes with opposite normals perhaps
         return intersection(P1);
     } else if (P1 || P2) {  // parallel
@@ -142,7 +142,7 @@ intersection intersects(const plane &P1, const plane &P2) {
     }
 }
 
-intersection intersects(const R3::sphere &S, const R3::line &l) noexcept(false) {
+intersection intersects(R3::sphere const& S, R3::line const& l) noexcept(false) {
     constexpr bool use_quadratic_roots = true;
 
     // get the point closest to the center (which is in world_coordinates?)

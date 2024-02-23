@@ -238,7 +238,7 @@ public:
 };
 
 template <size_t ROWS0, size_t COLS0, size_t COLS1>
-xmat_<ROWS0, COLS1> operator*(const xmat_<ROWS0, COLS0>& a, const xmat_<COLS0, COLS1>& b) {
+xmat_<ROWS0, COLS1> operator*(xmat_<ROWS0, COLS0> const& a, xmat_<COLS0, COLS1> const& b) {
     xmat_<ROWS0, COLS1> C;
     for (size_t j = 0; j < C.rows; j++) {
         for (size_t i = 0; i < C.cols; i++) {
@@ -261,7 +261,7 @@ xmat_<ROWS0, COLS1> operator*(const xmat_<ROWS0, COLS0>& a, const xmat_<COLS0, C
 // TODO xmat_ operator/(xmat_ const& b); // same as multiply by inverse
 
 template <size_t ROWS, size_t COLS>
-xmat_<ROWS, COLS> operator+(const xmat_<ROWS, COLS>& a, const xmat_<ROWS, COLS>& b) {
+xmat_<ROWS, COLS> operator+(xmat_<ROWS, COLS> const& a, xmat_<ROWS, COLS> const& b) {
     xmat_<ROWS, COLS> C;
     for (size_t j = 0; j < C.rows; j++) {
         if constexpr (C.cols == 2) {
@@ -276,7 +276,7 @@ xmat_<ROWS, COLS> operator+(const xmat_<ROWS, COLS>& a, const xmat_<ROWS, COLS>&
 }
 
 template <size_t ROWS, size_t COLS>
-xmat_<ROWS, COLS> operator-(const xmat_<ROWS, COLS>& a, const xmat_<ROWS, COLS>& b) {
+xmat_<ROWS, COLS> operator-(xmat_<ROWS, COLS> const& a, xmat_<ROWS, COLS> const& b) {
     xmat_<ROWS, COLS> C;
     for (size_t j = 0; j < C.rows; j++) {
         if constexpr (C.cols == 2) {

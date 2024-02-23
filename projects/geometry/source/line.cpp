@@ -8,39 +8,39 @@ namespace geometry {
 
 namespace R3 {
 
-line::line(const R3::vector &ov, const R3::point &op) : m_udir{ov}, m_zero{op} {
+line::line(R3::vector const& ov, R3::point const& op) : m_udir{ov}, m_zero{op} {
     basal::exception::throw_if(m_udir.is_zero(), __FILE__, __LINE__, "Vector can not be zero length");
 }
 
-line::line(const R3::point &op, const R3::vector &ov) : m_udir{ov}, m_zero{op} {
+line::line(R3::point const& op, R3::vector const& ov) : m_udir{ov}, m_zero{op} {
     basal::exception::throw_if(m_udir.is_zero(), __FILE__, __LINE__, "Vector can not be zero length");
 }
 
-line::line(const R3::point &a, const R3::point &b) : m_udir(a - b), m_zero{b} {
+line::line(R3::point const& a, R3::point const& b) : m_udir(a - b), m_zero{b} {
     basal::exception::throw_if(m_udir.is_zero(), __FILE__, __LINE__, "Points can not be the same");
 }
 
-line::line(const std::vector<precision> &list)
+line::line(std::vector<precision> const& list)
     : m_udir{{list[0], list[1], list[2]}}, m_zero(list[3], list[4], list[5]) {
     basal::exception::throw_if(m_udir.is_zero(), __FILE__, __LINE__, "Vector cannot be zero");
     assert(list.size() == 6);
 }
 
-line::line(const line &other) : m_udir(other.m_udir), m_zero(other.m_zero) {
+line::line(line const& other) : m_udir(other.m_udir), m_zero(other.m_zero) {
 }
 
 line::line(line &&other) : m_udir(std::move(other.m_udir)), m_zero(std::move(other.m_zero)) {
 }
 
-const R3::point &line::position() const {
+R3::point const& line::position() const {
     return m_zero;
 }
 
-const R3::vector &line::direction() const {
+R3::vector const& line::direction() const {
     return m_udir;
 }
 
-line &line::operator=(const line &other) {
+line &line::operator=(line const& other) {
     m_zero = other.m_zero;
     m_udir = other.m_udir;
     return (*this);
@@ -63,7 +63,7 @@ R3::point line::solve(precision t) const {
     return position() + (t * direction());
 }
 
-bool line::solve(const point &P, precision &t) const {
+bool line::solve(point const& P, precision &t) const {
     using namespace geometry::operators;
     // This no longer requires R3 lines.
     // Example:
@@ -106,18 +106,18 @@ void line::print(char const name[]) const {
     direction().print(name);
 }
 
-precision line::distance(const R3::point &p) const {
+precision line::distance(R3::point const& p) const {
     R3::vector v = p - closest(p);
     return v.magnitude();
 }
 
-R3::point line::closest(const R3::point &p) const {
+R3::point line::closest(R3::point const& p) const {
     R3::vector side = p - position();
     precision t = dot(side, direction()) / direction().quadrance();
     return solve(t);
 }
 
-bool operator==(const line &a, const line &b) {
+bool operator==(line const& a, line const& b) {
     using namespace operators;
     // shortcut (are they literally the same?)
     if ((a.direction() == b.direction()) and (geometry::operators::operator==(a.position(), b.position()))) {
@@ -132,18 +132,18 @@ bool operator==(const line &a, const line &b) {
     return (pv && pp);
 }
 
-bool operator!=(const line &a, const line &b) {
+bool operator!=(line const& a, line const& b) {
     return not(operator==(a, b));
 }
 
-bool parallel(const line &a, const line &b) {
+bool parallel(line const& a, line const& b) {
     R3::vector an{a.direction().normalized()};
     R3::vector bn{b.direction().normalized()};
     return R3::parallel(an, bn);
     // return ((an == bn) || ((!an) == bn));
 }
 
-bool skew(const R3::line &i, const R3::line &j) {
+bool skew(R3::line const& i, R3::line const& j) {
     precision x1 = i.position()[0], x2 = i.position()[0] + i.direction()[0];
     precision x3 = j.position()[0], x4 = j.position()[0] + j.direction()[0];
     precision y1 = i.position()[1], y2 = i.position()[1] + i.direction()[1];

@@ -26,20 +26,20 @@ public:
     /// Default Constructor is not supported
     line() = delete;
     /// Semi-ray construction
-    explicit line(const R3::vector &ov, const R3::point &op);
+    explicit line(R3::vector const& ov, R3::point const& op);
     /// Semi-ray construction
-    explicit line(const R3::point &op, const R3::vector &ov);
+    explicit line(R3::point const& op, R3::vector const& ov);
     /// Construction form points. b is considered the "zero" point.
-    explicit line(const R3::point &a, const R3::point &b);
+    explicit line(R3::point const& a, R3::point const& b);
 
     /// list initialization, first vector tuple, then point tuple. Specialized 3D constructor
-    explicit line(const std::vector<precision> &list);
+    explicit line(std::vector<precision> const& list);
     /// Copy Constructor
-    line(const line &other);
+    line(line const& other);
     /// Move Constructor
     line(line &&other);
     /// Copy Assign
-    line &operator=(const line &other);
+    line &operator=(line const& other);
     /// Move Assign
     line &operator=(line &&other);
     /// Default Destructor
@@ -51,38 +51,38 @@ public:
     R3::point solve(precision t) const;
 
     /// Determines if a point is on the line and returns the t value if it is.
-    bool solve(const point &n, precision &t) const;
+    bool solve(point const& n, precision &t) const;
 
     /// Normalizes the direction and returns a point at a distance along the line
     R3::point distance_along(precision t) const;
 
     /// Returns the distance of a point from the line
-    precision distance(const R3::point &p) const;
+    precision distance(R3::point const& p) const;
 
     /// Returns the direction of the line from the zero point
-    const R3::vector &direction() const;
+    R3::vector const& direction() const;
 
     /// Returns the zero point of the line
-    const R3::point &position() const;
+    R3::point const& position() const;
 
     /// Returns the closest point on the line to the point provided
-    R3::point closest(const R3::point &p) const;
+    R3::point closest(R3::point const& p) const;
 
     virtual void print(char const[]) const;
 };
 
 /// Equality operator for lines
-bool operator==(const line &a, const line &b);
+bool operator==(line const& a, line const& b);
 /// Inequality operator for lines
-bool operator!=(const line &a, const line &b);
+bool operator!=(line const& a, line const& b);
 /// Determines if two lines are parallel
-bool parallel(const line &a, const line &b);
+bool parallel(line const& a, line const& b);
 /// Determines if two lines are parallel
-inline bool operator||(const line &a, const line &b) {
+inline bool operator||(line const& a, line const& b) {
     return parallel(a, b);
 }
 /// Determines if two lines are skew, ie. not intersected and not parallel
-bool skew(const R3::line &i, const R3::line &j);
+bool skew(R3::line const& i, R3::line const& j);
 
 }  // namespace R3
 

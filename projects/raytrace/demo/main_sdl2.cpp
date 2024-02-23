@@ -184,7 +184,7 @@ int main(int argc, char *argv[]) {
                                 return;
                             }
                         }
-                        view.capture.for_each ([&](size_t y, size_t x, const fourcc::rgb8 &pixel) -> void {
+                        view.capture.for_each ([&](size_t y, size_t x, fourcc::rgb8 const& pixel) -> void {
                             if (row_index != y) return; // if it's not this row, skip it
                             uint8_t *pixels = reinterpret_cast<uint8_t *>(surface->pixels); // this is double width!
                             size_t offset = (y * surface->pitch) + (x * sizeof(fourcc::bgra)) + (view_offset * sizeof(fourcc::bgra));
@@ -211,7 +211,7 @@ int main(int argc, char *argv[]) {
                 try {
                     scene.render(view, world.output_filename(), params.subsamples, params.reflections,
                                     row_notifier, params.mask_threshold);
-                } catch (const basal::exception &e) {
+                } catch (basal::exception const& e) {
                     std::cout << "Caught basal::exception in scene.render()! " << std::endl;
                     std::cout << "What:" << e.what() << " Why:" << e.why() << " Where:" << e.where() << std::endl;
                 } catch (...) {
@@ -231,7 +231,7 @@ int main(int argc, char *argv[]) {
                         return -1;
                     }
                 }
-                view.capture.for_each ([&](size_t y, size_t x, const fourcc::rgb8 &pixel) -> void {
+                view.capture.for_each ([&](size_t y, size_t x, fourcc::rgb8 const& pixel) -> void {
                     uint8_t *pixels = reinterpret_cast<uint8_t *>(surface->pixels);
                     size_t offset = (y * surface->pitch) + (x * sizeof(fourcc::bgra)) + (view_offset * sizeof(fourcc::bgra));
                     // B G R A order

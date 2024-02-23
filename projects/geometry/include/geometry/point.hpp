@@ -48,7 +48,7 @@ public:
 
     /// Accumulate a vector into the point (moves the point by the vector)
     template <typename DATA_TYPE, size_t DIM>
-    point& operator+=(const vector_<DATA_TYPE, DIM>& a) noexcept(false) {
+    point& operator+=(vector_<DATA_TYPE, DIM> const& a) noexcept(false) {
         basal::exception::throw_if(a.dimensions != dimensions, __FILE__, __LINE__,
                                    "Point/Vector must have same dimensionality");
         for (size_t i = 0; i < a.dimensions; i++) {
@@ -59,7 +59,7 @@ public:
 
     /// De-accumulate a vector into the point (moves the point by the vector)
     template <typename DATA_TYPE, size_t DIM>
-    point& operator-=(const vector_<DATA_TYPE, DIM>& a) noexcept(false) {
+    point& operator-=(vector_<DATA_TYPE, DIM> const& a) noexcept(false) {
         basal::exception::throw_if(a.dimensions != dimensions, __FILE__, __LINE__,
                                    "Point/Vector must have same dimensionality");
         for (size_t i = 0; i < a.dimensions; i++) {
@@ -362,7 +362,7 @@ std::ostream& operator<<(std::ostream& os, point<DIMS> const& p);
 
 /// Converts a vector to a point
 template <typename DATA_TYPE, size_t DIM>
-point_<DIM> as_point(const vector_<DATA_TYPE, DIM>& v) {
+point_<DIM> as_point(vector_<DATA_TYPE, DIM> const& v) {
     point_<DIM> P;
     for (size_t i = 0; i < P.dimensions; i++) {
         P[i] = v[i];

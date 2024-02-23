@@ -390,7 +390,7 @@ public:
         return data[0][offset];
     }
 
-    /// Gets the pixel data a specific location (Const)
+    /// Gets the read only pixel data a specific location (Const)
     virtual PIXEL_TYPE const& at(size_t y, size_t x) const {
         basal::exception::throw_if(y >= height or x >= width, __FILE__, __LINE__, "Out of bounds x,y=%z,%z", x, y);
         size_t offset = (y * width) + x;
@@ -416,28 +416,28 @@ enum class channel : int8_t {
 };
 
 /// Convolves a specific channel of the input image and the kernel into the output gradient image
-void convolve(fourcc::image<int16_t, fourcc::pixel_format::Y16>& out, const int16_t (&kernel)[3][3],
-              const fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8>& input, channel channel);
+void convolve(fourcc::image<int16_t, fourcc::pixel_format::Y16>& out, int16_t const (&kernel)[3][3],
+              fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8> const& input, channel channel);
 
 /// Convolves a specific channel of the input image and the kernel into the output gradient image
-void convolve(fourcc::image<int16_t, fourcc::pixel_format::Y16>& out, const int16_t (&kernel)[3][3],
-              const fourcc::image<fourcc::iyu2, fourcc::pixel_format::IYU2>& input, channel channel);
+void convolve(fourcc::image<int16_t, fourcc::pixel_format::Y16>& out, int16_t const (&kernel)[3][3],
+              fourcc::image<fourcc::iyu2, fourcc::pixel_format::IYU2> const& input, channel channel);
 
 /// Converts RGB8 to IYU2
-void convert(const fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8>& in,
+void convert(fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8> const& in,
              fourcc::image<fourcc::iyu2, fourcc::pixel_format::IYU2>& out);
 
 /// Produces a Sobel Mask image
-void sobel_mask(const fourcc::image<fourcc::iyu2, fourcc::pixel_format::IYU2>& iyu2_image,
+void sobel_mask(fourcc::image<fourcc::iyu2, fourcc::pixel_format::IYU2> const& iyu2_image,
                 fourcc::image<uint8_t, fourcc::pixel_format::Y8>& mask);
 
 /// Produces a Sobel Mask image
-void sobel_mask(const fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8>& rgb_image,
+void sobel_mask(fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8> const& rgb_image,
                 fourcc::image<uint8_t, fourcc::pixel_format::Y8>& mask);
 
 /// Runs a 1D filter across an image
 /// @warning no gamma correction!
 void filter(fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8>& output,
-            const fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8>& input, const int16_t kernel[3]);
+            fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8> const& input, int16_t const kernel[3]);
 
 }  // namespace fourcc

@@ -39,7 +39,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/../../build/raytrace/gtest_raytrace",
             // "args": ["--gtest_filter='WallTest.*'"],
-            "cwd": "${fileDirname}",
+            "cwd": "${workspaceFolder}/../../",
             // "terminal": "integrated"
         },
         {

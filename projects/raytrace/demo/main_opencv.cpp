@@ -193,7 +193,7 @@ int main(int argc, char *argv[]) {
             try {
                 scene.render(view, world.output_filename(), params.subsamples, params.reflections,
                                 row_notifier, params.mask_threshold);
-            } catch (const basal::exception &e) {
+            } catch (basal::exception const& e) {
                 std::cout << "Caught basal::exception in scene.render()! " << std::endl;
                 std::cout << "What:" << e.what() << " Why:" << e.why() << " Where:" << e.where() << std::endl;
             } catch (...) {
@@ -206,7 +206,7 @@ int main(int argc, char *argv[]) {
 
             std::cout << "Image Rendered in " << diff.count() << " seconds" << std::endl;
 
-            view.capture.for_each ([&](size_t y, size_t x, const fourcc::rgb8 &pixel) -> void {
+            view.capture.for_each ([&](size_t y, size_t x, fourcc::rgb8 const& pixel) -> void {
                 render_image.at<cv::Vec3b>(y, x)[0] = pixel.b;
                 render_image.at<cv::Vec3b>(y, x)[1] = pixel.g;
                 render_image.at<cv::Vec3b>(y, x)[2] = pixel.r;
@@ -215,7 +215,7 @@ int main(int argc, char *argv[]) {
             cv::imwrite("render_image.png", render_image);
 
             // if (params.mask_threshold < raytrace::image::AAA_MASK_DISABLED) {
-            view.mask.for_each ([&](size_t y, size_t x, const uint8_t &pixel) -> void {
+            view.mask.for_each ([&](size_t y, size_t x, uint8_t const& pixel) -> void {
                 mask_image.at<cv::Vec3b>(y, x)[0] = pixel;
                 mask_image.at<cv::Vec3b>(y, x)[1] = pixel;
                 mask_image.at<cv::Vec3b>(y, x)[2] = pixel;

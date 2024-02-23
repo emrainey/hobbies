@@ -64,7 +64,7 @@ matrix rowjoin(matrix& a, vector_<DATA_TYPE, DIMS>& b) noexcept(false) {
 
 /// Creates a matrix from an array of column vectors
 template <typename DATA_TYPE, size_t DIM>
-matrix span(const std::vector<geometry::vector_<DATA_TYPE, DIM>>& set) noexcept(false) {
+matrix span(std::vector<geometry::vector_<DATA_TYPE, DIM>> const& set) noexcept(false) {
     matrix m{set[0].dimensions, set.size()};
     for (auto& v : set) {
         basal::exception::throw_if(v.dimensions == m.rows, __FILE__, __LINE__,

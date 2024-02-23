@@ -22,7 +22,7 @@ amperes::amperes(amperes const& other) : measurement{other} {
 amperes::amperes(amperes&& other) : measurement{std::move(other)} {
 }
 
-amperes& amperes::operator=(const amperes &other) noexcept {
+amperes& amperes::operator=(amperes const& other) noexcept {
     _value = other.value;
     return (*this);
 }

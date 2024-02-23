@@ -70,7 +70,7 @@ public:
     }
 
     /// The const/volatile indexer operator
-    const volatile element_type& operator[](size_t index) const volatile {
+    element_type const volatile& operator[](size_t index) const volatile {
         return pack_type::datum[index];
     }
 
@@ -119,7 +119,7 @@ public:
     }
 
     /// A point plus a vector is a moved point
-    inline point_& operator+=(const vector_<pack_type, dimensions>& a) {
+    inline point_& operator+=(vector_<pack_type, dimensions> const& a) {
         if constexpr (pack_type::number_of_elements == 2) {
             pack_type::data = _mm_add_pd(pack_type::data, a.data);
         } else {
@@ -133,7 +133,7 @@ public:
     }
 
     /// A point minus a vector is a moved point
-    inline point_& operator-=(const vector_<pack_type, dimensions>& a) {
+    inline point_& operator-=(vector_<pack_type, dimensions> const& a) {
         if constexpr (pack_type::number_of_elements == 2) {
             pack_type::data = _mm_sub_pd(pack_type::data, a.data);
         } else {

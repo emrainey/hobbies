@@ -25,27 +25,27 @@ public:
     /// Generic Constructor
     sphere(precision r);
     /// Copy Constructor
-    sphere(const sphere &s);
+    sphere(sphere const& s);
     /// Move Constructor
     sphere(sphere &&s);
     /// D-tor
     virtual ~sphere() = default;
     /// Copy Assign
-    sphere &operator=(const sphere &s);
+    sphere &operator=(sphere const& s);
     /// Move Assign
     sphere &operator=(sphere &&s);
 
     /// Indicates if the point is contained in or on the sphere
-    virtual bool contains(const R3::point &object_point) const;
+    virtual bool contains(R3::point const& object_point) const;
 
     /// Returns a surface normal at a surface point (in world space)
-    virtual R3::vector normal(const R3::point &object_point) const;
+    virtual R3::vector normal(R3::point const& object_point) const;
 
     /// Indicates if a object_point is on the surface of the sphere
-    virtual bool surface(const R3::point &object_point) const;
+    virtual bool surface(R3::point const& object_point) const;
 
     /// Returns a point in polar representation of the object point
-    R3::point cart_to_polar(const R3::point &object_point) const;
+    R3::point cart_to_polar(R3::point const& object_point) const;
 };
 
 }  // namespace R3

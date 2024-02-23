@@ -1,6 +1,0 @@
-{
-    "files.associations": {
-        ".clang-format": "json",
-        "vector": "cpp"
-    }
-}

@@ -6,7 +6,7 @@ namespace raytrace {
 namespace objects {
 class ellipticalcone : public quadratic {
 public:
-    ellipticalcone(const point &center, precision a, precision b);
+    ellipticalcone(point const& center, precision a, precision b);
     ~ellipticalcone() = default;
 };
 }  // namespace objects

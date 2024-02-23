@@ -43,7 +43,7 @@ acceleration operator""_G(long double g) {
 // Compound Constructors
 namespace operators {
 
-speed operator/(const distance &num, const time &denom) {
+speed operator/(distance const& num, time const& denom) {
     return speed{num, denom};
 }
 
@@ -51,16 +51,16 @@ speed operator/(distance &&num, time &&denom) {
     return speed{num, denom};
 }
 
-speed operator/(const distance &num, time &&denom) {
+speed operator/(distance const& num, time &&denom) {
     return speed{num, denom};
 }
 
-speed operator/(distance &&num, const time &denom) {
+speed operator/(distance &&num, time const& denom) {
     return speed{num, denom};
 }
 
 // const copy of an alternative speed
-rate<feet, seconds> operator/(const feet &num, const seconds &denom) {
+rate<feet, seconds> operator/(feet const& num, seconds const& denom) {
     return rate<feet, seconds>(num, denom);
 }
 
@@ -68,19 +68,19 @@ acceleration operator/(speed &&num, time &&denom) {
     return acceleration{num, denom};
 }
 
-acceleration operator/(const speed &num, const time &denom) {
+acceleration operator/(speed const& num, time const& denom) {
     return acceleration{num, denom};
 }
 
-acceleration operator/(const speed &num, time &&denom) {
+acceleration operator/(speed const& num, time &&denom) {
     return acceleration{num, denom};
 }
 
-acceleration operator/(speed &&num, const time &denom) {
+acceleration operator/(speed &&num, time const& denom) {
     return acceleration{num, denom};
 }
 
-torque operator*(const newtons &N, const meters &m) {
+torque operator*(newtons const& N, meters const& m) {
     return torque{N, m};
 }
 
@@ -88,16 +88,16 @@ torque operator*(newtons &&N, meters &&m) {
     return torque{N, m};
 }
 
-torque operator*(const newtons &N, meters &&m) {
+torque operator*(newtons const& N, meters &&m) {
     return torque{N, m};
 }
 
-torque operator*(newtons &&N, const meters &m) {
+torque operator*(newtons &&N, meters const& m) {
     return torque{N, m};
 }
 
 // This is to override specific relations where things ARE equal
-bool operator==(const joules &J, const torque &T) {
+bool operator==(joules const& J, torque const& T) {
     return basal::equivalent(J.value, T.reduce());
 }
 

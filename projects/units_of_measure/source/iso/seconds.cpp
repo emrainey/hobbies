@@ -22,7 +22,7 @@ seconds::seconds(seconds const& other) : measurement{other} {
 seconds::seconds(seconds&& other) : measurement{std::move(other)} {
 }
 
-seconds& seconds::operator=(const seconds &other) noexcept {
+seconds& seconds::operator=(seconds const& other) noexcept {
     _value = other.value;
     return (*this);
 }

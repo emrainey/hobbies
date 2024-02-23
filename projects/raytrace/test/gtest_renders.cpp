@@ -64,13 +64,13 @@ public:
         scenes.clear();
     }
 
-    void add_object(const object *ptr) {
+    void add_object(object const* ptr) {
         for (size_t i = 0; i < number_of_scenes; i++) {
             scenes[i]->add_object(ptr);
         }
     }
 
-    void add_light(const lights::light *ptr) {
+    void add_light(lights::light const* ptr) {
         for (size_t i = 0; i < number_of_scenes; i++) {
             scenes[i]->add_light(ptr);
         }

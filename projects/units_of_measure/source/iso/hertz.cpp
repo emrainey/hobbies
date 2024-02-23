@@ -22,7 +22,7 @@ hertz::hertz(hertz const& other) : measurement{other} {
 hertz::hertz(hertz&& other) : measurement{std::move(other)} {
 }
 
-hertz& hertz::operator=(const hertz &other) noexcept {
+hertz& hertz::operator=(hertz const& other) noexcept {
     _value = other.value;
     return (*this);
 }

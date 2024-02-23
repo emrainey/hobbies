@@ -36,25 +36,25 @@ public:
     /// Parameter constructor
     explicit {{classname}}({{typename}} value);
     /// Copy Constructor
-    {{classname}}(const {{classname}}& other);
+    {{classname}}({{classname}} const& other);
     /// Move Constructor
     {{classname}}({{classname}}&& other);
     /// Destructor
     ~{{classname}}() = default;
     /// Const Copy Assignment
-    {{classname}}& operator=(const {{classname}}& other) noexcept;
+    {{classname}}& operator=({{classname}} const& other) noexcept;
     /// Copy Assignment
     {{classname}}& operator=({{classname}}& other) noexcept;
     /// Move Assignment
     {{classname}}& operator=({{classname}}&& other) noexcept;
     /// Equality Operator
-    bool operator==(const {{classname}}& other) const;
+    bool operator==({{classname}} const& other) const;
     /// Inequality Operator
-    bool operator!=(const {{classname}}& other) const;
+    bool operator!=({{classname}} const& other) const;
     /// Accumulation Operator
-    {{classname}}& operator+=(const {{classname}}& other);
+    {{classname}}& operator+=({{classname}} const& other);
     /// Deccumulation Operator
-    {{classname}}& operator-=(const {{classname}}& other);
+    {{classname}}& operator-=({{classname}} const& other);
     /// Scaling Operator
     {{classname}}& operator*=({{typename}} factor);
     /// Inverse Scaling Operator
@@ -62,26 +62,26 @@ public:
     /// Negating Operator
     {{classname}} operator-() const;
     /// Less Than Operator
-    bool operator<(const {{classname}}& other) const;
+    bool operator<({{classname}} const& other) const;
     /// Less Than or Equal Operator
-    bool operator<=(const {{classname}}& other) const;
+    bool operator<=({{classname}} const& other) const;
     /// Greater Than Operator
-    bool operator>(const {{classname}}& other) const;
+    bool operator>({{classname}} const& other) const;
     /// Greater Than or Equal Operator
-    bool operator>=(const {{classname}}& other) const;
+    bool operator>=({{classname}} const& other) const;
 };
 
 namespace operators {
     /// Addition operator
-    {{classname}} operator+(const {{classname}}& A, const {{classname}}& B);
+    {{classname}} operator+({{classname}} const& A, {{classname}} const& B);
     /// Subtraction operator
-    {{classname}} operator-(const {{classname}}& A, const {{classname}}& B);
+    {{classname}} operator-({{classname}} const& A, {{classname}} const& B);
     /// Left Scaling Operator
-    {{classname}} operator*(const {{classname}}& A, {{typename}} factor);
+    {{classname}} operator*({{classname}} const& A, {{typename}} factor);
     /// Right Scaling Operator
-    {{classname}} operator*({{typename}} factor, const {{classname}}& A);
+    {{classname}} operator*({{typename}} factor, {{classname}} const& A);
     /// Inverse Scaling Operator
-    {{classname}} operator/(const {{classname}}& A, {{typename}} factor);
+    {{classname}} operator/({{classname}} const& A, {{typename}} factor);
 }
 
 namespace literals {

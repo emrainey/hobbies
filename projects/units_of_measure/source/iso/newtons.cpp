@@ -22,7 +22,7 @@ newtons::newtons(newtons const& other) : measurement{other} {
 newtons::newtons(newtons&& other) : measurement{std::move(other)} {
 }
 
-newtons& newtons::operator=(const newtons &other) noexcept {
+newtons& newtons::operator=(newtons const& other) noexcept {
     _value = other.value;
     return (*this);
 }

@@ -18,10 +18,10 @@ precision coefficients_t::z() {
     return -d / c;
 }
 
-plane::plane(const R3::vector &on, const R3::point &op) : plane(op, on) {
+plane::plane(R3::vector const& on, R3::point const& op) : plane(op, on) {
 }
 
-plane::plane(const R3::point &op, const R3::vector &on) : m_normal{on}, m_center_point{op}, normal{m_normal} {
+plane::plane(R3::point const& op, R3::vector const& on) : m_normal{on}, m_center_point{op}, normal{m_normal} {
     basal::exception::throw_unless(!basal::nearly_zero(m_normal.norm()), __FILE__, __LINE__,
                                    "The magnitude of the normal can't be zero");
     eq.a = m_normal[0];
@@ -32,7 +32,7 @@ plane::plane(const R3::point &op, const R3::vector &on) : m_normal{on}, m_center
     m_normal.normalize();
 }
 
-plane::plane(const std::vector<precision> &list) : plane(list[0], list[1], list[2], list[3]) {
+plane::plane(std::vector<precision> const&list) : plane(list[0], list[1], list[2], list[3]) {
     assert(list.size() == 4);
 }
 
@@ -56,7 +56,7 @@ plane::plane(precision a, precision b, precision c, precision d)
     basal::exception::throw_unless(contains(m_center_point), __FILE__, __LINE__);
 }
 
-plane::plane(const R3::point &a, const R3::point &b, const R3::point &c)
+plane::plane(R3::point const& a, R3::point const& b, R3::point const& c)
     : m_normal{}, m_center_point{b}, normal{m_normal} {
     // we have to declare the vector as a 3 element object (above) so that the move assignment works.
     R3::vector ba = b - a;
@@ -72,7 +72,7 @@ plane::plane(const R3::point &a, const R3::point &b, const R3::point &c)
     m_normal.normalize();  // hessian form requires n to be normalized
 }
 
-plane::plane(const plane &other)
+plane::plane(plane const& other)
     : m_normal{other.m_normal}
     , m_center_point{other.m_center_point}
     , eq{other.eq}
@@ -88,7 +88,7 @@ plane::plane(plane &&other)
     , normal{m_normal} {
 }
 
-plane &plane::operator=(const plane &other) {
+plane &plane::operator=(plane const& other) {
     m_normal = other.normal;
     m_center_point = other.m_center_point;
     eq = other.eq;
@@ -108,19 +108,19 @@ R3::vector plane::unormal() const {
     return R3::vector{{eq.a, eq.b, eq.c}};
 }
 
-precision plane::distance(const R3::point &a) const {
+precision plane::distance(R3::point const& a) const {
     R3::vector n_{{eq.a, eq.b, eq.c}};
     precision top = dot(n_, a) + eq.d;
     return top / n_.norm();
 }
 
-bool plane::parallel(const plane &a) const {
+bool plane::parallel(plane const& a) const {
     using namespace operators;
     // determine if the normals are parallel
     return R3::parallel(m_normal, a.normal);
 }
 
-bool plane::perpendicular(const plane &a) const {
+bool plane::perpendicular(plane const& a) const {
     using namespace operators;
     return (m_normal | a.normal);  // check for orthogonal
 }
@@ -129,7 +129,7 @@ void plane::print(char const name[]) const {
     std::cout << name << " " << (*this) << " hessian " << m_normal << ", " << m_center_point << std::endl;
 }
 
-bool plane::contains(const R3::point &pt) const {
+bool plane::contains(R3::point const& pt) const {
     constexpr bool use_vector_method = false;
     constexpr bool use_equation_method = true;  // seems like the fewest steps
     constexpr bool use_distance_method = false;
@@ -169,7 +169,7 @@ bool plane::contains(const R3::point &pt) const {
     return (vector_method or equation_method or distance_method);
 }
 
-bool plane::contains(const R3::line &l) const {
+bool plane::contains(R3::line const& l) const {
     R3::point p1 = l.solve(0);
     R3::point p2 = l.solve(1.0);
     return (contains(p1) && contains(p2));
@@ -179,7 +179,7 @@ const struct coefficients_t &plane::coefficient() const {
     return eq;
 }
 
-bool plane::operator==(const plane &other) const {
+bool plane::operator==(plane const& other) const {
     using namespace operators;
     // normals must be parallel
     bool normals = R3::parallel(m_normal, other.m_normal);
@@ -192,15 +192,15 @@ bool plane::operator==(const plane &other) const {
     // the normal could be negative?
 }
 
-bool plane::operator!=(const plane &other) const {
+bool plane::operator!=(plane const& other) const {
     return !operator==(other);
 }
 
-precision plane::angle(const plane &P) const {
+precision plane::angle(plane const& P) const {
     return acos(dot(m_normal, P.normal));
 }
 
-std::ostream &operator<<(std::ostream &os, const plane &p) {
+std::ostream &operator<<(std::ostream &os, plane const& p) {
     os << "plane(" << p.coefficient().a << "x+" << p.coefficient().b << "y+" << p.coefficient().c << "z+"
        << p.coefficient().d << "=0)";
     return os;

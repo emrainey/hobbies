@@ -22,7 +22,7 @@ degrees::degrees(degrees const& other) : measurement{other} {
 degrees::degrees(degrees&& other) : measurement{std::move(other)} {
 }
 
-degrees& degrees::operator=(const degrees &other) noexcept {
+degrees& degrees::operator=(degrees const& other) noexcept {
     _value = other.value;
     return (*this);
 }

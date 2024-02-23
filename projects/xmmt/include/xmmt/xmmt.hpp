@@ -13,8 +13,8 @@ namespace intel {
 
 /// A Point minus a point is a vector from the last to the first.
 template <typename pack_type, size_t dimensions>
-vector_<pack_type, dimensions> operator-(const point_<pack_type, dimensions>& a,
-                                         const point_<pack_type, dimensions>& b) {
+vector_<pack_type, dimensions> operator-(point_<pack_type, dimensions> const& a,
+                                         point_<pack_type, dimensions> const& b) {
     vector_<pack_type, dimensions> c{};
     if constexpr (point_<pack_type, dimensions>::number_of_elements == 2) {
         c.data = _mm_sub_pd(a.data, b.data);

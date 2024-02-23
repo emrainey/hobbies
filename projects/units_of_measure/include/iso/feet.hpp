@@ -28,8 +28,8 @@ protected:
 public:
     uint32_t const& sixteenths;
     feet(precision a);
-    feet(const feet &other);
-    feet &operator=(const feet &other);
+    feet(feet const& other);
+    feet &operator=(feet const& other);
     // TODO add move as well?
     // TODO fill in all the other overload methods...
     ~feet();

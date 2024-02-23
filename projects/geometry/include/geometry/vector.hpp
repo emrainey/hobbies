@@ -301,68 +301,68 @@ protected:
 
 /// Computes the angle between two vectors in radians
 template <typename DATA_TYPE, size_t DIMS>
-iso::radians angle(const vector_<DATA_TYPE, DIMS>& a, const vector_<DATA_TYPE, DIMS>& b) {
+iso::radians angle(vector_<DATA_TYPE, DIMS> const& a, vector_<DATA_TYPE, DIMS> const& b) {
     iso::radians r{acos(dot(a, b) / (a.norm() * b.norm()))};
     return r;
 }
 
 /// Tests if two vectors are orthagonal
 template <typename DATA_TYPE, size_t DIMS>
-inline bool orthogonal(const vector_<DATA_TYPE, DIMS>& a, const vector_<DATA_TYPE, DIMS>& b) {
+inline bool orthogonal(vector_<DATA_TYPE, DIMS> const& a, vector_<DATA_TYPE, DIMS> const& b) {
     return basal::nearly_zero(dot(a, b));
 }
 
 namespace operators {
 /// Tests if two vectors are orthagonal
 template <typename DATA_TYPE, size_t DIMS>
-inline bool operator|(const vector_<DATA_TYPE, DIMS>& a, const vector_<DATA_TYPE, DIMS>& b) {
+inline bool operator|(vector_<DATA_TYPE, DIMS> const& a, vector_<DATA_TYPE, DIMS> const& b) {
     return orthogonal(a, b);
 }
 
 template <typename DATA_TYPE, size_t DIMS>
-inline vector_<DATA_TYPE, DIMS> operator*(matrix const& A, const vector_<DATA_TYPE, DIMS>& b) {
+inline vector_<DATA_TYPE, DIMS> operator*(matrix const& A, vector_<DATA_TYPE, DIMS> const& b) {
     return multiply(A, b);
 }
 
 template <typename DATA_TYPE, size_t DIMS>
-inline vector_<DATA_TYPE, DIMS> operator+(const vector_<DATA_TYPE, DIMS>& a, const vector_<DATA_TYPE, DIMS>& b) {
+inline vector_<DATA_TYPE, DIMS> operator+(vector_<DATA_TYPE, DIMS> const& a, vector_<DATA_TYPE, DIMS> const& b) {
     return addition(a, b);
 }
 
 template <typename DATA_TYPE, size_t DIMS>
-inline vector_<DATA_TYPE, DIMS> operator-(const vector_<DATA_TYPE, DIMS>& a, const vector_<DATA_TYPE, DIMS>& b) {
+inline vector_<DATA_TYPE, DIMS> operator-(vector_<DATA_TYPE, DIMS> const& a, vector_<DATA_TYPE, DIMS> const& b) {
     return subtraction(a, b);
 }
 
 template <typename DATA_TYPE, size_t DIMS>
-inline vector_<DATA_TYPE, DIMS> operator*(const vector_<DATA_TYPE, DIMS>& a, precision b) {
+inline vector_<DATA_TYPE, DIMS> operator*(vector_<DATA_TYPE, DIMS> const& a, precision b) {
     return multiply(a, b);
 }
 
 template <typename DATA_TYPE, size_t DIMS>
-inline vector_<DATA_TYPE, DIMS> operator*(precision b, const vector_<DATA_TYPE, DIMS>& a) {
+inline vector_<DATA_TYPE, DIMS> operator*(precision b, vector_<DATA_TYPE, DIMS> const& a) {
     return multiply(a, b);
 }
 
 template <typename DATA_TYPE, size_t DIMS>
-inline vector_<DATA_TYPE, DIMS> operator/(const vector_<DATA_TYPE, DIMS>& a, precision b) {
+inline vector_<DATA_TYPE, DIMS> operator/(vector_<DATA_TYPE, DIMS> const& a, precision b) {
     return division(a, b);
 }
 
 template <typename DATA_TYPE, size_t DIMS>
-inline vector_<DATA_TYPE, DIMS> operator/(precision b, const vector_<DATA_TYPE, DIMS>& a) {
+inline vector_<DATA_TYPE, DIMS> operator/(precision b, vector_<DATA_TYPE, DIMS> const& a) {
     return division(a, b);
 }
 
 template <typename DATA_TYPE, size_t DIMS>
-inline vector_<DATA_TYPE, DIMS> operator-(const vector_<DATA_TYPE, DIMS>& a) {
+inline vector_<DATA_TYPE, DIMS> operator-(vector_<DATA_TYPE, DIMS> const& a) {
     return negation(a);
 }
 }  // namespace operators
 
 /// Printing Operator
 template <typename DATA_TYPE, size_t DIMS>
-std::ostream& operator<<(std::ostream& os, const vector_<DATA_TYPE, DIMS>& vec) {
+std::ostream& operator<<(std::ostream& os, vector_<DATA_TYPE, DIMS> const& vec) {
     os << "vector_(";
     for (size_t i = 0; i < vec.dimensions; i++) {
         os << vec[i] << (i == (vec.dimensions - 1) ? "" : ",");
@@ -428,7 +428,7 @@ static vector const W{{0.0_p, 0.0_p, 0.0_p, 1.0_p}};
 namespace operators {
 /// Tests if two vectors are parallel
 template <typename DATA_TYPE, size_t DIMS>
-inline bool operator||(const vector_<DATA_TYPE, DIMS>& a, const vector_<DATA_TYPE, DIMS>& b) {
+inline bool operator||(vector_<DATA_TYPE, DIMS> const& a, vector_<DATA_TYPE, DIMS> const& b) {
     static_assert(DIMS == 3, "Can only compute parallelism in 3D");
     return R3::parallel(a, b);
 }

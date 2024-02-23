@@ -22,7 +22,7 @@ turns::turns(turns const& other) : measurement{other} {
 turns::turns(turns&& other) : measurement{std::move(other)} {
 }
 
-turns& turns::operator=(const turns &other) noexcept {
+turns& turns::operator=(turns const& other) noexcept {
     _value = other.value;
     return (*this);
 }

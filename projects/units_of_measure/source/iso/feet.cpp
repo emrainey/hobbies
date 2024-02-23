@@ -8,10 +8,10 @@ namespace iso {
 feet::feet(precision a) : measurement{a}, _sixteenths(std::round(a * subunit)), sixteenths{_sixteenths} {
 }
 
-feet::feet(const feet &other) : measurement(other.value), _sixteenths(other.value * subunit), sixteenths{_sixteenths} {
+feet::feet(feet const& other) : measurement(other.value), _sixteenths(other.value * subunit), sixteenths{_sixteenths} {
 }
 
-feet &feet::operator=(const feet &other) {
+feet &feet::operator=(feet const& other) {
     _value = other.value;
     _sixteenths = other._sixteenths;
     return (*this);

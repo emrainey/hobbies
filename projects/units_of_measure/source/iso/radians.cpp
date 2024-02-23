@@ -22,7 +22,7 @@ radians::radians(radians const& other) : measurement{other} {
 radians::radians(radians&& other) : measurement{std::move(other)} {
 }
 
-radians& radians::operator=(const radians &other) noexcept {
+radians& radians::operator=(radians const& other) noexcept {
     _value = other.value;
     return (*this);
 }

@@ -72,7 +72,7 @@ public:
     }
 
     /// The const/volatile indexer operator
-    const volatile element_type& operator[](size_t index) const volatile {
+    element_type const volatile& operator[](size_t index) const volatile {
         return pack_type::datum[index];
     }
 

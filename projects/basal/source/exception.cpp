@@ -161,7 +161,7 @@ void assert_if_thrown(char const statement[], std::function<void(void) noexcept(
     try {
         block();
         fprintf(stdout, "%s did not throw! Success!\n", statement);
-    } catch (const basal::exception &me) {
+    } catch (basal::exception const& me) {
         fprintf(stderr,
                 "ERROR: Unexpected math exception!\n"
                 "Why: %s\nWhere: %s\n",
@@ -179,7 +179,7 @@ void assert_if_not_thrown(char const statement[], std::function<void(void) noexc
         block();
         fprintf(stderr, "ERROR: %s did not throw an exception\n", statement);
         exit(-1);
-    } catch (const basal::exception &me) {
+    } catch (basal::exception const& me) {
         fprintf(stdout, "%s threw Exception! Success: %s\nWhere: %s\n", statement, me.why(), me.where());
     } catch (...) {
         fprintf(stdout, "%s threw unknown exception! Success?\n", statement);

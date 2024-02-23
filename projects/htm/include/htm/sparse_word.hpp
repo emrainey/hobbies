@@ -164,8 +164,8 @@ protected:
     friend sparse_word<B2> operator^(sparse_word<B2> const& a, sparse_word<B2> const& b);
     template <size_t B2>
     friend sparse_word<B2> operator!(sparse_word<B2> const& a);
-    // template <size_t B1, size_t B2> friend sparse_word<B1+B2> operator<<(const sparse_word<B1> &, const
-    // sparse_word<B2>&);
+    // template <size_t B1, size_t B2> friend sparse_word<B1+B2> operator<<(sparse_word<B1> const&,
+    // sparse_word<B2> const&);
     std::vector<uint16_t> bits;
 };
 

@@ -22,7 +22,7 @@ watts::watts(watts const& other) : measurement{other} {
 watts::watts(watts&& other) : measurement{std::move(other)} {
 }
 
-watts& watts::operator=(const watts &other) noexcept {
+watts& watts::operator=(watts const& other) noexcept {
     _value = other.value;
     return (*this);
 }

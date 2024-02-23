@@ -22,7 +22,7 @@ grams::grams(grams const& other) : measurement{other} {
 grams::grams(grams&& other) : measurement{std::move(other)} {
 }
 
-grams& grams::operator=(const grams &other) noexcept {
+grams& grams::operator=(grams const& other) noexcept {
     _value = other.value;
     return (*this);
 }

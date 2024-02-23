@@ -8,7 +8,6 @@ namespace basal {
 template <typename UNIT_TYPE>
 class listable : public UNIT_TYPE {
     static_assert(std::is_default_constructible<UNIT_TYPE>::value, "Must be default constructible");
-    static_assert(std::is_copy_constructible<UNIT_TYPE>::value, "Must be copy constructible");
 protected:
     listable *_next;
     listable *_prev;
@@ -32,7 +31,7 @@ public:
         }
     }
     /// copy assign (not supported)
-    listable &operator=(const listable &other) noexcept = delete;
+    listable &operator=(listable const& other) noexcept = delete;
     /// move assign, we replace to other item in the list
     listable &operator=(listable &&other) noexcept {
         if (this != &other) {
@@ -111,17 +110,17 @@ public:
     }
 
     /// Returns the next listable
-    const listable *next() const noexcept {
+    listable const* next() const noexcept {
         return _next;
     }
 
     /// Returns previous listable
-    const listable *prev() const noexcept {
+    listable const* prev() const noexcept {
         return _prev;
     }
 
     /// Returns a listable pointer to itself.
-    const listable *as_listable() const noexcept {
+    listable const* as_listable() const noexcept {
         return this;
     }
 

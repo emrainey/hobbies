@@ -22,7 +22,7 @@ meters::meters(meters const& other) : measurement{other} {
 meters::meters(meters&& other) : measurement{std::move(other)} {
 }
 
-meters& meters::operator=(const meters &other) noexcept {
+meters& meters::operator=(meters const& other) noexcept {
     _value = other.value;
     return (*this);
 }

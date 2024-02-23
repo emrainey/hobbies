@@ -5,22 +5,22 @@ namespace iso {
 // Following volts = amperes * ohms, watts = volts * amperes
 // Equational operators
 namespace operators {
-volts operator/(const watts &P, const amperes &I) {
+volts operator/(watts const& P, amperes const& I) {
     return volts{P.value / I.value};
 }
-volts operator*(const amperes &I, const ohms &R) {
+volts operator*(amperes const& I, ohms const& R) {
     return volts{I.value * R.value};
 }
-watts operator*(const volts &E, const amperes &I) {
+watts operator*(volts const& E, amperes const& I) {
     return watts{E.value * I.value};
 }
-ohms operator/(const volts &E, const amperes &I) {
+ohms operator/(volts const& E, amperes const& I) {
     return ohms{E.value / I.value};
 }
-amperes operator/(const watts &P, const volts &E) {
+amperes operator/(watts const& P, volts const& E) {
     return amperes{P.value / E.value};
 }
-amperes operator/(const volts &E, const ohms &R) {
+amperes operator/(volts const& E, ohms const& R) {
     return amperes{E.value / R.value};
 }
 }  // namespace operators

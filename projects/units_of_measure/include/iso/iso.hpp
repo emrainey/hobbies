@@ -38,18 +38,18 @@ hertz convert(seconds &A);
 seconds convert(hertz &B);
 
 // slightly different conversions interface
-void convert(feet &f, const meters &m);
-void convert(meters &m, const feet &f);
+void convert(feet &f, meters const& m);
+void convert(meters &m, feet const& f);
 
 // Theres many different combinations of turns, radians, degrees
-void convert(radians &r, const turns &t);
-void convert(turns &t, const radians &r);
-void convert(degrees &d, const radians &r);
-void convert(radians &r, const degrees &d);
+void convert(radians &r, turns const& t);
+void convert(turns &t, radians const& r);
+void convert(degrees &d, radians const& r);
+void convert(radians &r, degrees const& d);
 
 // Another conversion seconds <-> hertz
-void convert(hertz &hz, const seconds &sec);
-void convert(seconds &sec, const hertz &hz);
+void convert(hertz &hz, seconds const& sec);
+void convert(seconds &sec, hertz const& hz);
 
 /// Define the standard distance as meters
 using distance = meters;
@@ -75,65 +75,65 @@ using torque = compound<newtons, meters>;
 
 namespace operators {
 /// volts = watts / amperes
-volts operator/(const watts &P, const amperes &I);
+volts operator/(watts const& P, amperes const& I);
 /// volts = amperes * ohms
-volts operator*(const amperes &I, const ohms &R);
+volts operator*(amperes const& I, ohms const& R);
 /// watts = volts * amperes
-watts operator*(const volts &E, const amperes &I);
+watts operator*(volts const& E, amperes const& I);
 /// ohms = volts / amperes
-ohms operator/(const volts &E, const amperes &I);
+ohms operator/(volts const& E, amperes const& I);
 /// amperes = watts / volts
-amperes operator/(const watts &P, const volts &E);
+amperes operator/(watts const& P, volts const& E);
 /// amperes = volts / ohms
-amperes operator/(const volts &E, const ohms &R);
+amperes operator/(volts const& E, ohms const& R);
 /// hertz = _num_ / seconds
-hertz operator/(precision const num, const seconds &denom);
+hertz operator/(precision const num, seconds const& denom);
 /// seconds = _num_ / hertz
-seconds operator/(precision const num, const hertz &denom);
+seconds operator/(precision const num, hertz const& denom);
 
 /// Creates a speed from a distance over time
-speed operator/(const distance &num, const time &denom);
+speed operator/(distance const& num, time const& denom);
 
 /// Creates a speed from a distance over time
 speed operator/(distance &&num, time &&denom);
 
 /// Creates a speed from a distance over time
-speed operator/(const distance &num, time &&denom);
+speed operator/(distance const& num, time &&denom);
 
 /// Creates a speed from a distance over time
-speed operator/(distance &&num, const time &denom);
+speed operator/(distance &&num, time const& denom);
 
 /// Alternative constructor
-rate<feet, seconds> operator/(const feet &num, const seconds &denom);
+rate<feet, seconds> operator/(feet const& num, seconds const& denom);
 
 /// Creates an acceleration from speed per time
-acceleration operator/(const speed &num, const time &denom);
+acceleration operator/(speed const& num, time const& denom);
 
 /// Creates an acceleration from speed per time
 acceleration operator/(speed &&num, time &&denom);
 
 /// Creates an acceleration from speed per time
-acceleration operator/(const speed &num, time &&denom);
+acceleration operator/(speed const& num, time &&denom);
 
 /// Creates an acceleration from speed per time
-acceleration operator/(speed &&num, const time &denom);
+acceleration operator/(speed &&num, time const& denom);
 
 /// Compounds a newtons-meters together into a torque
-torque operator*(const newtons &N, const meters &m);
+torque operator*(newtons const& N, meters const& m);
 
 /// Compounds a newtons-meters together into a torque
 torque operator*(newtons &&N, meters &&m);
 
 /// Compounds a newtons-meters together into a torque
-torque operator*(const newtons &N, meters &&m);
+torque operator*(newtons const& N, meters &&m);
 
 /// Compounds a newtons-meters together into a torque
-torque operator*(newtons &&N, const meters &m);
+torque operator*(newtons &&N, meters const& m);
 
 // This is to override specific relations where things ARE equal
 
 /// Compares Joules to Torque
-bool operator==(const joules &J, const torque &T);
+bool operator==(joules const& J, torque const& T);
 }  // namespace operators
 
 /// A method of computing PI at compile time

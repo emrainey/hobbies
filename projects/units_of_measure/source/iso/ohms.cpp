@@ -22,7 +22,7 @@ ohms::ohms(ohms const& other) : measurement{other} {
 ohms::ohms(ohms&& other) : measurement{std::move(other)} {
 }
 
-ohms& ohms::operator=(const ohms &other) noexcept {
+ohms& ohms::operator=(ohms const& other) noexcept {
     _value = other.value;
     return (*this);
 }

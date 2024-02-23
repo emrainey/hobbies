@@ -22,7 +22,7 @@ joules::joules(joules const& other) : measurement{other} {
 joules::joules(joules&& other) : measurement{std::move(other)} {
 }
 
-joules& joules::operator=(const joules &other) noexcept {
+joules& joules::operator=(joules const& other) noexcept {
     _value = other.value;
     return (*this);
 }

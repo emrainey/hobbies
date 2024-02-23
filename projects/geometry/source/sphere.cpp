@@ -13,13 +13,13 @@ namespace R3 {
 sphere::sphere(precision r) : m_radius{r} {
     basal::exception::throw_if(m_radius == 0.0, __FILE__, __LINE__, "Radius can't be zero");
 }
-sphere::sphere(const sphere &s) : sphere(s.radius) {
+sphere::sphere(sphere const& s) : sphere(s.radius) {
 }
 
 sphere::sphere(sphere &&s) : m_radius(s.radius) {
 }
 
-sphere &sphere::operator=(const sphere &s) {
+sphere &sphere::operator=(sphere const& s) {
     m_radius = s.m_radius;
     return (*this);
 }
@@ -29,17 +29,17 @@ sphere &sphere::operator=(sphere &&s) {
     return (*this);
 }
 
-bool sphere::contains(const R3::point &object_point) const {
+bool sphere::contains(R3::point const& object_point) const {
     R3::vector v = object_point - R3::origin;
     return (v.norm() <= radius);
 }
 
-bool sphere::surface(const R3::point &object_point) const {
+bool sphere::surface(R3::point const& object_point) const {
     R3::vector v = object_point - R3::origin;
     return (basal::nearly_equals(v.norm(), radius));
 }
 
-R3::vector sphere::normal(const R3::point &object_point) const {
+R3::vector sphere::normal(R3::point const& object_point) const {
     constexpr static bool check_on_surface = true;
     R3::vector n = object_point - R3::origin;
     if constexpr (check_on_surface) {
@@ -52,7 +52,7 @@ R3::vector sphere::normal(const R3::point &object_point) const {
     return R3::vector(n.normalize());
 }
 
-R3::point sphere::cart_to_polar(const R3::point &object_point) const {
+R3::point sphere::cart_to_polar(R3::point const& object_point) const {
     R3::point pol;
     // Any number > 0
     pol[0] = m_radius;

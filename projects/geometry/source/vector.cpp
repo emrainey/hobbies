@@ -18,7 +18,7 @@ vector cross(vector const& a, vector const& b) noexcept(false) {
     return vector{{x, y, z}};
 }
 
-bool parallel(const vector_<precision, 3>& a, const vector_<precision, 3>& b) {
+bool parallel(vector_<precision, 3> const& a, vector_<precision, 3> const& b) {
     return (R3::null == cross(a, b));
 }
 

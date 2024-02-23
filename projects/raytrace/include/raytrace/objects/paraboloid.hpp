@@ -7,7 +7,7 @@ namespace objects {
 /// Creates a parabolic surface
 class paraboloid : public quadratic {
 public:
-    paraboloid(const point &center, precision a, precision b, precision f);
+    paraboloid(point const& center, precision a, precision b, precision f);
     ~paraboloid() = default;
 };
 }  // namespace objects

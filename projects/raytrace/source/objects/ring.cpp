@@ -19,14 +19,19 @@ hits ring::collisions_along(ray const& object_ray) const {
     // is the ray parallel to the plane?
     vector const& N = m_normal;
     vector const& V = object_ray.direction();
-    precision proj = dot(V, N);       // if so the projection is zero
+    precision const proj = dot(V, N);       // if so the projection is zero
     if (not basal::nearly_zero(proj)) {  // they collide *somewhere*
+        point const& P = object_ray.location();
         // get the vector of the center to the ray initial
-        vector C = position() - object_ray.location();
+        vector const C = geometry::R3::origin - P;
         // t is the ratio of the projection of the arbitrary center vector divided by the projection ray
-        precision t0 = dot(C, N) / proj;
-        point D = object_ray.distance_along(t0);
-        precision distance_to_center2 = (position() - D).quadrance();
+        precision const t0 = dot(C, N) / proj;
+        // D is the point on the line
+        point const D = object_ray.distance_along(t0);
+        // E is the vector from the center to that point
+        vector const E = D - geometry::R3::origin;
+        // the distance to the center squared
+        precision distance_to_center2 = E.quadrance();
         // do we need to do a more in-depth test?
         if (m_inner_radius2 <= distance_to_center2 and distance_to_center2 <= m_outer_radius2) {
             ts.push_back(t0);

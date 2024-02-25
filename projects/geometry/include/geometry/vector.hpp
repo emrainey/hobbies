@@ -170,14 +170,14 @@ public:
     vector_ normalized() const noexcept(false) {
         vector_ v{*this};
         v.normalize();
-        return vector_(v);
+        return v;
     }
 
     /// Returns a negative copy of the vector_
     vector_ operator!() const {
         vector_ v{*this};
         v *= -1.0_p;
-        return vector_(v);
+        return v;
     }
 
     /// Creates a scaled vector along the parameter vector
@@ -185,14 +185,14 @@ public:
         DATA_TYPE s = dot((*this), a) / a.quadrance();
         vector_ b{a};
         b *= s;
-        return vector_(b);
+        return b;
     }
 
     /// Creates a scaled vector orthogonal to the parameter vector
     vector_ project_orthogonal(vector_& a) const {
         vector_ c{*this};
         c -= project_along(a);
-        return vector_(c);
+        return c;
     }
 
     inline void print(char const name[]) const {
@@ -291,7 +291,7 @@ public:
     friend vector_ negation(vector_ const& a) {
         vector_ b{a};
         b *= -1.0_p;
-        return vector_(b);
+        return b;
     }
 
 protected:

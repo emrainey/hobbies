@@ -18,16 +18,13 @@
 using namespace std::placeholders;
 
 struct Parameters {
-    size_t dim_index;
+    std::string dim_name;
     size_t subsamples;
     size_t reflections;
     precision fov;
     std::string module;
     size_t mask_threshold;
 };
-
-// QQVGA, QVGA, VGA, XGA, HD, UWGA, 4K
-size_t dimensions[][2] = {{160, 120}, {320, 240}, {640, 480}, {1024, 768}, {1920, 1080}, {2560, 1440}, {3840, 2160}};
 
 #define my_assert(condition, statement)                       \
     {                                                         \
@@ -46,7 +43,7 @@ int main(int argc, char *argv[]) {
     std::string module_name;
 
     basal::options::config opts[] = {
-        {"-d", "--dims", (size_t)1, "WxH Pairs"},
+        {"-d", "--dims", std::string("QVGA"), "Use text video format like VGA or 2K"},
         {"-b", "--subsamples", (size_t)1, "Nubmer of subsamples"},
         {"-r", "--reflections", (size_t)4, "Reflection Depth"},
         {"-f", "--fov", 55.0_p, "Field of View in Degrees"},
@@ -57,7 +54,7 @@ int main(int argc, char *argv[]) {
     };
 
     basal::options::process(dimof(opts), opts, argc, argv);
-    my_assert(basal::options::find(opts, "--dims", params.dim_index), "Must have a width value");
+    my_assert(basal::options::find(opts, "--dims", params.dim_name), "Must have a text value");
     my_assert(basal::options::find(opts, "--fov", params.fov), "Must have a FOV value");
     my_assert(basal::options::find(opts, "--verbose", verbose), "Must be able to assign bool");
     my_assert(basal::options::find(opts, "--subsamples", params.subsamples), "Must have some number of subsamples");
@@ -89,14 +86,17 @@ int main(int argc, char *argv[]) {
     precision phi = sphl.z;
 
     std::cout << "ρ=" << radius << ", Θ=" << theta << ", Φ=" << phi << std::endl;
-
+    auto [width, height] = fourcc::dimensions(params.dim_name);
+    printf("%s => Width: %zu, Height: %zu\n", params.dim_name.c_str(), width, height);
+    if (height == 0 or width == 0) {
+        printf("Invalid dimensions\n");
+        return -1;
+    }
     linalg::Trackbar<precision> trackbar_theta("Camera Theta", world.window_name(), -iso::pi, theta, iso::pi, iso::pi / 8,
                                             &theta);
     linalg::Trackbar<precision> trackbar_phi("Camera Phi", world.window_name(), 0, phi, iso::pi, iso::pi / 16, &phi);
     radius = (world.looking_from() - world.looking_at()).magnitude();
     linalg::Trackbar<precision> trackbar_radius("Camera Radius", world.window_name(), 1.0, radius, 100.0, 5.0, &radius);
-    linalg::Trackbar<size_t> trackbar_dim("Dimensions", world.window_name(), 1u, params.dim_index, dimof(dimensions),
-                                          1u);
     linalg::Trackbar<size_t> trackbar_subsamples("Subsamples", world.window_name(), 1, params.subsamples, 16, 1,
                                                  &params.subsamples);
     linalg::Trackbar<size_t> trackbar_reflect("Reflections", world.window_name(), 0, params.reflections, 10, 1,
@@ -104,38 +104,35 @@ int main(int argc, char *argv[]) {
     linalg::Trackbar<precision> trackbar_fov("FOV", world.window_name(), 10, params.fov, 90, 5, &params.fov);
 
     do {
-        int index = trackbar_dim.get();
-        size_t width = dimensions[params.dim_index][0];
-        size_t height = dimensions[params.dim_index][1];
-
-        // what we're rendering into
-        cv::Mat render_image(height, width, CV_8UC3);
-        cv::Mat mask_image(height, width, CV_8UC3);
-
-        precision x = radius * std::sin(phi) * std::cos(theta);
-        precision y = radius * std::sin(phi) * std::sin(theta);
-        precision z = radius * std::cos(phi);
-
-        raytrace::vector diff{x, y, z};
-        raytrace::point from = world.looking_at() + diff;
-        std::cout << "Look From: " << from << std::endl;
-        std::cout << "Look At: " << world.looking_at() << " (Towards)" << std::endl;
-
-        // tiny image, simple camera placement
-        raytrace::scene scene;
-        // camera setup
-        raytrace::camera view(height, width, iso::degrees(params.fov));
-        raytrace::vector looking = (world.looking_at() - from).normalized();
-        raytrace::point image_plane_principal_point = from + looking;
-        std::cout << "Principal: " << image_plane_principal_point << std::endl;
-        view.move_to(from, image_plane_principal_point);
-
-        scene.set_background_mapper(std::bind(&raytrace::world::background, &world, std::placeholders::_1));
-        world.add_to(scene);
-        if (verbose) {
-            scene.print(world.window_name().c_str());
-        }
         if (should_render) {
+            // what we're rendering into
+            cv::Mat render_image(height, width, CV_8UC3);
+            cv::Mat mask_image(height, width, CV_8UC3);
+
+            precision x = radius * std::sin(phi) * std::cos(theta);
+            precision y = radius * std::sin(phi) * std::sin(theta);
+            precision z = radius * std::cos(phi);
+
+            raytrace::vector ring_rail{x, y, z};
+            raytrace::point from = world.looking_at() + ring_rail;
+            std::cout << "Look From: " << from << std::endl;
+            std::cout << "Look At: " << world.looking_at() << " (Towards)" << std::endl;
+
+            // tiny image, simple camera placement
+            raytrace::scene scene;
+            // camera setup
+            raytrace::camera view(height, width, iso::degrees(params.fov));
+            raytrace::vector looking = (world.looking_at() - from).normalized();
+            raytrace::point image_plane_principal_point = from + looking;
+            std::cout << "Principal: " << image_plane_principal_point << std::endl;
+            view.move_to(from, image_plane_principal_point);
+
+            scene.set_background_mapper(std::bind(&raytrace::world::background, &world, std::placeholders::_1));
+            world.add_to(scene);
+            if (verbose) {
+                scene.print(world.window_name().c_str());
+            }
+
             // The completion data will be stored in here, a bool per line.
             std::vector<bool> completed(height);
             std::fill(completed.begin(), completed.end(), false);

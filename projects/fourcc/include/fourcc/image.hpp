@@ -440,4 +440,10 @@ void sobel_mask(fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8> const& r
 void filter(fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8>& output,
             fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8> const& input, int16_t const kernel[3]);
 
+/// Returns the dimensions given a constant string.
+/// @code
+/// auto [h, w] = fourcc::dimensions("VGA");
+/// @endcode
+std::pair<size_t, size_t> dimensions(std::string type);
+
 }  // namespace fourcc

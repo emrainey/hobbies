@@ -102,10 +102,10 @@ add_executable(demo_sphere_surfaces
 )
 target_link_libraries(demo_sphere_surfaces PRIVATE ${OpenCV_LIBS} hobbies-raytrace LinalgUtils::hobbies-linalg-utils Threads::Threads)
 
-add_executable(demo_raytrace_loader
+add_executable(demo_opencv_gui
     ${CMAKE_CURRENT_SOURCE_DIR}/demo/main_opencv.cpp
 )
-target_link_libraries(demo_raytrace_loader ${OpenCV_LIBS} hobbies-raytrace LinalgUtils::hobbies-linalg-utils Threads::Threads)
+target_link_libraries(demo_opencv_gui ${OpenCV_LIBS} hobbies-raytrace LinalgUtils::hobbies-linalg-utils Threads::Threads)
 
 add_executable(demo_random_tuner
     ${CMAKE_CURRENT_SOURCE_DIR}/demo/main_random_tuner.cpp
@@ -137,10 +137,18 @@ endif()
 #################################
 # WORLDS
 #################################
-set(DEMOS world_example world_spheres world_cornell
-          world_desktoy world_monochrome world_snowman
-          world_lenses world_planet world_spheres2 world_glass
-          world_art1 world_outrun world_mats)
+list(APPEND DEMOS world_art1)
+list(APPEND DEMOS world_cornell)
+list(APPEND DEMOS world_desktoy)
+list(APPEND DEMOS world_example)
+list(APPEND DEMOS world_glass)
+list(APPEND DEMOS world_lenses)
+list(APPEND DEMOS world_mats)
+list(APPEND DEMOS world_monochrome world_monochrome2)
+list(APPEND DEMOS world_outrun)
+list(APPEND DEMOS world_planet)
+list(APPEND DEMOS world_snowman)
+list(APPEND DEMOS world_spheres world_spheres2)
 
 foreach(demo IN LISTS DEMOS)
     add_library(${demo} SHARED ${CMAKE_CURRENT_SOURCE_DIR}/demo/${demo}.cpp)

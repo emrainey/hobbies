@@ -22,7 +22,7 @@ char const *get_type_as_str(IntersectionType obj) {
 IntersectionType get_type(intersection const& var) {
     if (std::holds_alternative<geometry::R3::point>(var)) {
         return IntersectionType::Point;
-    } else if (std::holds_alternative<set_of_points>(var)) {
+    } else if (std::holds_alternative<R3::points>(var)) {
         return IntersectionType::Points;
     } else if (std::holds_alternative<geometry::R3::line>(var)) {
         return IntersectionType::Line;
@@ -182,7 +182,7 @@ intersection intersects(R3::sphere const& S, R3::line const& l) noexcept(false) 
             if (not basal::is_nan(t0) and not basal::is_nan(t1)) {
                 R3::point R = l.solve(t0);
                 R3::point Q = l.solve(t1);
-                set_of_points sop = {R, Q};
+                R3::points sop = {R, Q};
                 return intersection(sop);
             } else {
                 // single points don't concern us, so drop them.
@@ -216,7 +216,7 @@ intersection intersects(R3::sphere const& S, R3::line const& l) noexcept(false) 
                 k *= u;
                 R = l.distance_along(k - r);
                 Q = l.distance_along(k + r);
-                set_of_points sop = {R, Q};
+                R3::points sop = {R, Q};
                 assert(S.surface(R));
                 assert(S.surface(Q));
                 return intersection(sop);
@@ -249,7 +249,7 @@ intersection intersects(R3::sphere const& S, R3::line const& l) noexcept(false) 
                     R = l.distance_along(k - m);
                     Q = l.distance_along(k + m);
                 }
-                set_of_points sop = {R, Q};
+                R3::points sop = {R, Q};
                 assert(S.surface(R));
                 assert(S.surface(Q));
                 return intersection(sop);

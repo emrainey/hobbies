@@ -373,16 +373,19 @@ point_<DIM> as_point(vector_<DATA_TYPE, DIM> const& v) {
 namespace R2 {
 using point = point_<2>;
 static point const origin{0.0_p, 0.0_p};
+using points = std::vector<point>;
 }  // namespace R2
 
 namespace R3 {
 using point = point_<3>;
 static point const origin{0.0_p, 0.0_p, 0.0_p};
+using points = std::vector<point>;
 }  // namespace R3
 
 namespace R4 {
 using point = point_<4>;
 static point const origin{0.0_p, 0.0_p, 0.0_p, 0.0_p};
+using points = std::vector<point>;
 }  // namespace R4
 
 }  // namespace geometry

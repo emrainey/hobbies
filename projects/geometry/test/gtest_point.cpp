@@ -155,4 +155,18 @@ TEST(PointTest, Centroid) {
     point<3> E{{1.0 / 3.0, -1.0, 28.0 / 3.0}};
     R3::point D = centroid(A, B, C);
     ASSERT_POINT_EQ(E, D);
+
+    R3::point F = centroid(A, B);
+    point<3> G{{0.5, -3.5, 17}};
+    ASSERT_POINT_EQ(G, F);
+}
+
+TEST(PointTest, CentroidFromVector) {
+    std::vector<R3::point> points;
+    points.push_back(R3::point{1, 2, 3});
+    points.push_back(R3::point{4, 5, 6});
+    points.push_back(R3::point{7, 8, 9});
+    point<3>  E{{4, 5, 6}};
+    R3::point D = centroid(points);
+    ASSERT_POINT_EQ(E, D);
 }

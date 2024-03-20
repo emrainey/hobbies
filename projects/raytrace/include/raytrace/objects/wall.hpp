@@ -29,7 +29,10 @@ public:
     bool is_surface_point(point const& world_point) const override;
     /// @copydoc raytrace::object::get_object_extent
     precision get_object_extent(void) const override;
+    /// @copydoc raytrace::object::is_outside
     bool is_outside(point const& world_point) const override;
+    /// @copydoc raytrace::object::is_along_infinite_extent
+    bool is_along_infinite_extent(ray const& world_ray) const override;
 protected:
     raytrace::objects::plane m_front_;
     raytrace::objects::plane m_back_;

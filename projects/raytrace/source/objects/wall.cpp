@@ -18,7 +18,7 @@ wall::wall(point const& C, vector const& N, precision thickness)
 
 vector wall::normal(point const& world_point) const {
     using namespace geometry::operators;
-    world_point.print("request normal from");
+    // world_point.print("request normal from");
     auto const wall_point = reverse_transform(world_point);
     vector const& Nf = m_front_.normal(wall_point);
     vector const& Nb = m_back_.normal(wall_point);
@@ -33,13 +33,12 @@ vector wall::normal(point const& world_point) const {
     vector const Vb = wall_point - m_back_.position();
     precision df = dot(Nf, Vf);
     precision db = dot(Nb, Vb);
-    if (basal::nearly_zero(df) and basal::nearly_zero(db)) {
-        return geometry::R3::null;
-    } else if (df > 0.0 and db < 0.0) {
+    if (df > 0.0 and db < 0.0) {
         return forward_transform(Nb); // closer to back
     } else if (df < 0.0 and db > 0.0) {
         return forward_transform(Nf); // closer to front
-    } // else if not possible but return anyway
+    }
+    // either between or nearly so
     return geometry::R3::null;
 }
 
@@ -91,6 +90,12 @@ void wall::print(char const str[]) const {
 bool wall::is_outside(point const& world_point) const {
     auto wall_point = reverse_transform(world_point);
     return m_front_.is_outside(wall_point) or m_back_.is_outside(wall_point);
+}
+
+bool wall::is_along_infinite_extent(ray const& world_ray) const {
+    auto wall_ray = reverse_transform(world_ray);
+    // @TODO Not sure about the logic here
+    return m_front_.is_along_infinite_extent(wall_ray) or m_back_.is_along_infinite_extent(wall_ray);
 }
 
 }  // namespace objects

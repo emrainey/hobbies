@@ -35,19 +35,19 @@ public:
         , light8{raytrace::point{3, 0, 10}, 1, colors::white, 10, light_subsamples}
         , light9{raytrace::point{4, 0, 10}, 1, colors::white, 10, light_subsamples}
         , light10{raytrace::point{5, 0, 10}, 1, colors::white, 10, light_subsamples}
-        , s1{raytrace::point{4, 2, 1}, 1}
+        // , s1{raytrace::point{4, 2, 1}, 1}
+        , s1{raytrace::point{4, 2, 1}, 1, 1, 1} // ellipsoid
         , s2{raytrace::point{-4, -2, 2}, 2}
         , s3{raytrace::point{1, -5, 3}, 3}
         , c1{raytrace::point{6, 3, 0}, 1, 4}  // cone
-        //, cylint{raytrace::point{-2, 3, 2}, 2, 1} // cylinder
-        //, cylint{raytrace::point{-2, 3, 2}, 1, 1} // cylinder
-        //, cylbox{raytrace::point{-2, 3, 2}, 1, 1, 2}
-        //, cyl{cylint, cylbox, overlap::type::inclusive}
-        //, cyl{raytrace::point{-2, 3, 2}, 2, 1}  // cylinder
-        , infcyl{raytrace::point{-2, 3, 2}, 1, 1}  // infinite cylinder
-        , cylcaps{raytrace::point{-2, 3, 2}, R3::basis::Z, 2}  // infinite wall
-        , cyl{infcyl, cylcaps, overlap::type::inclusive}
+        // , infcyl{raytrace::point{-2, 3, 2}, 1, 1}  // infinite cylinder
+        // , cylcaps{raytrace::point{-2, 3, 2}, R3::basis::Z, 2}  // infinite wall
+        // , cyl{infcyl, cylcaps, overlap::type::inclusive}
+        , cyl{raytrace::point{-2, 3, 2}, 2, 1}  // cylinder
         , cap{raytrace::point{-2, 3, 4}, R3::basis::Z, 0, 1}
+        , w0{raytrace::point{8, -3, 0}, R3::basis::X, 2}
+        , w1{raytrace::point{8, -3, 0}, R3::basis::Y, 2}
+        , column{w0, w1, overlap::type::inclusive}
         , t0{raytrace::point{3, 7, 0.5}, 1.4, 0.5}
         , cb0{raytrace::point{7, -2, 1}, 1, 1, 1} {
         // assign surfaces and materials
@@ -58,10 +58,14 @@ public:
         s2.material(&mediums::metals::stainless);
         s3.material(&mediums::metals::stainless);
         c1.material(&mediums::metals::stainless);
-        infcyl.material(&mediums::metals::stainless);
-        cylcaps.material(&mediums::metals::stainless);
+        // infcyl.material(&mediums::metals::stainless);
+        // cylcaps.material(&mediums::metals::stainless);
+        cyl.material(&mediums::metals::stainless);
         cap.material(&mediums::metals::stainless);
         t0.material(&mediums::metals::stainless);
+        w0.material(&mediums::metals::stainless);
+        w1.material(&mediums::metals::stainless);
+        column.material(&mediums::metals::stainless);
         cb0.material(&mediums::metals::stainless);
         cb0.rotation(iso::degrees{0}, iso::degrees{0}, iso::degrees{15});
     }
@@ -91,25 +95,26 @@ public:
 
     void add_to(scene& scene) override {
         // add lights to the scene
-        scene.add_light(&light0);
-        scene.add_light(&light1);
-        scene.add_light(&light2);
-        scene.add_light(&light3);
+        // scene.add_light(&light0);
+        // scene.add_light(&light1);
+        // scene.add_light(&light2);
+        // scene.add_light(&light3);
         scene.add_light(&light4);
         scene.add_light(&light5);
         scene.add_light(&light6);
-        scene.add_light(&light7);
-        scene.add_light(&light8);
-        scene.add_light(&light9);
-        scene.add_light(&light10);
+        // scene.add_light(&light7);
+        // scene.add_light(&light8);
+        // scene.add_light(&light9);
+        // scene.add_light(&light10);
         // add the objects to the scene.
         scene.add_object(&floor);
         scene.add_object(&s1);
-        scene.add_object(&s2);
-        scene.add_object(&s3);
-        scene.add_object(&c1);
-        scene.add_object(&cyl);
-        scene.add_object(&cap);
+        // scene.add_object(&s2);
+        // scene.add_object(&s3);
+        // scene.add_object(&c1);
+        // scene.add_object(&cyl);
+        // scene.add_object(&cap);
+        scene.add_object(&column);
         scene.add_object(&t0);
         scene.add_object(&cb0);
     }
@@ -121,30 +126,32 @@ protected:
     mediums::plain plain_white;
     mediums::checkerboard griders;
     raytrace::objects::square floor;
-    bulb light0;
-    bulb light1;
-    bulb light2;
-    bulb light3;
-    bulb light4;
-    bulb light5;
-    bulb light6;
-    bulb light7;
-    bulb light8;
-    bulb light9;
-    bulb light10;
-    raytrace::objects::sphere s1;
-    // ellipsoid s1;
+    raytrace::lights::bulb light0;
+    raytrace::lights::bulb light1;
+    raytrace::lights::bulb light2;
+    raytrace::lights::bulb light3;
+    raytrace::lights::bulb light4;
+    raytrace::lights::bulb light5;
+    raytrace::lights::bulb light6;
+    raytrace::lights::bulb light7;
+    raytrace::lights::bulb light8;
+    raytrace::lights::bulb light9;
+    raytrace::lights::bulb light10;
+    // raytrace::objects::sphere s1;
+    raytrace::objects::ellipsoid s1;
     raytrace::objects::sphere s2;
     raytrace::objects::sphere s3;
-    cone c1;
-    ellipticalcylinder infcyl;
-    wall cylcaps;
-    overlap cyl;
-    // cuboid   cylbox;
-    // overlap  cyl;
-    ring cap;
-    torus t0;
-    cuboid cb0;
+    raytrace::objects::cone c1;
+    // raytrace::objects::ellipticalcylinder infcyl;
+    // raytrace::objects::wall cylcaps;
+    // raytrace::objects::overlap cyl;
+    raytrace::objects::cylinder cyl;
+    raytrace::objects::ring cap;
+    raytrace::objects::wall w0;
+    raytrace::objects::wall w1;
+    raytrace::objects::overlap column;
+    raytrace::objects::torus t0;
+    raytrace::objects::cuboid cb0;
 };
 
 // declare a single instance and return the reference to it

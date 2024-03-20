@@ -17,16 +17,13 @@ enum class IntersectionType : int
 {
     None = 0, ///< No intersection was possible
     Point,    ///< The objects intersected as a single \ref point
-    Points,   ///< The object intersected as a set_of_points
+    Points,   ///< The object intersected as a points
     Line,     ///< The objects intersected as a \ref line
     Plane     ///< The objects intersected as a \ref plane
 };
 
-/// An intersection can be a set of points on a simple solid (think of a line/torus)
-using set_of_points = std::vector<R3::point>;
-
 /// The intersection itself is an object variant.
-using intersection = std::variant<std::monostate, R3::point, set_of_points, R3::line, plane>;
+using intersection = std::variant<std::monostate, R3::point, R3::points, R3::line, plane>;
 
 /// Returns the type of an intersection
 IntersectionType get_type(intersection const& var);
@@ -39,8 +36,8 @@ inline R3::point const& as_point(intersection const& intersector) {
     return std::get<R3::point>(intersector);
 }
 
-inline set_of_points const& as_points(intersection const& intersector) {
-    return std::get<set_of_points>(intersector);
+inline R3::points const& as_points(intersection const& intersector) {
+    return std::get<R3::points>(intersector);
 }
 
 inline R3::line const& as_line(intersection const& intersector) {

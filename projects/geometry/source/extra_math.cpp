@@ -13,10 +13,34 @@ precision dot(R3::vector const& a, R3::point const& b) {
     return d;
 }
 
+R3::point centroid(std::vector<R3::point> const& points) {
+    R3::point D;
+    for (size_t j = 0; j < points.size(); j++) {
+        auto& p = points[j];
+        for (size_t i = 0; i < D.dimensions; i++) {
+            D[i] += p[i];
+        }
+    }
+    for (size_t i = 0; i < D.dimensions; i++) {
+        D[i] /= points.size();
+    }
+    return D;
+}
+
+
 R3::point centroid(R3::point const& A, R3::point const& B, R3::point const& C) {
     R3::point D;
     for (size_t i = 0; i < D.dimensions; i++) {
         D[i] = (A[i] + B[i] + C[i]) / 3;
+    }
+    return D;
+}
+
+
+R3::point centroid(R3::point const& A, R3::point const& B) {
+    R3::point D;
+    for (size_t i = 0; i < D.dimensions; i++) {
+        D[i] = (A[i] + B[i]) / 2;
     }
     return D;
 }

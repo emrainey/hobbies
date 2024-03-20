@@ -138,8 +138,8 @@ public:
     virtual vector normal(point const& world_surface_point) const = 0;
 
     /// Returns all the intersections with this object along the ray (extended as a line).
-/// @param object_ray The ray in object space.
-/// @return The unordered set of intersection distances along the world ray.
+    /// @param object_ray The ray in object space.
+    /// @return The unordered set of intersection distances along the world ray.
     virtual hits collisions_along(ray const& object_ray) const = 0;
 
     /// Returns an intersection with this object

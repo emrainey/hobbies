@@ -23,7 +23,7 @@ TEST(IntersectionTest, Constructions) {
     ASSERT_EQ(1, i1.index());
     ASSERT_TRUE(P == as_point(i1));
 
-    set_of_points sop = {R, Q};
+    R3::points sop = {R, Q};
     intersection i2{sop};
     ASSERT_EQ(IntersectionType::Points, get_type(i2));
     ASSERT_EQ(2, i2.index());
@@ -262,7 +262,7 @@ TEST(IntersectionTest, SphereOffCenter) {
     intersection I0 = intersects(S0, L0);
     ASSERT_EQ(IntersectionType::Points, get_type(I0));
     std::cout << "I0" << I0 << std::endl;
-    set_of_points p0p1 = as_points(I0);
+    R3::points p0p1 = as_points(I0);
     ASSERT_TRUE(S0.surface(p0p1[0]));
     ASSERT_TRUE(S0.surface(p0p1[1]));
 }
@@ -276,7 +276,7 @@ TEST(IntersectionTest, SphereOffCenterNonOrigin) {
     intersection I0 = intersects(S0, L0);
     ASSERT_EQ(IntersectionType::Points, get_type(I0));
     std::cout << "I0" << I0 << std::endl;
-    set_of_points p0p1 = as_points(I0);
+    R3::points p0p1 = as_points(I0);
     ASSERT_TRUE(S0.surface(p0p1[0]));
     ASSERT_TRUE(S0.surface(p0p1[1]));
 }

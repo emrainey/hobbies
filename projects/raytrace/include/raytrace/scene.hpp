@@ -48,7 +48,6 @@ public:
 
     /// Constructor
     /// @param adaptive_threshold
-    ///
     scene(precision adaptive_threshold = 1.0_p / 32.0_p);
 
     /// Destructor

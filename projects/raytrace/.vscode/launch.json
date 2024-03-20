@@ -21,6 +21,7 @@
                 "world_spheres2",
                 "world_mats",
                 "world_monochrome",
+                "world_monochrome2",
             ]
         }
     ],
@@ -56,6 +57,25 @@
                 "4"
             ],
             "cwd": "${fileDirname}"
+        },
+        {
+            "name": "(lldb) Demo OpenCV GUI",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/../../build/raytrace/demo_opencv_gui",
+            "args": [
+                "-m",
+                "${input:world_module}",
+                "-a",
+                "128",
+                "-b",
+                "4"
+            ],
+            "cwd": "${fileDirname}",
+            "env": {
+                "ABORT": "1",
+                "DYLD_LIBRARY_PATH": "${workspaceFolder}/../../install/lib:${workspaceFolder}/../../build/raytrace"
+            },
         },
         {
             "name": "(lldb) Demo SDL2 Render",

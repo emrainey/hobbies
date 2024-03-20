@@ -14,8 +14,14 @@ inline precision dot(R3::point const& b, R3::vector const& a) {
     return dot(a, b);
 }
 
+/// Finds the centroid of a set of points
+R3::point centroid(std::vector<R3::point> const& points);
+
 /// Finds the centroid of 3 points.
 R3::point centroid(R3::point const& A, R3::point const& B, R3::point const& C);
+
+/// Finds the centroid of 2 points.
+R3::point centroid(R3::point const& A, R3::point const& B);
 
 ///
 /// Returns a point on each line of skew lines which is closest to the other line.

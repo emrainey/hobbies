@@ -25,7 +25,8 @@ struct hit {
 };
 /// A set of distances along the world_ray which collide with the object, could be many.
 using hits = std::vector<precision>;
-
+/// Determines if points are on surfaces, thus having a normal
+constexpr static bool check_on_surface = geometry::check_on_surface;
 /// An axis aligned bounding box for computing the BSP
 struct abba {
     point min;  //!< The lower set of values.

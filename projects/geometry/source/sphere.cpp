@@ -40,9 +40,8 @@ bool sphere::surface(R3::point const& object_point) const {
 }
 
 R3::vector sphere::normal(R3::point const& object_point) const {
-    constexpr static bool check_on_surface = true;
     R3::vector n = object_point - R3::origin;
-    if constexpr (check_on_surface) {
+    if constexpr (geometry::check_on_surface) {
         if (not basal::nearly_equals(n.norm(), radius)) {
             // not on the sphere.
             return R3::null;

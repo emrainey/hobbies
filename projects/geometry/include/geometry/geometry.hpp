@@ -7,6 +7,11 @@
 #include <basal/ieee754.hpp>
 #include <limits>
 
+namespace geometry {
+/// Determines if points are on surfaces, thus having a normal
+constexpr static bool check_on_surface = true;
+}
+
 // clang-format off
 #include "geometry/types.hpp"  // <-- linalg comes in here
 #include "geometry/point.hpp"

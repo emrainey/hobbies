@@ -33,6 +33,7 @@ vector cone::normal(point const& world_surface_point) const {
         radius = std::tan(m_angle.value);
     }
     if (basal::nearly_zero(object_surface_point.x) and basal::nearly_zero(object_surface_point.y)) {
+        // FIXME could return along axis Z
         return R3::null;
     }
     vector N{{object_surface_point.x, object_surface_point.y, 0}};

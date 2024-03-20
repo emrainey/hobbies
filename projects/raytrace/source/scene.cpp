@@ -94,7 +94,7 @@ scene::intersect_set scene::nearest_object(ray const& world_ray, intersect_list 
             }
         } else if (get_type(inter) == IntersectionType::Points) {
             // returns two points, check each one.
-            set_of_points sop = as_points(inter);
+            auto sop = as_points(inter);
             if constexpr (debug) {
                 std::cout << inter << std::endl;
             }

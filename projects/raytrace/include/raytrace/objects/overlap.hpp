@@ -32,8 +32,6 @@ public:
     /// @copydoc basal::printable::print
     void print(char const str[]) const override;
 
-    size_t max_collisions() const override;
-    bool is_closed_surface() const override;
     bool is_surface_point(point const& world_point) const override;
     precision get_object_extent(void) const override;
     bool is_along_infinite_extent(ray const& world_ray) const override;

@@ -176,42 +176,42 @@ TEST(WallTest, BoxFromWalls) {
     objects::overlap box{column, w2, objects::overlap::type::inclusive};
     {
         raytrace::ray r{raytrace::point{2,0,0},(-R3::basis::X)};
-        geometry::intersection is = column.intersect(r);
+        geometry::intersection is = box.intersect(r);
         ASSERT_EQ(geometry::IntersectionType::Point, get_type(is));
         raytrace::point A{1,0,0};
         ASSERT_POINT_EQ(A, as_point(is));
     }
     {
         raytrace::ray r{raytrace::point{0,2,0},(-R3::basis::Y)};
-        geometry::intersection is = column.intersect(r);
+        geometry::intersection is = box.intersect(r);
         ASSERT_EQ(geometry::IntersectionType::Point, get_type(is));
         raytrace::point A{0,1,0};
         ASSERT_POINT_EQ(A, as_point(is));
     }
     {
         raytrace::ray r{raytrace::point{-2,0,0},R3::basis::X};
-        geometry::intersection is = column.intersect(r);
+        geometry::intersection is = box.intersect(r);
         ASSERT_EQ(geometry::IntersectionType::Point, get_type(is));
         raytrace::point A{-1,0,0};
         ASSERT_POINT_EQ(A, as_point(is));
     }
     {
         raytrace::ray r{raytrace::point{0,-2,0},R3::basis::Y};
-        geometry::intersection is = column.intersect(r);
+        geometry::intersection is = box.intersect(r);
         ASSERT_EQ(geometry::IntersectionType::Point, get_type(is));
         raytrace::point A{0,-1,0};
         ASSERT_POINT_EQ(A, as_point(is));
     }
     {
         raytrace::ray r{raytrace::point{0,0,2},-R3::basis::Z};
-        geometry::intersection is = column.intersect(r);
+        geometry::intersection is = box.intersect(r);
         ASSERT_EQ(geometry::IntersectionType::Point, get_type(is));
         raytrace::point A{0,0,1};
         ASSERT_POINT_EQ(A, as_point(is));
     }
     {
         raytrace::ray r{raytrace::point{0,0,-2},R3::basis::Z};
-        geometry::intersection is = column.intersect(r);
+        geometry::intersection is = box.intersect(r);
         ASSERT_EQ(geometry::IntersectionType::Point, get_type(is));
         raytrace::point A{0,0,-1};
         ASSERT_POINT_EQ(A, as_point(is));

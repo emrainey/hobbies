@@ -9,7 +9,7 @@ namespace objects {
 using namespace linalg::operators;
 
 overlap::overlap(object const& A, object const& B, overlap::type type)
-    : object{}
+    : object{centroid(A.position(), B.position()), A.max_collisions() + B.max_collisions(), A.is_closed_surface() and B.is_closed_surface()}
     , m_A{A}
     , m_B{B}
     , m_type{type}
@@ -19,7 +19,7 @@ overlap::overlap(object const& A, object const& B, overlap::type type)
     {
     // throw_exception_if(m_A.max_collisions() != 2, "First item must have a max of %" PRIu32 " collisions", 2u);
     // throw_exception_if(m_B.max_collisions() != 2, "Second item must have a max of %" PRIu32 " collisions", 2u);
-    throw_exception_unless(m_closed_two_hit_surfaces_ or m_open_one_hit_surfaces_ or m_open_two_hit_surfaces_, "Must be one of these %lu types", 2);
+    throw_exception_unless(m_closed_two_hit_surfaces_ or m_open_one_hit_surfaces_ or m_open_two_hit_surfaces_, "Must be one of these %lu types", 3);
 }
 
 vector overlap::normal(point const& world_surface_point) const {
@@ -234,15 +234,6 @@ precision overlap::get_object_extent(void) const {
     // we want this to be additive as this is for collision checking.
     return std::max(m_A.get_object_extent(), m_B.get_object_extent());
 }
-
-size_t overlap::max_collisions() const {
-    return std::max(m_A.max_collisions(), m_B.max_collisions());
-}
-
-bool overlap::is_closed_surface() const {
-    return m_A.is_closed_surface() and m_B.is_closed_surface();
-}
-
 
 }  // namespace objects
 }  // namespace raytrace

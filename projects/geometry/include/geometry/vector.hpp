@@ -7,10 +7,10 @@
 
 #include "geometry/types.hpp"
 
-#if defined(__x86_64__)
-#include <emmintrin.h>
-#include <immintrin.h>
-#endif
+// #if defined(__x86_64__)
+// #include <emmintrin.h>
+// #include <immintrin.h>
+// #endif
 
 #include <initializer_list>
 

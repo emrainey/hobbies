@@ -1,6 +1,8 @@
 #ifndef XMMT_XMMT_HPP_
 #define XMMT_XMMT_HPP_
 
+#if defined(__x86_64__)
+
 #include "xmmt/point.hpp"
 #include "xmmt/vector.hpp"
 #include "xmmt/pixel.hpp"
@@ -29,6 +31,8 @@ vector_<pack_type, dimensions> operator-(point_<pack_type, dimensions> const& a,
 }
 
 }  // namespace intel
+
+#endif // defined(__x86_64__)
 
 #endif // XMMT_XMMT_HPP_INCLUDED
 

@@ -17,6 +17,15 @@ enable_testing()
 option(BUILD_SHARED_LIBS "Builds libraries as dynamic objects" OFF)
 option(USE_XMMT "Use XMMT for SIMD" ON)
 
+# Use XMMT if we're building for x86_64
+if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+set(USE_XMMT ON)
+message(STATUS "Enabling XMMT")
+else()
+set(USE_XMMT OFF)
+message(WARNING "Disabling XMMT")
+endif()
+
 add_library(hobbies-noise
     ${CMAKE_CURRENT_SOURCE_DIR}/source/noise.cpp
 )
@@ -40,6 +49,9 @@ target_include_directories(hobbies-noise
         # Install Tree
         $<INSTALL_INTERFACE:include>
 )
+if (USE_XMMT)
+    target_compile_definitions(hobbies-noise PUBLIC USE_XMMT)
+endif()
 set_target_properties(hobbies-noise PROPERTIES
     VERSION ${PROJECT_VERSION}
     SOVERSION ${PROJECT_VERSION_MAJOR}

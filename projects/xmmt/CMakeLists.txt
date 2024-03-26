@@ -34,7 +34,7 @@ install(EXPORT XmmtTargets
     NAMESPACE Xmmt::
     DESTINATION share/cmake/${PROJECT_NAME}
 )
-install(DIRECTORY include/${PROJECT_NAME}
+install(DIRECTORY include/
     DESTINATION include
     PATTERN "*.hpp"
     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ

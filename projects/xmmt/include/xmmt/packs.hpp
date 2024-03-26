@@ -1,5 +1,4 @@
 #pragma once
-///
 /// @file
 /// The SSE2/AVX2 Packed Structures which are in the compact representation we need.
 
@@ -17,6 +16,7 @@ using namespace basal::literals;
 
 namespace intel {
 
+#if defined(__SSE__)
 /// A triplet of floats
 struct float3 {
 public:
@@ -99,7 +99,9 @@ inline std::ostream& operator<<(std::ostream& os, float3 const& a) {
     os << " x=" << a.c.x << ", y=" << a.c.y << ", z=" << a.c.z;
     return os;
 }
+#endif
 
+#if defined(__SSE__)
 /// A quad of floats
 struct float4 {
 public:
@@ -166,7 +168,9 @@ inline std::ostream& operator<<(std::ostream& os, float4 const& a) {
     os << " x=" << a.c.x << ", y=" << a.c.y << ", z=" << a.c.z << ", w=" << a.c.w;
     return os;
 }
+#endif
 
+#if defined(__SSE__)
 /// A pair of doubles
 struct double2 {
 public:
@@ -238,7 +242,9 @@ inline std::ostream& operator<<(std::ostream& os, double2 const& a) {
     os << " x=" << a.c.x << ", y=" << a.c.y;
     return os;
 }
+#endif
 
+#if defined(__AVX2__)
 /// A triplet of doubles
 struct double3 {
 public:
@@ -306,7 +312,9 @@ inline std::ostream& operator<<(std::ostream& os, double3 const& a) {
     os << " x=" << a.c.x << ", y=" << a.c.y << ", z=" << a.c.z;
     return os;
 }
+#endif
 
+#if defined(__AVX2__)
 /// A quad of doubles
 struct double4 {
 public:
@@ -370,5 +378,5 @@ inline std::ostream& operator<<(std::ostream& os, double4 const& a) {
     os << " x=" << a.c.x << ", y=" << a.c.y << ", z=" << a.c.z << ", w=" << a.c.w;
     return os;
 }
-
+#endif
 }  // namespace intel

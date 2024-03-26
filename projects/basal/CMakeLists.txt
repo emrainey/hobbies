@@ -14,7 +14,7 @@ target_compile_options(enabled-warnings INTERFACE
 add_library(enabled-debugging INTERFACE)
 target_compile_options(enabled-debugging INTERFACE
     $<$<COMPILE_LANG_AND_ID:CXX,AppleClang,Clang>:-glldb>
-    $<$<COMPILE_LANG_AND_ID:CXX,GNU>:-g -gstabs+>
+    $<$<COMPILE_LANG_AND_ID:CXX,GNU>:-g -ggdb>
 )
 
 add_library(enabled-profiling INTERFACE)

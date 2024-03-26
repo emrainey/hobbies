@@ -6,7 +6,7 @@
 #include <string>
 
 #ifndef PRIz
-#if defined(__x86_64__)
+#if defined(__x86_64__) or defined(__arm__) or defined(__aarch64__)
 #define PRIz "zu"
 #endif
 #endif

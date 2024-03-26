@@ -4,7 +4,7 @@
 /// Definitions for the point object.
 /// @copyright Copyright 2019 (C) Erik Rainey.
 
-#include <xmmt/xmmt.hpp>
+// #include <xmmt/xmmt.hpp>
 
 #include "geometry/types.hpp"
 #include "geometry/vector.hpp"

@@ -213,7 +213,7 @@ public:
     /// @brief Used to determine if an open surface and ray could ever possibly intersect.
     /// @param world_ray The ray in world space to test against.
     /// @return False if the ray is not along the infinite extent. Closed surfaces will always return false.
-    virtual inline bool is_along_infinite_extent(ray const& world_ray) const {
+    virtual inline bool is_along_infinite_extent(ray const& world_ray __attribute__((unused))) const {
         return false;
     }
 
@@ -238,7 +238,7 @@ public:
     }
 
     /// Given a world point verify that the point is on the surface of the object.
-    virtual bool is_surface_point(raytrace::point const& world_point) const {
+    virtual bool is_surface_point(raytrace::point const& world_point __attribute__((unused))) const {
         return false;  // override to correct
     };
 

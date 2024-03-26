@@ -57,10 +57,12 @@ constexpr precision apply_correction(precision value) {
 /// @retval precision will be clamped from 0.0_p to 1.0_p
 precision gamma_interpolate(precision const a, precision const b, precision const s);
 
+#if defined(USE_XMMT)
 #if defined(USE_PRECISION_AS_FLOAT)
 using precision4 = intel::float4;
 #else
 using precision4 = intel::double4;
+#endif
 #endif
 
 /// @brief sRGB linear color space value

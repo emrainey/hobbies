@@ -1,17 +1,6 @@
 cmake_minimum_required(VERSION 3.20.0)
 project(geometry LANGUAGES CXX VERSION 0.7.0)  # This must match the conanfile.py!
 
-find_package(basal 0.5.0 REQUIRED)
-find_package(units_of_measure REQUIRED)
-find_package(linalg REQUIRED)
-find_package(xmmt REQUIRED)
-
-# Build Everything with C++17 and full native optimizations
-set(CMAKE_CXX_STANDARD 17)
-enable_testing()
-
-option(BUILD_SHARED_LIBS "Builds libraries as dynamic objects" OFF)
-
 add_library(hobbies-geometry
     ${CMAKE_CURRENT_SOURCE_DIR}/source/extra_math.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/intersection.cpp
@@ -24,14 +13,14 @@ add_library(hobbies-geometry
 )
 target_link_libraries(hobbies-geometry
     PUBLIC
-        Basal::hobbies-basal
-        UnitsOfMeasure::hobbies-uom
-        Linalg::hobbies-linalg
+        hobbies-basal
+        hobbies-uom
+        hobbies-linalg
     PRIVATE
-        Basal::enabled-warnings
-        Basal::enabled-debugging
-        Basal::enabled-profiling
-        Basal::native-optimized
+        enabled-warnings
+        enabled-debugging
+        enabled-profiling
+        native-optimized
 )
 target_include_directories(hobbies-geometry PUBLIC
     # Generated Tree
@@ -52,25 +41,25 @@ set_target_properties(hobbies-geometry PROPERTIES
 #####################
 
 # Declare installs and exports
-install(TARGETS hobbies-geometry EXPORT GeometryTargets
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
-    RUNTIME DESTINATION bin
-    INCLUDES DESTINATION include
-)
-install(EXPORT GeometryTargets
-    FILE ${PROJECT_NAME}-Targets.cmake
-    NAMESPACE Geometry::
-    DESTINATION share/cmake/${PROJECT_NAME}
-)
-install(DIRECTORY include/${PROJECT_NAME}
-    DESTINATION include
-    PATTERN "*.hpp"
-    PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
-)
-install(FILES "cmake/Find${PROJECT_NAME}.cmake" "cmake/${PROJECT_NAME}-config.cmake"
-    DESTINATION share/cmake/${PROJECT_NAME}
-)
+# install(TARGETS hobbies-geometry EXPORT GeometryTargets
+#     LIBRARY DESTINATION lib
+#     ARCHIVE DESTINATION lib
+#     RUNTIME DESTINATION bin
+#     INCLUDES DESTINATION include
+# )
+# install(EXPORT GeometryTargets
+#     FILE ${PROJECT_NAME}-Targets.cmake
+#     NAMESPACE Geometry::
+#     DESTINATION share/cmake/${PROJECT_NAME}
+# )
+# install(DIRECTORY include/${PROJECT_NAME}
+#     DESTINATION include
+#     PATTERN "*.hpp"
+#     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
+# )
+# install(FILES "cmake/Find${PROJECT_NAME}.cmake" "cmake/${PROJECT_NAME}-config.cmake"
+#     DESTINATION share/cmake/${PROJECT_NAME}
+# )
 #####################
 # Googletests
 #####################
@@ -90,7 +79,7 @@ if (Threads_FOUND AND GTest_FOUND)
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_vector.cpp
     )
     target_include_directories(gtest_geometry SYSTEM PUBLIC ${GTEST_INCLUDE_DIRS})
-    target_link_libraries(gtest_geometry PRIVATE ${GTEST_BOTH_LIBRARIES} hobbies-geometry Basal::enabled-debugging Threads::Threads)
+    target_link_libraries(gtest_geometry PRIVATE ${GTEST_BOTH_LIBRARIES} hobbies-geometry enabled-debugging Threads::Threads)
     add_test(NAME gtest_geometry COMMAND gtest_geometry)
 endif()
 

@@ -22,7 +22,7 @@ color metal::specular(raytrace::point const& volumetric_point, precision scaling
     return std::pow(scaling, specular_tightness(volumetric_point)) * new_spec;
 }
 
-raytrace::vector metal::perturbation(raytrace::point const& volumetric_point) const {
+raytrace::vector metal::perturbation(raytrace::point const& volumetric_point __attribute__((unused))) const {
     if (m_fuzz_scale > 0) {
         size_t denom = 79;
         size_t num = rand() % denom;

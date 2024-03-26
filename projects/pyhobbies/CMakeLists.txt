@@ -1,12 +1,6 @@
 cmake_minimum_required(VERSION 3.20.0)
 project(pyhobbies LANGUAGES CXX VERSION 0.7.0)  # This must match the conanfile.py!
 
-find_package(raytrace REQUIRED)
-
-# Build Everything with C++17 and full native optimizations
-set(CMAKE_CXX_STANDARD 17)
-enable_testing()
-
 ################
 # PyBind Interface
 ################
@@ -26,7 +20,7 @@ target_include_directories(pyhobbies
         $<INSTALL_INTERFACE:include>
 )
 target_link_libraries(pyhobbies
-    PUBLIC Raytrace::hobbies-raytrace Basal::hobbies-basal pybind11::pybind11
+    PUBLIC hobbies-raytrace hobbies-basal pybind11::pybind11
 )
 pybind11_extension(pyhobbies)
 pybind11_strip(pyhobbies)

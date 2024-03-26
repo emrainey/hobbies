@@ -30,24 +30,33 @@
             "name": "(lldb) Launch Random Tuner",
             "type": "lldb",
             "request": "launch",
-            "program": "${workspaceFolder}/../../build/raytrace/demo_random_tuner",
+            "program": "${workspaceFolder}/build/projects/raytrace/demo_random_tuner",
             "args": [],
             "cwd": "${fileDirname}"
+        },
+        {
+            "name": "(lldb) GTest Noise",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/projects/noise/gtest_noise",
+            // "args": ["--gtest_filter='WallTest.*'"],
+            "cwd": "${workspaceFolder}/",
+            // "terminal": "integrated"
         },
         {
             "name": "(lldb) GTest Raytrace",
             "type": "lldb",
             "request": "launch",
-            "program": "${workspaceFolder}/../../build/raytrace/gtest_raytrace",
+            "program": "${workspaceFolder}/build/projects/raytrace/gtest_raytrace",
             // "args": ["--gtest_filter='WallTest.*'"],
-            "cwd": "${workspaceFolder}/../../",
+            "cwd": "${workspaceFolder}/",
             // "terminal": "integrated"
         },
         {
             "name": "(lldb) Demo Curses",
             "type": "lldb",
             "request": "launch",
-            "program": "${workspaceFolder}/../../build/raytrace/demo_curses",
+            "program": "${workspaceFolder}/build/projects/raytrace/demo_curses",
             "args": [
                 "-m",
                 "${input:world_module}",
@@ -62,7 +71,7 @@
             "name": "(lldb) Demo OpenCV GUI",
             "type": "lldb",
             "request": "launch",
-            "program": "${workspaceFolder}/../../build/raytrace/demo_opencv_gui",
+            "program": "${workspaceFolder}/build/projects/raytrace/demo_opencv_gui",
             "args": [
                 "-m",
                 "${input:world_module}",
@@ -74,19 +83,19 @@
             "cwd": "${fileDirname}",
             "env": {
                 "ABORT": "1",
-                "DYLD_LIBRARY_PATH": "${workspaceFolder}/../../install/lib:${workspaceFolder}/../../build/raytrace"
+                "DYLD_LIBRARY_PATH": "${workspaceFolder}/install/lib:${workspaceFolder}/build/projects/raytrace"
             },
         },
         {
             "name": "(lldb) Demo SDL2 Render",
             "type": "lldb",
             "request": "launch",
-            "program": "${workspaceFolder}/../../build/raytrace/demo_sdl2",
+            "program": "${workspaceFolder}/build/projects/raytrace/demo_sdl2",
             "args": [
                 "-m",
                 "${input:world_module}",
                 "-d",
-                "1",
+                "VGA",
                 "-a",
                 "128",
                 "-b",
@@ -97,7 +106,7 @@
             "cwd": "${fileDirname}",
             "env": {
                 "ABORT": "1",
-                "DYLD_LIBRARY_PATH": "${workspaceFolder}/../../install/lib:${workspaceFolder}/../../build/raytrace"
+                "DYLD_LIBRARY_PATH": "${workspaceFolder}/install/lib:${workspaceFolder}/build/projects/raytrace"
             },
         }
     ]

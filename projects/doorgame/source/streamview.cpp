@@ -401,7 +401,7 @@ void StreamView::display(Player const& player) {
     display(player.as_storage(), "Player");
 }
 
-void StreamView::display(Map const& map) {
+void StreamView::display(Map const& map __attribute__((unused))) {
     return;
 }
 

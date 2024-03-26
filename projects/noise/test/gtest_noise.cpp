@@ -6,10 +6,11 @@
 #include <noise/noise.hpp>
 #include <vector>
 
+size_t histogram[255];
+
 TEST(NoiseTest, PadTest) {
     noise::pad p0;
     p0.generate();
-    size_t histogram[255];
     memset(histogram, 0, sizeof(histogram));
     for (size_t y = 0; y < p0.dimensions; y++) {
         for (size_t x = 0; x < p0.dimensions; x++) {
@@ -19,7 +20,7 @@ TEST(NoiseTest, PadTest) {
             histogram[b]++;
         }
     }
-    for (size_t i = 1; i < basal::dimof(histogram) - 1; i++) {
+    for (size_t i = 1; i < (basal::dimof(histogram) - 1); i++) {
         printf("%zu ", histogram[i]);
         ASSERT_LE(10, histogram[i]) << " at element " << i;
         ASSERT_GE(120, histogram[i]) << " at element " << i;

@@ -1,63 +1,5 @@
 {
 	// cSpell: disable
-	"folders": [
-		{
-			"name": "basal",
-			"path": "projects/basal"
-		},
-		{
-			"name": "units_of_measure",
-			"path": "projects/units_of_measure"
-		},
-		{
-			"name": "fourcc",
-			"path": "projects/fourcc"
-		},
-		{
-			"name": "xmmt",
-			"path": "projects/xmmt"
-		},
-		{
-			"name": "noise",
-			"path": "projects/noise"
-		},
-		{
-			"name": "linalg",
-			"path": "projects/linalg"
-		},
-		{
-			"name": "geometry",
-			"path": "projects/geometry"
-		},
-		{
-			"name": "linalg-utils",
-			"path": "projects/linalg-utils"
-		},
-		{
-			"name": "linalg-algo",
-			"path": "projects/linalg-algo"
-		},
-		{
-			"name": "raytrace",
-			"path": "projects/raytrace"
-		},
-		{
-			"name": "neuralnet",
-			"path": "projects/neuralnet"
-		},
-		{
-			"name": "htm",
-			"path": "projects/htm"
-		},
-		{
-			"name": "doorgame",
-			"path": "projects/doorgame"
-		},
-		{
-			"name": "pyhobbies",
-			"path": "projects/pyhobbies"
-		}
-	],
 	"extensions": {
 		"recommendations": [
 			"ms-vscode.cmake-tools",
@@ -76,28 +18,32 @@
 		],
 	},
 	"settings": {
-		"editor.formatOnSave": false,
+		"editor.formatOnSave": true,
 		"cmake.autoSelectActiveFolder": true,
-		"cmake.buildDirectory": "${workspaceFolder}/../../build/${workspaceFolderBasename}",
-		"cmake.installPrefix": "${workspaceFolder}/../../install",
-		"cmake.configureOnOpen": false,
-		"cmake.generator": "Unix Makefiles",
+		"cmake.buildDirectory": "${workspaceFolder}/build",
+		"cmake.installPrefix": "${workspaceFolder}/install",
+		"cmake.configureOnOpen": true,
+		"cmake.additionalCompilerSearchDirs": [
+			"/opt/homebrew/Cellar/llvm/17.0.6_1/bin/",
+		],
+		"cmake.generator": "Ninja",
 		"cmake.parallelJobs": 12,
 		"cmake.environment": {
-			"CMAKE_PREFIX_PATH": "${workspaceFolder}/../../install"
+			"CMAKE_PREFIX_PATH": "${workspaceFolder}/install"
 		},
 		"cmake.configureEnvironment": {
-			"CMAKE_INSTALL_PREFIX": "${workspaceFolder}/../../install",
+			"CMAKE_INSTALL_PREFIX": "${workspaceFolder}/install",
 			"CMAKE_BUILD_TYPE": "Release"
 		},
 		"cmake.testEnvironment": {
-			"DYLD_LIBRARY_PATH": "${workspaceFolder}/../../install",
+			"DYLD_LIBRARY_PATH": "${workspaceFolder}/install",
 			"CMAKE_BUILD_TYPE": "Release"
 		},
 		"cmake.configureArgs": [
 			"-DBUILD_SHARED_LIB=OFF",
 			"-DCMAKE_VERBOSE_MAKEFILE:BOOL=OFF",
-			"-DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE"
+			"-DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE",
+			"-DUSE_XMMT:BOOL=OFF",
 		],
 		"cmake.loggingLevel": "debug",
 		"cmake.ctest.allowParallelJobs": true,
@@ -115,30 +61,40 @@
 		"C_Cpp.configurationWarnings": "enabled",
 		"C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
 		"C_Cpp.default.includePath": [
-			"${workspaceFolder}/include",
-			"${workspaceFolder}/../../install/include",
-			"${workspaceFolder}/../../projects/noise/demo",
-			"${workspaceFolder}/../../projects/raytrace/demo",
+			"${workspaceFolder}/projects/basal/include",
+			"${workspaceFolder}/projects/units_of_measure/include",
+			"${workspaceFolder}/projects/fourcc/include",
+			"${workspaceFolder}/projects/geometry/include",
+			"${workspaceFolder}/projects/noise/include",
+			"${workspaceFolder}/projects/linalg/include",
+			"${workspaceFolder}/projects/linalg-utils/include",
+			"${workspaceFolder}/projects/linalg-algo/include",
+			"${workspaceFolder}/projects/raytrace/include",
+			"${workspaceFolder}/projects/neuralnet/include",
+			"${workspaceFolder}/projects/htm/include",
+			"${workspaceFolder}/projects/doorgame/include",
+			"${workspaceFolder}/projects/noise/demo",
+			"${workspaceFolder}/projects/raytrace/demo",
 		],
 		"C_Cpp.loggingLevel": "Debug",
 		"C_Cpp.clang_format_style": "file",
 		"C_Cpp.default.cppStandard": "c++17",
 		"C_Cpp.default.cStandard": "c17",
 		"C_Cpp.default.browse.limitSymbolsToIncludedHeaders": true,
-		"C_Cpp.default.compileCommands": "${workspaceFolder}/../../build/${workspaceFolderBasename}/compile_commands.json",
+		"C_Cpp.default.compileCommands": "${workspaceFolder}/build/compile_commands.json",
 		"C_Cpp.default.browse.path": [
-			"${workspaceFolder}/../../projects/basal/include",
-			"${workspaceFolder}/../../projects/units_of_measure/include",
-			"${workspaceFolder}/../../projects/fourcc/include",
-			"${workspaceFolder}/../../projects/geometry/include",
-			"${workspaceFolder}/../../projects/noise/include",
-			"${workspaceFolder}/../../projects/linalg/include",
-			"${workspaceFolder}/../../projects/linalg-utils/include",
-			"${workspaceFolder}/../../projects/linalg-algo/include",
-			"${workspaceFolder}/../../projects/raytrace/include",
-			"${workspaceFolder}/../../projects/neuralnet/include",
-			"${workspaceFolder}/../../projects/htm/include",
-			"${workspaceFolder}/../../projects/doorgame/include",
+			"${workspaceFolder}/projects/basal/include",
+			"${workspaceFolder}/projects/units_of_measure/include",
+			"${workspaceFolder}/projects/fourcc/include",
+			"${workspaceFolder}/projects/geometry/include",
+			"${workspaceFolder}/projects/noise/include",
+			"${workspaceFolder}/projects/linalg/include",
+			"${workspaceFolder}/projects/linalg-utils/include",
+			"${workspaceFolder}/projects/linalg-algo/include",
+			"${workspaceFolder}/projects/raytrace/include",
+			"${workspaceFolder}/projects/neuralnet/include",
+			"${workspaceFolder}/projects/htm/include",
+			"${workspaceFolder}/projects/doorgame/include",
 		],
 		"C_Cpp.default.browse.databaseFilename": "${workspaceFolder}/build/browse.db",
 		"cSpell.enabled": true,
@@ -150,7 +106,7 @@
 		"cSpell.customDictionaries": {
 			"project-words": {
 				"name": "project-words",
-				"path": "${workspaceRoot}/../../words.txt",
+				"path": "${workspaceRoot}/docs/words.txt",
 				"description": "Words used in this project",
 				"addWords": true
 			},
@@ -158,7 +114,9 @@
 			"internal-terms": false // Disable the `internal-terms` dictionary
 		},
 		"cSpell.ignoreWords": [
-			"AABB", "ABGR", "FOURCC"
+			"AABB",
+			"ABGR",
+			"FOURCC"
 		],
 		// "python.linting.pylintEnabled": true,
 		// "python.linting.enabled": true,
@@ -175,9 +133,8 @@
 		"testExplorer.codeLens": true,
 		"testMate.cpp.test.workingDirectory": "${absDirpath}",
 		"testMate.cpp.test.runtimeLimit": 600,
-		"testMate.cpp.test.executables": "${workspaceFolder}/../../build/*/gtest_*",
-		// "testMate.cpp.test.executables": "${workspaceFolder}/../../build/${workspaceFolderBasename}/gtest_*",
-		// "testmake.cpp.test.addvancedExecutables": "",
+		// "testMate.cpp.test.executables": "${workspaceFolder}/build/projects/*/gtest_*",
+		"testmake.cpp.test.advancedExecutables": "${workspaceFolder}/build/projects/*/gtest_*",
 		"testMate.cpp.test.parallelExecutionOfExecutableLimit": 12,
 		"testMate.cpp.discovery.strictPattern": true,
 		"testMate.cpp.discovery.loadOnStartup": true,
@@ -195,7 +152,7 @@
 			"externalConsole": false
 		},
 		"python.testing.pytestEnabled": true,
-		"python.envFile": "${workspaceFolder}/../../.env",
+		"python.envFile": "${workspaceFolder}/.env",
 		"files.associations": {
 			".clang-format": "json",
 			"*.yaml": "home-assistant",
@@ -291,7 +248,10 @@
 			"semaphore": "cpp",
 			"shared_mutex": "cpp",
 			"version": "cpp",
-			"strstream": "cpp"
+			"strstream": "cpp",
+			"csignal": "cpp",
+			"coroutine": "cpp",
+			"typeindex": "cpp"
 		},
 		"vsconan.general.pythonInterpreter": "python3",
 		"vsconan.explorer.treeview.package.showDirtyPackage": true,
@@ -309,7 +269,7 @@
 				"label": "Build Everything with Conan",
 				"command": "./separate_builds.sh",
 				"options": {
-					"cwd": "${workspaceFolder}/../../",
+					"cwd": "${workspaceFolder}/",
 				},
 				"type": "shell",
 				"args": [],
@@ -320,13 +280,20 @@
 				"label": "Build Everything with CMake",
 				"command": "./separate_builds.sh",
 				"options": {
-					"cwd": "${workspaceFolder}/../../",
+					"cwd": "${workspaceFolder}/",
 				},
 				"type": "shell",
-				"args": ["-cmake"],
+				"args": [
+					"-cmake"
+				],
 				"group": "build",
 				"problemMatcher": "$gcc"
 			}
 		]
-	}
+	},
+	"folders": [
+		{
+			"path": "."
+		}
+	]
 }

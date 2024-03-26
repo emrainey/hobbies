@@ -1,21 +1,14 @@
 cmake_minimum_required(VERSION 3.20.0)
 project(raytrace LANGUAGES CXX VERSION 0.7.0)  # This must match the conanfile.py!
 
-find_package(OpenMP REQUIRED)
-# find_package(ncurses REQUIRED) # should be installed in the system
-find_package(basal 0.5.0 REQUIRED)
-find_package(units_of_measure REQUIRED)
-find_package(linalg REQUIRED)
-find_package(linalg-utils REQUIRED)
-find_package(geometry REQUIRED)
-find_package(noise REQUIRED)
-find_package(xmmt REQUIRED)
-
-# Build Everything with C++17 and full native optimizations
-set(CMAKE_CXX_STANDARD 17)
-enable_testing()
-
-option(BUILD_SHARED_LIBS "Builds libraries as dynamic objects" OFF)
+find_package(OpenMP)
+if (NOT OpenMP_FOUND)
+# Homebrew's libomp is not in the default search path
+add_library(OpenMP::OpenMP_CXX INTERFACE IMPORTED)
+target_compile_options(OpenMP::OpenMP_CXX INTERFACE -fopenmp)
+target_link_libraries(OpenMP::OpenMP_CXX INTERFACE omp)
+target_link_directories(OpenMP::OpenMP_CXX INTERFACE /opt/homebrew/Cellar/libomp/18.1.2/lib/)
+endif()
 
 add_library(hobbies-raytrace
     ${CMAKE_CURRENT_SOURCE_DIR}/source/camera.cpp
@@ -64,17 +57,17 @@ add_library(hobbies-raytrace
 )
 target_link_libraries(hobbies-raytrace
     PUBLIC
-        Linalg::hobbies-linalg
-        Fourcc::hobbies-fourcc
-        Noise::hobbies-noise
-        Geometry::hobbies-geometry
-        Xmmt::hobbies-xmmt
+        hobbies-linalg
+        hobbies-fourcc
+        hobbies-noise
+        hobbies-geometry
+        hobbies-xmmt
         OpenMP::OpenMP_CXX
     PRIVATE
-        Basal::enabled-warnings
-        Basal::enabled-debugging
-        Basal::enabled-profiling
-        Basal::native-optimized
+        enabled-warnings
+        enabled-debugging
+        enabled-profiling
+        native-optimized
 )
 target_include_directories(hobbies-raytrace
     PUBLIC
@@ -100,17 +93,17 @@ if (OpenCV_FOUND)
 add_executable(demo_sphere_surfaces
     ${CMAKE_CURRENT_SOURCE_DIR}/demo/main_sphere_surfaces.cpp
 )
-target_link_libraries(demo_sphere_surfaces PRIVATE ${OpenCV_LIBS} hobbies-raytrace LinalgUtils::hobbies-linalg-utils Threads::Threads)
+target_link_libraries(demo_sphere_surfaces PRIVATE ${OpenCV_LIBS} hobbies-raytrace hobbies-linalg-utils Threads::Threads)
 
 add_executable(demo_opencv_gui
     ${CMAKE_CURRENT_SOURCE_DIR}/demo/main_opencv.cpp
 )
-target_link_libraries(demo_opencv_gui ${OpenCV_LIBS} hobbies-raytrace LinalgUtils::hobbies-linalg-utils Threads::Threads)
+target_link_libraries(demo_opencv_gui ${OpenCV_LIBS} hobbies-raytrace hobbies-linalg-utils Threads::Threads)
 
 add_executable(demo_random_tuner
     ${CMAKE_CURRENT_SOURCE_DIR}/demo/main_random_tuner.cpp
 )
-target_link_libraries(demo_random_tuner PRIVATE ${OpenCV_LIBS} hobbies-raytrace LinalgUtils::hobbies-linalg-utils Threads::Threads)
+target_link_libraries(demo_random_tuner PRIVATE ${OpenCV_LIBS} hobbies-raytrace hobbies-linalg-utils Threads::Threads)
 endif()
 
 find_package(Threads)
@@ -187,7 +180,7 @@ if (Threads_FOUND AND GTest_FOUND)
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_objparser.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_wall.cpp
     )
-    target_link_libraries(gtest_raytrace PRIVATE hobbies-raytrace Basal::enabled-debugging GTest::gtest GTest::gmock GTest::gtest_main Threads::Threads)
+    target_link_libraries(gtest_raytrace PRIVATE hobbies-raytrace enabled-debugging GTest::gtest GTest::gmock GTest::gtest_main Threads::Threads)
     add_test(NAME gtest_raytrace COMMAND gtest_raytrace)
 endif()
 
@@ -210,22 +203,22 @@ endif()
 #####################
 
 # Declare installs and exports
-install(TARGETS hobbies-raytrace EXPORT RaytraceTargets
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
-    RUNTIME DESTINATION bin
-    INCLUDES DESTINATION include
-)
-install(EXPORT RaytraceTargets
-    FILE ${PROJECT_NAME}-Targets.cmake
-    NAMESPACE Raytrace::
-    DESTINATION share/cmake/${PROJECT_NAME}
-)
-install(DIRECTORY include/${PROJECT_NAME}
-    DESTINATION include
-    PATTERN "*.hpp"
-    PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
-)
-install(FILES "cmake/Find${PROJECT_NAME}.cmake" "cmake/${PROJECT_NAME}-config.cmake"
-    DESTINATION share/cmake/${PROJECT_NAME}
-)
+# install(TARGETS hobbies-raytrace EXPORT RaytraceTargets
+#     LIBRARY DESTINATION lib
+#     ARCHIVE DESTINATION lib
+#     RUNTIME DESTINATION bin
+#     INCLUDES DESTINATION include
+# )
+# install(EXPORT RaytraceTargets
+#     FILE ${PROJECT_NAME}-Targets.cmake
+#     NAMESPACE Raytrace::
+#     DESTINATION share/cmake/${PROJECT_NAME}
+# )
+# install(DIRECTORY include/${PROJECT_NAME}
+#     DESTINATION include
+#     PATTERN "*.hpp"
+#     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
+# )
+# install(FILES "cmake/Find${PROJECT_NAME}.cmake" "cmake/${PROJECT_NAME}-config.cmake"
+#     DESTINATION share/cmake/${PROJECT_NAME}
+# )

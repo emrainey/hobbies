@@ -15,7 +15,7 @@ plane::plane(point const& C, vector const& N)
     // N.print("plane");
 }
 
-vector plane::normal(point const& world_point) const {
+vector plane::normal(point const& world_point __attribute__((unused))) const {
     // auto object_point = reverse_transform(world_point);
     vector world_normal = forward_transform(geometry::plane::normal);
     // world_normal.print("plane normal");

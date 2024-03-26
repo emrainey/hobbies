@@ -32,7 +32,7 @@ public:
     DenominatorType const& denominator;
 
 protected:
-    char suffix[12];
+    char suffix[14];
 
 public:
     /// Default Constructor
@@ -43,7 +43,7 @@ public:
         , _denominator{1}
         , numerator{_numerator}
         , denominator{_denominator} {
-        snprintf(suffix, sizeof(suffix), "%s/%s", _numerator.get_suffix(), _denominator.get_suffix());
+        snprintf(suffix, sizeof(suffix), "(%5s/%5s)", _numerator.get_suffix(), _denominator.get_suffix());
     }
 
     rate(NumeratorType const& num, DenominatorType const& denom)
@@ -54,7 +54,7 @@ public:
         , numerator{_numerator}
         , denominator{_denominator} {
         _value = reduce();
-        snprintf(suffix, sizeof(suffix), "%s/%s", _numerator.get_suffix(), _denominator.get_suffix());
+        snprintf(suffix, sizeof(suffix), "(%5s/%5s)", _numerator.get_suffix(), _denominator.get_suffix());
     }
 
     rate(double num, double denom)
@@ -65,7 +65,7 @@ public:
         , numerator{_numerator}
         , denominator{_denominator} {
         _value = reduce();
-        snprintf(suffix, sizeof(suffix), "%s/%s", _numerator.get_suffix(), _denominator.get_suffix());
+        snprintf(suffix, sizeof(suffix), "(%5s/%5s)", _numerator.get_suffix(), _denominator.get_suffix());
     }
 
     rate(rate const& other)
@@ -75,12 +75,12 @@ public:
         , _denominator{other.denominator}
         , numerator{_numerator}
         , denominator{_denominator} {
-        std::strncpy(suffix, other.suffix, sizeof(suffix));
+        std::memcpy(suffix, other.suffix, sizeof(suffix));
         suffix[sizeof(suffix) - 1] = '\0';
     }
 
     rate& operator=(rate const& other) {
-        std::strncpy(suffix, other.suffix, sizeof(suffix));
+        std::memcpy(suffix, other.suffix, sizeof(suffix));
         suffix[sizeof(suffix) - 1] = '\0';
         _value = other.value;
         _numerator = other._numerator;

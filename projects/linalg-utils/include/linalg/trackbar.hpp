@@ -18,7 +18,7 @@ public:
         , m_max{max}
         , m_value{def}
         , m_update{update}
-        , m_gradations{(max - min) / step} {
+        , m_gradations{size_t((max - min) / step)} {
         int default_value = (m_def - m_min) / m_step;
         cv::createTrackbar(m_my_name, m_parent, nullptr, m_gradations, on_trackbar_callback<TYPE>,
                            reinterpret_cast<void *>(this));

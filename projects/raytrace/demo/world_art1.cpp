@@ -16,7 +16,7 @@ public:
         , look_at{0, 0, 10}
         , sunrays{raytrace::vector{-20, 0, -21}, colors::white, 1E4}
         , floor{R3::origin, R3::basis::Z, 100.0, 100.0}
-        , pyramid{look_at, 10}
+        , pyramid{look_at, 0}
         , orb{raytrace::point{0, 0, 12}, 2.0}
         , halo{raytrace::point{0, 0, 14}, 2.25, 0.125} {
         pyramid.material(&mediums::metals::stainless);

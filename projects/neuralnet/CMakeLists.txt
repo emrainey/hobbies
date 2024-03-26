@@ -2,15 +2,6 @@ cmake_minimum_required(VERSION 3.20.0)
 project(neuralnet LANGUAGES CXX VERSION 0.7.0)  # This must match the conanfile.py!
 
 find_package(OpenCV REQUIRED)
-find_package(basal 0.5.0 REQUIRED)
-find_package(linalg REQUIRED)
-find_package(linalg-utils REQUIRED)
-
-# Build Everything with C++17 and full native optimizations
-set(CMAKE_CXX_STANDARD 17)
-enable_testing()
-
-option(BUILD_SHARED_LIBS "Builds libraries as dynamic objects" OFF)
 
 add_library(hobbies-neuralnet
     ${CMAKE_CURRENT_SOURCE_DIR}/source/hidden.cpp
@@ -24,15 +15,15 @@ add_library(hobbies-neuralnet
 )
 target_link_libraries(hobbies-neuralnet
     PUBLIC
-        Basal::hobbies-basal
-        Linalg::hobbies-linalg
-        LinalgUtils::hobbies-linalg-utils
+        hobbies-basal
+        hobbies-linalg
+        hobbies-linalg-utils
         ${OpenCV_LIBS}
     PRIVATE
-        Basal::enabled-debugging
-        Basal::enabled-profiling
-        Basal::enabled-warnings
-        Basal::native-optimized
+        enabled-debugging
+        enabled-profiling
+        enabled-warnings
+        native-optimized
 )
 target_include_directories(hobbies-neuralnet
     PUBLIC
@@ -78,22 +69,22 @@ endif()
 #####################
 
 # Declare installs and exports
-install(TARGETS hobbies-neuralnet EXPORT NeuralnetTargets
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
-    RUNTIME DESTINATION bin
-    INCLUDES DESTINATION include
-)
-install(EXPORT NeuralnetTargets
-    FILE ${PROJECT_NAME}-Targets.cmake
-    NAMESPACE Neuralnet::
-    DESTINATION share/cmake/${PROJECT_NAME}
-)
-install(DIRECTORY include/${PROJECT_NAME}
-    DESTINATION include
-    PATTERN "*.hpp"
-    PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
-)
-install(FILES "cmake/Find${PROJECT_NAME}.cmake" "cmake/${PROJECT_NAME}-config.cmake"
-    DESTINATION share/cmake/${PROJECT_NAME}
-)
+# install(TARGETS hobbies-neuralnet EXPORT NeuralnetTargets
+#     LIBRARY DESTINATION lib
+#     ARCHIVE DESTINATION lib
+#     RUNTIME DESTINATION bin
+#     INCLUDES DESTINATION include
+# )
+# install(EXPORT NeuralnetTargets
+#     FILE ${PROJECT_NAME}-Targets.cmake
+#     NAMESPACE Neuralnet::
+#     DESTINATION share/cmake/${PROJECT_NAME}
+# )
+# install(DIRECTORY include/${PROJECT_NAME}
+#     DESTINATION include
+#     PATTERN "*.hpp"
+#     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
+# )
+# install(FILES "cmake/Find${PROJECT_NAME}.cmake" "cmake/${PROJECT_NAME}-config.cmake"
+#     DESTINATION share/cmake/${PROJECT_NAME}
+# )

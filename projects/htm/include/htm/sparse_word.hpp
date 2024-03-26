@@ -47,10 +47,10 @@ public:
     }
 
     void set(int index) {
-        if (-BITS < index and index < 0) {
+        if ((0 - int(BITS)) < index and index < 0) {
             index = BITS + index;
             printf("Negative index %d of %zu\n", index, BITS);
-        } else if (index >= BITS) {
+        } else if (size_t(index) >= BITS) {
             index %= BITS;
         }
         bits.push_back((size_t)index);

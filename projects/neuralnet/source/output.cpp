@@ -17,7 +17,7 @@ size_t output::infer_label(precision& out) {
     precision tmp = 0.0;
     size_t index = 0;
     values.for_each ([&](size_t y, size_t x, precision const& v) {
-        x |= 0;
+        (void)x;
         if (tmp < v) {
             tmp = v;
             out = v;

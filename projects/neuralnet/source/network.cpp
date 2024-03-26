@@ -222,7 +222,7 @@ static void jetImage() {
     printf("Jet Image is %d across\n", width);
     linalg::matrix values(1, width);
     values.for_each ([&](size_t y, size_t x, precision& v) {
-        y |= 0;
+        (void)y;
         v = ((precision)x / width);  // 0.0 to 1.0
         v *= (2.0 * high);        // 0.0 to 3.0
         v += low;                 // -1.5 to 1.5

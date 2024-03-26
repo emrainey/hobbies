@@ -2,7 +2,7 @@
 #include <htm/htm.hpp>
 
 namespace htm {
-std::tm const* const now() {
+std::tm const* now() {
     std::time_t t = std::time(nullptr);
     return std::localtime(&t);
 }

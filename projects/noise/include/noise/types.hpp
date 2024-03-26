@@ -16,5 +16,9 @@ using vector = geometry::vector_<precision, 2>;
 }  // namespace noise
 
 namespace noise {
+#if defined(USE_XMMT)
 using array = intel::point_<intel::double2, 2ul>;
+#else
+using array = precision[2];
+#endif
 }

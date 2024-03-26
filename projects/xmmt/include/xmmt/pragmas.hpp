@@ -3,8 +3,12 @@
 
 // Requires __SSE2__ and __AVX__ in the least for intel intrinsics
 
+#if defined(__x86_64__)
 #include <emmintrin.h>
 #include <immintrin.h>
+#elif defined(__arm__) or defined(__aarch64__) or defined(__arm64__)
+#include "sse2neon.h"
+#endif
 
 #if defined(__AVX512F__) and (__AVX512F__ == 1)
 #pragma message("AVX512 Enabled")

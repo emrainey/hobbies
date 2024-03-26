@@ -2,18 +2,6 @@ cmake_minimum_required(VERSION 3.20.0)
 project(linalg-utils LANGUAGES CXX VERSION 0.7.0)  # This must match the conanfile.py!
 
 find_package(OpenCV REQUIRED)
-find_package(GTest)
-find_package(basal 0.5.0 REQUIRED)
-find_package(units_of_measure REQUIRED)
-find_package(fourcc REQUIRED)
-find_package(linalg REQUIRED)
-find_package(geometry REQUIRED)
-
-# Build Everything with C++17 and full native optimizations
-set(CMAKE_CXX_STANDARD 17)
-enable_testing()
-
-option(BUILD_SHARED_LIBS "Builds libraries as dynamic objects" OFF)
 
 if (OpenCV_FOUND)
 add_library(hobbies-linalg-utils)
@@ -23,7 +11,7 @@ target_sources(hobbies-linalg-utils
         ${CMAKE_CURRENT_SOURCE_DIR}/source/plot.cpp
 )
 target_link_libraries(hobbies-linalg-utils PUBLIC
-    Linalg::hobbies-linalg Geometry::hobbies-geometry Fourcc::hobbies-fourcc ${OpenCV_LIBS})
+    hobbies-linalg hobbies-geometry hobbies-fourcc ${OpenCV_LIBS})
 target_include_directories(hobbies-linalg-utils
     PUBLIC
         # Generated Tree
@@ -45,25 +33,25 @@ set_target_properties(hobbies-linalg-utils PROPERTIES
 #####################
 
 # Declare installs and exports
-install(TARGETS hobbies-linalg-utils EXPORT LinalgUtilsTargets
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
-    RUNTIME DESTINATION bin
-    INCLUDES DESTINATION include
-)
-install(EXPORT LinalgUtilsTargets
-    FILE ${PROJECT_NAME}-Targets.cmake
-    NAMESPACE LinalgUtils::
-    DESTINATION share/cmake/${PROJECT_NAME}
-)
-install(DIRECTORY include/linalg
-    DESTINATION include
-    PATTERN "*.hpp"
-    PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
-)
-install(FILES "cmake/Find${PROJECT_NAME}.cmake" "cmake/${PROJECT_NAME}-config.cmake"
-    DESTINATION share/cmake/${PROJECT_NAME}
-)
+# install(TARGETS hobbies-linalg-utils EXPORT LinalgUtilsTargets
+#     LIBRARY DESTINATION lib
+#     ARCHIVE DESTINATION lib
+#     RUNTIME DESTINATION bin
+#     INCLUDES DESTINATION include
+# )
+# install(EXPORT LinalgUtilsTargets
+#     FILE ${PROJECT_NAME}-Targets.cmake
+#     NAMESPACE LinalgUtils::
+#     DESTINATION share/cmake/${PROJECT_NAME}
+# )
+# install(DIRECTORY include/linalg
+#     DESTINATION include
+#     PATTERN "*.hpp"
+#     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
+# )
+# install(FILES "cmake/Find${PROJECT_NAME}.cmake" "cmake/${PROJECT_NAME}-config.cmake"
+#     DESTINATION share/cmake/${PROJECT_NAME}
+# )
 #####################
 # Demos
 #####################

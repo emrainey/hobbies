@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 3.20.0)
 project(basal LANGUAGES CXX VERSION 0.5.0)  # This must match the conanfile.py!
-set(CMAKE_CXX_STANDARD 17)
-enable_testing()
 
-option(BUILD_SHARED_LIBS "Builds libraries as dynamic objects" OFF)
 option(USE_PRECISION_AS_FLOAT "Use float (ON) as the precision type or double (OFF)" OFF)
 
 add_library(enabled-warnings INTERFACE)
@@ -14,7 +11,7 @@ target_compile_options(enabled-warnings INTERFACE
 add_library(enabled-debugging INTERFACE)
 target_compile_options(enabled-debugging INTERFACE
     $<$<COMPILE_LANG_AND_ID:CXX,AppleClang,Clang>:-glldb>
-    $<$<COMPILE_LANG_AND_ID:CXX,GNU>:-g -gstabs+>
+    $<$<COMPILE_LANG_AND_ID:CXX,GNU>:-g -ggdb>
 )
 
 add_library(enabled-profiling INTERFACE)
@@ -30,8 +27,8 @@ target_compile_options(enabled-profiling INTERFACE
 # Optimizes your objects for native builds (on the build side only)
 add_library(native-optimized INTERFACE)
 target_compile_options(native-optimized INTERFACE
-    $<$<COMPILE_LANG_AND_ID:CXX,AppleClang,Clang,GNU>:-march=native -mtune=native>
-    $<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/arch:AVX2>
+    $<$<COMPILE_LANG_AND_ID:CXX,AppleClang,Clang,GNU>:-march=native -mtune=native> # This is not ideal for distcc
+    # $<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/arch:AVX2>
 )
 
 
@@ -71,37 +68,45 @@ set_target_properties(hobbies-basal PROPERTIES
     POSITION_INDEPENDENT_CODE ON
 )
 
-# Declare installs and exports
-install(TARGETS hobbies-basal enabled-warnings enabled-debugging enabled-profiling native-optimized
-    EXPORT BasalTargets
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
-    RUNTIME DESTINATION bin
-    INCLUDES DESTINATION include
-)
-install(EXPORT BasalTargets
-    FILE ${PROJECT_NAME}-Targets.cmake
-    NAMESPACE Basal::
-    DESTINATION share/cmake/${PROJECT_NAME}
-    PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
-)
-install(DIRECTORY include/${PROJECT_NAME}
-    DESTINATION include
-    PATTERN "*.hpp"
-    PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
-)
-include(CMakePackageConfigHelpers)
-write_basic_package_version_file("${PROJECT_NAME}-config-version.cmake"
-    VERSION ${PROJECT_VERSION}
-    COMPATIBILITY SameMajorVersion
-)
-install(FILES
-        # "cmake/Find${PROJECT_NAME}.cmake"
-        "cmake/${PROJECT_NAME}-config.cmake"
-        "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake"
-    DESTINATION share/cmake/${PROJECT_NAME}
-    PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
-)
+# if(BUILD_SEPARATELY)
+# # Declare installs and exports
+# install(TARGETS hobbies-basal enabled-warnings enabled-debugging enabled-profiling native-optimized
+#     EXPORT BasalTargets
+#     LIBRARY DESTINATION lib
+#     ARCHIVE DESTINATION lib
+#     RUNTIME DESTINATION bin
+#     INCLUDES DESTINATION include
+# )
+# install(EXPORT BasalTargets
+#     FILE ${PROJECT_NAME}-Targets.cmake
+#     NAMESPACE Basal::
+#     DESTINATION share/cmake/${PROJECT_NAME}
+#     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
+# )
+# install(DIRECTORY include/${PROJECT_NAME}
+#     DESTINATION include
+#     PATTERN "*.hpp"
+#     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
+# )
+# include(CMakePackageConfigHelpers)
+# write_basic_package_version_file("${PROJECT_NAME}-config-version.cmake"
+#     VERSION ${PROJECT_VERSION}
+#     COMPATIBILITY SameMajorVersion
+# )
+# install(FILES
+#         # "cmake/Find${PROJECT_NAME}.cmake"
+#         "cmake/${PROJECT_NAME}-config.cmake"
+#         "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake"
+#     DESTINATION share/cmake/${PROJECT_NAME}
+#     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
+# )
+# else()
+#     # This creates the ${PROJECT_NAME}Targets.cmake file
+#     export(TARGETS hobbies-basal enabled-warnings enabled-debugging enabled-profiling native-optimized
+#         NAMESPACE Basal::
+#         FILE "${CMAKE_CURRENT_BINARY_DIR}/BasalTargets.cmake"
+#     )
+# endif() # BUILD_SEPARATELY
 
 # Unit Tests
 set(THREADS_PREFER_PTHREAD_FLAG ON)

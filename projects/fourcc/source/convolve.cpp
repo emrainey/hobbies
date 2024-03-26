@@ -72,9 +72,9 @@ void convert(image<rgb8, pixel_format::RGB8> const& in, image<iyu2, pixel_format
             uint8_t _y = (y_ > 255 ? 255 : (y_ < 0 ? 0 : y_));
             uint8_t _v = (v_ > 255 ? 255 : (v_ < 0 ? 0 : v_));
             iyu2 pixel;
-            pixel.u = u_;
-            pixel.y = y_;
-            pixel.v = v_;
+            pixel.u = _u;
+            pixel.y = _y;
+            pixel.v = _v;
             out.at(y, x) = pixel;
         }
     }
@@ -82,8 +82,8 @@ void convert(image<rgb8, pixel_format::RGB8> const& in, image<iyu2, pixel_format
 
 void convolve(image<int16_t, pixel_format::Y16>& out, int16_t const (&kernel)[3][3],
               image<rgb8, pixel_format::RGB8> const& input, channel channel) {
-    for (int y = 1; y < input.height - 1; y++) {
-        for (int x = 1; x < input.width - 1; x++) {
+    for (size_t y = 1; y < (input.height - 1); y++) {
+        for (size_t x = 1; x < (input.width - 1); x++) {
             int32_t sum = 0;
             int32_t div = 0;
             for (int j = -1; j <= 1; j++) {
@@ -115,8 +115,8 @@ void convolve(image<int16_t, pixel_format::Y16>& out, int16_t const (&kernel)[3]
 
 void convolve(image<int16_t, pixel_format::Y16>& out, int16_t const (&kernel)[3][3],
               image<iyu2, pixel_format::IYU2> const& input, channel channel) {
-    for (int y = 1; y < input.height - 1; y++) {
-        for (int x = 1; x < input.width - 1; x++) {
+    for (size_t y = 1; y < (input.height - 1); y++) {
+        for (size_t x = 1; x < (input.width - 1); x++) {
             int32_t sum = 0;
             int32_t div = 0;
             for (int j = -1; j <= 1; j++) {
@@ -151,9 +151,9 @@ void filter(image<rgb8, pixel_format::RGB8>& output, image<rgb8, pixel_format::R
             int16_t const kernel[3]) {
     basal::exception::throw_unless(output.width == input.width, __FILE__, __LINE__);
     basal::exception::throw_unless(output.height == input.height, __FILE__, __LINE__);
-    for (int y = 0; y < input.height - 1; y++) {
+    for (size_t y = 0; y < (input.height - 1); y++) {
         output.at(y, 0) = input.at(y, 0);
-        for (int x = 1; x < input.width - 1; x++) {
+        for (size_t x = 1; x < (input.width - 1); x++) {
             int16_t sum = kernel[0] + kernel[1] + kernel[2];
             int16_t r = kernel[0] * input.at(y, x - 1).r + kernel[1] * input.at(y, x - 0).r
                         + kernel[2] * input.at(y, x + 1).r;

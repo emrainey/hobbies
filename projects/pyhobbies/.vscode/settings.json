@@ -1,7 +1,0 @@
-{
-    "pythonTestExplorer.testFramework": "pytest",
-    "python.testing.pytestEnabled": true,
-    "python.testing.unittestEnabled": false,
-    "python.defaultInterpreterPath": "python3",
-    "python.linting.maxNumberOfProblems": 110,
-}

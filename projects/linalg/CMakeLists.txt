@@ -1,30 +1,20 @@
 cmake_minimum_required(VERSION 3.20.0)
 project(linalg LANGUAGES CXX VERSION 0.7.0)  # This must match the conanfile.py!
 
-find_package(basal 0.5.0 REQUIRED)
-find_package(units_of_measure REQUIRED)
-find_package(fourcc REQUIRED)
-
-# Build Everything with C++17 and full native optimizations
-set(CMAKE_CXX_STANDARD 17)
-enable_testing()
-
-option(BUILD_SHARED_LIBS "Builds libraries as dynamic objects" OFF)
-
 add_library(hobbies-linalg
     ${CMAKE_CURRENT_SOURCE_DIR}/source/matrix.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/solvers.cpp
 )
 target_link_libraries(hobbies-linalg
     PUBLIC
-        Basal::hobbies-basal
-        # Basal::hobbies-geometry
-        UnitsOfMeasure::hobbies-uom
+        hobbies-basal
+        # hobbies-geometry
+        hobbies-uom
     PRIVATE
-        Basal::enabled-warnings
-        Basal::enabled-debugging
-        Basal::enabled-profiling
-        Basal::native-optimized
+        enabled-warnings
+        enabled-debugging
+        enabled-profiling
+        native-optimized
 )
 target_include_directories(hobbies-linalg PUBLIC
     # Generated Tree
@@ -44,26 +34,26 @@ set_target_properties(hobbies-linalg PROPERTIES
 # EXPORTS
 #####################
 
-# Declare installs and exports
-install(TARGETS hobbies-linalg EXPORT LinalgTargets
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
-    RUNTIME DESTINATION bin
-    INCLUDES DESTINATION include
-)
-install(EXPORT LinalgTargets
-    FILE ${PROJECT_NAME}-Targets.cmake
-    NAMESPACE Linalg::
-    DESTINATION share/cmake/${PROJECT_NAME}
-)
-install(DIRECTORY include/${PROJECT_NAME}
-    DESTINATION include
-    PATTERN "*.hpp"
-    PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
-)
-install(FILES "cmake/Find${PROJECT_NAME}.cmake" "cmake/${PROJECT_NAME}-config.cmake"
-    DESTINATION share/cmake/${PROJECT_NAME}
-)
+# # Declare installs and exports
+# install(TARGETS hobbies-linalg EXPORT LinalgTargets
+#     LIBRARY DESTINATION lib
+#     ARCHIVE DESTINATION lib
+#     RUNTIME DESTINATION bin
+#     INCLUDES DESTINATION include
+# )
+# install(EXPORT LinalgTargets
+#     FILE ${PROJECT_NAME}-Targets.cmake
+#     NAMESPACE Linalg::
+#     DESTINATION share/cmake/${PROJECT_NAME}
+# )
+# install(DIRECTORY include/${PROJECT_NAME}
+#     DESTINATION include
+#     PATTERN "*.hpp"
+#     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
+# )
+# install(FILES "cmake/Find${PROJECT_NAME}.cmake" "cmake/${PROJECT_NAME}-config.cmake"
+#     DESTINATION share/cmake/${PROJECT_NAME}
+# )
 #####################
 # Googletests
 #####################
@@ -76,7 +66,7 @@ if (Threads_FOUND AND GTest_FOUND)
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_solvers.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_matrix.cpp
     )
-    target_link_libraries(gtest_linalg PRIVATE hobbies-linalg Basal::enabled-debugging GTest::gtest GTest::gtest_main Threads::Threads)
+    target_link_libraries(gtest_linalg PRIVATE hobbies-linalg enabled-debugging GTest::gtest GTest::gtest_main Threads::Threads)
     add_test(NAME gtest_linalg COMMAND gtest_linalg)
 endif()
 

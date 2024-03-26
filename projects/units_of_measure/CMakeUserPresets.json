@@ -1,9 +1,0 @@
-{
-    "version": 4,
-    "vendor": {
-        "conan": {}
-    },
-    "include": [
-        "/Users/emrainey/Source/hobbies/projects/units_of_measure/build/Release/generators/CMakePresets.json"
-    ]
-}

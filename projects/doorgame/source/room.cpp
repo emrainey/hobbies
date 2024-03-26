@@ -11,7 +11,7 @@ Room::Room(size_t id) : Storage{1}, m_id{id}, doors{id, id, id, id}, has_investi
 
 void Room::set_adjacent(size_t other_id, Direction d) {
     if constexpr (load_debug) {
-        fprintf(stderr, "[DEBUG] Connecting room %zu (%p) to room %zu on the %c side\r\n", m_id, this, other_id,
+        fprintf(stderr, "[DEBUG] Connecting room %zu (%p) to room %zu on the %c side\r\n", m_id, (void *)this, other_id,
                 basal::to_underlying(d));
     }
     if (d == Direction::North) {

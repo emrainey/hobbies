@@ -13,7 +13,9 @@ using namespace linalg::operators;
 using namespace geometry;
 using namespace geometry::operators;
 
-pyramid::pyramid(point const& base, precision height) : object(base, 2) {
+pyramid::pyramid(point const& base, precision height)
+    : object(base, 2)
+    , m_height{height} {
 }
 
 vector pyramid::normal(point const& world_surface_point) const {
@@ -95,7 +97,7 @@ bool pyramid::is_surface_point(point const& world_point) const {
     return basal::nearly_equals(z, m_height - std::abs(x) - std::abs(y));
 }
 
-image::point pyramid::map(point const& object_surface_point) const {
+image::point pyramid::map(point const& object_surface_point __attribute__((unused))) const {
     return image::point(0, 0);  // no mapping for now
 }
 

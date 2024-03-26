@@ -1,3 +1,0 @@
-digraph {
-        "conanfile.py (basal/0.5.0)" -> "gtest/1.8.1"
-}

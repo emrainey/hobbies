@@ -1,12 +1,5 @@
 cmake_minimum_required(VERSION 3.20.0)
 project(units_of_measure LANGUAGES CXX VERSION 0.7.0)  # This must match the conanfile.py!
-set(CMAKE_CXX_STANDARD 17)
-
-find_package(basal 0.5.0 REQUIRED)
-
-enable_testing()
-
-option(BUILD_SHARED_LIBS "Builds libraries as dynamic objects" OFF)
 
 add_library(hobbies-uom
     # IEC
@@ -37,12 +30,12 @@ add_library(hobbies-uom
 )
 target_link_libraries(hobbies-uom
     PRIVATE
-        Basal::enabled-warnings
-        Basal::enabled-debugging
-        Basal::enabled-profiling
-        Basal::native-optimized
+        enabled-warnings
+        enabled-debugging
+        enabled-profiling
+        native-optimized
     PUBLIC
-        Basal::hobbies-basal
+        hobbies-basal
 )
 target_include_directories(hobbies-uom PUBLIC
     # Generated Tree
@@ -59,25 +52,25 @@ set_target_properties(hobbies-uom PROPERTIES
 )
 
 # Declare installs and exports
-install(TARGETS hobbies-uom EXPORT UnitsOfMeasureTargets
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
-    RUNTIME DESTINATION bin
-    INCLUDES DESTINATION include
-)
-install(EXPORT UnitsOfMeasureTargets
-    FILE ${PROJECT_NAME}-Targets.cmake
-    NAMESPACE UnitsOfMeasure::
-    DESTINATION share/cmake/${PROJECT_NAME}
-)
-install(DIRECTORY include/iec include/iso include/si
-    DESTINATION include
-    PATTERN "*.hpp"
-    PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
-)
-install(FILES "cmake/Find${PROJECT_NAME}.cmake" "cmake/${PROJECT_NAME}-config.cmake"
-    DESTINATION share/cmake/${PROJECT_NAME}
-)
+# install(TARGETS hobbies-uom EXPORT UnitsOfMeasureTargets
+#     LIBRARY DESTINATION lib
+#     ARCHIVE DESTINATION lib
+#     RUNTIME DESTINATION bin
+#     INCLUDES DESTINATION include
+# )
+# install(EXPORT UnitsOfMeasureTargets
+#     FILE ${PROJECT_NAME}-Targets.cmake
+#     NAMESPACE UnitsOfMeasure::
+#     DESTINATION share/cmake/${PROJECT_NAME}
+# )
+# install(DIRECTORY include/iec include/iso include/si
+#     DESTINATION include
+#     PATTERN "*.hpp"
+#     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
+# )
+# install(FILES "cmake/Find${PROJECT_NAME}.cmake" "cmake/${PROJECT_NAME}-config.cmake"
+#     DESTINATION share/cmake/${PROJECT_NAME}
+# )
 #####################################################
 # Unit Testing
 #####################################################

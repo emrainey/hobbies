@@ -34,7 +34,11 @@ VERBOSE=OFF
 RUN_TESTS=0
 USE_CONAN=1
 USE_SHARED_LIBS=OFF
-ONLY_PKG=
+unset DISTCC
+unset ONLY_PKG
+unset CC
+unset CXX
+unset COMPILERS
 while [[ $# -gt 0 ]]; do
     case $1 in
         -rm)
@@ -54,6 +58,9 @@ while [[ $# -gt 0 ]]; do
         ;;
         -dy)
             USE_SHARED_LIBS=ON
+        ;;
+        -distcc)
+            DISTCC=("-DCMAKE_C_COMPILER_LAUNCHER=distcc" "-DCMAKE_CXX_COMPILER_LAUNCHER=distcc")
         ;;
         -del)
             for pkg ver in ${(kv)PKGS}; do
@@ -76,6 +83,19 @@ while [[ $# -gt 0 ]]; do
         -p)
             ONLY_PKG=$2
             shift
+        ;;
+        -llvm)
+            CC=/opt/homebrew/opt/llvm/bin/clang-17
+            CXX=/opt/homebrew/opt/llvm/bin/clang-17
+        ;;
+        -gcc)
+            # these have issues with LD
+            # CC=/opt/homebrew/bin/gcc-11
+            # CXX=/opt/homebrew/bin/g++-11
+            # CC=/opt/homebrew/bin/gcc-12
+            # CXX=/opt/homebrew/bin/g++-12
+            CC=/opt/homebrew/bin/aarch64-apple-darwin23
+            CXX=/opt/homebrew/bin/aarch64-apple-darwin23
         ;;
         *)
         ;;
@@ -111,13 +131,27 @@ for pkg in ${ORDER[@]}; do
     mkdir -p ${build_path} ${install_path} ${package_path}
 
     if [[ ${USE_CONAN} -eq 0 ]]; then
+        COMPILERS=()
+        if [[ -e ${CC} ]]; then
+            COMPILERS+=("-DCMAKE_C_COMPILER=${CC}")
+            # COMPILERS+=("-DCMAKE_C_COMPILER_FORCED:BOOL=TRUE")
+        fi
+        if [[ -e ${CXX} ]]; then
+            COMPILERS+=("-DCMAKE_CXX_COMPILER=${CXX}")
+            # COMPILERS+=("-DCMAKE_CXX_COMPILER_FORCED:BOOL=TRUE")
+        fi
+        if [[ -e ${LIBS} ]]; then
+            COMPILERS+=("-DCMAKE_SYSTEM_LIBRARY_PATH=${LIBS}")
+        fi
+
         cmake -B ${build_path} -S ${project_path} \
+            ${DISTCC[@]} \
             -DBUILD_SHARED_LIBS=${USE_SHARED_LIBS} \
             -DCMAKE_INSTALL_PREFIX:PATH=${INSTALL_ROOT} \
             -DCMAKE_PREFIX_PATH:PATH=${INSTALL_ROOT} \
             -DCMAKE_VERBOSE_MAKEFILE:BOOL=${VERBOSE} \
             -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE \
-            -DCMAKE_BUILD_TYPE:STRING=Release
+            -DCMAKE_BUILD_TYPE:STRING=Release ${COMPILERS[@]}
         cmake --build ${build_path} -j${JOBS} --target all
         if [[ ${RUN_TESTS} -eq 1 ]]; then
             cmake --build ${build_path} --target test

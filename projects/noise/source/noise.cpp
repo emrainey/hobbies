@@ -164,9 +164,9 @@ static precision mix(precision value1, precision value2, precision mixer) {
     return (value2 * mixer) + (value1 * (1.0 - mixer));
 }
 
-static noise::point mix(noise::point a, noise::point b, noise::point s) {
-    return noise::point{mix(a.x, b.x, s.x), mix(a.y, b.y, s.y)};
-}
+// static noise::point mix(noise::point a, noise::point b, noise::point s) {
+//     return noise::point{mix(a.x, b.x, s.x), mix(a.y, b.y, s.y)};
+// }
 
 static precision fractal_noise(point const& pnt, vector const& seed, precision rand_gain = 1.0) {
     noise::point fl = floor(pnt);

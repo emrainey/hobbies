@@ -12,12 +12,12 @@ scene::intersect_set::intersect_set(precision d, geometry::intersection const& i
 static constexpr bool debug = false;
 static constexpr bool enforce_ranges = true;
 /// uses fixed color scheme for shadows, light, near-zero values
-static constexpr bool debug_shadows_and_light = false;
-static constexpr bool use_incident_scaling = true;
-static constexpr bool use_specular_scaling = true;
+// static constexpr bool debug_shadows_and_light = false;
+// static constexpr bool use_incident_scaling = true;
+// static constexpr bool use_specular_scaling = true;
 
 // displays the distance to a light in shadow as a grayscale value (black is still shadow, white is very close)
-static constexpr bool use_grayscale_distance = false;
+// static constexpr bool use_grayscale_distance = false;
 
 scene::scene(double art)
     : adaptive_reflection_threshold{art}

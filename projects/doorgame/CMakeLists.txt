@@ -1,14 +1,6 @@
 cmake_minimum_required(VERSION 3.20.0)
 project(doorgame LANGUAGES CXX VERSION 0.1.0)  # This must match the conanfile.py!
 
-find_package(basal 0.5.0 REQUIRED)
-
-# Build Everything with C++17 and full native optimizations
-set(CMAKE_CXX_STANDARD 17)
-enable_testing()
-
-option(BUILD_SHARED_LIBS "Builds libraries as dynamic objects" OFF)
-
 add_library(hobbies-doorgame
     ${CMAKE_CURRENT_SOURCE_DIR}/source/animate.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/actions.cpp
@@ -28,12 +20,12 @@ add_library(hobbies-doorgame
 )
 target_link_libraries(hobbies-doorgame
     PUBLIC
-        Basal::hobbies-basal
+        hobbies-basal
     PRIVATE
-        Basal::enabled-debugging
-        Basal::enabled-profiling
-        Basal::enabled-warnings
-        Basal::native-optimized
+        enabled-debugging
+        enabled-profiling
+        enabled-warnings
+        native-optimized
 )
 target_include_directories(hobbies-doorgame
     PUBLIC
@@ -54,26 +46,26 @@ set_target_properties(hobbies-doorgame PROPERTIES
 # EXPORTS
 #####################
 
-# Declare installs and exports
-install(TARGETS hobbies-doorgame EXPORT DoorGameTargets
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
-    RUNTIME DESTINATION bin
-    INCLUDES DESTINATION include
-)
-install(EXPORT DoorGameTargets
-    FILE ${PROJECT_NAME}-Targets.cmake
-    NAMESPACE DoorGame::
-    DESTINATION share/cmake/${PROJECT_NAME}
-)
-install(DIRECTORY include/${PROJECT_NAME}
-    DESTINATION include
-    PATTERN "*.hpp"
-    PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
-)
-install(FILES "cmake/Finddoorgame.cmake" "cmake/${PROJECT_NAME}-config.cmake"
-    DESTINATION share/cmake/${PROJECT_NAME}
-)
+# # Declare installs and exports
+# install(TARGETS hobbies-doorgame EXPORT DoorGameTargets
+#     LIBRARY DESTINATION lib
+#     ARCHIVE DESTINATION lib
+#     RUNTIME DESTINATION bin
+#     INCLUDES DESTINATION include
+# )
+# install(EXPORT DoorGameTargets
+#     FILE ${PROJECT_NAME}-Targets.cmake
+#     NAMESPACE DoorGame::
+#     DESTINATION share/cmake/${PROJECT_NAME}
+# )
+# install(DIRECTORY include/${PROJECT_NAME}
+#     DESTINATION include
+#     PATTERN "*.hpp"
+#     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
+# )
+# install(FILES "cmake/Finddoorgame.cmake" "cmake/${PROJECT_NAME}-config.cmake"
+#     DESTINATION share/cmake/${PROJECT_NAME}
+# )
 ################
 # DEMOS
 ################

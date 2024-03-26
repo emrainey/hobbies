@@ -13,7 +13,7 @@ point<DIMS>::point() {
 /// Constructor from a pointer to an array
 template <size_t DIMS>
 point<DIMS>::point(precision const a[], size_t len) noexcept(false) {
-    for (size_t i = 0; i < dimensions; i++) {
+    for (size_t i = 0; i < dimensions and i < len; i++) {
         m_data[i] = a[i];
     }
 }

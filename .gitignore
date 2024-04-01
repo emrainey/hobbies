@@ -58,6 +58,10 @@ __pycache__
 # Ignore the render image that the OpenCV version makes
 render_image.png
 
+# Ignore the profiling PDFs. 
+*-perf.pdf
+*.prof
+
 # Ignore the Virtual Environment Stuff for Conan
 activate.*
 conan.lock

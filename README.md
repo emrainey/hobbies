@@ -16,7 +16,7 @@ A place to collect and share all my hobby projects.
   * `raytrace` - a fairly simple raytracer
   * `htm` - the start of a hierarchical temporal memory system.
   * `units_of_measure` - mechanism to create types which represent Units of Measure.
-  * `xmmt` - SSE2/AVX512 inline assembly vector and matrix headers.
+  * `xmmt` - SSE2/AVX512 inline assembly vector and matrix headers. (does not build on ARM64)
 
 Check the README in each folder for it's own progress and issues.
 
@@ -37,7 +37,7 @@ Check the README in each folder for it's own progress and issues.
 
 ## Developing
 
-You can open either the `hobbies.code-workspace` or the folder itself. Currently VSCode is not intelligent about running _configure_ in order.
+You can open either the `hobbies.code-workspace` or the folder itself. VSCode can configure CMake now but you'll need a compiler which supports OpenMP and the Homebrew installation of it.
 
 ## Building
 
@@ -45,14 +45,7 @@ Currently you can run the `./separate_builds.sh -rm -s` to individually config, 
 
 ### Conan
 
-Hobbies can be build using Conan (<http://conan.io>). In Windows for Linux, and older versions of Linux you can use the `wsl_conanfile.txt` to setup a build environment and then call the `./separate_build.sh -c` to use Conan to communicate between projects.
-
-```bash
-conan install wsl_conanfile.txt
-source ./activate.sh
-./separate_builds.sh -rm -c
-source ./deactivate.sh
-```
+Conan support has been removed until I have time to read up on Conan 2.0 builds. This will make it hard to build on WSL as that was my preferred method.
 
 ## Running
 
@@ -60,16 +53,30 @@ While in the hobbies' root, you can run things by pre-pending the LD (DYLD) path
 
 ```bash
 # Running the NCurses Raytracing Console on Mac
-DYLD_LIBRARY_PATH=install/lib:build/raytrace ./build/raytrace/demo_curses -m libworld_example.dylib
+DYLD_LIBRARY_PATH=install/lib:build/projects/raytrace ./build/projects/raytrace/demo_curses -m libworld_example.dylib
 ```
 
 ## Testing Folder
 
-I've added an explicit folder to run tests. You can run them using the testing wrapper script (it will temporarily modify your `PATH` and `*LD_LIBRARY_PATH`).
+I've added an explicit folder to run tests. You can run them using the testing wrapper script (it will temporarily modify your `PATH` and `LD_LIBRARY_PATH`).
 
 ```
 cd testing
-./testing.sh demo_curses -m ../build/raytrace/libworld_example.dylib
+./testing.sh demo_curses -m world_example
+```
+
+## Profiling
+
+There's two ways to run the profiling tools which have been tested on Mac OS.
+
+```bash
+# This will generate a "testing/profiling.txt" with the top 100 called functions.
+./raytrace.sh ... options ...
+```
+
+```bash
+# This will generate a *-perf.pdf with the details (a call tree with % time spent)
+./profile_run.sh
 ```
 
 ## VS Code order of precedence processing
@@ -79,3 +86,5 @@ VSCode will take settings in the order of:
 * .code-workspace
 * .vscode/settings.json
 * project/**/.vscode/settings.json
+
+However, all settings have been moved to the workspace file.

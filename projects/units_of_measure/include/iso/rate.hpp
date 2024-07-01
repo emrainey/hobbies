@@ -32,7 +32,7 @@ public:
     DenominatorType const& denominator;
 
 protected:
-    char suffix[14];
+    char suffix[16];
 
 public:
     /// Default Constructor
@@ -54,7 +54,9 @@ public:
         , numerator{_numerator}
         , denominator{_denominator} {
         _value = reduce();
-        snprintf(suffix, sizeof(suffix), "(%5s/%5s)", _numerator.get_suffix(), _denominator.get_suffix());
+        if (0 > snprintf(suffix, sizeof(suffix), "(%5s/%5s)", _numerator.get_suffix(), _denominator.get_suffix())) {
+            printf("Error: snprintf failed to write to buffer\n");
+        }
     }
 
     rate(double num, double denom)

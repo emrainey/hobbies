@@ -3,35 +3,6 @@ project(basal LANGUAGES CXX VERSION 0.5.0)  # This must match the conanfile.py!
 
 option(USE_PRECISION_AS_FLOAT "Use float (ON) as the precision type or double (OFF)" OFF)
 
-add_library(enabled-warnings INTERFACE)
-target_compile_options(enabled-warnings INTERFACE
-    $<$<COMPILE_LANG_AND_ID:CXX,AppleClang,Clang,GNU>:$<BUILD_INTERFACE:-Wall -Wextra -Werror -pedantic>>
-)
-
-add_library(enabled-debugging INTERFACE)
-target_compile_options(enabled-debugging INTERFACE
-    $<$<COMPILE_LANG_AND_ID:CXX,AppleClang,Clang>:-glldb>
-    $<$<COMPILE_LANG_AND_ID:CXX,GNU>:-g -ggdb>
-)
-
-add_library(enabled-profiling INTERFACE)
-target_link_options(enabled-profiling INTERFACE
-    $<$<COMPILE_LANG_AND_ID:CXX,AppleClang,Clang>:-fprofile-instr-generate>
-    $<$<COMPILE_LANG_AND_ID:CXX,GNU>:-pg>
-)
-target_compile_options(enabled-profiling INTERFACE
-    $<$<COMPILE_LANG_AND_ID:CXX,AppleClang,Clang>:-fprofile-instr-generate>
-    $<$<COMPILE_LANG_AND_ID:CXX,GNU>:-pg>
-)
-
-# Optimizes your objects for native builds (on the build side only)
-add_library(native-optimized INTERFACE)
-target_compile_options(native-optimized INTERFACE
-    $<$<COMPILE_LANG_AND_ID:CXX,AppleClang,Clang,GNU>:-march=native -mtune=native> # This is not ideal for distcc
-    # $<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/arch:AVX2>
-)
-
-
 add_library(hobbies-basal)
 target_sources(hobbies-basal
     PRIVATE

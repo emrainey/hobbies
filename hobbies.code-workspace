@@ -24,7 +24,7 @@
 		"cmake.installPrefix": "${workspaceFolder}/install",
 		"cmake.configureOnOpen": true,
 		"cmake.additionalCompilerSearchDirs": [
-			"/opt/homebrew/Cellar/llvm/17.0.6_1/bin/",
+			"/opt/homebrew/Cellar/llvm/18.1.8/bin/",
 		],
 		"cmake.generator": "Ninja",
 		"cmake.parallelJobs": 12,
@@ -33,11 +33,11 @@
 		},
 		"cmake.configureEnvironment": {
 			"CMAKE_INSTALL_PREFIX": "${workspaceFolder}/install",
-			"CMAKE_BUILD_TYPE": "Release"
+			"CMAKE_BUILD_TYPE": "RelWithDebInfo"
 		},
 		"cmake.testEnvironment": {
 			"DYLD_LIBRARY_PATH": "${workspaceFolder}/install",
-			"CMAKE_BUILD_TYPE": "Release"
+			"CMAKE_BUILD_TYPE": "RelWithDebInfo"
 		},
 		"cmake.configureArgs": [
 			"-DBUILD_SHARED_LIB=OFF",
@@ -252,10 +252,12 @@
 			"strstream": "cpp",
 			"csignal": "cpp",
 			"coroutine": "cpp",
-			"typeindex": "cpp"
+			"typeindex": "cpp",
+			"*.ipp": "cpp"
 		},
 		"vsconan.general.pythonInterpreter": "python3",
 		"vsconan.explorer.treeview.package.showDirtyPackage": true,
+		"cmake.allowCommentsInPresetsFile": false,
 	},
 	"tasks": {
 		"version": "2.0.0",

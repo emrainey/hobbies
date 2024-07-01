@@ -38,7 +38,7 @@ bool mnist::load() {
     elem = fread(&tmp, sizeof(tmp), 1, findexes);
     if (elem == 1) {
         tmp = __builtin_bswap32(tmp);
-        if (tmp != 2049) {
+        if (tmp != magic) {
             printf("Failed to find magic value! Found (0x%08x)\n", tmp);
             return false;
         }
@@ -55,6 +55,7 @@ bool mnist::load() {
         printf("Num of Entries mismatch! %u vs %u\n", num_entries, tmp);
         return false;
     }
+    printf("There are %u entries in the database\n", num_entries);
     if (limit > 0 and limit < num_entries) {
         num_entries = limit;
     }

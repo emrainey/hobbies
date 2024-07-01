@@ -1,8 +1,8 @@
 #pragma once
 
 #include <dlfcn.h>
-
 #include <functional>
+#include <cstdio>
 
 namespace basal {
 

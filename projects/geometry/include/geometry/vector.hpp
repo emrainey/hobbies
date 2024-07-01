@@ -281,7 +281,7 @@ public:
         for (size_t j = 0; j < A.rows; j++) {
             precision d = 0.0_p;
             for (size_t i = 0; i < A.cols; i++) {
-                d += A[j][i] * b[i];
+                d += (A[j][i] * b[i]);
             }
             c[j] = d;
         }

@@ -1,0 +1,141 @@
+{
+    "version": 6,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 29,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "native-gcc-11",
+            "inherits": [
+                "native-gcc",
+                "Homebrew"
+            ],
+            "displayName": "Homebrew GCC 11",
+            "description": "Homebrew GCC 11",
+            "environment": {
+                "PATH": "$env{HOMEBREW_PATH}:$penv{PATH}"
+            },
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "gcc-11",
+                "CMAKE_CXX_COMPILER": "g++-11"
+            }
+        },
+        {
+            "name": "native-gcc-12",
+            "inherits": [
+                "native-gcc",
+                "Homebrew"
+            ],
+            "displayName": "Homebrew GCC 12",
+            "description": "Homebrew GCC 12",
+            "environment": {
+                "PATH": "$env{HOMEBREW_PATH}:$penv{PATH}"
+            },
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "gcc-11",
+                "CMAKE_CXX_COMPILER": "g++-11"
+            }
+        },
+        {
+            "name": "native-gcc-13",
+            "inherits": [
+                "native-gcc",
+                "Homebrew"
+            ],
+            "displayName": "Homebrew GCC 13",
+            "description": "Homebrew GCC 13",
+            "environment": {
+                "PATH": "$env{HOMEBREW_PATH}:$penv{PATH}"
+            },
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "gcc-13",
+                "CMAKE_CXX_COMPILER": "g++-13"
+            }
+        },
+        {
+            "name": "native-clang-mac",
+            "inherits": [
+                "native-clang",
+                "Homebrew"
+            ],
+            "displayName": "Native Clang Toolchain",
+            "description": "Uses the default clang in your path",
+            "environment": {
+                "PATH": "$env{HOMEBREW_PATH}:$penv{PATH}"
+            },
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang",
+                "CMAKE_CXX_COMPILER": "clang++",
+                "CMAKE_ASM_COMPILER": "clang++"
+            }
+        },
+        {
+            "name": "native-llvm-18",
+            "inherits": [
+                "native-llvm",
+                "Homebrew"
+            ],
+            "displayName": "LLVM 18.1.8",
+            "description": "Homebrew LLVM 18.1.8",
+            "environment": {
+                "PATH": "$env{HOMEBREW_ROOT}/Cellar/llvm/18.1.8/bin/:$env{HOMEBREW_PATH}:$penv{PATH}"
+            },
+            "cacheVariables": {}
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "build-with-native-gcc-11",
+            "inherits": "build-common",
+            "configurePreset": "native-gcc-11"
+        },
+        {
+            "name": "build-with-native-gcc-12",
+            "inherits": "build-common",
+            "configurePreset": "native-gcc-12"
+        },
+        {
+            "name": "build-with-native-gcc-13",
+            "inherits": "build-common",
+            "configurePreset": "native-gcc-13"
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "run-tests-gcc-11",
+            "inherits": "test-common",
+            "configurePreset": "native-gcc-11"
+        },
+        {
+            "name": "run-tests-gcc-12",
+            "inherits": "test-common",
+            "configurePreset": "native-gcc-12"
+        },
+        {
+            "name": "run-tests-gcc-13",
+            "inherits": "test-common",
+            "configurePreset": "native-gcc-13"
+        }
+    ],
+    "workflowPresets": [
+        {
+            "name": "unit-tests",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "native-gcc-13"
+                },
+                {
+                    "type": "build",
+                    "name": "build-with-native-gcc-13"
+                },
+                {
+                    "type": "test",
+                    "name": "run-tests-gcc-13"
+                }
+            ]
+        }
+    ]
+}

@@ -41,7 +41,13 @@ You can open either the `hobbies.code-workspace` or the folder itself. VSCode ca
 
 ## Building
 
-Currently you can run the `./separate_builds.sh -rm -s` to individually config, build, and install each package. All the artifacts will end up in a new `install/` folder.
+Due to issues with OpenMP no longer being supported on Apple Clang and GCC not being able to link (can't find libgcrt1.a), LLVM 18 is the currently working compiler.
+
+```bash
+# Building on Apple Silicon
+cmake --preset native-llvm-18
+cmake --build build/native-llvm-18
+```
 
 ### Conan
 
@@ -60,9 +66,11 @@ DYLD_LIBRARY_PATH=install/lib:build/projects/raytrace ./build/projects/raytrace/
 
 I've added an explicit folder to run tests. You can run them using the testing wrapper script (it will temporarily modify your `PATH` and `LD_LIBRARY_PATH`).
 
-```
-cd testing
+```bash
+# Basic
 ./testing.sh demo_curses -m world_example
+# Advanced (Stereoscopic)
+./testing.sh demo_sdl2 -m world_snowman --dims CIF --aaa 128 --separation 2.0
 ```
 
 ## Profiling

@@ -6,7 +6,7 @@
 #include "neuralnet/inner.hpp"
 
 namespace nn {
-/// Commone definition of an internal hidden layer which is neither input nor output
+/// Common definition of an internal hidden layer which is neither input nor output
 class hidden : public inner {
 public:
     /// Constructor

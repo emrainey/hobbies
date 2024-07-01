@@ -24,6 +24,9 @@ int main(int argc, char* argv[]) {
         {"-ti", "--train-images", training_images.c_str(), "Training Data Images"},
         {"-dl", "--data-labels", data_labels.c_str(), "Data Labels"},
         {"-di", "--data-images", data_images.c_str(), "Data Images"},
+        {"-c", "--count", int(600u), "Number of repetitions"},
+        {"-m", "--minibatch", int(50u), "Number of items in a minibatch"},
+        {"-r", "--reset", false, "Forces a reset between each minibatch"}
     };
     try {
         constexpr uint32_t const num = nn::mnist::inputs;
@@ -45,25 +48,30 @@ int main(int argc, char* argv[]) {
         // these are the visualization images of the hidden layers
         char const* named_i1 = "input";
 
+        int count;
+        int minibatch;
+        bool reset;
+
         basal::options::process(basal::dimof(opts), opts, argc, argv);
         basal::options::find(opts, "--train-labels", training_labels);
         basal::options::find(opts, "--train-images", training_images);
         basal::options::find(opts, "--data-labels", data_labels);
         basal::options::find(opts, "--data-images", data_images);
+        basal::options::find(opts, "--count", count);
+        basal::options::find(opts, "--minibatch", minibatch);
+        basal::options::find(opts, "--reset", reset);
         basal::options::print(basal::dimof(opts), opts);
 
-        nn::mnist learning(training_labels, training_images, 6000);
+        nn::mnist learning(training_labels, training_images, 60000);
         if (not learning.load()) {
             return -1;
         }
-        nn::mnist testdata(data_labels, data_images, 1000);
+        nn::mnist testdata(data_labels, data_images, 10000);
         if (not testdata.load()) {
             return -1;
         }
-        constexpr static uint32_t const reps = 600;
-        int const minibatch = 2000;
 
-        for (uint32_t r = 0; r < reps; r++) {
+        for (uint32_t r = 0; r < count; r++) {
             printf("Starting rep %u...\n", r);
             fflush(stdout);
             net.reset();
@@ -77,7 +85,9 @@ int main(int argc, char* argv[]) {
                     net.visualize(std::chrono::milliseconds(1));
                     net.update();
                     printf("RMS: %0.5lf\n", out.rms_value);
-                    net.reset();
+                    if (reset) {
+                        net.reset();
+                    }
                 }
             }
             net.update();

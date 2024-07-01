@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 unset PRJ_PATH
-for prj in `ls -1 build/projects`; do
+for prj in `ls -1 build/native-llvm-18/projects`; do
     #echo "${prj}"
-    PRJ_PATH=${PRJ_PATH}:`pwd`/build/projects/${prj}
+    PRJ_PATH=${PRJ_PATH}:`pwd`/build/native-llvm-18/projects/${prj}
 done
 
 export DYLD_LIBRARY_PATH=${PRJ_PATH}

@@ -126,8 +126,7 @@ void network::update(void) {
         }
         inner& in = dynamic_cast<inner&>(_layer);
         in.update();
-    })
-        ;
+    });
 }
 
 void network::reset(void) {
@@ -137,8 +136,7 @@ void network::reset(void) {
         }
         inner& in = dynamic_cast<inner&>(_layer);
         in.reset();
-    })
-        ;
+    });
 }
 
 static cv::Scalar black(0);

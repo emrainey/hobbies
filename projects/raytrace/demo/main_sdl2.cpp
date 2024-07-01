@@ -12,6 +12,7 @@
 #include <functional>
 #include <raytrace/raytrace.hpp>
 #include <thread>
+#include <mutex>
 
 #include "world.hpp"
 

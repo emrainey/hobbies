@@ -9,7 +9,7 @@
 
 namespace nn {
 
-/// The enumerations of the activeation types for inner layers
+/// The enumerations of the activation types for inner layers
 enum class activation_type : int
 {
     Sigmoid,  //!< Uses a sigmoid activation

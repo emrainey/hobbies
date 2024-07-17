@@ -15,7 +15,6 @@ using namespace raytrace;
 void subspheres(std::vector<raytrace::objects::sphere*>& spheres, raytrace::point const& center, precision R,
                 size_t depth) {
     if (depth > 0) {
-        // adding 28 spheres of
         precision radius = R / 6.0_p;
         for (precision z = -R; z <= R; z += R) {
             for (precision y = -R; y <= R; y += R) {
@@ -39,18 +38,17 @@ public:
         , look_from{-10.0_p, 6.66_p, 20.0_p}
         , look_at{3.0_p, 0.0_p, 6.0_p}
         , spheres{}
-        , sunlight{raytrace::vector{-2, 2, -1}, colors::white, 1E11}
         , specks{} {
-        raytrace::point center = look_at;
+        raytrace::point center = R3::origin;
         spheres.push_back(new raytrace::objects::sphere(center, 6));
         subspheres(spheres, center, 12.0_p, 2);
         for (auto& s : spheres) {
-            s->material(&mediums::metals::stainless);
+            s->material(&mediums::metals::bronze);
         }
-        specks.push_back(new lights::speck(raytrace::point{80, 120, 80}, colors::white, 1E11));
-        specks.push_back(new lights::speck(raytrace::point{80, 40, 80}, colors::white, 1E11));
-        specks.push_back(new lights::speck(raytrace::point{40, 80, 80}, colors::white, 1E11));
-        specks.push_back(new lights::speck(raytrace::point{120, 80, 80}, colors::white, 1E11));
+        specks.push_back(new lights::speck(raytrace::point{6, 6, 9}, colors::white, 1E11));
+        specks.push_back(new lights::speck(raytrace::point{-6, 6, 9}, colors::white, 1E11));
+        specks.push_back(new lights::speck(raytrace::point{-6, -6, 9}, colors::white, 1E11));
+        specks.push_back(new lights::speck(raytrace::point{6, -6, 9}, colors::white, 1E11));
     }
 
     ~SpheresWorld() {
@@ -96,7 +94,6 @@ protected:
     raytrace::point look_from;
     raytrace::point look_at;
     std::vector<raytrace::objects::sphere*> spheres;
-    lights::beam sunlight;
     std::vector<raytrace::lights::speck*> specks;
 };
 

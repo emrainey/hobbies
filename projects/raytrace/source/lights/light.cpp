@@ -10,6 +10,7 @@ light::light(color const& C, precision intensity, size_t number_of_samples)
 
 color light::color_at(point const& world_point) const {
     using namespace operators;
+    // caution! this is a clamped intensity, not true intensity
     color C = m_color * intensity_at(world_point);
     return C;
 }

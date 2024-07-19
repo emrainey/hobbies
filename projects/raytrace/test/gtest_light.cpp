@@ -9,18 +9,28 @@ using namespace raytrace::colors;
 using namespace raytrace::operators;
 
 TEST(LightTest, SpeckLightColor) {
-    raytrace::point source(0.0, 0.0, 4.0);
+    raytrace::point source(0.0, 0.0, 0.0);
     raytrace::point surface_point(0.0, 0.0, 0.0);
     vector diff = source - surface_point;
-
     lights::speck light0(source, colors::white, 1.0);
+    ASSERT_FLOAT_EQ(1.0, light0.intensity_at(surface_point));
+    ASSERT_TRUE(colors::white == light0.color_at(surface_point));
+}
 
-    // Specks obey the inverse square law
-    precision scaling = 1.0 / diff.quadrance();
-    ASSERT_FLOAT_EQ(scaling, light0.intensity_at(surface_point));
+TEST(LightTest, InverseSquareLawRange) {
+    for (precision d = 0.0_p; d < 10.0_p; d += 0.0625_p) {
+        raytrace::point source(0.0, 0.0, d);
+        raytrace::point surface_point(0.0, 0.0, 0.0);
+        vector diff = source - surface_point;
 
-    color C2{scaling, scaling, scaling};
-    ASSERT_TRUE(C2 == light0.color_at(surface_point));
+        lights::speck light0(source, colors::white, 1.0);
+
+        // Specks obey some form of fade which drops off as distance increases
+        precision intensity = light0.intensity_at(surface_point);
+        ASSERT_GE(1.0, intensity);
+        ASSERT_GE(1.0_p/d, intensity) << "The simple distance law is not obeyed";
+        ASSERT_LE(0.0, intensity);
+    }
 }
 
 TEST(LightTest, BeamLightColor) {

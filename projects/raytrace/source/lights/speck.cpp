@@ -1,4 +1,5 @@
 #include "raytrace/lights/speck.hpp"
+#include "raytrace/laws.hpp"
 
 namespace raytrace {
 namespace lights {
@@ -14,11 +15,7 @@ precision speck::intensity_at(point const& pnt) const {
     using namespace geometry::operators;
     vector direction = position() - pnt;
     precision d = direction.magnitude();
-    if (basal::nearly_zero(d)) {
-        return m_intensity;
-    } else {
-        return m_intensity / (d * d);
-    }
+    return m_intensity * laws::inverse_square(d);
 }
 
 ray speck::incident(point const& world_point, size_t sample_index __attribute__((unused))) const {

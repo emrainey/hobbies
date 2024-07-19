@@ -88,3 +88,10 @@ TEST(LawsTest, Beers) {
     dropoff = laws::beers(geometry::R3::null, 0.186);
     ASSERT_PRECISION_EQ(1.0, dropoff);
 }
+
+TEST(LawsTest, InverseLaw) {
+    ASSERT_PRECISION_EQ(1.0, laws::inverse_square(0.0));
+    ASSERT_PRECISION_EQ(0.64, laws::inverse_square(0.25));
+    ASSERT_PRECISION_EQ(0.25, laws::inverse_square(1.0));
+    ASSERT_PRECISION_EQ(0.0625, laws::inverse_square(3.0));
+}

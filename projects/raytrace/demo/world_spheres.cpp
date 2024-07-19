@@ -37,18 +37,21 @@ public:
                    //, look_at(0, 0, 0)
         , look_from{-10.0_p, 6.66_p, 20.0_p}
         , look_at{3.0_p, 0.0_p, 6.0_p}
+        , custom_grey{0.5_p, 0.5_p, 0.5_p}
+        , custom_metal{custom_grey, raytrace::mediums::smoothness::mirror - 0.1_p, raytrace::mediums::roughness::tight}
         , spheres{}
         , specks{} {
         raytrace::point center = R3::origin;
         spheres.push_back(new raytrace::objects::sphere(center, 6));
         subspheres(spheres, center, 12.0_p, 2);
         for (auto& s : spheres) {
-            s->material(&mediums::metals::bronze);
+            s->material(&custom_metal);
+            // s->material(&mediums::metals::steel);
         }
-        specks.push_back(new lights::speck(raytrace::point{6, 6, 9}, colors::white, 1E11));
-        specks.push_back(new lights::speck(raytrace::point{-6, 6, 9}, colors::white, 1E11));
+        specks.push_back(new lights::speck(raytrace::point{+6, +6, 9}, colors::white, 1E11));
+        specks.push_back(new lights::speck(raytrace::point{-6, +6, 9}, colors::white, 1E11));
         specks.push_back(new lights::speck(raytrace::point{-6, -6, 9}, colors::white, 1E11));
-        specks.push_back(new lights::speck(raytrace::point{6, -6, 9}, colors::white, 1E11));
+        specks.push_back(new lights::speck(raytrace::point{+6, -6, 9}, colors::white, 1E11));
     }
 
     ~SpheresWorld() {
@@ -93,6 +96,8 @@ public:
 protected:
     raytrace::point look_from;
     raytrace::point look_at;
+    raytrace::color custom_grey;
+    raytrace::mediums::metal custom_metal;
     std::vector<raytrace::objects::sphere*> spheres;
     std::vector<raytrace::lights::speck*> specks;
 };

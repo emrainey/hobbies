@@ -130,11 +130,26 @@ bool torus::is_surface_point(point const& world_point) const {
     return basal::nearly_equals(r * r, sqrt_xx_yy_R_zz);
 }
 
-image::point torus::map(point const& object_surface_point __attribute__((unused))) const {
-    // FIXME (Torus) texture mapping a torus is hard but not impossible. define the mapping as a set of 2 angles,
+image::point torus::map(point const& object_surface_point) const {
+    // (Torus) texture mapping a torus is hard but not impossible. define the mapping as a set of 2 angles,
     // one around the Z axis and another around the edge of the ring at that position.
-    precision u = 0.0;
-    precision v = 0.0;
+    // The mapping has a "seem" along the inner edge of the torus, closest to the origin and at -X
+    precision x = object_surface_point.x;
+    precision y = object_surface_point.y;
+    precision z = object_surface_point.z;
+
+    // angle around Z "turns"
+    precision t = std::atan2(y, x);
+    // radius in the xy plane
+    precision r_xy = std::sqrt((x * x) + (y * y));
+    // imagine a plane formed by the line to the point from origin, cross the Z axis, this is the radial plane or RZ
+    // distance from the point to the tube center circle (could be negative)
+    precision d_rz = r_xy - m_ring_radius;
+    // angle around the tube of the torus
+    precision b = std::atan2(z, d_rz);
+    // normalize the turns to 0 - 1 inclusive instead of -pi to +pi
+    precision u = (t + iso::pi) / iso::tau;
+    precision v = (b + iso::pi) / iso::tau;
     return image::point(u, v);
 }
 

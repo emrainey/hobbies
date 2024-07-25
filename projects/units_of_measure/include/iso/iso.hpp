@@ -151,9 +151,9 @@ constexpr long double compute_pi(size_t digits) {
     return pi;
 }
 
-/// PI accurate to 200 digits
+/// 1/2 a turn around a circle in radian, accurate to 200 digits.
 constexpr precision pi = static_cast<precision>(compute_pi(200));
-/// 2*PI
+/// 1 turn around a circle in radians, also known as 2 * pi
 constexpr precision tau = static_cast<precision>(2.0) * pi;
 
 /// The namespace where the quote operators are stored. You must `using namespace literals;` to use them

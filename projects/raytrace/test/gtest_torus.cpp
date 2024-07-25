@@ -116,40 +116,80 @@ TEST(TorusTest, Mapping) {
     using namespace raytrace;
     using namespace raytrace::objects;
 
-    precision r = 2;
-    precision t = 1;
+    precision r = 2.0_p;
+    precision t = 1.0_p;
     raytrace::point C{0, 0, 0};
     torus shape(C, r, t);
 
-    /// @TODO Enable when UV mapping for toroids is implemented
-    /*
-    raytrace::point C{0, 0, 0};
-    precision h2 = 1.0;
-    precision r = 1.0;
-    cylinder cyl1(C, h2, r);
-
-    raytrace::point p0{ 1, 0, 0};
-    image::point uv0(0.5, 0.5);
-    image::point tmp0 = cyl1.map(p0);
-    ASSERT_PRECISION_EQ(uv0.x, tmp0.x);
-    ASSERT_PRECISION_EQ(uv0.y, tmp0.y);
-
-    raytrace::point p1{-1, 0, h2};
-    image::point uv1(0.0, 0.0);
-    image::point tmp1 = cyl1.map(p1);
-    ASSERT_PRECISION_EQ(uv1.x, tmp1.x);
-    ASSERT_PRECISION_EQ(uv1.y, tmp1.y);
-
-    raytrace::point p2{-1, 0,-h2};
-    image::point uv2(1.0, 0.0);
-    image::point tmp2 = cyl1.map(p2);
-    ASSERT_PRECISION_EQ(uv2.x, tmp2.x);
-    ASSERT_PRECISION_EQ(uv2.y, tmp2.y);
-
-    raytrace::point p3{ 0,-1, -h2};
-    image::point uv3(1.0, 0.75);
-    image::point tmp3 = cyl1.map(p3);
-    ASSERT_PRECISION_EQ(uv3.x, tmp3.x);
-    ASSERT_PRECISION_EQ(uv3.y, tmp3.y);
-   */
+    {
+        raytrace::point p{ -1, 0, 0};
+        image::point uv(1.0, 1.0);
+        image::point tmp = shape.map(p);
+        EXPECT_PRECISION_EQ(uv.x, tmp.x);
+        EXPECT_PRECISION_EQ(uv.y, tmp.y);
+    }
+    {
+        raytrace::point p{-3, 0, 0};
+        image::point uv(1.0, 0.5);
+        image::point tmp = shape.map(p);
+        EXPECT_PRECISION_EQ(uv.x, tmp.x);
+        EXPECT_PRECISION_EQ(uv.y, tmp.y);
+    }
+    {
+        raytrace::point p{ 1, 0, 0};
+        image::point uv(0.5, 1.0);
+        image::point tmp = shape.map(p);
+        EXPECT_PRECISION_EQ(uv.x, tmp.x);
+        EXPECT_PRECISION_EQ(uv.y, tmp.y);
+    }
+    {
+        raytrace::point p{ 2, 0, 1};
+        image::point uv(0.5, 0.75);
+        image::point tmp = shape.map(p);
+        EXPECT_PRECISION_EQ(uv.x, tmp.x);
+        EXPECT_PRECISION_EQ(uv.y, tmp.y);
+    }
+    {
+        raytrace::point p{ 3, 0, 0};
+        image::point uv(0.5, 0.5);
+        image::point tmp = shape.map(p);
+        EXPECT_PRECISION_EQ(uv.x, tmp.x);
+        EXPECT_PRECISION_EQ(uv.y, tmp.y);
+    }
+    {
+        raytrace::point p{ 2, 0, -1};
+        image::point uv(0.5, 0.25);
+        image::point tmp = shape.map(p);
+        EXPECT_PRECISION_EQ(uv.x, tmp.x);
+        EXPECT_PRECISION_EQ(uv.y, tmp.y);
+    }
+    //--------------------------------------
+    {
+        raytrace::point p{ 0, 3, 0};
+        image::point uv(0.75, 0.5);
+        image::point tmp = shape.map(p);
+        EXPECT_PRECISION_EQ(uv.x, tmp.x);
+        EXPECT_PRECISION_EQ(uv.y, tmp.y);
+    }
+    {
+        raytrace::point p{ 0, 1, 0};
+        image::point uv(0.75, 1.0);
+        image::point tmp = shape.map(p);
+        EXPECT_PRECISION_EQ(uv.x, tmp.x);
+        EXPECT_PRECISION_EQ(uv.y, tmp.y);
+    }
+    {
+        raytrace::point p{ 0, -1, 0};
+        image::point uv(0.25, 1.0);
+        image::point tmp = shape.map(p);
+        EXPECT_PRECISION_EQ(uv.x, tmp.x);
+        EXPECT_PRECISION_EQ(uv.y, tmp.y);
+    }
+    {
+        raytrace::point p{ 0, -3, 0};
+        image::point uv(0.25, 0.5);
+        image::point tmp = shape.map(p);
+        EXPECT_PRECISION_EQ(uv.x, tmp.x);
+        EXPECT_PRECISION_EQ(uv.y, tmp.y);
+    }
 }

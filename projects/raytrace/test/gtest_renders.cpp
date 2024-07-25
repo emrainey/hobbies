@@ -197,7 +197,8 @@ TEST_F(RenderTest, DISABLED_Square) {
 
 TEST_F(RenderTest, DISABLED_Torus) {
     torus shape(look_at, 10, 3);
-    shape.material(&plastic);
+    checkers.mapper(std::bind(&raytrace::objects::torus::map, &shape, std::placeholders::_1));
+    shape.material(&checkers);
     add_object(&shape);
     render_all("torus");
 }

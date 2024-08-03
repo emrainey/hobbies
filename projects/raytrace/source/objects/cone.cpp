@@ -8,7 +8,7 @@ namespace objects {
 cone::cone(point const& C, iso::radians angle)
     : object{C, 2, true}  // 2 collisions, closed (infinite)
     , m_bottom_radius{0.0}
-    , m_height{0.0}
+    , m_height{std::numeric_limits<precision>::infinity()}  // infinite
     , m_angle{angle} {
     basal::exception::throw_if(m_angle >= iso::radians(iso::pi / 2), __FILE__, __LINE__, "Angle %lf is too large", m_angle.value);
 }
@@ -24,7 +24,7 @@ vector cone::normal(point const& world_surface_point) const {
     point object_surface_point = reverse_transform(world_surface_point);
     precision height = m_height;
     precision radius = m_bottom_radius;
-    if (m_height > 0) {
+    if (m_height < std::numeric_limits<precision>::infinity()) {
         if (object_surface_point.z < 0 or object_surface_point.z > m_height) {
             return R3::null;
         }
@@ -39,7 +39,7 @@ vector cone::normal(point const& world_surface_point) const {
     vector N{{object_surface_point.x, object_surface_point.y, 0}};
     N.normalize();
     N *= height;
-    if (m_height > 0) {
+    if (m_height < std::numeric_limits<precision>::infinity()) {
         N[2] = radius;
     } else {
         N[2] = object_surface_point.z > 0 ? -radius : radius;
@@ -73,7 +73,7 @@ hits cone::collisions_along(ray const& object_ray) const {
     precision i = object_ray.direction()[0];
     precision j = object_ray.direction()[1];
     precision k = object_ray.direction()[2];
-    precision h = m_height;
+    precision h = std::isinf(m_height) ? 0.0 : m_height;
     precision br = m_bottom_radius;
     precision f = std::tan(m_angle.value);
     precision s = basal::nearly_zero(h) ? 1.0 / (f * f) : (h * h) / (br * br);
@@ -111,8 +111,9 @@ bool cone::is_surface_point(point const& world_point) const {
 image::point cone::map(point const& object_surface_point) const {
     geometry::point_<2> cartesian(object_surface_point[0], object_surface_point[1]);
     geometry::point_<2> polar = geometry::cartesian_to_polar(cartesian);
+    precision h = (m_height > 0) ? m_height : 1.0;
     // some range of z based in the half_height we want -h2 to map to zero and +h2 to 1.0
-    precision u = (object_surface_point[2] / (-2.0 * m_height)) + 0.5;
+    precision u = (object_surface_point[2] / (-2.0 * h)) + 0.5;
     // theta goes from +pi to -pi we want to map -pi to 1.0 and + pi to zero
     precision v = 0.0;
     if (polar.y >= 0) {

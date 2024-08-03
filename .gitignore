@@ -44,6 +44,7 @@ __pycache__
 /install
 /.conan
 /package
+/testing
 
 # Compile commands don't need to be saved
 .vscode/compile_commands.json

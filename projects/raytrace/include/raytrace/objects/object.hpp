@@ -194,7 +194,7 @@ public:
     }
 
     /// Maps a surface point (in R3 object space) to a image::point in u,v coordinates (R2)
-/// @param object_surface_point The point on the surface of the object in object space coordinates
+    /// @param object_surface_point The point on the surface of the object in object space coordinates
     virtual image::point map(point const& object_surface_point) const = 0;
 
     /// Returns the maximum number of surface collisions that the object can return.
@@ -259,6 +259,7 @@ public:
     virtual precision get_object_extent(void) const = 0;
 
     /// Allows setting the UV scaling factors independently.
+    /// @note Used when the object is infinite in some dimension and that dimension can't be used to scale the uv
     virtual void set_surface_scale(precision u, precision v) {
         m_surface_scale.u = u;
         m_surface_scale.v = v;

@@ -291,8 +291,17 @@
 				],
 				"group": "build",
 				"problemMatcher": "$gcc"
+			},
+			{
+				"label": "Random Tuner",
+				"type": "shell",
+				"command": "demo_random_tuner",
+				"options": {
+					"cwd": "${workspaceFolder}/build/native-llvm-18/projects/raytrace"
+				},
+				"group": "test"
 			}
-		]
+		],
 	},
 	"folders": [
 		{

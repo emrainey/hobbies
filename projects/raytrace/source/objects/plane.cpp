@@ -67,9 +67,10 @@ bool plane::is_surface_point(point const& world_point) const {
 
 image::point plane::map(point const& object_surface_point) const {
     // the pattern will map around the point in a polar fashion
-    geometry::R2::point cartesian(object_surface_point[0] / m_surface_scale.u, object_surface_point[1] / m_surface_scale.v);
+    geometry::R2::point cartesian(object_surface_point[0], object_surface_point[1]);
     geometry::R2::point polar_space = geometry::cartesian_to_polar(cartesian);
-    return image::point(polar_space[0] / 1.0, polar_space[1] / iso::tau);
+    // v must be between 0 and 1, no negatives (the zero angle line is -X though!)
+    return image::point(polar_space[0] / m_surface_scale.u, ((polar_space[1] + iso::pi) / iso::tau)  / m_surface_scale.v);
 }
 
 precision plane::get_object_extent(void) const {

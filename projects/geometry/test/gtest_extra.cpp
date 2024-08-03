@@ -147,3 +147,19 @@ TEST(MappingTests, CartesianToSphericalTest) {
         ASSERT_POINT_EQ(spherical, new_point);
     }
 }
+
+TEST(MappingTests, CartesianToPolarTest) {
+    std::vector<std::tuple<geometry::R2::point, geometry::R2::point>> combos = {
+        std::make_tuple(geometry::R2::point(0, 0), geometry::R2::point(0, 0)),
+        std::make_tuple(geometry::R2::point(1, 0), geometry::R2::point(1, 0)),
+        std::make_tuple(geometry::R2::point(0, 1), geometry::R2::point(1, iso::pi / 2)),
+        std::make_tuple(geometry::R2::point(-1, 0), geometry::R2::point(1, iso::pi)),
+        std::make_tuple(geometry::R2::point(0, -1), geometry::R2::point(1, -iso::pi / 2)),
+    };
+    for (auto& params : combos) {
+        geometry::R2::point cartesian = std::get<0>(params);
+        geometry::R2::point polar = std::get<1>(params);
+        geometry::R2::point new_point = cartesian_to_polar(cartesian);
+        ASSERT_POINT_EQ(polar, new_point);
+    }
+}

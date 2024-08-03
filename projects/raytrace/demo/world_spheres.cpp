@@ -40,7 +40,8 @@ public:
         , custom_grey{0.5_p, 0.5_p, 0.5_p}
         , custom_metal{custom_grey, raytrace::mediums::smoothness::mirror - 0.1_p, raytrace::mediums::roughness::tight}
         , spheres{}
-        , specks{} {
+        // , specks{}
+        , bulbs{} {
         raytrace::point center = R3::origin;
         spheres.push_back(new raytrace::objects::sphere(center, 6));
         subspheres(spheres, center, 12.0_p, 2);
@@ -48,18 +49,25 @@ public:
             s->material(&custom_metal);
             // s->material(&mediums::metals::steel);
         }
-        specks.push_back(new lights::speck(raytrace::point{+6, +6, 9}, colors::white, 1E11));
-        specks.push_back(new lights::speck(raytrace::point{-6, +6, 9}, colors::white, 1E11));
-        specks.push_back(new lights::speck(raytrace::point{-6, -6, 9}, colors::white, 1E11));
-        specks.push_back(new lights::speck(raytrace::point{+6, -6, 9}, colors::white, 1E11));
+        // specks.push_back(new lights::speck(raytrace::point{+6, +6, 9}, colors::white, 1E11));
+        // specks.push_back(new lights::speck(raytrace::point{-6, +6, 9}, colors::white, 1E11));
+        // specks.push_back(new lights::speck(raytrace::point{-6, -6, 9}, colors::white, 1E11));
+        // specks.push_back(new lights::speck(raytrace::point{+6, -6, 9}, colors::white, 1E11));
+        bulbs.push_back(new lights::bulb(raytrace::point{+6, +6, 9}, 1.0_p, colors::white, 1E11, 16));
+        bulbs.push_back(new lights::bulb(raytrace::point{-6, +6, 9}, 1.0_p, colors::white, 1E11, 16));
+        bulbs.push_back(new lights::bulb(raytrace::point{-6, -6, 9}, 1.0_p, colors::white, 1E11, 16));
+        bulbs.push_back(new lights::bulb(raytrace::point{+6, -6, 9}, 1.0_p, colors::white, 1E11, 16));
     }
 
     ~SpheresWorld() {
         for (auto& s : spheres) {
             delete s;
         }
-        for (auto& s : specks) {
-            delete s;
+        // for (auto& s : specks) {
+        //     delete s;
+        // }
+        for (auto& b : bulbs) {
+            delete b;
         }
     }
 
@@ -88,8 +96,11 @@ public:
         for (auto& s : spheres) {
             scene.add_object(s);
         }
-        for (auto& s : specks) {
-            scene.add_light(s);
+        // for (auto& s : specks) {
+        //     scene.add_light(s);
+        // }
+        for (auto& b : bulbs) {
+            scene.add_light(b);
         }
     }
 
@@ -99,7 +110,8 @@ protected:
     raytrace::color custom_grey;
     raytrace::mediums::metal custom_metal;
     std::vector<raytrace::objects::sphere*> spheres;
-    std::vector<raytrace::lights::speck*> specks;
+    // std::vector<raytrace::lights::speck*> specks;
+    std::vector<raytrace::lights::bulb*> bulbs;
 };
 
 // declare a single instance and return the reference to it

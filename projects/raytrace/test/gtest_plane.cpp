@@ -102,3 +102,41 @@ TEST(PlaneTest, ScaleRotateTranslate) {
     P0.position(new_C);
 
 }
+
+TEST(PlaneTest, Mapping) {
+    using namespace raytrace;
+    using namespace raytrace::objects;
+    raytrace::objects::plane P0{R3::origin, R3::basis::Z};
+    P0.set_surface_scale(1.0_p, 1.0_p);
+    precision r = 1.0_p;
+    {
+        raytrace::point const p{0, 0, 0};
+        image::point const uv = P0.map(p);
+        image::point const tmp{0.0_p, 0.5_p};
+        EXPECT_POINT_EQ(uv, tmp);
+    }
+    {
+        raytrace::point const p{r, 0, 0};
+        image::point const uv = P0.map(p);
+        image::point const tmp{r, 0.5_p};
+        EXPECT_POINT_EQ(uv, tmp);
+    }
+    {
+        raytrace::point const p{0, r, 0};
+        image::point const uv = P0.map(p);
+        image::point const tmp{r, 0.75_p};
+        EXPECT_POINT_EQ(uv, tmp);
+    }
+    {
+        raytrace::point const p{-r, 0, 0};
+        image::point const uv = P0.map(p);
+        image::point const tmp{r, 1.0_p};
+        EXPECT_POINT_EQ(uv, tmp);
+    }
+    {
+        raytrace::point const p{0,-r, 0};
+        image::point const uv = P0.map(p);
+        image::point const tmp{r, 0.25_p};
+        EXPECT_POINT_EQ(uv, tmp);
+    }
+}

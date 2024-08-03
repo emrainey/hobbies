@@ -25,8 +25,7 @@ using namespace std::placeholders;
 using namespace basal::literals;
 
 struct Parameters {
-    size_t width;
-    size_t height;
+    std::string dim_name;
     size_t subsamples;
     size_t reflections;
     precision fov;
@@ -38,9 +37,6 @@ enum class State : char {
     MENU = 'm',
     DRAW = 'd'
 };
-
-// QQVGA, QVGA, VGA, XGA, HD, UWGA, 4K
-size_t dimensions[][2] = {{160, 120}, {320, 240}, {640, 480}, {1024, 768}, {1920, 1080}, {2560, 1440}, {3840, 2160}};
 
 class Console {
 public:
@@ -154,8 +150,7 @@ int main(int argc, char* argv[]) {
     std::chrono::duration<precision> diff;
 
     basal::options::config opts[] = {
-        {"-w", "--width", (size_t)320, "Width of the image in pixels"},
-        {"-h", "--height", (size_t)240, "Height of the image in pixels"},
+        {"-d", "--dims", std::string("QVGA"), "Use text video format like VGA or 2K"},
         {"-b", "--subsamples", (size_t)1, "Nubmer of subsamples"},
         {"-r", "--reflections", (size_t)4, "Reflection Depth"},
         {"-f", "--fov", 55.0_p, "Field of View in Degrees"},
@@ -166,8 +161,7 @@ int main(int argc, char* argv[]) {
     };
 
     basal::options::process(basal::dimof(opts), opts, argc, argv);
-    my_assert(basal::options::find(opts, "--width", params.width), "Must have a width value");
-    my_assert(basal::options::find(opts, "--height", params.height), "Must have a width value");
+    my_assert(basal::options::find(opts, "--dims", params.dim_name), "Must have a text value");
     my_assert(basal::options::find(opts, "--fov", params.fov), "Must have a FOV value");
     my_assert(basal::options::find(opts, "--verbose", verbose), "Must be able to assign bool");
     my_assert(basal::options::find(opts, "--subsamples", params.subsamples), "Must have some number of subsamples");
@@ -185,6 +179,7 @@ int main(int argc, char* argv[]) {
 
     // creates a local reference to the object
     raytrace::world& world = *get_world();
+    auto [width, height] = fourcc::dimensions(params.dim_name);
     // Ncurses console
     Console console;
 #if defined(RENDER_TO_CONSOLE)
@@ -194,7 +189,7 @@ int main(int argc, char* argv[]) {
 #if defined(RENDER_TO_CONSOLE)
     std::vector<bool> completed(console.get_height() * 2);
 #else
-    std::vector<bool> completed(params.height);
+    std::vector<bool> completed(height);
 #endif
     std::fill(completed.begin(), completed.end(), false);
     bool running = true;
@@ -233,6 +228,8 @@ int main(int argc, char* argv[]) {
                 console.print(18, w, "ABSORB: %zu", raytrace::statistics::get().absorbed_rays);
                 console.refresh();
             }
+            // sleep for a bit
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         }
     };
 
@@ -242,7 +239,7 @@ int main(int argc, char* argv[]) {
 #if defined(RENDER_TO_CONSOLE)
     raytrace::camera view(console.get_height() * 2, console.get_width(), iso::degrees(params.fov));
 #else
-    raytrace::camera view(params.height, params.width, iso::degrees(params.fov));
+    raytrace::camera view(height, width, iso::degrees(params.fov));
 #endif
     raytrace::vector looking = (world.looking_at() - world.looking_from()).normalized();
     raytrace::point image_plane_principal_point = world.looking_from() + looking;
@@ -258,7 +255,7 @@ int main(int argc, char* argv[]) {
         if (state == State::MENU) {
             console.print(1, 2, "RAYTRACE by Erik Rainey. Loaded module %s", params.module.c_str());
             console.print(2, 2, "CONSOLE {%dx%d}, IMAGE {%zux%zu} RGB8", console.get_width(), console.get_height(),
-                          params.width, params.height);
+                          width, height);
             console.print(3, 2, "SUBSAMPLES: %zu, REFLECTIONS: %zu ANTI-ALIAS MASK: %zu", params.subsamples,
                           params.reflections, params.mask_threshold);
             console.print(4, 2, "CAMERA FROM {%0.3lf,%0.3lf,%0.3lf} AT {%0.3lf,%0.3lf,%0.3lf} FOV=%0.2lf",

@@ -69,32 +69,44 @@ TEST(CylinderTest, Mapping) {
     using namespace raytrace;
     using namespace raytrace::objects;
 
-    raytrace::point C{0, 0, 0};
-    precision h2 = 1.0;
-    precision r = 1.0;
-    cylinder cyl1(C, h2, r);
-
-    raytrace::point p0{1, 0, 0};
-    image::point uv0(0.5, 0.5);
-    image::point tmp0 = cyl1.map(p0);
-    ASSERT_NEAR(uv0.x, tmp0.x, basal::epsilon);
-    ASSERT_NEAR(uv0.y, tmp0.y, basal::epsilon);
-
-    raytrace::point p1{-1, 0, h2};
-    image::point uv1(0.0, 0.0);
-    image::point tmp1 = cyl1.map(p1);
-    ASSERT_NEAR(uv1.x, tmp1.x, basal::epsilon);
-    ASSERT_NEAR(uv1.y, tmp1.y, basal::epsilon);
-
-    raytrace::point p2{-1, 0, -h2};
-    image::point uv2(1.0, 0.0);
-    image::point tmp2 = cyl1.map(p2);
-    ASSERT_NEAR(uv2.x, tmp2.x, basal::epsilon);
-    ASSERT_NEAR(uv2.y, tmp2.y, basal::epsilon);
-
-    raytrace::point p3{0, -1, -h2};
-    image::point uv3(1.0, 0.75);
-    image::point tmp3 = cyl1.map(p3);
-    ASSERT_NEAR(uv3.x, tmp3.x, basal::epsilon);
-    ASSERT_NEAR(uv3.y, tmp3.y, basal::epsilon);
+    for (precision h2 = 1.0; h2 < 10.0; h2 += 1.0) {
+        for (precision r = 1.0; r < 10.0; r += 1.0) {
+            cylinder cyl1(R3::origin, h2, r);
+            {
+                raytrace::point p{r, 0, 0};
+                image::point uv(0.5, 0.5);
+                image::point tmp = cyl1.map(p);
+                ASSERT_NEAR(uv.x, tmp.x, basal::epsilon);
+                ASSERT_NEAR(uv.y, tmp.y, basal::epsilon);
+            }
+            {
+                raytrace::point p{-r, 0, h2};
+                image::point uv(0.0, 0.0);
+                image::point tmp = cyl1.map(p);
+                ASSERT_NEAR(uv.x, tmp.x, basal::epsilon);
+                ASSERT_NEAR(uv.y, tmp.y, basal::epsilon);
+            }
+            {
+                raytrace::point p{-r, 0, -h2};
+                image::point uv(1.0, 0.0);
+                image::point tmp = cyl1.map(p);
+                ASSERT_NEAR(uv.x, tmp.x, basal::epsilon);
+                ASSERT_NEAR(uv.y, tmp.y, basal::epsilon);
+            }
+            {
+                raytrace::point p{0, r, -h2};
+                image::point uv(1.0, 0.25);
+                image::point tmp = cyl1.map(p);
+                ASSERT_NEAR(uv.x, tmp.x, basal::epsilon);
+                ASSERT_NEAR(uv.y, tmp.y, basal::epsilon);
+            }
+            {
+                raytrace::point p{0, -r, -h2};
+                image::point uv(1.0, 0.75);
+                image::point tmp = cyl1.map(p);
+                ASSERT_NEAR(uv.x, tmp.x, basal::epsilon);
+                ASSERT_NEAR(uv.y, tmp.y, basal::epsilon);
+            }
+        }
+    }
 }

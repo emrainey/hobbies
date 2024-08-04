@@ -25,7 +25,7 @@ TEST(SurfaceTest, ShinySurface) {
     ASSERT_PRECISION_EQ(250.0_p, shiny.specular_tightness(R3::origin));
 }
 
-TEST(SurfaceTest, DISABLED_CheckerboardDiffuse) {
+TEST(SurfaceTest, CheckerboardDiffuse) {
     using namespace raytrace;
     image img(480, 480);
     raytrace::mediums::checkerboard board(6.0, colors::red, colors::green);
@@ -36,7 +36,7 @@ TEST(SurfaceTest, DISABLED_CheckerboardDiffuse) {
     img.save("checkerboard_diffuse.ppm");
 }
 
-TEST(SurfaceTest, DISABLED_MarbleWeirdSurface) {
+TEST(SurfaceTest, MarbleWeirdSurface) {
     using namespace raytrace;
     image img(512, 512);
     mediums::perlin weird(13 * iso::pi / 19, 0.032, 72.9828302, colors::black, colors::white);
@@ -47,7 +47,7 @@ TEST(SurfaceTest, DISABLED_MarbleWeirdSurface) {
     img.save("marble_weird.ppm");
 }
 
-TEST(FunctionTest, DISABLED_CheckerboardFunction) {
+TEST(FunctionTest, CheckerboardFunction) {
     using namespace raytrace;
     image img(480, 480);
     palette pal = {colors::blue, colors::yellow, colors::blue, colors::yellow,
@@ -61,7 +61,7 @@ TEST(FunctionTest, DISABLED_CheckerboardFunction) {
     img.save("checkerboard_function.ppm");
 }
 
-TEST(FunctionTest, DISABLED_Grid) {
+TEST(FunctionTest, Grid) {
     using namespace raytrace;
     image img(480, 480);
     palette pal = {colors::black, colors::green};
@@ -74,7 +74,7 @@ TEST(FunctionTest, DISABLED_Grid) {
     img.save("grid.ppm");
 }
 
-TEST(FunctionTest, DISABLED_Polka) {
+TEST(FunctionTest, Polka) {
     using namespace raytrace;
     image img(480, 480);
     precision s = 10.0;
@@ -86,7 +86,7 @@ TEST(FunctionTest, DISABLED_Polka) {
     img.save("polka.ppm");
 }
 
-TEST(FunctionTest, DISABLED_Diagonal) {
+TEST(FunctionTest, Diagonal) {
     using namespace raytrace;
     image img(480, 480);
     precision s = 10.0;
@@ -98,14 +98,22 @@ TEST(FunctionTest, DISABLED_Diagonal) {
     img.save("diagonal.ppm");
 }
 
-TEST(FunctionTest, DISABLED_RandomNoise) {
+TEST(FunctionTest, RandomNoise) {
     using namespace raytrace;
     image img(480, 480);
-    precision s = 1.0;
+    raytrace::tuning::pseudo_random_noise_params.initialize();
+    raytrace::tuning::pseudo_random_noise_params.radius = 137.0_p;
+    raytrace::tuning::pseudo_random_noise_params.gain = 3711.125_p;
+    raytrace::tuning::pseudo_random_noise_params.update();
+    precision s = 2.0_p;
     palette pal;  // not really used
-    img.generate_each([&](image::point const& p1) {
-        image::point p2{s * p1.x / img.width, s * p1.y / img.height};
-        return functions::pseudo_random_noise(p2, pal);
+    img.generate_each([&](image::point const& p1) -> raytrace::color {
+        image::point uv{
+            s * ((p1.x / img.width) - 0.5_p),
+            s * ((p1.y / img.height) - 0.5_p)
+        };
+        return functions::pseudo_random_noise(uv, pal);
+        // return colors::red;
     });
     img.save("pseudo_random_noise.ppm");
 }

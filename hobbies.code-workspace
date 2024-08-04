@@ -264,40 +264,16 @@
 		"tasks": [
 			{
 				"label": "Print Variables",
-				"command": "echo \r\nworkspaceFolder=${workspaceFolder}\r\nworkspaceFolderBasename=${workspaceFolderBasename}\r\nworkspaceRoot=${workspaceRoot}\r\nworkspaceRootPath=${workspaceRootPath}\r\nworkspaceFolder:fourcc=${workspaceFolder:fourcc}",
+				"command": "echo \r\nworkspaceFolder=${workspaceFolder}\r\nworkspaceFolderBasename=${workspaceFolderBasename}\r\nworkspaceRoot=${workspaceRoot}\r\nworkspaceRootPath=${workspaceRootPath}",
 				"type": "shell",
 				"args": [],
-			},
-			{
-				"label": "Build Everything with Conan",
-				"command": "./separate_builds.sh",
-				"options": {
-					"cwd": "${workspaceFolder}/",
-				},
-				"type": "shell",
-				"args": [],
-				"group": "build",
-				"problemMatcher": "$gcc"
-			},
-			{
-				"label": "Build Everything with CMake",
-				"command": "./separate_builds.sh",
-				"options": {
-					"cwd": "${workspaceFolder}/",
-				},
-				"type": "shell",
-				"args": [
-					"-cmake"
-				],
-				"group": "build",
-				"problemMatcher": "$gcc"
 			},
 			{
 				"label": "Random Tuner",
 				"type": "shell",
-				"command": "demo_random_tuner",
+				"command": "./build/native-llvm-18/projects/raytrace/demo_random_tuner",
 				"options": {
-					"cwd": "${workspaceFolder}/build/native-llvm-18/projects/raytrace"
+					"cwd": "${workspaceFolder}/"
 				},
 				"group": "test"
 			}

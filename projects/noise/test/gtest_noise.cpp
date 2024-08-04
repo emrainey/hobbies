@@ -5,6 +5,7 @@
 #include <fourcc/image.hpp>
 #include <noise/noise.hpp>
 #include <vector>
+#include <basal/gtest_helper.hpp>
 
 size_t histogram[255];
 
@@ -65,11 +66,15 @@ TEST(NoiseTest, RandomTest) {
     noise::vector seed{{1.0_p, 1.0_p}};
     srandom(time(nullptr));
     // test the range generated
-    for (noise::precision s = -100.0_p; s < 100.0_p; s += (2.0_p * noise::precision(rand()) / RAND_MAX)) {
-        noise::vector vec{{s, 0.0_p}};
+    noise::precision step{(1.0_p / 1024.0_p) * iso::tau};
+    for (noise::precision s = -iso::pi; s < iso::pi; s += step) {
+        noise::precision a = tan(s);
+        noise::vector vec{1.0_p, s};
         noise::precision r = noise::random(vec, seed, 283.23982_p);
         // printf("r=%lf\n", r);
+        ASSERT_PRECISION_NE(0.0_p, r);
         ASSERT_TRUE(-1.0_p <= r and r < 1.0_p);
+        // step = noise::precision{rand()} / RAND_MAX;
     }
 }
 

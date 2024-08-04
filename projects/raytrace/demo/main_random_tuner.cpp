@@ -5,7 +5,7 @@
 /// @version 0.1
 /// @date 2020-05-24
 /// @copyright Copyright (c) 2020
-/// @note Creates a noise image in a fourcc::image, then transfoms to a cv::Mat to render. Installs a callback for
+/// @note Creates a noise image in a fourcc::image, then transforms to a cv::Mat to render. Installs a callback for
 /// keystrokes to allow tuning of the perlin noise seeds.
 ///
 
@@ -57,14 +57,14 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
     default_value = int(raytrace::tuning::pseudo_random_noise_params.theta_b.value * 100);
     cv::createTrackbar(std::string("Vec Blu"), windowName, &default_value, 628, on_vec_b_update, nullptr);
     // these are atomic types and easier to use the template
-    linalg::Trackbar trackbar_gain("Gain", windowName, 0.125_p, 1.0_p, 100.0_p, 0.125_p,
+    linalg::Trackbar trackbar_gain("1/32th Gain", windowName, 1.0_p, 1.0_p, 100.0_p, 1.0_p,
                                    &raytrace::tuning::pseudo_random_noise_params.gain);
-    linalg::Trackbar trackbar_radius("Radius", windowName, 0.125_p, 1.0_p, 100.0_p, 0.125_p,
+    linalg::Trackbar trackbar_radius("1/32th Radius", windowName, 1.0_p, 1.0_p, 100.0_p, 1.0_p,
                                      &raytrace::tuning::pseudo_random_noise_params.radius);
 
     do {
         if (should_animate) {
-            raytrace::tuning::pseudo_random_noise_params.radius += 0.125_p;
+            raytrace::tuning::pseudo_random_noise_params.radius += 1.0_p;
             trackbar_radius.set(raytrace::tuning::pseudo_random_noise_params.radius);
             should_render = true;
         }
@@ -73,15 +73,26 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
             raytrace::tuning::pseudo_random_noise_params.update();
             raytrace::palette colors = {raytrace::colors::black};  // unused
             random_noise_image.generate_each([&](raytrace::image::point const& pnt) {
-                raytrace::image::point uv((pnt.x / random_noise_image.width) - 0.5_p,
-                                          (pnt.y / random_noise_image.height) - 0.5_p);
+                // create a UV vector which is centered in the middle of the image. This means
+                // the u, v, values are between -1 and 1
+                raytrace::image::point uv(2.0_p * ((pnt.x / random_noise_image.width) - 0.5_p),
+                                          2.0_p * ((pnt.y / random_noise_image.height) - 0.5_p));
+                // std::cout << "UV: " << uv << std::endl;
                 return raytrace::functions::pseudo_random_noise(uv, colors);
             });
             random_noise_image.for_each([&](int y, int x, fourcc::rgb8 &pixel) {
-                render_image.at<cv::Vec3b>(y, x)[0] = pixel.r;
+                render_image.at<cv::Vec3b>(y, x)[0] = pixel.b;
                 render_image.at<cv::Vec3b>(y, x)[1] = pixel.g;
-                render_image.at<cv::Vec3b>(y, x)[2] = pixel.b;
+                render_image.at<cv::Vec3b>(y, x)[2] = pixel.r;
             });
+            // for (int y = 0; y < random_noise_image.height; y++) {
+            //     for (int x = 0; x < random_noise_image.width; x++) {
+            //         auto pixel = random_noise_image.at(y, x);
+            //         render_image.at<cv::Vec3b>(y, x)[0] = 64; // B
+            //         render_image.at<cv::Vec3b>(y, x)[1] = 128; // G
+            //         render_image.at<cv::Vec3b>(y, x)[2] = 255; // R
+            //     }
+            // }
             should_render = false;
         }
         cv::imshow(windowName, render_image);

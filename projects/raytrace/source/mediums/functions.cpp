@@ -182,15 +182,15 @@ color grid(raytrace::point const& p, palette const& pal) {
 
 color pseudo_random_noise(image::point const& p, palette const& pal __attribute__((unused))) {
     noise::vector vec{{p.x, p.y}};
-    vec = (vec == geometry::R2::null) ? geometry::R2::null : vec.normalized();
-    precision _r,
-        r = noise::random(vec, tuning::pseudo_random_noise_params.vec_r, tuning::pseudo_random_noise_params.gain);
-    precision _g,
-        g = noise::random(vec, tuning::pseudo_random_noise_params.vec_g, tuning::pseudo_random_noise_params.gain);
-    precision _b,
-        b = noise::random(vec, tuning::pseudo_random_noise_params.vec_b, tuning::pseudo_random_noise_params.gain);
-    color out(std::modf(r, &_r) * 255, std::modf(g, &_g) * 255, std::modf(b, &_b) * 255);
-    return out;
+    // if you normalize the vector, you get a circular pattern
+    // vec = (vec == geometry::R2::null) ? geometry::R2::null : vec.normalized();
+    precision _r, r = noise::random(vec, tuning::pseudo_random_noise_params.vec_r, tuning::pseudo_random_noise_params.gain);
+    precision _g, g = noise::random(vec, tuning::pseudo_random_noise_params.vec_g, tuning::pseudo_random_noise_params.gain);
+    precision _b, b = noise::random(vec, tuning::pseudo_random_noise_params.vec_b, tuning::pseudo_random_noise_params.gain);
+    precision px = std::modf(r, &_r);
+    precision py = std::modf(g, &_g);
+    precision pz = std::modf(b, &_b);
+    return color{px, py, pz};
 }
 
 }  // namespace functions
@@ -203,11 +203,11 @@ prn_parameters::prn_parameters() : _initialized{false} {
 
 void prn_parameters::initialize(bool again) {
     if (not _initialized or (_initialized and again)) {
-        gain = 1.0;
-        radius = 1.0;
-        theta_r = iso::radians(iso::pi * 0.5);
-        theta_g = iso::radians(iso::pi * 0.2);
-        theta_b = iso::radians(iso::pi * 0.8);
+        gain = 1.0_p;
+        radius = 1.0_p;
+        theta_r = iso::radians(iso::tau * 0.5);
+        theta_g = iso::radians(iso::tau * 0.2);
+        theta_b = iso::radians(iso::tau * 0.8);
         _initialized = true;
     }
 }

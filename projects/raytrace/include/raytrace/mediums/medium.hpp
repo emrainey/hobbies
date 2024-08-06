@@ -121,8 +121,10 @@ constexpr precision barely = 0.0625_p;
 constexpr precision small = 0.2_p;
 /// The medium will be very reflective like a polished metal
 constexpr precision polished = 0.7_p;
+/// The medium will be very reflective like a good silver mirror, very mild ambient and diffuse components
+constexpr precision mirror = 0.95_p;
 /// The medium will *only* reflect light and will not have any ambient or diffuse components
-constexpr precision mirror = 1.0_p;
+constexpr precision perfect_mirror = 1.0_p;
 }  // namespace smoothness
 
 /// A namespace of constants to describe the scale of ambient emissions from a medium
@@ -138,6 +140,7 @@ constexpr precision glowy = 0.4_p;
 /// Lower values result in larger spots. Higher values result in tighter spots.
 namespace roughness {
 constexpr precision tight = 100.0_p;
+constexpr precision medium = 50.0_p;
 constexpr precision loose = 20.0_p;
 }  // namespace roughness
 

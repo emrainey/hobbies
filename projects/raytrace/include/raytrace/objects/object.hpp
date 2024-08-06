@@ -186,7 +186,6 @@ public:
             if (not std::isinf(closest)) {
                 point object_point = object_ray.distance_along(closest);
                 point world_point = entity_<DIMS>::forward_transform(object_point);
-                statistics::get().intersections_with_objects++;
                 return intersection(world_point);
             }
         }

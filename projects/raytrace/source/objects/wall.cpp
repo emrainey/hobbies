@@ -46,7 +46,6 @@ vector wall::normal(point const& world_point) const {
 //     auto object_ray = reverse_transform(world_ray);
 //     hits ts = collisions_along(object_ray); // either 0 or two
 //     if (ts.size() == 2 and ts[0] >= (0 - basal::epsilon) and ts[1] >= (0 - basal::epsilon)) {
-//         statistics::get().intersections_with_objects++;
 //         size_t index = (ts[0] < ts[1]) ? 0 : 1u;
 //         auto object_point = object_ray.distance_along(ts[index]);
 //         auto world_point = forward_transform(object_point);

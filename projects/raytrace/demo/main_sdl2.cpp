@@ -160,7 +160,7 @@ int main(int argc, char *argv[]) {
                             double percentage = 100.0 * count / completed.size();
                             bool done = (count == completed.size());
                             fprintf(stdout,
-                                    "\r[ %0.3lf %%] rays cast: %zu dots: %zu cross: %zu 2r: %zu 3r: %zu 4r: %zu intersects: %zu bounced: %zu "
+                                    "\r[ %0.3lf %%] rays cast: %zu dots: %zu cross: %zu 2r: %zu 3r: %zu 4r: %zu intersects: %zu (%zu/%zu/%zu) bounced: %zu "
                                     "transmitted: %zu %s ",
                                     done ? 100.0 : percentage, raytrace::statistics::get().cast_rays_from_camera,
                                     geometry::statistics::get().dot_operations,
@@ -169,6 +169,9 @@ int main(int argc, char *argv[]) {
                                     linalg::statistics::get().cubic_roots,
                                     linalg::statistics::get().quartic_roots,
                                     raytrace::statistics::get().intersections_with_objects,
+                                    raytrace::statistics::get().intersections_with_point,
+                                    raytrace::statistics::get().intersections_with_points,
+                                    raytrace::statistics::get().intersections_with_line,
                                     raytrace::statistics::get().bounced_rays,
                                     raytrace::statistics::get().transmitted_rays, done ? "\r\n" : "");
                             // if (done) return;

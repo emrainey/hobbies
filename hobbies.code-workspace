@@ -271,7 +271,7 @@
 			{
 				"label": "Random Tuner",
 				"type": "shell",
-				"command": "./build/native-llvm-18/projects/raytrace/demo_random_tuner",
+				"command": "${command:cmake.launchTargetDirectory}/projects/raytrace/demo_random_tuner",
 				"options": {
 					"cwd": "${workspaceFolder}/"
 				},

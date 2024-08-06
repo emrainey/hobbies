@@ -75,18 +75,14 @@ vector cuboid::normal(point const& world_surface_point) const {
 
 hits cuboid::collisions_along(ray const& object_ray) const {
     hits ts;
-    bool const disable_optimization = true;  // to allow cuboids to be overlap objects, this has to be turned off.
-
-    // given the direction of the vector, only certain sides of the AABB are colliable.
-    // the sign of the vector component is the opposite of the side that may be collidable.
+    // given the direction of the vector, only certain sides of the AABB are collide-able.
+    // the sign of the vector component is the opposite of the side that may be collide-able.
     precision const& x = object_ray.location().x;
     precision const& y = object_ray.location().y;
     precision const& z = object_ray.location().z;
     precision const& i = object_ray.direction()[0];
     precision const& j = object_ray.direction()[1];
     precision const& k = object_ray.direction()[2];
-
-    precision t;
 
     precision p_xmax = m_half_widths[0];
     precision p_xmin = -m_half_widths[0];
@@ -98,25 +94,42 @@ hits cuboid::collisions_along(ray const& object_ray) const {
     point p_max(p_xmax, p_ymax, p_zmax);
     point p_min(p_xmin, p_ymin, p_zmin);
 
-    point surface_point;
-
-/// uses t, object_point, and p_min, p_max
-#define FACET_TEST(p, v, m, op)                                   \
-    if (v op 0 or disable_optimization) {                         \
-        t = (m - p) / v;                                          \
-        surface_point = object_ray.distance_along(t);             \
-        if (contained_within_aabb(surface_point, p_min, p_max)) { \
-            ts.push_back(t);                                      \
-        }                                                         \
+    if (not basal::is_exactly_zero(i)) {
+        precision t_min = (p_xmin - x) / i;
+        auto point_min = object_ray.distance_along(t_min);
+        if (contained_within_aabb(point_min, p_min, p_max)) {
+            ts.push_back(t_min);
+        }
+        precision t_max = (p_xmax - x) / i;
+        auto point_max = object_ray.distance_along(t_max);
+        if (contained_within_aabb(point_max, p_min, p_max)) {
+            ts.push_back(t_max);
+        }
     }
-
-    FACET_TEST(x, i, p_xmin, >);
-    FACET_TEST(x, i, p_xmax, <);
-    FACET_TEST(y, j, p_ymin, >);
-    FACET_TEST(y, j, p_ymax, <);
-    FACET_TEST(z, k, p_zmin, >);
-    FACET_TEST(z, k, p_zmax, <);
-#undef FACET_TEST
+    if (not basal::is_exactly_zero(j)) {
+        precision t_min = (p_ymin - y) / j;
+        auto point_min = object_ray.distance_along(t_min);
+        if (contained_within_aabb(point_min, p_min, p_max)) {
+            ts.push_back(t_min);
+        }
+        precision t_max = (p_ymax - y) / j;
+        auto point_max = object_ray.distance_along(t_max);
+        if (contained_within_aabb(point_max, p_min, p_max)) {
+            ts.push_back(t_max);
+        }
+    }
+    if (not basal::is_exactly_zero(k)) {
+        precision t_min = (p_zmin - z) / k;
+        auto point_min = object_ray.distance_along(t_min);
+        if (contained_within_aabb(point_min, p_min, p_max)) {
+            ts.push_back(t_min);
+        }
+        precision t_max = (p_zmax - z) / k;
+        auto point_max = object_ray.distance_along(t_max);
+        if (contained_within_aabb(point_max, p_min, p_max)) {
+            ts.push_back(t_max);
+        }
+    }
     return ts;
 }
 

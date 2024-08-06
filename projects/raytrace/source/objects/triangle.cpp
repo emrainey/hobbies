@@ -64,13 +64,9 @@ intersection triangle::intersect(ray const& world_ray) const {
         if (is_contained(D)) {
             precision projected_length = dot(geometry::plane::normal, world_ray.direction());
             if (projected_length < 0) {
-                // pointing at each other, it's a hit
-                statistics::get().intersections_with_objects++;
                 return intersection(inter);
             }
         }
-        // didn't work out...(remove intersection tallied by plane)
-        statistics::get().intersections_with_objects--;
     }
     return intersection();
 }

@@ -9,7 +9,7 @@ namespace mediums {
 transparent::transparent(precision eta, precision fade, color const& diffuse)
     : dielectric{}, m_fade{basal::clamp(0.0, fade, 1.0)} {
     m_diffuse = diffuse;
-    m_smoothness = mediums::smoothness::mirror;  // no "surface colors"
+    m_smoothness = mediums::smoothness::perfect_mirror;  // no "surface colors"
     m_refractive_index = eta;
 }
 

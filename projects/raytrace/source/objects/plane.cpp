@@ -32,7 +32,6 @@ intersection plane::intersect(ray const& world_ray) const {
             // only 1 possible element and 1 type
             auto object_point = object_ray.distance_along(ts[0]);
             point world_point = forward_transform(object_point);
-            statistics::get().intersections_with_objects++;
             return intersection(world_point);
         }
     }

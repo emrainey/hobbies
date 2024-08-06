@@ -65,7 +65,18 @@ scene::intersect_list scene::find_intersections(ray const& world_ray, object_lis
     intersect_list intersections;
     for (auto objptr : objects) {
         basal::exception::throw_if(objptr == nullptr, __FILE__, __LINE__, "Object can't be nullptr");
-        intersections.push_back(objptr->intersect(world_ray));
+        auto intersection = objptr->intersect(world_ray);
+        if (get_type(intersection) != IntersectionType::None) {
+            statistics::get().intersections_with_objects++;
+        }
+        if (get_type(intersection) == IntersectionType::Point) {
+            statistics::get().intersections_with_point++;
+        } else if (get_type(intersection) == IntersectionType::Points) {
+            statistics::get().intersections_with_points++;
+        } else if (get_type(intersection) == IntersectionType::Line) {
+            statistics::get().intersections_with_line++;
+        }
+        intersections.push_back(intersection);
     }
     return intersections;
 }
@@ -223,15 +234,18 @@ color scene::trace(ray const& world_ray, mediums::medium const& media, size_t re
                     bool no_intersection = (get_type(nearest.intersector) == IntersectionType::None);
                     bool point_farther_than_light = false;
                     bool object_is_transparent = false;
+                    bool object_is_emissive = false;
                     if (get_type(nearest.intersector) == IntersectionType::Point) {
                         point_farther_than_light = (nearest.distance > light_direction.norm());
                         if (nearest.objptr != nullptr) {
+                            auto other_world_point = as_point(nearest.intersector);
                             // FIXME is a refractive object so it must be transparent?
                             // object_is_transparent =
-                            // (nearest.objptr->material().refractive_index(world_surface_point) > 0.0);
+                            // (nearest.objptr->material().refractive_index(other_world_point) > 0.0);
+                            // object_is_emissive = (nearest.objptr->material().emissive(other_world_point) > 0.0);
                         }
                     }
-                    bool not_in_shadow = (no_intersection or point_farther_than_light or object_is_transparent);
+                    bool not_in_shadow = (no_intersection or point_farther_than_light or object_is_transparent or object_is_emissive);
                     if (not_in_shadow) {
                         statistics::get().color_sampled_rays++;
                         // get the light color at this distance

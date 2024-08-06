@@ -30,7 +30,7 @@
             "name": "(lldb) Launch Random Tuner",
             "type": "lldb",
             "request": "launch",
-            "program": "${workspaceFolder}/build/projects/raytrace/demo_random_tuner",
+            "program": "${workspaceFolder}/build/native-llvm-18/projects/raytrace/demo_random_tuner",
             "args": [],
             "cwd": "${workspaceFolder}/testing"
         },
@@ -38,7 +38,7 @@
             "name": "(lldb) GTest Noise",
             "type": "lldb",
             "request": "launch",
-            "program": "${workspaceFolder}/build/projects/noise/gtest_noise",
+            "program": "${workspaceFolder}/build/native-llvm-18//projects/noise/gtest_noise",
             // "args": ["--gtest_filter='WallTest.*'"],
             "cwd": "${workspaceFolder}/testing",
             // "terminal": "integrated"
@@ -47,7 +47,7 @@
             "name": "(lldb) GTest Raytrace",
             "type": "lldb",
             "request": "launch",
-            "program": "${workspaceFolder}/build/projects/raytrace/gtest_raytrace",
+            "program": "${workspaceFolder}/build/native-llvm-18//projects/raytrace/gtest_raytrace",
             // "args": ["--gtest_filter='WallTest.*'"],
             "cwd": "${workspaceFolder}/testing",
             // "terminal": "integrated"
@@ -56,7 +56,7 @@
             "name": "(lldb) Demo Curses",
             "type": "lldb",
             "request": "launch",
-            "program": "${workspaceFolder}/build/projects/raytrace/demo_curses",
+            "program": "${workspaceFolder}/build/native-llvm-18//projects/raytrace/demo_curses",
             "args": [
                 "-m",
                 "${input:world_module}",
@@ -71,7 +71,7 @@
             "name": "(lldb) Demo OpenCV GUI",
             "type": "lldb",
             "request": "launch",
-            "program": "${workspaceFolder}/build/projects/raytrace/demo_opencv_gui",
+            "program": "${workspaceFolder}/build/native-llvm-18//projects/raytrace/demo_opencv_gui",
             "args": [
                 "-m",
                 "${input:world_module}",
@@ -83,14 +83,14 @@
             "cwd": "${workspaceFolder}/testing",
             "env": {
                 "ABORT": "1",
-                "DYLD_LIBRARY_PATH": "${workspaceFolder}/install/lib:${workspaceFolder}/build/projects/raytrace"
+                "DYLD_LIBRARY_PATH": "${workspaceFolder}/install/lib:${workspaceFolder}/build/native-llvm-18//projects/raytrace"
             },
         },
         {
             "name": "(lldb) Demo SDL2 Render",
             "type": "lldb",
             "request": "launch",
-            "program": "${workspaceFolder}/build/projects/raytrace/demo_sdl2",
+            "program": "${workspaceFolder}/build/native-llvm-18//projects/raytrace/demo_sdl2",
             "args": [
                 "-m",
                 "${input:world_module}",
@@ -106,7 +106,7 @@
             "cwd": "${workspaceFolder}/testing",
             "env": {
                 "ABORT": "1",
-                "DYLD_LIBRARY_PATH": "${workspaceFolder}/install/lib:${workspaceFolder}/build/projects/raytrace"
+                "DYLD_LIBRARY_PATH": "${workspaceFolder}/install/lib:${workspaceFolder}/build/native-llvm-18//projects/raytrace"
             },
         }
     ]

@@ -84,6 +84,11 @@ public:
             snprintf(buffer, len, "rendertest_%s_%zu.ppm", name, i);
             scenes[i]->print(buffer);
             scenes[i]->render(*views[i], buffer, 1, 2);
+            fprintf(stdout, "Intersections %zu (Point/Points/Line) %zu %zu %zu\n",
+                raytrace::statistics::get().intersections_with_objects,
+                raytrace::statistics::get().intersections_with_point,
+                raytrace::statistics::get().intersections_with_points,
+                raytrace::statistics::get().intersections_with_line);
         }
     }
 
@@ -266,7 +271,7 @@ TEST_F(RenderTest, DISABLED_AdditiveOverlap) {
     raytrace::objects::sphere s1{R3::point(-5, 0, 10), 10};
     raytrace::objects::overlap shape(s1, s0, overlap::type::additive);
     shape.material(&plastic);
-    shape.position(raytrace::point{7, 7, 7});  // the benifit is that the objects are grouped now...
+    shape.position(raytrace::point{7, 7, 7});  // the benefit is that the objects are grouped now...
     add_object(&shape);
     render_all("additive");
 }
@@ -274,14 +279,14 @@ TEST_F(RenderTest, DISABLED_AdditiveOverlap) {
 TEST_F(RenderTest, DISABLED_SubtractiveOverlap2) {
     constexpr bool debug = false;
     raytrace::objects::cuboid outer_box(R3::point(0, 0, 10), 10, 10, 10);
-    raytrace::objects::cuboid inner_box(R3::point(0, 0, 10), 20, 5, 5);
+    raytrace::objects::cuboid inner_box(R3::point(0, 0, 10), 30, 5, 5);
+    inner_box.rotation(iso::degrees(0), iso::degrees(-45), iso::degrees(45));
     raytrace::objects::overlap shape(outer_box, inner_box, overlap::type::subtractive);
-    inner_box.rotation(iso::degrees(0), iso::degrees(0), iso::degrees(45));
     if constexpr (not debug) {
         // FIXME there are a lot of single hit returns from cuboids so it's hard to reason about
         shape.material(&steel);
         add_object(&shape);
-        add_light(&inner_light);
+        add_light(&inner_light); // FIXME this is producing weird speckles on the floor
     } else {
         outer_box.material(&steel);
         inner_box.material(&steel);

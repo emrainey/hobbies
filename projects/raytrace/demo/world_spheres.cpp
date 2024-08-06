@@ -38,7 +38,7 @@ public:
         , look_from{-10.0_p, 6.66_p, 20.0_p}
         , look_at{3.0_p, 0.0_p, 6.0_p}
         , custom_grey{0.5_p, 0.5_p, 0.5_p}
-        , custom_metal{custom_grey, raytrace::mediums::smoothness::mirror - 0.1_p, raytrace::mediums::roughness::tight}
+        , custom_metal{custom_grey, raytrace::mediums::smoothness::mirror, raytrace::mediums::roughness::medium}
         , spheres{}
         // , specks{}
         , bulbs{} {

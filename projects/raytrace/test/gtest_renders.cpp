@@ -140,6 +140,19 @@ TEST_F(RenderTest, DISABLED_Cube) {
     render_all("cuboid");
 }
 
+TEST_F(RenderTest, DISABLED_WallBox) {
+    raytrace::objects::wall px(look_at, R3::basis::X, 10);
+    raytrace::objects::wall py(look_at, R3::basis::Y, 10);
+    raytrace::objects::wall pz(look_at, R3::basis::Z, 10);
+    px.material(&plastic);
+    py.material(&plastic);
+    pz.material(&plastic);
+    raytrace::objects::overlap column{px, py, overlap::type::inclusive};
+    raytrace::objects::overlap wall_box{column, pz, overlap::type::inclusive};
+    add_object(&wall_box);
+    render_all("wall_box");
+}
+
 TEST_F(RenderTest, DISABLED_Cylinder) {
     R3::point c0{0, 0, 10};
     R3::point c1{0, 0, 20};

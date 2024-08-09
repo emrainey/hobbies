@@ -227,12 +227,12 @@ public:
         raytrace::vector const& N = normal(world_point);
         raytrace::point const&P = entity_<DIMS>::position();
         raytrace::vector V = world_point - P;
-        P.print("center");
-        world_point.print("world_point");
-        V.print("projected_vector");
-        N.print("world_normal");
+        // P.print("center");
+        // world_point.print("world_point");
+        // V.print("projected_vector");
+        // N.print("world_normal");
         precision d = dot(N, V);
-        printf("d=%lf\r\n", d);
+        // printf("d=%lf\r\n", d);
         return (d > 0.0); // if the dot of the Normal on the point from center
     }
 

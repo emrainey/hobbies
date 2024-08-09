@@ -516,6 +516,22 @@ TEST(MatrixTest, Nullspace) {
     ASSERT_MATRIX_EQ(N, C);
 }
 
+TEST(MatrixTest, Eschelon) {
+    using namespace linalg;
+    matrix A{{{1, 5, 7}, {-2, -7, -5}}};
+    matrix A_ = A.escheloned();
+    matrix B{{{1, 5, 7}, {0, 1, 3}}};
+    ASSERT_MATRIX_EQ(B, A_);
+}
+
+TEST(MatrixTest, ReducedEschelon) {
+    using namespace linalg;
+    matrix A{{{1, 5, 7}, {-2, -7, -5}}};
+    matrix A_ = A.escheloned().reduced();
+    matrix B{{{1, 0, -8}, {0, 1, 3}}};
+    ASSERT_MATRIX_EQ(B, A_);
+}
+
 TEST(MatrixTest, Pivots) {
     using namespace linalg;
     matrix A{{{1, 3, 1, 9}, {1, 1, -1, 1}, {3, 11, 5, 35}}};
@@ -576,6 +592,7 @@ TEST(MatrixTest, DISABLED_SVD) {
     /// <li>Wolfram Math World</li>
     /// <li>Wikipedia</li>
     /// </ul>
+    /// @see try https://medium.com/intuition/singular-value-decomposition-svd-working-example-c2b6135673b5
     using namespace linalg;
     using namespace linalg::operators;
 

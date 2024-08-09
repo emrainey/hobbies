@@ -294,8 +294,8 @@ public:
     matrix &for_each_col(std::function<void(size_t c)>);
 
     /// Condenses Row Eschelon Form (Gaussian elimination) into a single algorithm
-    matrix &eschelon(size_t stop_col = -1);
-    matrix escheloned(size_t stop_col = -1) const;
+    matrix &eschelon(size_t stop_col = std::numeric_limits<size_t>::max());
+    matrix escheloned(size_t stop_col = std::numeric_limits<size_t>::max()) const;
 
     bool row_is_zero(size_t r, size_t sc = 0) const;
     bool col_is_zero(size_t c, size_t sr = 0) const;

@@ -9,7 +9,10 @@ namespace objects {
 using namespace linalg::operators;
 
 overlap::overlap(object const& A, object const& B, overlap::type type)
-    : object{centroid(A.position(), B.position()), A.max_collisions() + B.max_collisions(), A.is_closed_surface() and B.is_closed_surface()}
+    // FIXME the max collisions are off !
+    : object{centroid(A.position(), B.position()),
+             (A.max_collisions() + B.max_collisions())/(type == overlap::type::inclusive ? 2 : 1),
+             A.is_closed_surface() and B.is_closed_surface()}
     , m_A{A}
     , m_B{B}
     , m_type{type}

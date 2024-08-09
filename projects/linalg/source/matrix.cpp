@@ -917,6 +917,9 @@ matrix matrix::escheloned(size_t stop_col) const {
 }
 
 matrix& matrix::eschelon(size_t stop_col) {
+    if (stop_col > cols) {
+        stop_col = cols;
+    }
     for (size_t c = 0, r = 0, lr = (rows - 1); c < stop_col && r < rows; c++) {
         // if the column is zero (from this row down)
         if (col_is_zero(c, r)) {

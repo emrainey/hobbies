@@ -253,7 +253,8 @@
 			"csignal": "cpp",
 			"coroutine": "cpp",
 			"typeindex": "cpp",
-			"*.ipp": "cpp"
+			"*.ipp": "cpp",
+			"print": "cpp"
 		},
 		"vsconan.general.pythonInterpreter": "python3",
 		"vsconan.explorer.treeview.package.showDirtyPackage": true,

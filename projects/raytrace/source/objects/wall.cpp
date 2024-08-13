@@ -12,6 +12,7 @@ using namespace geometry::operators;
 
 wall::wall(point const& C, vector const& N, precision thickness)
     : object{C, 2, false} // a wall is not a closed surface
+    // the "wall space" has the center at the origin and the walls are just offset from origin
     , m_front_{R3::origin + (N.normalized() * thickness/2.0_p), N.normalized()}
     , m_back_{R3::origin + ((-N.normalized()) * thickness/2.0_p), -N.normalized()} {
 }
@@ -31,13 +32,14 @@ vector wall::normal(point const& world_point) const {
     // these are within wall space, not world space
     vector const Vf = wall_point - m_front_.position();
     vector const Vb = wall_point - m_back_.position();
-    precision df = dot(Nf, Vf);
-    precision db = dot(Nb, Vb);
-    if (df > 0.0 and db < 0.0) {
-        return forward_transform(Nb); // closer to back
-    } else if (df < 0.0 and db > 0.0) {
-        return forward_transform(Nf); // closer to front
+    precision projection_to_front_plane = dot(Nf, Vf);
+    precision projection_to_back_plane = dot(Nb, Vb);
+    if (basal::nearly_zero(projection_to_front_plane)) {
+        return forward_transform(Nf); // already forward transformed
+    } else if (basal::nearly_zero(projection_to_back_plane)) {
+        return forward_transform(Nb); // already forward transformed
     }
+    // std::abort();
     // either between or nearly so
     return geometry::R3::null;
 }

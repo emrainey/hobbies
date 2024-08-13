@@ -105,12 +105,12 @@ hits overlap::collisions_along(ray const& overlap_ray) const {
             return hitsA;  // should just have A items...
         }
 
-        if (m_closed_two_hit_surfaces_) {
+        if (m_closed_two_hit_surfaces_ or m_open_two_hit_surfaces_) {
             // if [A0, A1, B0, B1] then return [A0, A1]
             if (std::equal(hitsAB.begin(), hitsAB.begin() + hitsA.size(), hitsA.begin())) {
                 return hitsA;
             }
-            // if [B0, B1, A0, A1] then return A
+            // if [B0, B1, A0, A1] then return [A0, A1]
             // if starts with hitsB
             if (std::equal(hitsAB.begin(), hitsAB.begin() + hitsB.size(), hitsB.begin())) {
                 return hitsA;

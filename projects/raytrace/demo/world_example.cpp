@@ -62,11 +62,11 @@ public:
         , cone2{cone1, bounding_cone, overlap::type::inclusive}
         , pos9{30, 50, 10}
         , torus1{pos9, 7, 2}
-        , blue_light{raytrace::point{80, 40, 40}, colors::blue, 1E11}
-        , red_light{raytrace::point{40, 80, 40}, colors::red, 1E11}
-        , green_light{raytrace::point{40, 40, 40}, colors::green, 1E11}
-        , white_light{raytrace::point{20, 20, 20}, colors::white, 1E11}
-        , sunlight{raytrace::vector{-2, 2, -1}, colors::white, 1E11} {
+        , blue_light{raytrace::point{80, 40, 40}, colors::blue, lights::intensities::moderate}
+        , red_light{raytrace::point{40, 80, 40}, colors::red, lights::intensities::moderate}
+        , green_light{raytrace::point{40, 40, 40}, colors::green, lights::intensities::moderate}
+        , white_light{raytrace::point{20, 20, 20}, colors::white, 1E2}
+        , sunlight{raytrace::vector{-2, 2, -1}, colors::white, lights::intensities::full} {
         // assign materials in the body of the constructor!
 
         // 2d mapping instead of 3d

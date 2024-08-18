@@ -25,9 +25,9 @@ public:
         , plastic{colors::cyan, mediums::ambient::none, colors::white, mediums::smoothness::small, roughness::tight}
         , rubber{colors::grey, mediums::ambient::none, colors::grey, mediums::smoothness::none, roughness::tight}
         , steel{colors::grey, mediums::smoothness::polished, roughness::tight}
-        , polka{13, colors::cyan, colors::blue}  //, beam_of_light[R3::point{20, 0, 21}, colors::white, 1E3}
-        , beam_of_light{raytrace::vector{-20, 0, -21}, colors::white, 1E3}
-        , inner_light{raytrace::point{0, 0, 10}, colors::white, 1E11}
+        , polka{13, colors::cyan, colors::blue}
+        , beam_of_light{raytrace::vector{-20, 0, -21}, colors::white, lights::intensities::full}
+        , inner_light{raytrace::point{0, 0, 10}, colors::white, lights::intensities::moderate}
         , look_at{0, 0, 10}
         , plane0{R3::point{0, 0, 0}, R3::basis::Z}
         , scenes{} {
@@ -289,11 +289,11 @@ TEST_F(RenderTest, DISABLED_AdditiveOverlap) {
     render_all("additive");
 }
 
-TEST_F(RenderTest, DISABLED_SubtractiveOverlap2) {
+TEST_F(RenderTest, DISABLED_SubtractiveOverlapCubes) {
     constexpr bool debug = false;
     raytrace::objects::cuboid outer_box(R3::point(0, 0, 10), 10, 10, 10);
     raytrace::objects::cuboid inner_box(R3::point(0, 0, 10), 30, 5, 5);
-    inner_box.rotation(iso::degrees(0), iso::degrees(-45), iso::degrees(45));
+    inner_box.rotation(iso::degrees(0), iso::degrees(-45), iso::degrees(0));
     raytrace::objects::overlap shape(outer_box, inner_box, overlap::type::subtractive);
     if constexpr (not debug) {
         // FIXME there are a lot of single hit returns from cuboids so it's hard to reason about

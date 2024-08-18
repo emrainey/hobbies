@@ -46,7 +46,7 @@ public:
         , number_of_spheres{128}
         , spheres{}
         , mats{}
-        , sunlight{raytrace::vector{-2, 2, -1}, colors::white, 1E11}
+        , sunlight{raytrace::vector{-2, 2, -1}, colors::white, lights::intensities::bright}
         , specks{} {
         raytrace::point center = look_at;
         spheres.push_back(new raytrace::objects::sphere(center, 4.5));
@@ -55,9 +55,9 @@ public:
         for (size_t s = 0; s < number_of_spheres; s++) {
             spheres[s]->material(mats[s]);
         }
-        // specks.push_back(new lights::speck(raytrace::point{80, 120, 80}, colors::white, 1E11));
-        // specks.push_back(new lights::speck(raytrace::point{80, 40, 80}, colors::white, 1E11));
-        // specks.push_back(new lights::speck(raytrace::point{40, 80, 80}, colors::white, 1E11));
+        // specks.push_back(new lights::speck(raytrace::point{80, 120, 80}, colors::white, lights::intensities::bright));
+        // specks.push_back(new lights::speck(raytrace::point{80, 40, 80}, colors::white, lights::intensities::bright));
+        // specks.push_back(new lights::speck(raytrace::point{40, 80, 80}, colors::white, lights::intensities::bright));
         // specks.push_back(new lights::speck(raytrace::point{120, 80, 80}, colors::white, 1E11));
     }
 

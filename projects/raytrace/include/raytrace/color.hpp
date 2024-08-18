@@ -71,7 +71,7 @@ public:
     constexpr static size_t NUM_CHANNELS = 4;
     precision channels[NUM_CHANNELS];
 
-    /// Indicates hwo the values are stored
+    /// Indicates how the values are stored
     enum class space : int
     {
         linear,
@@ -113,11 +113,13 @@ public:
     void to_space(space desired);
 
     /// Scaling operator
-    inline void scale(precision const a) {
+    inline void scale(precision const a, bool with_clamp = true) {
         for (auto& c : channels) {
             c *= a;
         }
-        clamp();
+        if (with_clamp) {
+            clamp();
+        }
     }
 
     inline void clamp() {
@@ -128,7 +130,7 @@ public:
 
     /// Scale Wrapper
     inline color& operator*=(precision const a) {
-        scale(a);
+        scale(a, true);
         return (*this);
     }
 

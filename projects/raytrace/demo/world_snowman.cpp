@@ -68,8 +68,8 @@ public:
         , right_arm{raytrace::point{-1, 0, 6.5}, raytrace::point{-4, 0, 5}, 0.2}
         , left_elbow{raytrace::point{4, 0, 5}, 0.2}
         , right_elbow{raytrace::point{-4, 0, 5}, 0.2}
-        , left_forarm{raytrace::point{4, 0, 5}, raytrace::point{2.5, 0, 3}, 0.2}
-        , right_forarm{raytrace::point{-4, 0, 5}, raytrace::point{-2.5, 0, 3}, 0.2}
+        , left_forearm{raytrace::point{4, 0, 5}, raytrace::point{2.5, 0, 3}, 0.2}
+        , right_forearm{raytrace::point{-4, 0, 5}, raytrace::point{-2.5, 0, 3}, 0.2}
         , left_hand{raytrace::point{2.5, 0, 3}, 0.4}
         , right_hand{raytrace::point{-2.5, 0, 3}, 0.4}
         , tree01{raytrace::point{-9, -5, 0}}
@@ -84,7 +84,7 @@ public:
         , tree10{raytrace::point{7, -8, 0}}
         , tree11{raytrace::point{7, -1, 0}}
         , tree12{raytrace::point{4, -3, 0}}
-        , moonlight{R3::vector{{-1, -1, -1}}, colors::silver, 1E3}
+        , moonlight{R3::vector{{-1, -1, -1}}, colors::silver, lights::intensities::full * 2}
         , lights{} {
         ground.material(&snow);
         sn_btm.material(&mediums::metals::stainless);
@@ -94,8 +94,8 @@ public:
         right_arm.material(&mediums::metals::stainless);
         left_elbow.material(&mediums::metals::stainless);
         right_elbow.material(&mediums::metals::stainless);
-        left_forarm.material(&mediums::metals::stainless);
-        right_forarm.material(&mediums::metals::stainless);
+        left_forearm.material(&mediums::metals::stainless);
+        right_forearm.material(&mediums::metals::stainless);
         left_hand.material(&mediums::metals::stainless);
         right_hand.material(&mediums::metals::stainless);
         left_eye.material(&red_eyes);
@@ -109,7 +109,7 @@ public:
         hat_ribbon.material(&red_eyes);
         hat_top.material(&plum);
         for (int i = 0; i <= 10; i++) {
-            // lights.push_back(new lights::bulb(raytrace::point{i - 5, 0, 15}, 1.0, colors::white, 1E11, 4));
+            // lights.push_back(new lights::bulb(raytrace::point{i - 5, 0, 15}, 1.0, colors::white, lights::intensities::blinding, 4));
             // lights.push_back(new lights::speck(raytrace::point{i - 5, 0, 15}, colors::white, 5));
         }
         // move the nose into the right orientation
@@ -162,8 +162,8 @@ public:
         scene.add_object(&right_arm);
         scene.add_object(&left_elbow);
         scene.add_object(&right_elbow);
-        scene.add_object(&left_forarm);
-        scene.add_object(&right_forarm);
+        scene.add_object(&left_forearm);
+        scene.add_object(&right_forearm);
         scene.add_object(&left_hand);
         scene.add_object(&right_hand);
         for (auto& s : lights) {
@@ -202,8 +202,8 @@ protected:
     raytrace::objects::cylinder right_arm;
     raytrace::objects::sphere left_elbow;
     raytrace::objects::sphere right_elbow;
-    raytrace::objects::cylinder left_forarm;
-    raytrace::objects::cylinder right_forarm;
+    raytrace::objects::cylinder left_forearm;
+    raytrace::objects::cylinder right_forearm;
     raytrace::objects::sphere left_hand;
     raytrace::objects::sphere right_hand;
     // snowman face

@@ -25,7 +25,7 @@ public:
         , subgap{R3::origin, R3::basis::X, 30.0_p}
         , gap{wall1, subgap, raytrace::objects::overlap::type::subtractive}
         , sphere{R3::origin, 15}
-        , sunlight{R3::vector{0, 100, -100}, raytrace::colors::white, 1E11}
+        , sunlight{R3::vector{0, 100, -100}, raytrace::colors::white, lights::intensities::blinding}
         {
             wall1.material(&raytrace::mediums::metals::copper);
             // wall1.print("Wall1");

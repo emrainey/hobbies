@@ -12,9 +12,9 @@
 
 using namespace raytrace;
 
-class DesktoyWorld : public world {
+class DeskToyWorld : public world {
 public:
-    DesktoyWorld()
+    DeskToyWorld()
         : world{}
         , look_from{20, 20, 20}
         , look_at{0, 0, 0}
@@ -25,7 +25,7 @@ public:
         , cutout2{raytrace::point{0, 0, -15}, 20}
         , final_base{base, cutout2, raytrace::objects::overlap::type::inclusive}  // cutout2 from base
         , ground{R3::origin, R3::basis::Z}
-        , sunlight{raytrace::vector{-2, 2, -1}, colors::white, 1E11}
+        , sunlight{raytrace::vector{-2, 2, -1}, colors::white, lights::intensities::bright}
         , prick{raytrace::point{0, 0, 3}, colors::dim_grey, 1E3} {
         block.material(&mediums::metals::chrome);
         cutout.material(&mediums::metals::chrome);
@@ -34,7 +34,7 @@ public:
         ground.material(&mediums::metals::chrome);
     }
 
-    ~DesktoyWorld() {
+    ~DeskToyWorld() {
     }
 
     raytrace::point& looking_from() override {
@@ -46,11 +46,11 @@ public:
     }
 
     std::string window_name() const override {
-        return std::string("Desktoy");
+        return std::string("DeskToy");
     }
 
     std::string output_filename() const override {
-        return std::string("world_desktoy.tga");
+        return std::string("world_desk_toy.tga");
     }
 
     raytrace::color background(raytrace::ray const& world_ray) const override {
@@ -85,6 +85,6 @@ protected:
 
 // declare a single instance and return the reference to it
 world* get_world() {
-    static DesktoyWorld my_world;
+    static DeskToyWorld my_world;
     return &my_world;
 }

@@ -5,17 +5,12 @@ namespace raytrace {
 namespace lights {
 using namespace linalg::operators;
 
-speck::speck(point const& P, color const& C, precision intensity) : light(C, intensity, 1), entity(P) {
+speck::speck(point const& P, color const& C, precision intensity)
+    : light(P, C, intensity, 1u, Falloff::InverseSquare) {
 }
 
-speck::speck(point&& P, color const& C, precision intensity) : light(C, intensity, 1), entity(std::move(P)) {
-}
-
-precision speck::intensity_at(point const& pnt) const {
-    using namespace geometry::operators;
-    vector direction = position() - pnt;
-    precision d = direction.magnitude();
-    return m_intensity * laws::inverse_square(d);
+speck::speck(point&& P, color const& C, precision intensity)
+    : light(std::move(P), C, intensity, 1u, Falloff::InverseSquare) {
 }
 
 ray speck::incident(point const& world_point, size_t sample_index __attribute__((unused))) const {

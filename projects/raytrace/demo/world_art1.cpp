@@ -14,7 +14,7 @@ public:
     ArtWorld()
         : look_from{0, 25, 10}
         , look_at{0, 0, 10}
-        , sunrays{raytrace::vector{-20, 0, -21}, colors::white, 1E4}
+        , sun_rays{raytrace::vector{-20, 0, -21}, colors::white, lights::intensities::dim}
         , floor{R3::origin, R3::basis::Z, 100.0, 100.0}
         , pyramid{look_at, 0}
         , orb{raytrace::point{0, 0, 12}, 2.0}
@@ -53,7 +53,7 @@ public:
 
     void add_to(scene& scene) override {
         // scene.add_light(&inner_light);
-        scene.add_light(&sunrays);
+        scene.add_light(&sun_rays);
         scene.add_object(&floor);
         scene.add_object(&pyramid);
         scene.add_object(&orb);
@@ -64,7 +64,7 @@ public:
 protected:
     raytrace::point look_from;
     raytrace::point look_at;
-    lights::beam sunrays;
+    lights::beam sun_rays;
     raytrace::point center;
     raytrace::objects::square floor;
     raytrace::objects::pyramid pyramid;

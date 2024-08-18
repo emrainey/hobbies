@@ -109,7 +109,9 @@ precision gamma_interpolate(precision const a, precision const b, precision cons
     // log to linear
     precision c = gamma::apply_correction(cg);
     // limit to 0-1
-    return std::clamp(c, constants[0], constants[1]);
+    precision d = std::clamp(c, constants[0], constants[1]);
+    // printf("a %lf b %lf s %lf ag %lf bg %lf cg %lf c %lf d %lf\n", a, b, s, ag, bg, cg, c, d);
+    return d;
 }
 
 color blend(color const& x, color const& y) {

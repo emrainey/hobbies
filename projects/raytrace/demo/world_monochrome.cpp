@@ -21,7 +21,7 @@ public:
         , look_from{5, -20, 20}
         , look_at{0, 0, 0}
         , plain_white{colors::white, mediums::ambient::none, colors::white, mediums::smoothness::none, roughness::tight}
-        , griders{0.1,           colors::blue, colors::yellow, colors::red,  colors::magenta,
+        , checkerboard_grid{0.1, colors::blue, colors::yellow, colors::red,  colors::magenta,
                   colors::green, colors::cyan, colors::black,  colors::white}
         , floor{R3::origin, R3::basis::Z, 100, 100}
         , light0{raytrace::point{-5, 0, 10}, 1, colors::white, 10, light_subsamples}
@@ -39,18 +39,17 @@ public:
         , s2{raytrace::point{-4, -2, 2}, 2}
         , s3{raytrace::point{1, -5, 3}, 3}
         , c1{raytrace::point{6, 3, 0}, 1, 4}  // cone
-        //, cylint{raytrace::point{-2, 3, 2}, 2, 1} // cylinder
-        //, cylint{raytrace::point{-2, 3, 2}, 1, 1} // cylinder
-        //, cylbox{raytrace::point{-2, 3, 2}, 1, 1, 2}
-        //, cyl{cylint, cylbox, overlap::type::inclusive}
+        //, infinite_cylinder{raytrace::point{-2, 3, 2}, 1, 1} // cylinder
+        //, cylinder_box{raytrace::point{-2, 3, 2}, 1, 1, 2}
+        //, cyl{infinite_cylinder, cylinder_box, overlap::type::inclusive}
         , cyl{raytrace::point{-2, 3, 2}, 2, 1}  // cylinder
         , cap{raytrace::point{-2, 3, 4}, R3::basis::Z, 0, 1}
         , t0{raytrace::point{3, 7, 0.5}, 1.4, 0.5}
         , cb0{raytrace::point{7, -2, 1}, 1, 1, 1} {
         // assign surfaces and materials
         floor.material(&plain_white);
-        griders.mapper(std::bind(&objects::square::map, &floor, std::placeholders::_1));
-        // floor.material(&griders);
+        checkerboard_grid.mapper(std::bind(&objects::square::map, &floor, std::placeholders::_1));
+        // floor.material(&checkerboard_grid);
         s1.material(&mediums::metals::stainless);
         s2.material(&mediums::metals::stainless);
         s3.material(&mediums::metals::stainless);
@@ -115,7 +114,7 @@ protected:
     raytrace::point look_from;
     raytrace::point look_at;
     mediums::plain plain_white;
-    mediums::checkerboard griders;
+    mediums::checkerboard checkerboard_grid;
     raytrace::objects::square floor;
     bulb light0;
     bulb light1;
@@ -134,8 +133,8 @@ protected:
     raytrace::objects::sphere s3;
     cone c1;
     cylinder cyl;
-    // ellipticalcylinder cylint;
-    // cuboid   cylbox;
+    // ellipticalcylinder infinite_cylinder;
+    // cuboid   cylinder_box;
     // overlap  cyl;
     ring cap;
     torus t0;

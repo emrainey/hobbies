@@ -14,8 +14,8 @@ public:
     PlanetWorld()
         : look_from{0, 50, 10}
         , look_at{8, 0, 0}
-        , sunrays{raytrace::vector{-20, 0, -21}, colors::white, 1E4}
-        , inner_light{raytrace::point{0, 0, 80}, colors::white, 1E12}
+        , sun_rays{raytrace::vector{-20, 0, -21}, colors::white, lights::intensities::bright / 2}
+        , inner_light{raytrace::point{0, 0, 80}, colors::white, lights::intensities::blinding}
         , center{0, 0, 0}
         , ringA{center, R3::basis::Z, 10.0, 11.8}
         , ringB{center, R3::basis::Z, 12.0, 12.2}
@@ -58,7 +58,7 @@ public:
 
     void add_to(scene& scene) override {
         // scene.add_light(&inner_light);
-        scene.add_light(&sunrays);
+        scene.add_light(&sun_rays);
         scene.add_object(&planet);
         scene.add_object(&ringA);
         scene.add_object(&ringB);
@@ -71,7 +71,7 @@ public:
 protected:
     raytrace::point look_from;
     raytrace::point look_at;
-    lights::beam sunrays;
+    lights::beam sun_rays;
     lights::speck inner_light;
     raytrace::point center;
     objects::ring ringA;

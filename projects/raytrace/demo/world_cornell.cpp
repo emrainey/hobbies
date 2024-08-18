@@ -31,7 +31,7 @@ public:
         , wall4{raytrace::point{0, 0, 160}, -R3::basis::Z}  // ceiling
         , box{raytrace::point{0, -30, 60}, 20, 20, 60}
         , ball{raytrace::point{0, 30, 30}, 30}
-        , toplight{raytrace::point{0, 0, 150}, colors::white, 1E11} {
+        , top_light{raytrace::point{0, 0, 150}, colors::white, 1E4} {
         wall0.material(&plain_blue);
         wall1.material(&plain_red);
         wall2.material(&plain_white);
@@ -73,7 +73,7 @@ public:
         scene.add_object(&wall4);
         scene.add_object(&box);
         scene.add_object(&ball);
-        scene.add_light(&toplight);
+        scene.add_light(&top_light);
     }
 
 protected:
@@ -91,7 +91,7 @@ protected:
     objects::plane wall4;
     objects::cuboid box;
     objects::sphere ball;
-    lights::speck toplight;
+    lights::speck top_light;
 };
 
 // declare a single instance and return the reference to it

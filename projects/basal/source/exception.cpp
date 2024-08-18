@@ -26,11 +26,11 @@ exception::exception(std::string desc, std::string loc, std::size_t line)
         if (stack_strings) {
             description.append("\n");
             for (size_t s = 1; s < size; s++) {
-                size_t funcnamesize = 256;
+                size_t function_name_size = 256;
                 if (debug) {
                     printf("%s", stack_strings[s]);
                 }
-                char *funcname = static_cast<char *>(malloc(funcnamesize));
+                char *funcname = static_cast<char *>(malloc(function_name_size));
                 if (funcname) {
                     char *depth = std::strtok(stack_strings[s], " \t");
                     char *module = std::strtok(NULL, " \t");
@@ -49,7 +49,7 @@ exception::exception(std::string desc, std::string loc, std::size_t line)
                     begin_offset[0] |= 0;
 
                     int status;
-                    char *ret = abi::__cxa_demangle(begin_name, funcname, &funcnamesize, &status);
+                    char *ret = abi::__cxa_demangle(begin_name, funcname, &function_name_size, &status);
                     if (status == 0) {
                         description.append("\t");
                         description.append(ret);

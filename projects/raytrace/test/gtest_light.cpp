@@ -38,11 +38,11 @@ TEST(LightTest, BeamLightColor) {
 
     raytrace::point p0{0, 0, 0};
     raytrace::point p1{0, 0, -10};
+    precision intensity = 1E9;
+    lights::beam light0(down, colors::white, intensity);
 
-    lights::beam light0(down, colors::white, 1E9);
-
-    ASSERT_FLOAT_EQ(1.0, light0.intensity_at(p0));
-    ASSERT_FLOAT_EQ(1.0, light0.intensity_at(p1));
+    ASSERT_FLOAT_EQ(intensity, light0.intensity_at(p0));
+    ASSERT_FLOAT_EQ(intensity, light0.intensity_at(p1));
 
     ASSERT_VECTOR_EQ(geometry::R3::basis::Z, light0.incident(p0, 0).direction().normalized());
 }
@@ -72,7 +72,7 @@ TEST(LightTest, DISABLED_TriColorSpots) {
 TEST(LightTest, DISABLED_BulbTest) {
     raytrace::objects::sphere shape(raytrace::point{0, 0, 3}, 3);
     raytrace::objects::plane floor(raytrace::point{0, 0, 0}, R3::basis::Z);
-    raytrace::lights::bulb light(raytrace::point{0, 0, 9}, 0.2, colors::white, 1E11, 100);
+    raytrace::lights::bulb light(raytrace::point{0, 0, 9}, 0.2, colors::white, lights::intensities::blinding, 100);
     raytrace::scene scene;
     raytrace::camera view(480, 640, iso::degrees(55));
     view.move_to(raytrace::point{30, 30, 30}, raytrace::point{29, 29, 29});

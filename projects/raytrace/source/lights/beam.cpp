@@ -5,16 +5,14 @@ namespace lights {
 
 using namespace linalg::operators;
 
-beam::beam(vector const& v, color const& C, precision distance)
-    : light{C, 1.0, 1}, m_world_source{v}, m_distance{distance} {
+static constexpr precision default_distance{1E16};
+
+beam::beam(vector const& v, color const& C, precision intensity)
+    : light{R3::origin, C, intensity, 1u, Falloff::None}, m_world_source{v}, m_distance{default_distance} {
 }
 
-beam::beam(raytrace::vector&& v, color const& C, precision distance)
-    : light{C, 1.0, 1}, m_world_source{std::move(v)}, m_distance{distance} {
-}
-
-precision beam::intensity_at(point const& pnt __attribute__((unused))) const {
-    return m_intensity;
+beam::beam(raytrace::vector&& v, color const& C, precision intensity)
+    : light{R3::origin, C, intensity, 1u, Falloff::None}, m_world_source{std::move(v)}, m_distance{default_distance} {
 }
 
 ray beam::incident(point const& world_point, size_t sample_index __attribute__((unused))) const {

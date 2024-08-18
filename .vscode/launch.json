@@ -28,10 +28,90 @@
     ],
     "configurations": [
         {
+            "name": "(lldb) Launch Doorgame",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${command:cmake.buildDirectory}/projects/doorgame/demo_doorgame",
+            "args": [],
+            "cwd": "${workspaceFolder}/testing"
+        },
+        {
+            "name": "(lldb) Launch KMeans",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${command:cmake.buildDirectory}/projects/linalg-algo/demo_kmeans",
+            "args": [],
+            "cwd": "${workspaceFolder}/testing"
+        },
+        {
+            "name": "(lldb) Launch Least Squares",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${command:cmake.buildDirectory}/projects/linalg-utils/demo_least_squares",
+            "args": [],
+            "cwd": "${workspaceFolder}/testing"
+        },
+        {
+            "name": "(lldb) Launch Images",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${command:cmake.buildDirectory}/projects/linalg-utils/demo_images",
+            "args": [],
+            "cwd": "${workspaceFolder}/testing"
+        },
+        {
+            "name": "(lldb) Launch Neural Net",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${command:cmake.buildDirectory}/projects/neuralnet/demo_neuralnet",
+            "args": [],
+            "cwd": "${workspaceFolder}/testing"
+        },
+        {
+            "name": "(lldb) Launch HTM Sparse Word",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${command:cmake.buildDirectory}/projects/htm/demo_sparse_word",
+            "args": [],
+            "cwd": "${workspaceFolder}/testing"
+        },
+        {
+            "name": "(lldb) Launch Noise FBM",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${command:cmake.buildDirectory}/projects/noise/demo_fbm_tuner",
+            "args": [],
+            "cwd": "${workspaceFolder}/testing"
+        },
+        {
+            "name": "(lldb) Launch Noise Perlin",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${command:cmake.buildDirectory}/projects/noise/demo_perlin_tuner",
+            "args": [],
+            "cwd": "${workspaceFolder}/testing"
+        },
+        {
+            "name": "(lldb) Launch Noise Turbulent Sin()",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${command:cmake.buildDirectory}/projects/noise/demo_turbulent_tuner",
+            "args": [],
+            "cwd": "${workspaceFolder}/testing"
+        },
+        {
             "name": "(lldb) Launch Random Tuner",
             "type": "lldb",
             "request": "launch",
-            "program": "${workspaceFolder}/build/native-llvm-18/projects/raytrace/demo_random_tuner",
+            "program": "${command:cmake.buildDirectory}/projects/raytrace/demo_random_tuner",
+            "args": [],
+            "cwd": "${workspaceFolder}/testing"
+        },
+        {
+            "name": "(lldb) Launch Sphere Surface",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${command:cmake.buildDirectory}/projects/raytrace/demo_sphere_surfaces",
             "args": [],
             "cwd": "${workspaceFolder}/testing"
         },
@@ -39,7 +119,7 @@
             "name": "(lldb) GTest Noise",
             "type": "lldb",
             "request": "launch",
-            "program": "${workspaceFolder}/build/native-llvm-18//projects/noise/gtest_noise",
+            "program": "${command:cmake.buildDirectory}/projects/noise/gtest_noise",
             // "args": ["--gtest_filter='WallTest.*'"],
             "cwd": "${workspaceFolder}/testing",
             // "terminal": "integrated"
@@ -48,7 +128,7 @@
             "name": "(lldb) GTest Raytrace",
             "type": "lldb",
             "request": "launch",
-            "program": "${workspaceFolder}/build/native-llvm-18//projects/raytrace/gtest_raytrace",
+            "program": "${command:cmake.buildDirectory}//projects/raytrace/gtest_raytrace",
             // "args": ["--gtest_filter='WallTest.*'"],
             "cwd": "${workspaceFolder}/testing",
             // "terminal": "integrated"
@@ -60,7 +140,7 @@
             "name": "(lldb) Demo Curses",
             "type": "lldb",
             "request": "launch",
-            "program": "${workspaceFolder}/build/native-llvm-18//projects/raytrace/demo_curses",
+            "program": "${command:cmake.buildDirectory}//projects/raytrace/demo_curses",
             "args": [
                 "-m",
                 "${input:world_module}",
@@ -75,7 +155,7 @@
             "name": "(lldb) Demo OpenCV GUI",
             "type": "lldb",
             "request": "launch",
-            "program": "${workspaceFolder}/build/native-llvm-18//projects/raytrace/demo_opencv_gui",
+            "program": "${command:cmake.buildDirectory}//projects/raytrace/demo_opencv_gui",
             "args": [
                 "-m",
                 "${input:world_module}",
@@ -87,14 +167,14 @@
             "cwd": "${workspaceFolder}/testing",
             "env": {
                 "ABORT": "1",
-                "DYLD_LIBRARY_PATH": "${workspaceFolder}/install/lib:${workspaceFolder}/build/native-llvm-18//projects/raytrace"
+                "DYLD_LIBRARY_PATH": "${workspaceFolder}/install/lib:${command:cmake.buildDirectory}//projects/raytrace"
             },
         },
         {
             "name": "(lldb) Demo SDL2 Render",
             "type": "lldb",
             "request": "launch",
-            "program": "${workspaceFolder}/build/native-llvm-18//projects/raytrace/demo_sdl2",
+            "program": "${command:cmake.buildDirectory}//projects/raytrace/demo_sdl2",
             "args": [
                 "-m",
                 "${input:world_module}",
@@ -110,7 +190,7 @@
             "cwd": "${workspaceFolder}/testing",
             "env": {
                 "ABORT": "1",
-                "DYLD_LIBRARY_PATH": "${workspaceFolder}/install/lib:${workspaceFolder}/build/native-llvm-18//projects/raytrace"
+                "DYLD_LIBRARY_PATH": "${workspaceFolder}/install/lib:${command:cmake.buildDirectory}//projects/raytrace"
             },
         }
     ]

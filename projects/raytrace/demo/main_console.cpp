@@ -151,7 +151,7 @@ int main(int argc, char* argv[]) {
 
     basal::options::config opts[] = {
         {"-d", "--dims", std::string("QVGA"), "Use text video format like VGA or 2K"},
-        {"-b", "--subsamples", (size_t)1, "Nubmer of subsamples"},
+        {"-b", "--subsamples", (size_t)1, "Number of sub-samples"},
         {"-r", "--reflections", (size_t)4, "Reflection Depth"},
         {"-f", "--fov", 55.0_p, "Field of View in Degrees"},
         {"-v", "--verbose", false, "Enables showing the early debugging"},

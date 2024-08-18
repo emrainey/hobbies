@@ -8,15 +8,11 @@ namespace raytrace {
 namespace lights {
 /// A point light with fall-off obeying the inverse square law
 class speck
-    : public light
-    , public entity {
+    : public light {
 public:
     speck(point const& P, raytrace::color const& C, precision intensity);
     speck(point&& P, raytrace::color const& C, precision intensity);
     virtual ~speck() = default;
-
-    /// @copydoc raytrace::light::intensity_at()
-    precision intensity_at(point const& world_point) const override;
 
     /// @copydoc raytrace::light::incident()
     ray incident(point const& world_point, size_t sample_index) const override;

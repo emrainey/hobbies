@@ -134,11 +134,11 @@ intersection intersects(plane const& P1, plane const& P2) {
         matrix mt{{{P1.coefficient().a, P1.coefficient().b, P1.coefficient().c},
                    {P2.coefficient().a, P2.coefficient().b, P2.coefficient().c}}};
         matrix b{{{-P1.coefficient().d}, {-P2.coefficient().d}}};
-        matrix mtb = rowjoin(mt, b);
-        matrix nmtb = mtb.nullspace();
-        R3::point pt{-nmtb[0][1], -nmtb[1][1], -nmtb[2][1]};  // pick value from nullspace
-        R3::line iline(v, pt);
-        return intersection(iline);
+        matrix mt_b = rowjoin(mt, b);
+        matrix n_mt_b = mt_b.nullspace();
+        R3::point pt{-n_mt_b[0][1], -n_mt_b[1][1], -n_mt_b[2][1]};  // pick value from nullspace
+        R3::line i_line(v, pt);
+        return intersection(i_line);
     }
 }
 
@@ -165,7 +165,7 @@ intersection intersects(R3::sphere const& S, R3::line const& l) noexcept(false) 
             R3::point p = l.position();
             // x^2 + y^2 + z^2 = r^2
             // a = (vx^2 + vy^2 + vz^2)
-            // b = (2vxpx + 2vypy + 2vzpz)
+            // b = (2vx_px + 2vy_py + 2vz_pz)
             // c = (px^2 + py^2 + pz^2) - r^2
             precision a = 0;
             precision b = 0;
@@ -205,7 +205,7 @@ intersection intersects(R3::sphere const& S, R3::line const& l) noexcept(false) 
             // if t > 0 then V is facing towards P
             precision u = (t < 0 ? -1.0 : 1.0);
 
-            // line passes throught the center
+            // line passes through the center
             if (basal::nearly_zero(d)) {
                 // C == P
                 // The closet point to the center is the center (passes through the middle)

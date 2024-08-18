@@ -9,22 +9,11 @@ namespace lights {
 using namespace linalg::operators;
 
 bulb::bulb(point const& P, precision radius, color const& C, precision intensity, size_t samples)
-    : light{C, intensity, samples}, entity{P}, m_radius{radius} {
+    : light{P, C, intensity, samples, Falloff::InverseSquare}, m_radius{radius} {
 }
 
 bulb::bulb(point&& P, precision radius, color const& C, precision intensity, size_t samples)
-    : light{C, intensity, samples}, entity{std::move(P)}, m_radius{radius} {
-}
-
-precision bulb::intensity_at(point const& world_point) const {
-    using namespace geometry::operators;
-    vector direction = position() - world_point;
-    precision d = direction.magnitude();
-    if (basal::nearly_zero(d)) {
-        return m_intensity;
-    } else {
-        return m_intensity / (d * d);
-    }
+    : light{std::move(P), C, intensity, samples, Falloff::InverseSquare}, m_radius{radius} {
 }
 
 ray bulb::incident(point const& world_point, size_t sample_index) const {

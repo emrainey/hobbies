@@ -11,7 +11,7 @@
 namespace raytrace {
 namespace objects {
 /// A user defined object which uses a 4x4 matrix to solve the surface normal and intersection interface
-/// using a quadratic solver. Can be used to make spheres, elliptoids, hyperboloids (saddles), etc.
+/// using a quadratic solver. Can be used to make spheres, ellipsoids, hyperboloids (saddles), etc.
 ///
 class quadratic : public object {
 public:

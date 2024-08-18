@@ -26,9 +26,8 @@ public:
         , schott_glass{mediums::refractive_index::glass, 0.04, colors::red}
         , red_plastic{colors::white, mediums::ambient::dim, colors::red, mediums::smoothness::barely,
                       mediums::roughness::tight}
-        , sunlight{raytrace::vector{-2, 2, -1}, colors::white, 1E11}
-        , backlight{raytrace::point{-10, -10, 12}, colors::white, 1E3}
-        , frontlight{raytrace::point{10, 10, 12}, colors::white, 1E3} {
+        , back_light{raytrace::point{-10, -10, 12}, colors::white, lights::intensities::bright / 2}
+        , front_light{raytrace::point{10, 10, 12}, colors::white, lights::intensities::bright / 2} {
         ikea_checkers.mapper(std::bind(&objects::square::map, &floor, std::placeholders::_1));
         floor.material(&ikea_checkers);
         glass_ball.material(&schott_glass);
@@ -64,9 +63,8 @@ public:
         // scene.add_object(&glass_cube);
         scene.add_object(&floor);
         scene.add_object(&toy_ball);
-        scene.add_light(&sunlight);
-        scene.add_light(&backlight);
-        scene.add_light(&frontlight);
+        scene.add_light(&back_light);
+        scene.add_light(&front_light);
     }
 
 protected:
@@ -79,9 +77,8 @@ protected:
     mediums::checkerboard ikea_checkers;
     mediums::transparent schott_glass;
     mediums::plain red_plastic;
-    lights::beam sunlight;
-    lights::speck backlight;
-    lights::speck frontlight;
+    lights::speck back_light;
+    lights::speck front_light;
 };
 
 // declare a single instance and return the reference to it

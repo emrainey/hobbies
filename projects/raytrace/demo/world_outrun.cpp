@@ -62,7 +62,7 @@ public:
     OutrunWorld()
         : look_from{0, 50, 10}
         , look_at{0, 0, 10}
-        , sunrays{raytrace::vector{-20, 0, -21}, colors::white, 1E4}
+        , sun_rays{raytrace::vector{-20, 0, -21}, colors::white, 1E4}
         , grid{10.0, outrun::neon_pink, colors::black}
         , floor{R3::origin, R3::basis::Z, 100.0, 100.0}
         , sun_surface{}
@@ -100,7 +100,7 @@ public:
 
     void add_to(scene& scene) override {
         // scene.add_light(&inner_light);
-        scene.add_light(&sunrays);
+        scene.add_light(&sun_rays);
         scene.add_object(&floor);
         scene.add_object(&sun);
         scene.add_media(&mediums::earth_atmosphere);
@@ -109,7 +109,7 @@ public:
 protected:
     raytrace::point look_from;
     raytrace::point look_at;
-    lights::beam sunrays;
+    lights::beam sun_rays;
     raytrace::point center;
     raytrace::mediums::grid grid;
     raytrace::objects::square floor;

@@ -23,7 +23,7 @@ public:
         , look_from{0, -20, 80}
         , look_at{0, 0, 0}
         , number_of_spheres{number_of_spheres_per_side*number_of_spheres_per_side}
-        , brightness{0.1_p}
+        , brightness{lights::intensities::moderate}
         , spheres{}
         , mats{}
         , sunlight{raytrace::vector{0, -1, -1}, colors::white, brightness}

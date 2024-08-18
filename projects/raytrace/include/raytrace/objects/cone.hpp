@@ -11,10 +11,10 @@ namespace objects {
 class cone : public object {
 public:
     /// Constructs a cone which is up and down in Z. The point C is on the apex pinch.
-/// This cone is infinite and closed. The angle must be < pi/2
+    /// This cone is infinite and closed. The angle must be < pi/2
     cone(point const& C, iso::radians angle);
     /// Constructs a cone which is up and down in Z. The point C is on the base in the center of the ring.
-/// The cone with a height is not closed and can't be used in intersections.
+    /// The cone with a height is not closed and can't be used in intersections.
     cone(point const& C, precision bottom_radius, precision height);
     virtual ~cone() = default;
 

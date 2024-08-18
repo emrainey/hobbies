@@ -14,9 +14,6 @@ public:
     beam(raytrace::vector&& v, raytrace::color const& C, precision intensity);
     virtual ~beam() = default;
 
-    /// @copydoc raytrace::light::intensity_at()
-    precision intensity_at(point const& world_point) const override;
-
     /// @copydoc raytrace::light::incident()
     ray incident(point const& world_point, size_t sample_index) const override;
 

@@ -20,7 +20,8 @@
 	"settings": {
 		"editor.formatOnSave": true,
 		"cmake.autoSelectActiveFolder": true,
-		"cmake.buildDirectory": "${workspaceFolder}/build",
+		// "cmake.buildDirectory": "${workspaceFolder}/build",
+		// "cmake.buildDirectory": "${workspaceFolder}/build/native-llvm-18",
 		"cmake.installPrefix": "${workspaceFolder}/install",
 		"cmake.configureOnOpen": true,
 		"cmake.additionalCompilerSearchDirs": [
@@ -42,10 +43,10 @@
 		"cmake.configureArgs": [
 			"-DBUILD_SHARED_LIB=OFF",
 			"-DCMAKE_VERBOSE_MAKEFILE:BOOL=OFF",
-			"-DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE",
-			"-DUSE_XMMT:BOOL=OFF",
+			"-DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE"
 		],
 		"cmake.loggingLevel": "debug",
+		"cmake.allowCommentsInPresetsFile": false,
 		"cmake.ctest.allowParallelJobs": true,
 		"cmake.ctest.parallelJobs": 2,
 		"cmakeExplorer.cmakeIntegration": true,
@@ -82,7 +83,7 @@
 		"C_Cpp.default.cppStandard": "c++17",
 		"C_Cpp.default.cStandard": "c17",
 		"C_Cpp.default.browse.limitSymbolsToIncludedHeaders": true,
-		"C_Cpp.default.compileCommands": "${workspaceFolder}/build/compile_commands.json",
+		"C_Cpp.default.compileCommands": "${workspaceFolder}/build/native-llvm-18/compile_commands.json",
 		"C_Cpp.default.browse.path": [
 			"${workspaceFolder}/projects/basal/include",
 			"${workspaceFolder}/projects/units_of_measure/include",
@@ -114,10 +115,10 @@
 			"custom": true, // Enable the `custom` dictionary
 			"internal-terms": false // Disable the `internal-terms` dictionary
 		},
-		"cSpell.ignoreWords": [
-			"AABB",
-			"ABGR",
-			"FOURCC"
+		"cSpell.language": "en-US",
+		"cSpell.dictionaries": [
+			"en-US",
+			"project-words"
 		],
 		// "python.linting.pylintEnabled": true,
 		// "python.linting.enabled": true,
@@ -134,8 +135,8 @@
 		"testExplorer.codeLens": true,
 		"testMate.cpp.test.workingDirectory": "${workspaceFolder}/testing",
 		"testMate.cpp.test.runtimeLimit": 600,
-		// "testMate.cpp.test.executables": "${workspaceFolder}/build/projects/*/gtest_*",
-		"testmake.cpp.test.advancedExecutables": "${workspaceFolder}/build/projects/*/gtest_*",
+		"testMate.cpp.test.executables": "${command:cmake.buildDirectory}/projects/*/gtest_*",
+		// "testMate.cpp.test.advancedExecutables": "${command:cmake.buildDirectory}/projects/*/gtest_*",
 		"testMate.cpp.test.parallelExecutionOfExecutableLimit": 12,
 		"testMate.cpp.discovery.strictPattern": true,
 		"testMate.cpp.discovery.loadOnStartup": true,
@@ -153,6 +154,7 @@
 			"externalConsole": false
 		},
 		"python.testing.pytestEnabled": true,
+		"python.v": "${workspaceFolder}/venv",
 		"python.envFile": "${workspaceFolder}/.env",
 		"files.associations": {
 			".clang-format": "json",
@@ -254,11 +256,13 @@
 			"coroutine": "cpp",
 			"typeindex": "cpp",
 			"*.ipp": "cpp",
-			"print": "cpp"
+			"print": "cpp",
+			"codecvt": "cpp",
+			"execution": "cpp",
+			"stack": "cpp"
 		},
 		"vsconan.general.pythonInterpreter": "python3",
 		"vsconan.explorer.treeview.package.showDirtyPackage": true,
-		"cmake.allowCommentsInPresetsFile": false,
 	},
 	"tasks": {
 		"version": "2.0.0",
@@ -269,15 +273,6 @@
 				"type": "shell",
 				"args": [],
 			},
-			{
-				"label": "Random Tuner",
-				"type": "shell",
-				"command": "${command:cmake.launchTargetDirectory}/projects/raytrace/demo_random_tuner",
-				"options": {
-					"cwd": "${workspaceFolder}/"
-				},
-				"group": "test"
-			}
 		],
 	},
 	"folders": [

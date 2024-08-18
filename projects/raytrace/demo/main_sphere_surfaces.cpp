@@ -1,7 +1,7 @@
 ///
 /// @file
 /// @author Erik Rainey (erik.rainey@gmail.com)
-/// @brief Renders a raytraced image of a bunch of speheres
+/// @brief Renders a ray-traced image of single spheres with different surface properties.
 /// @date 2021-01-02
 /// @copyright Copyright (c) 2021
 ///
@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
     raytrace::objects::sphere test_sphere(sphere_center, 10);
 
     // define the light
-    lights::beam sunlight(raytrace::vector{-2, 2, -1}, colors::white, 1E11);
+    lights::beam sunlight(raytrace::vector{-2, 2, -1}, colors::white, lights::intensities::full);
 
     do {
         // tiny image, simple camera placement
@@ -82,9 +82,9 @@ int main(int argc, char* argv[]) {
         // scene.background = colors::black;
 
         // define some surfaces
-        mediums::plain testsurface(color_choices[ambient_color_index], ambient_scale,
+        mediums::plain test_surface(color_choices[ambient_color_index], ambient_scale,
                                    color_choices[diffuse_color_index], smoothiness, tightness);
-        test_sphere.material(&testsurface);
+        test_sphere.material(&test_surface);
 
         // add the objects to the scene.
         scene.add_object(&test_sphere);

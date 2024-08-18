@@ -12,7 +12,7 @@ namespace objects {
 class triangle : public plane {
 public:
     /// Constructs a triangle from three points.
-/// Point B is considered the middle point for computation of the normal.
+    /// Point B is considered the middle point for computation of the normal.
     triangle(point const& A, point const& B, point const& C);
     virtual ~triangle() = default;
 

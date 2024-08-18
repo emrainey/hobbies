@@ -7,7 +7,7 @@
 
 namespace raytrace {
 namespace objects {
-/// The Classical Roundy Boi
+/// The Classical Roundy-Boi
 class sphere
     : public geometry::R3::sphere
     , public object {

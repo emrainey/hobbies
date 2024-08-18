@@ -43,11 +43,11 @@ public:
         , pyramid_center{10, 10, 10.1}
         , pyramid_core{pyramid_center, 10.1}
         , pyramid_bounds{pyramid_center, 5, 5, 10}
-        , pyramid_overlap{pyramid_core, pyramid_bounds, objects::overlap::type::inclusive}
+        // , pyramid_overlap{pyramid_core, pyramid_bounds, objects::overlap::type::inclusive}
         , glass_donut{raytrace::point{10, -10, 3.5}, 5.0, 2.5}
         , ground{R3::origin, R3::basis::Z, 1000, 1000}
-        , sunlight{raytrace::vector{-2, 2, -1}, colors::white, 1E11}
-        , prick{raytrace::point{0, 0, 12}, colors::dim_grey, 1E3} {
+        , sunlight{raytrace::vector{-2, 2, -1}, colors::white, lights::intensities::full}
+        , prick{raytrace::point{0, 0, 22}, colors::white, 1E6} {
         // reduce the volumetric point to a planar point
         grid.mapper(std::bind(&raytrace::objects::square::map, &ground, std::placeholders::_1));
         look_at = raytrace::point{0, 0, info.radius};
@@ -56,7 +56,7 @@ public:
         convex_lens.material(&glass);  // should assign all submaterials too? we assume const refs so it can't.
         // pyramid_core.material(&mediums::metals::chrome);
         // pyramid_bounds.material(&mediums::metals::chrome);
-        pyramid_overlap.material(&glass);
+        // pyramid_overlap.material(&glass);
         glass_donut.material(&glass);
         ground.material(&grid);
     }
@@ -110,7 +110,7 @@ protected:
     raytrace::point pyramid_center;
     raytrace::objects::pyramid pyramid_core;
     raytrace::objects::cuboid pyramid_bounds;
-    raytrace::objects::overlap pyramid_overlap;
+    // raytrace::objects::overlap pyramid_overlap;
 
     raytrace::objects::torus glass_donut;
 

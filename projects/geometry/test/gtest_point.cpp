@@ -15,15 +15,42 @@ TEST(PointTest, NormalConstructions) {
     point<2> p1{};
     point<3> p2{};
     point<4> p3{};
+    R2::point r2p1{};
+    R3::point r3p1{};
+    R4::point r4p1{};
 }
 
 // TEST(PointTest, InvalidConstructors) {
 //     ASSERT_THROW(point p{-1}, basal::exception);
 // }
 
+
 TEST(PointTest, ParameterInitializer) {
-    R4::point p{1, 2, 3, 4};
-    ASSERT_PRECISION_EQ(4, p.dimensions);
+    // Only for R2. R3. R4
+    R2::point r2p{1, 2};
+    R3::point r3p{1, 2, 3};
+    R4::point r4p{1, 2, 3, 4};
+
+    ASSERT_PRECISION_EQ(2, r2p.dimensions);
+    ASSERT_PRECISION_EQ(1, r2p.x);
+    ASSERT_PRECISION_EQ(2, r2p.y);
+
+    ASSERT_PRECISION_EQ(3, r3p.dimensions);
+    ASSERT_PRECISION_EQ(1, r3p.x);
+    ASSERT_PRECISION_EQ(2, r3p.y);
+    ASSERT_PRECISION_EQ(3, r3p.z);
+
+    ASSERT_PRECISION_EQ(4, r4p.dimensions);
+    ASSERT_PRECISION_EQ(1, r4p.x);
+    ASSERT_PRECISION_EQ(2, r4p.y);
+    ASSERT_PRECISION_EQ(3, r4p.z);
+    ASSERT_PRECISION_EQ(4, r4p.w);
+}
+
+TEST(PointTest, PointerConstructor) {
+    precision _p[3] = {1, 2, 3};
+    point<3> p{&_p[0], 3};
+    ASSERT_PRECISION_EQ(3, p.dimensions);
 }
 
 TEST(PointTest, ArrayConstructor) {
@@ -37,16 +64,61 @@ TEST(PointTest, InitializerListConstructor) {
     ASSERT_PRECISION_EQ(3, p.dimensions);
 }
 
+TEST(PointTest, CopyConstructorToWrapper) {
+    {
+        point<2> p1{{1, 2}}; // list initializer
+        R2::point p2{p1}; // copy constructor from base
+        R2::point p3{p2}; // copy constructor from wrapper
+
+        ASSERT_PRECISION_EQ(2, p2.dimensions);
+        ASSERT_PRECISION_EQ(1, p3.x);
+        ASSERT_PRECISION_EQ(2, p3.y);
+    }
+    {
+        point<3> p1{{1, 2, 3}}; // list initializer
+        R3::point p2{p1}; // copy constructor from base
+        R3::point p3{p2}; // copy constructor from wrapper
+
+        ASSERT_PRECISION_EQ(3, p3.dimensions);
+        ASSERT_PRECISION_EQ(1, p3.x);
+        ASSERT_PRECISION_EQ(2, p3.y);
+        ASSERT_PRECISION_EQ(3, p3.z);
+    }
+    {
+        point<4> p1{{1, 2, 3, 4}}; // list initializer
+        R4::point p2{p1}; // copy constructor from base
+        R4::point p3{p2}; // copy constructor from wrapper
+
+        ASSERT_PRECISION_EQ(4, p3.dimensions);
+        ASSERT_PRECISION_EQ(1, p3.x);
+        ASSERT_PRECISION_EQ(2, p3.y);
+        ASSERT_PRECISION_EQ(3, p3.z);
+        ASSERT_PRECISION_EQ(4, p3.w);
+    }
+}
+
 TEST(PointTest, Assignments) {
     point<3> p1{{1, 2, 3}};
-    R3::point p2 = p1;  // copy
+    point<3> p2; // default constructor
+    p2 = p1;  // copy
     ASSERT_PRECISION_EQ(p1[0], p2[0]);
     ASSERT_PRECISION_EQ(p1[1], p2[1]);
     ASSERT_PRECISION_EQ(p1[2], p2[2]);
-    R3::point p3{std::move(p2)};  // move
+    point<3> p3{std::move(p2)};  // move
     ASSERT_PRECISION_EQ(p1[0], p3[0]);
     ASSERT_PRECISION_EQ(p1[1], p3[1]);
     ASSERT_PRECISION_EQ(p1[2], p3[2]);
+
+    R3::point p4{1, 2, 3};
+    R3::point p5;
+    p5 = p4;
+    ASSERT_PRECISION_EQ(p4.x, p5.x);
+    ASSERT_PRECISION_EQ(p4.y, p5.y);
+    ASSERT_PRECISION_EQ(p4.z, p5.z);
+    R3::point p6{std::move(p5)};
+    ASSERT_PRECISION_EQ(p4.x, p6.x);
+    ASSERT_PRECISION_EQ(p4.y, p6.y);
+    ASSERT_PRECISION_EQ(p4.z, p6.z);
 }
 
 TEST(PointTest, ClassOperators) {
@@ -95,16 +167,37 @@ TEST(PointTest, Equality) {
 TEST(PointTest, Templates) {
     point<2> p1{{90, -39}};
     point_<2> p2{p1};
+    point_<2> p3{p2};
     ASSERT_PRECISION_EQ(p1[0], p2.x);
     ASSERT_PRECISION_EQ(p1[1], p2.y);
+    ASSERT_PRECISION_EQ(p1[0], p3.x);
+    ASSERT_PRECISION_EQ(p1[1], p3.y);
 }
 
 TEST(PointTest, PointHomogenizing) {
     point_<2> u(2.3, 4.5);
-    R3::point v{u};  // homogenizing 2d->3d
+    point_<3> v{u};  // homogenizing 2d->3d
     ASSERT_PRECISION_EQ(2.3, v.x);
     ASSERT_PRECISION_EQ(4.5, v.y);
     ASSERT_PRECISION_EQ(1.0, v.z);
+
+    point_<3> p3{1, 2, 3};
+    point_<4> p4{p3};  // homogenizing 3d->4d
+    ASSERT_PRECISION_EQ(1, p4.x);
+    ASSERT_PRECISION_EQ(2, p4.y);
+    ASSERT_PRECISION_EQ(3, p4.z);
+    ASSERT_PRECISION_EQ(1, p4.w);
+}
+
+TEST(PointTest, PointToVector) {
+    R3::point p1{1, 2, 3};
+    R3::point p2{4, 5, 6};
+    R3::vector v1{{1+4, 2+5, 3+6}};
+    R3::vector v2 = p1 + p2;
+    R3::vector v3{{1-4, 2-5, 3-6}};
+    R3::vector v4 = p1 - p2;
+    ASSERT_VECTOR_EQ(v1, v2);
+    ASSERT_VECTOR_EQ(v3, v4);
 }
 
 TEST(PointTest, VectorToPoint) {
@@ -169,4 +262,20 @@ TEST(PointTest, CentroidFromVector) {
     point<3>  E{{4, 5, 6}};
     R3::point D = centroid(points);
     ASSERT_POINT_EQ(E, D);
+}
+
+TEST(PointTest, Accumulate) {
+    point<3> p1{{1, 2, 3}};
+    vector_<3> v1{{4, 5, 6}};
+    p1 += v1;
+    R3::point p2{1+4, 2+5, 3+6};
+    ASSERT_POINT_EQ(p2, p1);
+}
+
+TEST(PointTest, Deaccumulate) {
+    point<3> p1{{1, 2, 3}};
+    vector_<3> v1{{4, 5, 6}};
+    p1 -= v1;
+    R3::point p2{1-4, 2-5, 3-6};
+    ASSERT_POINT_EQ(p2, p1);
 }

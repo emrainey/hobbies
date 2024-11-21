@@ -33,6 +33,7 @@ target_link_libraries(hobbies-uom
         enabled-warnings
         enabled-debugging
         enabled-profiling
+        enabled-coverage
         native-optimized
     PUBLIC
         hobbies-basal

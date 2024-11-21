@@ -2,9 +2,7 @@
 
 namespace noise {
 
-using namespace linalg;
 using namespace linalg::operators;
-using namespace geometry;
 using namespace geometry::operators;
 
 constexpr bool debug = false;
@@ -38,7 +36,7 @@ vector generate_seed() {
     return convert_to_seed(r);
 }
 
-point floor(point const& pnt) {
+point floor(noise::point const& pnt) {
 #if defined(USE_XMMT)
     return pnt.floor();
 #else
@@ -46,7 +44,7 @@ point floor(point const& pnt) {
 #endif
 }
 
-point fract(point const& pnt) {
+point fract(noise::point const& pnt) {
 #if defined(USE_XMMT)
     return pnt.fract();
 #else

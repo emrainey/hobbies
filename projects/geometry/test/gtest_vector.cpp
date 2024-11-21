@@ -126,9 +126,9 @@ TEST(VectorTest, ConversionAssign) {
 */
 
 TEST(VectorTest, TemplateConstructors) {
-    vector_<precision, 2> v2{{1.0, 2.0}};
-    vector_<precision, 3> v3{{1.0, 2.0, 3.0}};
-    vector_<precision, 4> v4{{1.0, 2.0, 3.0, 4.0}};
+    vector_<2> v2{{1.0, 2.0}};
+    vector_<3> v3{{1.0, 2.0, 3.0}};
+    vector_<4> v4{{1.0, 2.0, 3.0, 4.0}};
 
     ASSERT_EQ(2, v2.dimensions);
     ASSERT_EQ(3, v3.dimensions);

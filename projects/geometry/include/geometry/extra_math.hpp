@@ -54,11 +54,11 @@ R3::point spherical_to_cartesian(R3::point const& spherical_point);
 linalg::matrix rotation(R3::vector const& axis, iso::radians const theta);
 
 /// Joins the matricies horizontally, mxn and mxk to make a mx(n+k) matrix
-template <typename DATA_TYPE, size_t DIMS>
-matrix rowjoin(matrix& a, vector_<DATA_TYPE, DIMS>& b) noexcept(false) {
+template <size_t DIMS>
+matrix rowjoin(matrix& a, vector_<DIMS>& b) noexcept(false) {
     basal::exception::throw_unless(a.rows == b.dimensions, __FILE__, __LINE__,
                                    "To join, the number of rows must be equal");
-    matrix::ref_coord_iterator iter = [&](size_t r, size_t c, DATA_TYPE& v) {
+    matrix::ref_coord_iterator iter = [&](size_t r, size_t c, precision& v) {
         if (c < a.cols) {
             v = a[r][c];
         } else {
@@ -69,8 +69,8 @@ matrix rowjoin(matrix& a, vector_<DATA_TYPE, DIMS>& b) noexcept(false) {
 }
 
 /// Creates a matrix from an array of column vectors
-template <typename DATA_TYPE, size_t DIM>
-matrix span(std::vector<geometry::vector_<DATA_TYPE, DIM>> const& set) noexcept(false) {
+template <size_t DIM>
+matrix span(std::vector<geometry::vector_<DIM>> const& set) noexcept(false) {
     matrix m{set[0].dimensions, set.size()};
     for (auto& v : set) {
         basal::exception::throw_if(v.dimensions == m.rows, __FILE__, __LINE__,

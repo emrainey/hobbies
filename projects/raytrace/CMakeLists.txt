@@ -67,6 +67,7 @@ target_link_libraries(hobbies-raytrace
         enabled-warnings
         enabled-debugging
         enabled-profiling
+        enabled-coverage
         native-optimized
 )
 target_include_directories(hobbies-raytrace
@@ -182,7 +183,18 @@ if (Threads_FOUND AND GTest_FOUND)
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_wall.cpp
     )
     target_link_libraries(gtest_raytrace PRIVATE hobbies-raytrace enabled-debugging GTest::gtest GTest::gmock GTest::gtest_main Threads::Threads)
-    add_test(NAME gtest_raytrace COMMAND gtest_raytrace)
+    # CMake Test Plugin
+    add_test(NAME gtest_raytrace COMMAND gtest_raytrace
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    )
+    set_tests_properties(gtest_raytrace
+        PROPERTIES
+            ENVIRONMENT LLVM_PROFILE_FILE=${CMAKE_BINARY_DIR}/coverage/gtest_raytrace.profraw
+            ENVIRONMENT GCOV_PREFIX=${CMAKE_BINARY_DIR}/coverage
+            # ENVIRONMENT GCOV_PREFIX_STRIP=${CMAKE_SOURCE_DIR}
+    )
+
+    coverage_target(gtest_raytrace)
 endif()
 
 #####################

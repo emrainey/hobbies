@@ -21,6 +21,7 @@ target_link_libraries(hobbies-fourcc
         enabled-warnings
         enabled-debugging
         enabled-profiling
+        enabled-coverage
         native-optimized
 )
 set_target_properties(hobbies-fourcc PROPERTIES

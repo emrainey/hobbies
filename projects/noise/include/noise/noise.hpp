@@ -41,10 +41,10 @@ constexpr precision map(precision value, precision in_low, precision in_hi, prec
 }
 
 /// Returns the integer portion of a pair of numbers.
-point floor(point const& pnt);
+point floor(noise::point const& pnt);
 
 /// Returns the fractional portion of a pair of numbers.
-point fract(point const& pnt);
+point fract(noise::point const& pnt);
 
 /// Computes a seemingly random, repeatable number from a 2d point and 2d scalars.
 precision random(vector const& pnt, vector const& scalars, precision gain);

@@ -17,7 +17,7 @@ class ray_ : public basal::printable {
 
 public:
     using point = point_<DIMS>;
-    using vector = vector_<precision, DIMS>;
+    using vector = vector_<DIMS>;
 
     /// Remember how many base dimensions this ray has
     constexpr static size_t dimensions = DIMS;
@@ -104,13 +104,13 @@ bool inequality(ray_<DIMS> const& a, ray_<DIMS> const& b) {
 template <size_t DIMS>
 ray_<DIMS> multiply(linalg::matrix const& m, ray_<DIMS> const& r) {
     basal::exception::throw_unless(m.rows == r.dimensions, __FILE__, __LINE__, "Must be same dimensions");
-    vector_<precision, DIMS> v = multiply(m, r.direction());
+    vector_<DIMS> v = multiply(m, r.direction());
     return ray_<DIMS>(r.location(), v);
 }
 
 /// Adds the vector to the point, does change the direction of the ray
 template <size_t DIMS>
-ray_<DIMS> addition(ray_<DIMS> const& r, const vector_<precision, DIMS>& v) {
+ray_<DIMS> addition(ray_<DIMS> const& r, const vector_<DIMS>& v) {
     return ray_<DIMS>(r.location() + v, r.direction());
 }
 
@@ -135,7 +135,7 @@ inline ray_<DIMS> operator*(linalg::matrix const& m, ray_<DIMS> const& r) {
 
 /// Addition Operator. Add the vector to the point, does change the direction of the ray
 template <size_t DIMS>
-inline ray_<DIMS> operator+(ray_<DIMS> const& r, const vector_<precision, DIMS>& v) {
+inline ray_<DIMS> operator+(ray_<DIMS> const& r, const vector_<DIMS>& v) {
     return addition(r, v);
 }
 }  // namespace operators

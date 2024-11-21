@@ -59,7 +59,7 @@ R3::point sphere::cart_to_polar(R3::point const& object_point) const {
     pol[1] = std::atan2(object_point[1], object_point[0]);
     // 0 to Pi
     pol[2] = std::acos(object_point[2] / m_radius);
-    return pol;
+    return R3::point{pol};
 }
 
 }  // namespace R3

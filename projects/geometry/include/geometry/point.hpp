@@ -47,22 +47,16 @@ public:
     point& operator=(point&& other) noexcept(false);
 
     /// Accumulate a vector into the point (moves the point by the vector)
-    template <typename DATA_TYPE, size_t DIM>
-    point& operator+=(vector_<DATA_TYPE, DIM> const& a) noexcept(false) {
-        basal::exception::throw_if(a.dimensions != dimensions, __FILE__, __LINE__,
-                                   "Point/Vector must have same dimensionality");
-        for (size_t i = 0; i < a.dimensions; i++) {
+    point& operator+=(vector_<DIMS> const& a) noexcept(false) {
+        for (size_t i = 0; i < DIMS; i++) {
             m_data[i] += a[i];
         };
         return (*this);
     }
 
     /// De-accumulate a vector into the point (moves the point by the vector)
-    template <typename DATA_TYPE, size_t DIM>
-    point& operator-=(vector_<DATA_TYPE, DIM> const& a) noexcept(false) {
-        basal::exception::throw_if(a.dimensions != dimensions, __FILE__, __LINE__,
-                                   "Point/Vector must have same dimensionality");
-        for (size_t i = 0; i < a.dimensions; i++) {
+    point& operator-=(vector_<DIMS> const& a) noexcept(false) {
+        for (size_t i = 0; i < DIMS; i++) {
             m_data[i] -= a[i];
         };
         return (*this);
@@ -183,8 +177,8 @@ public:
     }
 
     /// Adding points creates a vector
-    friend vector_<precision, 2> operator+(point_ const& a, point_ const& b) noexcept(false) {
-        vector_<precision, 2> c;
+    friend vector_<2> operator+(point_ const& a, point_ const& b) noexcept(false) {
+        vector_<2> c;
         for (size_t i = 0; i < c.dimensions; i++) {
             c[i] = a[i] + b[i];
         }
@@ -192,8 +186,8 @@ public:
     }
 
     /// Subtracting points creates a vector
-    friend vector_<precision, 2> operator-(point_ const& a, point_ const& b) noexcept(false) {
-        vector_<precision, 2> c;
+    friend vector_<2> operator-(point_ const& a, point_ const& b) noexcept(false) {
+        vector_<2> c;
         for (size_t i = 0; i < c.dimensions; i++) {
             c[i] = a[i] - b[i];
         }
@@ -201,10 +195,10 @@ public:
     }
 
     /// Adding a vector to a point creates a new point
-    friend point_ operator+(point_ const& a, const vector_<precision, 2>& b) noexcept(false) {
+    friend point_ operator+(point_ const& a, const vector_<2>& b) noexcept(false) {
         point_ c{a};
         c += b;
-        return c;
+        return point_{c};
     }
 };
 
@@ -251,8 +245,8 @@ public:
     }
 
     /// Adding points creates a vector
-    friend vector_<precision, 3> operator+(point_ const& a, point_ const& b) noexcept(false) {
-        vector_<precision, 3> c;
+    friend vector_<3> operator+(point_ const& a, point_ const& b) noexcept(false) {
+        vector_<3> c;
         for (size_t i = 0; i < c.dimensions; i++) {
             c[i] = a[i] + b[i];
         }
@@ -260,8 +254,8 @@ public:
     }
 
     /// Subtracting points creates a vector
-    friend vector_<precision, 3> operator-(point_ const& a, point_ const& b) noexcept(false) {
-        vector_<precision, 3> c;
+    friend vector_<3> operator-(point_ const& a, point_ const& b) noexcept(false) {
+        vector_<3> c;
         for (size_t i = 0; i < c.dimensions; i++) {
             c[i] = a[i] - b[i];
         }
@@ -269,17 +263,17 @@ public:
     }
 
     /// Adding a vector to a point creates a new point
-    friend point_ operator+(point_ const& a, const vector_<precision, 3>& b) noexcept(false) {
+    friend point_ operator+(point_ const& a, const vector_<3>& b) noexcept(false) {
         point_ c{a};
         c += b;
-        return c;
+        return point_{c};
     }
 
     /// Adding a vector to a point creates a new point
-    friend point_ operator-(point_ const& a, const vector_<precision, 3>& b) noexcept(false) {
+    friend point_ operator-(point_ const& a, const vector_<3>& b) noexcept(false) {
         point_ c{a};
         c -= b;
-        return c;
+        return point_{c};
     }
 };
 
@@ -332,8 +326,8 @@ public:
     }
 
     /// Adding points creates a vector
-    friend vector_<precision, 4> operator+(point_ const& a, point_ const& b) noexcept(false) {
-        vector_<precision, 4> c;
+    friend vector_<4> operator+(point_ const& a, point_ const& b) noexcept(false) {
+        vector_<4> c;
         for (size_t i = 0; i < c.dimensions; i++) {
             c[i] = a[i] + b[i];
         }
@@ -341,8 +335,8 @@ public:
     }
 
     /// Subtracting points creates a vector
-    friend vector_<precision, 4> operator-(point_ const& a, point_ const& b) noexcept(false) {
-        vector_<precision, 4> c;
+    friend vector_<4> operator-(point_ const& a, point_ const& b) noexcept(false) {
+        vector_<4> c;
         for (size_t i = 0; i < c.dimensions; i++) {
             c[i] = a[i] - b[i];
         }
@@ -350,7 +344,7 @@ public:
     }
 
     /// Adding a vector to a point creates a new point
-    friend point operator+(point_ const& a, const vector_<precision, 4>& b) noexcept(false) {
+    friend point operator+(point_ const& a, const vector_<4>& b) noexcept(false) {
         point c{a};
         c += b;
         return c;
@@ -361,8 +355,8 @@ template <size_t DIMS>
 std::ostream& operator<<(std::ostream& os, point<DIMS> const& p);
 
 /// Converts a vector to a point
-template <typename DATA_TYPE, size_t DIM>
-point_<DIM> as_point(vector_<DATA_TYPE, DIM> const& v) {
+template <size_t DIM>
+point_<DIM> as_point(vector_<DIM> const& v) {
     point_<DIM> P;
     for (size_t i = 0; i < P.dimensions; i++) {
         P[i] = v[i];

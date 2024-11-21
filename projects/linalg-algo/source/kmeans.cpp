@@ -88,7 +88,7 @@ precision kmeans::iteration(IterationMethod method) {
         // move the sums points by the vector
         size_t cluster = m_cluster_assignment[p];
         if (cluster < m_centroids.size()) {
-            sums[cluster] += vector_<precision, 2>{{m_points[p].x, m_points[p].y}};
+            sums[cluster] += vector_<2>{{m_points[p].x, m_points[p].y}};
             counts[cluster]++;
         }
     }

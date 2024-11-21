@@ -11,7 +11,7 @@ using point = intel::point_<intel::double2, 2ul>;
 using vector = intel::vector_<intel::double2, 2ul>;
 #else
 using point = geometry::point_<2>;
-using vector = geometry::vector_<precision, 2>;
+using vector = geometry::vector_<2>;
 #endif
 }  // namespace noise
 

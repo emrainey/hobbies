@@ -12,6 +12,7 @@ target_link_libraries(hobbies-htm
         enabled-debugging
         enabled-profiling
         enabled-warnings
+        enabled-coverage
         native-optimized
 )
 target_include_directories(hobbies-htm

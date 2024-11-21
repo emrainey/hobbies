@@ -31,6 +31,7 @@ target_link_libraries(hobbies-basal
         enabled-warnings
         enabled-debugging
         enabled-profiling
+        enabled-coverage
         native-optimized
 )
 set_target_properties(hobbies-basal PROPERTIES

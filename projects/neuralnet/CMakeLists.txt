@@ -20,9 +20,10 @@ target_link_libraries(hobbies-neuralnet
         hobbies-linalg-utils
         ${OpenCV_LIBS}
     PRIVATE
+        enabled-warnings
         enabled-debugging
         enabled-profiling
-        enabled-warnings
+        enabled-coverage
         native-optimized
 )
 target_include_directories(hobbies-neuralnet

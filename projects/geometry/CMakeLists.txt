@@ -20,6 +20,7 @@ target_link_libraries(hobbies-geometry
         enabled-warnings
         enabled-debugging
         enabled-profiling
+        enabled-coverage
         native-optimized
 )
 target_include_directories(hobbies-geometry PUBLIC
@@ -79,8 +80,15 @@ if (Threads_FOUND AND GTest_FOUND)
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_vector.cpp
     )
     target_include_directories(gtest_geometry SYSTEM PUBLIC ${GTEST_INCLUDE_DIRS})
-    target_link_libraries(gtest_geometry PRIVATE ${GTEST_BOTH_LIBRARIES} hobbies-geometry enabled-debugging Threads::Threads)
+    target_link_libraries(gtest_geometry PRIVATE hobbies-geometry enabled-debugging GTest::gtest GTest::gmock GTest::gtest_main Threads::Threads)
     add_test(NAME gtest_geometry COMMAND gtest_geometry)
+    # set_tests_properties(gtest_geometry
+    #     PROPERTIES
+    #         ENVIRONMENT LLVM_PROFILE_FILE=${CMAKE_BINARY_DIR}/coverage/gtest_geometry.profraw
+    #         ENVIRONMENT GCOV_PREFIX=${CMAKE_BINARY_DIR}/coverage
+    #         # ENVIRONMENT GCOV_PREFIX_STRIP=${CMAKE_SOURCE_DIR}
+    # )
+    coverage_target(gtest_geometry)
 endif()
 
 #####################

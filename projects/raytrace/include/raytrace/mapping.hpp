@@ -36,7 +36,7 @@ using expander = std::function<geometry::R3::point(size_t const numerator, size_
 /// Uses the golden ratio to map a range (from an integer ratio) to a point on a unit sphere
 /// @param numerator must be less than or equal to the denominator
 /// @param denominator must be > 0.
-///
+/// @return A point on the unit sphere
 geometry::R3::point golden_ratio_mapper(size_t const numerator, size_t const denominator);
 }  // namespace mapping
 

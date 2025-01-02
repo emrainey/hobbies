@@ -95,3 +95,19 @@ TEST(LawsTest, InverseLaw) {
     ASSERT_PRECISION_EQ(0.25, laws::inverse_square(1.0));
     ASSERT_PRECISION_EQ(0.0625, laws::inverse_square(3.0));
 }
+
+TEST(LawsTest, Lambertian) {
+    raytrace::vector N{0, 0, 1};
+    raytrace::point I{1, 1, 1};
+    raytrace::point C{1, 1, 2};
+    srand(0xCAFE); // seed the random number generator
+    for (int i = 0; i < 100; i++) {
+        raytrace::vector V = laws::lambertian(N, I);
+        // std::cout << V << std::endl;
+        // V should be within a unit radius of the point C
+        // on the unit sphere supposedly
+        raytrace::point S = I + V;
+        raytrace::vector R = S - C;
+        ASSERT_NEAR(1.0, R.magnitude(), basal::epsilon);
+    }
+}

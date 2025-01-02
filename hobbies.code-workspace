@@ -259,7 +259,8 @@
 			"print": "cpp",
 			"codecvt": "cpp",
 			"execution": "cpp",
-			"stack": "cpp"
+			"stack": "cpp",
+			"__memory": "cpp"
 		},
 		"vsconan.general.pythonInterpreter": "python3",
 		"vsconan.explorer.treeview.package.showDirtyPackage": true,

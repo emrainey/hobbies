@@ -1,6 +1,7 @@
 #include <geometry/geometry.hpp>
 
 #include "raytrace/types.hpp"
+#include "raytrace/mapping.hpp"
 
 namespace raytrace {
 
@@ -30,6 +31,33 @@ inline vector snell(vector const& N, vector const& I, precision eta1, precision 
         return (eta * I) - (((eta * cos_theta) + sqrt(1.0_p - sin2_phi)) * N);
     } else {
         return geometry::R3::null;
+    }
+}
+
+/// Computes a random vector from the point of intersection to a point on a sphere based off the normal (N).
+/// @param N The normal of the surface, normalized.
+/// @param I The incident point
+/// @retval A vector pointing to a random point on the sphere, not normalized.
+inline vector lambertian(vector const& N, point const& I) {
+    // pick a random number in a power of two range so we don't have to use %, instead use &
+    size_t const range = (1U << 16U);
+    size_t const value = rand() & (range - 1U);
+    // use the golden ratio mapper to find a point on the unit sphere then make it a vector from the unit center
+    raytrace::vector P = (mapping::golden_ratio_mapper(value, range) - geometry::R3::origin);
+    // since the sphere is a sphere we don't need to rotate or scale the point
+    // translate the point from the unit sphere to the sphere at the point of intersection
+    // by computing the vector from the incidence point to the point on the sphere.
+    raytrace::point C = I + N; // center of the sphere
+    raytrace::point S = C + P; // the point on the sphere.
+    raytrace::vector R = S - I; // the vector from the incidence point to the point on the sphere.
+
+    // we just need to be cautious about points at or near the point of incidence
+    // since that can cause zero length vectors.
+    if (R.quadrance() < basal::smallish) {
+        // in this case, we just return the normal.
+        return N;
+    } else {
+        return R;
     }
 }
 
@@ -67,6 +95,8 @@ inline precision fresnel(precision n1, precision n2, iso::radians const& theta_i
 /// @param theta the angle between the Normal the the incident light.
 ///
 inline precision schlicks(precision n1, precision n2, iso::radians const& theta) {
+    // R(theta) = R0 + (1 - R0)(1 - cos(theta))^5
+    // R0 = ((n1 - n2) / (n1 + n2))^2
     precision r0 = (n1 - n2) / (n1 + n2);
     r0 *= r0;
     precision one_minus_cos = 1.0_p - std::cos(theta.value);

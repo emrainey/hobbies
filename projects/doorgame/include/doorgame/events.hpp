@@ -15,5 +15,12 @@ namespace doorgame {
 
 /// Events are essentially a combination of Subject, Verb, Object, Modifier
 using Event = std::tuple<Target, Action, Target, Parameter>;
+// Like
+// struct Event {
+//     Target subject;
+//     Action action;
+//     Target object;
+//     Parameter param;
+// };
 
 }  // namespace doorgame

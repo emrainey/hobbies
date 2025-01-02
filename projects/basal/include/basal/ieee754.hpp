@@ -45,6 +45,10 @@ constexpr static precision epsilon = use_high_precision ? 0x1.0p-20 : 0x1.0p-10;
 // 1/(1024) == 0.000007875504032
 // 1/(1024*1024) == 0.000000953674316
 
+/// A small value for use in comparisons.
+/// When high precision is used, it's (1/1024) else only (1/256)
+constexpr static precision smallish = use_high_precision ? 0x1.0p-10 : 0x1.0p-8;
+
 /// Holds a version of a Quiet (non signalling) NaN for comparisons
 constexpr static precision nan = std::numeric_limits<precision>::quiet_NaN();
 

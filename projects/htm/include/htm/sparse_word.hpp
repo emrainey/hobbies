@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <vector>
+#include <iostream>
 
 #include "htm/dense_word.hpp"
 
@@ -32,6 +33,17 @@ public:
             }
         }
     }
+
+    sparse_word& operator=(dense_word<BITS> const& dense) {
+        bits.clear();
+        for (size_t b = 0; b < BITS; b++) {
+            if (dense.test(b)) {
+                bits.push_back(b);
+            }
+        }
+        return (*this);
+    }
+
     ~sparse_word() {
     }
 
@@ -40,7 +52,7 @@ public:
     }
 
     void set(size_t index) {
-        printf("size_t index %zu of %zu\n", index, BITS);
+        // printf("size_t index %zu of %zu\n", index, BITS);
         index %= BITS;
         bits.push_back(index);
         correct();  // this will sort
@@ -49,7 +61,7 @@ public:
     void set(int index) {
         if ((0 - int(BITS)) < index and index < 0) {
             index = BITS + index;
-            printf("Negative index %d of %zu\n", index, BITS);
+            // printf("Negative index %d of %zu\n", index, BITS);
         } else if (size_t(index) >= BITS) {
             index %= BITS;
         }
@@ -69,16 +81,34 @@ public:
         return it == bits.end() ? false : true;
     }
 
+    bool all() const {
+        return bits.size() == BITS;
+    }
+
+    bool any() const {
+        return not bits.empty();
+    }
+
+    bool none() const {
+        return bits.empty();
+    }
+
     void clear() {
         bits.clear();
+    }
+
+    size_t count() const {
+        return population();
     }
 
     size_t population() const {
         return bits.size();
     }
 
+    /// @brief Returns the capacity of the sparse word which is not a simple count of the bits set.
+    /// @note @code n! / (w! * (n - w)!) @endcode
+    /// @return
     float capacity() const {
-        // n! / (w! * (n - w)!)
         size_t num = std::tgamma(BITS + 1);
         size_t n_w = BITS - population();
         size_t den = std::tgamma(population() + 1) * std::tgamma(n_w + 1);
@@ -87,24 +117,6 @@ public:
 
     float sparsity() const {
         return (float)population() / (float)BITS;
-    }
-
-    sparse_word& operator=(dense_word<BITS> const& dense) {
-        bits.clear();
-        for (size_t b = 0; b < BITS; b++) {
-            if (dense.test(b)) {
-                bits.push_back(b);
-            }
-        }
-        return (*this);
-    }
-
-    void print(void) {
-        printf("w=%zu n=%zu cap=%lf sparsity=%lf\n", population(), BITS, capacity(), sparsity());
-        for (auto& bit : bits) {
-            printf("%hu ", bit);
-        }
-        printf("\n");
     }
 
     void to_image(char const* filename) {
@@ -129,7 +141,7 @@ public:
         // for each row
         for (size_t y = 0; y < H; y++) {
             memset(values, 0, W);
-            // initialize idx to the number from the preceeding rows
+            // initialize idx to the number from the preceding rows
             idx = y * W;
             // for each column
             for (size_t x = 0; x < W; x++) {
@@ -143,6 +155,14 @@ public:
         }
         delete[] values;
         fclose(fp);
+    }
+
+    bool operator==(sparse_word<BITS> const& that) const {
+        return bits == that.bits;
+    }
+
+    bool operator!=(sparse_word<BITS> const& that) const {
+        return bits != that.bits;
     }
 
 protected:
@@ -164,13 +184,31 @@ protected:
     friend sparse_word<B2> operator^(sparse_word<B2> const& a, sparse_word<B2> const& b);
     template <size_t B2>
     friend sparse_word<B2> operator!(sparse_word<B2> const& a);
-    // template <size_t B1, size_t B2> friend sparse_word<B1+B2> operator<<(sparse_word<B1> const&,
-    // sparse_word<B2> const&);
+    template <size_t B1, size_t B2>
+    friend sparse_word<B1+B2> operator+(sparse_word<B1> const&, sparse_word<B2> const&);
+    template <size_t B2>
+    friend std::ostream& operator<<(std::ostream const&, sparse_word<B2> const&);
+
+    /// the storage of the bits
     std::vector<uint16_t> bits;
 };
 
+
+template <size_t B2>
+std::ostream& operator<<(std::ostream& os, sparse_word<B2> const& word) {
+    os << "sparse_word<" << word.size() << ">: population=" << word.population() << " capacity=" << word.capacity() << " sparsity=" << word.sparsity()
+        << " bits={";
+    for (size_t i = 0; i < B2; i++) {
+        if (word.test(i)) {
+            os << i << ", ";
+        }
+    }
+    os << "}";
+    return os;
+}
+
 template <size_t B1, size_t B2>
-sparse_word<B1 + B2> operator<<(sparse_word<B1> const& a, sparse_word<B2> const& b) {
+sparse_word<B1 + B2> operator+(sparse_word<B1> const& a, sparse_word<B2> const& b) {
     sparse_word<B1 + B2> o;
     for (size_t i = 0; i < B1; i++) {
         if (a.test(i)) {
@@ -202,7 +240,7 @@ sparse_word<BITS> operator|(sparse_word<BITS> const& a, sparse_word<BITS> const&
 template <size_t BITS>
 sparse_word<BITS> operator^(sparse_word<BITS> const& a, sparse_word<BITS> const& b) {
     std::vector<uint16_t> o;
-    std::set_difference(a.bits.begin(), a.bits.end(), b.bits.begin(), b.bits.end(), std::back_inserter(o));
+    std::set_symmetric_difference(a.bits.begin(), a.bits.end(), b.bits.begin(), b.bits.end(), std::back_inserter(o));
     return sparse_word<BITS>(o);
 }
 }  // namespace htm

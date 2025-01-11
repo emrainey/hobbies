@@ -3,7 +3,7 @@
 
 #include <raytrace/raytrace.hpp>
 
-// A convienent shortcut everyone seems to use
+// A convenient shortcut everyone seems to use
 namespace py = pybind11;
 
 PYBIND11_MODULE(pyhobbies, module) {
@@ -24,9 +24,20 @@ PYBIND11_MODULE(pyhobbies, module) {
                     return "<raytrace.color = R:" + std::to_string(c.red()) + " G:" + std::to_string(c.green())
                            + " B:" + std::to_string(c.blue()) + ">";
                 });
+        // py::class_<raytrace::point> point(sub, "point");
+        // point.def(py::init<precision, precision, precision>())
+        //     .def("x", &raytrace::point::x)
+        //     .def("y", &raytrace::point::y)
+        //     .def("z", &raytrace::point::z);
         py::enum_<raytrace::color::space>(color, "space")
             .value("linear", raytrace::color::space::linear)
             .value("logarithmic", raytrace::color::space::logarithmic)
             .export_values();
+
+        // py::class_<raytrace::objects::sphere>(sub, "sphere")
+        //     .def(py::init<raytrace::point, raytrace::precision>())
+        //     .def("position", &static_cast<raytrace::objects::sphere::position)
+        //     .def("move_by", &raytrace::objects::sphere::move_by)
+        //     .def("material", &raytrace::objects::sphere::material);
     }
 }

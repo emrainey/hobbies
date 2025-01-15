@@ -6,6 +6,7 @@
 #include <filesystem>
 
 #include "fourcc/targa.hpp"
+#include "fourcc/openexr.hpp"
 
 namespace fourcc {
 
@@ -25,9 +26,9 @@ bool image<rgba, pixel_format::RGBA>::save(std::string filename) const {
         FILE* fp = fopen(filename.c_str(), "wb");
         if (fp) {
             for_each ([&](fourcc::rgba const& pixel) -> void {
-                fwrite(&pixel.r, 1, sizeof(pixel.r), fp);
-                fwrite(&pixel.g, 1, sizeof(pixel.g), fp);
-                fwrite(&pixel.b, 1, sizeof(pixel.b), fp);
+                fwrite(&pixel.r, sizeof(pixel.r), 1, fp);
+                fwrite(&pixel.g, sizeof(pixel.g), 1, fp);
+                fwrite(&pixel.b, sizeof(pixel.b), 1, fp);
             });
             fclose(fp);
             return true;
@@ -36,9 +37,9 @@ bool image<rgba, pixel_format::RGBA>::save(std::string filename) const {
         FILE* fp = fopen(filename.c_str(), "wb");
         if (fp) {
             for_each ([&](fourcc::rgba const& pixel) -> void {
-                fwrite(&pixel.b, 1, sizeof(pixel.b), fp);
-                fwrite(&pixel.g, 1, sizeof(pixel.g), fp);
-                fwrite(&pixel.r, 1, sizeof(pixel.r), fp);
+                fwrite(&pixel.b, sizeof(pixel.b), 1, fp);
+                fwrite(&pixel.g, sizeof(pixel.g), 1, fp);
+                fwrite(&pixel.r, sizeof(pixel.r), 1, fp);
             });
             fclose(fp);
             return true;
@@ -52,9 +53,9 @@ bool image<rgba, pixel_format::RGBA>::save(std::string filename) const {
             fprintf(fp, "TUPLTYPE %s\n", channel_order(format));
             fprintf(fp, "ENDHDR\n");
             for_each ([&](rgba const& pixel) -> void {
-                fwrite(&pixel.r, 1, sizeof(pixel.r), fp);
-                fwrite(&pixel.g, 1, sizeof(pixel.g), fp);
-                fwrite(&pixel.b, 1, sizeof(pixel.b), fp);
+                fwrite(&pixel.r, sizeof(pixel.r), 1, fp);
+                fwrite(&pixel.g, sizeof(pixel.g), 1, fp);
+                fwrite(&pixel.b, sizeof(pixel.b), 1, fp);
             });
             fclose(fp);
         }
@@ -82,9 +83,9 @@ bool image<rgba, pixel_format::RGBA>::save(std::string filename) const {
             for (size_t y = (height - 1); /* y >= 0 */; y--) {
                 for (size_t x = 0; x < width; x++) {
                     rgba const& pixel = at(y, x);
-                    fwrite(&pixel.b, 1, sizeof(pixel.b), fp);
-                    fwrite(&pixel.g, 1, sizeof(pixel.g), fp);
-                    fwrite(&pixel.r, 1, sizeof(pixel.r), fp);
+                    fwrite(&pixel.b, sizeof(pixel.b), 1, fp);
+                    fwrite(&pixel.g, sizeof(pixel.g), 1, fp);
+                    fwrite(&pixel.r, sizeof(pixel.r), 1, fp);
                 }
                 if (y == 0) {
                     break;
@@ -106,9 +107,9 @@ bool image<abgr, pixel_format::ABGR>::save(std::string filename) const {
         fprintf(fp, "TUPLTYPE %s\n", channel_order(format));
         fprintf(fp, "ENDHDR\n");
         for_each ([&](abgr const& pixel) -> void {
-            fwrite(&pixel.b, 1, sizeof(uint8_t), fp);
-            fwrite(&pixel.g, 1, sizeof(uint8_t), fp);
-            fwrite(&pixel.r, 1, sizeof(uint8_t), fp);
+            fwrite(&pixel.b, sizeof(uint8_t), 1, fp);
+            fwrite(&pixel.g, sizeof(uint8_t), 1, fp);
+            fwrite(&pixel.r, sizeof(uint8_t), 1, fp);
         });
         fclose(fp);
         return true;
@@ -127,7 +128,7 @@ bool image<rgb8, pixel_format::RGB8>::save(std::string filename) const {
             fprintf(fp, "TUPLTYPE %s\n", channel_order(format));
             fprintf(fp, "ENDHDR\n");
             for_each ([&](rgb8 const& pixel) -> void {
-                fwrite(&pixel, 1, sizeof(rgb8), fp);
+                fwrite(&pixel, sizeof(rgb8), 1, fp);
             });
             fclose(fp);
             return true;
@@ -155,9 +156,9 @@ bool image<rgb8, pixel_format::RGB8>::save(std::string filename) const {
             for (size_t y = (height - 1); /* y >= 0 */; y--) {
                 for (size_t x = 0; x < width; x++) {
                     rgb8 const& pixel = at(y, x);
-                    fwrite(&pixel.b, 1, sizeof(pixel.b), fp);
-                    fwrite(&pixel.g, 1, sizeof(pixel.g), fp);
-                    fwrite(&pixel.r, 1, sizeof(pixel.r), fp);
+                    fwrite(&pixel.b, sizeof(pixel.b), 1, fp);
+                    fwrite(&pixel.g, sizeof(pixel.g), 1, fp);
+                    fwrite(&pixel.r, sizeof(pixel.r), 1, fp);
                 }
                 if (y == 0) {
                     break;
@@ -179,7 +180,167 @@ bool image<bgr8, pixel_format::BGR8>::save(std::string filename) const {
         fprintf(fp, "TUPLTYPE %s\n", channel_order(format));
         fprintf(fp, "ENDHDR\n");
         for_each([&](bgr8 const& pixel) -> void {
-            fwrite(&pixel, 1, sizeof(bgr8), fp);
+            fwrite(&pixel, sizeof(bgr8), 1, fp);
+        });
+        fclose(fp);
+        return true;
+    }
+    return false;
+}
+
+template <>
+bool image<rgbf, pixel_format::RGBf>::save(std::string filename) const {
+    FILE* fp = fopen(filename.c_str(), "wb");
+    if (fp) {
+        uint8_t const zero = 0;
+
+        // write the file as OpenEXR format
+        fwrite(&openexr::magic, sizeof(openexr::magic), 1, fp);
+        // write the version
+        openexr::Version version;
+        version.version = 2;
+        version.is_single_tile = 0;
+        version.has_long_names = 0;
+        version.has_non_image = 0;
+        version.is_multipart = 0;
+        fwrite(&version, sizeof(version), 1, fp);
+        // write the header (a set of attributes)
+        // write the attributes
+        openexr::Attribute attribute;
+        attribute.name = "channels";
+        attribute.type = "chlist";
+        // write the channels
+        openexr::ChannelList channel;
+        strncpy(channel.name, "R", sizeof(channel.name));
+        channel.pixel_type = openexr::ChannelList::PixelType::Float;
+        channel.pLinear = 1;
+        channel.sampling.x = 1;
+        channel.sampling.y = 1;
+        attribute.size = (channel.Size() * 3 )+ 1;
+        attribute.Write(fp);
+        channel.Write(fp);
+        strncpy(channel.name, "G", sizeof(channel.name));
+        channel.Write(fp);
+        strncpy(channel.name, "B", sizeof(channel.name));
+        channel.Write(fp);
+        fwrite(&zero, sizeof(zero), 1, fp); // end of the channel lists
+
+        openexr::Compression compression = openexr::Compression::None;
+        attribute.name = "compression";
+        attribute.type = "compression";
+        attribute.size = sizeof(compression);
+        attribute.Write(fp);
+        fwrite(&compression, sizeof(compression), 1, fp);
+
+        openexr::Box2I dataWindow;
+        dataWindow.min.x = 0;
+        dataWindow.min.y = 0;
+        dataWindow.max.x = width - 1;
+        dataWindow.max.y = height - 1;
+        attribute.name = "dataWindow";
+        attribute.type = "box2i";
+        attribute.size = sizeof(dataWindow);
+        attribute.Write(fp);
+        fwrite(&dataWindow, sizeof(dataWindow), 1, fp);
+
+        openexr::Box2I displayWindow;
+        displayWindow.min.x = 0;
+        displayWindow.min.y = 0;
+        displayWindow.max.x = width - 1;
+        displayWindow.max.y = height - 1;
+        attribute.name = "displayWindow";
+        attribute.type = "box2i";
+        attribute.size = sizeof(displayWindow);
+        attribute.Write(fp);
+        fwrite(&displayWindow, sizeof(displayWindow), 1, fp);
+
+        openexr::LineOrder lineOrder = openexr::LineOrder::Increasing_Y;
+        attribute.name = "lineOrder";
+        attribute.type = "lineOrder";
+        attribute.size = sizeof(lineOrder);
+        attribute.Write(fp);
+        fwrite(&lineOrder, sizeof(lineOrder), 1, fp);
+
+        float pixelAspectRatio = 1.0f;
+        attribute.name = "pixelAspectRatio";
+        attribute.type = "float";
+        attribute.size = sizeof(pixelAspectRatio);
+        attribute.Write(fp);
+        fwrite(&pixelAspectRatio, sizeof(pixelAspectRatio), 1, fp);
+
+        openexr::Vector2_f screenWindowCenter;
+        screenWindowCenter.x = 0.5f;
+        screenWindowCenter.y = 0.5f;
+        attribute.name = "screenWindowCenter";
+        attribute.type = "v2f";
+        attribute.size = sizeof(screenWindowCenter);
+        attribute.Write(fp);
+        fwrite(&screenWindowCenter, sizeof(screenWindowCenter), 1, fp);
+
+        float screenWindowWidth = 1.0f;
+        attribute.name = "screenWindowWidth";
+        attribute.type = "float";
+        attribute.size = sizeof(screenWindowWidth);
+        attribute.Write(fp);
+        fwrite(&screenWindowWidth, sizeof(screenWindowWidth), 1, fp);
+
+        if (version.is_single_tile) {
+            openexr::TileDescriptor tiledesc;
+            tiledesc.x_size = 1;
+            tiledesc.y_size = 1;
+            tiledesc.level_mode = openexr::TileDescriptor::LevelMode::OneLevel;
+            tiledesc.round_mode = openexr::TileDescriptor::RoundMode::RoundDown;
+            attribute.name = "tiles";
+            attribute.type = "tiledesc";
+            attribute.size = tiledesc.Size();
+            attribute.Write(fp);
+            tiledesc.Write(fp);
+        }
+
+        fwrite(&zero, sizeof(zero), 1, fp); // end of the header
+        // get the current position of the file
+        size_t header_end = ftell(fp);
+        // allocate the scan line offset table
+        std::uint32_t* scan_line_offset_table = new std::uint32_t[height]; // it's an older code but it checks out
+        // the start of the image data is after the scan line offset table
+        size_t image_data_start = header_end + (height * sizeof(std::uint32_t));
+        // the size of each scan line is know already since we already know our channel list
+        size_t scan_line_size = (width * sizeof(rgbf)) + sizeof(uint32_t) /* count */ + sizeof(uint32_t) /* size */;
+        // fill in the scan line offset table
+        for (size_t y = 0; y < height; y++) {
+            scan_line_offset_table[y] = image_data_start + (y * scan_line_size);
+        }
+        // write the scan line offset table (32 bit offsets)
+        for (size_t y = 0; y < height; y++) {
+            fwrite(&scan_line_offset_table[y], sizeof(uint32_t), 1, fp);
+        }
+        // free the memory
+        delete[] scan_line_offset_table;
+        scan_line_offset_table = nullptr;
+
+        openexr::ScanLine scan_line;
+        scan_line.number = 0;
+        size_t counter = 0;
+
+        for_each([&](rgbf const& pixel) -> void {
+            if (counter == 0) {
+                scan_line.data.clear();
+                scan_line.data.resize(width * sizeof(rgbf));
+            }
+            if (counter < width) {
+                // accumulate into the scan line
+                uint8_t const* p = reinterpret_cast<uint8_t const*>(&pixel);
+                scan_line.data.push_back(p[0]);
+                scan_line.data.push_back(p[1]);
+                scan_line.data.push_back(p[2]);
+                scan_line.data.push_back(p[3]);
+                counter++;
+            }
+            if (counter == width) {
+                scan_line.Write(fp);
+                scan_line.number++;
+                counter = 0;
+            }
         });
         fclose(fp);
         return true;
@@ -195,7 +356,7 @@ bool image<uint8_t, pixel_format::GREY8>::save(std::string filename) const {
         fprintf(fp, "%zu %zu\n", width, height);
         fprintf(fp, "%" PRIu32 "\n", uint32_t(1 << (8 * depth)) - 1);
         for_each([&](uint8_t const& pixel) -> void {
-            fwrite(&pixel, 1, sizeof(pixel), fp);
+            fwrite(&pixel, sizeof(pixel), 1, fp);
         });
         fclose(fp);
         return true;
@@ -211,7 +372,7 @@ bool image<uint8_t, pixel_format::Y8>::save(std::string filename) const {
         fprintf(fp, "%zu %zu\n", width, height);
         fprintf(fp, "%" PRIu32 "\n", uint32_t(1 << (8 * depth)) - 1);
         for_each([&](uint8_t const& pixel) -> void {
-            fwrite(&pixel, 1, sizeof(pixel), fp);
+            fwrite(&pixel, sizeof(pixel), 1, fp);
         });
         fclose(fp);
         return true;
@@ -227,7 +388,7 @@ bool image<uint16_t, pixel_format::Y16>::save(std::string filename) const {
         fprintf(fp, "%zu %zu\n", width, height);
         fprintf(fp, "%" PRIu32 "\n", uint32_t(1 << (8 * depth)) - 1);
         for_each([&](uint16_t const& pixel) -> void {
-            fwrite(&pixel, 1, sizeof(pixel), fp);
+            fwrite(&pixel, sizeof(pixel), 1, fp);
         });
         fclose(fp);
         return true;
@@ -243,7 +404,7 @@ bool image<rgb565, pixel_format::RGBP>::save(std::string filename) const {
         fprintf(fp, "%zu %zu\n", width, height);
         fprintf(fp, "%" PRIu32 "\n", uint32_t(1 << (8 * depth)) - 1);
         for_each([&](rgb565 const& pixel) -> void {
-            fwrite(&pixel, 1, sizeof(pixel), fp);
+            fwrite(&pixel, sizeof(pixel), 1, fp);
         });
         fclose(fp);
         return true;
@@ -259,7 +420,7 @@ bool image<uint32_t, pixel_format::Y32>::save(std::string filename) const {
         fprintf(fp, "%zu %zu\n", width, height);
         fprintf(fp, "%" PRIu32 "\n", uint32_t(1 << (8 * depth)) - 1);
         for_each([&](uint32_t const& pixel) -> void {
-            fwrite(&pixel, 1, sizeof(pixel), fp);
+            fwrite(&pixel, sizeof(pixel), 1, fp);
         });
         fclose(fp);
         return true;

@@ -35,3 +35,46 @@ TEST(BasalTest, RandRange) {
         ASSERT_GE(value, -0.847_p);
     }
 }
+
+TEST(BasalTest, HalfConstants) {
+    using basal::half;
+    using namespace basal::half_constants;
+    ASSERT_TRUE(positive_zero == negative_zero);
+    ASSERT_FALSE(positive_zero.is_exactly(negative_zero));
+    ASSERT_TRUE(positive_zero.is_zero());
+    ASSERT_TRUE(negative_zero.is_zero());
+
+    ASSERT_TRUE(positive_nan == negative_nan);
+    ASSERT_TRUE(positive_nan.is_nan());
+    ASSERT_TRUE(negative_nan.is_nan());
+    ASSERT_FALSE(positive_nan.is_exactly(negative_nan));
+
+    half rando{0b1, 0b1'1111, 0b00'0000'0011}; // rando nan
+    ASSERT_TRUE(rando.is_nan());
+
+    ASSERT_TRUE(positive_infinity != negative_infinity);
+    ASSERT_TRUE(positive_infinity.is_inf());
+    ASSERT_TRUE(negative_infinity.is_inf());
+
+    ASSERT_TRUE(0.000000059604645f == float(epsilon));
+}
+
+TEST(BasalTest, FloatToHalfToFloat) {
+    using basal::half;
+    using namespace basal::half_literals;
+    ASSERT_FLOAT_EQ(4.0f, float(half{4.0f}));
+    ASSERT_FLOAT_EQ(2.0f, float(half{2.0f}));
+    ASSERT_FLOAT_EQ(1.0f, float(half{1.0f}));
+    ASSERT_FLOAT_EQ(0.0f, float(half{0.0f}));
+    ASSERT_FLOAT_EQ(-0.0f, float(half{-0.0f}));
+    ASSERT_FLOAT_EQ(0.5f, float(half{0.5f}));
+    ASSERT_FLOAT_EQ(0.25f, float(half{0.25f}));
+    ASSERT_FLOAT_EQ(0.125f, float(half{0.125f}));
+
+    ASSERT_FLOAT_EQ(std::numeric_limits<float>::infinity(), float(half{123'028'302.0f})) << "large numbers should become inf";
+    ASSERT_FLOAT_EQ(std::numeric_limits<float>::infinity(), float(half{std::numeric_limits<float>::infinity()}));
+    ASSERT_FLOAT_EQ(-std::numeric_limits<float>::infinity(), float(half{-std::numeric_limits<float>::infinity()}));
+    ASSERT_TRUE(std::isnan(float(half{std::numeric_limits<float>::quiet_NaN()})));
+
+    ASSERT_FLOAT_EQ(0.999f, float(0.999_hf));
+}

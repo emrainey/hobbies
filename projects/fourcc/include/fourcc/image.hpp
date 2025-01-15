@@ -88,7 +88,7 @@ struct alignas(float) yf {
     constexpr yf() : y{0.0f} {
     }
     float y;
-} __attribute__((packed));
+};
 
 /// Defines a 3 channel 32 bit float color format
 struct alignas(float) rgbf {
@@ -98,7 +98,18 @@ struct alignas(float) rgbf {
     float r;
     float g;
     float b;
-} __attribute__((packed));
+};
+
+/// Defines a 4 Channel 32 Bit Float Precision Color Format
+struct alignas(float) rgbaf {
+    /// Constructor
+    constexpr rgbaf() : r{0.0f}, g{0.0f}, b{0.0f}, a{0.0f} {
+    }
+    float r;
+    float g;
+    float b;
+    float a;
+};
 
 /// Defines a 16 bit packed pixel color in 5:6:5 format. R being the highest bits, and B the lowest
 struct alignas(uint16_t) rgb565 {
@@ -109,7 +120,7 @@ struct alignas(uint16_t) rgb565 {
 
 /// Enumerates the various pixel formats in FOURCC codes and some additional types.
 /// \see fourcc.org
-enum class pixel_format : uint32_t {
+enum class pixel_format : std::uint32_t {
     GREY8 = four_character_code('G', 'R', 'E', 'Y'),  ///< Uses uint8_t
     Y800 = four_character_code('Y', '8', '0', '0'),   ///< Uses uint8_t
     Y8 = four_character_code('Y', '8', ' ', ' '),     ///< Uses uint8_t
@@ -122,7 +133,9 @@ enum class pixel_format : uint32_t {
     BGRA = four_character_code('B', 'G', 'R', 'A'),   ///< Uses @ref bgra
     IYU2 = four_character_code('I', 'Y', 'U', '2'),   ///< Uses @ref @iyu2
     YF = four_character_code('Y', 'F', ' ', ' '),     ///< User @ref yf
+    sRGB = four_character_code('s', 'R', 'G', 'B'),   ///< Uses @reg rgbf but limited to 0.0 to 1.0
     RGBf = four_character_code('R', 'G', 'B', 'f'),   ///< Uses @reg rgbf
+    RGBAf = four_character_code('R', 'G', 'B', 'F'),   ///< Uses @reg rgbaf
     RGBP = four_character_code('R', 'G', 'B', 'P'),   ///< Uses @reg rgb565
 };
 
@@ -130,6 +143,10 @@ enum class pixel_format : uint32_t {
 constexpr char const* channel_order(pixel_format fmt) {
     switch (fmt) {
         case pixel_format::RGBA:
+            [[fallthrough]];
+        case pixel_format::RGBAf:
+            return "RGBA";
+        case pixel_format::RGBf:
             [[fallthrough]];
         case pixel_format::RGB8:
             return "RGB";
@@ -143,8 +160,6 @@ constexpr char const* channel_order(pixel_format fmt) {
             return "BGRA";
         case pixel_format::IYU2:
             return "UYV";
-        case pixel_format::RGBf:
-            return "RGBf";
         case pixel_format::YF:
             return "YF";
         default:
@@ -166,6 +181,7 @@ constexpr int channels_in_format(pixel_format fmt) {
         case pixel_format::RGBA:
         case pixel_format::ABGR:
         case pixel_format::BGRA:
+        case pixel_format::RGBAf:
             return 4;
         case pixel_format::RGBP:
         case pixel_format::RGBf:
@@ -233,6 +249,10 @@ constexpr bool uses_iyu2(pixel_format fmt) {
 
 constexpr bool uses_rgbf(pixel_format fmt) {
     return (fmt == pixel_format::RGBf);
+}
+
+constexpr bool uses_rgbaf(pixel_format fmt) {
+    return (fmt == pixel_format::RGBAf);
 }
 
 constexpr bool uses_yf(pixel_format fmt) {
@@ -407,12 +427,13 @@ protected:
 
 /// Enumerates the channels
 enum class channel : int8_t {
-    R,
-    G,
-    B,
-    Y,
-    U,
-    V,
+    R, ///< Red
+    G, ///< Green
+    B, ///< Blue
+    Y, ///< Luminance
+    U, ///< Chrominance U
+    V, ///< Chrominance V
+    A, ///< Alpha
 };
 
 /// Convolves a specific channel of the input image and the kernel into the output gradient image
@@ -442,7 +463,7 @@ void filter(fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8>& output,
 
 /// Returns the dimensions given a constant string.
 /// @code
-/// auto [h, w] = fourcc::dimensions("VGA");
+/// auto [width, height] = fourcc::dimensions("VGA");
 /// @endcode
 std::pair<size_t, size_t> dimensions(std::string type);
 

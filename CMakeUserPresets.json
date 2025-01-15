@@ -72,15 +72,15 @@
             }
         },
         {
-            "name": "native-llvm-18",
+            "name": "native-llvm-19",
             "inherits": [
                 "native-llvm",
                 "Homebrew"
             ],
-            "displayName": "LLVM 18.1.8",
-            "description": "Homebrew LLVM 18.1.8",
+            "displayName": "LLVM 19.1.6",
+            "description": "Homebrew LLVM 19.1.6",
             "environment": {
-                "PATH": "$env{HOMEBREW_ROOT}/Cellar/llvm/18.1.8/bin/:$env{HOMEBREW_PATH}:$penv{PATH}"
+                "PATH": "$env{HOMEBREW_ROOT}/Cellar/llvm/19.1.6/bin/:$env{HOMEBREW_PATH}:$penv{PATH}"
             },
             "cacheVariables": {}
         }

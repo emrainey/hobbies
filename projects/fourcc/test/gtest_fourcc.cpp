@@ -48,3 +48,13 @@ TEST(FourccTest, Bars) {
     img.save("bars.ppm");
     img.save("bars.tga");
 }
+
+TEST(FourccTest, RGBf) {
+    image<rgbf, pixel_format::RGBf> img(480, 640);
+    img.for_each([](size_t y, size_t x, rgbf& pixel) {
+        pixel.r = y / 480.0f;
+        pixel.g = x / 640.0f;
+        pixel.b = 1.0f;
+    });
+    img.save("gradient.exr");
+}

@@ -55,15 +55,15 @@ public:
 
     /// Copy Assignment for the object. This is allowed as the medium is constant!
     object_& operator=(object_ const& that) {
-        m_max_collisions = that.m_max_collisions;
-        m_closed_surface = that.m_closed_surface;
+        // m_max_collisions = that.m_max_collisions; // can't reassign
+        // m_closed_surface = that.m_closed_surface; // can't reassign
         m_medium = that.m_medium;
         return *this;
     }
 
     object_& operator=(object_&& that) {
-        m_max_collisions = that.m_max_collisions;
-        m_closed_surface = that.m_closed_surface;
+        // m_max_collisions = that.m_max_collisions;
+        // m_closed_surface = that.m_closed_surface;
         m_medium = that.m_medium; // copy is sufficient as the medium is constant
         that.m_medium = nullptr; // clear the medium from the moved object
         return *this;

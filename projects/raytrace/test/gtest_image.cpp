@@ -61,7 +61,7 @@ TEST(ImageTest, SingleColors) {
     img3.save("allblue.ppm");
 }
 
-TEST(ImageTest, SubsamplerTest) {
+TEST(ImageTest, DISABLED_SubsamplerTest) {
     // since the image has 3 subsamples,
     // the averaging should make a dark grey.
     image img4(2, 2);

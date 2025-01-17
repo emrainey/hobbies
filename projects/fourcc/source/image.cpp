@@ -3,6 +3,7 @@
 #include <cinttypes>
 #include <cstdio>
 #include <cstring>
+#include <cassert>
 #include <filesystem>
 
 #include "fourcc/targa.hpp"
@@ -189,10 +190,11 @@ bool image<bgr8, pixel_format::BGR8>::save(std::string filename) const {
 }
 
 template <>
-bool image<rgbf, pixel_format::RGBf>::save(std::string filename) const {
+bool image<rgbh, pixel_format::RGBh>::save(std::string filename) const {
     FILE* fp = fopen(filename.c_str(), "wb");
     if (fp) {
         uint8_t const zero = 0;
+        size_t pixel_size = sizeof(rgbh);
 
         // write the file as OpenEXR format
         fwrite(&openexr::magic, sizeof(openexr::magic), 1, fp);
@@ -212,11 +214,11 @@ bool image<rgbf, pixel_format::RGBf>::save(std::string filename) const {
         // write the channels
         openexr::ChannelList channel;
         strncpy(channel.name, "R", sizeof(channel.name));
-        channel.pixel_type = openexr::ChannelList::PixelType::Float;
+        channel.pixel_type = openexr::ChannelList::PixelType::Half;
         channel.pLinear = 1;
         channel.sampling.x = 1;
         channel.sampling.y = 1;
-        attribute.size = (channel.Size() * 3 )+ 1;
+        attribute.size = (channel.Size() * 3u) + 1u;
         attribute.Write(fp);
         channel.Write(fp);
         strncpy(channel.name, "G", sizeof(channel.name));
@@ -300,48 +302,66 @@ bool image<rgbf, pixel_format::RGBf>::save(std::string filename) const {
         fwrite(&zero, sizeof(zero), 1, fp); // end of the header
         // get the current position of the file
         size_t header_end = ftell(fp);
+        size_t scan_line_pixel_data_size = (width * pixel_size);
+        size_t offset_table_size = (height * sizeof(std::uint64_t));
         // allocate the scan line offset table
-        std::uint32_t* scan_line_offset_table = new std::uint32_t[height]; // it's an older code but it checks out
+        std::uint64_t* scan_line_offset_table = new std::uint64_t[height]; // it's an older code but it checks out
         // the start of the image data is after the scan line offset table
-        size_t image_data_start = header_end + (height * sizeof(std::uint32_t));
+        size_t image_data_start = header_end + offset_table_size;
         // the size of each scan line is know already since we already know our channel list
-        size_t scan_line_size = (width * sizeof(rgbf)) + sizeof(uint32_t) /* count */ + sizeof(uint32_t) /* size */;
+        size_t scan_line_size = scan_line_pixel_data_size + sizeof(uint32_t) /* count */ + sizeof(uint32_t) /* size */;
         // fill in the scan line offset table
         for (size_t y = 0; y < height; y++) {
             scan_line_offset_table[y] = image_data_start + (y * scan_line_size);
         }
         // write the scan line offset table (32 bit offsets)
-        for (size_t y = 0; y < height; y++) {
-            fwrite(&scan_line_offset_table[y], sizeof(uint32_t), 1, fp);
-        }
+        fwrite(scan_line_offset_table, sizeof(std::uint64_t), height, fp);
+
+        size_t here = ftell(fp);
+        basal::exception::throw_unless(here == image_data_start, __func__, __LINE__, "File offset %zu but should be %zu\r\n", here, image_data_start);
+
+        openexr::ScanLine scan_line;
+        scan_line.number = 0;
+        scan_line.data.reserve(scan_line_pixel_data_size);
+        size_t column = 0;
+        size_t row = 0;
+
+        basal::exception::throw_unless(scan_line.data.capacity() == scan_line_pixel_data_size, __func__, __LINE__, "Scan line capacity %zu but should be %zu\r\n", scan_line.data.capacity(), scan_line_size);
+
+        for_each([&](rgbh const& pixel) -> void {
+            if (column == 0) {
+                size_t offset = ftell(fp);
+                basal::exception::throw_if(offset != scan_line_offset_table[row], __func__, __LINE__, "File offset %zu but should be %zu, width=%zu\r\n", offset, scan_line_offset_table[row], width);
+                scan_line.data.resize(scan_line_pixel_data_size);
+            }
+            if (column < width) {
+                // accumulate into the scan line
+                uint8_t const* r = reinterpret_cast<uint8_t const*>(&pixel.r);
+                uint8_t const* g = reinterpret_cast<uint8_t const*>(&pixel.g);
+                uint8_t const* b = reinterpret_cast<uint8_t const*>(&pixel.b);
+                size_t r_index = column * sizeof(basal::half);
+                size_t g_index = r_index + (width * sizeof(basal::half));
+                size_t b_index = g_index + (width * sizeof(basal::half));
+                scan_line.data[r_index+0] = r[0];
+                scan_line.data[r_index+1] = r[1];
+                scan_line.data[g_index+0] = g[0];
+                scan_line.data[g_index+1] = g[1];
+                scan_line.data[b_index+0] = b[0];
+                scan_line.data[b_index+1] = b[1];
+                column++;
+            }
+            if (column == width) {
+                scan_line.Write(fp);
+                scan_line.number++;
+                column = 0;
+                row++;
+            }
+        });
+
         // free the memory
         delete[] scan_line_offset_table;
         scan_line_offset_table = nullptr;
 
-        openexr::ScanLine scan_line;
-        scan_line.number = 0;
-        size_t counter = 0;
-
-        for_each([&](rgbf const& pixel) -> void {
-            if (counter == 0) {
-                scan_line.data.clear();
-                scan_line.data.resize(width * sizeof(rgbf));
-            }
-            if (counter < width) {
-                // accumulate into the scan line
-                uint8_t const* p = reinterpret_cast<uint8_t const*>(&pixel);
-                scan_line.data.push_back(p[0]);
-                scan_line.data.push_back(p[1]);
-                scan_line.data.push_back(p[2]);
-                scan_line.data.push_back(p[3]);
-                counter++;
-            }
-            if (counter == width) {
-                scan_line.Write(fp);
-                scan_line.number++;
-                counter = 0;
-            }
-        });
         fclose(fp);
         return true;
     }

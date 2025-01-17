@@ -4,6 +4,7 @@
 /// @copyright Copyright 2022 (C) Erik Rainey.
 
 #include <basal/exception.hpp>
+#include <basal/ieee754.hpp>
 #include <cstdint>
 #include <functional>
 #include <vector>
@@ -100,6 +101,18 @@ struct alignas(float) rgbf {
     float b;
 };
 
+/// Defines a 3 Channel 16 Bit Half Precision Color Format
+struct alignas(uint16_t) rgbh {
+    /// Constructor
+    constexpr rgbh() : r{0.0f}, g{0.0f}, b{0.0f} {
+    }
+    basal::half r;
+    basal::half g;
+    basal::half b;
+};
+static_assert(sizeof(rgbh) == 6, "rgbh must be 6 bytes");
+
+
 /// Defines a 4 Channel 32 Bit Float Precision Color Format
 struct alignas(float) rgbaf {
     /// Constructor
@@ -135,6 +148,7 @@ enum class pixel_format : std::uint32_t {
     YF = four_character_code('Y', 'F', ' ', ' '),     ///< User @ref yf
     sRGB = four_character_code('s', 'R', 'G', 'B'),   ///< Uses @reg rgbf but limited to 0.0 to 1.0
     RGBf = four_character_code('R', 'G', 'B', 'f'),   ///< Uses @reg rgbf
+    RGBh = four_character_code('R', 'G', 'B', 'h'),   ///< Uses @reg rgbh (half precision) with any value
     RGBAf = four_character_code('R', 'G', 'B', 'F'),   ///< Uses @reg rgbaf
     RGBP = four_character_code('R', 'G', 'B', 'P'),   ///< Uses @reg rgb565
 };
@@ -147,6 +161,8 @@ constexpr char const* channel_order(pixel_format fmt) {
         case pixel_format::RGBAf:
             return "RGBA";
         case pixel_format::RGBf:
+            [[fallthrough]];
+        case pixel_format::RGBh:
             [[fallthrough]];
         case pixel_format::RGB8:
             return "RGB";
@@ -185,6 +201,7 @@ constexpr int channels_in_format(pixel_format fmt) {
             return 4;
         case pixel_format::RGBP:
         case pixel_format::RGBf:
+        case pixel_format::RGBh:
         case pixel_format::RGB8:
         case pixel_format::BGR8:
         case pixel_format::IYU2:
@@ -253,6 +270,10 @@ constexpr bool uses_rgbf(pixel_format fmt) {
 
 constexpr bool uses_rgbaf(pixel_format fmt) {
     return (fmt == pixel_format::RGBAf);
+}
+
+constexpr bool uses_rgbh(pixel_format fmt) {
+    return (fmt == pixel_format::RGBh);
 }
 
 constexpr bool uses_yf(pixel_format fmt) {

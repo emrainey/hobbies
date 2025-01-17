@@ -297,6 +297,7 @@ struct ScanLine : public Serializable {
         std::uint32_t pixel_data_size = data.size();
         fwrite(&pixel_data_size, sizeof(pixel_data_size), 1, fp);
         fwrite(data.data(), sizeof(std::uint8_t), data.size(), fp);
+        // std::cout << "Wrote " << data.size() << " bytes of pixel data" << std::endl;
     }
 
     inline void Read(FILE* fp) override {

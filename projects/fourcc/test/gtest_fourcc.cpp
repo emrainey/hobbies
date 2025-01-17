@@ -49,12 +49,18 @@ TEST(FourccTest, Bars) {
     img.save("bars.tga");
 }
 
-TEST(FourccTest, RGBf) {
-    image<rgbf, pixel_format::RGBf> img(480, 640);
-    img.for_each([](size_t y, size_t x, rgbf& pixel) {
-        pixel.r = y / 480.0f;
-        pixel.g = x / 640.0f;
-        pixel.b = 1.0f;
+TEST(FourccTest, RGBh) {
+    image<rgbh, pixel_format::RGBh> img(480, 640);
+    img.for_each([](size_t sy, size_t sx, rgbh& pixel) {
+        // each corner is a different color
+        // white -> red
+        // |          |
+        // blue -> green
+        basal::precision c = static_cast<basal::precision>(sy)/static_cast<basal::precision>(sx);
+        if (c > 1.0f) { c = 1 / c; }
+        pixel.r = 1.0f - (basal::precision(sy) / 480.0f);
+        pixel.g = c;
+        pixel.b = 1.0f - (basal::precision(sx) / 640.0f);
     });
     img.save("gradient.exr");
 }

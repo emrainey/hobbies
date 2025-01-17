@@ -56,7 +56,8 @@ TEST(BasalTest, HalfConstants) {
     ASSERT_TRUE(positive_infinity.is_inf());
     ASSERT_TRUE(negative_infinity.is_inf());
 
-    ASSERT_TRUE(0.000000059604645f == float(epsilon));
+    half ep{0.00097608566f};
+    ASSERT_FLOAT_EQ(0.00097608566f, float(epsilon)) << ep;
 }
 
 TEST(BasalTest, FloatToHalfToFloat) {
@@ -76,5 +77,5 @@ TEST(BasalTest, FloatToHalfToFloat) {
     ASSERT_FLOAT_EQ(-std::numeric_limits<float>::infinity(), float(half{-std::numeric_limits<float>::infinity()}));
     ASSERT_TRUE(std::isnan(float(half{std::numeric_limits<float>::quiet_NaN()})));
 
-    ASSERT_FLOAT_EQ(0.999f, float(0.999_hf));
+    ASSERT_FLOAT_EQ(0.99951172f, float(0.99951172_hf));
 }

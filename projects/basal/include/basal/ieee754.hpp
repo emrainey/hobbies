@@ -97,6 +97,9 @@ inline bool is_nan(precision a) {
 
 /// @brief A structure for examining the IEEE754 representation of a single precision floating point number
 struct single {
+    constexpr single() : native{0.0f} {}
+    constexpr single(float f) : native{f} {}
+
     static constexpr int bias = 127;
     static constexpr int min_exponent = -126;
     static constexpr int max_exponent = 127;
@@ -126,37 +129,15 @@ struct half {
     static constexpr int special_exponent = 0b11111;
     static constexpr int zero_exponent = 0b00000;
     constexpr half() : raw{0} {}
-    constexpr half(float f) {
-        single single;
-        single.native = f;
-        // zero centered exponent
-        std::int32_t e = static_cast<std::int32_t>(single.bits.exponent) - single.bias;
-        if (single.bits.exponent == single.special_exponent) {
-            // some form of inf or nan
-            bits.sign = single.bits.sign;
-            bits.exponent = special_exponent;
-            bits.mantissa = single.bits.mantissa >> 13;
-        } else if (single.bits.exponent == single.zero_exponent) {
-            bits.sign = single.bits.sign;
-            bits.exponent = zero_exponent;
-            bits.mantissa = 0;
-        } else if (e > max_exponent) {
-            // + infinity
-            bits.sign = 0b0;
-            bits.exponent = special_exponent;
-            bits.mantissa = 0b0;
-        } else if (e < min_exponent) {
-            // - infinity
-            bits.sign = 0b1;
-            bits.exponent = special_exponent;
-            bits.mantissa = 0b0;
-        } else {
-            bits.sign = single.bits.sign;
-            bits.exponent = e + bias;
-            bits.mantissa = single.bits.mantissa >> 13; // loose some precision!
-        }
+    constexpr half(float f) : raw{0} {
+        from(f);
     }
     constexpr half(std::uint32_t s, std::uint32_t e, std::uint32_t m) : bits(m, e, s) {}
+
+    half& operator=(float f) {
+        from(f);
+        return *this;
+    }
 
     struct fields {
         constexpr fields(std::uint32_t m, std::uint32_t e, std::uint32_t s) : mantissa(m), exponent(e), sign(s) {}
@@ -216,7 +197,7 @@ struct half {
         return zero; // sign is irrelevant
     }
 
-    explicit operator float() {
+    explicit operator float() const {
         single single;
         if (bits.exponent == special_exponent) {
             single.bits.exponent = single.special_exponent;
@@ -229,10 +210,41 @@ struct half {
         single.bits.sign = bits.sign;
         return single.native;
     }
+
+    void from(float f) {
+        single single;
+        single.native = f;
+        // zero centered exponent
+        std::int32_t e = static_cast<std::int32_t>(single.bits.exponent) - single.bias;
+        if (single.bits.exponent == single.special_exponent) {
+            // some form of inf or nan
+            bits.sign = single.bits.sign;
+            bits.exponent = special_exponent;
+            bits.mantissa = single.bits.mantissa >> 13;
+        } else if (single.bits.exponent == single.zero_exponent) {
+            bits.sign = single.bits.sign;
+            bits.exponent = zero_exponent;
+            bits.mantissa = 0;
+        } else if (e > max_exponent) {
+            // + infinity
+            bits.sign = 0b0;
+            bits.exponent = special_exponent;
+            bits.mantissa = 0b0;
+        } else if (e < min_exponent) {
+            // - infinity
+            bits.sign = 0b1;
+            bits.exponent = special_exponent;
+            bits.mantissa = 0b0;
+        } else {
+            bits.sign = single.bits.sign;
+            bits.exponent = e + bias;
+            bits.mantissa = single.bits.mantissa >> 13; // loose some precision!
+        }
+    }
 };
 
 namespace half_literals {
-half operator""_hf(long double v) {
+constexpr half operator""_hf(long double v) {
     float f = static_cast<float>(v);
     return half{f};
 }
@@ -245,7 +257,7 @@ static const half positive_nan{0b0, 0b1'1111, 0b10'0000'0000};
 static const half negative_nan{0b1, 0b1'1111, 0b11'1111'1111};
 static const half positive_zero(0b0, 0b0, 0b0);
 static const half negative_zero(0b1, 0b0, 0b0);
-static const half epsilon{0b0, 0b0'0000, 0b00'0000'0001};
+static const half epsilon{0b0, 0b0'0100, 0b11'1111'1111};
 } // namespace half_constants
 
 }  // namespace basal

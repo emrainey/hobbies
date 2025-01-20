@@ -8,7 +8,7 @@ set(CMAKE_SYSTEM_PROCESSOR ${CMAKE_HOST_SYSTEM_PROCESSOR})
 
 # Since OpenMP is not supported by the default Clang anymore, we need to manually do this
 message(STATUS "Enabling OpenMP manually! Homebrew=$ENV{HOMEBREW_ROOT}")
-add_include_directories(/opt/homebrew/opt/libomp/include)
+include_directories(/opt/homebrew/opt/libomp/include)
 add_link_options(-L/opt/homebrew/opt/libomp/lib -lomp)
 
 if (NOT TARGET enabled-warnings)

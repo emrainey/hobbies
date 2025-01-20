@@ -98,7 +98,7 @@ public:
         , ringD{center, R3::basis::Z, 14.0, 14.2}
         , ringE{center, R3::basis::Z, 14.5, 14.7}
         , ringF{center, R3::basis::Z, 15.0, 16.7}
-        , planet{center, 7.5}
+        , planet{center, 1.0}
         , starfield{1024} {
         planet.material(&mediums::metals::stainless);
         ringA.material(&mediums::metals::stainless);
@@ -107,6 +107,7 @@ public:
         ringD.material(&mediums::metals::stainless);
         ringE.material(&mediums::metals::stainless);
         ringF.material(&mediums::metals::stainless);
+        planet.scale(7.5_p, 7.5_p, 7.5_p); // use scaling instead of a larger radius
     }
 
     ~PlanetWorld() = default;

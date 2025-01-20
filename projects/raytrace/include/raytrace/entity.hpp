@@ -164,7 +164,7 @@ protected:
 
         // the order applied is backwards from the multiplication order
         // Rotate, Scale, then Translate.
-        m_transform = (t * s) * r;
+        m_transform = t * (r * s);
         m_inv_transform = m_transform.inverse();
     }
 

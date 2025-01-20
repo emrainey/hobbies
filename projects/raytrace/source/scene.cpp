@@ -185,7 +185,7 @@ color scene::trace(ray const& world_ray, mediums::medium const& media, size_t re
 
         ///*******************************************************************/
 
-        // get the light components, emission, reflection and refraction (diffraction, phosporescense and
+        // get the light components, emission, reflection and refraction (diffraction, phosphorescence and
         // fluorescence not computed)
         medium.radiosity(object_surface_point, media.refractive_index(object_surface_point), incident_angle,
                          transmitted_angle,

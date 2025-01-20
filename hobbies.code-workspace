@@ -45,7 +45,6 @@
 			"-DCMAKE_VERBOSE_MAKEFILE:BOOL=OFF",
 			"-DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE"
 		],
-		"cmake.loggingLevel": "debug",
 		"cmake.allowCommentsInPresetsFile": false,
 		"cmake.ctest.allowParallelJobs": true,
 		"cmake.ctest.parallelJobs": 2,
@@ -265,6 +264,8 @@
 		},
 		"vsconan.general.pythonInterpreter": "python3",
 		"vsconan.explorer.treeview.package.showDirtyPackage": true,
+		"cmake.format.spaceAfterCommandName": true,
+		"cmake.format.spaceInParentheses": true,
 	},
 	"tasks": {
 		"version": "2.0.0",

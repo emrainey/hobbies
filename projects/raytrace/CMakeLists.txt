@@ -148,6 +148,7 @@ list(APPEND DEMOS world_spheres world_spheres2)
 foreach(demo IN LISTS DEMOS)
     add_library(${demo} SHARED ${CMAKE_CURRENT_SOURCE_DIR}/demo/${demo}.cpp)
     target_link_libraries(${demo} PRIVATE hobbies-raytrace)
+    add_test(NAME test-${demo} COMMAND demo_sdl2 -m ${demo} -d QVGA -a 128 -s 0.125)
 endforeach()
 
 #####################

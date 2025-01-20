@@ -101,15 +101,6 @@ void plot(std::string name, std::vector<T> &data, matrix &beta, matrix &domain) 
     } while (1);
 }
 
-precision frand() {
-    return static_cast<precision>(rand()) / RAND_MAX;
-}
-
-precision random_range(precision min, precision max) {
-    precision range = max - min;
-    return (frand() * range) + min;
-}
-
 std::vector<precision> generate_random_linear_dataset(matrix &domain) {
     std::random_device rd{};
     std::mt19937 gen(rd());

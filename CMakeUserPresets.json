@@ -55,6 +55,22 @@
             }
         },
         {
+            "name": "native-gcc-14",
+            "inherits": [
+                "native-gcc",
+                "Homebrew"
+            ],
+            "displayName": "Homebrew GCC 14",
+            "description": "Homebrew GCC 14",
+            "environment": {
+                "PATH": "$env{HOMEBREW_PATH}:$penv{PATH}"
+            },
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "gcc-14",
+                "CMAKE_CXX_COMPILER": "g++-14"
+            }
+        },
+        {
             "name": "native-clang-mac",
             "inherits": [
                 "native-clang",
@@ -100,6 +116,11 @@
             "name": "build-with-native-gcc-13",
             "inherits": "build-common",
             "configurePreset": "native-gcc-13"
+        },
+        {
+            "name": "build-with-native-gcc-14",
+            "inherits": "build-common",
+            "configurePreset": "native-gcc-14"
         }
     ],
     "testPresets": [
@@ -117,6 +138,16 @@
             "name": "run-tests-gcc-13",
             "inherits": "test-common",
             "configurePreset": "native-gcc-13"
+        },
+        {
+            "name": "run-tests-gcc-14",
+            "inherits": "test-common",
+            "configurePreset": "native-gcc-14"
+        },
+        {
+            "name": "run-tests-llvm-19",
+            "inherits": "test-common",
+            "configurePreset": "native-llvm-19"
         }
     ],
     "workflowPresets": [
@@ -125,15 +156,15 @@
             "steps": [
                 {
                     "type": "configure",
-                    "name": "native-gcc-13"
+                    "name": "native-llvm-19"
                 },
                 {
                     "type": "build",
-                    "name": "build-with-native-gcc-13"
+                    "name": "build-with-native-llvm-19"
                 },
                 {
                     "type": "test",
-                    "name": "run-tests-gcc-13"
+                    "name": "run-tests-llvm-19"
                 }
             ]
         }

@@ -48,4 +48,4 @@ function(coverage_target TARGET)
         COMMAND gcovr --root ${CMAKE_SOURCE_DIR} --object-directory ${CMAKE_BINARY_DIR} --xml-pretty --xml-coverage ${CMAKE_BINARY_DIR}/coverage-${TARGET}.xml
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     )
-endif()
+endfunction()

@@ -3,7 +3,6 @@ project(htm LANGUAGES CXX VERSION 0.1.0)  # This must match the conanfile.py!
 
 add_library(hobbies-htm
     ${CMAKE_CURRENT_SOURCE_DIR}/source/encoders.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/frand.cpp
 )
 target_link_libraries(hobbies-htm
     PUBLIC

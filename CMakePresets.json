@@ -122,6 +122,11 @@
             "name": "run-tests-built-with-native-clang",
             "inherits": "test-common",
             "configurePreset": "native-clang"
+        },
+        {
+            "name": "run-tests-built-with-native-llvm",
+            "inherits": "test-common",
+            "configurePreset": "native-llvm"
         }
     ],
     "packagePresets": [

@@ -149,9 +149,6 @@ struct column_ {
 /// Some default values for the column
 using column = column_<100>;
 
-/// Returns a random number between 0.0 and 1.0 inclusive
-float frand();
-
 template <size_t W, size_t H>
 class network_ {
 protected:
@@ -166,14 +163,14 @@ public:
         srand(time(nullptr));
         for (size_t j = 0; j < H; j++) {
             for (size_t i = 0; i < W; i++) {
-                // grid[j][i].overlap = frand();
-                grid[j][i].boost = frand();
+                // grid[j][i].overlap = basal::rand_range(0.0_p, 1.0_p);
+                grid[j][i].boost = basal::rand_range(0.0_p, 1.0_p);
                 for (size_t n = 0; n < grid[j][i].neurons.size(); n++) {
                     grid[j][i].neurons[n].proxial[0].active = 0;
-                    grid[j][i].neurons[n].output = frand();
+                    grid[j][i].neurons[n].output = basal::rand_range(0.0_p, 1.0_p);
                     for (size_t s = 0; s < grid[j][i].neurons[n].num_synapses(); s++) {
                         synapse& syn = grid[j][i].neurons[n][s];
-                        syn.strength = frand();
+                        syn.strength = basal::rand_range(0.0_p, 1.0_p);
 
                         syn.connection.source.x = rand() % grid.size();
                         syn.connection.source.y = rand() % grid[j].size();

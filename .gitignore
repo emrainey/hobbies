@@ -59,7 +59,7 @@ __pycache__
 # Ignore the render image that the OpenCV version makes
 render_image.png
 
-# Ignore the profiling PDFs. 
+# Ignore the profiling PDFs.
 *-perf.pdf
 *.prof
 
@@ -73,6 +73,8 @@ conaninfo.txt
 deactivate.*
 environment.*.env
 graph_info.json
+# VsCode Conan Files
+.vsconan/
 
 # ignore profiling and odd docs
 /*.pdf
@@ -81,3 +83,6 @@ graph_info.json
 
 # Ignore Python Junk
 *.egg-info
+
+# Python Virtual Environment
+/venv

@@ -6,7 +6,7 @@
 /// @date 2020-05-24
 /// @copyright Copyright (c) 2020
 /// @note Creates a noise image in a fourcc::image, then transforms to a cv::Mat to render. Installs a callback for
-/// keystrokes to allow tuning of the perlin noise seeds.
+/// keystrokes to allow tuning of the pseudo_random_noise seeds.
 ///
 
 #include <linalg/trackbar.hpp>
@@ -101,7 +101,8 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
         key = cv::waitKey(delay) & 0x00FFFFFF;  // wait for key-press
         printf("Pressed key %d\n", key);
         switch (key) {
-            case 27:  // [fall-through]
+            case 27:
+                [[fallthrough]];
             case 'q':
                 should_quit = true;
                 break;  // ESC or q

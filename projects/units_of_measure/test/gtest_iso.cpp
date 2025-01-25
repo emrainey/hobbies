@@ -173,3 +173,8 @@ TEST(IsoTest, GramsAndOverloads) {
     grams w2 = 10_g;
     ASSERT_TRUE((w1 + w2) == 118851_g) << "Must be equal";
 }
+
+TEST(IsoTest, Wavelength) {
+    ASSERT_PRECISION_EQ(iso::meters{697.19176279069768E-9}.value, iso::wavelength(iso::hertz{4.3E14}).value);
+    ASSERT_PRECISION_EQ(iso::hertz{637856293617021.2}.value, iso::frequency(iso::meters{470.0E-9}).value);
+}

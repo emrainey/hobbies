@@ -185,4 +185,18 @@ iso::watts operator""_mW(long double a);
 /// Specialized Quote Operator
 iso::watts operator""_mW(char const a[]);
 }  // namespace literals
+
+/// The speed of causality in a vacuum
+const speed c{meters{299792458.0}, seconds{1.0}};
+
+/// Converts a frequency of light into a wavelength in meters
+inline meters wavelength(hertz const& f) {
+    return meters{c.value / f.value};
+}
+
+/// Converts a wavelength in meters to a frequency of light.
+inline hertz frequency(meters const& l) {
+    return hertz{c.value / l.value};
+}
+
 }  // namespace iso

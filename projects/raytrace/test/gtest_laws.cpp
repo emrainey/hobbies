@@ -111,3 +111,14 @@ TEST(LawsTest, Lambertian) {
         ASSERT_NEAR(1.0, R.magnitude(), basal::epsilon);
     }
 }
+
+TEST(LawsTest, PenetrationDepth) {
+    iso::hertz red_light{4.3E14};
+    // for Silver (Ag) - given by Claude.ai, so I have no idea if it's correct
+    precision conductivity = 6.37E7_p; // Siemens per meter
+    precision resistivity = 1.0_p / conductivity;  // meter per Siemens
+    precision permittivity = -5.0 * 8.885E-12; // Farads per meter
+    precision permeability = 0.999998_p; // Henrys per meter
+    precision depth = laws::penetration_depth(permeability, permittivity, resistivity, red_light);
+    ASSERT_FLOAT_EQ(3.405747E-12, depth);
+}

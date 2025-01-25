@@ -103,20 +103,35 @@ inline precision schlicks(precision n1, precision n2, iso::radians const& theta)
     return r0 + (1.0_p - r0) * one_minus_cos * one_minus_cos * one_minus_cos * one_minus_cos * one_minus_cos;
 }
 
+/// Computes the Cauchy Principal Value of a function given two values and the frequency of light (not the wavelength).
+/// @param a The first value
+/// @param b The second value
+/// @param light The frequency of the light
+inline precision cauchy(precision a, precision b, iso::hertz light) {
+    auto wavelength = 1.0f / light.value;
+    return a + (b / (wavelength * wavelength));
+}
+
 ///
 /// Computes the penetration depth of light of a any material
-/// @param permeability The magnetic permeability of the material
-/// @param permittivity The electric permittivity of the material
-/// @param resistivity The resistivity of the material
+/// @param permeability (mu) The magnetic permeability of the material
+/// @param permittivity (epsilon) The electric permittivity of the material
+/// @param resistivity (rho) The resistivity of the material (inverse of conductivity)
 /// @param frequency The cycles per second of the light.
 /// @return The depth in meters?
-///
+/// @see https://en.wikipedia.org/wiki/Skin_effect
 inline precision penetration_depth(precision permeability, precision permittivity, precision resistivity,
-                                      precision frequency) {
-    precision omega = 2 * iso::pi * frequency;  // FIXME should be in iso::radians or iso::????
-    precision rho_omega_eta = resistivity * omega * permittivity;
-    precision two_omega_mu = 2 * omega * permeability;
-    return sqrt(resistivity / two_omega_mu) * sqrt(sqrt((rho_omega_eta * rho_omega_eta) + 1) + rho_omega_eta);
+                                      iso::hertz frequency) {
+    // omega = 2 * pi * f
+    precision omega = 2 * iso::pi * frequency.value;
+    // rwe = rho * omega * epsilon
+    precision rho_omega_epsilon = resistivity * omega * permittivity;
+    // 2 * rho / omega * mu
+    precision two_rho_over_omega_mu = (2 * resistivity) / (omega * permeability);
+    // inner square root of (rwe^2 + 1)
+    auto r = sqrt((rho_omega_epsilon * rho_omega_epsilon) + 1);
+    // final square root of (2 * rho / omega * mu * (r + rwe))
+    return sqrt(two_rho_over_omega_mu * (r + rho_omega_epsilon));
 }
 
 ///

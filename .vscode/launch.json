@@ -13,16 +13,17 @@
                 "world_cornell",
                 "world_desktoy",
                 "world_example",
-                "world_glass",
                 "world_gap",
+                "world_glass",
                 "world_lenses",
+                "world_mats",
+                "world_monochrome",
+                "world_monochrome2",
+                "world_monochrome3",
                 "world_planet",
                 "world_snowman",
                 "world_spheres",
                 "world_spheres2",
-                "world_mats",
-                "world_monochrome",
-                "world_monochrome2",
             ]
         }
     ],
@@ -179,13 +180,13 @@
                 "-m",
                 "${input:world_module}",
                 "-d",
-                "VGA",
+                "QVGA",
                 "-a",
                 "128",
                 "-b",
                 "1",
                 "-s",
-                "1.0"
+                "0.0"
             ],
             "cwd": "${workspaceFolder}/testing",
             "env": {

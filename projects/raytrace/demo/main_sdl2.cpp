@@ -46,9 +46,10 @@ struct Parameters {
 int main(int argc, char *argv[]) {
     Parameters params;
     bool verbose = false;
+    bool has_changed = true;
     bool should_quit = false;
     bool should_render = false;
-    precision move_unit = 5.0;
+    precision move_unit = 5.0_p;
     std::string module_name;
     bool should_show_help = true;
 
@@ -84,17 +85,6 @@ int main(int argc, char *argv[]) {
 
     // creates a local reference to the object
     raytrace::world &world = *get_world();
-    // reconstruct the world from into a set of spherical coordinates
-    raytrace::vector world_look = world.looking_from() - world.looking_at();
-    raytrace::point coordinates_cart = geometry::R3::origin + world_look.normalized();
-    raytrace::point coordinates_spherical = geometry::cartesian_to_spherical(coordinates_cart);
-    // find the initial spherical coordinates
-    precision radius = world_look.magnitude();
-    precision theta = coordinates_spherical.y;
-    precision phi = coordinates_spherical.z;
-
-    std::cout << "ρ=" << radius << ", Θ=" << theta << ", Φ=" << phi << std::endl;
-
     auto [width, height] = fourcc::dimensions(params.dim_name);
     printf("%s => Width: %zu, Height: %zu\n", params.dim_name.c_str(), width, height);
     if (height == 0 or width == 0) {
@@ -112,21 +102,14 @@ int main(int argc, char *argv[]) {
 
     do {
         if (should_render) {
-            // compute the new look from given the phi/theta values
-            precision x = radius * std::sin(phi) * std::cos(theta);
-            precision y = radius * std::sin(phi) * std::sin(theta);
-            precision z = radius * std::cos(phi);
-
-            raytrace::vector ring_rail{x, y, z};
-            raytrace::point from = world.looking_at() + ring_rail;
-            std::cout << "Look From: " << from << std::endl;
+            std::cout << "Look From: " << world.looking_from() << std::endl;
             std::cout << "Look At: " << world.looking_at() << " (Towards)" << std::endl;
 
             // tiny image, simple camera placement
             raytrace::scene scene;
             // camera setup
             raytrace::stereo_camera stereo_view(height, width, iso::degrees(params.fov), params.separation, raytrace::stereo_camera::Layout::LeftRight);
-            stereo_view.move_to(from, world.looking_at());
+            stereo_view.move_to(world.looking_from(), world.looking_at());
             stereo_view.print("Stereo View");
             scene.set_background_mapper(std::bind(&raytrace::world::background, &world, std::placeholders::_1));
             world.add_to(scene);
@@ -266,6 +249,11 @@ int main(int argc, char *argv[]) {
         } else {
             if (should_show_help) {
                 printf("Press ENTER to render, ESC or q to quit\n");
+                printf("Use w/s to move camera +y/-y, a/d to move camera -x/x, r/f to move camera +z/-z\n");
+                printf("Use KP 8/2 to look camera +y/-y, 4/6 to look camera -x/x, 9/3 to look camera +z/-z\n");
+                printf("Use t/g to change FOV +5/-5\n");
+                printf("Use z/x to change separation +0.25/-0.25\n");
+                printf("Use u/j to change subsamples +1/-1\n");
                 should_show_help = false;
             }
         }
@@ -276,24 +264,93 @@ int main(int argc, char *argv[]) {
                 key = event.key.keysym.sym;
                 printf("Pressed key %d\n", key);
                 switch (key) {
-                    case SDLK_ESCAPE:  // [fall-through]
+                    case SDLK_ESCAPE:
+                        [[fallthrough]];
                     case SDLK_q:
                         should_quit = true;
                         break;  // ESC or q
                     case SDLK_RETURN:
-                        should_render = true;
+                        if (has_changed) {
+                            should_render = true;
+                            has_changed = false;
+                        } else {
+                            printf("No changes, not rendering\n");
+                        }
                         break;  // (CR) ENTER
+                    case SDLK_h:
+                        should_show_help = true;
+                        break;
                     case SDLK_w:
-                        world.looking_at().x += move_unit;
+                        world.looking_from().y += move_unit;
+                        has_changed = true;
                         break;
                     case SDLK_s:
-                        world.looking_at().x -= move_unit;
+                        world.looking_from().y -= move_unit;
+                        has_changed = true;
                         break;
                     case SDLK_a:
-                        world.looking_at().y += move_unit;
+                        world.looking_from().x -= move_unit;
+                        has_changed = true;
                         break;
                     case SDLK_d:
+                        world.looking_from().x += move_unit;
+                        has_changed = true;
+                        break;
+                    case SDLK_f:
+                        world.looking_from().z -= move_unit;
+                        has_changed = true;
+                        break;
+                    case SDLK_r:
+                        world.looking_from().z += move_unit;
+                        has_changed = true;
+                        break;
+                    case SDLK_t:
+                        params.fov += move_unit;
+                        has_changed = true;
+                        break;
+                    case SDLK_g:
+                        params.fov -= move_unit;
+                        has_changed = true;
+                        break;
+                    case SDLK_KP_8:
+                        world.looking_at().y += move_unit;
+                        has_changed = true;
+                        break;
+                    case SDLK_KP_2:
                         world.looking_at().y -= move_unit;
+                        has_changed = true;
+                        break;
+                    case SDLK_KP_4:
+                        world.looking_at().x -= move_unit;
+                        has_changed = true;
+                        break;
+                    case SDLK_KP_6:
+                        world.looking_at().x += move_unit;
+                        has_changed = true;
+                        break;
+                    case SDLK_KP_9:
+                        world.looking_at().z += move_unit;
+                        has_changed = true;
+                        break;
+                    case SDLK_KP_3:
+                        world.looking_at().z -= move_unit;
+                        has_changed = true;
+                        break;
+                    case SDLK_z:
+                        params.separation += 0.25;
+                        has_changed = true;
+                        break;
+                    case SDLK_x:
+                        params.separation -= 0.25;
+                        has_changed = true;
+                        break;
+                    case SDLK_u:
+                        params.subsamples++;
+                        has_changed = true;
+                        break;
+                    case SDLK_j:
+                        params.subsamples--;
+                        has_changed = true;
                         break;
                 }
                 break;

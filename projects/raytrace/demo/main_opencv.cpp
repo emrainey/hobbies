@@ -37,10 +37,12 @@ struct Parameters {
 int main(int argc, char *argv[]) {
     Parameters params;
     bool verbose = false;
+    bool has_changed = false;
     bool should_quit = false;
     bool should_render = true;
     precision move_unit = 5.0_p;
     std::string module_name;
+    bool should_show_help = true;
 
     basal::options::config opts[] = {
         {"-d", "--dims", std::string("QVGA"), "Use text video format like VGA or 2K"},
@@ -77,15 +79,14 @@ int main(int argc, char *argv[]) {
     cv::namedWindow(world.window_name(), cv::WINDOW_AUTOSIZE);
     cv::namedWindow("mask", cv::WINDOW_AUTOSIZE);
 
-    raytrace::vector look = world.looking_from() - world.looking_at();
-    raytrace::point coordinates_cart = geometry::R3::origin + look.normalized();
+    raytrace::vector world_look = world.looking_from() - world.looking_at();
+    raytrace::point coordinates_cart = geometry::R3::origin + world_look.normalized();
     raytrace::point coordinates_spherical = geometry::cartesian_to_spherical(coordinates_cart);
-
-    precision radius = look.magnitude();
+    // find the initial spherical coordinates
+    precision radius = world_look.magnitude();
     precision theta = coordinates_spherical.y;
     precision phi = coordinates_spherical.z;
 
-    std::cout << "ρ=" << radius << ", Θ=" << theta << ", Φ=" << phi << std::endl;
     auto [width, height] = fourcc::dimensions(params.dim_name);
     printf("%s => Width: %zu, Height: %zu\n", params.dim_name.c_str(), width, height);
     if (height == 0 or width == 0) {
@@ -115,7 +116,8 @@ int main(int argc, char *argv[]) {
 
             raytrace::vector ring_rail{x, y, z};
             raytrace::point from = world.looking_at() + ring_rail;
-            std::cout << "Look From: " << from << std::endl;
+            std::cout << "ρ=" << radius << ", Θ=" << theta << ", Φ=" << phi << std::endl;
+            std::cout << "Look From: " << from << "(Computed)" << std::endl;
             std::cout << "Look At: " << world.looking_at() << " (Towards)" << std::endl;
 
             // tiny image, simple camera placement
@@ -220,28 +222,50 @@ int main(int argc, char *argv[]) {
             cv::imshow("mask", mask_image);
             //)
             should_render = false;
+        } else {
+            if (should_show_help) {
+                printf("Press ENTER to render, ESC or q to quit\n");
+                printf("Use w/s to move camera -phi/+phi, a/d to move camera -theta/+theta, r/f to move camera -r/+r\n");
+                printf("Use KP 8/2 to look camera +y/-y, 4/6 to look camera -x/x, 9/3 to look camera +z/-z\n");
+                should_show_help = false;
+            }
         }
         int key = cv::waitKey(0) & 0x00FFFFFF;  // wait for keypress
         printf("Pressed key %d\n", key);
         switch (key) {
-            case 27:  // [fall-through]
+            case 27:
+                [[fallthrough]];
             case 'q':
                 should_quit = true;
                 break;  // ESC or q
             case 13:
-                should_render = true;
+                if (has_changed) {
+                    should_render = true;
+                    has_changed = false;
+                } else {
+                    printf("No changes, not rendering\n");
+                }
                 break;  // (CR) ENTER
-            case 'w':
+            case 'h':
+                should_show_help = true;
+                break;
+            case '6':
                 world.looking_at().x += move_unit;
                 break;
-            case 's':
+            case '4':
                 world.looking_at().x -= move_unit;
                 break;
-            case 'a':
+            case '8':
                 world.looking_at().y += move_unit;
                 break;
-            case 'd':
+            case '2':
                 world.looking_at().y -= move_unit;
+                break;
+            case '9':
+                world.looking_at().z += move_unit;
+                break;
+            case '3':
+                world.looking_at().z -= move_unit;
                 break;
         }
     } while (not should_quit);

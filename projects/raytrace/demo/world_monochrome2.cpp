@@ -79,11 +79,11 @@ public:
     }
 
     std::string window_name() const override {
-        return std::string("Monochrome World");
+        return std::string("Monochrome World 2");
     }
 
     std::string output_filename() const override {
-        return std::string("world_monochrome.tga");
+        return std::string("world_monochrome_2.tga");
     }
 
     raytrace::color background(raytrace::ray const& world_ray) const override {

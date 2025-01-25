@@ -264,7 +264,7 @@ TEST_F(RenderTest, DISABLED_QuadraticHyperboloid) {
 TEST_F(RenderTest, DISABLED_InclusiveOverlap) {
     raytrace::objects::sphere s0{R3::point(5, 0, 10), 10};
     raytrace::objects::sphere s1{R3::point(-5, 0, 10), 10};
-    raytrace::objects::overlap shape(s0, s1, overlap::type::inclusive);
+    raytrace::objects::overlap shape(s1, s0, overlap::type::inclusive);
     shape.material(&plastic);
     add_object(&shape);
     render_all("inclusive");

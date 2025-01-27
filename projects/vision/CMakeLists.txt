@@ -74,7 +74,29 @@ endif()
 ################
 
 add_executable(demo_artsy ${CMAKE_CURRENT_SOURCE_DIR}/demo/main_artsy.cpp)
-target_link_libraries(demo_artsy ${OpenCV_LIBS})
+target_link_libraries(demo_artsy
+    PUBLIC
+        ${OpenCV_LIBS}
+        hobbies-basal
+    PRIVATE
+        enabled-warnings
+        enabled-debugging
+        enabled-profiling
+        native-optimized
+)
+
+add_executable(demo_evm ${CMAKE_CURRENT_SOURCE_DIR}/demo/main_evm.cpp)
+target_link_libraries(demo_evm
+    PUBLIC
+        ${OpenCV_LIBS}
+        hobbies-basal
+        hobbies-uom
+    PRIVATE
+        enabled-warnings
+        enabled-debugging
+        enabled-profiling
+        native-optimized
+)
 
 #####################
 # Googletests

@@ -2,9 +2,10 @@
 #include <cstdlib>
 #include <cstdint>
 #include <opencv2/opencv.hpp>
+#include <basal/exception.hpp>
 
 int main(int argc, char *argv[]) {
-    assert(argc > 1);
+    throw_exception_if(argc > 1, "Must have at least 1 arg %u", argc);
     cv::Mat image = cv::imread(argv[1]);
     assert(image.type() == CV_8UC3);
     cv::Mat grey, tmp[5], mag, inv, white, blend, minimum;

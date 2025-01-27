@@ -129,7 +129,7 @@
             "name": "(lldb) GTest Raytrace",
             "type": "lldb",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}//projects/raytrace/gtest_raytrace",
+            "program": "${command:cmake.buildDirectory}/projects/raytrace/gtest_raytrace",
             // "args": ["--gtest_filter='WallTest.*'"],
             "cwd": "${workspaceFolder}/testing",
             // "terminal": "integrated"
@@ -141,7 +141,7 @@
             "name": "(lldb) Demo Curses",
             "type": "lldb",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}//projects/raytrace/demo_curses",
+            "program": "${command:cmake.buildDirectory}/projects/raytrace/demo_curses",
             "args": [
                 "-m",
                 "${input:world_module}",
@@ -156,7 +156,7 @@
             "name": "(lldb) Demo OpenCV GUI",
             "type": "lldb",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}//projects/raytrace/demo_opencv_gui",
+            "program": "${command:cmake.buildDirectory}/projects/raytrace/demo_opencv_gui",
             "args": [
                 "-m",
                 "${input:world_module}",
@@ -168,14 +168,14 @@
             "cwd": "${workspaceFolder}/testing",
             "env": {
                 "ABORT": "1",
-                "DYLD_LIBRARY_PATH": "${workspaceFolder}/install/lib:${command:cmake.buildDirectory}//projects/raytrace"
+                "DYLD_LIBRARY_PATH": "${workspaceFolder}/install/lib:${command:cmake.buildDirectory}/projects/raytrace"
             },
         },
         {
             "name": "(lldb) Demo SDL2 Render",
             "type": "lldb",
             "request": "launch",
-            "program": "${command:cmake.buildDirectory}//projects/raytrace/demo_sdl2",
+            "program": "${command:cmake.buildDirectory}/projects/raytrace/demo_sdl2",
             "args": [
                 "-m",
                 "${input:world_module}",
@@ -191,7 +191,7 @@
             "cwd": "${workspaceFolder}/testing",
             "env": {
                 "ABORT": "1",
-                "DYLD_LIBRARY_PATH": "${workspaceFolder}/install/lib:${command:cmake.buildDirectory}//projects/raytrace"
+                "DYLD_LIBRARY_PATH": "${workspaceFolder}/install/lib:${command:cmake.buildDirectory}/projects/raytrace"
             },
         },
         {
@@ -205,7 +205,21 @@
             "cwd": "${workspaceFolder}/testing",
             "env": {
                 "ABORT": "1",
-                "DYLD_LIBRARY_PATH": "${workspaceFolder}/install/lib:${command:cmake.buildDirectory}//projects/raytrace"
+                "DYLD_LIBRARY_PATH": "${workspaceFolder}/install/lib:${command:cmake.buildDirectory}/projects/raytrace"
+            },
+        },
+        {
+            "name": "(lldb) Demo Eulerian Video Magnification",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${command:cmake.buildDirectory}/projects/vision/demo_evm",
+            "args": [
+                "world_spheres.tga"
+            ],
+            "cwd": "${workspaceFolder}/testing",
+            "env": {
+                "ABORT": "1",
+                "DYLD_LIBRARY_PATH": "${workspaceFolder}/install/lib:${command:cmake.buildDirectory}/projects/raytrace"
             },
         }
     ]

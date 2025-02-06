@@ -14,7 +14,7 @@ public:
     virtual raytrace::color background(raytrace::ray const&) const = 0;
     /// Adds all the objects and lights to the scene.
     virtual void add_to(raytrace::scene& scene) = 0;
-
+    virtual raytrace::animation::anchors get_anchors() const = 0;
 protected:
     virtual ~world() = default;
 };

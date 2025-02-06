@@ -3,7 +3,7 @@
 /// This is an auto-generated header for iso::amperes.
 /// A measure of current in electricity
 /// @note See README on re-generation.
-/// @copyright Copyright 2024.
+/// @copyright Copyright 2025.
 ///
 #pragma once
 #include <cstdint>
@@ -82,6 +82,8 @@ namespace operators {
     amperes operator*(precision factor, amperes const& A);
     /// Inverse Scaling Operator
     amperes operator/(amperes const& A, precision factor);
+    /// Scale factor
+    precision operator/(amperes const& A, amperes const& B);
 }
 
 namespace literals {

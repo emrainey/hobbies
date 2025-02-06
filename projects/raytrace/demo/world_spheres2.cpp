@@ -23,7 +23,7 @@ raytrace::mediums::metal const* my_metals[]
 void subspheres(std::vector<raytrace::objects::sphere*>& spheres, raytrace::point const& center, precision R, precision sR,
                 size_t limit) {
     for (size_t s = 0; s < limit; s++) {
-        R3::point pnt = mapping::golden_ratio_mapper(s, limit);
+        R3::point pnt = raytrace::mapping::golden_ratio_mapper(s, limit);
         R3::vector dir = pnt - R3::origin;
         pnt = pnt + (dir * R);  // move the point out from the origin by R
         spheres.push_back(new raytrace::objects::sphere(pnt, sR));
@@ -106,6 +106,16 @@ public:
         scene.add_light(&sunlight);
     }
 
+    raytrace::animation::anchors get_anchors() const override {
+        raytrace::animation::anchors anchors;
+        anchors.push_back(
+            animation::Anchor{
+                animation::Attributes{look_from, look_at, 55.0},
+                animation::Attributes{look_from, look_at, 55.0},
+                animation::Mappers{}, iso::seconds{1.0_p}
+            });
+        return anchors;
+    }
 protected:
     raytrace::point look_from;
     raytrace::point look_at;

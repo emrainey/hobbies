@@ -3,7 +3,7 @@
 /// This is an auto-generated header for iso::watts.
 /// A measure of electrical power
 /// @note See README on re-generation.
-/// @copyright Copyright 2024.
+/// @copyright Copyright 2025.
 ///
 #pragma once
 #include <cstdint>
@@ -82,6 +82,8 @@ namespace operators {
     watts operator*(precision factor, watts const& A);
     /// Inverse Scaling Operator
     watts operator/(watts const& A, precision factor);
+    /// Scale factor
+    precision operator/(watts const& A, watts const& B);
 }
 
 namespace literals {

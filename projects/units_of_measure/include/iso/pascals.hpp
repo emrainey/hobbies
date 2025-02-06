@@ -3,7 +3,7 @@
 /// This is an auto-generated header for iso::pascals.
 /// A measure of pressure
 /// @note See README on re-generation.
-/// @copyright Copyright 2024.
+/// @copyright Copyright 2025.
 ///
 #pragma once
 #include <cstdint>
@@ -82,6 +82,8 @@ namespace operators {
     pascals operator*(precision factor, pascals const& A);
     /// Inverse Scaling Operator
     pascals operator/(pascals const& A, precision factor);
+    /// Scale factor
+    precision operator/(pascals const& A, pascals const& B);
 }
 
 namespace literals {

@@ -3,7 +3,7 @@
 /// This is an auto-generated header for iso::meters.
 /// A measure of distance
 /// @note See README on re-generation.
-/// @copyright Copyright 2024.
+/// @copyright Copyright 2025.
 ///
 #pragma once
 #include <cstdint>
@@ -82,6 +82,8 @@ namespace operators {
     meters operator*(precision factor, meters const& A);
     /// Inverse Scaling Operator
     meters operator/(meters const& A, precision factor);
+    /// Scale factor
+    precision operator/(meters const& A, meters const& B);
 }
 
 namespace literals {

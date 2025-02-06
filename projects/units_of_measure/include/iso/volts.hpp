@@ -3,7 +3,7 @@
 /// This is an auto-generated header for iso::volts.
 /// A measure of the electrical potential
 /// @note See README on re-generation.
-/// @copyright Copyright 2024.
+/// @copyright Copyright 2025.
 ///
 #pragma once
 #include <cstdint>
@@ -82,6 +82,8 @@ namespace operators {
     volts operator*(precision factor, volts const& A);
     /// Inverse Scaling Operator
     volts operator/(volts const& A, precision factor);
+    /// Scale factor
+    precision operator/(volts const& A, volts const& B);
 }
 
 namespace literals {

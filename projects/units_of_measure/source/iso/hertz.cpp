@@ -3,7 +3,7 @@
 /// This is an auto-generated source for iso::hertz.
 /// A measure of frequency
 /// @note See README on re-generation.
-/// @copyright Copyright 2024.
+/// @copyright Copyright 2025.
 ///
 #include "iso/hertz.hpp"
 
@@ -86,6 +86,9 @@ hertz operator*(precision factor, hertz const& A) {
 }
 hertz operator/(hertz const& A, precision factor) {
     return hertz{A.value / factor};
+}
+precision operator/(hertz const& A, hertz const& B) {
+    return A.value / B.value;
 }
 }  // namespace operators
 namespace literals {

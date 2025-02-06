@@ -70,7 +70,7 @@ private:
             // compute a random point in space on the unit sphere by picking a point
             // on the golden spiral which is on the unit sphere. Convert that point
             // to a vector by subtracting the origin.
-            auto vec = raytrace::vector{mapping::golden_ratio_mapper(j, limit) - R3::origin};
+            auto vec = raytrace::vector{raytrace::mapping::golden_ratio_mapper(j, limit) - R3::origin};
             // classify the vector to find which quadrant it belongs to
             Index quad = Classify(vec);
             // store the vector in one of the 8 quadrants of the star_vectors
@@ -143,6 +143,17 @@ public:
         scene.add_object(&ringD);
         scene.add_object(&ringE);
         scene.add_object(&ringF);
+    }
+
+    raytrace::animation::anchors get_anchors() const override {
+        raytrace::animation::anchors anchors;
+        anchors.push_back(
+            animation::Anchor{
+                animation::Attributes{look_from, look_at, 55.0},
+                animation::Attributes{look_from, look_at, 55.0},
+                animation::Mappers{}, iso::seconds{1.0_p}
+            });
+        return anchors;
     }
 
 protected:

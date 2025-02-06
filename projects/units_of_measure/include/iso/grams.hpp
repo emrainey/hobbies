@@ -3,7 +3,7 @@
 /// This is an auto-generated header for iso::grams.
 /// A measurement of mass
 /// @note See README on re-generation.
-/// @copyright Copyright 2024.
+/// @copyright Copyright 2025.
 ///
 #pragma once
 #include <cstdint>
@@ -82,6 +82,8 @@ namespace operators {
     grams operator*(precision factor, grams const& A);
     /// Inverse Scaling Operator
     grams operator/(grams const& A, precision factor);
+    /// Scale factor
+    precision operator/(grams const& A, grams const& B);
 }
 
 namespace literals {

@@ -3,7 +3,7 @@
 /// This is an auto-generated source for iso::volts.
 /// A measure of the electrical potential
 /// @note See README on re-generation.
-/// @copyright Copyright 2024.
+/// @copyright Copyright 2025.
 ///
 #include "iso/volts.hpp"
 
@@ -86,6 +86,9 @@ volts operator*(precision factor, volts const& A) {
 }
 volts operator/(volts const& A, precision factor) {
     return volts{A.value / factor};
+}
+precision operator/(volts const& A, volts const& B) {
+    return A.value / B.value;
 }
 }  // namespace operators
 namespace literals {

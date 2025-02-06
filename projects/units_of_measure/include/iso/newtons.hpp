@@ -3,7 +3,7 @@
 /// This is an auto-generated header for iso::newtons.
 /// A measure of force
 /// @note See README on re-generation.
-/// @copyright Copyright 2024.
+/// @copyright Copyright 2025.
 ///
 #pragma once
 #include <cstdint>
@@ -82,6 +82,8 @@ namespace operators {
     newtons operator*(precision factor, newtons const& A);
     /// Inverse Scaling Operator
     newtons operator/(newtons const& A, precision factor);
+    /// Scale factor
+    precision operator/(newtons const& A, newtons const& B);
 }
 
 namespace literals {

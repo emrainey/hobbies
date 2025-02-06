@@ -3,7 +3,7 @@
 /// This is an auto-generated header for iso::seconds.
 /// A measure of time
 /// @note See README on re-generation.
-/// @copyright Copyright 2024.
+/// @copyright Copyright 2025.
 ///
 #pragma once
 #include <cstdint>
@@ -82,6 +82,8 @@ namespace operators {
     seconds operator*(precision factor, seconds const& A);
     /// Inverse Scaling Operator
     seconds operator/(seconds const& A, precision factor);
+    /// Scale factor
+    precision operator/(seconds const& A, seconds const& B);
 }
 
 namespace literals {

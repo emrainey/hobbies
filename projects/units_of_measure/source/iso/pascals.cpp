@@ -3,7 +3,7 @@
 /// This is an auto-generated source for iso::pascals.
 /// A measure of pressure
 /// @note See README on re-generation.
-/// @copyright Copyright 2024.
+/// @copyright Copyright 2025.
 ///
 #include "iso/pascals.hpp"
 
@@ -86,6 +86,9 @@ pascals operator*(precision factor, pascals const& A) {
 }
 pascals operator/(pascals const& A, precision factor) {
     return pascals{A.value / factor};
+}
+precision operator/(pascals const& A, pascals const& B) {
+    return A.value / B.value;
 }
 }  // namespace operators
 namespace literals {

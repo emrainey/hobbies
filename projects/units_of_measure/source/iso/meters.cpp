@@ -3,7 +3,7 @@
 /// This is an auto-generated source for iso::meters.
 /// A measure of distance
 /// @note See README on re-generation.
-/// @copyright Copyright 2024.
+/// @copyright Copyright 2025.
 ///
 #include "iso/meters.hpp"
 
@@ -86,6 +86,9 @@ meters operator*(precision factor, meters const& A) {
 }
 meters operator/(meters const& A, precision factor) {
     return meters{A.value / factor};
+}
+precision operator/(meters const& A, meters const& B) {
+    return A.value / B.value;
 }
 }  // namespace operators
 namespace literals {

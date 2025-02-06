@@ -3,7 +3,7 @@
 /// This is an auto-generated source for iso::radians.
 /// A measure of an angle
 /// @note See README on re-generation.
-/// @copyright Copyright 2024.
+/// @copyright Copyright 2025.
 ///
 #include "iso/radians.hpp"
 
@@ -86,6 +86,9 @@ radians operator*(precision factor, radians const& A) {
 }
 radians operator/(radians const& A, precision factor) {
     return radians{A.value / factor};
+}
+precision operator/(radians const& A, radians const& B) {
+    return A.value / B.value;
 }
 }  // namespace operators
 namespace literals {

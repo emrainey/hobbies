@@ -68,6 +68,17 @@ public:
         scene.add_light(&sunlight);
     }
 
+    raytrace::animation::anchors get_anchors() const override {
+        raytrace::animation::anchors anchors;
+        anchors.push_back(
+            animation::Anchor{
+                animation::Attributes{look_from, look_at, 55.0},
+                animation::Attributes{look_from, look_at, 55.0},
+                animation::Mappers{}, iso::seconds{1.0_p}
+            });
+        return anchors;
+    }
+
 protected:
     raytrace::point look_from;
     raytrace::point look_at;

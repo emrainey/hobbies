@@ -82,6 +82,8 @@ namespace operators {
     {{classname}} operator*({{typename}} factor, {{classname}} const& A);
     /// Inverse Scaling Operator
     {{classname}} operator/({{classname}} const& A, {{typename}} factor);
+    /// Scale factor
+    precision operator/({{classname}} const& A, {{classname}} const& B);
 }
 
 namespace literals {

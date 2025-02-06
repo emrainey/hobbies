@@ -86,4 +86,78 @@ matrix span(std::vector<geometry::vector_<DIM>> const& set) noexcept(false) {
 
 /// Determines if a point is within an AABB (Axis Aligned Bounding Box) defined by 2 points, min and max
 bool contained_within_aabb(R3::point const& P, R3::point const& min, R3::point const& max);
+
+/// @brief A mapping function that takes a precision between 0 and 1 and returns a precision between 0 and 1.
+/// Values outside this range are undefined.
+/// @note It is required that when the input is zero, the output is zero and when the input is one, the output is one.
+using mapper = std::function<precision(precision)>;
+
+namespace mapping {
+constexpr precision linear(precision x) {
+    return x;
+}
+
+constexpr precision quadratic(precision x) {
+    return x * x;
+}
+
+constexpr precision cubic(precision x) {
+    return x * x * x;
+}
+
+constexpr precision sqrt(precision x) {
+    return std::sqrt(x);
+}
+
+constexpr precision sin(precision x) {
+    return std::sin(x * (iso::pi / 2.0_p));
+}
+
+constexpr precision ease(precision x) {
+    return (std::sin((x * iso::pi) - (iso::pi/2.0_p)) / 2.0_p) + 0.5_p;
+}
+
+/// x^(1/x)
+constexpr precision curb(precision x) {
+    return std::pow(x, 1.0_p / x);
+}
+
+/// x^x^sqrt(x)
+constexpr precision root_spindle(precision x) {
+    return std::pow(x, std::pow(x, sqrt(x)));
+}
+
+/// x^x^x
+constexpr precision spindle(precision x) {
+    return std::pow(x, std::pow(x, x));
+}
+
+} // namespace mapping
+
+
+
+namespace R2 {
+using interpolator = std::function<point(point const&, point const&, mapper, precision)>;
+}  // namespace R2
+
+namespace R3 {
+using interpolator = std::function<point(point const&, point const&, mapper, precision)>;
+}  // namespace R3
+
+namespace R4 {
+using interpolator = std::function<point(point const&, point const&, mapper, precision)>;
+}  // namespace R4
+
+/// Linearly interpolates between two points using a mapper function to slightly change the interpolation
+template <typename POINT>
+POINT lerp(POINT const& a, POINT const& b, mapper map, precision t) {
+    return a + ((b - a) * map(t));
+}
+
+/// Linearly interpolates between two points using a linear mapper
+template <typename POINT>
+POINT lerp(POINT const& a, POINT const& b, precision t) {
+    return lerp(a, b, mapping::linear, t);
+}
+
 }  // namespace geometry

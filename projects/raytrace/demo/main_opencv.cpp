@@ -107,6 +107,9 @@ int main(int argc, char *argv[]) {
                                               &params.reflections);
     linalg::Trackbar<precision> trackbar_fov("FOV", world.window_name(), 10, params.fov, 90, 5, &params.fov);
 
+    // the camera anchor points
+    raytrace::animation::anchors anchors = world.get_anchors();
+
     do {
         if (should_render) {
             // what we're rendering into

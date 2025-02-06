@@ -3,7 +3,7 @@
 /// This is an auto-generated source for iso::watts.
 /// A measure of electrical power
 /// @note See README on re-generation.
-/// @copyright Copyright 2024.
+/// @copyright Copyright 2025.
 ///
 #include "iso/watts.hpp"
 
@@ -86,6 +86,9 @@ watts operator*(precision factor, watts const& A) {
 }
 watts operator/(watts const& A, precision factor) {
     return watts{A.value / factor};
+}
+precision operator/(watts const& A, watts const& B) {
+    return A.value / B.value;
 }
 }  // namespace operators
 namespace literals {

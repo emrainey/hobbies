@@ -3,7 +3,7 @@
 /// This is an auto-generated source for iso::seconds.
 /// A measure of time
 /// @note See README on re-generation.
-/// @copyright Copyright 2024.
+/// @copyright Copyright 2025.
 ///
 #include "iso/seconds.hpp"
 
@@ -86,6 +86,9 @@ seconds operator*(precision factor, seconds const& A) {
 }
 seconds operator/(seconds const& A, precision factor) {
     return seconds{A.value / factor};
+}
+precision operator/(seconds const& A, seconds const& B) {
+    return A.value / B.value;
 }
 }  // namespace operators
 namespace literals {

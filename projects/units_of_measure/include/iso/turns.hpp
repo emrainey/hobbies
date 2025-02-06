@@ -3,7 +3,7 @@
 /// This is an auto-generated header for iso::turns.
 /// A measure of an angle
 /// @note See README on re-generation.
-/// @copyright Copyright 2024.
+/// @copyright Copyright 2025.
 ///
 #pragma once
 #include <cstdint>
@@ -82,6 +82,8 @@ namespace operators {
     turns operator*(precision factor, turns const& A);
     /// Inverse Scaling Operator
     turns operator/(turns const& A, precision factor);
+    /// Scale factor
+    precision operator/(turns const& A, turns const& B);
 }
 
 namespace literals {

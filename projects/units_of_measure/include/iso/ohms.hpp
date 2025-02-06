@@ -3,7 +3,7 @@
 /// This is an auto-generated header for iso::ohms.
 /// A measure of resistance to current
 /// @note See README on re-generation.
-/// @copyright Copyright 2024.
+/// @copyright Copyright 2025.
 ///
 #pragma once
 #include <cstdint>
@@ -82,6 +82,8 @@ namespace operators {
     ohms operator*(precision factor, ohms const& A);
     /// Inverse Scaling Operator
     ohms operator/(ohms const& A, precision factor);
+    /// Scale factor
+    precision operator/(ohms const& A, ohms const& B);
 }
 
 namespace literals {

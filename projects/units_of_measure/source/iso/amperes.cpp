@@ -3,7 +3,7 @@
 /// This is an auto-generated source for iso::amperes.
 /// A measure of current in electricity
 /// @note See README on re-generation.
-/// @copyright Copyright 2024.
+/// @copyright Copyright 2025.
 ///
 #include "iso/amperes.hpp"
 
@@ -86,6 +86,9 @@ amperes operator*(precision factor, amperes const& A) {
 }
 amperes operator/(amperes const& A, precision factor) {
     return amperes{A.value / factor};
+}
+precision operator/(amperes const& A, amperes const& B) {
+    return A.value / B.value;
 }
 }  // namespace operators
 namespace literals {

@@ -3,7 +3,7 @@
 /// This is an auto-generated source for iso::joules.
 /// A measure of energy
 /// @note See README on re-generation.
-/// @copyright Copyright 2024.
+/// @copyright Copyright 2025.
 ///
 #include "iso/joules.hpp"
 
@@ -86,6 +86,9 @@ joules operator*(precision factor, joules const& A) {
 }
 joules operator/(joules const& A, precision factor) {
     return joules{A.value / factor};
+}
+precision operator/(joules const& A, joules const& B) {
+    return A.value / B.value;
 }
 }  // namespace operators
 namespace literals {

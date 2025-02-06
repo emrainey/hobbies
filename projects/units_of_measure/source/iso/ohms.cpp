@@ -3,7 +3,7 @@
 /// This is an auto-generated source for iso::ohms.
 /// A measure of resistance to current
 /// @note See README on re-generation.
-/// @copyright Copyright 2024.
+/// @copyright Copyright 2025.
 ///
 #include "iso/ohms.hpp"
 
@@ -86,6 +86,9 @@ ohms operator*(precision factor, ohms const& A) {
 }
 ohms operator/(ohms const& A, precision factor) {
     return ohms{A.value / factor};
+}
+precision operator/(ohms const& A, ohms const& B) {
+    return A.value / B.value;
 }
 }  // namespace operators
 namespace literals {

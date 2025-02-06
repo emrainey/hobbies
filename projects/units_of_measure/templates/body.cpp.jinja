@@ -87,6 +87,9 @@ namespace operators {
 {{classname}} operator/({{classname}} const& A, {{typename}} factor) {
     return {{classname}}{A.value / factor};
 }
+precision operator/({{classname}} const& A, {{classname}} const& B) {
+    return A.value / B.value;
+}
 }  // namespace operators
 namespace literals {
 iso::{{classname}} operator""_{{postfix}}(long double a) {

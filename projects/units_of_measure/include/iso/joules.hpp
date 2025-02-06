@@ -3,7 +3,7 @@
 /// This is an auto-generated header for iso::joules.
 /// A measure of energy
 /// @note See README on re-generation.
-/// @copyright Copyright 2024.
+/// @copyright Copyright 2025.
 ///
 #pragma once
 #include <cstdint>
@@ -82,6 +82,8 @@ namespace operators {
     joules operator*(precision factor, joules const& A);
     /// Inverse Scaling Operator
     joules operator/(joules const& A, precision factor);
+    /// Scale factor
+    precision operator/(joules const& A, joules const& B);
 }
 
 namespace literals {

@@ -3,7 +3,7 @@
 /// This is an auto-generated header for iso::degrees.
 /// A measure of an angle
 /// @note See README on re-generation.
-/// @copyright Copyright 2024.
+/// @copyright Copyright 2025.
 ///
 #pragma once
 #include <cstdint>
@@ -82,6 +82,8 @@ namespace operators {
     degrees operator*(precision factor, degrees const& A);
     /// Inverse Scaling Operator
     degrees operator/(degrees const& A, precision factor);
+    /// Scale factor
+    precision operator/(degrees const& A, degrees const& B);
 }
 
 namespace literals {

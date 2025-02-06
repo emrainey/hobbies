@@ -163,3 +163,67 @@ TEST(MappingTests, CartesianToPolarTest) {
         ASSERT_POINT_EQ(polar, new_point);
     }
 }
+
+TEST(Mappers, LinearMapperTest) {
+    ASSERT_NEAR(0.0, mapping::linear(0.0), 1E-6_p);
+    ASSERT_NEAR(1.0, mapping::linear(1.0), 1E-6_p);
+}
+
+TEST(Mappers, QuadraticMapperTest) {
+    ASSERT_NEAR(0.0, mapping::quadratic(0.0), 1E-6_p);
+    ASSERT_NEAR(1.0, mapping::quadratic(1.0), 1E-6_p);
+}
+
+TEST(Mappers, Cubic) {
+    ASSERT_NEAR(0.0, mapping::cubic(0.0), 1E-6_p);
+    ASSERT_NEAR(1.0, mapping::cubic(1.0), 1E-6_p);
+}
+
+TEST(Mappers, Sqrt) {
+    ASSERT_NEAR(0.0, mapping::sqrt(0.0), 1E-6_p);
+    ASSERT_NEAR(1.0, mapping::sqrt(1.0), 1E-6_p);
+}
+
+TEST(Mappers, Sin) {
+    ASSERT_NEAR(0.0, mapping::sin(0.0), 1E-6_p);
+    ASSERT_NEAR(1.0, mapping::sin(1.0), 1E-6_p);
+}
+
+TEST(Mappers, Ease) {
+    ASSERT_NEAR(0.0, mapping::ease(0.0), 1E-6_p);
+    ASSERT_NEAR(1.0, mapping::ease(1.0), 1E-6_p);
+}
+
+TEST(Mappers, Curb) {
+    ASSERT_NEAR(0.0, mapping::curb(0.0), 1E-6_p);
+    ASSERT_NEAR(1.0, mapping::curb(1.0), 1E-6_p);
+}
+
+TEST(Mappers, RootSpindle) {
+    ASSERT_NEAR(0.0, mapping::root_spindle(0.0), 1E-6_p);
+    ASSERT_NEAR(1.0, mapping::root_spindle(1.0), 1E-6_p);
+}
+
+TEST(Mappers, Spindle) {
+    ASSERT_NEAR(0.0, mapping::spindle(0.0), 1E-6_p);
+    ASSERT_NEAR(1.0, mapping::spindle(1.0), 1E-6_p);
+}
+
+TEST(Mappers, Lerp) {
+    ASSERT_NEAR(0.0, lerp(0.0, 1.0, 0.0), 1E-6_p);
+    ASSERT_NEAR(0.5, lerp(0.0, 1.0, 0.5), 1E-6_p);
+    ASSERT_NEAR(1.0, lerp(0.0, 1.0, 1.0), 1E-6_p);
+}
+
+TEST(Mappers, LerpFunctors) {
+    std::vector<mapper> mappers = {mapping::linear, mapping::quadratic, mapping::cubic, mapping::sqrt, mapping::sin,
+                               mapping::ease, mapping::curb, mapping::root_spindle, mapping::spindle};
+
+    for (auto& m : mappers) {
+        for (precision i = 0.0; i <= 1.0; i += 1.0/256.0_p) {
+            auto v = lerp(0.0, 1.0, m(i));
+            ASSERT_GE(v, 0.0_p);
+            ASSERT_LE(v, 1.0_p);
+        }
+    }
+}

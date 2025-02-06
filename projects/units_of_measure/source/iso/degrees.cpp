@@ -3,7 +3,7 @@
 /// This is an auto-generated source for iso::degrees.
 /// A measure of an angle
 /// @note See README on re-generation.
-/// @copyright Copyright 2024.
+/// @copyright Copyright 2025.
 ///
 #include "iso/degrees.hpp"
 
@@ -86,6 +86,9 @@ degrees operator*(precision factor, degrees const& A) {
 }
 degrees operator/(degrees const& A, precision factor) {
     return degrees{A.value / factor};
+}
+precision operator/(degrees const& A, degrees const& B) {
+    return A.value / B.value;
 }
 }  // namespace operators
 namespace literals {

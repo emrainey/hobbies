@@ -3,7 +3,7 @@
 /// This is an auto-generated source for iso::newtons.
 /// A measure of force
 /// @note See README on re-generation.
-/// @copyright Copyright 2024.
+/// @copyright Copyright 2025.
 ///
 #include "iso/newtons.hpp"
 
@@ -86,6 +86,9 @@ newtons operator*(precision factor, newtons const& A) {
 }
 newtons operator/(newtons const& A, precision factor) {
     return newtons{A.value / factor};
+}
+precision operator/(newtons const& A, newtons const& B) {
+    return A.value / B.value;
 }
 }  // namespace operators
 namespace literals {

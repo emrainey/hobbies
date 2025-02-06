@@ -3,7 +3,7 @@
 /// This is an auto-generated source for iso::turns.
 /// A measure of an angle
 /// @note See README on re-generation.
-/// @copyright Copyright 2024.
+/// @copyright Copyright 2025.
 ///
 #include "iso/turns.hpp"
 
@@ -86,6 +86,9 @@ turns operator*(precision factor, turns const& A) {
 }
 turns operator/(turns const& A, precision factor) {
     return turns{A.value / factor};
+}
+precision operator/(turns const& A, turns const& B) {
+    return A.value / B.value;
 }
 }  // namespace operators
 namespace literals {

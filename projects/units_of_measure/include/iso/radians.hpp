@@ -3,7 +3,7 @@
 /// This is an auto-generated header for iso::radians.
 /// A measure of an angle
 /// @note See README on re-generation.
-/// @copyright Copyright 2024.
+/// @copyright Copyright 2025.
 ///
 #pragma once
 #include <cstdint>
@@ -82,6 +82,8 @@ namespace operators {
     radians operator*(precision factor, radians const& A);
     /// Inverse Scaling Operator
     radians operator/(radians const& A, precision factor);
+    /// Scale factor
+    precision operator/(radians const& A, radians const& B);
 }
 
 namespace literals {

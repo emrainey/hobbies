@@ -3,7 +3,7 @@
 /// This is an auto-generated source for iso::grams.
 /// A measurement of mass
 /// @note See README on re-generation.
-/// @copyright Copyright 2024.
+/// @copyright Copyright 2025.
 ///
 #include "iso/grams.hpp"
 
@@ -86,6 +86,9 @@ grams operator*(precision factor, grams const& A) {
 }
 grams operator/(grams const& A, precision factor) {
     return grams{A.value / factor};
+}
+precision operator/(grams const& A, grams const& B) {
+    return A.value / B.value;
 }
 }  // namespace operators
 namespace literals {

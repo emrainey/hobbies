@@ -26,6 +26,9 @@ public:
     /// Points in the image are 2D
     using point = geometry::point_<2>;
 
+    /// Vectors in the image plane are 2D
+    using vector = geometry::vector_<2>;
+
     /// A function which gives an image point and expects a color returned.
     using subsampler = std::function<color(image::point const&)>;
 

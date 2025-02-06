@@ -42,6 +42,7 @@ add_library(hobbies-raytrace
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/ellipsoid.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/ellipticalcone.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/ellipticalcylinder.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/face.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/hyperboloid.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/overlap.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/paraboloid.cpp
@@ -139,7 +140,7 @@ list(APPEND DEMOS world_glass)
 list(APPEND DEMOS world_gap)
 list(APPEND DEMOS world_lenses)
 list(APPEND DEMOS world_mats)
-list(APPEND DEMOS world_monochrome world_monochrome2 world_monochrome3)
+list(APPEND DEMOS world_monochrome world_monochrome2 world_monochrome3 world_monochrome4)
 list(APPEND DEMOS world_outrun)
 list(APPEND DEMOS world_planet)
 list(APPEND DEMOS world_snowman)
@@ -166,6 +167,7 @@ if (Threads_FOUND AND GTest_FOUND)
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_cuboid.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_cylinder.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_entity.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_face.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_image.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_laws.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_light.cpp

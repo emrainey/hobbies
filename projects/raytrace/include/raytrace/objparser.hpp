@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <cstdio>
+#include <vector>
 #include <cinttypes>
 
 constexpr bool is_newline(char const c) {
@@ -12,15 +13,23 @@ constexpr bool is_newline(char const c) {
 namespace raytrace {
 namespace obj {
 
+static constexpr bool debug = false;
+
 class Observer {
 public:
     /// @brief Adds a vertex to the Observer
     virtual void addVertex(float x, float y, float z) = 0;
     /// @brief Adds a Normal  to the Observer
     virtual void addNormal(float x, float y, float z) = 0;
+    /// @brief Adds a Texutre Coordinate to the Observer
+    virtual void addTexture(float u, float v) = 0;
     /// @brief Adds a Triangular Face to the Observer given the indices of the vertexes.
-    /// @note Texture coords don't work here.
+    /// @note Texture coords don't work here and Normal don't work here.
     virtual void addFace(uint32_t v1, uint32_t v2, uint32_t v3) = 0;
+    /// @brief Adds a Triangular Face to the Observer given the indices of the vertexes, and normals
+    virtual void addFace(uint32_t v1, uint32_t n1, uint32_t v2, uint32_t n2, uint32_t v3, uint32_t n3) = 0;
+    /// @brief Adds a Triangular Face to the Observer given the indices of the vertexes, normals, and textures
+    virtual void addFace(uint32_t v1, uint32_t t1, uint32_t n1, uint32_t v2, uint32_t t2, uint32_t n2, uint32_t v3, uint32_t t3, uint32_t n3) = 0;
 protected:
     ~Observer() = default;
 };
@@ -43,6 +52,14 @@ public:
         String = 's', ///< Any characters up to the line terminators
         FloatingPoint = 'f', ///< Digits, -, +, .
         Integer = 'i', ///< Unsigned Digits, no point.
+    };
+
+    struct Statistics {
+        size_t object{0u};
+        size_t vertices{0u};
+        size_t normals{0u};
+        size_t textures{0u};
+        size_t faces{0u};
     };
 
     /// Constructs a parser with a given observer
@@ -90,7 +107,7 @@ public:
                 }
                 break;
             case SubState::Integer:
-                if (std::isdigit(c) or c == ' ') {
+                if (std::isdigit(c) or c == ' ' or c == '/') {
                     skip = false;
                 }
                 break;
@@ -130,6 +147,9 @@ public:
                 Subparse(c);
                 break;
             case State::Vertices:
+                if constexpr (debug) {
+                    printf("Vertices subtype?: %c\n", c);
+                }
                 if (c == 'n') {
                     m_state_ = State::Normals;
                     m_substate_ = SubState::FloatingPoint;
@@ -141,6 +161,11 @@ public:
                 }
                 break;
             case State::Normals:
+                if (not is_newline(c)) {
+                    Subparse(c);
+                }
+                break;
+            case State::Textures:
                 if (not is_newline(c)) {
                     Subparse(c);
                 }
@@ -172,9 +197,15 @@ public:
         return m_line_;
     }
 
+    Statistics const& GetStatistics(void) const {
+        return m_statistics_;
+    }
+
 protected:
     void Complete(void) {
-        printf("state=%c sub=%c Buffer=%s\n", to_underlying(m_state_), to_underlying(m_substate_), m_buffer_);
+        if constexpr (debug) {
+            printf("state=%c sub=%c Buffer=%s\n", to_underlying(m_state_), to_underlying(m_substate_), m_buffer_);
+        }
         switch (m_state_) {
             case State::Vertices:
                 if (GetSubState() == SubState::FloatingPoint) {
@@ -184,6 +215,7 @@ protected:
                     int scans = sscanf(m_buffer_, " %f %f %f", &x, &y, &z);
                     if (3u == scans) {
                         m_observer_.addVertex(x, y, z);
+                        m_statistics_.vertices++;
                     }
                 }
                 break;
@@ -195,6 +227,7 @@ protected:
                     int scans = sscanf(m_buffer_, " %f %f %f", &x, &y, &z);
                     if (3u == scans) {
                         m_observer_.addNormal(x, y, z);
+                        m_statistics_.normals++;
                     }
                 }
                 break;
@@ -204,7 +237,8 @@ protected:
                     float v = basal::nan;
                     int scans = sscanf(m_buffer_, " %f %f", &u, &v);
                     if (2u == scans) {
-                        // m_observer_.addTextureCoord(u, v);
+                        m_observer_.addTexture(u, v);
+                        m_statistics_.textures++;
                     }
                 }
                 break;
@@ -216,6 +250,7 @@ protected:
                     int scans = sscanf(m_buffer_, " %" SCNu32 " %" SCNu32 " %" SCNu32 "", &a, &b, &c);
                     if (3u == scans) {
                         m_observer_.addFace(a, b, c);
+                        m_statistics_.faces++;
                         break;
                     }
                     uint32_t d = UINT32_MAX;
@@ -224,8 +259,18 @@ protected:
                     scans = sscanf(m_buffer_, " %" SCNu32 "/%" SCNu32 " %" SCNu32 "/%" SCNu32 " %" SCNu32 "/%" SCNu32 "",
                                      &a, &d, &b, &e, &c, &f);
                     if (6u == scans) {
-                        m_observer_.addFace(a, b, c);
-                        // add some other face from d,e,f?
+                        m_observer_.addFace(a, d, b, e, c, f);
+                        m_statistics_.faces++;
+                        break;
+                    }
+                    uint32_t g = UINT32_MAX;
+                    uint32_t h = UINT32_MAX;
+                    uint32_t i = UINT32_MAX;
+                    scans = sscanf(m_buffer_, " %" SCNu32 "/%" SCNu32 "/%" SCNu32 " %" SCNu32 "/%" SCNu32 "/%" SCNu32 " %" SCNu32 "/%" SCNu32 "/%" SCNu32 "",
+                                     &a, &d, &g, &b, &e, &h, &c, &f, &i);
+                    if (9u == scans) {
+                        m_observer_.addFace(a, d, g, b, e, h, c, f, i);
+                        m_statistics_.faces++;
                         break;
                     }
                 }
@@ -241,6 +286,7 @@ protected:
     size_t m_index_;
     size_t m_line_;
     Observer& m_observer_;
+    Statistics m_statistics_;
 };
 
 } // namespace obj

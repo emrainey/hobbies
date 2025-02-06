@@ -7,8 +7,8 @@
 
 namespace raytrace {
 namespace objects {
-/// A three point polygon which uses the convex "inner" rules to find the intersection and not the plane intersection
-/// rules */
+/// A three point polygon which uses the convex "inner" rules to find the intersection
+/// and not the plane intersection rules
 class triangle : public plane {
 public:
     /// Constructs a triangle from three points.
@@ -28,17 +28,18 @@ public:
     bool is_contained(point const& object_point) const;
 
     /// Returns a read-only reference to an array of 3 points
-    const std::array<point, 3>& points() const;
+    const std::array<point, raytrace::dimensions>& points() const;
 
     precision get_object_extent(void) const override;
 
-private:
-    std::array<point, 3> m_points;
-    /// The squared maximum radius
+protected:
+    std::array<point, raytrace::dimensions> m_points;
+    /// The squared maximum radius from object center.
     precision m_radius2;
 };
 }  // namespace objects
-/// Returns the plane in which the three points we co-planar
+
+/// Returns the plane in which the three points are co-planar
 geometry::plane as_plane(objects::triangle const& tri);
 
 }  // namespace raytrace

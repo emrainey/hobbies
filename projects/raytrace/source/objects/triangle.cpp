@@ -15,11 +15,10 @@ triangle::triangle(R3::point const& A, R3::point const& B, R3::point const& C)
     m_points[0] = A;
     m_points[1] = B;
     m_points[2] = C;
-    precision a = (position() - A).magnitude();
-    precision b = (position() - B).magnitude();
-    precision c = (position() - C).magnitude();
+    precision a = (position() - A).quadrance();
+    precision b = (position() - B).quadrance();
+    precision c = (position() - C).quadrance();
     m_radius2 = std::max(a, std::max(b, c));
-    m_radius2 *= m_radius2;
 }
 
 bool triangle::is_contained(point const& D) const {
@@ -78,11 +77,15 @@ bool triangle::is_surface_point(point const& world_point) const {
 }
 
 void triangle::print(char const str[]) const {
-    std::cout << str << " Triangle @" << this << " " << m_points[0] << "," << m_points[1] << "," << m_points[2]
-              << std::endl;
+    std::cout << str << " " << *this << std::endl;
 }
 
-const std::array<point, 3>& triangle::points() const {
+std::ostream& operator<<(std::ostream& os, triangle const& tri) {
+    os << "Triangle " << tri.points()[0] << "," << tri.points()[1] << "," << tri.points()[2] << " with centroid of " << tri.position() << std::endl;
+    return os;
+}
+
+const std::array<point, raytrace::dimensions>& triangle::points() const {
     return m_points;
 }
 

@@ -93,6 +93,9 @@ int main(int argc, char *argv[]) {
         printf("Invalid dimensions\n");
         return -1;
     }
+    cv::Size frame_size(width, height);
+    cv::VideoWriter video_writer("video.mpg", cv::VideoWriter::fourcc('M','P','G','2'), 10, frame_size, true);
+
     linalg::Trackbar<precision> trackbar_theta("Camera Theta", world.window_name(), -iso::pi, theta, iso::pi, iso::pi / 8,
                                             &theta);
     linalg::Trackbar<precision> trackbar_phi("Camera Phi", world.window_name(), 0, phi, iso::pi, iso::pi / 16, &phi);
@@ -212,7 +215,7 @@ int main(int argc, char *argv[]) {
             });
             cv::imshow(world.window_name(), render_image);
             cv::imwrite("render_image.png", render_image);
-
+            video_writer.write(render_image);
             // if (params.mask_threshold < raytrace::image::AAA_MASK_DISABLED) {
             view.mask.for_each ([&](size_t y, size_t x, uint8_t const& pixel) -> void {
                 mask_image.at<cv::Vec3b>(y, x)[0] = pixel;
@@ -251,23 +254,30 @@ int main(int argc, char *argv[]) {
                 break;
             case '6':
                 world.looking_at().x += move_unit;
+                has_changed = true;
                 break;
             case '4':
                 world.looking_at().x -= move_unit;
+                has_changed = true;
                 break;
             case '8':
                 world.looking_at().y += move_unit;
+                has_changed = true;
                 break;
             case '2':
                 world.looking_at().y -= move_unit;
+                has_changed = true;
                 break;
             case '9':
                 world.looking_at().z += move_unit;
+                has_changed = true;
                 break;
             case '3':
                 world.looking_at().z -= move_unit;
+                has_changed = true;
                 break;
         }
     } while (not should_quit);
+    video_writer.release();
     return 0;
 }

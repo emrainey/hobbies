@@ -262,8 +262,6 @@
 			"__memory": "cpp",
 			"text_encoding": "cpp"
 		},
-		"vsconan.general.pythonInterpreter": "python3",
-		"vsconan.explorer.treeview.package.showDirtyPackage": true,
 		"cmake.format.spaceAfterCommandName": true,
 		"cmake.format.spaceInParentheses": true,
 	},

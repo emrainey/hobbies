@@ -11,6 +11,7 @@ target_link_directories(OpenMP::OpenMP_CXX INTERFACE /opt/homebrew/Cellar/libomp
 endif()
 
 add_library(hobbies-raytrace
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/animator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/camera.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/stereocamera.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/color.cpp
@@ -31,6 +32,8 @@ add_library(hobbies-raytrace
     ${CMAKE_CURRENT_SOURCE_DIR}/source/mediums/metal.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/mediums/plain.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/mediums/dots.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/mediums/stripes.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/mediums/happy_face.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/mediums/checkerboard.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/mediums/grid.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/mediums/perlin.cpp
@@ -144,7 +147,7 @@ list(APPEND DEMOS world_monochrome world_monochrome2 world_monochrome3 world_mon
 list(APPEND DEMOS world_outrun)
 list(APPEND DEMOS world_planet)
 list(APPEND DEMOS world_snowman)
-list(APPEND DEMOS world_spheres world_spheres2)
+list(APPEND DEMOS world_spheres world_spheres2 world_spheres3)
 
 foreach(demo IN LISTS DEMOS)
     add_library(${demo} SHARED ${CMAKE_CURRENT_SOURCE_DIR}/demo/${demo}.cpp)

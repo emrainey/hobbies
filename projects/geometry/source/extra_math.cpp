@@ -6,11 +6,7 @@ namespace geometry {
 
 precision dot(R3::vector const& a, R3::point const& b) {
     basal::exception::throw_unless(a.dimensions == b.dimensions, __FILE__, __LINE__, "");
-    precision d = 0.0;
-    for (size_t i = 0; i < b.dimensions; i++) {
-        d += a[i] * b[i];
-    }
-    return d;
+    return dot(a, b - R3::origin);
 }
 
 R3::point centroid(std::vector<R3::point> const& points) {

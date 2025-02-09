@@ -88,6 +88,10 @@ void on_size_update(int value, void *cookie __attribute__((unused))) {
     size = noise::precision(value + 1);
 }
 
+void on_scale_update(int value, void *cookie __attribute__((unused))) {
+    scale = noise::precision(scale + 1);
+}
+
 int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused))) {
     bool should_quit = false;
     bool should_render = true;
@@ -98,6 +102,7 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
     std::string yscaleName{"Y Scale"};
     std::string powerName{"Power"};
     std::string sizeName{"Size"};
+    std::string scaleName("Scale");
     cv::namedWindow(padWindowName, cv::WINDOW_AUTOSIZE);
     cv::namedWindow(windowName, cv::WINDOW_AUTOSIZE);
     default_value = static_cast<size_t>(std::floor(x_scale));
@@ -108,6 +113,8 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
     cv::createTrackbar(powerName, windowName, &default_value, 128, on_power_update, nullptr);
     default_value = static_cast<size_t>(std::floor(size));
     cv::createTrackbar(sizeName, windowName, &default_value, 128, on_size_update, nullptr);
+    default_value = static_cast<size_t>(std::floor(scale));
+    cv::createTrackbar(scaleName, windowName, &default_value, 1024, on_scale_update, nullptr);
 
     do {
         if (should_render) {

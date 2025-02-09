@@ -28,6 +28,8 @@
 #include "raytrace/mediums/random_noise.hpp"
 #include "raytrace/mediums/transparent.hpp"
 #include "raytrace/mediums/turbsin.hpp"
+#include "raytrace/mediums/stripes.hpp"
+#include "raytrace/mediums/happy_face.hpp"
 
 // Objects
 #include "raytrace/objects/cone.hpp"

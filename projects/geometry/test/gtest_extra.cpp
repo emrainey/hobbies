@@ -209,6 +209,11 @@ TEST(Mappers, Spindle) {
     ASSERT_NEAR(1.0, mapping::spindle(1.0), 1E-6_p);
 }
 
+TEST(Mappers, Exponential) {
+    ASSERT_NEAR(0.0, mapping::exponential(0.0), 1E-6_p);
+    ASSERT_NEAR(1.0, mapping::exponential(1.0), 1E-6_p);
+}
+
 TEST(Mappers, Lerp) {
     ASSERT_NEAR(0.0, lerp(0.0, 1.0, 0.0), 1E-6_p);
     ASSERT_NEAR(0.5, lerp(0.0, 1.0, 0.5), 1E-6_p);
@@ -217,7 +222,7 @@ TEST(Mappers, Lerp) {
 
 TEST(Mappers, LerpFunctors) {
     std::vector<mapper> mappers = {mapping::linear, mapping::quadratic, mapping::cubic, mapping::sqrt, mapping::sin,
-                               mapping::ease, mapping::curb, mapping::root_spindle, mapping::spindle};
+                               mapping::ease, mapping::curb, mapping::root_spindle, mapping::spindle, mapping::exponential};
 
     for (auto& m : mappers) {
         for (precision i = 0.0; i <= 1.0; i += 1.0/256.0_p) {

@@ -172,3 +172,35 @@ TEST_F(NoiseImageTest, TurbulenceSin) {
     });
     image_name = "noise_image_turbulentsin.ppm";
 }
+
+TEST_F(NoiseImageTest, TurbulenceSinNormalized) {
+    noise::precision size = 9.0_p;
+    noise::precision scale = 10.0_p;
+    noise::precision xs = 300.0_p, ys = 300.0_p, power = 2.0_p;
+    image.for_each ([&](size_t y, size_t x, fourcc::rgb8& pixel) {
+        noise::point pnt{(noise::precision)x / image.width, (noise::precision)y / image.height};
+        noise::precision value = noise::turbulentsin(pnt, xs, ys, power, size, scale, pad);
+        pixel.r = 255u * value;
+        pixel.g = 255u * value;
+        pixel.b = 255u * value;
+    });
+    image_name = "noise_image_turbulentsin_norm.ppm";
+}
+
+TEST_F(NoiseImageTest, FractalBrownian) {
+    iso::degrees angle{81};
+    noise::vector seeds{noise::convert_to_seed(angle)};
+    noise::precision octaves = 6.0_p;
+    noise::precision lacunarity = 2.0_p;
+    noise::precision gain = 0.5_p;
+    noise::precision amplitude = 0.5;
+    noise::precision frequency = 1.0;
+    image.for_each ([&](size_t y, size_t x, fourcc::rgb8& pixel) {
+        noise::point pnt{(noise::precision)x / image.width, (noise::precision)y / image.height};
+        noise::precision value = noise::fractal_brownian(pnt, seeds, octaves, lacunarity, gain, amplitude, frequency);
+        pixel.r = 255u * value;
+        pixel.g = 255u * value;
+        pixel.b = 255u * value;
+    });
+    image_name = "noise_image_fractal_brownian.ppm";
+}

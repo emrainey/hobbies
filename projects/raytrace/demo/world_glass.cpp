@@ -26,8 +26,8 @@ public:
         , schott_glass{mediums::refractive_index::glass, 0.04, colors::red}
         , red_plastic{colors::white, mediums::ambient::dim, colors::red, mediums::smoothness::barely,
                       mediums::roughness::tight}
-        , back_light{raytrace::point{-10, -10, 12}, colors::white, lights::intensities::bright / 2}
-        , front_light{raytrace::point{10, 10, 12}, colors::white, lights::intensities::bright / 2} {
+        , back_light{raytrace::point{-10, -10, 12}, colors::white, lights::intensities::intense}
+        , front_light{raytrace::point{10, 10, 12}, colors::white, lights::intensities::intense} {
         ikea_checkers.mapper(std::bind(&objects::square::map, &floor, std::placeholders::_1));
         floor.material(&ikea_checkers);
         glass_ball.material(&schott_glass);
@@ -72,8 +72,14 @@ public:
         anchors.push_back(
             animation::Anchor{
                 animation::Attributes{look_from, look_at, 55.0},
-                animation::Attributes{look_from, look_at, 55.0},
-                animation::Mappers{}, iso::seconds{1.0_p}
+                animation::Attributes{raytrace::point{30, 0, 5}, look_at, 40.0},
+                animation::Mappers{}, iso::seconds{5.0_p}
+            });
+        anchors.push_back(
+            animation::Anchor{
+                anchors.back().limit, // previous limit is this start
+                animation::Attributes{raytrace::point{20, 20, 15}, look_at, 23.0},
+                animation::Mappers{}, iso::seconds{5.0_p}
             });
         return anchors;
     }

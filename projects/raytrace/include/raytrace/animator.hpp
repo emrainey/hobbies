@@ -28,37 +28,17 @@ using anchors = std::vector<Anchor>;
 
 class Animator {
 public:
-    Animator(precision frame_rate, anchors const& a) : delta_(1.0_p / frame_rate), anchors_{a} {}
+    Animator(precision frame_rate, anchors const& a);
 
     /// Return true until the end of the animation
-    explicit operator bool() const {
-        return index_ < anchors_.size();
-    }
+    explicit operator bool() const;
 
-    Attributes operator()() {
-        using namespace iso::operators; // exposes operators for iso types
-        if (index_ >= anchors_.size()) {
-            return Attributes{};
-        }
-        auto dt = (now_ - start_) / anchors_[index_].duration;
-        auto a = interpolate(anchors_[index_].start, anchors_[index_].limit, anchors_[index_].mappers, dt);
-        now_ += delta_;
-        if (now_ > (start_ + anchors_[index_].duration)) {
-            start_ = now_;
-            index_++;
-        }
-        return a;
-    }
+    /// @return The next set of camera attributes interpolated between the start and limit attributes.
+    Attributes operator()();
 
 protected:
-
-    Attributes interpolate(Attributes const& start, Attributes const& limit, Mappers const& mappers, precision dt) {
-        return Attributes{
-            geometry::lerp(start.from, limit.from, mappers.from, dt),
-            geometry::lerp(start.at, limit.at, mappers.at, dt),
-            geometry::lerp(start.fov, limit.fov, mappers.fov, dt)
-        };
-    }
+    /// Interpolates between the start and limit attributes using the mappers and the delta time.
+    Attributes interpolate(Attributes const& start, Attributes const& limit, Mappers const& mappers, precision dt);
 
     size_t index_{0};
     iso::seconds now_{0.0};

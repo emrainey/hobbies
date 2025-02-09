@@ -1,7 +1,7 @@
 ///
 /// @file
 /// @author Erik Rainey (erik.rainey@gmail.com)
-/// @brief Renders a raytraced image of a bunch of spheres
+/// @brief Renders a raytraced image of a bunch of spheres in a halo around a central sphere.
 /// @date 2021-01-02
 /// @copyright Copyright (c) 2021
 ///

@@ -155,6 +155,10 @@ constexpr long double compute_pi(size_t digits) {
 constexpr precision pi = static_cast<precision>(compute_pi(200));
 /// 1 turn around a circle in radians, also known as 2 * pi
 constexpr precision tau = static_cast<precision>(2.0) * pi;
+/// Natural Log e of 2
+constexpr precision ln2 = 0.6931471805599453094;
+/// Inverse of ln2
+constexpr precision invln2 = 1.0 / ln2;
 
 /// The namespace where the quote operators are stored. You must `using namespace literals;` to use them
 namespace literals {
@@ -187,7 +191,7 @@ iso::watts operator""_mW(char const a[]);
 }  // namespace literals
 
 /// The speed of causality in a vacuum
-const speed c{meters{299792458.0}, seconds{1.0}};
+const speed c{meters{299'792'458.0}, seconds{1.0}};
 
 /// Converts a frequency of light into a wavelength in meters
 inline meters wavelength(hertz const& f) {

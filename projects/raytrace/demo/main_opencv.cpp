@@ -24,6 +24,7 @@ struct Parameters {
     precision fov;
     std::string module;
     size_t mask_threshold;
+    double fps;
 };
 
 #define my_assert(condition, statement)                       \
@@ -43,6 +44,8 @@ int main(int argc, char *argv[]) {
     precision move_unit = 5.0_p;
     std::string module_name;
     bool should_show_help = true;
+    bool should_pause = false;
+    bool first_render = false;
 
     basal::options::config opts[] = {
         {"-d", "--dims", std::string("QVGA"), "Use text video format like VGA or 2K"},
@@ -53,6 +56,7 @@ int main(int argc, char *argv[]) {
         {"-m", "--module", std::string(""), "Module to load"},
         {"-a", "--aaa", (size_t)raytrace::image::AAA_MASK_DISABLED,
          "Adaptive Anti-Aliasing Threshold value (255 disables)"},
+        {"-s", "--fps", 24.0, "Frames per second"},
     };
 
     basal::options::process(dimof(opts), opts, argc, argv);
@@ -63,6 +67,7 @@ int main(int argc, char *argv[]) {
     my_assert(basal::options::find(opts, "--reflections", params.reflections), "Must have some number of reflections");
     my_assert(basal::options::find(opts, "--module", params.module), "Must choose a module to load");
     my_assert(basal::options::find(opts, "--aaa", params.mask_threshold), "Must be get value");
+    my_assert(basal::options::find(opts, "--fps", params.fps), "Must be able to get the FPS value");
     basal::options::print(dimof(opts), opts);
 
     basal::module mod(params.module.c_str());
@@ -94,7 +99,7 @@ int main(int argc, char *argv[]) {
         return -1;
     }
     cv::Size frame_size(width, height);
-    cv::VideoWriter video_writer("video.mpg", cv::VideoWriter::fourcc('M','P','G','2'), 10, frame_size, true);
+    cv::VideoWriter video_writer("video.mpg", cv::VideoWriter::fourcc('M','P','G','2'), params.fps, frame_size, true);
 
     linalg::Trackbar<precision> trackbar_theta("Camera Theta", world.window_name(), -iso::pi, theta, iso::pi, iso::pi / 8,
                                             &theta);
@@ -109,28 +114,33 @@ int main(int argc, char *argv[]) {
 
     // the camera anchor points
     raytrace::animation::anchors anchors = world.get_anchors();
+    raytrace::animation::Animator animator{params.fps, anchors};
+
+    // what we're rendering into, these need to exist outside the loop
+    // so that the displays don't get corrupted from the memory being deallocated or freed
+    cv::Mat render_image(height, width, CV_8UC3);
+    cv::Mat mask_image(height, width, CV_8UC3);
 
     do {
-        if (should_render) {
-            // what we're rendering into
-            cv::Mat render_image(height, width, CV_8UC3);
-            cv::Mat mask_image(height, width, CV_8UC3);
+        if (should_render and animator) {
+
+            raytrace::animation::Attributes cam = animator(); // get the first set of parameters
 
             precision x = radius * std::sin(phi) * std::cos(theta);
             precision y = radius * std::sin(phi) * std::sin(theta);
             precision z = radius * std::cos(phi);
 
             raytrace::vector ring_rail{x, y, z};
-            raytrace::point from = world.looking_at() + ring_rail;
+            raytrace::point from = cam.from + ring_rail;
             std::cout << "ρ=" << radius << ", Θ=" << theta << ", Φ=" << phi << std::endl;
             std::cout << "Look From: " << from << "(Computed)" << std::endl;
-            std::cout << "Look At: " << world.looking_at() << " (Towards)" << std::endl;
+            std::cout << "Look At: " << cam.from << " (Towards)" << std::endl;
 
             // tiny image, simple camera placement
             raytrace::scene scene;
             // camera setup
             raytrace::camera view(height, width, iso::degrees(params.fov));
-            raytrace::vector looking = (world.looking_at() - from).normalized();
+            raytrace::vector looking = (cam.at - from).normalized();
             raytrace::point image_plane_principal_point = from + looking;
             std::cout << "Principal: " << image_plane_principal_point << std::endl;
             view.move_to(from, image_plane_principal_point);
@@ -183,9 +193,12 @@ int main(int argc, char *argv[]) {
             auto row_notifier
                 = [&](size_t row_index, bool is_complete) -> void { completed[row_index] = is_complete; };
 
-            render_image.setTo(cv::Scalar(128, 128, 128));
-            // if (params.mask_threshold < raytrace::image::AAA_MASK_DISABLED) {
-            mask_image.setTo(cv::Scalar(params.mask_threshold));
+            if (first_render) {
+                render_image.setTo(cv::Scalar(128, 128, 128));
+                // if (params.mask_threshold < raytrace::image::AAA_MASK_DISABLED) {
+                mask_image.setTo(cv::Scalar(params.mask_threshold));
+                first_render = false;
+            }
             cv::imshow("mask", mask_image);
             //}
             cv::imshow(world.window_name(), render_image);
@@ -228,6 +241,11 @@ int main(int argc, char *argv[]) {
             cv::imshow("mask", mask_image);
             //)
             should_render = false;
+            if (animator) {
+                should_pause = false;
+            } else {
+                should_pause = true;
+            }
         } else {
             if (should_show_help) {
                 printf("Press ENTER to render, ESC or q to quit\n");
@@ -236,9 +254,12 @@ int main(int argc, char *argv[]) {
                 should_show_help = false;
             }
         }
-        int key = cv::waitKey(0) & 0x00FFFFFF;  // wait for keypress
+        int key = cv::waitKey(should_pause ? 0 : 1) & 0x00'FF'FF'FF;  // wait for keypress or not
         printf("Pressed key %d\n", key);
         switch (key) {
+            case 0x00'FF'FF'FF:  // no key pressed
+                should_render = true;
+                break;
             case 27:
                 [[fallthrough]];
             case 'q':

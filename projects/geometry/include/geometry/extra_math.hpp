@@ -6,6 +6,7 @@
 #include "geometry/geometry.hpp"
 
 namespace geometry {
+
 /// Computes the dot product of a vector and a point
 precision dot(R3::vector const& a, R3::point const& b);
 
@@ -130,6 +131,11 @@ constexpr precision root_spindle(precision x) {
 /// x^x^x
 constexpr precision spindle(precision x) {
     return std::pow(x, std::pow(x, x));
+}
+
+/// y = e^(x/ln(2)) - 1
+constexpr precision exponential(precision x) {
+    return std::exp(x / iso::invln2) - 1.0_p;
 }
 
 } // namespace mapping

@@ -105,6 +105,23 @@ color checkerboard(raytrace::point const& p, palette const& pal) {
     }
 }
 
+color diagonal(raytrace::point const& p, palette const& pal) {
+    basal::exception::throw_unless(pal.size() == 2, __FILE__, __LINE__, "Must have only two colors in checkerboard");
+    precision u = std::fmod(p.x, 1.0);
+    precision v = std::fmod(p.y, 1.0);
+    precision w = std::fmod(p.z, 1.0);
+    precision upvw = u + v + w;
+    if ((0.0 <= upvw and upvw < 0.5)) {
+        return pal[0];
+    } else if (0.5 <= upvw and upvw < 1.0) {
+        return pal[1];
+    } else if (1.0 <= upvw and upvw < 1.5) {
+        return pal[0];
+    } else {  // if (1.5 <= upvw and upvw < 2.0) {
+        return pal[1];
+    }
+}
+
 color diagonal(image::point const& p, palette const& pal) {
     basal::exception::throw_unless(pal.size() == 2, __FILE__, __LINE__, "Must have only two colors in checkerboard");
     precision u = std::fmod(p.x, 1.0);
@@ -191,6 +208,62 @@ color pseudo_random_noise(image::point const& p, palette const& pal __attribute_
     precision py = std::modf(g, &_g);
     precision pz = std::modf(b, &_b);
     return color{px, py, pz};
+}
+
+
+color happy_face(raytrace::point const& p, palette const& pal) {
+    basal::exception::throw_unless(pal.size() == 2, __FILE__, __LINE__, "Must have only two colors in happy-face");
+    precision u = std::abs(std::fmod(p.x, 1.0));
+    precision v = std::abs(std::fmod(p.y, 1.0));
+    // precision w = std::abs(std::fmod(p.z, 1.0));
+    image::point uv{u, v};
+    precision const eye_radius = 1.0_p / 9.0_p;
+    precision const mouth_radius = 2.0_p / 9.0_p;
+    image::point le{3.0_p/9.0_p, 3.0_p/9.0_p};
+    image::point re{6.0_p/9.0_p, 3.0_p/9.0_p};
+    image::point mc{0.5_p, 0.5_p};
+    precision dle = (uv - le).magnitude();
+    precision dre = (uv - re).magnitude();
+    precision dmt = (uv - mc).magnitude();
+    if (dle < eye_radius) {
+        return pal[0];
+    } else if (dre < eye_radius) {
+        return pal[0];
+    } else if (dmt < mouth_radius) {
+        image::vector mv{0.0_p, -1.0_p};
+        precision md = dot(mv, (uv - mc));
+        if (md < 0.0) {
+            return pal[0];
+        }
+    }
+    return pal[1];
+}
+
+color happy_face(image::point const& p, palette const& pal) {
+    basal::exception::throw_unless(pal.size() == 2, __FILE__, __LINE__, "Must have only two colors in happy-face");
+    precision u = std::abs(std::fmod(p.x, 1.0));
+    precision v = std::abs(std::fmod(p.y, 1.0));
+    image::point uv{u, v};
+    precision const eye_radius = 1.0_p / 9.0_p;
+    precision const mouth_radius = 2.0_p / 9.0_p;
+    image::point le{3.0_p/9.0_p, 3.0_p/9.0_p};
+    image::point re{6.0_p/9.0_p, 3.0_p/9.0_p};
+    image::point mc{0.5_p, 0.5_p};
+    precision dle = (uv - le).magnitude();
+    precision dre = (uv - re).magnitude();
+    precision dmt = (uv - mc).magnitude();
+    if (dle < eye_radius) {
+        return pal[0];
+    } else if (dre < eye_radius) {
+        return pal[0];
+    } else if (dmt < mouth_radius) {
+        image::vector mv{0.0_p, -1.0_p};
+        precision md = dot(mv, (uv - mc));
+        if (md < 0.0) {
+            return pal[0];
+        }
+    }
+    return pal[1];
 }
 
 }  // namespace functions

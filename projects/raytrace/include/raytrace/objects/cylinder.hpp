@@ -12,10 +12,10 @@ namespace objects {
 class cylinder : public object {
 public:
     /// Constructs a cylinder which is up and down in Z.
-/// The point C is in the center of the cylinder between the top and bottom.
+    /// The point C is in the center of the cylinder between the top and bottom.
     cylinder(point const& C, precision half_height, precision radius);
     /// Constructs a cylinder in which the base and apex are defined by points
-/// The height and rotation are defined by the point orientations.
+    /// The height and rotation are defined by the point orientations.
     cylinder(point const& base, point const& apex, precision radius);
 
     virtual ~cylinder() = default;

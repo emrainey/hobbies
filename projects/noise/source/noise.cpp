@@ -155,7 +155,7 @@ precision turbulentsin(point const& pnt, precision xs, precision ys, precision p
     precision x = pnt.x * xs / map.dimensions;
     precision y = pnt.y * ys / map.dimensions;
     precision xyValue = x + y + power * turbulence(pnt, size, scale, map) / scale;
-    return scale * fabs(sin(xyValue * M_PI));
+    return scale * fabs(sin(xyValue * iso::pi));
 }
 
 static precision mix(precision value1, precision value2, precision mixer) {

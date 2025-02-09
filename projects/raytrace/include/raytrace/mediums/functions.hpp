@@ -40,6 +40,9 @@ using volumetric_scalar_map = std::function<raytrace::color(raytrace::point cons
 /// Just returns the first color in the palette
 color simple(image::point const& p, palette const& pal);
 
+/// Produces a diagonal pattern from 3d points and 2 colors
+color diagonal(raytrace::point const& p, palette const& pal);
+
 /// Produces a diagonal pattern from 2D points and 2 colors
 color diagonal(image::point const& p2, palette const& pal);
 
@@ -63,6 +66,12 @@ color checkerboard(raytrace::point const& p, palette const& pal);
 
 /// Randomly generates a color for each pixel (palette is unused)
 color pseudo_random_noise(image::point const& p, palette const& pal);
+
+/// Happy Face (2 eyes and a hemi-circle open mouth)
+color happy_face(raytrace::point const& p, palette const& pal);
+
+/// Happy Face (2 eyes and a hemi-circle open mouth)
+color happy_face(image::point const& p, palette const& pal);
 
 }  // namespace functions
 

@@ -118,6 +118,17 @@ TEST(FunctionTest, RandomNoise) {
     img.save("pseudo_random_noise.ppm");
 }
 
+TEST(FunctionTest, HappyFace) {
+    using namespace raytrace;
+    image img{480, 640};
+    palette pal = {colors::black, colors::yellow};
+    img.generate_each([&](image::point const& p1) {
+        image::point uv{p1.x / img.width, p1.y / img.height};
+        return functions::happy_face(uv, pal);
+    });
+    img.save("happy_face.ppm");
+}
+
 TEST(VolumetricTest, DISABLED_Checkerboard) {
     using namespace raytrace;
     size_t pixels = 24;

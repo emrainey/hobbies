@@ -494,7 +494,7 @@ bool matrix::skew_symmetric() const {
 
 bool matrix::diagonal() const {
     bool diag = true;
-    const_coord_iterator iter = [&](size_t row, size_t col, precision v) {
+    const_coord_iterator iter = [&](size_t row, size_t col, precision const& v) {
         if (row != col && !basal::nearly_zero(v)) {
             diag = false;
         }

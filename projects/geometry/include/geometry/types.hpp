@@ -13,7 +13,7 @@ namespace geometry {
 /// All the linalg element types are the same
 using precision = linalg::precision;
 
-/// We just bring this into our namspace
+/// We just bring this into our namespace
 using matrix = linalg::matrix;
 
 namespace R2 {

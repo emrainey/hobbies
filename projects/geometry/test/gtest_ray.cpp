@@ -50,7 +50,7 @@ TEST(RayTests, Overloads) {
     ASSERT_POINT_EQ(R3::origin, b.location());
     ASSERT_VECTOR_EQ(R3::basis::Z, b.direction());
 
-    iso::radians rad(M_PI);
+    iso::radians rad(iso::pi);
     // rotate 180 around X (should make a +Z into a -Z)
     matrix R = rotation(R3::basis::X, rad);
     // ray = matrix * ray.vector (rotates the ray)

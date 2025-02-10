@@ -26,34 +26,42 @@ public:
 
     /// Returns the overall ambient color, post-scaled. This is a stand-in for light in a scene the bounces around
     /// diffusely
+    /// @param volumetric_point A point on the surface in object space (not world space)
     virtual color ambient(raytrace::point const& volumetric_point) const;
 
-    /// Within reflection, given the uv point of the surface, returns a diffuse color
+    /// Within reflection, given the surface point, returns a diffuse color
+    /// @param volumetric_point A point on the surface in object space (not world space)
     virtual color diffuse(raytrace::point const& volumetric_point) const;
 
-    /// Within reflection, given the uv point of the surface, returns a specular color
+    /// Within reflection, given the surface point, returns a specular color
+    /// @param volumetric_point A point on the surface in object space (not world space)
     virtual color specular(raytrace::point const& volumetric_point, precision scaling,
                            color const& light_color) const;
 
     /// Returns the overall tightness the specular highlight (K)
+    /// @param volumetric_point A point on the surface in object space (not world space)
     virtual precision specular_tightness(raytrace::point const& volumetric_point) const;
 
     /// Returns the emitted light at the volumetric point
+    /// @param volumetric_point A point on the surface in object space (not world space)
     virtual color emissive(raytrace::point const& volumetric_point) const;
 
     /// Returns the color bounced from the medium at a point, given an input color
+    /// @param volumetric_point A point on the surface in object space (not world space)
+    /// @param incoming The incoming light color
     virtual color bounced(raytrace::point const& volumetric_point, color const& incoming) const;
 
     /// HACK "Smoothness"
     /// Determines the proportion of reflected light which is coherently reflected from the surface like a mirror
     /// 0.0_p means no coherent reflected light, it's all too diffuse.
     /// 1.0_p means like a perfect mirror. No diffuse surface colors at all.
+    /// @param volumetric_point A point on the surface in object space (not world space)
     virtual precision smoothness(raytrace::point const& volumetric_point) const;
 
     /// Computes the emissive, reflected and transmitted components of the medium.
     /// This replaces the reflectivity, transparency components.
     /// @note Typically transmitted + reflected = 1.0_p.
-    /// @param[in] volumetric_point The volumetric point
+    /// @param[in] volumetric_point The volumetric point in object space
     /// @param[in] refractive_index The other medium's eta or wave length impedance (aka refractive index)
     /// @param[in] incident_angle The angle of incident to the normal of the surface at the given point.
     /// @param[in] transmitted_angle The angle of transmission (from the inverted normal).
@@ -79,6 +87,7 @@ public:
     void mapper(mapping::reducer m);
 
     /// Returns the perturbation of the normal at a given surface point
+    /// @param volumetric_point A point on the surface in object space (not world space)
     virtual raytrace::vector perturbation(raytrace::point const& volumetric_point) const;
 
 protected:

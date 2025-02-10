@@ -160,29 +160,33 @@ TEST_F(NoiseImageTest, Turbulence) {
 }
 
 TEST_F(NoiseImageTest, TurbulenceSin) {
-    noise::precision size = 9.0_p;
-    noise::precision scale = 10.0_p;
+    noise::precision size = 32.0_p;
+    noise::precision scale = 256.0_p; // how "deep" output pixel values can be
     noise::precision xs = 3.0_p, ys = 3.0_p, power = 2.0_p;
     image.for_each ([&](size_t y, size_t x, fourcc::rgb8& pixel) {
         noise::point pnt{(noise::precision)x, (noise::precision)y};
         noise::precision value = noise::turbulentsin(pnt, xs, ys, power, size, scale, pad);
-        pixel.r = 255u * value;
-        pixel.g = 255u * value;
-        pixel.b = 255u * value;
+        // printf("x=%zu, y=%zu, value=%lf\n", x, y, value);
+        pixel.r = value;
+        pixel.g = value;
+        pixel.b = value;
     });
     image_name = "noise_image_turbulentsin.ppm";
 }
 
 TEST_F(NoiseImageTest, TurbulenceSinNormalized) {
-    noise::precision size = 9.0_p;
-    noise::precision scale = 10.0_p;
-    noise::precision xs = 300.0_p, ys = 300.0_p, power = 2.0_p;
+    noise::precision size = 32.0_p;
+    noise::precision scale = 256.0_p; // how "deep" output pixel values can be
+    noise::precision xs = 3.0_p, ys = 3.0_p, power = 2.0_p;
     image.for_each ([&](size_t y, size_t x, fourcc::rgb8& pixel) {
-        noise::point pnt{(noise::precision)x / image.width, (noise::precision)y / image.height};
+        noise::precision u = static_cast<noise::precision>(x) / image.width;
+        noise::precision v = static_cast<noise::precision>(y) / image.height;
+        noise::point pnt{u * 1024.0_p, v * 1024.0_p}; // scale to the normailzed range to some
         noise::precision value = noise::turbulentsin(pnt, xs, ys, power, size, scale, pad);
-        pixel.r = 255u * value;
-        pixel.g = 255u * value;
-        pixel.b = 255u * value;
+        // printf("u,v=%lf,%lf value=%lf\n", u, v, value);
+        pixel.r = value;
+        pixel.g = value;
+        pixel.b = value;
     });
     image_name = "noise_image_turbulentsin_norm.ppm";
 }

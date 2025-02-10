@@ -22,9 +22,9 @@ fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8> pad_image(noise::pad::di
 // the render image
 cv::Mat render_image(height, width, CV_8UC3);
 cv::Mat render_pad_image(noise::pad::dimensions, noise::pad::dimensions, CV_8UC3);
-noise::precision x_scale = 5.0;
-noise::precision y_scale = 10.0;
-noise::precision power = 5.0;
+noise::precision x_scale = 1.0;
+noise::precision y_scale = 1.0;
+noise::precision power = 1.0;
 noise::precision size = 32.0;
 // The initialize scale value
 noise::precision scale = 256.0;
@@ -89,7 +89,7 @@ void on_size_update(int value, void *cookie __attribute__((unused))) {
 }
 
 void on_scale_update(int value, void *cookie __attribute__((unused))) {
-    scale = noise::precision(scale + 1);
+    scale = noise::precision(value + 1);
 }
 
 int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused))) {

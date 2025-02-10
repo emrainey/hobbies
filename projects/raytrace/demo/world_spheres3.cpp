@@ -7,6 +7,7 @@
 ///
 
 #include <raytrace/raytrace.hpp>
+#include <noise/noise.hpp>
 
 #include "world.hpp"
 
@@ -25,12 +26,12 @@ public:
         , s1x1{raytrace::point{-15, 15, 5}, 5}
         , happy{2.0_p, colors::black, colors::yellow}
         , s1x2{raytrace::point{0, 15, 5}, 5}
-        , marble{1.0_p, 1.0_p, 1.0_p, 256.0_p, 1.0_p/(1024.0_p*1024.0_p), colors::black, colors::white}
+        , marble{1.65_p, 1.0_p, 4.0_p, 256.0_p, 2.75_p, colors::black, colors::white}
         , s1x3{raytrace::point{15, 15, 5}, 5}
         , dots{7.0_p, colors::black, colors::white}
         , s2x1{raytrace::point{-15, 0, 5}, 5}
         , s2x2{raytrace::point{0, 0, 5}, 5}
-        , perlin{1.443_p, 10.0_p, 245.4993546_p, colors::black, colors::white}
+        , perlin{iso::degrees{81}.value, 10.0_p, 245.4993546_p, colors::black, colors::white}
         , s2x3{raytrace::point{15, 0, 5}, 5}
         , stripes{7.0_p, colors::red, colors::white}
         , s3x1{raytrace::point{-15, -15, 5}, 5}

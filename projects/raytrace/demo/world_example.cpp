@@ -29,7 +29,7 @@ public:
         , grey_checkers{3, colors::grey, colors::red}
         , ikea_checkers{5, colors::yellow, colors::blue}
         , polka_dots{3.0_p, colors::black, colors::white}
-        , bw_marble{128.0_p, 128.0_p, 32.0_p, 256.0_p, 1.0_p/(1024.0_p*1024.0_p), colors::black, colors::white}
+        , bw_marble{1024.0_p, 1.675_p, 1.0_p, 6.0_p, 256.0_p, 4.75_p, colors::black, colors::white}
         , candy_stripes{1.0_p, colors::red, colors::white}
         , grid1{10.0_p, colors::green, colors::black}
         , checker_ball_radius{7.5_p}

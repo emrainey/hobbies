@@ -152,9 +152,16 @@ precision turbulence(point const& pnt, precision size, precision scale, pad cons
 }
 
 precision turbulentsin(point const& pnt, precision xs, precision ys, precision power, precision size, precision scale, pad const& map) {
+    if constexpr (debug) {
+        printf("pnt={%lf, %lf} xs,ys={%lf, %lf}, power=%lf size=%lf, scale=%lf\n", pnt.x, pnt.y, xs, ys, power, size, scale);
+    }
     precision x = pnt.x * xs / map.dimensions;
     precision y = pnt.y * ys / map.dimensions;
     precision xyValue = x + y + power * turbulence(pnt, size, scale, map) / scale;
+    if constexpr (debug) {
+        printf("x=%lf, y=%lf, xyValue = %lf\n", x, y, xyValue);
+    }
+    // converts any input x into an output between 0.0 and 1.0 then scaled to whatever you need
     return scale * fabs(sin(xyValue * iso::pi));
 }
 

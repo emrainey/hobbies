@@ -12,19 +12,47 @@
 
 size_t width = 640;
 size_t height = 480;
-iso::degrees fov(55);
+iso::degrees fov(25);
 
 using namespace raytrace;
 using namespace basal::literals;
 
 size_t ambient_color_index = 0;
 precision ambient_scale = 0.1_p;
-size_t diffuse_color_index = 0;
+size_t diffuse_color_index = 1;
 precision smoothiness = mediums::smoothness::polished;
 precision tightness = mediums::roughness::tight;
-color color_choices[] = {colors::white, colors::red,     colors::green,  colors::blue,
+
+color const color_choices[] = {colors::white, colors::red, colors::green, colors::blue,
                          colors::cyan,  colors::magenta, colors::yellow, colors::black};
 constexpr size_t number_of_colors = dimof(color_choices);
+
+raytrace::mediums::metal const* metal_choices[]
+    = {&raytrace::mediums::metals::aluminum, &raytrace::mediums::metals::brass,     &raytrace::mediums::metals::bronze,
+       &raytrace::mediums::metals::chrome,   &raytrace::mediums::metals::copper,    &raytrace::mediums::metals::gold,
+       &raytrace::mediums::metals::silver,   &raytrace::mediums::metals::stainless, &raytrace::mediums::metals::steel,
+       &raytrace::mediums::metals::tin};
+size_t metal_index = 3u;
+constexpr size_t number_of_metals = dimof(metal_choices);
+
+precision repeat = 7.0_p;
+precision x_scale = 1.0_p;
+precision y_scale = 1.0_p;
+precision scale = 256.0_p;
+precision power = 1.0_p;
+precision size = 32.0_p;
+
+enum class Surfaces : int {
+    _First = 0,
+    Plain = _First,
+    Metals = 1,
+    Checkers = 2,
+    Dots = 3,
+    Stripes = 4,
+    TurbSin = 5,
+    //---------------
+    _Last = TurbSin,
+} surfaces = Surfaces::Metals;
 
 int main(int argc, char* argv[]) {
     using namespace raytrace;
@@ -46,6 +74,7 @@ int main(int argc, char* argv[]) {
     cv::Mat render_image(height, width, CV_8UC3);
     cv::namedWindow(windowName, cv::WINDOW_AUTOSIZE);
 
+    linalg::Trackbar<size_t> trackbar_metal_choice("Metal Choice", windowName, 0u, metal_index, number_of_metals, 1U, &metal_index);
     linalg::Trackbar<size_t> trackbar_diff_color("Diffuse Color", windowName, 0u, diffuse_color_index, number_of_colors,
                                                  1u, &diffuse_color_index);
     linalg::Trackbar<size_t> trackbar_amb_color("Ambient Color", windowName, 0u, ambient_color_index, number_of_colors,
@@ -53,8 +82,15 @@ int main(int argc, char* argv[]) {
     linalg::Trackbar trackbar_amb_scale("Ambient Scale", windowName, 0.0_p, ambient_scale, 1.0_p, 0.1_p, &ambient_scale);
     linalg::Trackbar trackbar_smoothness("Smoothness", windowName, 0.0_p, smoothiness, 1.0_p, 0.1_p, &smoothiness);
     linalg::Trackbar trackbar_tightness("Tightness", windowName, 0.0_p, tightness, 100.0_p, 5.0_p, &tightness);
+    linalg::Trackbar trackbar_repeat("Repeat", windowName, 0.125_p, repeat, 10.0_p, 0.125_p, &repeat);
+    linalg::Trackbar trackbar_x_scale("X Scale", windowName, 0.125_p, x_scale, 1024.0_p, 0.125_p, &x_scale);
+    linalg::Trackbar trackbar_y_scale("Y Scale", windowName, 0.125_p, y_scale, 1024.0_p, 0.125_p, &y_scale);
+    linalg::Trackbar trackbar_power("Power", windowName, 1.0_p, power, 10.0_p, 1.0_p, &power);
+    linalg::Trackbar trackbar_size("Size", windowName, 0.125_p, size, 256.0_p, 0.125_p, &size);
+    // determines the depth of the value for each pixel this is for 8 bits
+    // linalg::Trackbar trackbar_scale("Scale", windowName, 0.125_p, scale, 10.0_p, 0.125_p, &scale);
+    // linalg::Trackbar trackbar_surface("Surface", windowName, Surfaces::_First, surfaces, Surfaces::_Last, 1, &surfaces);
 
-    precision move_unit = 5.0_p;
     raytrace::point look_from(0, 0, 60);
     vector looking{{0.8_p, 0.8_p, -1}};
     // looking.normalize();
@@ -66,6 +102,7 @@ int main(int argc, char* argv[]) {
     raytrace::objects::plane ground(R3::origin, up);
     mediums::plain plain_green(colors::green, mediums::ambient::dim, colors::green, mediums::smoothness::barely,
                                mediums::roughness::loose);
+
     ground.material(&plain_green);
 
     raytrace::point sphere_center(40, 40, 10);
@@ -81,10 +118,53 @@ int main(int argc, char* argv[]) {
         view.move_to(look_from, look_at);
         // scene.background = colors::black;
 
+        printf("Amb=%lf Smooth=%lf Tight=%lf\n", ambient_scale, smoothiness, tightness);
+        printf("Repeat=%lf Scale=%lf X Scale=%lf Y Scale=%lf Power=%lf Size=%lf\n", repeat, scale, x_scale, y_scale, power, size);
+
         // define some surfaces
+        color dark = color_choices[ambient_color_index];
+        color light = color_choices[diffuse_color_index];
         mediums::plain test_surface(color_choices[ambient_color_index], ambient_scale,
                                    color_choices[diffuse_color_index], smoothiness, tightness);
-        test_sphere.material(&test_surface);
+        mediums::checkerboard checkers{repeat, dark, light};
+        mediums::dots dots{repeat, dark, light};
+        mediums::stripes stripes{repeat, dark, light};
+        mediums::turbsin turbsin{1024.0_p, x_scale, y_scale, power, scale, size, dark, light};
+
+        mediums::medium const* medium = nullptr;
+        switch (surfaces) {
+            case Surfaces::Plain:
+                printf("Plain Surface\n");
+                medium = &test_surface;
+                break;
+            case Surfaces::Metals:
+                printf("Metals Surface\n");
+                medium = metal_choices[metal_index];
+                break;
+            case Surfaces::Checkers:
+                printf("Checkers Surface\n");
+                checkers.mapper(std::bind(&objects::sphere::map, &test_sphere, std::placeholders::_1));
+                medium = &checkers;
+                break;
+            case Surfaces::Dots:
+                printf("Dots Surface\n");
+                dots.mapper(std::bind(&objects::sphere::map, &test_sphere, std::placeholders::_1));
+                medium = &dots;
+                break;
+            case Surfaces::Stripes:
+                printf("Stripes Surface\n");
+                stripes.mapper(std::bind(&objects::sphere::map, &test_sphere, std::placeholders::_1));
+                medium = &stripes;
+                break;
+            case Surfaces::TurbSin:
+                printf("TurbSin Surface\n");
+                turbsin.mapper(std::bind(&objects::sphere::map, &test_sphere, std::placeholders::_1));
+                medium = &turbsin;
+                break;
+        }
+        test_sphere.material(medium);
+        // medium->smoothness = smoothiness;
+        // medium->tightness = tightness;
 
         // add the objects to the scene.
         scene.add_object(&test_sphere);
@@ -119,20 +199,21 @@ int main(int argc, char* argv[]) {
             case 13:
                 should_render = true;
                 break;  // (CR) ENTER
-            case 'w':
-                look_at.x += move_unit;
-                break;
-            case 's':
-                look_at.x -= move_unit;
-                break;
-            case 'a':
-                look_at.y += move_unit;
-                break;
-            case 'd':
-                look_at.y -= move_unit;
+            case 'r':
+                fov -= iso::degrees{5};
                 break;
             case 'f':
-                fov = iso::degrees(60);
+                fov += iso::degrees{5};
+                break;
+            case 'w':
+                if (surfaces < Surfaces::_Last) {
+                    surfaces = static_cast<Surfaces>(to_underlying(surfaces) + 1);
+                }
+                break;
+            case 's':
+                if (surfaces > Surfaces::_First) {
+                    surfaces = static_cast<Surfaces>(to_underlying(surfaces) - 1);
+                }
                 break;
         }
     } while (not should_quit);

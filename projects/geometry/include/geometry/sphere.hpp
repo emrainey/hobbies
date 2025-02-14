@@ -39,10 +39,10 @@ public:
     virtual bool contains(R3::point const& object_point) const;
 
     /// Returns a surface normal at a surface point (in world space)
-    virtual R3::vector normal(R3::point const& object_point) const;
+    virtual R3::vector normal_at(R3::point const& object_point) const;
 
     /// Indicates if a object_point is on the surface of the sphere
-    virtual bool surface(R3::point const& object_point) const;
+    virtual bool on_surface(R3::point const& object_point) const;
 
     /// Returns a point in polar representation of the object point
     R3::point cart_to_polar(R3::point const& object_point) const;

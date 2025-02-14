@@ -23,6 +23,17 @@ TEST(PlaneTest, Position) {
     ASSERT_POINT_EQ(D, PL.position());
 }
 
+TEST(PlaneTest, OnSurface) {
+    using namespace raytrace;
+    using namespace raytrace::objects;
+
+    raytrace::point C{0, 0, -1};
+    raytrace::objects::plane PL{C, R3::basis::Z};
+    ASSERT_TRUE(PL.is_surface_point(raytrace::point{0, 0, -1}));
+    ASSERT_TRUE(PL.is_surface_point(raytrace::point{1, 1, -1}));
+    ASSERT_FALSE(PL.is_surface_point(raytrace::point{0, 0, 1}));
+}
+
 TEST(PlaneTest, Intersections) {
     using namespace raytrace;
     using namespace raytrace::objects;
@@ -32,22 +43,22 @@ TEST(PlaneTest, Intersections) {
 
     raytrace::ray r0{raytrace::point{1, 1, 1}, vector{{1, 1, 1}}};
     raytrace::ray r1{raytrace::point{1, 1, 1}, vector{{-1, -1, -1}}};
-    raytrace::point A{-1, -1, -1};
+    raytrace::point A{-1, -1, -1}; // in the plane
     ray r2{C, R3::basis::Z};
     ray r3{C, -R3::basis::Z};
 
-    geometry::intersection ir0PL = PL.intersect(r0);
+    geometry::intersection ir0PL = PL.intersect(r0).intersect;
     ASSERT_EQ(geometry::IntersectionType::None, get_type(ir0PL));
 
-    geometry::intersection ir1PL = PL.intersect(r1);
+    geometry::intersection ir1PL = PL.intersect(r1).intersect;
     ASSERT_EQ(geometry::IntersectionType::Point, get_type(ir1PL));
     ASSERT_POINT_EQ(A, as_point(ir1PL));
 
-    geometry::intersection ir2PL = PL.intersect(r2);
+    geometry::intersection ir2PL = PL.intersect(r2).intersect;
     ASSERT_EQ(geometry::IntersectionType::None, get_type(ir2PL));
 
     // Surface point intersection.
-    geometry::intersection ir3PL = PL.intersect(r3);
+    geometry::intersection ir3PL = PL.intersect(r3).intersect;
     ASSERT_EQ(geometry::IntersectionType::Point, get_type(ir3PL));
     ASSERT_POINT_EQ(C, as_point(ir3PL));
 }
@@ -64,17 +75,17 @@ TEST(PlaneTest, SandwichRays) {
     raytrace::point p0{10, 0, 10};
     raytrace::point p1{10, 0, -10};
 
-    geometry::intersection ir0P0 = P0.intersect(r0);
+    geometry::intersection ir0P0 = P0.intersect(r0).intersect;
     ASSERT_EQ(geometry::IntersectionType::Point, get_type(ir0P0));
     ASSERT_POINT_EQ(p0, as_point(ir0P0));
 
-    geometry::intersection ir0P1 = P1.intersect(r0);
+    geometry::intersection ir0P1 = P1.intersect(r0).intersect;
     ASSERT_EQ(geometry::IntersectionType::None, get_type(ir0P1));
 
-    geometry::intersection ir1P0 = P0.intersect(r1);
+    geometry::intersection ir1P0 = P0.intersect(r1).intersect;
     ASSERT_EQ(geometry::IntersectionType::None, get_type(ir1P0));
 
-    geometry::intersection ir1P1 = P1.intersect(r1);
+    geometry::intersection ir1P1 = P1.intersect(r1).intersect;
     ASSERT_EQ(geometry::IntersectionType::Point, get_type(ir1P1));
     ASSERT_POINT_EQ(p1, as_point(ir1P1));
 }
@@ -91,7 +102,7 @@ TEST(PlaneTest, ScaleRotateTranslate) {
     ASSERT_VECTOR_EQ(negative_X, should_be_negative_X);
     {
         raytrace::ray const world_ray{geometry::R3::origin, geometry::R3::basis::X};
-        auto inter = P0.intersect(world_ray);
+        auto inter = P0.intersect(world_ray).intersect;
         ASSERT_EQ(geometry::IntersectionType::Point, get_type(inter));
         raytrace::point const P{7, 0, 0};
         ASSERT_POINT_EQ(P, as_point(inter));

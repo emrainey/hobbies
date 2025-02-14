@@ -30,10 +30,10 @@ face::face(point const& A, point const& B, point const& C, image::point const& a
     m_normals[2] = nc;
 }
 
-/// @copydoc raytrace::object::intersect
-geometry::intersection face::intersect(ray const& world_ray) const {
-    return triangle::intersect(world_ray);
-}
+// /// @copydoc raytrace::object::intersect
+// hit face::intersect(ray const& world_ray) const {
+//     return triangle::intersect(world_ray);
+// }
 
 /// @copydoc basal::printable::print
 void face::print(char const str[]) const {
@@ -48,7 +48,7 @@ precision face::get_object_extent(void) const {
     return triangle::get_object_extent();
 }
 
-vector face::normal(point const&) const {
+vector face::normal_(point const&) const {
     vector N = m_normals[0] + m_normals[1] + m_normals[2];
     return N.normalize();
 }

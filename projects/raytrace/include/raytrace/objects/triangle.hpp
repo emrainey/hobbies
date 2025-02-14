@@ -17,7 +17,7 @@ public:
     virtual ~triangle() = default;
 
     /// @copydoc raytrace::object::intersect
-    geometry::intersection intersect(ray const& world_ray) const override;
+    hit intersect(ray const& world_ray) const override;
 
     /// @copydoc basal::printable::print
     void print(char const str[]) const override;

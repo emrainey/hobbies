@@ -18,8 +18,7 @@ pyramid::pyramid(point const& base, precision height)
     , m_height{height} {
 }
 
-vector pyramid::normal(point const& world_surface_point) const {
-    point object_surface_point = reverse_transform(world_surface_point);
+vector pyramid::normal_(point const& object_surface_point) const {
     bool positive_x = (object_surface_point.x > 0.0_p);
     bool positive_y = (object_surface_point.y > 0.0_p);
     vector object_surface_normal{
@@ -81,7 +80,8 @@ hits pyramid::collisions_along(ray const& object_ray) const {
     for (size_t i = 0; i < 4; i++) {
         if (not basal::is_nan(t[i])) {
             if (usable[i] and t[i] >= 0) {
-                ts.push_back(t[i]);
+                point R = object_ray.distance_along(t[i]);
+                ts.emplace_back(intersection{R}, t[i], normal_(R), this);
             }
         }
     }

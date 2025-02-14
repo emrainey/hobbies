@@ -18,8 +18,6 @@ public:
     cone(point const& C, precision bottom_radius, precision height);
     virtual ~cone() = default;
 
-    /// @copydoc raytrace::object::normal
-    vector normal(point const& world_surface_point) const override;
     /// @copydoc raytrace::object::intersect
     /// geometry::intersection intersect(ray const& world_ray) const override;
     /// @copydoc raytrace::object::collision_along
@@ -31,6 +29,8 @@ public:
     bool is_surface_point(raytrace::point const& world_point) const override;
     precision get_object_extent(void) const override;
 
+protected:
+    vector normal_(point const& object_surface_point) const override;
 private:
     precision m_bottom_radius;
     precision m_height;

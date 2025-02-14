@@ -20,8 +20,6 @@ public:
 
     virtual ~cuboid() = default;
 
-    /// @copydoc raytrace::object::normal
-    vector normal(point const& world_surface_point) const override;
     /// @copydoc raytrace::object::intersect
     // geometry::intersection intersect(ray const& world_ray) const override;
     /// @copydoc raytrace::object::collision_along
@@ -37,6 +35,8 @@ public:
     precision const& z_half_width;
 
 protected:
+    vector normal_(point const& object_surface_point) const override;
+
     // The half-width sizes for x,y,z
     precision m_half_widths[3];
     point m_faces[6];

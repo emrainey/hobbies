@@ -20,22 +20,6 @@ public:
         return os << "Model has " << points_.size() << " points, " << normals_.size() << " normals, " << texels_.size() << " texels, " << faces_.size() << " faces";
     }
 
-    vector normal(point const& world_surface_point) const override {
-        vector object_surface_normal{0.0_p, 0.0_p, 0.0_p};
-
-        // convert to object space through a reverse transform
-        point object_surface_point = entity::reverse_transform(world_surface_point);
-
-        // find the triangle this point is on the hard way
-        for (auto const& f : faces_) {
-            if (f.is_contained(object_surface_point)) {
-                // the triangle's normal is in the composite object space, not world space, so it needs another transform
-                object_surface_normal = f.normal(object_surface_point);
-            }
-        }
-        return entity::forward_transform(object_surface_normal);
-    }
-
     bool is_surface_point(raytrace::point const& world_point) const override {
         for (auto const& f : faces_) {
             if (f.is_surface_point(world_point)) {
@@ -183,6 +167,18 @@ public:
     }
 
 protected:
+
+    vector normal_(point const& object_surface_point) const override {
+        vector object_surface_normal{0.0_p, 0.0_p, 0.0_p};
+        // find the triangle this point is on the hard way
+        for (auto const& f : faces_) {
+            if (f.is_contained(object_surface_point)) {
+                // the triangle's normal is in the composite object space, not world space, so it needs another transform
+                object_surface_normal = f.normal(object_surface_point);
+            }
+        }
+        return entity::forward_transform(object_surface_normal);
+    }
     static constexpr bool debug = false;
     std::vector<raytrace::point> points_;
     std::vector<raytrace::vector> normals_;

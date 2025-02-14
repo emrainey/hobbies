@@ -14,8 +14,6 @@ public:
     pyramid(point const& base, precision height);
     virtual ~pyramid() = default;
 
-    /// @copydoc raytrace::object::normal
-    vector normal(point const& world_surface_point) const override;
     /// @copydoc raytrace::object::collision_along
     hits collisions_along(ray const& object_ray) const override;
     /// @copydoc raytrace::object::map
@@ -26,6 +24,8 @@ public:
     precision get_object_extent(void) const override;
 
 protected:
+    vector normal_(point const& object_surface_point) const override;
+
     precision m_height;  //!< The height of the pyramid above 0 in Z.
 };
 }  // namespace objects

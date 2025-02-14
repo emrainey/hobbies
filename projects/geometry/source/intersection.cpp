@@ -51,6 +51,25 @@ std::ostream &operator<<(std::ostream &os, intersection const& intersector) {
     return os;
 }
 
+bool operator==(intersection const& a, intersection const& b) {
+    bool same_type = (get_type(a) == get_type(b));
+    if (same_type) {
+        auto type = get_type(a);
+        if (type == IntersectionType::None) {
+            return true;
+        } else if (type == IntersectionType::Point) {
+            return (as_point(a) == as_point(b));
+        } else if (type == IntersectionType::Points) {
+            return (as_points(a) == as_points(b));
+        } else if (type == IntersectionType::Line) {
+            return (as_line(a) == as_line(b));
+        } else if (type == IntersectionType::Plane) {
+            return (as_plane(a) == as_plane(b));
+        }
+    }
+    return false;
+}
+
 bool intersects(R3::point const& pt, R3::line const& lin) {
     if (pt == lin.position()) {  // is it the point already on the line?
         return true;
@@ -86,7 +105,7 @@ intersection intersects(R3::line const& l, plane const& P) {
     /// \see http://mathworld.wolfram.com/Line-PlaneIntersection.html
     if (P.contains(l)) {  // line is in the plane
         return intersection(l);
-    } else if (orthogonal(P.normal, l.direction())) {  // parallel to plane
+    } else if (orthogonal(P.unormal(), l.direction())) {  // parallel to plane
         return intersection();
     } else {
         R3::point a = l.solve(0.0);

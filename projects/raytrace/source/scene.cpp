@@ -65,18 +65,18 @@ scene::intersect_list scene::find_intersections(ray const& world_ray, object_lis
     intersect_list intersections;
     for (auto objptr : objects) {
         basal::exception::throw_if(objptr == nullptr, __FILE__, __LINE__, "Object can't be nullptr");
-        auto intersection = objptr->intersect(world_ray);
-        if (get_type(intersection) != IntersectionType::None) {
+        auto collision = objptr->intersect(world_ray);
+        if (get_type(collision.intersect) != IntersectionType::None) {
             statistics::get().intersections_with_objects++;
         }
-        if (get_type(intersection) == IntersectionType::Point) {
+        if (get_type(collision.intersect) == IntersectionType::Point) {
             statistics::get().intersections_with_point++;
-        } else if (get_type(intersection) == IntersectionType::Points) {
+        } else if (get_type(collision.intersect) == IntersectionType::Points) {
             statistics::get().intersections_with_points++;
-        } else if (get_type(intersection) == IntersectionType::Line) {
+        } else if (get_type(collision.intersect) == IntersectionType::Line) {
             statistics::get().intersections_with_line++;
         }
-        intersections.push_back(intersection);
+        intersections.push_back(collision.intersect);
     }
     return intersections;
 }

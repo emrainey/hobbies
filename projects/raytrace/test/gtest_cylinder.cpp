@@ -21,25 +21,25 @@ TEST(CylinderTest, RayIntersection) {
 
     ray r0{p0, -R3::basis::X};
     raytrace::point i0{1, 0, 0.5};
-    geometry::intersection ir0cyl1 = cyl1.intersect(r0);
+    geometry::intersection ir0cyl1 = cyl1.intersect(r0).intersect;
     ASSERT_EQ(geometry::IntersectionType::Point, get_type(ir0cyl1));
     ASSERT_POINT_EQ(i0, as_point(ir0cyl1));
 
     ray r1{p1, -R3::basis::Y};
     raytrace::point i1{0, 1, 0.5};
-    geometry::intersection ir1cyl1 = cyl1.intersect(r1);
+    geometry::intersection ir1cyl1 = cyl1.intersect(r1).intersect;
     ASSERT_EQ(geometry::IntersectionType::Point, get_type(ir1cyl1));
     ASSERT_POINT_EQ(i1, as_point(ir1cyl1));
 
     ray r2{p2, R3::basis::X};
     raytrace::point i2{-1, 0, -0.5};
-    geometry::intersection ir2cyl1 = cyl1.intersect(r2);
+    geometry::intersection ir2cyl1 = cyl1.intersect(r2).intersect;
     ASSERT_EQ(geometry::IntersectionType::Point, get_type(ir2cyl1));
     ASSERT_POINT_EQ(i2, as_point(ir2cyl1));
 
     ray r3{p3, R3::basis::Y};
     raytrace::point i3{0, -1, -0.5};
-    geometry::intersection ir3cyl1 = cyl1.intersect(r3);
+    geometry::intersection ir3cyl1 = cyl1.intersect(r3).intersect;
     ASSERT_EQ(geometry::IntersectionType::Point, get_type(ir3cyl1));
     ASSERT_POINT_EQ(i3, as_point(ir3cyl1));
 }

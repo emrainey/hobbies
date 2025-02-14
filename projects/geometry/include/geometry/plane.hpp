@@ -47,9 +47,6 @@ protected:
     precision m_magnitude;
 
 public:
-    /// Constant reference to the internal \ref vector normal
-    R3::vector const& normal = m_normal;
-
     /// no default constructor
     plane() = delete;
 
@@ -88,7 +85,7 @@ public:
     /// Determines if the planes are perpendicular
     bool perpendicular(plane const& a) const;
 
-    /// Returns the unnormalized vector
+    /// Returns the unnormalized normal
     R3::vector unormal() const;
 
     /// Returns a const reference to the coefficients

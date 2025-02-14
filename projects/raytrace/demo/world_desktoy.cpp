@@ -50,7 +50,7 @@ public:
     }
 
     std::string output_filename() const override {
-        return std::string("world_desk_toy.tga");
+        return std::string("world_desktoy.tga");
     }
 
     raytrace::color background(raytrace::ray const& world_ray) const override {

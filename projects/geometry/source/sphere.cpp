@@ -34,12 +34,12 @@ bool sphere::contains(R3::point const& object_point) const {
     return (v.norm() <= radius);
 }
 
-bool sphere::surface(R3::point const& object_point) const {
+bool sphere::on_surface(R3::point const& object_point) const {
     R3::vector v = object_point - R3::origin;
     return (basal::nearly_equals(v.norm(), radius));
 }
 
-R3::vector sphere::normal(R3::point const& object_point) const {
+R3::vector sphere::normal_at(R3::point const& object_point) const {
     R3::vector n = object_point - R3::origin;
     if constexpr (geometry::check_on_surface) {
         if (not basal::nearly_equals(n.norm(), radius)) {

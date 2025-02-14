@@ -28,42 +28,42 @@ TEST(TorusTest, RayIntersection) {
     raytrace::point p7{0, -r - t, 0};
 
     ray r0{p0 + R3::basis::Z, -R3::basis::Z};
-    geometry::intersection isect = shape.intersect(r0);
+    geometry::intersection isect = shape.intersect(r0).intersect;
     ASSERT_EQ(geometry::IntersectionType::Point, get_type(isect));
     ASSERT_POINT_EQ(p0, as_point(isect));
 
     ray r1{p1 + -1.0 * R3::basis::Z, R3::basis::Z};
-    isect = shape.intersect(r1);
+    isect = shape.intersect(r1).intersect;
     ASSERT_EQ(geometry::IntersectionType::Point, get_type(isect));
     ASSERT_POINT_EQ(p1, as_point(isect));
 
     ray r2{p2 + -1.0 * R3::basis::Z, R3::basis::Z};
-    isect = shape.intersect(r2);
+    isect = shape.intersect(r2).intersect;
     ASSERT_EQ(geometry::IntersectionType::Point, get_type(isect));
     ASSERT_POINT_EQ(p2, as_point(isect));
 
     ray r3{p3 + R3::basis::Z, -R3::basis::Z};
-    isect = shape.intersect(r3);
+    isect = shape.intersect(r3).intersect;
     ASSERT_EQ(geometry::IntersectionType::Point, get_type(isect));
     ASSERT_POINT_EQ(p3, as_point(isect));
 
     ray r4{p4 + R3::basis::X, -R3::basis::X};
-    isect = shape.intersect(r4);
+    isect = shape.intersect(r4).intersect;
     ASSERT_EQ(geometry::IntersectionType::Point, get_type(isect));
     ASSERT_POINT_EQ(p4, as_point(isect));
 
     ray r5{p5 + R3::basis::Y, -R3::basis::Y};
-    isect = shape.intersect(r5);
+    isect = shape.intersect(r5).intersect;
     ASSERT_EQ(geometry::IntersectionType::Point, get_type(isect));
     ASSERT_POINT_EQ(p5, as_point(isect));
 
     ray r6{p6 + -1.0 * R3::basis::X, R3::basis::X};
-    isect = shape.intersect(r6);
+    isect = shape.intersect(r6).intersect;
     ASSERT_EQ(geometry::IntersectionType::Point, get_type(isect));
     ASSERT_POINT_EQ(p6, as_point(isect));
 
     ray r7{p7 + -1.0 * R3::basis::Y, R3::basis::Y};
-    isect = shape.intersect(r7);
+    isect = shape.intersect(r7).intersect;
     ASSERT_EQ(geometry::IntersectionType::Point, get_type(isect));
     ASSERT_POINT_EQ(p7, as_point(isect));
 }

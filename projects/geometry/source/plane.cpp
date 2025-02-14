@@ -21,7 +21,7 @@ precision coefficients_t::z() {
 plane::plane(R3::vector const& on, R3::point const& op) : plane(op, on) {
 }
 
-plane::plane(R3::point const& op, R3::vector const& on) : m_normal{on}, m_center_point{op}, normal{m_normal} {
+plane::plane(R3::point const& op, R3::vector const& on) : m_normal{on}, m_center_point{op} {
     basal::exception::throw_unless(!basal::nearly_zero(m_normal.norm()), __FILE__, __LINE__,
                                    "The magnitude of the normal can't be zero");
     eq.a = m_normal[0];
@@ -37,7 +37,7 @@ plane::plane(std::vector<precision> const&list) : plane(list[0], list[1], list[2
 }
 
 plane::plane(precision a, precision b, precision c, precision d)
-    : m_normal{{a, b, c}}, m_center_point{}, normal{m_normal} {
+    : m_normal{{a, b, c}}, m_center_point{} {
     // before we normalize, we solve for the point
     // normal line through the origin
     R3::line l{m_normal, geometry::R3::origin};
@@ -57,7 +57,7 @@ plane::plane(precision a, precision b, precision c, precision d)
 }
 
 plane::plane(R3::point const& a, R3::point const& b, R3::point const& c)
-    : m_normal{}, m_center_point{b}, normal{m_normal} {
+    : m_normal{}, m_center_point{b} {
     // we have to declare the vector as a 3 element object (above) so that the move assignment works.
     R3::vector ba = b - a;
     R3::vector ca = c - a;
@@ -76,20 +76,18 @@ plane::plane(plane const& other)
     : m_normal{other.m_normal}
     , m_center_point{other.m_center_point}
     , eq{other.eq}
-    , m_magnitude{other.m_magnitude}
-    , normal{m_normal} {
+    , m_magnitude{other.m_magnitude} {
 }
 
 plane::plane(plane &&other)
     : m_normal{std::move(other.m_normal)}
     , m_center_point{std::move(other.m_center_point)}
     , eq{std::move(other.eq)}
-    , m_magnitude{other.m_magnitude}
-    , normal{m_normal} {
+    , m_magnitude{other.m_magnitude} {
 }
 
 plane &plane::operator=(plane const& other) {
-    m_normal = other.normal;
+    m_normal = other.m_normal;
     m_center_point = other.m_center_point;
     eq = other.eq;
     m_magnitude = other.m_magnitude;
@@ -114,15 +112,15 @@ precision plane::distance(R3::point const& a) const {
     return top / n_.norm();
 }
 
-bool plane::parallel(plane const& a) const {
+bool plane::parallel(plane const& P) const {
     using namespace operators;
     // determine if the normals are parallel
-    return R3::parallel(m_normal, a.normal);
+    return R3::parallel(m_normal, P.unormal());
 }
 
-bool plane::perpendicular(plane const& a) const {
+bool plane::perpendicular(plane const& P) const {
     using namespace operators;
-    return (m_normal | a.normal);  // check for orthogonal
+    return (m_normal | P.unormal());  // check for orthogonal
 }
 
 void plane::print(char const name[]) const {
@@ -197,7 +195,7 @@ bool plane::operator!=(plane const& other) const {
 }
 
 precision plane::angle(plane const& P) const {
-    return acos(dot(m_normal, P.normal));
+    return acos(dot(m_normal, P.unormal()));
 }
 
 std::ostream &operator<<(std::ostream &os, plane const& p) {

@@ -11,8 +11,6 @@ public:
     torus(point const& C, precision ring_radius, precision tube_radius);
     virtual ~torus() = default;
 
-    /// @copydoc raytrace::object::normal
-    vector normal(point const& world_surface_point) const override;
     /// @copydoc raytrace::object::intersect
     // geometry::intersection intersect(ray const& world_ray) const override;
     /// @copydoc raytrace::object::collision_along
@@ -23,6 +21,9 @@ public:
     void print(char const str[]) const override;
     bool is_surface_point(point const& world_point) const override;
     precision get_object_extent(void) const override;
+
+protected:
+    vector normal_(point const& object_surface_point) const override;
 
 private:
     precision m_ring_radius;

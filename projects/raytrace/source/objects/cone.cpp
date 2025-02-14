@@ -20,8 +20,7 @@ cone::cone(point const& C, precision bottom_radius, precision height)
     , m_angle{std::atan2(bottom_radius, height)} {
 }
 
-vector cone::normal(point const& world_surface_point) const {
-    point object_surface_point = reverse_transform(world_surface_point);
+vector cone::normal_(point const& object_surface_point) const {
     precision height = m_height;
     precision radius = m_bottom_radius;
     if (m_height < std::numeric_limits<precision>::infinity()) {
@@ -49,7 +48,7 @@ vector cone::normal(point const& world_surface_point) const {
 }
 
 hits cone::collisions_along(ray const& object_ray) const {
-    hits ts;
+    hits collisions;
     // i used the base formula of
     // z^2 = x^2 + y^2
     // with h and r are the height and radius
@@ -88,16 +87,16 @@ hits cone::collisions_along(ray const& object_ray) const {
     if (not basal::is_nan(t0)) {
         surface_point = object_ray.distance_along(t0);
         if (basal::nearly_zero(h) or linalg::within(0, surface_point.z, h)) {
-            ts.push_back(t0);
+            collisions.emplace_back(intersection{surface_point}, t0, normal_(surface_point), this);
         }
     }
     if (not basal::is_nan(t1)) {
         surface_point = object_ray.distance_along(t1);
         if (basal::nearly_zero(h) or linalg::within(0, surface_point.z, h)) {
-            ts.push_back(t1);
+            collisions.emplace_back(intersection{surface_point}, t1, normal_(surface_point), this);
         }
     }
-    return ts;
+    return collisions;
 }
 
 bool cone::is_surface_point(point const& world_point) const {

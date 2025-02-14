@@ -122,7 +122,7 @@ TEST(IntersectionTest, PlaneLine) {
     ASSERT_POINT_EQ(pl2, pl1);
     // find an intersection that should be in the plane
     R3::vector U{{0, 0, 1}};
-    R3::vector J = R3::cross(U, P1.normal);  // parallel to the plane
+    R3::vector J = R3::cross(U, P1.unormal());  // parallel to the plane
     R3::line L2{J, L1.solve(0.0)};
     // should not intersect at all
     intersection ip1l2 = intersects(P1, L2);
@@ -263,8 +263,8 @@ TEST(IntersectionTest, SphereOffCenter) {
     ASSERT_EQ(IntersectionType::Points, get_type(I0));
     std::cout << "I0" << I0 << std::endl;
     R3::points p0p1 = as_points(I0);
-    ASSERT_TRUE(S0.surface(p0p1[0]));
-    ASSERT_TRUE(S0.surface(p0p1[1]));
+    ASSERT_TRUE(S0.on_surface(p0p1[0]));
+    ASSERT_TRUE(S0.on_surface(p0p1[1]));
 }
 
 TEST(IntersectionTest, SphereOffCenterNonOrigin) {
@@ -277,8 +277,8 @@ TEST(IntersectionTest, SphereOffCenterNonOrigin) {
     ASSERT_EQ(IntersectionType::Points, get_type(I0));
     std::cout << "I0" << I0 << std::endl;
     R3::points p0p1 = as_points(I0);
-    ASSERT_TRUE(S0.surface(p0p1[0]));
-    ASSERT_TRUE(S0.surface(p0p1[1]));
+    ASSERT_TRUE(S0.on_surface(p0p1[0]));
+    ASSERT_TRUE(S0.on_surface(p0p1[1]));
 }
 
 TEST(IntersectionTest, SphereCenter) {
@@ -308,8 +308,8 @@ TEST(IntersectionTest, SphereCenter) {
     R3::vector d = R - Q;
     ASSERT_PRECISION_EQ(2.0, d.norm());
 
-    ASSERT_TRUE(s2.surface(R));
-    ASSERT_TRUE(s2.surface(Q));
+    ASSERT_TRUE(s2.on_surface(R));
+    ASSERT_TRUE(s2.on_surface(Q));
 }
 
 TEST(IntersectionTest, SphereNone) {
@@ -330,8 +330,8 @@ TEST(IntersectionTest, SphereInside) {
     point Q = as_points(iss1l3)[1];
     R.print("R");
     Q.print("Q");
-    ASSERT_TRUE(s1.surface(R));
-    ASSERT_TRUE(s1.surface(Q));
+    ASSERT_TRUE(s1.on_surface(R));
+    ASSERT_TRUE(s1.on_surface(Q));
 }
 
 TEST(IntersectionTest, SphereTangent) {

@@ -47,8 +47,7 @@ cuboid::cuboid(point&& center, precision xhw, precision yhw, precision zhw)
     m_faces[5] = point(0, 0, -z_half_width);
 }
 
-vector cuboid::normal(point const& world_surface_point) const {
-    point object_surface_point = reverse_transform(world_surface_point);
+vector cuboid::normal_(point const& object_surface_point) const {
     vector object_normal = R3::null;
     // isolate which axis this is on and return the forward_transformed normal
     if (basal::nearly_equals(object_surface_point.x, x_half_width)) {
@@ -70,7 +69,7 @@ vector cuboid::normal(point const& world_surface_point) const {
         // negative xy plane
         object_normal = m_normals[5];
     }
-    return forward_transform(object_normal);
+    return object_normal;
 }
 
 hits cuboid::collisions_along(ray const& object_ray) const {
@@ -98,36 +97,36 @@ hits cuboid::collisions_along(ray const& object_ray) const {
         precision t_min = (p_xmin - x) / i;
         auto point_min = object_ray.distance_along(t_min);
         if (contained_within_aabb(point_min, p_min, p_max)) {
-            ts.push_back(t_min);
+            ts.emplace_back(intersection{point_min}, t_min, normal(point_min), this);
         }
         precision t_max = (p_xmax - x) / i;
         auto point_max = object_ray.distance_along(t_max);
         if (contained_within_aabb(point_max, p_min, p_max)) {
-            ts.push_back(t_max);
+            ts.emplace_back(intersection{point_max}, t_max, normal(point_max), this);
         }
     }
     if (not basal::is_exactly_zero(j)) {
         precision t_min = (p_ymin - y) / j;
         auto point_min = object_ray.distance_along(t_min);
         if (contained_within_aabb(point_min, p_min, p_max)) {
-            ts.push_back(t_min);
+            ts.emplace_back(intersection{point_min}, t_min, normal(point_min), this);
         }
         precision t_max = (p_ymax - y) / j;
         auto point_max = object_ray.distance_along(t_max);
         if (contained_within_aabb(point_max, p_min, p_max)) {
-            ts.push_back(t_max);
+            ts.emplace_back(intersection{point_max}, t_max, normal(point_max), this);
         }
     }
     if (not basal::is_exactly_zero(k)) {
         precision t_min = (p_zmin - z) / k;
         auto point_min = object_ray.distance_along(t_min);
         if (contained_within_aabb(point_min, p_min, p_max)) {
-            ts.push_back(t_min);
+            ts.emplace_back(intersection{point_min}, t_min, normal(point_min), this);
         }
         precision t_max = (p_zmax - z) / k;
         auto point_max = object_ray.distance_along(t_max);
         if (contained_within_aabb(point_max, p_min, p_max)) {
-            ts.push_back(t_max);
+            ts.emplace_back(intersection{point_max}, t_max, normal(point_max), this);
         }
     }
     return ts;

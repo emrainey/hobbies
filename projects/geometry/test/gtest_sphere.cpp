@@ -30,9 +30,9 @@ TEST(SphereTest, Contains) {
     ASSERT_FALSE(s1.contains(outside));
     point surface{{5, 0, 0}};
     ASSERT_TRUE(s1.contains(surface));
-    ASSERT_FALSE(s1.surface(inside));
-    ASSERT_FALSE(s1.surface(outside));
-    ASSERT_TRUE(s1.surface(surface));
+    ASSERT_FALSE(s1.on_surface(inside));
+    ASSERT_FALSE(s1.on_surface(outside));
+    ASSERT_TRUE(s1.on_surface(surface));
 }
 TEST(SphereTest, Normals) {
     R3::point p1 = R3::origin + R3::basis::X;
@@ -40,10 +40,10 @@ TEST(SphereTest, Normals) {
     R3::point p3 = R3::origin + R3::basis::Z;
     R3::point p4{1, 1, 1};
     R3::sphere s1{1};
-    R3::vector v1{s1.normal(p1)};
-    R3::vector v2{s1.normal(p2)};
-    R3::vector v3{s1.normal(p3)};
-    ASSERT_VECTOR_EQ(R3::null, s1.normal(p4));
+    R3::vector v1{s1.normal_at(p1)};
+    R3::vector v2{s1.normal_at(p2)};
+    R3::vector v3{s1.normal_at(p3)};
+    ASSERT_VECTOR_EQ(R3::null, s1.normal_at(p4));
     ASSERT_VECTOR_EQ(R3::basis::X, v1);
     ASSERT_VECTOR_EQ(R3::basis::Y, v2);
     ASSERT_VECTOR_EQ(R3::basis::Z, v3);

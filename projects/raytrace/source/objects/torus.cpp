@@ -17,8 +17,7 @@ torus::torus(point const& C, precision ring_radius, precision tube_radius)
                                "Self-intersecting torus, tube must be smaller than ring radius");
 }
 
-vector torus::normal(point const& world_surface_point) const {
-    point object_surface_point = reverse_transform(world_surface_point);
+vector torus::normal_(point const& object_surface_point) const {
     // project along the XY plane
     vector ring_vector{{object_surface_point.x, object_surface_point.y, 0}};
     // normalize so we can then...
@@ -28,10 +27,7 @@ vector torus::normal(point const& world_surface_point) const {
     // make a ring point
     raytrace::point ring_point = R3::origin + ring_vector;
     // create a vector from the ring to the pnt
-    raytrace::vector N = object_surface_point - ring_point;
-    N.normalize();
-    raytrace::vector world_N = forward_transform(N);
-    return vector(world_N);  // copy constructor output
+    return (object_surface_point - ring_point).normalize();
 }
 
 hits torus::collisions_along(ray const& object_ray) const {
@@ -109,10 +105,14 @@ hits torus::collisions_along(ray const& object_ray) const {
         precision r1 = std::get<1>(roots);
         precision r2 = std::get<2>(roots);
         precision r3 = std::get<3>(roots);
-        ts.push_back(r0);
-        ts.push_back(r1);
-        ts.push_back(r2);
-        ts.push_back(r3);
+        point p0 = object_ray.distance_along(r0);
+        point p1 = object_ray.distance_along(r1);
+        point p2 = object_ray.distance_along(r2);
+        point p3 = object_ray.distance_along(r3);
+        ts.emplace_back(intersection{p0}, r0, normal_(p0), this);
+        ts.emplace_back(intersection{p1}, r1, normal_(p1), this);
+        ts.emplace_back(intersection{p2}, r2, normal_(p2), this);
+        ts.emplace_back(intersection{p3}, r3, normal_(p3), this);
     }
     return ts;
 }

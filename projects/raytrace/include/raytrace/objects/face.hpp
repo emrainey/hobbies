@@ -19,7 +19,7 @@ public:
     virtual ~face() = default;
 
     /// @copydoc raytrace::object::intersect
-    geometry::intersection intersect(ray const& world_ray) const override;
+    // hit intersect(ray const& world_ray) const override;
 
     /// @copydoc basal::printable::print
     void print(char const str[]) const override;
@@ -28,10 +28,9 @@ public:
 
     precision get_object_extent(void) const override;
 
-    vector normal(point const& world_surface_point) const override;
-
     image::point map(point const& object_surface_point) const override;
-
+protected:
+    vector normal_(point const& object_surface_point) const override;
 protected:
     std::array<image::point, raytrace::dimensions> m_texture_coords;
     std::array<raytrace::vector, raytrace::dimensions> m_normals;

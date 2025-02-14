@@ -135,7 +135,78 @@ public:
     /// @param world_surface_point The point on the object to use.
     /// @warning It is assumed that the point given is an intersection point.
     /// @retval R3::null indicates that the point is not on the surface.
-    virtual vector normal(point const& world_surface_point) const = 0;
+    vector normal(point const& world_surface_point) const {
+        point object_surface_point = entity::reverse_transform(world_surface_point);
+        return entity::forward_transform(normal_(object_surface_point));
+    }
+
+    /// Contains all the information about a collision with an object.
+    /// This is to facilitate the overlap objects and other more complex situations.
+    /// During the collision process the points are all in object space
+    /// and are converted to world_space when returned.
+    struct hit {
+        hit()
+            : intersect{}
+            , distance{std::numeric_limits<precision>::infinity()}
+            , normal{}
+            , object{nullptr} {
+        }
+        hit(hit const& that) = default;
+        hit(intersection i, precision d, vector n, object_ const* o)
+            : intersect{i}
+            , distance{d}
+            , normal{n}
+            , object{o} {
+        }
+        intersection intersect; //!< The type of intersection (includes the point)
+        precision distance;     //!< The distance along the ray of intersection.
+        vector normal;          //!< The normal at the point along the line
+        object_ const * object; //!< The pointer to the object that was hit
+
+        /// A hit can be assigned from another hit
+        hit& operator=(hit const& that) {
+            intersect = that.intersect;
+            distance = that.distance;
+            normal = that.normal;
+            object = that.object;
+            return *this;
+        }
+
+        /// A hit can be moved from another hit
+        hit& operator=(hit&& that) {
+            intersect = std::move(that.intersect);
+            distance = std::move(that.distance);
+            normal = std::move(that.normal);
+            object = std::move(that.object);
+            return *this;
+        }
+
+        /// A hit is equal to another if at least the point, distance and object are the same
+        bool operator==(hit const& that) const {
+            using namespace geometry::operators;
+            bool approximate_distance = basal::nearly_equals(this->distance, that.distance);
+            bool same_intersection = (this->intersect == that.intersect);
+            bool same_object = (this->object == that.object);
+            // the normal is not compared
+            return (approximate_distance and same_intersection and same_object);
+        }
+
+        bool operator!=(hit const& that) const {
+            return not operator==(that);
+        }
+
+        /// Used for sorting hits by distance
+        bool operator<(hit const& that) const {
+            return (this->distance < that.distance);
+        }
+
+        /// Used for sorting hits by distance
+        bool operator>(hit const& that) const {
+            return (this->distance > that.distance);
+        }
+    };
+    /// A set of distances along the world_ray which collide with the object, could be many.
+    using hits = std::vector<hit>;
 
     /// Returns all the intersections with this object along the ray (extended as a line).
     /// @param object_ray The ray in object space.
@@ -146,50 +217,47 @@ public:
     /// @param world_ray The ray from the world space to test the intersection with.
     /// @return Returns the first intersection with the object.
     ///
-    virtual intersection intersect(ray const& world_ray) const {
+    virtual hit intersect(ray const& world_ray) const {
+        hit closest;
         /// @note While we could be pedantic about having a unit normal, it doesn't really stop us from working.
         // basal::exception::throw_unless(basal::nearly_equals(world_ray.direction().quadrance(), 1.0_p), __FILE__, __LINE__,
         // "The ray must have a unit vector");
 
         ray object_ray = entity_<DIMS>::reverse_transform(world_ray);
         // get the set of all collisions with the object
-        hits ts = collisions_along(object_ray);
+        hits collisions = collisions_along(object_ray);
         // ts could contain NaN and +Inf/-Inf
-        if (ts.size() > 0) {
-            // determine the closest hit and transform the point
-            precision closest = std::numeric_limits<precision>::infinity();
-            for (auto t : ts) {
-                if (basal::is_nan(t)) {
-                    continue;
-                }
-                if constexpr (can_ray_origin_be_collision) {
-                    if (basal::nearly_zero(t)) {
-                        vector const N = normal(world_ray.location());
-                        vector const& I = world_ray.direction();
-                        precision d = dot(N, I);
-                        if (d < 0) {  // the ray points "into" the material so it's a collision
-                            // however if the material is transparent, that's ok and it should not count as a collision
-                            if (m_medium and m_medium->refractive_index(world_ray.location()) > 0.0_p) {
-                                continue;
-                            }
-                            closest = t;
-                            break;
-                        } else {
-                            // the ray points "out" of the material so no collision
+        for (auto& collision : collisions) {
+            if (basal::is_nan(collision.distance)) {
+                continue;
+            }
+            if constexpr (can_ray_origin_be_collision) {
+                if (basal::nearly_zero(collision.distance)) {
+                    vector const N = normal_(object_ray.location());
+                    vector const& I = object_ray.direction();
+                    precision d = dot(N, I);
+                    if (d < 0) {  // the ray points "into" the material so it's a collision
+                        // however if the material is transparent, that's ok and it should not count as a collision
+                        if (m_medium and m_medium->refractive_index(object_ray.location()) > 0.0_p) {
+                            continue;
                         }
+                        closest = collision;
+                        closest.intersect = intersection{entity_<DIMS>::forward_transform(as_point(closest.intersect))};
+                        closest.normal = entity_<DIMS>::forward_transform(closest.normal);
+                        break;
+                    } else {
+                        // the ray points "out" of the material so no collision
                     }
                 }
-                if (basal::epsilon < t and t < closest) {
-                    closest = t;
-                }
             }
-            if (not std::isinf(closest)) {
-                point object_point = object_ray.distance_along(closest);
-                point world_point = entity_<DIMS>::forward_transform(object_point);
-                return intersection(world_point);
+            if (basal::epsilon < collision.distance and collision.distance < closest.distance) {
+                closest = collision;
+                // update the collision point to be in world space
+                closest.intersect = intersection{entity_<DIMS>::forward_transform(as_point(closest.intersect))};
+                closest.normal = entity_<DIMS>::forward_transform(closest.normal);
             }
         }
-        return intersection();
+        return closest;
     }
 
     /// Maps a surface point (in R3 object space) to a image::point in u,v coordinates (R2)
@@ -265,6 +333,12 @@ public:
     }
 
 protected:
+
+    /// @brief Computes the normal to the surface given an object space point which is presumed to be the collision point, thus on the surface.
+    /// @param object_surface_point
+    /// @return
+    virtual vector normal_(point const& object_surface_point) const = 0;
+
     /// The maximum number of collisions with the surface of this object
     size_t const m_max_collisions;
     /// Some objects may return more than 1 collisions but are not closed surfaces
@@ -282,5 +356,12 @@ protected:
 
 /// In Raytracing we only consider 3D objects
 using object = object_<dimensions>;
+
+/// A single hit from the object type
+using hit = object::hit;
+
+/// A set of hits (from the object type)
+using hits = object::hits;
+
 }  // namespace objects
 }  // namespace raytrace

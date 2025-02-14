@@ -25,18 +25,16 @@ overlap::overlap(object const& A, object const& B, overlap::type type)
     throw_exception_unless(m_closed_two_hit_surfaces_ or m_open_one_hit_surfaces_ or m_open_two_hit_surfaces_, "Must be one of these %lu types", 3);
 }
 
-vector overlap::normal(point const& world_surface_point) const {
-    // normals are computed from points where the objects have a collision, this it should be a surface point.
-    raytrace::point overlap_point = reverse_transform(world_surface_point);
+vector overlap::normal_(point const& overlap_point) const {
     vector vA = m_A.normal(overlap_point);
     vector vB = m_B.normal(overlap_point);
     if (vA != R3::null) {
-        return forward_transform(vA);
+        return vA;
     } else if (vB != R3::null) {
         if (m_type == overlap::type::subtractive) {
-            return forward_transform(!vB);
+            return !vB;
         } else {
-            return forward_transform(vB);
+            return vB;
         }
     } else {
         return R3::null;
@@ -49,14 +47,24 @@ hits overlap::collisions_along(ray const& overlap_ray) const {
     auto object_rayB = m_B.reverse_transform(overlap_ray);
 
     hits hitsA = m_A.collisions_along(object_rayA);
+    // all hits have to be translated to overlap space
+    for (auto& h : hitsA) {
+        h.intersect = m_A.forward_transform(as_point(h.intersect));
+        h.normal = m_A.forward_transform(h.normal);
+    }
     hits hitsB = m_B.collisions_along(object_rayB);
+    // all hits have to be translated to overlap space
+    for (auto& h : hitsB) {
+        h.intersect = m_B.forward_transform(as_point(h.intersect));
+        h.normal = m_B.forward_transform(h.normal);
+    }
 
     // early exit
     if (hitsA.size() == 0 and hitsB.size() == 0) {
         return hits();  // empty
     }
 
-    auto sorter = [](precision a, precision b) -> bool { return (a < b); };
+    auto sorter = [](hit a, hit b) -> bool { return (a < b); };
 
     // sort them individually so we can make some logical deductions later.
     std::sort(hitsA.begin(), hitsA.end(), sorter);
@@ -160,16 +168,16 @@ hits overlap::collisions_along(ray const& overlap_ray) const {
         if (m_open_two_hit_surfaces_) {
             // if just [A0, A1] or [B0, B1] then check to see if those points are inside the other
             if (hitsA.size() == 0) { // then B has to have hits
-                point const B0 = object_rayB.distance_along(hitsB[0]);
-                point const B1 = object_rayB.distance_along(hitsB[1]);
+                point const B0 = object_rayB.distance_along(hitsB[0].distance);
+                point const B1 = object_rayB.distance_along(hitsB[1].distance);
                 if (not m_A.is_outside(B0) and not m_A.is_outside(B1)) {
                     return hitsB;
                 }
                 return hits{};
             }
             if (hitsB.size() == 0) { // then A has to have hits
-                point const A0 = object_rayA.distance_along(hitsA[0]);
-                point const A1 = object_rayA.distance_along(hitsA[1]);
+                point const A0 = object_rayA.distance_along(hitsA[0].distance);
+                point const A1 = object_rayA.distance_along(hitsA[1].distance);
                 if (not m_B.is_outside(A0) and not m_B.is_outside(A1)) {
                     return hitsA;
                 }
@@ -192,6 +200,29 @@ hits overlap::collisions_along(ray const& overlap_ray) const {
         }
         if (hitsB.size() == 0) {
             return hitsA;
+        }
+        // FIXME this does not correctly return the outer, inner, inner, outer case
+        if (m_closed_two_hit_surfaces_) {
+            // for a closed surface all the points are hits (the inner points have their normals reversed)
+            // if [A0, B0, B1, A1] then return [A0, B0, B1, A1] (outer points have reversed normals)
+            // if [B0, A0, A1, B1] then return [B0, A0, A1, B1] (inner points have reversed normals)
+            // if [A0, A1, B0, B1] then return that (no reversed normals)
+            // if [B0, B1, A0, A1] then return that (no reversed normals)
+            if (hitsAB[0] == hitsA[0] and hitsAB[3] == hitsA[1]) {
+                return hits(hitsAB.begin(), hitsAB.end());
+            }
+            if (hitsAB[0] == hitsB[0] and hitsAB[3] == hitsB[1]) {
+                return hits(hitsAB.begin(), hitsAB.end());
+            }
+            if (hitsAB[0] == hitsA[0] and hitsAB[1] == hitsA[0]) {
+                return hits(hitsAB.begin(), hitsAB.end());
+            }
+            if (hitsAB[0] == hitsB[0] and hitsAB[1] == hitsB[1]) {
+                return hits(hitsAB.begin(), hitsAB.end());
+            }
+        }
+        if (m_open_two_hit_surfaces_) {
+            // FIXME i'm not sure what to do here..
         }
     }
     return hits();  // empty

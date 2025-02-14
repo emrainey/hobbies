@@ -41,20 +41,20 @@ TEST(TriangleTest, RayIntersection) {
     raytrace::objects::triangle T{A, B, C};
     ray r0{raytrace::point{0.5, 0.5, 1}, vector{{0, 0, -1}}};
 
-    geometry::intersection ir0T = T.intersect(r0);
+    geometry::intersection ir0T = T.intersect(r0).intersect;
     raytrace::point P{0.5, 0.5, 0};
     ASSERT_EQ(geometry::IntersectionType::Point, get_type(ir0T));
     ASSERT_POINT_EQ(P, as_point(ir0T));
 
     ray r1{raytrace::point{0.7, 0.7, 1}, vector{{0, 0, -1}}};
-    geometry::intersection ir1T = T.intersect(r1);
+    geometry::intersection ir1T = T.intersect(r1).intersect;
     ASSERT_EQ(geometry::IntersectionType::None, get_type(ir1T));
 
     ray r2{raytrace::point{0.5, 0.5, -1}, vector{{0, 0, 1}}};
-    geometry::intersection ir2T = T.intersect(r2);
+    geometry::intersection ir2T = T.intersect(r2).intersect;
     ASSERT_EQ(geometry::IntersectionType::None, get_type(ir2T));
 
     ray r3{raytrace::point{0.7, 0.7, -1}, vector{{0, 0, 1}}};
-    geometry::intersection ir3T = T.intersect(r3);
+    geometry::intersection ir3T = T.intersect(r3).intersect;
     ASSERT_EQ(geometry::IntersectionType::None, get_type(ir3T));
 }

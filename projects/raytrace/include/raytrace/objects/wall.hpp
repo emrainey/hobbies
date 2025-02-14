@@ -15,8 +15,6 @@ public:
     wall(point const& center, vector const& normal, precision thickness);
     virtual ~wall() = default;
 
-    /// @copydoc raytrace::object::normal
-    vector normal(point const& world_surface_point) const override;
     /// @copydoc raytrace::object::intersect
     // intersection intersect(ray const& world_ray) const override;
     /// @copydoc raytrace::object::collisions_along
@@ -33,7 +31,10 @@ public:
     bool is_outside(point const& world_point) const override;
     /// @copydoc raytrace::object::is_along_infinite_extent
     bool is_along_infinite_extent(ray const& world_ray) const override;
+
 protected:
+    vector normal_(point const& object_surface_point) const override;
+
     raytrace::objects::plane m_front_;
     raytrace::objects::plane m_back_;
 };

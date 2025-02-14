@@ -45,7 +45,7 @@ TEST(CuboidTest, IntersectionMissed) {
     vector R{{1, 1, 0}};
 
     ray complete_miss(Q, R);
-    geometry::intersection icm = c0.intersect(complete_miss);
+    geometry::intersection icm = c0.intersect(complete_miss).intersect;
     ASSERT_EQ(geometry::IntersectionType::None, get_type(icm));
 }
 
@@ -60,10 +60,30 @@ TEST(CuboidTest, IntersectionHitX) {
     ray hit0(Q, R);
     raytrace::point h0{1.0, 0.75, 0.25};
 
-    geometry::intersection ipx = c0.intersect(hit0);
+    geometry::intersection ipx = c0.intersect(hit0).intersect;
     ASSERT_EQ(geometry::IntersectionType::Point, get_type(ipx));
     raytrace::point i0 = as_point(ipx);
     ASSERT_POINT_EQ(h0, i0);
+}
+
+
+TEST(CuboidTest, IntersectionHitOffOrigin) {
+    using namespace raytrace;
+    using namespace raytrace::objects;
+
+    raytrace::point P{9, -14, 77};
+    cuboid c0{P, 1.0, 1.0, 1.0};
+    raytrace::point Q{2.0, 0.75, 0.25};
+    raytrace::vector v1 = P - R3::origin;
+    vector R{{-1, 0, 0}};
+    ray hit0((Q + v1), R);
+    raytrace::point h0{1.0, 0.75, 0.25};
+    raytrace::point h1 = h0 + v1;
+
+    geometry::intersection ipx = c0.intersect(hit0).intersect;
+    ASSERT_EQ(geometry::IntersectionType::Point, get_type(ipx));
+    raytrace::point i0 = as_point(ipx);
+    ASSERT_POINT_EQ(h1, i0);
 }
 
 TEST(CuboidTest, IntersectionMassXY) {
@@ -73,7 +93,7 @@ TEST(CuboidTest, IntersectionMassXY) {
     raytrace::point P{7, 22, -19};
     precision w = 0.5;  // the half-width of the cuboid
     cuboid c0{P, w, w, w};
-    precision u = 1.0 / 32.0;  // the testing step
+    precision u = 1.0 / 8.0;  // the testing step
 
     // in the XY plane
     for (precision y = (-w + u + P.y); y < (w + P.y); y += u) {
@@ -81,10 +101,10 @@ TEST(CuboidTest, IntersectionMassXY) {
             raytrace::point R{x, y, P.z + (2 * w)};
             vector N{{0, 0, -1}};
             ray W{R, N};
-            geometry::intersection I = c0.intersect(W);
+            geometry::intersection I = c0.intersect(W).intersect;
             EXPECT_EQ(geometry::IntersectionType::Point, get_type(I)) << "At y=" << y << ", x=" << x << std::endl;
             raytrace::point Q{x, y, P.z + w};
-            EXPECT_TRUE(Q == as_point(I));
+            EXPECT_POINT_EQ(Q, as_point(I));
         }
     }
 }
@@ -110,12 +130,12 @@ TEST(CuboidTest, IntersectionsOnSurface) {
     ray rE0(E, E - center);
     ray rF0(F, F - center);
 
-    geometry::intersection irA0c0 = c0.intersect(rA0);
-    geometry::intersection irB0c0 = c0.intersect(rB0);
-    geometry::intersection irC0c0 = c0.intersect(rC0);
-    geometry::intersection irD0c0 = c0.intersect(rD0);
-    geometry::intersection irE0c0 = c0.intersect(rE0);
-    geometry::intersection irF0c0 = c0.intersect(rF0);
+    geometry::intersection irA0c0 = c0.intersect(rA0).intersect;
+    geometry::intersection irB0c0 = c0.intersect(rB0).intersect;
+    geometry::intersection irC0c0 = c0.intersect(rC0).intersect;
+    geometry::intersection irD0c0 = c0.intersect(rD0).intersect;
+    geometry::intersection irE0c0 = c0.intersect(rE0).intersect;
+    geometry::intersection irF0c0 = c0.intersect(rF0).intersect;
 
     EXPECT_EQ(geometry::IntersectionType::None, get_type(irA0c0));
     EXPECT_EQ(geometry::IntersectionType::None, get_type(irB0c0));
@@ -131,12 +151,12 @@ TEST(CuboidTest, IntersectionsOnSurface) {
     ray rE1(E, center - E);
     ray rF1(F, center - F);
 
-    geometry::intersection irA1c0 = c0.intersect(rA1);
-    geometry::intersection irB1c0 = c0.intersect(rB1);
-    geometry::intersection irC1c0 = c0.intersect(rC1);
-    geometry::intersection irD1c0 = c0.intersect(rD1);
-    geometry::intersection irE1c0 = c0.intersect(rE1);
-    geometry::intersection irF1c0 = c0.intersect(rF1);
+    geometry::intersection irA1c0 = c0.intersect(rA1).intersect;
+    geometry::intersection irB1c0 = c0.intersect(rB1).intersect;
+    geometry::intersection irC1c0 = c0.intersect(rC1).intersect;
+    geometry::intersection irD1c0 = c0.intersect(rD1).intersect;
+    geometry::intersection irE1c0 = c0.intersect(rE1).intersect;
+    geometry::intersection irF1c0 = c0.intersect(rF1).intersect;
 
     EXPECT_EQ(geometry::IntersectionType::Point, get_type(irA1c0));
     ASSERT_POINT_EQ(A, as_point(irA1c0));

@@ -27,7 +27,7 @@ bool triangle::is_contained(point const& D) const {
     if (r2 < m_radius2) {
         constexpr static bool use_triple = true;
         // now determine if the point is in the triangle
-        vector N = normal(D);
+        vector N = unormal();
         vector AB = m_points[1] - m_points[0];
         vector BC = m_points[2] - m_points[1];
         vector CA = m_points[0] - m_points[2];
@@ -56,24 +56,24 @@ bool triangle::is_contained(point const& D) const {
     return false;
 }
 
-intersection triangle::intersect(ray const& world_ray) const {
-    intersection inter = plane::intersect(world_ray);
-    if (get_type(inter) == IntersectionType::Point) {
-        point D = as_point(inter);
+hit triangle::intersect(ray const& world_ray) const {
+    hit h = plane::intersect(world_ray);
+    if (get_type(h.intersect) == IntersectionType::Point) {
+        point D = as_point(h.intersect);
         if (is_contained(D)) {
-            precision projected_length = dot(geometry::plane::normal, world_ray.direction());
+            precision projected_length = dot(unormal(), world_ray.direction());
             if (projected_length < 0) {
-                return intersection(inter);
+                return h;
             }
         }
     }
-    return intersection();
+    return hit();
 }
 
 bool triangle::is_surface_point(point const& world_point) const {
     point object_point = reverse_transform(world_point);
-    vector T = object_point - position();
-    return basal::nearly_zero(dot(geometry::plane::normal, T)) and is_contained(world_point);
+    vector T = world_point - position();
+    return basal::nearly_zero(dot(unormal(), T)) and is_contained(world_point);
 }
 
 void triangle::print(char const str[]) const {

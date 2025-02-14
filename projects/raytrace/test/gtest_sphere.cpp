@@ -88,18 +88,18 @@ TEST(SphereTest, IntersectionsFromRays) {
     ray Gmx(C, -R3::basis::X);
     ray Gpx(C, R3::basis::X);
 
-    geometry::intersection iSAmx = S.intersect(Amx);
-    geometry::intersection iSApx = S.intersect(Apx);
-    geometry::intersection iSBmx = S.intersect(Bmx);
-    geometry::intersection iSBpx = S.intersect(Bpx);
-    geometry::intersection iSDmx = S.intersect(Dmx);
-    geometry::intersection iSDpx = S.intersect(Dpx);
-    geometry::intersection iSEmx = S.intersect(Emx);
-    geometry::intersection iSEpx = S.intersect(Epx);
-    geometry::intersection iSFmx = S.intersect(Fmx);
-    geometry::intersection iSFpx = S.intersect(Fpx);
-    geometry::intersection iSGmx = S.intersect(Gmx);
-    geometry::intersection iSGpx = S.intersect(Gpx);
+    geometry::intersection iSAmx = S.intersect(Amx).intersect;
+    geometry::intersection iSApx = S.intersect(Apx).intersect;
+    geometry::intersection iSBmx = S.intersect(Bmx).intersect;
+    geometry::intersection iSBpx = S.intersect(Bpx).intersect;
+    geometry::intersection iSDmx = S.intersect(Dmx).intersect;
+    geometry::intersection iSDpx = S.intersect(Dpx).intersect;
+    geometry::intersection iSEmx = S.intersect(Emx).intersect;
+    geometry::intersection iSEpx = S.intersect(Epx).intersect;
+    geometry::intersection iSFmx = S.intersect(Fmx).intersect;
+    geometry::intersection iSFpx = S.intersect(Fpx).intersect;
+    geometry::intersection iSGmx = S.intersect(Gmx).intersect;
+    geometry::intersection iSGpx = S.intersect(Gpx).intersect;
 
     ASSERT_EQ(geometry::IntersectionType::Point, geometry::get_type(iSAmx));
     ASSERT_POINT_EQ(D, geometry::as_point(iSAmx));
@@ -156,7 +156,7 @@ TEST(SphereTest, Refraction) {
         raytrace::ray shot{raytrace::point{0, 2, entry_z}, incident};
         std::cout << "Shot: " << shot << std::endl;
         //============ Entry
-        auto entry_hit = shape.intersect(shot);
+        auto entry_hit = shape.intersect(shot).intersect;
         std::cout << "Entry Hit: " << entry_hit << std::endl;
         ASSERT_EQ(geometry::IntersectionType::Point, geometry::get_type(entry_hit));
         raytrace::point entry_surface_point = geometry::as_point(entry_hit);
@@ -173,11 +173,11 @@ TEST(SphereTest, Refraction) {
         iso::radians refracted_angle = geometry::angle(-normal, refracted_ray.direction());
         ASSERT_NEAR(param.entry_interior_angle.value, refracted_angle.value, basal::epsilon);
         //============ Exit
-        auto exit_hit = shape.intersect(refracted_ray);
+        auto exit_hit = shape.intersect(refracted_ray).intersect;
         std::cout << "Exit Hit: " << exit_hit << std::endl;
         ASSERT_EQ(geometry::IntersectionType::Point, geometry::get_type(exit_hit));
         raytrace::point exit_surface_point = geometry::as_point(exit_hit);
-        ASSERT_TRUE(shape.surface(exit_surface_point));
+        ASSERT_TRUE(shape.on_surface(exit_surface_point));
         normal = shape.normal(exit_surface_point);
         std::cout << "Exit Normal: " << normal << std::endl;
         incident_angle = geometry::angle(normal, shot.direction());
@@ -223,37 +223,37 @@ TEST(SphereTest, ScaledSphere) {
 
     // determine the intersection of a ray from above to the where the top point should be
     raytrace::ray top_down{raytrace::point{1, 1, 6}, -R3::basis::Z}; // from above
-    geometry::intersection iTD = s0.intersect(top_down);
+    geometry::intersection iTD = s0.intersect(top_down).intersect;
     ASSERT_EQ(geometry::IntersectionType::Point, geometry::get_type(iTD));
     ASSERT_POINT_EQ(top, geometry::as_point(iTD));
 
     // determine the intersection of a ray from below to the where the bottom point should be
     raytrace::ray bottom_up{raytrace::point{1, 1, -6}, R3::basis::Z}; // from below
-    geometry::intersection iBU = s0.intersect(bottom_up);
+    geometry::intersection iBU = s0.intersect(bottom_up).intersect;
     ASSERT_EQ(geometry::IntersectionType::Point, geometry::get_type(iBU));
     ASSERT_POINT_EQ(bottom, geometry::as_point(iBU));
 
     // determine the intersection of a ray from the left to the where the left point should be
     raytrace::ray left_right{raytrace::point{-6, 1, 1}, R3::basis::X}; // from left
-    geometry::intersection iLR = s0.intersect(left_right);
+    geometry::intersection iLR = s0.intersect(left_right).intersect;
     ASSERT_EQ(geometry::IntersectionType::Point, geometry::get_type(iLR));
     ASSERT_POINT_EQ(left, geometry::as_point(iLR));
 
     // determine the intersection of a ray from the right to the where the right point should be
     raytrace::ray right_left{raytrace::point{6, 1, 1}, -R3::basis::X}; // from right
-    geometry::intersection iRL = s0.intersect(right_left);
+    geometry::intersection iRL = s0.intersect(right_left).intersect;
     ASSERT_EQ(geometry::IntersectionType::Point, geometry::get_type(iRL));
     ASSERT_POINT_EQ(right, geometry::as_point(iRL));
 
     // determine the intersection of a ray from the front to the where the front point should be
     raytrace::ray front_back{raytrace::point{1, 6, 1}, -R3::basis::Y}; // from front
-    geometry::intersection iFB = s0.intersect(front_back);
+    geometry::intersection iFB = s0.intersect(front_back).intersect;
     ASSERT_EQ(geometry::IntersectionType::Point, geometry::get_type(iFB));
     ASSERT_POINT_EQ(front, geometry::as_point(iFB));
 
     // determine the intersection of a ray from the back to the where the back point should be
     raytrace::ray back_front{raytrace::point{1, -6, 1}, R3::basis::Y}; // from back
-    geometry::intersection iBF = s0.intersect(back_front);
+    geometry::intersection iBF = s0.intersect(back_front).intersect;
     ASSERT_EQ(geometry::IntersectionType::Point, geometry::get_type(iBF));
     ASSERT_POINT_EQ(back, geometry::as_point(iBF));
 }

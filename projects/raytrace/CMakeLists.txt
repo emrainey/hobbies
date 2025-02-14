@@ -176,6 +176,7 @@ if (Threads_FOUND AND GTest_FOUND)
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_laws.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_light.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_mapping.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_overlap.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_perf.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_plane.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_renders.cpp

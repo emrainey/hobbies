@@ -200,6 +200,16 @@ public:
         c += b;
         return point_{c};
     }
+
+    /// Equality Operator
+    // friend inline bool operator==(point_ const& a, point_ const& b) noexcept(false) {
+    //     return operators::operator==(a, b);
+    // }
+
+    /// Inequality Operator
+    // friend inline bool operator!=(point_ const& a, point_ const& b) noexcept(false) {
+    //     return operators::operator!=(a, b);
+    // }
 };
 
 /// Specific 3d point template wrapper to define easy access reference to \ref x, \ref y and \ref z
@@ -275,6 +285,16 @@ public:
         c -= b;
         return point_{c};
     }
+
+    /// Equality Operator
+    // friend inline bool operator==(point_ const& a, point_ const& b) noexcept(false) {
+    //     return operators::operator==(a, b);
+    // }
+
+    /// Inequality Operator
+    // friend inline bool operator!=(point_ const& a, point_ const& b) noexcept(false) {
+    //     return operators::operator!=(a, b);
+    // }
 };
 
 /// Specific 4d point template wrapper to define easy access reference to \ref x, \ref y and \ref z
@@ -349,6 +369,16 @@ public:
         c += b;
         return c;
     }
+
+    /// Equality Operator
+    // friend inline bool operator==(point_ const& a, point_ const& b) noexcept(false) {
+    //     return operators::operator==(a, b);
+    // }
+
+    /// Inequality Operator
+    // friend inline bool operator!=(point_ const& a, point_ const& b) noexcept(false) {
+    //     return operators::operator!=(a, b);
+    // }
 };
 
 template <size_t DIMS>

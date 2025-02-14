@@ -24,7 +24,6 @@ public:
 
     bool is_surface_point(point const& world_point) const override;
     precision get_object_extent(void) const override;
-
 private:
     std::array<raytrace::point, 2> m_points;
 };

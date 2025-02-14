@@ -26,7 +26,7 @@ public:
         , s1x1{raytrace::point{-15, 15, 5}, 5}
         , happy{2.0_p, colors::black, colors::yellow}
         , s1x2{raytrace::point{0, 15, 5}, 5}
-        , marble{1.65_p, 1.0_p, 4.0_p, 256.0_p, 2.75_p, colors::black, colors::white}
+        , marble{1024.0_p, 1.65_p, 1.0_p, 4.0_p, 256.0_p, 2.75_p, colors::black, colors::white}
         , s1x3{raytrace::point{15, 15, 5}, 5}
         , dots{7.0_p, colors::black, colors::white}
         , s2x1{raytrace::point{-15, 0, 5}, 5}

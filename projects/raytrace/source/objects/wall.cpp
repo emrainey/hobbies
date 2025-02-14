@@ -17,16 +17,16 @@ wall::wall(point const& C, vector const& N, precision thickness)
     , m_back_{R3::origin + ((-N.normalized()) * thickness/2.0_p), -N.normalized()} {
 }
 
-vector wall::normal(point const& world_point) const {
+vector wall::normal_(point const& wall_point) const {
     using namespace geometry::operators;
-    // world_point.print("request normal from");
-    auto const wall_point = reverse_transform(world_point);
-    vector const& Nf = m_front_.normal(wall_point);
-    vector const& Nb = m_back_.normal(wall_point);
-    if (geometry::operators::operator==(wall_point,m_front_.position())) {
+    vector const& Nf = m_front_.unormal();
+    vector const& Nb = m_back_.unormal();
+    // if (geometry::operators::operator==(wall_point,m_front_.position())) {
+    if (wall_point == m_front_.position()) {
         return Nf;
     }
-    if (geometry::operators::operator==(wall_point, m_back_.position())) {
+    // if (geometry::operators::operator==(wall_point, m_back_.position())) {
+    if (wall_point == m_back_.position()) {
         return Nb;
     }
     // these are within wall space, not world space
@@ -35,9 +35,9 @@ vector wall::normal(point const& world_point) const {
     precision projection_to_front_plane = dot(Nf, Vf);
     precision projection_to_back_plane = dot(Nb, Vb);
     if (basal::nearly_zero(projection_to_front_plane)) {
-        return forward_transform(Nf); // already forward transformed
+        return Nf; // already forward transformed
     } else if (basal::nearly_zero(projection_to_back_plane)) {
-        return forward_transform(Nb); // already forward transformed
+        return Nb; // already forward transformed
     }
     // std::abort();
     // either between or nearly so
@@ -59,22 +59,34 @@ vector wall::normal(point const& world_point) const {
 hits wall::collisions_along(ray const& wall_ray) const {
     auto plane_rayA = m_front_.reverse_transform(wall_ray);
     hits ts0 = m_front_.collisions_along(plane_rayA);
+    // each hit is in object space, not wall space and needs to be updated
+    for (auto& t : ts0) {
+        t.intersect = m_front_.forward_transform(as_point(t.intersect));
+        t.normal = m_front_.forward_transform(t.normal);
+    }
     auto plane_rayB = m_back_.reverse_transform(wall_ray);
     hits ts1 = m_back_.collisions_along(plane_rayB);
+    // each hit is in object space, not wall space and needs to be updated
+    for (auto& t : ts1) {
+        t.intersect = m_back_.forward_transform(as_point(t.intersect));
+        t.normal = m_back_.forward_transform(t.normal);
+    }
     ts0.insert(ts0.end(), ts1.begin(), ts1.end());
     return ts0;
 }
 
 bool wall::is_surface_point(point const& world_point) const {
-    return m_front_.is_surface_point(world_point) or m_back_.is_surface_point(world_point);
+    point wall_point = reverse_transform(world_point);
+    return m_front_.is_surface_point(wall_point) or m_back_.is_surface_point(wall_point);
 }
 
-image::point wall::map(point const& object_surface_point) const {
-    if (m_front_.is_surface_point(object_surface_point)) {
-        return m_front_.map(object_surface_point);
+image::point wall::map(point const& world_point) const {
+    point wall_point = reverse_transform(world_point);
+    if (m_front_.is_surface_point(wall_point)) {
+        return m_front_.map(wall_point);
     }
-    else if (m_back_.is_surface_point(object_surface_point)) {
-        return m_back_.map(object_surface_point);
+    else if (m_back_.is_surface_point(wall_point)) {
+        return m_back_.map(wall_point);
     }
     return geometry::R2::origin;
 }

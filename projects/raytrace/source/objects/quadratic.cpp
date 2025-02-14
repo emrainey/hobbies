@@ -19,12 +19,11 @@ quadratic::quadratic(point const& center, raytrace::matrix& C)
                                    "Must be a 4x4");
 }
 
-vector quadratic::normal(point const& world_surface_point) const {
-    point object_surface_point = reverse_transform(world_surface_point);
+vector quadratic::normal_(point const& object_surface_point) const {
     raytrace::matrix const& Q = m_coefficients;  // ease of reference
-    precision x = world_surface_point.x;
-    precision y = world_surface_point.y;
-    precision z = world_surface_point.z;
+    precision x = object_surface_point.x;
+    precision y = object_surface_point.y;
+    precision z = object_surface_point.z;
     precision Nx = 2.0 * (Q.at(1, 1) * x + Q.at(1, 2) * y + Q.at(1, 3) * z + Q.at(1, 4));
     precision Ny = 2.0 * (Q.at(2, 1) * x + Q.at(2, 2) * y + Q.at(2, 3) * z + Q.at(2, 4));
     precision Nz = 2.0 * (Q.at(3, 1) * x + Q.at(3, 2) * y + Q.at(3, 3) * z + Q.at(3, 4));
@@ -62,10 +61,12 @@ hits quadratic::collisions_along(ray const& object_ray) const {
     precision t0 = std::get<0>(roots);
     precision t1 = std::get<1>(roots);
     if (not basal::is_nan(t0)) {
-        ts.push_back(t0);
+        point R = object_ray.distance_along(t0);
+        ts.emplace_back(intersection{R}, t0, normal_(R), this);
     }
     if (not basal::is_nan(t1)) {
-        ts.push_back(t1);
+        point R = object_ray.distance_along(t1);
+        ts.emplace_back(intersection{R}, t1, normal_(R), this);
     }
     return ts;
 }

@@ -18,13 +18,7 @@ using ray = geometry::R3::ray;
 using line = geometry::R3::line;
 /// Reusing other matrix
 using matrix = linalg::matrix;
-/// A hit is both a distance along the line and the normal at that point
-struct hit {
-    precision t;  //!< The distance along the line.
-    vector N;        //!< The normal at the point along the line.
-};
-/// A set of distances along the world_ray which collide with the object, could be many.
-using hits = std::vector<precision>;
+
 /// Determines if points are on surfaces, thus having a normal
 constexpr static bool check_on_surface = geometry::check_on_surface;
 /// An axis aligned bounding box for computing the BSP

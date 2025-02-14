@@ -91,4 +91,7 @@ intersection intersects(R3::sphere const& S, R3::line const& l) noexcept(false);
 inline intersection intersects(R3::line const& l, R3::sphere const& S) noexcept(false) {
     return intersects(S, l);
 }
+
+bool operator==(intersection const& a, intersection const& b);
+
 }  // namespace geometry

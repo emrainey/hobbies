@@ -15,53 +15,38 @@ plane::plane(point const& C, vector const& N)
     // N.print("plane");
 }
 
-vector plane::normal(point const& world_point __attribute__((unused))) const {
-    // auto object_point = reverse_transform(world_point);
-    vector world_normal = forward_transform(geometry::plane::normal);
-    // world_normal.print("plane normal");
-    return world_normal;
-}
-
-intersection plane::intersect(ray const& world_ray) const {
-    auto object_ray = reverse_transform(world_ray);
-    hits ts = collisions_along(object_ray);
-    if (ts.size() > 0 and ts[0] >= (0 - basal::epsilon)) {
-        // check the orientation of the world ray with the normal
-        precision d = dot(geometry::plane::normal, object_ray.direction());
-        if (d < 0) {  // if the ray points into the plane, yes it collides, else no it's not really colliding
-            // only 1 possible element and 1 type
-            auto object_point = object_ray.distance_along(ts[0]);
-            point world_point = forward_transform(object_point);
-            return intersection(world_point);
-        }
-    }
-    return intersection();
+vector plane::normal_(point const& object_space_point __attribute__((unused))) const {
+    return geometry::plane::unormal().normalize();
 }
 
 hits plane::collisions_along(ray const& object_ray) const {
     hits ts;
     // is the ray parallel to the plane?
     // @note in object space, the center point is at the origin
-    vector const& N = geometry::plane::normal;
+    vector const& N = unormal();
     vector const& V = object_ray.direction();
     precision const proj = dot(V, N);
     // if so the projection is not zero they collide *somewhere*
     // could be positive or negative t.
-    if (not basal::nearly_zero(proj)) {
+    if (not basal::nearly_zero(proj)) {  // they collide *somewhere* ( and proj < 0.0_p?)
         point const& P = object_ray.location();
         // get the vector of the center to the ray initial
         vector const C = geometry::R3::origin - P;
         // t is the ratio of the projection of the arbitrary center vector divided by the projection ray
         precision const t = dot(C, N) / proj;
-        ts.push_back(t);
+        // D is the point on the line t distance along
+        point D = object_ray.distance_along(t);
+        ts.emplace_back(intersection{D}, t, N, this);
     }
     return ts;
 }
 
 bool plane::is_surface_point(point const& world_point) const {
-    point object_point = reverse_transform(world_point);
-    vector T = object_point - position();
-    return basal::nearly_zero(dot(geometry::plane::normal, T));
+    vector T = world_point - position();
+    if (T == R3::null) {
+        return true;
+    }
+    return basal::nearly_zero(dot(unormal(), T));
 }
 
 image::point plane::map(point const& object_surface_point) const {
@@ -80,7 +65,7 @@ bool plane::is_along_infinite_extent(ray const& world_ray) const {
     // is the ray parallel to the plane?
     auto object_ray = reverse_transform(world_ray);
     // @note in object space, the center point is at the origin
-    vector const& N = geometry::plane::normal;
+    vector const& N = unormal();
     vector const& V = object_ray.direction();
     // projection of normal on ray direction
     precision const proj = dot(V, N);
@@ -89,7 +74,7 @@ bool plane::is_along_infinite_extent(ray const& world_ray) const {
 }
 
 void plane::print(char const str[]) const {
-    std::cout << str << " Plane @" << this << " " << position() << " Normal " << normal(position()) << std::endl;
+    std::cout << str << " Plane @" << this << " " << position() << " Normal " << unormal() << std::endl;
 }
 
 }  // namespace objects

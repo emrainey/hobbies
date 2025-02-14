@@ -30,7 +30,7 @@ hits square::collisions_along(ray const& object_ray) const {
         point D = object_ray.distance_along(t0);
         // if point D is contained within the 3D points it's in the square.
         if (m_points[0].x <= D.x and D.x <= m_points[1].x and m_points[0].y <= D.y and D.y <= m_points[1].y) {
-            ts.push_back(t0);
+            ts.emplace_back(intersection{D}, t0, normal_(D), this);
         }
     }
     return ts;

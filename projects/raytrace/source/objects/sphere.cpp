@@ -19,13 +19,13 @@ sphere::sphere(point const& c, precision r)
 
 bool sphere::is_surface_point(point const& world_surface_point) const {
     point object_surface_point = reverse_transform(world_surface_point);
-    return geometry::R3::sphere::surface(object_surface_point);
+    return geometry::R3::sphere::on_surface(object_surface_point);
 }
 
-vector sphere::normal(point const& world_surface_point) const {
-    point object_surface_point = reverse_transform(world_surface_point);
-    return forward_transform(geometry::R3::sphere::normal(object_surface_point));
+vector sphere::normal_(point const& object_surface_point) const {
+    return geometry::R3::sphere::normal_at(object_surface_point);
 }
+
 
 hits sphere::collisions_along(ray const& object_ray) const {
     hits ts;
@@ -41,8 +41,14 @@ hits sphere::collisions_along(ray const& object_ray) const {
     auto roots = linalg::quadratic_roots(a, b, c);
     precision t0 = std::get<0>(roots);
     precision t1 = std::get<1>(roots);
-    if (not basal::is_nan(t0)) ts.push_back(t0);
-    if (not basal::is_nan(t1)) ts.push_back(t1);
+    if (not basal::is_nan(t0)) {
+        point R = object_ray.distance_along(t0);
+        ts.emplace_back(intersection{R}, t0, normal_(R), this);
+    }
+    if (not basal::is_nan(t1)) {
+        point R = object_ray.distance_along(t1);
+        ts.emplace_back(intersection{R}, t1, normal_(R), this);
+    }
     return ts;
 }
 

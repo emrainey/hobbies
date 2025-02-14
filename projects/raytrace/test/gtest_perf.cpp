@@ -38,7 +38,7 @@ TEST_F(PerfCounter, IntersectionsPlane) {
     raytrace::objects::plane obj(R3::origin, R3::basis::Z);
     activity = std::string("plane intersections");
     for (size_t count = 0; count < number_of_ops; count++) {
-        geometry::intersection hit = obj.intersect(r);
+        geometry::intersection hit = obj.intersect(r).intersect;
         ASSERT_EQ(geometry::IntersectionType::Point, get_type(hit));
     }
 }
@@ -48,7 +48,7 @@ TEST_F(PerfCounter, IntersectionsSquare) {
     raytrace::objects::square obj(R3::origin, R3::basis::Z, 1.0, 1.0);
     activity = std::string("square intersections");
     for (size_t count = 0; count < number_of_ops; count++) {
-        geometry::intersection hit = obj.intersect(r);
+        geometry::intersection hit = obj.intersect(r).intersect;
         ASSERT_EQ(geometry::IntersectionType::Point, get_type(hit));
     }
 }
@@ -58,7 +58,7 @@ TEST_F(PerfCounter, IntersectionsRing) {
     raytrace::objects::ring obj(R3::origin, R3::basis::Z, 1.0, 2.0);
     activity = std::string("ring intersections");
     for (size_t count = 0; count < number_of_ops; count++) {
-        geometry::intersection hit = obj.intersect(r);
+        geometry::intersection hit = obj.intersect(r).intersect;
         ASSERT_EQ(geometry::IntersectionType::Point, get_type(hit));
     }
 }
@@ -68,7 +68,7 @@ TEST_F(PerfCounter, IntersectionsTriangle) {
     raytrace::objects::triangle obj(raytrace::point{-1, 1, 0}, raytrace::point{+1, 0, 0}, raytrace::point{-1, -1, 0});
     activity = std::string("triangle intersections");
     for (size_t count = 0; count < number_of_ops; count++) {
-        geometry::intersection hit = obj.intersect(r);
+        geometry::intersection hit = obj.intersect(r).intersect;
         ASSERT_EQ(geometry::IntersectionType::Point, get_type(hit));
     }
 }
@@ -78,7 +78,7 @@ TEST_F(PerfCounter, IntersectionsCuboid) {
     raytrace::objects::cuboid obj(R3::origin, 1.0, 1.0, 1.0);
     activity = std::string("cuboid intersections");
     for (size_t count = 0; count < number_of_ops; count++) {
-        geometry::intersection hit = obj.intersect(r);
+        geometry::intersection hit = obj.intersect(r).intersect;
         ASSERT_EQ(geometry::IntersectionType::Point, get_type(hit));
     }
 }
@@ -88,7 +88,7 @@ TEST_F(PerfCounter, IntersectionsCylinder) {
     raytrace::objects::cylinder obj(R3::origin, 1.0, 1.0);
     activity = std::string("cylinder intersections");
     for (size_t count = 0; count < number_of_ops; count++) {
-        geometry::intersection hit = obj.intersect(r);
+        geometry::intersection hit = obj.intersect(r).intersect;
         ASSERT_EQ(geometry::IntersectionType::Point, get_type(hit));
     }
 }
@@ -98,7 +98,7 @@ TEST_F(PerfCounter, IntersectionsCone) {
     raytrace::objects::cone obj(R3::origin, 1.0, 1.0);
     activity = std::string("cone intersections");
     for (size_t count = 0; count < number_of_ops; count++) {
-        geometry::intersection hit = obj.intersect(r);
+        geometry::intersection hit = obj.intersect(r).intersect;
         ASSERT_EQ(geometry::IntersectionType::Point, get_type(hit));
     }
 }
@@ -108,7 +108,7 @@ TEST_F(PerfCounter, IntersectionsSphere) {
     raytrace::objects::sphere obj(R3::origin, 1.0);
     activity = std::string("sphere intersections");
     for (size_t count = 0; count < number_of_ops; count++) {
-        geometry::intersection hit = obj.intersect(r);
+        geometry::intersection hit = obj.intersect(r).intersect;
         ASSERT_EQ(geometry::IntersectionType::Point, get_type(hit));
     }
 }
@@ -118,7 +118,7 @@ TEST_F(PerfCounter, IntersectionsPyramid) {
     raytrace::objects::pyramid obj(R3::origin, 1.0);
     activity = std::string("pyramid intersections");
     for (size_t count = 0; count < number_of_ops; count++) {
-        geometry::intersection hit = obj.intersect(r);
+        geometry::intersection hit = obj.intersect(r).intersect;
         ASSERT_EQ(geometry::IntersectionType::Point, get_type(hit));
     }
 }
@@ -128,7 +128,7 @@ TEST_F(PerfCounter, IntersectionsTorus2Hits) {
     raytrace::objects::torus obj(R3::origin, 1.0, 0.2);
     activity = std::string("torus 2h intersections");
     for (size_t count = 0; count < number_of_ops; count++) {
-        geometry::intersection hit = obj.intersect(r);
+        geometry::intersection hit = obj.intersect(r).intersect;
         ASSERT_EQ(geometry::IntersectionType::Point, get_type(hit));
     }
 }
@@ -138,7 +138,7 @@ TEST_F(PerfCounter, IntersectionsTorus4Hits) {
     raytrace::objects::torus obj(R3::origin, 1.0, 0.2);
     activity = std::string("torus 4h intersections");
     for (size_t count = 0; count < number_of_ops; count++) {
-        geometry::intersection hit = obj.intersect(r);
+        geometry::intersection hit = obj.intersect(r).intersect;
         ASSERT_EQ(geometry::IntersectionType::Point, get_type(hit));
     }
 }
@@ -150,7 +150,7 @@ TEST_F(PerfCounter, IntersectionsQuadratic) {
     raytrace::objects::quadratic obj(R3::origin, C);
     activity = std::string("quadratic surface intersections");
     for (size_t count = 0; count < number_of_ops; count++) {
-        geometry::intersection hit = obj.intersect(r);
+        geometry::intersection hit = obj.intersect(r).intersect;
         ASSERT_EQ(geometry::IntersectionType::Point, get_type(hit));
     }
 }

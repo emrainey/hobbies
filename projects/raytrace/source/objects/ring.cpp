@@ -17,10 +17,10 @@ ring::ring(point const& C, vector const& N, precision inner, precision outer)
 hits ring::collisions_along(ray const& object_ray) const {
     hits ts;
     // is the ray parallel to the plane?
-    vector const& N = m_normal;
+    vector const& N = unormal();
     vector const& V = object_ray.direction();
     precision const proj = dot(V, N);       // if so the projection is zero
-    if (not basal::nearly_zero(proj)) {  // they collide *somewhere*
+    if (not basal::nearly_zero(proj) and proj < 0.0_p) {  // they collide *somewhere*
         point const& P = object_ray.location();
         // get the vector of the center to the ray initial
         vector const C = geometry::R3::origin - P;
@@ -34,7 +34,7 @@ hits ring::collisions_along(ray const& object_ray) const {
         precision distance_to_center2 = E.quadrance();
         // do we need to do a more in-depth test?
         if (m_inner_radius2 <= distance_to_center2 and distance_to_center2 <= m_outer_radius2) {
-            ts.push_back(t0);
+            ts.emplace_back(intersection{D}, t0, N, this);
         }
     }
     return ts;

@@ -72,6 +72,12 @@ hits overlap::collisions_along(ray const& overlap_ray) const {
     // merge the lists, then sort distances.
     hits hitsAB;
     hitsAB.insert(hitsAB.end(), hitsA.begin(), hitsA.end());
+    if (m_type == overlap::type::subtractive) {
+        // reverse the normals on B so they point "into" the object
+        for (auto& h : hitsB) {
+            h.normal = !h.normal;
+        }
+    }
     hitsAB.insert(hitsAB.end(), hitsB.begin(), hitsB.end());
     std::sort(hitsAB.begin(), hitsAB.end(), sorter);
 
@@ -103,7 +109,7 @@ hits overlap::collisions_along(ray const& overlap_ray) const {
         }
         // if [A0, B0, B1, A0] them remove [B0, B1] and return [A0, A1] or reverse ?
     } else if (m_type == overlap::type::subtractive) {
-        // B is the subtractive object. negate B's normals (done in the normal function)
+        // B is the subtractive object. negate B's normals
         // if just [B0, B1] with no A, return empty
         if (hitsA.size() == 0) {
             return hits();  // empty;
@@ -128,6 +134,7 @@ hits overlap::collisions_along(ray const& overlap_ray) const {
                 return hits();  // empty
             }
             // if [B0, A0, B1, A1] then return [B1, A1]
+            // and reverse the B1 normal!
             if (hitsAB[0] == hitsB[0] and hitsAB[1] == hitsA[0]) {
                 return hits(hitsAB.begin() + 2, hitsAB.end());
             }
@@ -204,21 +211,37 @@ hits overlap::collisions_along(ray const& overlap_ray) const {
         // FIXME this does not correctly return the outer, inner, inner, outer case
         if (m_closed_two_hit_surfaces_) {
             // for a closed surface all the points are hits (the inner points have their normals reversed)
-            // if [A0, B0, B1, A1] then return [A0, B0, B1, A1] (outer points have reversed normals)
+            // if [A0, B0, A1, B1] then return [A0, B0, A1, B1] (inner points have reversed normals)
+            if (hitsAB[0] == hitsA[0] and hitsAB[1] == hitsB[0] and hitsAB[2] == hitsA[1] and hitsAB[3] == hitsB[1]) {
+                hitsAB[1].normal = !hitsAB[1].normal;
+                hitsAB[2].normal = !hitsAB[2].normal;
+                return hitsAB;
+            }
+            // if [B0, A0, B1, A1] then return [B0, A0, B1, A1] (inner points have reversed normals)
+            if (hitsAB[0] == hitsB[0] and hitsAB[1] == hitsA[0] and hitsAB[2] == hitsB[1] and hitsAB[3] == hitsA[1]) {
+                hitsAB[1].normal = !hitsAB[1].normal;
+                hitsAB[2].normal = !hitsAB[2].normal;
+                return hitsAB;
+            }
+            // if [A0, B0, B1, A1] then return [A0, B0, B1, A1] (inner points have reversed normals)
+            if (hitsAB[0] == hitsA[0] and hitsAB[3] == hitsA[1] and hitsAB[1] == hitsB[0] and hitsAB[2] == hitsB[1]) {
+                hitsAB[1].normal = !hitsAB[1].normal;
+                hitsAB[2].normal = !hitsAB[2].normal;
+                return hitsAB;
+            }
             // if [B0, A0, A1, B1] then return [B0, A0, A1, B1] (inner points have reversed normals)
+            if (hitsAB[0] == hitsB[0] and hitsAB[3] == hitsB[1] and hitsAB[1] == hitsA[0] and hitsAB[2] == hitsA[1]) {
+                hitsAB[1].normal = !hitsAB[1].normal;
+                hitsAB[2].normal = !hitsAB[2].normal;
+                return hitsAB;
+            }
             // if [A0, A1, B0, B1] then return that (no reversed normals)
-            // if [B0, B1, A0, A1] then return that (no reversed normals)
-            if (hitsAB[0] == hitsA[0] and hitsAB[3] == hitsA[1]) {
-                return hits(hitsAB.begin(), hitsAB.end());
-            }
-            if (hitsAB[0] == hitsB[0] and hitsAB[3] == hitsB[1]) {
-                return hits(hitsAB.begin(), hitsAB.end());
-            }
             if (hitsAB[0] == hitsA[0] and hitsAB[1] == hitsA[0]) {
-                return hits(hitsAB.begin(), hitsAB.end());
+                return hitsAB;
             }
+            // if [B0, B1, A0, A1] then return that (no reversed normals)
             if (hitsAB[0] == hitsB[0] and hitsAB[1] == hitsB[1]) {
-                return hits(hitsAB.begin(), hitsAB.end());
+                return hitsAB;
             }
         }
         if (m_open_two_hit_surfaces_) {

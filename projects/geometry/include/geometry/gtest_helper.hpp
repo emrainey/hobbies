@@ -18,6 +18,7 @@
 
 #define ASSERT_POINT_EQ(pa, pb)                                                               \
     {                                                                                         \
+        EXPECT_EQ(pa, pb);                                                                    \
         ASSERT_EQ(pa.dimensions, pb.dimensions);                                              \
         for (size_t i = 0; i < pa.dimensions; i++) {                                          \
             ASSERT_NEAR(pa[i], pb[i], basal::epsilon)                                         \
@@ -28,6 +29,7 @@
 
 #define ASSERT_VECTOR_EQ(va, vb)                                                              \
     {                                                                                         \
+        EXPECT_EQ(va, vb);                                                                    \
         ASSERT_EQ(va.dimensions, vb.dimensions);                                              \
         for (size_t i = 0; i < vb.dimensions; i++) {                                          \
             ASSERT_NEAR(va[i], vb[i], basal::epsilon)                                         \
@@ -60,6 +62,7 @@ inline void _assert_ray3_eq(geometry::precision px, geometry::precision py, geom
 
 #define EXPECT_POINT_EQ(pa, pb)                                                               \
     {                                                                                         \
+        EXPECT_EQ(pa, pb);                                                                    \
         EXPECT_EQ(pa.dimensions, pb.dimensions);                                              \
         for (size_t i = 0; i < pa.dimensions; i++) {                                          \
             EXPECT_NEAR(pa[i], pb[i], basal::epsilon)                                         \
@@ -70,6 +73,7 @@ inline void _assert_ray3_eq(geometry::precision px, geometry::precision py, geom
 
 #define EXPECT_VECTOR_EQ(va, vb)                                                              \
     {                                                                                         \
+        EXPECT_EQ(va, vb);                                                                    \
         EXPECT_EQ(va.dimensions, vb.dimensions);                                              \
         for (size_t i = 0; i < vb.dimensions; i++) {                                          \
             EXPECT_NEAR(va[i], vb[i], basal::epsilon)                                         \

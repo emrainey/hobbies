@@ -20,17 +20,21 @@ TEST(OverlapTest, RayIntersectionsInclusive) {
     // check for collisions at the lens edges
     {
         raytrace::ray r{raytrace::point{3, 0, 0}, -R3::basis::X};
-        geometry::intersection is = shape.intersect(r).intersect;
-        ASSERT_EQ(geometry::IntersectionType::Point, get_type(is));
+        hit h = shape.intersect(r);
+        ASSERT_EQ(geometry::IntersectionType::Point, get_type(h.intersect));
         raytrace::point A{1, 0, 0};
-        ASSERT_POINT_EQ(A, as_point(is));
+        ASSERT_POINT_EQ(A, as_point(h.intersect));
+        raytrace::vector N{1, 0, 0};
+        ASSERT_VECTOR_EQ(N, h.normal);
     }
     {
         raytrace::ray r{raytrace::point{-3, 0, 0}, R3::basis::X};
-        geometry::intersection is = shape.intersect(r).intersect;
-        ASSERT_EQ(geometry::IntersectionType::Point, get_type(is));
+        hit h = shape.intersect(r);
+        ASSERT_EQ(geometry::IntersectionType::Point, get_type(h.intersect));
         raytrace::point A{-1, 0, 0};
-        ASSERT_POINT_EQ(A, as_point(is));
+        ASSERT_POINT_EQ(A, as_point(h.intersect));
+        raytrace::vector N{-1, 0, 0};
+        ASSERT_VECTOR_EQ(N, h.normal);
     }
 }
 
@@ -39,21 +43,25 @@ TEST(OverlapTest, RayIntersectionsSubtractive) {
     using namespace raytrace::objects;
     objects::sphere s0{R3::point(-1, 0, 0), 2};
     objects::sphere s1{R3::point(1, 0, 0), 2};
-    overlap shape(s0, s1, overlap::type::subtractive);  // subtractive overlap which makes a concave sphere
+    overlap shape(s0, s1, overlap::type::subtractive);  // subtractive overlap which makes a concave sphere with the bit facing +X
     // check for collisions at the sphere edges and in the internal cavity
     {
         raytrace::ray r{raytrace::point{4, 0, 0}, -R3::basis::X};
-        geometry::intersection is = shape.intersect(r).intersect;
-        ASSERT_EQ(geometry::IntersectionType::Point, get_type(is));
+        hit h = shape.intersect(r);
+        ASSERT_EQ(geometry::IntersectionType::Point, get_type(h.intersect));
         raytrace::point A{-1, 0, 0};
-        ASSERT_POINT_EQ(A, as_point(is));
+        ASSERT_POINT_EQ(A, as_point(h.intersect));
+        raytrace::vector N{1, 0, 0};
+        ASSERT_VECTOR_EQ(N, h.normal); // should reflect backwards, not into the sphere
     }
     {
         raytrace::ray r{raytrace::point{-4, 0, 0}, R3::basis::X};
-        geometry::intersection is = shape.intersect(r).intersect;
-        ASSERT_EQ(geometry::IntersectionType::Point, get_type(is));
+        hit h = shape.intersect(r);
+        ASSERT_EQ(geometry::IntersectionType::Point, get_type(h.intersect));
         raytrace::point A{-3, 0, 0};
-        ASSERT_POINT_EQ(A, as_point(is));
+        ASSERT_POINT_EQ(A, as_point(h.intersect));
+        raytrace::vector N{-1, 0, 0};
+        ASSERT_VECTOR_EQ(N, h.normal); // should reflect backwards
     }
 }
 
@@ -66,21 +74,25 @@ TEST(OverlapTest, RayIntersectionsAdditive) {
     // check for collisions at the sphere edges
     {
         raytrace::ray r{raytrace::point{4, 0, 0}, -R3::basis::X};
-        geometry::intersection is = shape.intersect(r).intersect;
-        ASSERT_EQ(geometry::IntersectionType::Point, get_type(is));
+        hit h = shape.intersect(r);
+        ASSERT_EQ(geometry::IntersectionType::Point, get_type(h.intersect));
         raytrace::point A{3, 0, 0};
-        ASSERT_POINT_EQ(A, as_point(is));
+        ASSERT_POINT_EQ(A, as_point(h.intersect));
+        raytrace::vector N{1, 0, 0};
+        ASSERT_VECTOR_EQ(N, h.normal);
     }
     {
         raytrace::ray r{raytrace::point{-4, 0, 0}, R3::basis::X};
-        geometry::intersection is = shape.intersect(r).intersect;
-        ASSERT_EQ(geometry::IntersectionType::Point, get_type(is));
+        hit h = shape.intersect(r);
+        ASSERT_EQ(geometry::IntersectionType::Point, get_type(h.intersect));
         raytrace::point A{-3, 0, 0};
-        ASSERT_POINT_EQ(A, as_point(is));
+        ASSERT_POINT_EQ(A, as_point(h.intersect));
+        raytrace::vector N{-1, 0, 0};
+        ASSERT_VECTOR_EQ(N, h.normal);
     }
 }
 
-TEST(OverlapTest, DISABLED_RayIntersectionsExclusive) {
+TEST(OverlapTest, RayIntersectionsExclusive) {
     using namespace raytrace;
     using namespace raytrace::objects;
     objects::sphere s0{R3::point(-1, 0, 0), 2};
@@ -89,30 +101,39 @@ TEST(OverlapTest, DISABLED_RayIntersectionsExclusive) {
     // check for collisions at the lens edges which are INTERNAL to the structure
     {
         raytrace::ray r{raytrace::point{0, 0, 0}, -R3::basis::X};
-        geometry::intersection is = shape.intersect(r).intersect;
-        ASSERT_EQ(geometry::IntersectionType::Point, get_type(is));
+        hit h = shape.intersect(r);
+        ASSERT_EQ(geometry::IntersectionType::Point, get_type(h.intersect));
         raytrace::point A{-1, 0, 0};
-        ASSERT_POINT_EQ(A, as_point(is));
+        ASSERT_POINT_EQ(A, as_point(h.intersect));
+        raytrace::vector N{1, 0, 0};
+        ASSERT_VECTOR_EQ(N, h.normal);
     }
     {
         raytrace::ray r{raytrace::point{0, 0, 0}, R3::basis::X};
-        geometry::intersection is = shape.intersect(r).intersect;
-        ASSERT_EQ(geometry::IntersectionType::Point, get_type(is));
+        hit h = shape.intersect(r);
+        ASSERT_EQ(geometry::IntersectionType::Point, get_type(h.intersect));
         raytrace::point A{1, 0, 0};
+        ASSERT_POINT_EQ(A, as_point(h.intersect));
+        raytrace::vector N{-1, 0, 0};
+        ASSERT_VECTOR_EQ(N, h.normal);
     }
     // now check for collisions at the sphere edges
     {
         raytrace::ray r{raytrace::point{4, 0, 0}, -R3::basis::X};
-        geometry::intersection is = shape.intersect(r).intersect;
-        ASSERT_EQ(geometry::IntersectionType::Point, get_type(is));
+        hit h = shape.intersect(r);
+        ASSERT_EQ(geometry::IntersectionType::Point, get_type(h.intersect));
         raytrace::point A{3, 0, 0};
-        ASSERT_POINT_EQ(A, as_point(is));
+        ASSERT_POINT_EQ(A, as_point(h.intersect));
+        raytrace::vector N{1, 0, 0};
+        ASSERT_VECTOR_EQ(N, h.normal);
     }
     {
         raytrace::ray r{raytrace::point{-4, 0, 0}, R3::basis::X};
-        geometry::intersection is = shape.intersect(r).intersect;
-        ASSERT_EQ(geometry::IntersectionType::Point, get_type(is));
+        hit h = shape.intersect(r);
+        ASSERT_EQ(geometry::IntersectionType::Point, get_type(h.intersect));
         raytrace::point A{-3, 0, 0};
-        ASSERT_POINT_EQ(A, as_point(is));
+        ASSERT_POINT_EQ(A, as_point(h.intersect));
+        raytrace::vector N{-1, 0, 0};
+        ASSERT_VECTOR_EQ(N, h.normal);
     }
 }

@@ -70,7 +70,7 @@ TEST(EntityTest, Scaling) {
     ASSERT_POINT_EQ(J, K); // all points have scaled up
     ASSERT_POINT_EQ(C, E.position()); // the center is still the same
     E.move_by(M); // move the center
-    ASSERT_POINT_EQ(M, E.position()); // the center has moved
+    ASSERT_POINT_EQ((C + M), E.position()); // the center has moved
     C += M;
     ASSERT_POINT_EQ(C, E.position()); // scale shouldn't affect position of the entity
     raytrace::point G = E.forward_transform(F);

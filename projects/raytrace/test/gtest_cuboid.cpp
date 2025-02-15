@@ -13,26 +13,33 @@ TEST(CuboidTest, Normals) {
     using namespace raytrace;
     using namespace raytrace::objects;
 
-    raytrace::point P{0, 0, 0};
+    raytrace::point P{3, 3, 3};
     cuboid c0{P, 1.0, 1.0, 1.0};
 
-    raytrace::point pX{1, 0, 0};
-    raytrace::point nX{-1, 0, 0};
-    raytrace::point pY{0, 1, 0};
-    raytrace::point nY{0, -1, 0};
-    raytrace::point pZ{0, 0, 1};
-    raytrace::point nZ{0, 0, -1};
+    raytrace::point pX = P + raytrace::vector{1, 0, 0};
+    raytrace::point nX = P + raytrace::vector{-1, 0, 0};
+    raytrace::point pY = P + raytrace::vector{0, 1, 0};
+    raytrace::point nY = P + raytrace::vector{0, -1, 0};
+    raytrace::point pZ = P + raytrace::vector{0, 0, 1};
+    raytrace::point nZ = P + raytrace::vector{0, 0, -1};
 
     vector nx = -R3::basis::X;
     vector ny = -R3::basis::Y;
     vector nz = -R3::basis::Z;
 
-    ASSERT_VECTOR_EQ(R3::basis::X, c0.normal(pX));
-    ASSERT_VECTOR_EQ(nx, c0.normal(nX));
-    ASSERT_VECTOR_EQ(R3::basis::Y, c0.normal(pY));
-    ASSERT_VECTOR_EQ(ny, c0.normal(nY));
-    ASSERT_VECTOR_EQ(R3::basis::Z, c0.normal(pZ));
-    ASSERT_VECTOR_EQ(nz, c0.normal(nZ));
+    vector pnX = c0.normal(pX);
+    vector nnX = c0.normal(nX);
+    vector pnY = c0.normal(pY);
+    vector nnY = c0.normal(nY);
+    vector pnZ = c0.normal(pZ);
+    vector nnZ = c0.normal(nZ);
+
+    ASSERT_VECTOR_EQ(R3::basis::X, pnX);
+    ASSERT_VECTOR_EQ(nx, nnX);
+    ASSERT_VECTOR_EQ(R3::basis::Y, pnY);
+    ASSERT_VECTOR_EQ(ny, nnY);
+    ASSERT_VECTOR_EQ(R3::basis::Z, pnZ);
+    ASSERT_VECTOR_EQ(nz, nnZ);
 }
 
 TEST(CuboidTest, IntersectionMissed) {

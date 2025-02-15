@@ -23,7 +23,7 @@ hits plane::collisions_along(ray const& object_ray) const {
     hits ts;
     // is the ray parallel to the plane?
     // @note in object space, the center point is at the origin
-    vector const& N = unormal();
+    vector const& N = unormal(); // .normalized();
     vector const& V = object_ray.direction();
     precision const proj = dot(V, N);
     // if so the projection is not zero they collide *somewhere*

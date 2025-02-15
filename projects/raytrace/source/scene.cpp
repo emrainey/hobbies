@@ -5,12 +5,9 @@
 
 namespace raytrace {
 
-scene::intersect_set::intersect_set(precision d, geometry::intersection const& i, objects::object const* o)
-    : distance{d}, intersector{i}, objptr{o} {
-}
-
-static constexpr bool debug = false;
-static constexpr bool enforce_ranges = true;
+static constexpr bool hit_debug = false;
+static constexpr bool camera_debug = false;
+// static constexpr bool enforce_ranges = true;
 /// uses fixed color scheme for shadows, light, near-zero values
 // static constexpr bool debug_shadows_and_light = false;
 // static constexpr bool use_incident_scaling = true;
@@ -60,9 +57,10 @@ size_t scene::number_of_lights(void) const {
     return m_lights.size();
 }
 
-scene::intersect_list scene::find_intersections(ray const& world_ray, object_list const& objects) {
+objects::hits scene::find_intersections(ray const& world_ray, object_list const& objects) {
     // find collisions (objects determine number of collisions) with the environment
-    intersect_list intersections;
+    objects::hits hits;
+    /// FIXME this is not very efficient as we could use a some structure to determine where the ray is intersecting
     for (auto objptr : objects) {
         basal::exception::throw_if(objptr == nullptr, __FILE__, __LINE__, "Object can't be nullptr");
         auto collision = objptr->intersect(world_ray);
@@ -76,51 +74,44 @@ scene::intersect_list scene::find_intersections(ray const& world_ray, object_lis
         } else if (get_type(collision.intersect) == IntersectionType::Line) {
             statistics::get().intersections_with_line++;
         }
-        intersections.push_back(collision.intersect);
+        hits.push_back(collision);
     }
-    return intersections;
+    return hits;
 }
 
-scene::intersect_set scene::nearest_object(ray const& world_ray, intersect_list const& intersections,
+objects::hit scene::nearest_object(ray const& world_ray, objects::hits const& hits,
                                            object_list const& objects) {
-    basal::exception::throw_unless(intersections.size() == objects.size(), __FILE__, __LINE__, "Lists must match!");
-    objects::object const* closest_object = nullptr;
+    basal::exception::throw_unless(hits.size() == objects.size(), __FILE__, __LINE__, "Lists must match!");
     precision closest_distance2 = std::numeric_limits<precision>::max();
-    geometry::intersection closest_intersection;
-    for (size_t i = 0; i < intersections.size(); i++) {
-        geometry::intersection const& inter = intersections[i];
-        if (get_type(inter) == IntersectionType::Point) {
-            if constexpr (debug) {
-                std::cout << inter << std::endl;
-            }
+    objects::hit closest_hit;
+    for (auto const& this_hit : hits) {
+        if constexpr (hit_debug) {
+            std::cout << this_hit << std::endl;
+        }
+        if (get_type(this_hit.intersect) == IntersectionType::Point) {
             // find the distance
-            vector D = as_point(inter) - world_ray.location();
+            vector D = as_point(this_hit.intersect) - world_ray.location();
             precision distance2 = D.quadrance();
             // distance can't be negative but can be zero
             // which means the world_ray is already touching so we don't need to care about that?
             if (basal::epsilon < distance2 and distance2 < closest_distance2) {
                 closest_distance2 = distance2;
-                closest_intersection = inter;
-                closest_object = objects[i];
+                closest_hit = this_hit;
             }
-        } else if (get_type(inter) == IntersectionType::Points) {
+        } else if (get_type(this_hit.intersect) == IntersectionType::Points) {
             // returns two points, check each one.
-            auto sop = as_points(inter);
-            if constexpr (debug) {
-                std::cout << inter << std::endl;
-            }
-            for (size_t j = 0; j < sop.size(); j++) {
-                vector D = sop[j] - world_ray.location();
+            auto sop = as_points(this_hit.intersect);
+            for (auto const& pnt : sop) {
+                vector D = pnt - world_ray.location();
                 precision distance2 = D.quadrance();
                 if (basal::epsilon < distance2 and distance2 < closest_distance2) {
                     closest_distance2 = distance2;
-                    closest_intersection = intersection(sop[j]);
-                    closest_object = objects[i];
+                    closest_hit = this_hit;
                 }
             }
         }
     }
-    return intersect_set(std::sqrt(closest_distance2), closest_intersection, closest_object);
+    return closest_hit;
 }
 
 color scene::trace(ray const& world_ray, mediums::medium const& media, size_t reflection_depth,
@@ -131,28 +122,28 @@ color scene::trace(ray const& world_ray, mediums::medium const& media, size_t re
     color traced_color;
 
     // finds all the intersections with the objects
-    intersect_list intersections = find_intersections(world_ray, m_objects);
+    objects::hits hits = find_intersections(world_ray, m_objects);
 
     // find the closest intersection object
-    intersect_set nearest = nearest_object(world_ray, intersections, m_objects);
+    objects::hit nearest = nearest_object(world_ray, hits, m_objects);
 
     // if it was a point...
-    if (get_type(nearest.intersector) == IntersectionType::Point) {
-        assert(nearest.objptr != nullptr);
+    if (get_type(nearest.intersect) == IntersectionType::Point) {
+        assert(nearest.object != nullptr);
         // temporary for not using pointer.
-        objects::object const& obj = *nearest.objptr;
+        objects::object const& obj = *nearest.object;
         // temporary for the object's medium
         mediums::medium const& medium = obj.material();
         // the intersection point in world space
-        raytrace::point world_surface_point = as_point(nearest.intersector);
+        raytrace::point world_surface_point = as_point(nearest.intersect);
         // find produce the object surface point
         raytrace::point object_surface_point = obj.reverse_transform(world_surface_point);
-        // find the normal on the surface at that point
-        vector world_surface_normal = obj.normal(world_surface_point);
-        if constexpr (enforce_ranges) {
-            basal::exception::throw_unless(basal::nearly_equals(world_surface_normal.magnitude(), 1.0), __FILE__, __LINE__,
-                                           "Must be normalized");
-        }
+        // grab the normal on the surface at that point, ensure it's normalized
+        vector world_surface_normal = nearest.normal.normalized();
+        // if constexpr (enforce_ranges) {
+        //     basal::exception::throw_unless(basal::nearly_equals(world_surface_normal.magnitude(), 1.0), __FILE__, __LINE__,
+        //                                    "Must be normalized");
+        // }
         // if this is true, we've collided with something from the inside or the "backside"
         bool inside_out = (dot(world_surface_normal, world_ray.direction()) > 0);
 
@@ -224,21 +215,21 @@ color scene::trace(ray const& world_ray, mediums::medium const& media, size_t re
                     // construct a world ray from that point and normalized vector
                     ray world_ray(world_surface_point, normalized_light_direction);
                     // is the light blocked by anything?
-                    intersect_list intersections = find_intersections(world_ray, m_objects);
+                    objects::hits blockers = find_intersections(world_ray, m_objects);
                     // find the nearest object in the light path, which may include P (at/near zero)
                     // if the current object is blocking the light.
-                    scene::intersect_set nearest = nearest_object(world_ray, intersections, m_objects);
+                    objects::hit blocker = nearest_object(world_ray, blockers, m_objects);
                     // is this point in a shadow of this light?
                     // either there's no intersection to the light, or
                     // there is one but it's farther away than the light itself.
-                    bool no_intersection = (get_type(nearest.intersector) == IntersectionType::None);
+                    bool no_intersection = (get_type(blocker.intersect) == IntersectionType::None);
                     bool point_farther_than_light = false;
                     bool object_is_transparent = false;
                     bool object_is_emissive = false;
-                    if (get_type(nearest.intersector) == IntersectionType::Point) {
-                        point_farther_than_light = (nearest.distance > light_direction.norm());
-                        if (nearest.objptr != nullptr) {
-                            auto other_world_point = as_point(nearest.intersector);
+                    if (get_type(blocker.intersect) == IntersectionType::Point) {
+                        point_farther_than_light = (blocker.distance > light_direction.norm());
+                        if (blocker.object != nullptr) {
+                            auto other_world_point = as_point(blocker.intersect);
                             // FIXME is a refractive object so it must be transparent?
                             // object_is_transparent =
                             // (nearest.objptr->material().refractive_index(other_world_point) > 0.0);
@@ -272,7 +263,7 @@ color scene::trace(ray const& world_ray, mediums::medium const& media, size_t re
                         // not if it's out of line!
                         if (object_is_transparent) {
                             // convenience reference
-                            raytrace::objects::object const& obj = *nearest.objptr;
+                            raytrace::objects::object const& obj = *nearest.object;
                             // convenience reference
                             raytrace::mediums::medium const& mat = obj.material();
                             // trace another ray through the object
@@ -347,7 +338,7 @@ color scene::trace(ray const& world_ray, mediums::medium const& media, size_t re
 void scene::render(camera& view, std::string filename, size_t number_of_samples, size_t reflection_depth,
                    std::optional<image::rendered_line> row_notifier, uint8_t aaa_mask_threshold, bool filter_capture) {
     bool adaptive_antialiasing = aaa_mask_threshold != raytrace::image::AAA_MASK_DISABLED;
-    if constexpr (debug) {
+    if constexpr (camera_debug) {
         view.print("Camera Info:\n");
     }
     auto tracer = [&](image::point const& pnt) -> color {

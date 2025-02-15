@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iostream>
+
 #include "basal/basal.hpp"
 #include "raytrace/entity.hpp"
 #include "raytrace/laws.hpp"
@@ -204,6 +206,11 @@ public:
         bool operator>(hit const& that) const {
             return (this->distance > that.distance);
         }
+
+        friend std::ostream& operator<<(std::ostream& os, hit const& h) {
+            return os << "hit{intersect=" << h.intersect << ", distance=" << h.distance << ", normal=" << h.normal
+                      << ", object=" << h.object << "}";
+        }
     };
     /// A set of distances along the world_ray which collide with the object, could be many.
     using hits = std::vector<hit>;
@@ -231,6 +238,7 @@ public:
             if (basal::is_nan(collision.distance)) {
                 continue;
             }
+            throw_exception_if(collision.normal == R3::null, __FILE__, __LINE__, "The normal can't be null");
             if constexpr (can_ray_origin_be_collision) {
                 if (basal::nearly_zero(collision.distance)) {
                     vector const N = normal_(object_ray.location());

@@ -20,14 +20,14 @@ TEST(SceneTest, ObjectIntersections) {
     scene::object_list objects;
     objects.push_back(&s0);
     // find the intersections (this should pass through the center)
-    scene::intersect_list list = scene::find_intersections(r0, objects);
+    objects::hits list = scene::find_intersections(r0, objects);
     // there must be same as object list
     ASSERT_EQ(objects.size(), list.size());
     // that is a point
-    ASSERT_EQ(geometry::IntersectionType::Point, get_type(list[0]));
+    ASSERT_EQ(geometry::IntersectionType::Point, get_type(list[0].intersect));
     // that point is at 0,0,2
     raytrace::point truth(0, 0, 2);
-    ASSERT_POINT_EQ(truth, as_point(list[0]));
+    ASSERT_POINT_EQ(truth, as_point(list[0].intersect));
 }
 
 TEST(SceneTest, NearestObjectIntersections) {
@@ -44,17 +44,17 @@ TEST(SceneTest, NearestObjectIntersections) {
     objects.push_back(&s0);
     objects.push_back(&s1);
     // find the intersections
-    scene::intersect_list list = scene::find_intersections(r0, objects);
+    objects::hits list = scene::find_intersections(r0, objects);
     // there must be 2
     ASSERT_EQ(objects.size(), list.size());
     // there should both be points (non-facing normals removed already)
-    ASSERT_EQ(geometry::IntersectionType::Point, get_type(list[0]));
-    ASSERT_EQ(geometry::IntersectionType::Point, get_type(list[1]));
+    ASSERT_EQ(geometry::IntersectionType::Point, get_type(list[0].intersect));
+    ASSERT_EQ(geometry::IntersectionType::Point, get_type(list[1].intersect));
     // find the nearest object to the ray
-    scene::intersect_set nearest = scene::nearest_object(r0, list, objects);
+    objects::hit nearest = scene::nearest_object(r0, list, objects);
     ASSERT_PRECISION_EQ(1, nearest.distance);
-    ASSERT_EQ(geometry::IntersectionType::Point, get_type(nearest.intersector));
-    ASSERT_EQ(&s0, nearest.objptr);
+    ASSERT_EQ(geometry::IntersectionType::Point, get_type(nearest.intersect));
+    ASSERT_EQ(&s0, nearest.object);
 }
 
 TEST(SceneTest, LowResSpheres) {

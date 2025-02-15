@@ -20,31 +20,6 @@ class scene : public basal::printable {
 public:
     using object_list = std::vector<objects::object const*>;
     using light_list = std::vector<lights::light const*>;
-    using intersect_list = std::vector<geometry::intersection>;
-
-    /// A complete set of information about the intersection information relative to an
-/// unmentioned point.
-    struct intersect_set {
-        /// Simple Constructor
-        explicit intersect_set(precision d, geometry::intersection const& i, objects::object const* o);
-        // Default Copy
-        explicit intersect_set(intersect_set const&) = default;
-        // No move construct
-        intersect_set(intersect_set&&) = delete;
-        // Default Copy Assign
-        intersect_set& operator=(intersect_set const&) = default;
-        // No move assign
-        intersect_set& operator=(intersect_set&&) = delete;
-        // Default destructor
-        virtual ~intersect_set() = default;
-
-        /// The distance to the object
-        precision distance;
-        /// The intersection information
-        geometry::intersection intersector;
-        /// The pointer to the const object of *closest* intersection
-        objects::object const* objptr;
-    };
 
     /// Constructor
     /// @param adaptive_threshold
@@ -60,16 +35,16 @@ public:
     /// @param objects [in] The list of objects in the scene.
     /// @return
     ///
-    static intersect_list find_intersections(ray const& world_ray, object_list const& objects);
+    static objects::hits find_intersections(ray const& world_ray, object_list const& objects);
 
     ///
-    /// Given a set of intersections, finds the closest intersection to a point.
+    /// Given a set of hits, finds the closest intersection to a point.
     /// @param [in] world_ray The point of the ray is the point to judge the distance from.
-    /// @param [in] intersections The list of intersections with the objects list.
+    /// @param [in] hits The list of hits with the objects list.
     /// @param [in] objects The list of objects in the scene.
     /// @return Returns the pointer to the nearest object to the point.
     ///
-    static intersect_set nearest_object(ray const& world_ray, intersect_list const& intersections, object_list const&);
+    static objects::hit nearest_object(ray const& world_ray, objects::hits const& hits, object_list const&);
 
     ///
     /// Traces the path of a world ray within the scene and returns the color.
@@ -99,7 +74,7 @@ public:
     /// The limit for reflective contributions to the top level trace.
     precision adaptive_reflection_threshold;
 
-    /// Allows the user to set a functor whioh returns the background color
+    /// Allows the user to set a functor which returns the background color
     void set_background_mapper(background_mapper bgm);
 
     /// Adds an object to the scene

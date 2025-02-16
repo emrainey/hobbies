@@ -21,6 +21,18 @@ constexpr size_t dimof(TYPE (&)[N]) {
     return N;
 }
 
+template <typename TYPE>
+constexpr bool is_even(TYPE value) {
+    static_assert(std::is_integral<TYPE>::value, "Must be an integral type");
+    return (value & 0b1) == 0b0;
+}
+
+template <typename TYPE>
+constexpr bool is_odd(TYPE value) {
+    static_assert(std::is_integral<TYPE>::value, "Must be an integral type");
+    return (value & 0b1) == 0b1;
+}
+
 namespace {
 int __secret_anonymous_array__[2];
 static_assert(dimof(__secret_anonymous_array__) == 2, "Must be 2");

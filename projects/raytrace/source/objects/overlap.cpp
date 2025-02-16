@@ -16,9 +16,9 @@ overlap::overlap(object const& A, object const& B, overlap::type type)
     , m_A{A}
     , m_B{B}
     , m_type{type}
-    , m_closed_two_hit_surfaces_{m_A.max_collisions() == 2 and m_B.max_collisions() == 2 and m_A.is_closed_surface() and m_B.is_closed_surface()}
-    , m_open_two_hit_surfaces_{m_A.max_collisions() == 2 and m_B.max_collisions() == 2 and not m_A.is_closed_surface() and not m_B.is_closed_surface()}
-    , m_open_one_hit_surfaces_{m_A.max_collisions() == 1 and m_B.max_collisions() == 1 and not m_A.is_closed_surface() and not m_B.is_closed_surface()}
+    , m_closed_two_hit_surfaces_{basal::is_even(m_A.max_collisions()) and basal::is_even(m_B.max_collisions()) and m_A.is_closed_surface() and m_B.is_closed_surface()}
+    , m_open_two_hit_surfaces_{basal::is_even(m_A.max_collisions()) and basal::is_even(m_B.max_collisions()) and not m_A.is_closed_surface() and not m_B.is_closed_surface()}
+    , m_open_one_hit_surfaces_{basal::is_odd(m_A.max_collisions()) and basal::is_odd(m_B.max_collisions()) and not m_A.is_closed_surface() and not m_B.is_closed_surface()}
     {
     // throw_exception_if(m_A.max_collisions() != 2, "First item must have a max of %" PRIu32 " collisions", 2u);
     // throw_exception_if(m_B.max_collisions() != 2, "Second item must have a max of %" PRIu32 " collisions", 2u);
@@ -247,6 +247,12 @@ hits overlap::collisions_along(ray const& overlap_ray) const {
         if (m_open_two_hit_surfaces_) {
             // FIXME i'm not sure what to do here..
         }
+        if (m_open_one_hit_surfaces_) {
+            // if [A0, B0] then return [A0, B0]
+            // if [B0, A0] then return [B0, A0]
+            // either way, it's fine
+            return hitsAB;
+        }
     }
     return hits();  // empty
 }
@@ -270,6 +276,23 @@ bool overlap::is_outside(point const& world_point) const {
         return not (outside_A xor outside_B);
     }
     return false;
+}
+
+size_t overlap::max_collisions() const {
+    if (m_type == overlap::type::additive) {
+        // could be up to each max collisions added together
+        return m_A.max_collisions() + m_B.max_collisions();
+    } else if (m_type == overlap::type::subtractive) {
+        // could be as low as each max but could be double it
+        return m_A.max_collisions() + m_B.max_collisions();
+    } else if (m_type == overlap::type::inclusive) {
+        // will be as low as each objects max
+        return std::max(m_A.max_collisions(), m_B.max_collisions());
+    } else if (m_type == overlap::type::exclusive) {
+        // will be sum of each at most
+        return m_A.max_collisions() + m_B.max_collisions();
+    }
+    return 0;
 }
 
 bool overlap::is_along_infinite_extent(ray const& world_ray) const {

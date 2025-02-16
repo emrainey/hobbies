@@ -34,7 +34,7 @@ public:
     precision get_object_extent(void) const override;
     bool is_along_infinite_extent(ray const& world_ray) const override;
     bool is_outside(point const& world_point) const override;
-
+    size_t max_collisions(void) const override;
 protected:
     vector normal_(point const& object_surface_point) const override;
 

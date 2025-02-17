@@ -7,178 +7,91 @@
 namespace raytrace {
 namespace objects {
 
+/// @class Model
+/// @brief Represents a 3D model object in the ray tracing system.
+
 class Model : public object, protected obj::Observer {
 public:
-    Model() : points_{}, normals_{}, texels_{}, faces_{}, parser_{*this}, loaded_{false} {}
-    virtual ~Model() = default;
+    /// @brief Default constructor for the Model class.
+    Model();
 
-    void print(char const name[]) const override {
-        printf("Model %s has %zu points, %zu normals, %zu triangles\n", name, points_.size(), normals_.size(), faces_.size());
-    }
+    /// @brief Prints the model information.
+    /// @param name The name to be printed.
+    void print(char const name[]) const override;
 
-    std::ostream& operator<<(std::ostream& os) const {
-        return os << "Model has " << points_.size() << " points, " << normals_.size() << " normals, " << texels_.size() << " texels, " << faces_.size() << " faces";
-    }
+    /// @brief Overloaded stream insertion operator for the Model class.
+    /// @param os The output stream.
+    /// @return The output stream with the model information.
+    std::ostream& operator<<(std::ostream& os) const;
 
-    bool is_surface_point(raytrace::point const& world_point) const override {
-        for (auto const& f : faces_) {
-            if (f.is_surface_point(world_point)) {
-                return true;
-            }
-        }
-        return false;
-    }
+    /// @brief Adds a vertex to the model.
+    /// @param x The x-coordinate of the vertex.
+    /// @param y The y-coordinate of the vertex.
+    /// @param z The z-coordinate of the vertex.
+    void addVertex(float x, float y, float z) override;
 
-    hits collisions_along(ray const& object_ray) const override {
-        hits hits;
-        for (auto const& f : faces_) {
-            auto subhits = f.collisions_along(object_ray);
-            hits.insert(hits.end(), subhits.begin(), subhits.end());
-        }
-        return hits;
-    }
+    /// @brief Adds a normal vector to the model.
+    /// @param dx The x-component of the normal vector.
+    /// @param dy The y-component of the normal vector.
+    /// @param dz The z-component of the normal vector.
+    void addNormal(float dx, float dy, float dz) override;
 
-    image::point map(point const& object_surface_point) const override {
-        return image::point{0, 0};
-    }
+    /// @brief Adds a texture coordinate to the model.
+    /// @param u The u-coordinate of the texture.
+    /// @param v The v-coordinate of the texture.
+    void addTexture(float u, float v) override;
 
-    precision get_object_extent(void) const override {
-        // find the point that is the furthest from the center
-        precision max_extent = 0.0_p;
-        for (auto const& point : points_) {
-            auto vec = point - R3::origin;
-            precision extent = vec.quadrance(); // r^2 is ok for this
-            if (extent > max_extent) {
-                max_extent = extent;
-            }
-        }
-        return max_extent;
-    }
+    /// @brief Adds a face to the model using vertex indices.
+    /// @param a The index of the first vertex.
+    /// @param b The index of the second vertex.
+    /// @param c The index of the third vertex.
+    void addFace(uint32_t a, uint32_t b, uint32_t c) override;
 
-    void addVertex(float x, float y, float z) override {
-        if constexpr (debug) {
-            printf("Adding vertex %f %f %f\n", x, y, z);
-        }
-        points_.emplace_back(x, y, z);
-    }
-    void addNormal(float dx, float dy, float dz) override {
-        if constexpr (debug) {
-            printf("Adding vector %f %f %f\n", dx, dy, dz);
-        }
-        raytrace::vector normal{dx, dy, dz};
-        normals_.emplace_back(normal);
-    }
-    void addTexture(float u, float v) override {
-        if constexpr (debug) {
-            printf("Adding texture %f %f\n", u, v);
-        }
-        texels_.emplace_back(u, v);
-    }
-    void addFace(uint32_t a, uint32_t b, uint32_t c) override {
-        uint32_t ia = a - 1;
-        uint32_t ib = b - 1;
-        uint32_t ic = c - 1;
-        bool points_ok = ia < points_.size() and ib < points_.size() and ic < points_.size();
-        if (ia < points_.size() and ib < points_.size() and ic < points_.size()) {
-            if constexpr (debug) {
-                printf("Adding triangle %u %u %u\n", a, b, c);
-            }
-            faces_.emplace_back(points_[ia], points_[ib], points_[ic]);
-        } else {
-            if constexpr (debug) {
-                printf("Index out of bounds! %" PRIu32 " %" PRIu32 " %" PRIu32 "\n", a, b, c);
-            }
-        }
-    }
+    /// @brief Adds a face to the model using vertex and texture indices.
+    /// @param a The index of the first vertex.
+    /// @param ta The index of the first texture coordinate.
+    /// @param b The index of the second vertex.
+    /// @param tb The index of the second texture coordinate.
+    /// @param c The index of the third vertex.
+    /// @param tc The index of the third texture coordinate.
+    void addFace(uint32_t a, uint32_t ta, uint32_t b, uint32_t tb, uint32_t c, uint32_t tc) override;
 
-    void addFace(uint32_t a, uint32_t ta, uint32_t b, uint32_t tb, uint32_t c, uint32_t tc) override {
-        uint32_t ia = a - 1;
-        uint32_t ib = b - 1;
-        uint32_t ic = c - 1;
-        bool points_ok = ia < points_.size() and ib < points_.size() and ic < points_.size();
-        uint32_t ita = ta - 1;
-        uint32_t itb = tb - 1;
-        uint32_t itc = tc - 1;
-        bool texels_ok = ita < texels_.size() and itb < texels_.size() and itc < texels_.size();
-        if (points_ok and texels_ok) {
-            if constexpr (debug) {
-                printf("Adding triangle (%u %u %u), (%u %u %u)\n", a, b, c, ta, tb, tc);
-            }
-            faces_.emplace_back(points_[ia], points_[ib], points_[ic], texels_[ita], texels_[itb], texels_[itc]);
-        } else {
-            if constexpr (debug) {
-                printf("Index out of bounds! %" PRIu32 " %" PRIu32 " %" PRIu32 "\n", a, b, c);
-            }
-        }
-    }
+    /// @brief Adds a face to the model using vertex, texture, and normal indices.
+    /// @param v1 The index of the first vertex.
+    /// @param t1 The index of the first texture coordinate.
+    /// @param n1 The index of the first normal vector.
+    /// @param v2 The index of the second vertex.
+    /// @param t2 The index of the second texture coordinate.
+    /// @param n2 The index of the second normal vector.
+    /// @param v3 The index of the third vertex.
+    /// @param t3 The index of the third texture coordinate.
+    /// @param n3 The index of the third normal vector.
+    void addFace(uint32_t v1, uint32_t t1, uint32_t n1, uint32_t v2, uint32_t t2, uint32_t n2, uint32_t v3, uint32_t t3, uint32_t n3) override;
 
-    void addFace(uint32_t v1, uint32_t t1, uint32_t n1, uint32_t v2, uint32_t t2, uint32_t n2, uint32_t v3, uint32_t t3, uint32_t n3) override {
-        uint32_t iv1 = v1 - 1;
-        uint32_t iv2 = v2 - 1;
-        uint32_t iv3 = v3 - 1;
-        bool points_ok = iv1 < points_.size() and iv2 < points_.size() and iv3 < points_.size();
-        uint32_t it1 = t1 - 1;
-        uint32_t it2 = t2 - 1;
-        uint32_t it3 = t3 - 1;
-        bool texels_ok = it1 < texels_.size() and it2 < texels_.size() and it3 < texels_.size();
-        uint32_t in1 = n1 - 1;
-        uint32_t in2 = n2 - 1;
-        uint32_t in3 = n3 - 1;
-        bool normals_ok = in1 < normals_.size() and in2 < normals_.size() and in3 < normals_.size();
-        if (points_ok and normals_ok and texels_ok) {
-            if constexpr (debug) {
-                printf("Adding triangle (%u %u %u), (%u, %u, %u), (%u, %u, %u)\n", v1, v2, v3, t1, t2, t3, n1, n2, n3);
-            }
-            faces_.emplace_back(points_[iv1], points_[iv2], points_[iv3], texels_[it1], texels_[it2], texels_[it3], normals_[in1], normals_[in2], normals_[in3]);
-        } else {
-            if constexpr (debug) {
-                printf("Index out of bounds! %" PRIu32 " %" PRIu32 " %" PRIu32 "\n", v1, v2, v3);
-            }
-        }
-    }
+    /// @brief Gets the number of faces in the model.
+    /// @return The number of faces.
+    size_t GetNumberOfFaces(void) const;
 
-    size_t GetNumberOfFaces(void) const {
-        return faces_.size();
-    }
+    /// @brief Loads the model from a file.
+    /// @param filename The path to the file.
+    void LoadFromFile(char const * const filename);
 
-    void LoadFromFile(char const * const filename) {
-        if (not loaded_) {
-            FILE * file = fopen(filename, "r");
-            throw_exception_unless(file != nullptr, "File %s was not found!", filename);
-            char buffer[1024];
-            while (fgets(buffer, sizeof(buffer), file)) {
-                parser_.Parse(buffer);
-            }
-            fclose(file);
-            loaded_ = true;
-            // the center of the model is the average of all the points or is it just the origin in model space?
-        }
-    }
+    /// @brief Loads the model from a string literal.
+    /// @param literal The string containing the model data.
+    void LoadFromString(char const * const literal);
 
-    void LoadFromString(char const * const literal) {
-        if (not loaded_) {
-            parser_.Parse(literal);
-            loaded_ = true;
-        }
-    }
+    /// @brief Gets the statistics of the model parser.
+    /// @return The statistics of the parser.
+    obj::Parser::Statistics const& GetStatistics() const;
 
-    obj::Parser::Statistics const& GetStatistics() const {
-        return parser_.GetStatistics();
-    }
-
+    bool is_surface_point(raytrace::point const& world_point) const override;
+    hits collisions_along(ray const& object_ray) const override;
+    image::point map(point const& object_surface_point) const override;
+    precision get_object_extent(void) const override;
 protected:
 
-    vector normal_(point const& object_surface_point) const override {
-        vector object_surface_normal{0.0_p, 0.0_p, 0.0_p};
-        // find the triangle this point is on the hard way
-        for (auto const& f : faces_) {
-            if (f.is_contained(object_surface_point)) {
-                // the triangle's normal is in the composite object space, not world space, so it needs another transform
-                object_surface_normal = f.normal(object_surface_point);
-            }
-        }
-        return entity::forward_transform(object_surface_normal);
-    }
+    vector normal_(point const& object_surface_point) const override;
+
     static constexpr bool debug = false;
     std::vector<raytrace::point> points_;
     std::vector<raytrace::vector> normals_;
@@ -187,6 +100,5 @@ protected:
     obj::Parser parser_;
     bool loaded_;
 };
-
 }   // namespace objects
 }   // namespace raytrace

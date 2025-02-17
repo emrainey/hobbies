@@ -13,11 +13,11 @@ endif()
 add_library(hobbies-raytrace
     ${CMAKE_CURRENT_SOURCE_DIR}/source/animator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/camera.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/stereocamera.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/color.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/image.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/scene.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/mapping.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/scene.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/stereocamera.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lights/beam.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lights/bulb.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lights/speck.cpp
@@ -47,6 +47,7 @@ add_library(hobbies-raytrace
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/ellipticalcylinder.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/face.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/hyperboloid.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/model.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/overlap.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/paraboloid.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/plane.cpp

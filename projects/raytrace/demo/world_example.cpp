@@ -13,6 +13,7 @@
 using namespace raytrace;
 using namespace raytrace::objects;
 using namespace raytrace::lights;
+using namespace iso::literals;
 
 class ExampleWorld : public world {
 public:
@@ -134,14 +135,14 @@ public:
         raytrace::animation::anchors anchors;
         anchors.push_back(
             animation::Anchor{
-                animation::Attributes{look_from, look_at, 55.0},
-                animation::Attributes{raytrace::point{-50, 50, 30}, look_at, 23.0},
+                animation::Attributes{look_from, look_at, 55.0_deg},
+                animation::Attributes{raytrace::point{-50, 50, 30}, look_at, 23.0_deg},
                 animation::Mappers{}, iso::seconds{10.0_p}
             });
         anchors.push_back(
             animation::Anchor{
                 anchors.back().limit, // previous limit is this start
-                animation::Attributes{raytrace::point{50, -50, 30}, look_at, 23.0},
+                animation::Attributes{raytrace::point{50, -50, 30}, look_at, 23.0_deg},
                 animation::Mappers{}, iso::seconds{10.0_p}
             });
         return anchors;

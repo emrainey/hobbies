@@ -17,7 +17,7 @@
             "typename": "precision",
             "scalevalue": "iso",
             "scaletype": "SI::prefix",
-            "postfix": "d",
+            "postfix": "deg",
             "comment": "A measure of an angle"
         },
         {

@@ -11,6 +11,7 @@
 #include "world.hpp"
 
 using namespace raytrace;
+using namespace iso::literals;
 
 void subspheres(std::vector<raytrace::objects::sphere*>& spheres, raytrace::point const& center, precision R,
                 size_t depth) {
@@ -108,8 +109,8 @@ public:
         raytrace::animation::anchors anchors;
         anchors.push_back(
             animation::Anchor{
-                animation::Attributes{look_from, look_at, 55.0},
-                animation::Attributes{look_from, look_at, 55.0},
+                animation::Attributes{look_from, look_at, 55.0_deg},
+                animation::Attributes{look_from, look_at, 55.0_deg},
                 animation::Mappers{}, iso::seconds{1.0_p}
             });
         return anchors;

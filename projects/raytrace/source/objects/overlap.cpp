@@ -10,7 +10,7 @@ using namespace linalg::operators;
 
 overlap::overlap(object const& A, object const& B, overlap::type type)
     // FIXME the max collisions are off !
-    : object{centroid(A.position(), B.position()),
+    : object{A.position(),
              (A.max_collisions() + B.max_collisions())/(type == overlap::type::inclusive ? 2 : 1),
              A.is_closed_surface() and B.is_closed_surface()}
     , m_A{A}
@@ -20,6 +20,10 @@ overlap::overlap(object const& A, object const& B, overlap::type type)
     , m_open_two_hit_surfaces_{basal::is_even(m_A.max_collisions()) and basal::is_even(m_B.max_collisions()) and not m_A.is_closed_surface() and not m_B.is_closed_surface()}
     , m_open_one_hit_surfaces_{basal::is_odd(m_A.max_collisions()) and basal::is_odd(m_B.max_collisions()) and not m_A.is_closed_surface() and not m_B.is_closed_surface()}
     {
+    if (m_type != overlap::type::subtractive) {
+        // only subtractive objects have their positions as the original objects, otherwise the overlap object is at the centroid of the two
+        position(centroid(A.position(), B.position()));
+    }
     // throw_exception_if(m_A.max_collisions() != 2, "First item must have a max of %" PRIu32 " collisions", 2u);
     // throw_exception_if(m_B.max_collisions() != 2, "Second item must have a max of %" PRIu32 " collisions", 2u);
     throw_exception_unless(m_closed_two_hit_surfaces_ or m_open_one_hit_surfaces_ or m_open_two_hit_surfaces_, "Must be one of these %lu types", 3);

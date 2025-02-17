@@ -4,7 +4,6 @@ namespace raytrace {
 namespace objects {
 /// The mechanism by which one object can overlap another and modify ray results with normals.
 /// @see overlap::type
-///
 class overlap : public object {
 public:
     /// The various types of supported overlaps
@@ -17,19 +16,21 @@ public:
     };
 
     /// Constructs an overlap between two objects
+    /// @param A The first object (when the type is subtractive, this is the center of the object)
+    /// @param B The second object (when the type is subtractive, this is the subtractive object)
+    /// @param t The type of overlap
+    /// When the type is subtractive, the position of the overlap object is at the center of A.
+    /// All other types of overlaps have their position at the centroid of A and B.
     overlap(object const& A, object const& B, type t);
 
     virtual ~overlap() = default;
 
-    /// @copydoc raytrace::object::intersect
-    // geometry::intersection intersect(ray const& world_ray) const override;
-    /// @copydoc raytrace::object::collision_along
+    // ┌────────────────┐
+    // │raytrace::object│
+    // └────────────────┘
     hits collisions_along(ray const& object_ray) const override;
-    /// @copydoc raytrace::object::map
     image::point map(point const& object_surface_point) const override;
-    /// @copydoc basal::printable::print
     void print(char const str[]) const override;
-
     bool is_surface_point(point const& world_point) const override;
     precision get_object_extent(void) const override;
     bool is_along_infinite_extent(ray const& world_ray) const override;

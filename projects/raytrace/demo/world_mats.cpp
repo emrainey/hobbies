@@ -11,6 +11,7 @@
 #include "world.hpp"
 
 using namespace raytrace;
+using namespace iso::literals;
 
 constexpr static size_t number_of_spheres_per_side = 11; // 7; // this has to be odd
 constexpr static precision radius = 3.0_p; // 4.5_p;
@@ -108,8 +109,8 @@ public:
         raytrace::animation::anchors anchors;
         anchors.push_back(
             animation::Anchor{
-                animation::Attributes{look_from, look_at, 55.0},
-                animation::Attributes{look_from, look_at, 55.0},
+                animation::Attributes{look_from, look_at, iso::degrees{55.0}},
+                animation::Attributes{look_from, look_at, iso::degrees{55.0}},
                 animation::Mappers{}, iso::seconds{1.0_p}
             });
         return anchors;

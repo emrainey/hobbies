@@ -7,6 +7,7 @@ using namespace raytrace::objects;
 using namespace raytrace::lights;
 using namespace raytrace::colors;
 using namespace raytrace::operators;
+using namespace iso::literals;
 
 // Good results at values of depth=8, subsamples=16, 1024x768, fov=23
 class ArtWorld : public world {
@@ -65,20 +66,20 @@ public:
         raytrace::animation::anchors anchors;
         anchors.push_back(
             animation::Anchor{
-                animation::Attributes{look_from, look_at, 23.0},
-                animation::Attributes{raytrace::point{25, 0, 10}, look_at, 55.0},
+                animation::Attributes{look_from, look_at, iso::degrees{23.0_p}},
+                animation::Attributes{raytrace::point{25, 0, 10}, look_at, iso::degrees{55.0}},
                 animation::Mappers{}, iso::seconds{5.0_p}
             });
         anchors.push_back(
             animation::Anchor{
                 anchors.back().limit, // previous limit is this start
-                animation::Attributes{raytrace::point{0, -25, 10}, look_at, 80.0},
+                animation::Attributes{raytrace::point{0, -25, 10}, look_at, iso::degrees{80.0}},
                 animation::Mappers{}, iso::seconds{5.0_p}
             });
         anchors.push_back(
             animation::Anchor{
                 anchors.back().limit, // previous limit is this start
-                animation::Attributes{raytrace::point{-25, 0, 10}, look_at, 55.0},
+                animation::Attributes{raytrace::point{-25, 0, 10}, look_at, iso::degrees{55.0}},
                 animation::Mappers{}, iso::seconds{5.0_p}
             });
         return anchors;

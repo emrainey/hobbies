@@ -9,7 +9,7 @@ namespace animation {
 struct Attributes {
     raytrace::point from{0, 10, 10};         ///< The location where the camera is
     raytrace::point at{0, 0, 0};            ///< The location where the camera is looking
-    precision fov{55.0_p};                  ///< The field of view of the camera (horizontal)
+    iso::degrees fov{55.0_p};               ///< The field of view of the camera (horizontal)
 };
 
 /// Defines the mappers to use for the camera attributes. Defaults to linear maps.

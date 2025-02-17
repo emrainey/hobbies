@@ -92,13 +92,13 @@ precision operator/(degrees const& A, degrees const& B) {
 }
 }  // namespace operators
 namespace literals {
-iso::degrees operator""_d(long double a) {
+iso::degrees operator""_deg(long double a) {
     return iso::degrees(static_cast<precision>(a));
 }
-iso::degrees operator""_d(unsigned long long a) {
+iso::degrees operator""_deg(unsigned long long a) {
     return iso::degrees(a);
 }
-iso::degrees operator""_d(char const a[]) {
+iso::degrees operator""_deg(char const a[]) {
     return iso::degrees(atol(a));
 }
 }  // namespace literals

@@ -13,6 +13,7 @@
 using namespace raytrace;
 using namespace raytrace::objects;
 using namespace raytrace::lights;
+using namespace iso::literals;
 
 class MonochromeWorld : public world {
 public:
@@ -113,8 +114,8 @@ public:
         raytrace::animation::anchors anchors;
         anchors.push_back(
             animation::Anchor{
-                animation::Attributes{look_from, look_at, 55.0},
-                animation::Attributes{look_from, look_at, 55.0},
+                animation::Attributes{look_from, look_at, 55.0_deg},
+                animation::Attributes{look_from, look_at, 55.0_deg},
                 animation::Mappers{}, iso::seconds{1.0_p}
             });
         return anchors;

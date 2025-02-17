@@ -204,7 +204,7 @@ public:
 protected:
     void Complete(void) {
         if constexpr (debug) {
-            printf("state=%c sub=%c Buffer=%s\n", to_underlying(m_state_), to_underlying(m_substate_), m_buffer_);
+            printf("state=%c sub=%c Buffer=%s\n", basal::to_underlying(m_state_), basal::to_underlying(m_substate_), m_buffer_);
         }
         switch (m_state_) {
             case State::Vertices:

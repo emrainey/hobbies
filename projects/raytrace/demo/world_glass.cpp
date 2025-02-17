@@ -11,6 +11,7 @@
 #include "world.hpp"
 
 using namespace raytrace;
+using namespace iso::literals;
 
 class GlassWorld : public world {
 public:
@@ -71,14 +72,14 @@ public:
         raytrace::animation::anchors anchors;
         anchors.push_back(
             animation::Anchor{
-                animation::Attributes{look_from, look_at, 55.0},
-                animation::Attributes{raytrace::point{30, 0, 5}, look_at, 40.0},
+                animation::Attributes{look_from, look_at, 55.0_deg},
+                animation::Attributes{raytrace::point{30, 0, 5}, look_at, 40.0_deg},
                 animation::Mappers{}, iso::seconds{5.0_p}
             });
         anchors.push_back(
             animation::Anchor{
                 anchors.back().limit, // previous limit is this start
-                animation::Attributes{raytrace::point{20, 20, 15}, look_at, 23.0},
+                animation::Attributes{raytrace::point{20, 20, 15}, look_at, 23.0_deg},
                 animation::Mappers{}, iso::seconds{5.0_p}
             });
         return anchors;

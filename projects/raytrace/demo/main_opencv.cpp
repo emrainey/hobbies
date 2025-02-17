@@ -125,25 +125,18 @@ int main(int argc, char *argv[]) {
         if (should_render and animator) {
 
             raytrace::animation::Attributes cam = animator(); // get the first set of parameters
-
-            precision x = radius * std::sin(phi) * std::cos(theta);
-            precision y = radius * std::sin(phi) * std::sin(theta);
-            precision z = radius * std::cos(phi);
-
-            raytrace::vector ring_rail{x, y, z};
-            raytrace::point from = cam.from + ring_rail;
-            std::cout << "ρ=" << radius << ", Θ=" << theta << ", Φ=" << phi << std::endl;
-            std::cout << "Look From: " << from << "(Computed)" << std::endl;
-            std::cout << "Look At: " << cam.from << " (Towards)" << std::endl;
+            std::cout << "Look From: " << cam.from << "(Camera at)" << std::endl;
+            std::cout << "Look At: " << cam.at << " (Towards)" << std::endl;
+            std::cout << "FOV: " << cam.fov.value << " (Degrees)" << std::endl;
 
             // tiny image, simple camera placement
             raytrace::scene scene;
             // camera setup
-            raytrace::camera view(height, width, iso::degrees(params.fov));
-            raytrace::vector looking = (cam.at - from).normalized();
-            raytrace::point image_plane_principal_point = from + looking;
+            raytrace::camera view(height, width, cam.fov);
+            raytrace::vector looking = (cam.at - cam.from).normalized();
+            raytrace::point image_plane_principal_point = cam.from + looking;
             std::cout << "Principal: " << image_plane_principal_point << std::endl;
-            view.move_to(from, image_plane_principal_point);
+            view.move_to(cam.from, image_plane_principal_point);
 
             scene.set_background_mapper(std::bind(&raytrace::world::background, &world, std::placeholders::_1));
             world.add_to(scene);

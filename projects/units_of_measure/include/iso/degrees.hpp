@@ -88,11 +88,11 @@ namespace operators {
 
 namespace literals {
     /// Literal Double, Quote Operator
-    degrees operator""_d(long double value);
+    degrees operator""_deg(long double value);
     /// Literal Int, Quote Operator
-    degrees operator""_d(unsigned long long value);
+    degrees operator""_deg(unsigned long long value);
     /// Literal String, Quote Operator
-    iso::degrees operator""_d(char const a[]);
+    iso::degrees operator""_deg(char const a[]);
 }
 
 }

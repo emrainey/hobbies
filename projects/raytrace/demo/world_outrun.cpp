@@ -7,6 +7,7 @@ using namespace raytrace::objects;
 using namespace raytrace::lights;
 using namespace raytrace::colors;
 using namespace raytrace::operators;
+using namespace iso::literals;
 
 namespace outrun {
 constexpr color neon_orange(1.0, 108.0 / 255, 17.0 / 255);
@@ -110,8 +111,8 @@ public:
         raytrace::animation::anchors anchors;
         anchors.push_back(
             animation::Anchor{
-                animation::Attributes{look_from, look_at, 55.0},
-                animation::Attributes{look_from, look_at, 55.0},
+                animation::Attributes{look_from, look_at, iso::degrees{55.0}},
+                animation::Attributes{look_from, look_at, iso::degrees{55.0}},
                 animation::Mappers{}, iso::seconds{1.0_p}
             });
         return anchors;

@@ -79,12 +79,12 @@ TEST(CuboidTest, IntersectionHitOffOrigin) {
     using namespace raytrace::objects;
 
     raytrace::point P{9, -14, 77};
-    cuboid c0{P, 1.0, 1.0, 1.0};
-    raytrace::point Q{2.0, 0.75, 0.25};
+    cuboid c0{P, 2.0, 3.0, 4.0};
+    raytrace::point Q{4.0, 0.75, 0.25};
     raytrace::vector v1 = P - R3::origin;
     vector R{{-1, 0, 0}};
     ray hit0((Q + v1), R);
-    raytrace::point h0{1.0, 0.75, 0.25};
+    raytrace::point h0{2.0, 0.75, 0.25};
     raytrace::point h1 = h0 + v1;
 
     geometry::intersection ipx = c0.intersect(hit0).intersect;

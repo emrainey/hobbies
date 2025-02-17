@@ -7,11 +7,13 @@
 ///
 
 #include <raytrace/raytrace.hpp>
+#include <raytrace/mediums/starfield.hpp>
 
 #include "group.hpp"
 #include "world.hpp"
 
 using namespace raytrace;
+using namespace iso::literals;
 
 class Tree : public group {
 public:
@@ -84,8 +86,9 @@ public:
         , tree10{raytrace::point{7, -8, 0}}
         , tree11{raytrace::point{7, -1, 0}}
         , tree12{raytrace::point{4, -3, 0}}
-        , moonlight{R3::vector{{-1, -1, -1}}, colors::silver, lights::intensities::full * 2}
-        , lights{} {
+        , moonlight{R3::vector{{-1, -1, -1}}, colors::silver, lights::intensities::full}
+        , lights{}
+        , starfield{1024}  {
         ground.material(&snow);
         sn_btm.material(&mediums::metals::stainless);
         sn_mid.material(&mediums::metals::stainless);
@@ -138,9 +141,8 @@ public:
         return std::string("world_snowman.tga");
     }
 
-    raytrace::color background(raytrace::ray const&) const override {
-        // FIXME randomly distribute stars to all points on a sphere?
-        return colors::black;
+    raytrace::color background(raytrace::ray const& world_ray) const override {
+        return starfield(world_ray.direction());
     }
 
     void add_to(scene& scene) override {
@@ -188,9 +190,15 @@ public:
         raytrace::animation::anchors anchors;
         anchors.push_back(
             animation::Anchor{
-                animation::Attributes{look_from, look_at, 55.0},
-                animation::Attributes{look_from, look_at, 55.0},
-                animation::Mappers{}, iso::seconds{1.0_p}
+                animation::Attributes{look_from, look_at, 35.0_deg},
+                animation::Attributes{raytrace::point{20, 14, 5.5}, look_at, 35.0_deg},
+                animation::Mappers{}, iso::seconds{5.0_p}
+            });
+        anchors.push_back(
+            animation::Anchor{
+                anchors.back().limit, // previous limit is this start
+                animation::Attributes{look_from, look_at, 35.0_deg},
+                animation::Mappers{}, iso::seconds{5.0_p}
             });
         return anchors;
     }
@@ -244,6 +252,7 @@ protected:
     // std::vector<raytrace::lights::bulb *>lights;
     std::vector<raytrace::lights::speck*> lights;
     raytrace::lights::beam moonlight;
+    raytrace::mediums::StarField starfield;
 };
 
 // declare a single instance and return the reference to it

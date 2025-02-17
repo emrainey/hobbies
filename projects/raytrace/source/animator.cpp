@@ -34,7 +34,7 @@ Attributes Animator::interpolate(Attributes const& start, Attributes const& limi
     return Attributes{
         geometry::lerp(start.from, limit.from, mappers.from, dt),
         geometry::lerp(start.at, limit.at, mappers.at, dt),
-        geometry::lerp(start.fov, limit.fov, mappers.fov, dt)
+        iso::degrees{geometry::lerp(start.fov.value, limit.fov.value, mappers.fov, dt)}
     };
 }
 

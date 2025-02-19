@@ -54,7 +54,7 @@ void ring::print(char const str[]) const {
 }
 
 precision ring::get_object_extent(void) const {
-    return m_outer_radius2;
+    return sqrt(m_outer_radius2);
 }
 
 }  // namespace objects

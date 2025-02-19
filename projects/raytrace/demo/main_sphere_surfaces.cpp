@@ -53,6 +53,7 @@ enum class Surfaces : int {
     //---------------
     _Last = TurbSin,
 } surfaces = Surfaces::Metals;
+int surf;
 
 int main(int argc, char* argv[]) {
     using namespace raytrace;
@@ -89,7 +90,7 @@ int main(int argc, char* argv[]) {
     linalg::Trackbar trackbar_size("Size", windowName, 0.125_p, size, 256.0_p, 0.125_p, &size);
     // determines the depth of the value for each pixel this is for 8 bits
     // linalg::Trackbar trackbar_scale("Scale", windowName, 0.125_p, scale, 10.0_p, 0.125_p, &scale);
-    // linalg::Trackbar trackbar_surface("Surface", windowName, Surfaces::_First, surfaces, Surfaces::_Last, 1, &surfaces);
+    linalg::Trackbar trackbar_surface("Surface", windowName, 0, surf, 5, 1, &surf);
 
     raytrace::point look_from(0, 0, 60);
     vector looking{{0.8_p, 0.8_p, -1}};
@@ -132,6 +133,7 @@ int main(int argc, char* argv[]) {
         mediums::turbsin turbsin{1024.0_p, x_scale, y_scale, power, scale, size, dark, light};
 
         mediums::medium const* medium = nullptr;
+        surfaces = static_cast<Surfaces>(surf);
         switch (surfaces) {
             case Surfaces::Plain:
                 printf("Plain Surface\n");

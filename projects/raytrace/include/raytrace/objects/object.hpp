@@ -5,6 +5,7 @@
 #include "basal/basal.hpp"
 #include "raytrace/entity.hpp"
 #include "raytrace/laws.hpp"
+#include "raytrace/bounds.hpp"
 #include "raytrace/mediums/medium.hpp"
 #include "raytrace/mediums/plain.hpp"
 
@@ -318,15 +319,17 @@ public:
     };
 
     /// Computes the Axis Aligned Bounding Box in World Coordinates for this object.
-    abba get_world_bounds(void) const {
+    Bounds get_world_bounds(void) const {
         // finds the object's maximum radial distance from the object origin
         auto ijk_max = get_object_extent();
         // the 3d corner of a point with those components
         vector v{ijk_max, ijk_max, ijk_max};
         auto r = v.magnitude();
         // constructs a local trivial structure
-        return abba{
-            {entity_<DIMS>::forward_transform(point{-r, -r, -r}), entity_<DIMS>::forward_transform(point{r, r, r})}};
+        return Bounds{
+            entity_<DIMS>::forward_transform(raytrace::point{-r, -r, -r}), // min
+            entity_<DIMS>::forward_transform(raytrace::point{r, r, r}) // max
+        };
     }
 
     /// Returns the maximum radial distance from the object origin on the surface of the object.

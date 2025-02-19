@@ -106,10 +106,8 @@ void pyramid::print(char const str[]) const {
 }
 
 precision pyramid::get_object_extent(void) const {
-    // this should return highest distance from the object origin
-    // for a pyramid, the center is at the base, the corners are down
-    // each axis. it's all the same distance.
-    return m_height;
+    // the pyramid is a height above origin, but is infinite in the -z direction
+    return basal::nan;
 }
 
 }  // namespace objects

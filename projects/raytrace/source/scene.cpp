@@ -32,6 +32,16 @@ scene::~scene() {
 
 void scene::add_object(objects::object const* obj) {
     m_objects.push_back(obj);
+    // compute the bounding box for the scene
+    auto bounds = obj->get_world_bounds();
+    obj->print("Object for Bounds");
+    std::cout << " Min: " << bounds.min << " Max: " << bounds.max << std::endl;
+    if (bounds.is_infinite()) {
+        m_infinite_objects.push_back(obj);
+    } else {
+        m_bounds.grow(bounds);
+        std::cout << " Bounds: " << m_bounds.min << " Max: " << m_bounds.max << std::endl;
+    }
 }
 
 void scene::add_light(lights::light const* lit) {

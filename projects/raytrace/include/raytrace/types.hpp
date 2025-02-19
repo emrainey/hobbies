@@ -21,11 +21,6 @@ using matrix = linalg::matrix;
 
 /// Determines if points are on surfaces, thus having a normal
 constexpr static bool check_on_surface = geometry::check_on_surface;
-/// An axis aligned bounding box for computing the BSP
-struct abba {
-    point min;  //!< The lower set of values.
-    point max;  //!< The higher set of values.
-};
 
 /// Collects the statistics from the raytracing library
 struct statistics {

@@ -110,6 +110,15 @@ protected:
 
     /// The media which the scene starts in
     mediums::medium const* m_media;
+
+    /// The set of the finite bounds of the scene
+    Bounds m_bounds;
+
+    /// The infinite bounds object list
+    object_list m_infinite_objects;
+
+    /// The finite bounds object list sorted into
+
 };
 
 }  // namespace raytrace

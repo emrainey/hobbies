@@ -5,6 +5,13 @@
 #include <opencv2/opencv.hpp>
 #include <basal/exception.hpp>
 
+/// @file
+/// @brief This file contains the implementation of the Gaussian Pyramid and Temporal Bandpass Filter for a Eulerian Video Magnification (EVM) implementation.
+/// @data 2025-02-01
+/// @author Erik Rainey
+/// @see https://hbenbel.github.io/blog/evm/
+/// @see https://people.csail.mit.edu/mrub/papers/vidmag.pdf
+
 class GaussianPyramid {
 
 public:

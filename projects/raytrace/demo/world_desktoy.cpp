@@ -31,16 +31,16 @@ public:
         , final_base{base, cutout2, raytrace::objects::overlap::type::inclusive}
         , ground{R3::origin, R3::basis::Z}
         , sunlight{raytrace::vector{-2, 2, -1}, colors::white, lights::intensities::bright}
-        , prick{raytrace::point{0, 0, 3}, colors::dim_grey, 1E3} {
+        , prick{raytrace::point{0, 0, 3}, colors::white, lights::intensities::bright} {
         // the final base should sit on the ground
         // base.position(raytrace::point{0, 0, 2});
         final_base.position(raytrace::point{0, 0, 2});
-        block.material(&mediums::metals::chrome);
-        cutout.material(&mediums::metals::chrome);
-        cutout2.material(&mediums::metals::chrome);
-        floater.material(&mediums::metals::chrome);
-        ground.material(&mediums::metals::chrome);
-        final_base.material(&mediums::metals::chrome);
+        block.material(&mediums::metals::stainless);
+        cutout.material(&mediums::metals::stainless);
+        cutout2.material(&mediums::metals::stainless);
+        floater.material(&mediums::metals::stainless);
+        ground.material(&mediums::metals::copper);
+        final_base.material(&mediums::metals::stainless);
     }
 
     ~DeskToyWorld() {
@@ -83,8 +83,14 @@ public:
         anchors.push_back(
             animation::Anchor{
                 animation::Attributes{look_from, look_at, 55.0_deg},
-                animation::Attributes{look_from, look_at, 55.0_deg},
-                animation::Mappers{}, iso::seconds{1.0_p}
+                animation::Attributes{raytrace::point{20, 0, 20}, look_at, 55.0_deg},
+                animation::Mappers{}, iso::seconds{4.0_p}
+            });
+        anchors.push_back(
+            animation::Anchor{
+                anchors.back().limit,
+                animation::Attributes{raytrace::point{0, 20, 20}, look_at, 55.0_deg},
+                animation::Mappers{}, iso::seconds{4.0_p}
             });
         return anchors;
     }

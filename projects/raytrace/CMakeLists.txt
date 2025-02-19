@@ -12,6 +12,7 @@ endif()
 
 add_library(hobbies-raytrace
     ${CMAKE_CURRENT_SOURCE_DIR}/source/animator.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/bounds.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/camera.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/color.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/image.cpp
@@ -166,6 +167,7 @@ find_package(GTest)
 if (Threads_FOUND AND GTest_FOUND)
     add_executable(gtest_raytrace
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_animator.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_bounds.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_camera.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_color.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_cone.cpp

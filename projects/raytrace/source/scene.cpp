@@ -13,7 +13,7 @@ static constexpr bool camera_debug = false;
 // static constexpr bool use_incident_scaling = true;
 // static constexpr bool use_specular_scaling = true;
 
-// displays the distance to a light in shadow as a grayscale value (black is still shadow, white is very close)
+/// displays the distance to a light in shadow as a grayscale value (black is still shadow, white is very close)
 // static constexpr bool use_grayscale_distance = false;
 
 scene::scene(double art)
@@ -21,7 +21,7 @@ scene::scene(double art)
     , m_objects{}
     , m_lights{}
     , m_background{[](raytrace::ray const&) { return colors::black; }}
-    , m_media{&mediums::vaccum}  // default to a vaccum
+    , m_media{&mediums::vacuum}  // default to a vacuum
 {
 }
 

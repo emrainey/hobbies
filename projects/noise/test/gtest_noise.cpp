@@ -32,38 +32,46 @@ TEST(NoiseTest, MapTest) {
     using namespace noise;
     noise::precision r = 0.0_p;
     r = map(-1.0_p, -1.0_p, 10.0_p, 2.0_p, 3.0_p);
-    ASSERT_FLOAT_EQ(2.0_p, r);
+    ASSERT_PRECISION_EQ(2.0_p, r);
     r = map(-9.0_p, -1.0_p, 10.0_p, 2.0_p, 3.0_p);
-    ASSERT_FLOAT_EQ(2.0_p, r);
+    ASSERT_PRECISION_EQ(2.0_p, r);
     r = map(9.0_p, 0.0_p, 10.0_p, 2.0_p, 3.0_p);
-    ASSERT_FLOAT_EQ(2.9_p, r);
+    ASSERT_PRECISION_EQ(2.9_p, r);
     r = map(11.0_p, -1.0_p, 10.0_p, 2.0_p, 3.0_p);
-    ASSERT_FLOAT_EQ(3.0_p, r);
+    ASSERT_PRECISION_EQ(3.0_p, r);
 }
 
 TEST(NoiseTest, Interpolate) {
     using namespace noise;
     noise::precision d = noise::interpolate(1.0_p, 0.0_p, 0.5_p);
-    ASSERT_FLOAT_EQ(0.5_p, d);
+    ASSERT_PRECISION_EQ(0.5_p, d);
 }
 
 TEST(NoiseTest, FloorTest) {
     noise::point f1{1.7_p, 2.4_p};
     noise::point f2 = noise::floor(f1);
-    ASSERT_FLOAT_EQ(1.0_p, f2.x);
-    ASSERT_FLOAT_EQ(2.0_p, f2.y);
+    ASSERT_PRECISION_EQ(1.0_p, f2.x);
+    ASSERT_PRECISION_EQ(2.0_p, f2.y);
 }
 
 TEST(NoiseTest, FractTest) {
     noise::point f1{1.7_p, 2.4_p};
     noise::point f3 = noise::fract(f1);
-    ASSERT_FLOAT_EQ(0.7_p, f3.x);
-    ASSERT_FLOAT_EQ(0.4_p, f3.y);
+    ASSERT_PRECISION_EQ(0.7_p, f3.x);
+    ASSERT_PRECISION_EQ(0.4_p, f3.y);
+}
+
+TEST(NoiseTest, SeedGenerator) {
+    for (size_t i = 0U; i < 10'000; i++) {
+        noise::vector seed = noise::generate_seed();
+        auto m = seed.magnitude();
+        ASSERT_PRECISION_EQ(1.0_p, m);
+    }
 }
 
 TEST(NoiseTest, RandomTest) {
     // noise::point ones{1.0_p, 1.0_p};
-    noise::vector seed{{1.0_p, 1.0_p}};
+    noise::vector seed = noise::generate_seed();
     srandom(time(nullptr));
     // test the range generated
     noise::precision step{(1.0_p / 1024.0_p) * iso::tau};
@@ -71,10 +79,9 @@ TEST(NoiseTest, RandomTest) {
         noise::precision a = tan(s);
         noise::vector vec{1.0_p, s};
         noise::precision r = noise::random(vec, seed, 283.23982_p);
-        // printf("r=%lf\n", r);
+        printf("r=%lf\n", r);
         ASSERT_PRECISION_NE(0.0_p, r);
         ASSERT_TRUE(-1.0_p <= r and r < 1.0_p);
-        // step = noise::precision{rand()} / RAND_MAX;
     }
 }
 

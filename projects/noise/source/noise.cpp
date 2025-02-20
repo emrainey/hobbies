@@ -63,7 +63,7 @@ precision random(vector const& vec, vector const& seeds, precision gain) {
     precision value = dot(vec, seeds);
     // use this value as an input into the sine wave (which is -1.0 to +1.0)
     // the gain will be the amplitude which can extend back over |1.0| or any other range
-    precision scaled_value = std::sin(value) * gain;
+    precision scaled_value = std::sin(value * iso::tau) * gain;
     // and only return the fractional component
     return (scaled_value - std::floor(scaled_value));
 }

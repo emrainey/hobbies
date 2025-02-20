@@ -51,7 +51,7 @@ inline precision dispersion(precision a1, precision a2, precision b1, precision 
 }  // namespace refractive_index
 
 /// The common vaccum, perfectly transparent with no fade
-transparent const vaccum(refractive_index::vaccum, 0.0_p, colors::white);
+transparent const vacuum(refractive_index::vaccum, 0.0_p, colors::white);
 
 /// The normal atmosphere on earth
 transparent const earth_atmosphere(refractive_index::air, 0.004_p, colors::light_blue);

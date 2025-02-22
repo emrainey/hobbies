@@ -47,7 +47,8 @@ geometry::R2::point planar_polar(raytrace::ray const& N __attribute__((unused)),
     return geometry::R2::origin;
 }
 
-geometry::R3::point golden_ratio_mapper(size_t const numerator, size_t const denominator) {
+geometry::R3::point
+golden_ratio_mapper(size_t const numerator, size_t const denominator) {
     // derived from https://stackoverflow.com/questions/9600801/evenly-distributing-n-points-on-a-sphere
 
     // this part can be computed once and applied again and again

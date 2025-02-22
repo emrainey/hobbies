@@ -26,6 +26,9 @@ vector convert_to_seed(iso::radians r);
 /// Converts a degree value to a seed vector normalized
 vector convert_to_seed(iso::degrees d);
 
+/// Converts a turn value to a seed vector normalized
+vector convert_to_seed(iso::turns t);
+
 /// A two way interpolation using z = x*(1-a) + y*a
 constexpr precision interpolate(precision x, precision y, precision a) {
     return (x * (1.0_p - a) + (y * a));
@@ -46,12 +49,25 @@ point floor(noise::point const& pnt);
 /// Returns the fractional portion of a pair of numbers.
 point fract(noise::point const& pnt);
 
-/// Computes a seemingly random, repeatable number from a 2d point and 2d scalars.
+/// Computes a seemingly random, repeatable number from a 2d point and 2d scalars
+/// @return A value between 0.0 and 1.0 inclusive
 precision random(vector const& pnt, vector const& scalars, precision gain);
+
+/// @brief Computes the perlin cell corner vectors. These are located on the border of a cells and should be completely reproducible.
+/// @param image_point The point in the image.
+/// @param scale The scale of the cell (how many pixels are along the side of the cell) 32 would mean a 32x32 unit cell.
+/// @param scalars The seed values to help shape the noise
+/// @param gain The magnification of the seed noise
+/// @param[out] uv The output vector which is the fractional vector from the top left corner of the cell.
+/// @param[out] turns The output array of vectors which are the corner flow vectors of the cell. The order of corners if top-left, top-right, bottom-left, bottom-right.
+void cell_flows(point const& image_point, precision scale, vector const& seed, precision gain, point& uv, vector (&flows)[4]);
 
 /// Improved Perlin Fade, which is defined as 6t^5 - 15t^4 + 10t^3
 constexpr precision fade(precision t) {
-    return t * t * t * (t * (t * 6 - 15) + 10);
+    precision t3 = t*t*t;
+    precision t4 = t3*t;
+    precision t5 = t4*t;
+    return 6.0_p*t5 - 15.0_p*t4 + 10.0_p*t3;
 }
 
 namespace {  // in an anonymous namespace for testing

@@ -69,6 +69,80 @@ TEST(NoiseTest, SeedGenerator) {
     }
 }
 
+TEST(NoiseTest, CellFlows) {
+    noise::vector seed = noise::generate_seed();
+    noise::vector flows[4];
+    noise::point pnt{1.0_p, 1.0_p};
+    noise::point uv;
+    noise::cell_flows(pnt, 32.0_p, seed, 1.0_p, uv, flows);
+    for (size_t i = 0; i < 4; i++) {
+        noise::precision m = flows[i].magnitude();
+        ASSERT_PRECISION_EQ(1.0_p, m) << "Index " << i;
+    }
+}
+
+TEST(NoiseTest, ReproducibleFlows) {
+    noise::vector seed = noise::generate_seed();
+    noise::vector flows1[4];
+    for (noise::precision scale = 1.0_p; scale <= 32.0_p; scale += 1.0_p) {
+        noise::point pnt1{0.0_p, 0.0_p};
+        noise::point uv1;
+        noise::cell_flows(pnt1, scale, seed, 1.0_p, uv1, flows1);
+        for (noise::precision y = 0.0_p; y < scale; y+=(1/scale)) {
+            for (noise::precision x = 0.0_p; x < scale; x+=(1/scale)) {
+                noise::point pnt2{x, y};
+                noise::vector flows2[4];
+                noise::point uv2;
+                noise::cell_flows(pnt2, scale, seed, 1.0_p, uv2, flows2);
+                // four corners should be the same
+                for (size_t i = 0; i < 4; i++) {
+                    ASSERT_PRECISION_EQ(flows1[i][0], flows2[i][0]) << "Index " << i;
+                    ASSERT_PRECISION_EQ(flows1[i][1], flows2[i][1]) << "Index " << i;
+                }
+            }
+        }
+    }
+}
+
+
+TEST(NoiseTest, AdjacentCellFlows) {
+    noise::vector seed = noise::generate_seed();
+    noise::vector flows1[4];
+    noise::precision scale = 32.0_p;
+    noise::point pnt1{1.0_p, 1.0_p};
+    noise::point uv1;
+    noise::cell_flows(pnt1, scale, seed, 1.0_p, uv1, flows1);
+    {
+        noise::vector flows2[4];
+        noise::point pnt2{scale, scale};
+        noise::point uv2;
+        noise::cell_flows(pnt2, scale, seed, 1.0_p, uv2, flows2);
+        ASSERT_PRECISION_EQ(flows1[3][0], flows2[0][0]);
+        ASSERT_PRECISION_EQ(flows1[3][1], flows2[0][1]);
+    }
+    {
+        noise::vector flows2[4];
+        noise::point pnt2{scale, 1.0_p};
+        noise::point uv2;
+        noise::cell_flows(pnt2, scale, seed, 1.0_p, uv2, flows2);
+        ASSERT_PRECISION_EQ(flows1[1][0], flows2[0][0]);
+        ASSERT_PRECISION_EQ(flows1[1][1], flows2[0][1]);
+        ASSERT_PRECISION_EQ(flows1[3][0], flows2[2][0]);
+        ASSERT_PRECISION_EQ(flows1[3][1], flows2[2][1]);
+    }
+
+    {
+        noise::vector flows2[4];
+        noise::point pnt2{1.0_p, scale};
+        noise::point uv2;
+        noise::cell_flows(pnt2, scale, seed, 1.0_p, uv2, flows2);
+        ASSERT_PRECISION_EQ(flows1[2][0], flows2[0][0]);
+        ASSERT_PRECISION_EQ(flows1[2][1], flows2[0][1]);
+        ASSERT_PRECISION_EQ(flows1[3][0], flows2[1][0]);
+        ASSERT_PRECISION_EQ(flows1[3][1], flows2[1][1]);
+    }
+}
+
 TEST(NoiseTest, RandomTest) {
     // noise::point ones{1.0_p, 1.0_p};
     noise::vector seed = noise::generate_seed();
@@ -140,8 +214,8 @@ TEST_F(NoiseImageTest, RandomNoiseImage) {
 
 TEST_F(NoiseImageTest, PerlinNoiseImage) {
     // each point just gets a pixel value
-    noise::vector seeds{{8.20203_p, -9.745978_p}};
-    noise::precision scale = 10.0_p;
+    noise::vector seeds = noise::convert_to_seed(iso::turns{sqrt(5)});
+    noise::precision scale = 32.0_p;
     noise::precision gain = 245.4993546_p;
     image.for_each ([&](size_t y, size_t x, fourcc::rgb8& pixel) {
         noise::point pnt{(noise::precision)x, (noise::precision)y};

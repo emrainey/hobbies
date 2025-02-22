@@ -14,9 +14,23 @@ noise::point const corners[] = {
     noise::point{1.0, 1.0},  // btm right
 };
 
+// The set of 2d perlin noise gradients
+vector gradients[] = {
+    vector{{-1, -1}},
+    vector{{1, -1}},
+    vector{{-1, 1}},
+    vector{{1, 1}}
+};
+
 precision sequence_pseudorandom1(uint32_t x) {
     x = (x << 13) ^ x;  // XOR with shifted version of itself
     return (1.0 - ((x * (x * x * 61051 + 3166613) + 5915587277) & 0x7FFFFFFF) / 1073741824.0);
+}
+
+vector convert_to_seed(iso::turns t) {
+    iso::radians r;
+    iso::convert(r, t);
+    return convert_to_seed(r);
 }
 
 vector convert_to_seed(iso::radians r) {
@@ -62,46 +76,50 @@ precision random(vector const& vec, vector const& seeds, precision gain) {
     // the vectors could be pointing in opposite directions.
     precision value = dot(vec, seeds);
     // use this value as an input into the sine wave (which is -1.0 to +1.0)
-    // the gain will be the amplitude which can extend back over |1.0| or any other range
-    precision scaled_value = std::sin(value * iso::tau) * gain;
-    // and only return the fractional component
+    // the gain will be the amplitude which can extend back over |-1.0 to 1.0| or any other range
+    precision scaled_value = std::sin(value * (iso::pi / 2.0_p)) * gain;
+    // and only return the fractional component between 0.0 and 1.0
     return (scaled_value - std::floor(scaled_value));
 }
 
-precision perlin(point const& pnt, precision scale, vector const& seeds, precision gain) {
-    // converts a point into a normalized space ideally (all dims are 0-1)
-    noise::point uv_floor = floor(pnt * (1.0 / scale));
-    // this point should be the fractional part of uv between 0.0 and 1.0 in each dimension
-    noise::point uv = fract(pnt * (1.0 / scale));
-    // find the distance from each corner to the point in the normalize coordinate system
-    noise::vector distance[] = {
+void cell_flows(point const& image_point, precision scale, vector const& seed, precision gain, point& uv, vector (&flows)[4]) {
+    // converts the image point to the cell top left corner this will be the same for all points in the cell
+    noise::point flr = floor(image_point * (1.0_p / scale));
+    // the fractional part of the point from the top left corner which is unique for all points in the cell
+    uv = fract(image_point * (1.0_p / scale));
+    // the distance from the uv point to the corners of the cell
+    noise::vector displacement[] = {
         uv - corners[0],
         uv - corners[1],
         uv - corners[2],
         uv - corners[3],
     };
     // the feed vectors to index the randomness
-    noise::vector feed[] = {uv_floor + corners[0], uv_floor + corners[1], uv_floor + corners[2], uv_floor + corners[3]};
+    noise::vector feed[] = {
+        flr + corners[0],
+        flr + corners[1],
+        flr + corners[2],
+        flr + corners[3],
+    };
+    // generate 4 random number between 0.0 and 1.0 which will be the "turns" around the unit circle for each corner of the cell then use those to make vectors
+    flows[0] = noise::convert_to_seed(iso::turns{random(feed[0], seed, gain)});
+    flows[1] = noise::convert_to_seed(iso::turns{random(feed[1], seed, gain)});
+    flows[2] = noise::convert_to_seed(iso::turns{random(feed[2], seed, gain)});
+    flows[3] = noise::convert_to_seed(iso::turns{random(feed[3], seed, gain)});
+    return;
+}
 
-    // procedurally generate 4 "random" numbers between 0 and 1.0
-    precision rnds[4] = {
-        random(feed[0], seeds, gain),
-        random(feed[1], seeds, gain),
-        random(feed[2], seeds, gain),
-        random(feed[3], seeds, gain),
-    };
-    size_t idx[4] = {0};
-    for (size_t i = 0; i < 4; i++) {
-        idx[i] = static_cast<size_t>(std::floor(rnds[i] * 2.0) + 2.0);
-    };
-    // The set of 2d perlin noise gradients
-    vector gradients[4] = {vector{{-1, -1}}, vector{{1, -1}}, vector{{-1, 1}}, vector{{1, 1}}};
+
+precision perlin(point const& pnt, precision scale, vector const& seeds, precision gain) {
+    noise::point uv;
+    noise::vector flows[4];
+    noise::cell_flows(pnt, scale, seeds, gain, uv, flows);
     // these are now considered as weights in the interpolation between the four corners
     precision weights[4] = {
-        dot(gradients[idx[0]], distance[0]),
-        dot(gradients[idx[1]], distance[1]),
-        dot(gradients[idx[2]], distance[2]),
-        dot(gradients[idx[3]], distance[3]),
+        dot(flows[0], uv - corners[0]),
+        dot(flows[1], uv - corners[1]),
+        dot(flows[2], uv - corners[2]),
+        dot(flows[3], uv - corners[3]),
     };
     // now do an interpolation between the 4 weights using the normalized point as the alpha
     precision top = noise::interpolate(weights[0], weights[1], fade(uv.x));

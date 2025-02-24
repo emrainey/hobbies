@@ -3,6 +3,7 @@
 #include <basal/printable.hpp>
 #include <vector>
 
+#include "raytrace/tree.hpp"
 #include "raytrace/camera.hpp"
 #include "raytrace/color.hpp"
 #include "raytrace/image.hpp"

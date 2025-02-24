@@ -46,6 +46,17 @@ TEST(BoundsTest, NoOverlap) {
     EXPECT_FALSE(bounds.intersects(c));
 }
 
+TEST(BoundsTest, TouchingButNotOverlapping) {
+    auto bounds = raytrace::Bounds{raytrace::point(0, 0, 0), raytrace::point(1, 1, 1)};
+    auto b = raytrace::Bounds{raytrace::point(1, 0, 0), raytrace::point(2, 1, 1)};
+    EXPECT_FALSE(bounds.intersects(b));
+    auto c = raytrace::Bounds{raytrace::point(0, 1, 0), raytrace::point(1, 2, 1)};
+    EXPECT_FALSE(bounds.intersects(c));
+    auto d = raytrace::Bounds{raytrace::point(0, 0, 1), raytrace::point(1, 1, 2)};
+    EXPECT_FALSE(bounds.intersects(d));
+}
+
+
 TEST(BoundsTest, Grow) {
     auto bounds = raytrace::Bounds{raytrace::point(0, 0, 0),
                                    raytrace::point(1, 1, 1)};
@@ -63,7 +74,13 @@ TEST(BoundsTest, NotInfinite) {
 }
 
 TEST(BoundsTest, Infinite) {
-    auto bounds = raytrace::Bounds{raytrace::point(basal::nan, basal::nan, basal::nan), raytrace::point(basal::nan, basal::nan, basal::nan)};
+    auto bounds = raytrace::Bounds{}; // default constructor
     EXPECT_TRUE(bounds.is_infinite());
+    auto b = raytrace::Bounds{raytrace::point(0.5, 0.5, 0.5),
+        raytrace::point(1.5, 1.5, 1.5)};
+    bounds.grow(b);
+    EXPECT_TRUE(bounds.is_infinite());
+    auto middle = bounds.center();
+    EXPECT_POINT_EQ(raytrace::point(0.0, 0.0, 0.0), middle);
 }
 

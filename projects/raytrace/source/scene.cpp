@@ -351,6 +351,9 @@ void scene::render(camera& view, std::string filename, size_t number_of_samples,
     if constexpr (camera_debug) {
         view.print("Camera Info:\n");
     }
+
+    // FIXME insert the code which creates the octotree here as it can't be done in the add_object method correctly
+
     auto tracer = [&](image::point const& pnt) -> color {
         // create the ray at each point in the image along the vector
         // from the image plane along the camera ray.

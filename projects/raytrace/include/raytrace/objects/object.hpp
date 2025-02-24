@@ -321,14 +321,12 @@ public:
     /// Computes the Axis Aligned Bounding Box in World Coordinates for this object.
     Bounds get_world_bounds(void) const {
         // finds the object's maximum radial distance from the object origin
-        auto ijk_max = get_object_extent();
-        // the 3d corner of a point with those components
-        vector v{ijk_max, ijk_max, ijk_max};
-        auto r = v.magnitude();
+        auto r = get_object_extent();
         // constructs a local trivial structure
         return Bounds{
             entity_<DIMS>::forward_transform(raytrace::point{-r, -r, -r}), // min
-            entity_<DIMS>::forward_transform(raytrace::point{r, r, r}) // max
+            // FIXME add an epsilon to the max to avoid floating point errors as the max is exclusive!
+            entity_<DIMS>::forward_transform(raytrace::point{r, r, r}) // max (exclusive)
         };
     }
 

@@ -51,6 +51,8 @@ constexpr static precision smallish = use_high_precision ? 0x1.0p-10 : 0x1.0p-8;
 
 /// Holds a version of a Quiet (non signalling) NaN for comparisons
 constexpr static precision nan = std::numeric_limits<precision>::quiet_NaN();
+constexpr static precision pos_inf = std::numeric_limits<precision>::infinity();
+constexpr static precision neg_inf = std::numeric_limits<precision>::infinity() * -1;
 
 inline precision clamp(precision min, precision value, precision max) {
     return std::max(min, std::min(value, max));

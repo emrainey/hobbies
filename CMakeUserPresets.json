@@ -1,11 +1,33 @@
 {
-    "version": 6,
+    "version": 10,
     "cmakeMinimumRequired": {
         "major": 3,
-        "minor": 29,
+        "minor": 23,
         "patch": 0
     },
     "configurePresets": [
+        {
+            "name": "debug",
+            "hidden": true,
+            "inherits": "common",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+                "BUILD_SHARED_LIBS": "OFF",
+                "CMAKE_OSX_DEPLOYMENT_TARGET": "14.7.2"
+            }
+        },
+        {
+            "name": "profiling",
+            "hidden": true,
+            "inherits": [
+                "debug",
+                "strict"
+            ],
+            "cacheVariables": {
+                "USE_PROFILING": "ON",
+                "USE_COVERAGE": "ON"
+            }
+        },
         {
             "name": "native-gcc-11",
             "inherits": [
@@ -89,12 +111,27 @@
         },
         {
             "name": "native-llvm-19",
+            "displayName": "Homebrew LLVM 19.1.6",
+            "description": "Homebrew LLVM 19.1.6",
             "inherits": [
                 "native-llvm",
-                "Homebrew"
+                "Homebrew",
+                "debug"
             ],
-            "displayName": "LLVM 19.1.6",
-            "description": "Homebrew LLVM 19.1.6",
+            "environment": {
+                "PATH": "$env{HOMEBREW_ROOT}/Cellar/llvm/19.1.6/bin/:$env{HOMEBREW_PATH}:$penv{PATH}"
+            },
+            "cacheVariables": {}
+        },
+        {
+            "name": "native-llvm-19-profiled",
+            "displayName": "Homebrew LLVM 19.1.6 w/ Profiling",
+            "description": "Homebrew LLVM 19.1.6 w/ Profiling",
+            "inherits": [
+                "native-llvm",
+                "Homebrew",
+                "profiling"
+            ],
             "environment": {
                 "PATH": "$env{HOMEBREW_ROOT}/Cellar/llvm/19.1.6/bin/:$env{HOMEBREW_PATH}:$penv{PATH}"
             },
@@ -121,6 +158,16 @@
             "name": "build-with-native-gcc-14",
             "inherits": "build-common",
             "configurePreset": "native-gcc-14"
+        },
+        {
+            "name": "build-with-native-llvm-19",
+            "inherits": "build-common",
+            "configurePreset": "native-llvm-19"
+        },
+        {
+            "name": "build-with-native-llvm-19-profiled",
+            "inherits": "build-common",
+            "configurePreset": "native-llvm-19-profiled"
         }
     ],
     "testPresets": [
@@ -148,11 +195,18 @@
             "name": "run-tests-llvm-19",
             "inherits": "test-common",
             "configurePreset": "native-llvm-19"
+        },
+        {
+            "name": "run-tests-llvm-19-profiled",
+            "inherits": "test-common",
+            "configurePreset": "native-llvm-19-profiled"
         }
     ],
     "workflowPresets": [
         {
             "name": "unit-tests",
+            "description": "Homebrew LLVM 19.1.6",
+            "displayName": "Homebrew LLVM 19.1.6",
             "steps": [
                 {
                     "type": "configure",
@@ -165,6 +219,25 @@
                 {
                     "type": "test",
                     "name": "run-tests-llvm-19"
+                }
+            ]
+        },
+        {
+            "name": "profiling-run",
+            "description": "Homebrew LLVM 19.1.6 with Profiling",
+            "displayName": "Homebrew LLVM 19.1.6 with Profiling",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "native-llvm-19-profiled"
+                },
+                {
+                    "type": "build",
+                    "name": "build-with-native-llvm-19-profiled"
+                },
+                {
+                    "type": "test",
+                    "name": "run-tests-llvm-19-profiled"
                 }
             ]
         }

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20.0)
+cmake_minimum_required(VERSION 3.31.0)
 project(units_of_measure LANGUAGES CXX VERSION 0.7.0)  # This must match the conanfile.py!
 
 add_library(hobbies-uom
@@ -32,8 +32,8 @@ target_link_libraries(hobbies-uom
     PRIVATE
         enabled-warnings
         enabled-debugging
-        enabled-profiling
-        enabled-coverage
+        $<$<BOOL:${USE_PROFILING}>:enabled-profiling>
+        $<$<BOOL:${USE_COVERAGE}>:enabled-coverage>
         native-optimized
     PUBLIC
         hobbies-basal

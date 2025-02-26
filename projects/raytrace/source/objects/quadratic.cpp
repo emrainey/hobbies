@@ -99,7 +99,9 @@ void quadratic::print(char const name[]) const {
 }
 
 precision quadratic::get_object_extent(void) const {
-    return basal::nan;
+    // if it's an sphere, ellipsoid, the extent can be computed,
+    // if it's an paraboloid, hyperboloid, the extent cannot be computed,
+    return basal::pos_inf;
 }
 
 std::ostream& operator<<(std::ostream& os, quadratic const& q) {

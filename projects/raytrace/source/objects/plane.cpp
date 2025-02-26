@@ -58,7 +58,7 @@ image::point plane::map(point const& object_surface_point) const {
 }
 
 precision plane::get_object_extent(void) const {
-    return basal::nan;
+    return basal::pos_inf;
 }
 
 bool plane::is_along_infinite_extent(ray const& world_ray) const {

@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 
 #include <raytrace/raytrace.hpp>
+#include <raytrace/objparser.hpp>
+#include <raytrace/objects/model.hpp>
 
 #include "geometry/gtest_helper.hpp"
 #include "linalg/gtest_helper.hpp"
@@ -336,4 +338,14 @@ TEST_F(RenderTest, DISABLED_SphereBunchOfSpecks) {
     for (auto s : specks) {
         delete s;
     }
+}
+
+TEST_F(RenderTest, DISABLED_Model) {
+    // use the model in the test directory named cube.obj
+    raytrace::objects::Model shape;
+    shape.LoadFromFile("../projects/raytrace/test/cube.obj");
+    shape.position(look_at);
+    shape.material(&plastic);
+    add_object(&shape);
+    render_all("model_cube");
 }

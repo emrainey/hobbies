@@ -1,8 +1,8 @@
 {
-    "version": 8,
+    "version": 10,
     "cmakeMinimumRequired": {
         "major": 3,
-        "minor": 29,
+        "minor": 23,
         "patch": 0
     },
     "include": [],
@@ -111,6 +111,10 @@
             "execution": {
                 "noTestsAction": "error",
                 "stopOnFailure": true
+            },
+            "environment": {
+                "DYLD_LIBRARY_PATH": "${sourceDir}/build/${presetName}:${sourceDir}/install/${presetName}",
+                "LD_LIBRARY_PATH": "${sourceDir}/build/${presetName}:${sourceDir}/install/${presetName}"
             }
         },
         {

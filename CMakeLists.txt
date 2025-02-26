@@ -1,11 +1,14 @@
-cmake_minimum_required(VERSION 3.20.0)
+cmake_minimum_required(VERSION 3.31.0)
 project(hobbies
     VERSION 1.0.0
     DESCRIPTION "A repo full of hobby projects"
     LANGUAGES CXX
 )
+include(CMakeDependentOption)
 
 option(BUILD_SHARED_LIBS "Builds libraries as dynamic objects" OFF)
+option(USE_COVERAGE "Enable Coverage" OFF)
+cmake_dependent_option(USE_PROFILING "Enable Profiling" OFF "USE_COVERAGE" ON)
 
 # Build Everything with C++17 and full native optimizations
 set(CMAKE_CXX_STANDARD 17)

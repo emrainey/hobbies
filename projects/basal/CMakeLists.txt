@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20.0)
+cmake_minimum_required(VERSION 3.31.0)
 project(basal LANGUAGES CXX VERSION 0.5.0)  # This must match the conanfile.py!
 
 option(USE_PRECISION_AS_FLOAT "Use float (ON) as the precision type or double (OFF)" OFF)
@@ -30,8 +30,8 @@ target_link_libraries(hobbies-basal
     PRIVATE
         enabled-warnings
         enabled-debugging
-        enabled-profiling
-        enabled-coverage
+        $<$<BOOL:${USE_PROFILING}>:enabled-profiling>
+        $<$<BOOL:${USE_COVERAGE}>:enabled-coverage>
         native-optimized
 )
 set_target_properties(hobbies-basal PROPERTIES

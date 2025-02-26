@@ -5,6 +5,8 @@
 #include <raytrace/objparser.hpp>
 #include <raytrace/objects/model.hpp>
 
+#include "raytrace/gtest_helper.hpp"
+
 using namespace raytrace;
 
 
@@ -208,4 +210,30 @@ TEST(ObjParser, CubeModelFromFile) {
     ASSERT_EQ(6u, model.GetStatistics().normals);
     ASSERT_EQ(12u, model.GetStatistics().faces);
     ASSERT_EQ(12u, model.GetNumberOfFaces());
+}
+
+TEST(ObjParser, DISABLED_CubeModelAsObject) {
+    objects::Model model;
+    printf("The test has to run from the root ${workspaceFolder}/testing of hobbies\r\n");
+    model.LoadFromFile("../projects/raytrace/test/cube.obj");
+    // move by enough to not be able to hit the original box
+    model.move_by(raytrace::vector{4, 4, 4});
+
+    EXPECT_POINT_EQ(raytrace::point(4, 4, 4), model.position());
+
+    // show that some rays don't work
+    {
+        raytrace::ray r0{raytrace::point(0.0, -2.0, 0.0), R3::basis::Y};
+        auto hit = model.intersect(r0);
+        EXPECT_EQ(geometry::IntersectionType::None, get_type(hit.intersect));
+    }
+
+    // shoot some rays at it to see if the transform works
+    {
+        raytrace::ray r0{raytrace::point{4.0, 2.0, 4.0}, R3::basis::Y};
+        auto hit = model.intersect(r0);
+        EXPECT_EQ(geometry::IntersectionType::Point, get_type(hit.intersect));
+        EXPECT_POINT_EQ(raytrace::point(4.0, 3.0, 4.0), as_point(hit.intersect));
+        EXPECT_VECTOR_EQ(-R3::basis::Y, hit.normal);
+    }
 }

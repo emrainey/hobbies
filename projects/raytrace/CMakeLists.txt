@@ -1,13 +1,13 @@
-cmake_minimum_required(VERSION 3.20.0)
+cmake_minimum_required(VERSION 3.31.0)
 project(raytrace LANGUAGES CXX VERSION 0.7.0)  # This must match the conanfile.py!
 
 find_package(OpenMP)
 if (NOT OpenMP_FOUND)
-# Homebrew's libomp is not in the default search path
-add_library(OpenMP::OpenMP_CXX INTERFACE IMPORTED)
-target_compile_options(OpenMP::OpenMP_CXX INTERFACE -fopenmp)
-target_link_libraries(OpenMP::OpenMP_CXX INTERFACE omp)
-target_link_directories(OpenMP::OpenMP_CXX INTERFACE /opt/homebrew/Cellar/libomp/18.1.2/lib/)
+    # Homebrew's libomp is not in the default search path
+    add_library(OpenMP::OpenMP_CXX INTERFACE IMPORTED)
+    target_compile_options(OpenMP::OpenMP_CXX INTERFACE -fopenmp)
+    target_link_libraries(OpenMP::OpenMP_CXX INTERFACE omp)
+    target_link_directories(OpenMP::OpenMP_CXX INTERFACE /opt/homebrew/Cellar/libomp/19.1.6/lib/)
 endif()
 
 add_library(hobbies-raytrace
@@ -73,8 +73,8 @@ target_link_libraries(hobbies-raytrace
     PRIVATE
         enabled-warnings
         enabled-debugging
-        enabled-profiling
-        enabled-coverage
+        $<$<BOOL:${USE_PROFILING}>:enabled-profiling>
+        $<$<BOOL:${USE_COVERAGE}>:enabled-coverage>
         native-optimized
 )
 target_include_directories(hobbies-raytrace

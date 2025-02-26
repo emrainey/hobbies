@@ -20,39 +20,11 @@
 	"settings": {
 		"editor.formatOnSave": true,
 		"cmake.autoSelectActiveFolder": true,
-		// "cmake.buildDirectory": "${workspaceFolder}/build",
-		// "cmake.buildDirectory": "${workspaceFolder}/build/native-llvm-18",
-		"cmake.installPrefix": "${workspaceFolder}/install",
 		"cmake.configureOnOpen": true,
-		"cmake.additionalCompilerSearchDirs": [
-			"/opt/homebrew/Cellar/llvm/18.1.8/bin/",
-		],
-		"cmake.generator": "Ninja",
-		"cmake.parallelJobs": 12,
-		"cmake.environment": {
-			"CMAKE_PREFIX_PATH": "${workspaceFolder}/install"
-		},
-		"cmake.configureEnvironment": {
-			"CMAKE_INSTALL_PREFIX": "${workspaceFolder}/install",
-			"CMAKE_BUILD_TYPE": "RelWithDebInfo"
-		},
-		"cmake.testEnvironment": {
-			"DYLD_LIBRARY_PATH": "${workspaceFolder}/install",
-			"CMAKE_BUILD_TYPE": "RelWithDebInfo"
-		},
-		"cmake.configureArgs": [
-			"-DBUILD_SHARED_LIB=OFF",
-			"-DCMAKE_VERBOSE_MAKEFILE:BOOL=OFF",
-			"-DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE"
-		],
-		"cmake.allowCommentsInPresetsFile": false,
+		"cmake.allowCommentsInPresetsFile": true,
 		"cmake.ctest.allowParallelJobs": true,
 		"cmake.ctest.parallelJobs": 2,
-		"cmakeExplorer.cmakeIntegration": true,
-		"cmakeExplorer.buildDir": "${buildDirectory}",
-		"cmakeExplorer.debugConfig": "Debug",
-		"cmakeExplorer.parallelJobs": 12,
-		"cmakeExplorer.test.ctestPath": "${workspaceFolder}/testing",
+		"cmakeExplorer.cmakeIntegration": false,
 		"clang.completion.enable": true,
 		"clang-format.executable": "clang-format",
 		"clang-format.language.cpp.style": "Google",

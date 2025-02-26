@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20.0)
+cmake_minimum_required(VERSION 3.31.0)
 project(htm LANGUAGES CXX VERSION 0.1.0)  # This must match the conanfile.py!
 
 add_library(hobbies-htm
@@ -9,9 +9,9 @@ target_link_libraries(hobbies-htm
         hobbies-basal
     PRIVATE
         enabled-debugging
-        enabled-profiling
+        $<$<BOOL:${USE_PROFILING}>:enabled-profiling>
         enabled-warnings
-        enabled-coverage
+        $<$<BOOL:${USE_COVERAGE}>:enabled-coverage>
         native-optimized
 )
 target_include_directories(hobbies-htm

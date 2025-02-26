@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20.0)
+cmake_minimum_required(VERSION 3.31.0)
 project(doorgame LANGUAGES CXX VERSION 0.1.0)  # This must match the conanfile.py!
 
 add_library(hobbies-doorgame
@@ -23,7 +23,7 @@ target_link_libraries(hobbies-doorgame
         hobbies-basal
     PRIVATE
         enabled-debugging
-        enabled-profiling
+        $<$<BOOL:${USE_PROFILING}>:enabled-profiling>
         enabled-warnings
         native-optimized
 )

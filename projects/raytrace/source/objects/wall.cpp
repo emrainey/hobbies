@@ -92,7 +92,7 @@ image::point wall::map(point const& world_point) const {
 }
 
 precision wall::get_object_extent(void) const {
-    return basal::nan;
+    return basal::pos_inf;
 }
 
 void wall::print(char const str[]) const {

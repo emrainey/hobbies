@@ -107,7 +107,7 @@ void pyramid::print(char const str[]) const {
 
 precision pyramid::get_object_extent(void) const {
     // the pyramid is a height above origin, but is infinite in the -z direction
-    return basal::nan;
+    return basal::pos_inf;
 }
 
 }  // namespace objects

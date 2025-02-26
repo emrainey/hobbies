@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20.0)
+cmake_minimum_required(VERSION 3.31.0)
 project(vision LANGUAGES CXX VERSION 0.1.0)  # This must match the conanfile.py!
 
 find_package(OpenCV REQUIRED)
@@ -24,7 +24,7 @@ endif()
 #     PRIVATE
 #         enabled-warnings
 #         enabled-debugging
-#         enabled-profiling
+#         $<$<BOOL:${USE_PROFILING}>:enabled-profiling>
 #         native-optimized
 # )
 # target_include_directories(hobbies-vision
@@ -81,7 +81,7 @@ target_link_libraries(demo_artsy
     PRIVATE
         enabled-warnings
         enabled-debugging
-        enabled-profiling
+        $<$<BOOL:${USE_PROFILING}>:enabled-profiling>
         native-optimized
 )
 
@@ -94,7 +94,7 @@ target_link_libraries(demo_evm
     PRIVATE
         enabled-warnings
         enabled-debugging
-        enabled-profiling
+        $<$<BOOL:${USE_PROFILING}>:enabled-profiling>
         native-optimized
 )
 

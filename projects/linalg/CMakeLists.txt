@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20.0)
+cmake_minimum_required(VERSION 3.31.0)
 project(linalg LANGUAGES CXX VERSION 0.7.0)  # This must match the conanfile.py!
 
 add_library(hobbies-linalg
@@ -13,7 +13,8 @@ target_link_libraries(hobbies-linalg
     PRIVATE
         enabled-warnings
         enabled-debugging
-        enabled-profiling
+        $<$<BOOL:${USE_PROFILING}>:enabled-profiling>
+        $<$<BOOL:${USE_COVERAGE}>:enabled-coverage>
         native-optimized
 )
 target_include_directories(hobbies-linalg PUBLIC

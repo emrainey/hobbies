@@ -3,6 +3,7 @@
 
 #include <raytrace/raytrace.hpp>
 
+using namespace geometry;
 using namespace raytrace;
 using namespace raytrace::colors;
 using namespace raytrace::operators;

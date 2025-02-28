@@ -23,6 +23,25 @@ TEST(EntityTest, Basics) {
     ASSERT_POINT_EQ(P, Q);
 }
 
+TEST(EntityTest, Constructors) {
+    raytrace::point C{1, 2, 3};
+    entity e{C};
+    ASSERT_POINT_EQ(C, e.position());
+    entity f{std::move(C)};
+    ASSERT_POINT_EQ(C, f.position());
+}
+
+TEST(EntityTest, Assigners) {
+    raytrace::point C{1, 2, 3};
+    entity e{C};
+    entity f;
+    f = e;
+    ASSERT_POINT_EQ(C, f.position());
+    entity g;
+    g = std::move(f);
+    ASSERT_POINT_EQ(C, g.position());
+}
+
 TEST(EntityTest, MoveBy) {
     raytrace::point C{14, -18, -1};
     entity e{C};

@@ -216,10 +216,11 @@ TEST(ObjParser, DISABLED_CubeModelAsObject) {
     objects::Model model;
     printf("The test has to run from the root ${workspaceFolder}/testing of hobbies\r\n");
     model.LoadFromFile("../projects/raytrace/test/cube.obj");
+    EXPECT_POINT_EQ(R3::origin, model.position());
     // move by enough to not be able to hit the original box
-    model.move_by(raytrace::vector{4, 4, 4});
+    model.move_by(raytrace::vector{10, 10, 10});
 
-    EXPECT_POINT_EQ(raytrace::point(4, 4, 4), model.position());
+    EXPECT_POINT_EQ(raytrace::point(10, 10, 10), model.position());
 
     // show that some rays don't work
     {
@@ -230,10 +231,10 @@ TEST(ObjParser, DISABLED_CubeModelAsObject) {
 
     // shoot some rays at it to see if the transform works
     {
-        raytrace::ray r0{raytrace::point{4.0, 2.0, 4.0}, R3::basis::Y};
+        raytrace::ray r0{raytrace::point{10.5, 8.0, 10.5}, R3::basis::Y};
         auto hit = model.intersect(r0);
         EXPECT_EQ(geometry::IntersectionType::Point, get_type(hit.intersect));
-        EXPECT_POINT_EQ(raytrace::point(4.0, 3.0, 4.0), as_point(hit.intersect));
-        EXPECT_VECTOR_EQ(-R3::basis::Y, hit.normal);
+        EXPECT_POINT_EQ(raytrace::point(10.5, 9.0, 10.5), as_point(hit.intersect));
+        EXPECT_VECTOR_EQ(raytrace::vector({0, -1, 0}), hit.normal);
     }
 }

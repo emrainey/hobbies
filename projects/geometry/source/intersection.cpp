@@ -236,8 +236,8 @@ intersection intersects(R3::sphere const& S, R3::line const& l) noexcept(false) 
                 R = l.distance_along(k - r);
                 Q = l.distance_along(k + r);
                 R3::points sop = {R, Q};
-                assert(S.surface(R));
-                assert(S.surface(Q));
+                assert(S.on_surface(R));
+                assert(S.on_surface(Q));
                 return intersection(sop);
             } else {
                 // C != P and d < r
@@ -261,7 +261,7 @@ intersection intersects(R3::sphere const& S, R3::line const& l) noexcept(false) 
                     // we'll call the one we're on R and the other Q
                     R = Z0;
                     Q = l.distance_along(2 * m * u);
-                    assert(S.surface(Q));
+                    assert(S.on_surface(Q));
                 } else {  // k > m
                     // zero point is outside the sphere.
                     k *= u;
@@ -269,8 +269,8 @@ intersection intersects(R3::sphere const& S, R3::line const& l) noexcept(false) 
                     Q = l.distance_along(k + m);
                 }
                 R3::points sop = {R, Q};
-                assert(S.surface(R));
-                assert(S.surface(Q));
+                assert(S.on_surface(R));
+                assert(S.on_surface(Q));
                 return intersection(sop);
             }
         }

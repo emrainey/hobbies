@@ -166,9 +166,9 @@ matrix& matrix::operator=(matrix const& other) noexcept(false) {
 // move assignment
 matrix& matrix::operator=(matrix&& other) noexcept(false) {
     basal::exception::throw_unless(this->rows == other.rows, g_filename, __LINE__,
-                                   "Must match rows (move constructor)");
+                                   "Must match rows %zu != %zu (move constructor)", this->rows, other.rows);
     basal::exception::throw_unless(this->cols == other.cols, g_filename, __LINE__,
-                                   "Must match cols (move constructor)");
+                                   "Must match cols %zu != %zu (move constructor)", this->cols, other.cols);
     if (this != &other) {
         if (memory) {
 #if defined(__x86_64__)
@@ -176,11 +176,13 @@ matrix& matrix::operator=(matrix&& other) noexcept(false) {
 #else
             free(memory);
 #endif
+            memory = nullptr;
         }
         memory = other.memory;
         other.memory = nullptr;
         if (array) {
             free(array);
+            array = nullptr;
         }
         array = other.array;
         other.array = nullptr;
@@ -232,7 +234,7 @@ void matrix::destroy() {
             memory = nullptr;
         }
     } else {
-        // this is externally allocated so just release the ponter.
+        // this is externally allocated so just forget the pointer.
         memory = nullptr;
     }
     if (array) {

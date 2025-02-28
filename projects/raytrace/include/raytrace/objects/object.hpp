@@ -49,15 +49,16 @@ public:
     }
 
     /// Copy Constructor for the object. This is allowed as the medium is constant!
-    object_(object_ const& that) : entity_<DIMS>(), m_max_collisions{that.m_max_collisions}, m_closed_surface{that.m_closed_surface}, m_medium(that.m_medium) {
+    object_(object_ const& that) : entity_<DIMS>(that), m_max_collisions{that.m_max_collisions}, m_closed_surface{that.m_closed_surface}, m_medium(that.m_medium) {
     }
 
     /// Move Constructor for the object. This is allowed as the medium is constant!
-    object_(object_&& that) : entity_<DIMS>(), m_max_collisions{that.m_max_collisions}, m_closed_surface{that.m_closed_surface}, m_medium(that.m_medium) {
+    object_(object_&& that) : entity_<DIMS>(that), m_max_collisions{that.m_max_collisions}, m_closed_surface{that.m_closed_surface}, m_medium(that.m_medium) {
     }
 
     /// Copy Assignment for the object. This is allowed as the medium is constant!
     object_& operator=(object_ const& that) {
+        entity_<DIMS>::operator=(that);
         // m_max_collisions = that.m_max_collisions; // can't reassign
         // m_closed_surface = that.m_closed_surface; // can't reassign
         m_medium = that.m_medium;
@@ -65,6 +66,7 @@ public:
     }
 
     object_& operator=(object_&& that) {
+        entity_<DIMS>::operator=(that);
         // m_max_collisions = that.m_max_collisions;
         // m_closed_surface = that.m_closed_surface;
         m_medium = that.m_medium; // copy is sufficient as the medium is constant

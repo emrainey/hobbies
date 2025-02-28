@@ -3,41 +3,31 @@
 namespace raytrace {
 namespace objects {
 
-face::face(point const& A, point const& B, point const& C) : triangle(A, B, C) {
-    m_texture_coords[0] = image::point{1, 0};
-    m_texture_coords[1] = image::point{0, 0};
-    m_texture_coords[2] = image::point{0, 1};
-    m_normals[0] = m_normal;
-    m_normals[1] = m_normal;
-    m_normals[2] = m_normal;
+face::face(point const& A, point const& B, point const& C)
+    : triangle(A, B, C)
+    , m_texture_coords{image::point{1, 0}, image::point{0, 0}, image::point{0, 1}}
+    , m_normals{m_normal, m_normal, m_normal} {
 }
 
-face::face(point const& A, point const& B, point const& C, image::point const& a, image::point const& b, image::point const& c) : triangle(A, B, C) {
-    m_texture_coords[0] = a;
-    m_texture_coords[1] = b;
-    m_texture_coords[2] = c;
-    m_normals[0] = m_normal;
-    m_normals[1] = m_normal;
-    m_normals[2] = m_normal;
+face::face(point const& A, point const& B, point const& C, image::point const& a, image::point const& b, image::point const& c)
+    : triangle(A, B, C)
+    , m_texture_coords{a, b, c}
+    , m_normals{m_normal, m_normal, m_normal} {
 }
 
-face::face(point const& A, point const& B, point const& C, image::point const& a, image::point const& b, image::point const& c, vector const& na, vector const& nb, vector const& nc) : triangle(A, B, C) {
-    m_texture_coords[0] = a;
-    m_texture_coords[1] = b;
-    m_texture_coords[2] = c;
-    m_normals[0] = na;
-    m_normals[1] = nb;
-    m_normals[2] = nc;
+face::face(point const& A, point const& B, point const& C, image::point const& a, image::point const& b, image::point const& c, vector const& na, vector const& nb, vector const& nc)
+    : triangle(A, B, C)
+    , m_texture_coords{a, b, c}
+    , m_normals{na, nb, nc} {
+    std::cout << "Face center is " << position() << std::endl;
 }
 
-// /// @copydoc raytrace::object::intersect
-// hit face::intersect(ray const& world_ray) const {
-//     return triangle::intersect(world_ray);
-// }
+hits face::collisions_along(ray const& object_ray) const {
+    return triangle::collisions_along(object_ray);
+}
 
-/// @copydoc basal::printable::print
 void face::print(char const str[]) const {
-    triangle::print(str);
+    std::cout << str << " Face @" << this << " " << position() << " Normal " << unormal() << " A=" << m_points[0] << " B=" << m_points[1] << " C=" << m_points[2] << std::endl;
 }
 
 bool face::is_surface_point(point const& world_point) const {

@@ -25,8 +25,15 @@ bool Model::is_surface_point(raytrace::point const& world_point) const {
 
 Model::hits Model::collisions_along(ray const& object_ray) const {
     hits hits;
-    for (auto const& f : faces_) {
-        auto subhits = f.collisions_along(object_ray);
+    for (auto const& face : faces_) {
+        // transform to each face's position
+        auto face_ray = face.reverse_transform(object_ray);
+        auto subhits = face.collisions_along(face_ray);
+        for (auto& h : subhits) {
+            auto face_point = as_point(h.intersect);
+            h.intersect = face.forward_transform(face_point);
+            h.normal = face.forward_transform(h.normal);
+        }
         hits.insert(hits.end(), subhits.begin(), subhits.end());
     }
     return hits;
@@ -41,13 +48,13 @@ precision Model::get_object_extent(void) const {
     precision max_extent = 0.0_p;
     for (auto const& point : points_) {
         auto vec = point - R3::origin;
-        precision extent = vec.quadrance();
+        precision extent = vec.magnitude();
         if (extent > max_extent) {
             max_extent = extent;
         }
     }
     if constexpr (debug) {
-        printf("Model: Returning %lf\r\n", max_extent);
+        printf("Model: Returning %lf for max extent\r\n", max_extent);
     }
     return max_extent;
 }
@@ -83,7 +90,8 @@ void Model::addFace(uint32_t a, uint32_t b, uint32_t c) {
         if constexpr (debug) {
             printf("Model: Adding triangle %u %u %u\n", a, b, c);
         }
-        faces_.emplace_back(points_[ia], points_[ib], points_[ic]);
+        // swap the order of points so that the normal is facing the right way
+        faces_.emplace_back(points_[ic], points_[ib], points_[ia]);
     } else {
         if constexpr (debug) {
             printf("Model: Index out of bounds! %" PRIu32 " %" PRIu32 " %" PRIu32 "\n", a, b, c);
@@ -104,7 +112,8 @@ void Model::addFace(uint32_t a, uint32_t ta, uint32_t b, uint32_t tb, uint32_t c
         if constexpr (debug) {
             printf("Model: Adding triangle (%u %u %u), (%u %u %u)\n", a, b, c, ta, tb, tc);
         }
-        faces_.emplace_back(points_[ia], points_[ib], points_[ic], texels_[ita], texels_[itb], texels_[itc]);
+        // swap the order of points so that the normal is facing the right way
+        faces_.emplace_back(points_[ic], points_[ib], points_[ia], texels_[ita], texels_[itb], texels_[itc]);
     } else {
         if constexpr (debug) {
             printf("Model: Index out of bounds! %" PRIu32 " %" PRIu32 " %" PRIu32 "\n", a, b, c);
@@ -127,9 +136,10 @@ void Model::addFace(uint32_t v1, uint32_t t1, uint32_t n1, uint32_t v2, uint32_t
     bool normals_ok = in1 < normals_.size() and in2 < normals_.size() and in3 < normals_.size();
     if (points_ok and normals_ok and texels_ok) {
         if constexpr (debug) {
-            printf("Model: Adding triangle (%u %u %u), (%u, %u, %u), (%u, %u, %u)\n", v1, v2, v3, t1, t2, t3, n1, n2, n3);
+            printf("Model: Adding triangle (%u, %u, %u), (%u, %u, %u), (%u, %u, %u)\n", v1, v2, v3, t1, t2, t3, n1, n2, n3);
         }
-        faces_.emplace_back(points_[iv1], points_[iv2], points_[iv3], texels_[it1], texels_[it2], texels_[it3], normals_[in1], normals_[in2], normals_[in3]);
+        // swap the order of points so that the normal is facing the right way
+        faces_.emplace_back(points_[iv3], points_[iv2], points_[iv1], texels_[it1], texels_[it2], texels_[it3], normals_[in1], normals_[in2], normals_[in3]);
     } else {
         if constexpr (debug) {
             printf("Model: Index out of bounds! %" PRIu32 " %" PRIu32 " %" PRIu32 "\n", v1, v2, v3);
@@ -151,6 +161,30 @@ void Model::LoadFromFile(char const * const filename) {
         }
         fclose(file);
         loaded_ = true;
+        // compute the center of the model
+        vector computed_centroid;
+        for (auto& pnt : points_) {
+            vector v = pnt - R3::origin;
+            if constexpr (debug) {
+                std::cout << "Point Offset " << v << std::endl;
+            }
+            computed_centroid += v;
+        }
+        computed_centroid /= points_.size();
+        if constexpr (debug) {
+            std::cout << "Computed Centroid of Model: " << computed_centroid << std::endl;
+        }
+        // adjust each face position now to be relative to the center
+        for (auto& face : faces_) {
+            face.print("Face");
+            auto _old = face.position();
+            auto _new = (_old - computed_centroid);
+            if constexpr (debug) {
+                std::cout << "Old Position " << _old << " New Position " << _new << std::endl;
+            }
+            face.position(_new);
+        }
+        position(R3::origin + computed_centroid); // this is the center of the model, not each face
     }
 }
 
@@ -168,8 +202,9 @@ obj::Parser::Statistics const& Model::GetStatistics() const {
 vector Model::normal_(point const& object_surface_point) const {
     vector object_surface_normal{0.0_p, 0.0_p, 0.0_p};
     for (auto const& f : faces_) {
-        if (f.is_contained(object_surface_point)) {
-            object_surface_normal = f.normal(object_surface_point);
+        point face_surface_point = f.reverse_transform(object_surface_point);
+        if (f.is_contained(face_surface_point)) {
+            object_surface_normal = f.normal(face_surface_point);
         }
     }
     return entity::forward_transform(object_surface_normal);

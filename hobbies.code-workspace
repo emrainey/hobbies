@@ -70,6 +70,7 @@
 			"${workspaceFolder}/projects/doorgame/include",
 		],
 		"C_Cpp.default.browse.databaseFilename": "${command:cmake.buildDirectory}/browse.db",
+		"C_Cpp.formatting": "clangFormat",
 		"cSpell.enabled": true,
 		"cSpell.enableFiletypes": [
 			"cpp",

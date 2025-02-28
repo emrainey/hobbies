@@ -10,19 +10,38 @@ using namespace linalg::operators;
 using namespace geometry;
 using namespace geometry::operators;
 
+static constexpr bool debug = false;
+
 triangle::triangle(R3::point const& A, R3::point const& B, R3::point const& C)
-    : plane{centroid(A, B, C), R3::cross(A - B, C - B).normalized()}, m_points{} {
-    m_points[0] = A;
-    m_points[1] = B;
-    m_points[2] = C;
-    precision a = (position() - A).quadrance();
-    precision b = (position() - B).quadrance();
-    precision c = (position() - C).quadrance();
+    : plane{R3::origin, R3::cross(A - B, C - B).normalized()}, m_points{} {
+    // this defines the center of the given points which will be the translated center to the triangle
+    point center = centroid(A, B, C);
+    if constexpr (debug) {
+        std::cout << "Triangle Center: " << center << " from A=" << A << " B=" << B << " C=" << C << std::endl;
+    }
+    // now relocate all the points so that the center is translated to where ever the points were defined as but each point is not relative to the center
+    vector delta = center - R3::origin;
+    // adjust all the given points so that they are relative to the R3::origin
+    m_points[0] = A - delta;
+    m_points[1] = B - delta;
+    m_points[2] = C - delta;
+    if constexpr (debug) {
+        std::cout << "\tMoved points to A=" << m_points[0] << " B=" << m_points[1] << " C=" << m_points[2] << std::endl;
+    }
+    // now the relocated center is moved
+    position(center);
+    if constexpr (debug) {
+        std::cout << "\tMoved center to " << position() << std::endl;
+    }
+    // now find the farthest point from the origin of the triangle
+    precision a = (m_points[0] - R3::origin).quadrance();
+    precision b = (m_points[1] - R3::origin).quadrance();
+    precision c = (m_points[2] - R3::origin).quadrance();
     m_radius2 = std::max(a, std::max(b, c));
 }
 
-bool triangle::is_contained(point const& D) const {
-    precision r2 = (position() - D).quadrance();
+bool triangle::is_contained(point const& object_point) const {
+    precision r2 = (object_point - R3::origin).quadrance();
     // do we need to do a more in depth test?
     if (r2 < m_radius2) {
         constexpr static bool use_triple = true;
@@ -31,9 +50,9 @@ bool triangle::is_contained(point const& D) const {
         vector AB = m_points[1] - m_points[0];
         vector BC = m_points[2] - m_points[1];
         vector CA = m_points[0] - m_points[2];
-        vector DA = D - m_points[0];
-        vector DB = D - m_points[1];
-        vector DC = D - m_points[2];
+        vector DA = object_point - m_points[0];
+        vector DB = object_point - m_points[1];
+        vector DC = object_point - m_points[2];
         precision NdDAxAB;
         precision NdDBxBC;
         precision NdDCxCA;
@@ -56,18 +75,19 @@ bool triangle::is_contained(point const& D) const {
     return false;
 }
 
-hit triangle::intersect(ray const& world_ray) const {
-    hit h = plane::intersect(world_ray);
-    if (get_type(h.intersect) == IntersectionType::Point) {
-        point D = as_point(h.intersect);
-        if (is_contained(D)) {
-            precision projected_length = dot(unormal(), world_ray.direction());
-            if (projected_length < 0) {
-                return h;
+hits triangle::collisions_along(ray const& object_ray) const {
+    auto collisions = plane::collisions_along(object_ray);
+    hits hits;
+    for (auto& h : collisions) {
+        if (is_contained(as_point(h.intersect))) { // this is in object space still
+            // now we determine if the triangle normal is "facing" the ray or not
+            precision projected_length = dot(h.normal, object_ray.direction());
+            if (projected_length < 0.0_p) {
+               hits.push_back(h);
             }
         }
     }
-    return hit();
+    return hits;
 }
 
 bool triangle::is_surface_point(point const& world_point) const {
@@ -90,13 +110,7 @@ const std::array<point, raytrace::dimensions>& triangle::points() const {
 }
 
 precision triangle::get_object_extent(void) const {
-    // find the point farthest from origin
-    precision d[] = {
-        (m_points[0] - R3::origin).magnitude(),
-        (m_points[1] - R3::origin).magnitude(),
-        (m_points[2] - R3::origin).magnitude(),
-    };
-    return std::max(d[0], std::max(d[1], d[2]));
+    return sqrt(m_radius2);
 }
 
 }  // namespace objects

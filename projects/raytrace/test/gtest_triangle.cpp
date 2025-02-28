@@ -15,10 +15,12 @@ TEST(TriangleTest, Basic) {
     raytrace::point A{0.0, 0.0, 0.0};
     raytrace::point B{1.0, 1.0, 0.0};
     raytrace::point C{-1.0, 1.0, 0.0};
-    raytrace::objects::triangle D{A, B, C};
-    ASSERT_TRUE(D.is_contained(raytrace::point{0.0, 0.5, 0.0}));
-    ASSERT_PRECISION_EQ(sqrt(2.0_p), D.get_object_extent());
-    ASSERT_POINT_EQ(raytrace::point(0.0_p/3.0_p, 2.0_p/3.0_p, 0.0_p/3.0_p), D.position());
+    raytrace::objects::triangle shape{A, B, C};
+    ASSERT_POINT_EQ(raytrace::point(0.0_p/3.0_p, 2.0_p/3.0_p, 0.0_p/3.0_p), shape.position());
+    ASSERT_TRUE(shape.is_contained(raytrace::point{0.0, 0.25, 0.0}));
+    auto displacement = raytrace::point{1, 1, 0} - raytrace::point{0, 2.0/3.0, 0};
+    ASSERT_PRECISION_EQ(displacement.magnitude(), shape.get_object_extent());
+    ASSERT_POINT_EQ(raytrace::point(0.0_p/3.0_p, 2.0_p/3.0_p, 0.0_p/3.0_p), shape.position());
 }
 
 TEST(TriangleTest, PlaneParallelTriangle) {

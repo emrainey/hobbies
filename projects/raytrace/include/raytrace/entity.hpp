@@ -24,20 +24,58 @@ public:
         , m_inv_transform{matrix::identity(DIMS + 1, DIMS + 1)} {
     }
 
-    entity_(point const& position) : entity_{} {
+    explicit entity_(point const& position) : entity_{} {
         m_world_position = position;
         compute_transforms();
     }
 
-    entity_(point&& position) : entity_{} {
+    explicit entity_(point&& position) : entity_{} {
         m_world_position = std::move(position);
         compute_transforms();
     }
 
-    entity_(entity_ const&) = delete;
-    entity_(entity_&&) = delete;
-    entity_& operator=(entity_ const&) = delete;
-    entity_& operator=(entity_&&) = delete;
+    entity_(entity_ const& other)
+        : m_world_position{other.m_world_position}
+        , m_rotation{other.m_rotation}
+        , m_inv_rotation{other.m_inv_rotation}
+        , m_scaling{other.m_scaling}
+        , m_transform{other.m_transform}
+        , m_inv_transform{other.m_inv_transform} {
+    }
+
+    entity_(entity_&& other)
+        : m_world_position{std::move(other.m_world_position)}
+        , m_rotation{std::move(other.m_rotation)}
+        , m_inv_rotation{std::move(other.m_inv_rotation)}
+        , m_scaling{std::move(other.m_scaling)}
+        , m_transform{std::move(other.m_transform)}
+        , m_inv_transform{std::move(other.m_inv_transform)} {
+    }
+
+    entity_& operator=(entity_ const& other) {
+        if (this != &other) {
+            m_world_position = other.m_world_position;
+            m_rotation = other.m_rotation;
+            m_inv_rotation = other.m_inv_rotation;
+            m_scaling = other.m_scaling;
+            m_transform = other.m_transform;
+            m_inv_transform = other.m_inv_transform;
+        }
+        return *this;
+    }
+
+    entity_& operator=(entity_&& other) {
+        if (this != &other) {
+            m_world_position = std::move(other.m_world_position);
+            m_rotation = std::move(other.m_rotation);
+            m_inv_rotation = std::move(other.m_inv_rotation);
+            m_scaling = std::move(other.m_scaling);
+            m_transform = std::move(other.m_transform);
+            m_inv_transform = std::move(other.m_inv_transform);
+        }
+        return *this;
+    }
+
     virtual ~entity_() = default;
 
     /// Returns the current position as a point in world space!

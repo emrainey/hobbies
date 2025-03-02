@@ -8,6 +8,7 @@ namespace raytrace {
 namespace tree {
 class Node {
 public:
+    using hits = objects::object::hits;
     /// the number of subnodes is 8, but magic numbers can go awry
     static constexpr size_t NumSubNodes{8U};
     /// Determines the index of the octant that contains the point
@@ -24,20 +25,35 @@ public:
     /// Constructs a node with the given bounds
     Node(Bounds const& bounds);
 
+    /// @return the bounds of the node
+    inline Bounds const& bounds() const { return bounds_; }
+
+    /// Determines the hits of the ray intersects with the objects in the node or it's sub-nodes
+    hits intersects(raytrace::ray const& ray) const;
+
     /// Determines if the object's extent intersects with the bounds of the node
     bool intersects(objects::object const* object) const;
 
     /// Adds an object to the node if the object extent overlaps with the bounds of the Node
     bool add_object(objects::object const* object);
 
+    /// Iterates over all the subnodes in the node
+    bool any_of(std::function<bool(Node const&)> const& func) const;
+
     /// Returns true if the object is in the existing object list
     /// @param object The object to check for
     bool has(objects::object const* object) const;
 
-    /// Recusively checks to see if the object is under this node
+    /// Recursively checks to see if the object is under this node
     /// @param object The object to check for
     /// @return true if somewhere under the node (@see has for this node)
     bool under(objects::object const* object) const;
+
+    /// @return the number of objects in this node only, not subnodes
+    size_t object_count() const;
+
+    /// @return the number of sub nodes in this node
+    size_t node_count() const;
 
     /// Inserts the object into the list of objects or the subnode lists
     /// @param object The object to insert

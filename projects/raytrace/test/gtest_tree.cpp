@@ -39,7 +39,7 @@ TEST(TreeTest, SplitBounds) {
     Bounds bounds{raytrace::point{-70, -42,  -99}, raytrace::point{55, 147, 22}};
     tree::Node node{bounds};
     objects::sphere s0{raytrace::point{5, 4, 9}, 3};
-    EXPECT_TRUE(node.intersects(&s0));
+    EXPECT_TRUE(node.bounds().intersects(s0.get_world_bounds()));
     node.add_object(&s0);
     EXPECT_TRUE(node.has(&s0));
 }
@@ -81,35 +81,53 @@ TEST(TreeTest, AddObjects) {
     objects::sphere s5{raytrace::point{1.5, 0.5, 1.5}, 0.4};
     objects::sphere s6{raytrace::point{1.5, 1.5, 0.5}, 0.4};
     objects::sphere s7{raytrace::point{1.5, 1.5, 1.5}, 0.4};
-    EXPECT_TRUE(node.intersects(&s0));
-    EXPECT_TRUE(node.intersects(&s1));
-    EXPECT_TRUE(node.intersects(&s2));
-    EXPECT_TRUE(node.intersects(&s3));
-    EXPECT_TRUE(node.intersects(&s4));
-    EXPECT_TRUE(node.intersects(&s5));
-    EXPECT_TRUE(node.intersects(&s6));
-    EXPECT_TRUE(node.intersects(&s7));
+    EXPECT_TRUE(node.bounds().intersects(s0.get_world_bounds()));
+    EXPECT_TRUE(node.bounds().intersects(s1.get_world_bounds()));
+    EXPECT_TRUE(node.bounds().intersects(s2.get_world_bounds()));
+    EXPECT_TRUE(node.bounds().intersects(s3.get_world_bounds()));
+    EXPECT_TRUE(node.bounds().intersects(s4.get_world_bounds()));
+    EXPECT_TRUE(node.bounds().intersects(s5.get_world_bounds()));
+    EXPECT_TRUE(node.bounds().intersects(s6.get_world_bounds()));
+    EXPECT_TRUE(node.bounds().intersects(s7.get_world_bounds()));
     EXPECT_TRUE(node.add_object(&s0));
     EXPECT_TRUE(node.has(&s0));
+    EXPECT_EQ(1U, node.object_count());
+    EXPECT_EQ(0U, node.node_count());
     EXPECT_TRUE(node.add_object(&s1));
     EXPECT_TRUE(node.has(&s1));
+    EXPECT_EQ(2U, node.object_count());
+    EXPECT_EQ(0U, node.node_count());
     EXPECT_TRUE(node.add_object(&s2));
     EXPECT_TRUE(node.has(&s2));
+    EXPECT_EQ(3U, node.object_count());
+    EXPECT_EQ(0U, node.node_count());
     EXPECT_TRUE(node.add_object(&s3));
     EXPECT_TRUE(node.has(&s3));
+    EXPECT_EQ(4U, node.object_count());
+    EXPECT_EQ(0U, node.node_count());
     EXPECT_TRUE(node.add_object(&s4));
     EXPECT_TRUE(node.has(&s4));
+    EXPECT_EQ(5U, node.object_count());
+    EXPECT_EQ(0U, node.node_count());
     EXPECT_TRUE(node.add_object(&s5));
     EXPECT_TRUE(node.has(&s5));
+    EXPECT_EQ(6U, node.object_count());
+    EXPECT_EQ(0U, node.node_count());
     EXPECT_TRUE(node.add_object(&s6));
     EXPECT_TRUE(node.has(&s6));
+    EXPECT_EQ(7U, node.object_count());
+    EXPECT_EQ(0U, node.node_count());
     EXPECT_TRUE(node.add_object(&s7));
     EXPECT_TRUE(node.has(&s7));
+    EXPECT_EQ(8U, node.object_count());
+    EXPECT_EQ(0U, node.node_count());
     // no subnodes yet...
     objects::sphere s8{raytrace::point{1.0, 1.0, 1.0}, 0.5}; // should be in all subnodes
-    EXPECT_TRUE(node.intersects(&s8));
+    EXPECT_TRUE(node.bounds().intersects(s8.get_world_bounds()));
     EXPECT_TRUE(node.add_object(&s8));
     EXPECT_TRUE(node.has(&s8));
+    EXPECT_EQ(1U, node.object_count());
+    EXPECT_EQ(8U, node.node_count());
     EXPECT_FALSE(node.has(&s0));
     EXPECT_FALSE(node.has(&s1));
     EXPECT_FALSE(node.has(&s2));
@@ -126,4 +144,15 @@ TEST(TreeTest, AddObjects) {
     EXPECT_TRUE(node.under(&s5));
     EXPECT_TRUE(node.under(&s6));
     EXPECT_TRUE(node.under(&s7));
+
+    raytrace::ray r{raytrace::point{0.5, -1.0, 0.5}, raytrace::vector{0.0, 1.0, 0.0}};
+    EXPECT_TRUE(node.bounds().intersects(r));
+    EXPECT_EQ(8U, node.node_count());
+    EXPECT_TRUE(node.any_of([&](tree::Node const& subnode) -> bool {
+        return subnode.bounds().intersects(r);
+    }));
+    auto hits = node.intersects(r);
+    EXPECT_EQ(2U, hits.size()); // should hit s0 and s2
+    EXPECT_EQ(&s0, hits[0].object);
+    EXPECT_EQ(&s2, hits[1].object);
 }

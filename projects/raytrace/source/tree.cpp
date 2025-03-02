@@ -40,8 +40,43 @@ bool Node::under(objects::object const* object) const {
     return false;
 }
 
+size_t Node::object_count() const {
+    return objects_.size();
+}
+
+size_t Node::node_count() const {
+    return nodes_.size();
+}
+
 bool Node::intersects(objects::object const* object) const {
     return bounds_.intersects(object->get_world_bounds());
+}
+
+objects::object::hits Node::intersects(raytrace::ray const& ray) const {
+    hits hits;
+    if (bounds_.intersects(ray)) {
+        for (auto const& object : objects_) {
+            auto hit = object->intersect(ray);
+            if (get_type(hit.intersect) == IntersectionType::Point) {
+                hits.push_back(hit);
+            }
+        }
+        for (auto const& subnode : nodes_) {
+            if (subnode.bounds().intersects(ray)) {
+                auto subhits = subnode.intersects(ray);
+                hits.insert(hits.end(), subhits.begin(), subhits.end());
+            }
+        }
+    }
+    return hits;
+}
+
+bool Node::any_of(std::function<bool(Node const&)> const& func) const {
+    std::vector<bool> ret(nodes_.size()); // all false at first
+    for (auto& node : nodes_) {
+        ret.push_back(func(node));
+    }
+    return std::any_of(ret.begin(), ret.end(), [](bool b) { return b; });
 }
 
 bool Node::insert(objects::object const* object) {

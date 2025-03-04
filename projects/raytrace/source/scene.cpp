@@ -158,10 +158,10 @@ color scene::trace(ray const& world_ray, mediums::medium const& media, size_t re
         bool inside_out = (dot(world_surface_normal, world_ray.direction()) > 0);
 
         // compute the reflection vector
-        ray world_reflection = obj.reflection(world_ray, world_surface_point);
+        ray world_reflection = obj.reflection(world_ray, world_surface_normal, world_surface_point);
         // compute the refracted vector
         ray world_refraction
-            = obj.refraction(world_ray, world_surface_point, media.refractive_index(object_surface_point),
+            = obj.refraction(world_ray, world_surface_normal, world_surface_point, media.refractive_index(object_surface_point),
                              medium.refractive_index(object_surface_point));
 
         basal::exception::throw_if(dot(world_ray.direction(), world_refraction.direction()) < 0, __FILE__, __LINE__,

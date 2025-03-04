@@ -178,6 +178,7 @@ if (Threads_FOUND AND GTest_FOUND)
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_face.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_image.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_laws.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_lens.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_light.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_mapping.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_overlap.cpp

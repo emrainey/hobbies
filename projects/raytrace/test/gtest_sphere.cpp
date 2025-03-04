@@ -22,7 +22,7 @@ TEST(SphereTest, NormalReflection) {
     ASSERT_VECTOR_EQ(nx, N);
     vector F{{1, 1, 0}};
     // reflect F at P using N inside
-    vector G{s0.reflection(F, P)};
+    vector G{s0.reflection(F, N, P)};
     vector H{{-1, 1, 0}};
     ASSERT_VECTOR_EQ(H.normalized(), G);
 }
@@ -167,7 +167,7 @@ TEST(SphereTest, Refraction) {
         std::cout << "Entry Normal: " << normal << std::endl;
         iso::radians incident_angle = geometry::angle(-normal, shot.direction());
         ASSERT_NEAR(param.entry_exterior_angle.value, incident_angle.value, basal::epsilon);
-        raytrace::ray refracted_ray = shape.refraction(shot, entry_surface_point, 1.0, eta);
+        raytrace::ray refracted_ray = shape.refraction(shot, normal, entry_surface_point, 1.0, eta);
         std::cout << "Refracted: " << refracted_ray << std::endl;
         ASSERT_POINT_EQ(entry_surface_point, refracted_ray.location());
         iso::radians refracted_angle = geometry::angle(-normal, refracted_ray.direction());
@@ -183,7 +183,7 @@ TEST(SphereTest, Refraction) {
         incident_angle = geometry::angle(normal, shot.direction());
         std::cout << "Exit Incident Angle: " << incident_angle.value << std::endl;
         EXPECT_NEAR(param.exit_interior_angle.value, incident_angle.value, basal::epsilon);
-        raytrace::ray transmitted_ray = shape.refraction(refracted_ray, exit_surface_point, eta, 1.0);
+        raytrace::ray transmitted_ray = shape.refraction(refracted_ray, normal, exit_surface_point, eta, 1.0);
         std::cout << "Transmitted Ray: " << transmitted_ray << std::endl;
         refracted_angle = geometry::angle(normal, transmitted_ray.direction());
         EXPECT_NEAR(param.exit_exterior_angle.value, refracted_angle.value, basal::epsilon);

@@ -91,9 +91,11 @@ public:
     }
 
     /// Computes the reflection vector at the surface point P given the incident vector I
+    /// @param I The incident vector
+    /// @param N The normal to the surface
+    /// @param P The surface point
     /// @note Maintains the space the inputs were in.
-    vector reflection(vector const& I, point const& P) const {
-        vector N = normal(P);  // MAYBE (Optimization) should we already have calculated the normal at this point already?
+    vector reflection(vector const& I, vector const& N, point const& P) const {
         vector nI = I.normalized();  // MAYBE (Optimization) shouldn't this already be normalized?
         vector R = laws::reflection(N, nI);
         if (m_medium) {
@@ -103,19 +105,22 @@ public:
     }
 
     /// Computes the reflection ray at the surface point P given the incident ray I
+    /// @param I The incident ray
+    /// @param N The normal to the surface
+    /// @param P The surface point
     /// @note Maintains the space the inputs were in.
-    ray reflection(ray const& I, point const& P) const {
-        return ray(P, reflection(I.direction(), P));
+    ray reflection(ray const& I, vector const& N, point const& P) const {
+        return ray(P, reflection(I.direction(), N, P));
     }
 
     /// Computes the refraction vector at the surface point
     /// @param I The incident vector
+    /// @param N The normal to the surface
     /// @param P The surface point
     /// @param nu1 Material Refractivity Index
     /// @param nu2 Material Refractivity Index
     ///
-    vector refraction(vector const& I, point const& P, precision nu1, precision nu2) const {
-        vector N = normal(P);  // MAYBE (Optimization) should we already have calculated the normal at this point already?
+    vector refraction(vector const& I, vector const& N, precision nu1, precision nu2) const {
         vector nI = I.normalized();  // MAYBE (Optimization) shouldn't this already be normalized?
         // if the Incident and the Normal have a positive dot then they are not arranged properly
         if (dot(N, I) > 0) {
@@ -127,12 +132,13 @@ public:
 
     /// Computes the refraction ray at the surface point P.
     /// @param I The incident ray
+    /// @param N The normal to the surface
     /// @param P The surface point
     /// @param nu1 Material Refractivity Index
     /// @param nu2 Material Refractivity Index
     ///
-    ray refraction(ray const& I, point const& P, precision nu1, precision nu2) const {
-        return ray(P, refraction(I.direction(), P, nu1, nu2));
+    ray refraction(ray const& I, vector const& N, point const& P, precision nu1, precision nu2) const {
+        return ray(P, refraction(I.direction(), N, nu1, nu2));
     }
 
     /// Returns the normal to the surface given an world space point which is presumed to

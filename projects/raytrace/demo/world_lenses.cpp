@@ -30,7 +30,7 @@ public:
         // , pyramid_bounds{pyramid_center, 5, 5, 10}
         // , pyramid_overlap{pyramid_core, pyramid_bounds, objects::overlap::type::inclusive}
         , glass_donut{raytrace::point{10, -10, 3.5}, 5.0, 2.5}
-        , ground{R3::origin, R3::basis::Z, 1000, 1000}
+        , ground{R3::origin, R3::basis::Z, 100, 100}
         , sunlight{raytrace::vector{-2, 2, -1}, colors::white, lights::intensities::full}
         , prick{raytrace::point{0, 0, 22}, colors::white, 1E6} {
         convex_lens.position(raytrace::point{0, 0, 5});

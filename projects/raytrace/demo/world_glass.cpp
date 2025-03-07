@@ -16,19 +16,20 @@ using namespace iso::literals;
 class GlassWorld : public world {
 public:
     GlassWorld()
-        : world{}
-        , look_from{20, 20, 5}
-        , look_at{0, 0, 2.0}
-        , glass_ball{raytrace::point{0, 0, 5.0}, 5.0}  //, glass_cube(raytrace::point{0, 10, 2}, 2, 2, 2}
-        , toy_ball{raytrace::point{-20, -20, 2.0}, 2.0}
-        , floor{R3::origin, R3::basis::Z, 100, 100}
-        , ikea_checkers{0.1,           colors::blue, colors::yellow, colors::red,  colors::magenta,
-                        colors::green, colors::cyan, colors::black,  colors::white}
-        , schott_glass{mediums::refractive_index::glass, 0.04, colors::red}
-        , red_plastic{colors::white, mediums::ambient::dim, colors::red, mediums::smoothness::barely,
-                      mediums::roughness::tight}
-        , back_light{raytrace::point{-10, -10, 12}, colors::white, lights::intensities::intense}
-        , front_light{raytrace::point{10, 10, 12}, colors::white, lights::intensities::intense} {
+        : world{},
+          look_from{20, 20, 5},
+          look_at{0, 0, 2.0},
+          glass_ball{raytrace::point{0, 0, 5.0}, 5.0}  //, glass_cube(raytrace::point{0, 10, 2}, 2, 2, 2}
+          ,
+          toy_ball{raytrace::point{-20, -20, 2.0}, 2.0},
+          floor{R3::origin, R3::basis::Z, 100, 100},
+          ikea_checkers{0.1,           colors::blue, colors::yellow, colors::red,  colors::magenta,
+                        colors::green, colors::cyan, colors::black,  colors::white},
+          schott_glass{mediums::refractive_index::glass, 0.04, colors::red},
+          red_plastic{colors::white, mediums::ambient::dim, colors::red, mediums::smoothness::barely,
+                      mediums::roughness::tight},
+          back_light{raytrace::point{-10, -10, 12}, colors::white, lights::intensities::intense},
+          front_light{raytrace::point{10, 10, 12}, colors::white, lights::intensities::intense} {
         ikea_checkers.mapper(std::bind(&objects::square::map, &floor, std::placeholders::_1));
         floor.material(&ikea_checkers);
         glass_ball.material(&schott_glass);
@@ -70,18 +71,12 @@ public:
 
     raytrace::animation::anchors get_anchors() const override {
         raytrace::animation::anchors anchors;
-        anchors.push_back(
-            animation::Anchor{
-                animation::Attributes{look_from, look_at, 55.0_deg},
-                animation::Attributes{raytrace::point{30, 0, 5}, look_at, 40.0_deg},
-                animation::Mappers{}, iso::seconds{5.0_p}
-            });
-        anchors.push_back(
-            animation::Anchor{
-                anchors.back().limit, // previous limit is this start
-                animation::Attributes{raytrace::point{20, 20, 15}, look_at, 23.0_deg},
-                animation::Mappers{}, iso::seconds{5.0_p}
-            });
+        anchors.push_back(animation::Anchor{animation::Attributes{look_from, look_at, 55.0_deg},
+                                            animation::Attributes{raytrace::point{30, 0, 5}, look_at, 40.0_deg},
+                                            animation::Mappers{}, iso::seconds{5.0_p}});
+        anchors.push_back(animation::Anchor{anchors.back().limit,  // previous limit is this start
+                                            animation::Attributes{raytrace::point{20, 20, 15}, look_at, 23.0_deg},
+                                            animation::Mappers{}, iso::seconds{5.0_p}});
         return anchors;
     }
 

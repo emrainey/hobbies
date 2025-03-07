@@ -21,14 +21,12 @@ std::tuple<precision, precision> quadratic_roots(precision a, precision b, preci
 /// @see https://www.youtube.com/watch?v=N-KXStupwsc
 /// @return Returns real solutions only. Solutions which would be complex are left as NaN. Solutions are left-packed.
 ///
-std::tuple<precision, precision, precision> cubic_roots(precision a, precision b, precision c,
-                                                                 precision d);
+std::tuple<precision, precision, precision> cubic_roots(precision a, precision b, precision c, precision d);
 
 /// @todo Solves for quartic roots of a quartic formula:
 /// Given: a*x^4+b*x^3+c*x^2+d*x^1+e=0, solves for x. A NaN in the tuple is a complex solution.
-std::tuple<precision, precision, precision, precision> quartic_roots(precision a, precision b,
-                                                                                 precision c, precision d,
-                                                                                 precision e);
+std::tuple<precision, precision, precision, precision> quartic_roots(precision a, precision b, precision c, precision d,
+                                                                     precision e);
 
 /// Returns true when m is within the range of low to hi (but not when equal)
 constexpr bool within(precision low, precision m, precision hi) {

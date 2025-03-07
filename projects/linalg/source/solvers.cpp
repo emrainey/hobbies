@@ -32,8 +32,7 @@ std::tuple<precision, precision> quadratic_roots(precision a, precision b, preci
     }
 }
 
-std::tuple<precision, precision, precision> cubic_roots(precision a, precision b, precision c,
-                                                                 precision d) {
+std::tuple<precision, precision, precision> cubic_roots(precision a, precision b, precision c, precision d) {
     statistics::get().cubic_roots++;
     if (basal::nearly_zero(a)) {
         // not a valid case
@@ -125,10 +124,7 @@ std::tuple<precision, precision, precision> cubic_roots(precision a, precision b
 #warning "Using float precision for quartic_roots, most solutions will not work"
 #endif
 
-std::tuple<precision, precision, precision, precision> quartic_roots(precision a,
-                                                                     precision b,
-                                                                     precision c,
-                                                                     precision d,
+std::tuple<precision, precision, precision, precision> quartic_roots(precision a, precision b, precision c, precision d,
                                                                      precision e) {
     using namespace std::literals::complex_literals;
     statistics::get().quartic_roots++;
@@ -152,7 +148,7 @@ std::tuple<precision, precision, precision, precision> quartic_roots(precision a
     ///
 
     // solve the cubic to find a good value of z. this is the "resolvent cubic equation"
-    precision c1 = (b * d ) - (4.0_p * e);
+    precision c1 = (b * d) - (4.0_p * e);
     precision d1 = (e * ((4.0_p * c) - (b * b))) - (d * d);
     auto cr = cubic_roots(1.0_p, -c, c1, d1);
     // how to pick which root? any root? we'll pick left first then eliminate if NaN.

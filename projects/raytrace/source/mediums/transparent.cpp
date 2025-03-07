@@ -13,10 +13,9 @@ transparent::transparent(precision eta, precision fade, color const& diffuse)
     m_refractive_index = eta;
 }
 
-void transparent::radiosity(raytrace::point const& volumetric_point __attribute__((unused)),
-                            precision refractive_index, iso::radians const& incident_angle,
-                            iso::radians const& transmitted_angle, precision& emitted, precision& reflected,
-                            precision& transmitted) const {
+void transparent::radiosity(raytrace::point const& volumetric_point __attribute__((unused)), precision refractive_index,
+                            iso::radians const& incident_angle, iso::radians const& transmitted_angle,
+                            precision& emitted, precision& reflected, precision& transmitted) const {
     emitted = 0.0;
     reflected = laws::fresnel(refractive_index, m_refractive_index, incident_angle, transmitted_angle);
     transmitted = 1.0 - reflected;

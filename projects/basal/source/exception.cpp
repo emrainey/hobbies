@@ -114,7 +114,8 @@ void exception::throw_if(bool condition, char const loc[], std::size_t line) noe
         if (value) {
             fprintf(stdout, "ABORT=%s\n", value);
             std::string state{value};
-            if (state == "1" || state == "true") std::abort();  // lldb or gdb should catch
+            if (state == "1" || state == "true")
+                std::abort();  // lldb or gdb should catch
         } else {
             fprintf(stdout, "Use ABORT=1 in env to cause an std::abort\n");
         }
@@ -129,7 +130,8 @@ void exception::throw_unless(bool condition, char const loc[], std::size_t line,
         if (value) {
             fprintf(stdout, "ABORT=%s\n", value);
             std::string state{value};
-            if (state == "1" || state == "true") std::abort();  // lldb or gdb should catch
+            if (state == "1" || state == "true")
+                std::abort();  // lldb or gdb should catch
         } else {
             fprintf(stdout, "Use ABORT=1 in env to cause an std::abort\n");
         }
@@ -149,7 +151,8 @@ void exception::throw_unless(bool condition, char const loc[], std::size_t line)
         if (value) {
             fprintf(stdout, "ABORT=%s\n", value);
             std::string state{value};
-            if (state == "1" || state == "true") std::abort();  // lldb or gdb should catch
+            if (state == "1" || state == "true")
+                std::abort();  // lldb or gdb should catch
         } else {
             fprintf(stdout, "Use ABORT=1 in env to cause an std::abort\n");
         }
@@ -162,7 +165,7 @@ void assert_if_thrown(char const statement[], std::function<void(void) noexcept(
     try {
         block();
         fprintf(stdout, "%s did not throw! Success!\n", statement);
-    } catch (basal::exception const& me) {
+    } catch (basal::exception const &me) {
         fprintf(stderr,
                 "ERROR: Unexpected math exception!\n"
                 "Why: %s\nWhere: %s\n",
@@ -180,7 +183,7 @@ void assert_if_not_thrown(char const statement[], std::function<void(void) noexc
         block();
         fprintf(stderr, "ERROR: %s did not throw an exception\n", statement);
         exit(-1);
-    } catch (basal::exception const& me) {
+    } catch (basal::exception const &me) {
         fprintf(stdout, "%s threw Exception! Success: %s\nWhere: %s\n", statement, me.why(), me.where());
     } catch (...) {
         fprintf(stdout, "%s threw unknown exception! Success?\n", statement);

@@ -30,8 +30,10 @@ public:
     void print(char const str[]) const override;
     bool is_surface_point(point const& world_point) const override;
     precision get_object_extent(void) const override;
+
 protected:
     vector normal_(point const& object_surface_point) const override;
+
 private:
     precision m_half_height;
     precision m_radius;

@@ -43,7 +43,7 @@ TEST(PlaneTest, Intersections) {
 
     raytrace::ray r0{raytrace::point{1, 1, 1}, vector{{1, 1, 1}}};
     raytrace::ray r1{raytrace::point{1, 1, 1}, vector{{-1, -1, -1}}};
-    raytrace::point A{-1, -1, -1}; // in the plane
+    raytrace::point A{-1, -1, -1};  // in the plane
     ray r2{C, R3::basis::Z};
     ray r3{C, -R3::basis::Z};
 
@@ -111,7 +111,6 @@ TEST(PlaneTest, ScaleRotateTranslate) {
     // translate it back a bit
     raytrace::point const new_C{12, 12, 12};
     P0.position(new_C);
-
 }
 
 TEST(PlaneTest, Mapping) {
@@ -145,7 +144,7 @@ TEST(PlaneTest, Mapping) {
         EXPECT_POINT_EQ(uv, tmp);
     }
     {
-        raytrace::point const p{0,-r, 0};
+        raytrace::point const p{0, -r, 0};
         image::point const uv = P0.map(p);
         image::point const tmp{r, 0.25_p};
         EXPECT_POINT_EQ(uv, tmp);

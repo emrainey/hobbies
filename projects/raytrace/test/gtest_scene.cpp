@@ -66,7 +66,7 @@ TEST(SceneTest, LowResSpheres) {
     raytrace::objects::sphere s1{raytrace::point{4, -2, 0}, 0.75};
     raytrace::objects::sphere s2{raytrace::point{4, 2, 0}, 0.25};
     raytrace::mediums::checkerboard c0{6.0, colors::red, colors::green};
-    raytrace::lights::beam sunlight{raytrace::vector{0,0,-1}, raytrace::colors::white, lights::intensities::blinding};
+    raytrace::lights::beam sunlight{raytrace::vector{0, 0, -1}, raytrace::colors::white, lights::intensities::blinding};
     s0.material(&c0);
     s1.material(&raytrace::mediums::metals::bronze);
     s2.material(&raytrace::mediums::dull);

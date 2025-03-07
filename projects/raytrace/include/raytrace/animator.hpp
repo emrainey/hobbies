@@ -7,16 +7,19 @@ namespace raytrace {
 namespace animation {
 /// Defines a structure which anchors the camera attributes to a specific point at a specific time.
 struct Attributes {
-    raytrace::point from{0, 10, 10};         ///< The location where the camera is
-    raytrace::point at{0, 0, 0};            ///< The location where the camera is looking
-    iso::degrees fov{55.0_p};               ///< The field of view of the camera (horizontal)
+    raytrace::point from{0, 10, 10};  ///< The location where the camera is
+    raytrace::point at{0, 0, 0};      ///< The location where the camera is looking
+    iso::degrees fov{55.0_p};         ///< The field of view of the camera (horizontal)
 };
 
 /// Defines the mappers to use for the camera attributes. Defaults to linear maps.
 struct Mappers {
-    geometry::mapper from{geometry::mapping::linear};   ///< The interpolation function to use on the position of the camera
-    geometry::mapper at{geometry::mapping::linear};     ///< The interpolation function to use on the look position of the camera (where it's looking)
-    geometry::mapper fov{geometry::mapping::linear};    ///< The interpolation function to use on the field of view of the camera
+    geometry::mapper from{
+        geometry::mapping::linear};  ///< The interpolation function to use on the position of the camera
+    geometry::mapper at{geometry::mapping::linear};  ///< The interpolation function to use on the look position of the
+                                                     ///< camera (where it's looking)
+    geometry::mapper fov{
+        geometry::mapping::linear};  ///< The interpolation function to use on the field of view of the camera
 };
 struct Anchor {
     Attributes start;       ///< The starting camera location and orientation
@@ -42,11 +45,11 @@ protected:
 
     size_t index_{0};
     iso::seconds now_{0.0};
-    iso::seconds start_{0.0};     ///< The start of the current anchor duration
+    iso::seconds start_{0.0};  ///< The start of the current anchor duration
     iso::seconds delta_{0.0};
     anchors const& anchors_;
 };
 
-} // namespace animation
+}  // namespace animation
 
 }  // namespace raytrace

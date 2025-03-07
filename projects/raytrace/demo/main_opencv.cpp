@@ -35,7 +35,7 @@ struct Parameters {
         }                                                     \
     }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
     Parameters params;
     bool verbose = false;
     bool has_changed = false;
@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
     my_assert(get_world != nullptr, "Must find module to load");
 
     // creates a local reference to the object
-    raytrace::world &world = *get_world();
+    raytrace::world& world = *get_world();
 
     // the render image
     cv::namedWindow(world.window_name(), cv::WINDOW_AUTOSIZE);
@@ -99,10 +99,11 @@ int main(int argc, char *argv[]) {
         return -1;
     }
     cv::Size frame_size(width, height);
-    cv::VideoWriter video_writer("video.mpg", cv::VideoWriter::fourcc('M','P','G','2'), params.fps, frame_size, true);
+    cv::VideoWriter video_writer("video.mpg", cv::VideoWriter::fourcc('M', 'P', 'G', '2'), params.fps, frame_size,
+                                 true);
 
-    linalg::Trackbar<precision> trackbar_theta("Camera Theta", world.window_name(), -iso::pi, theta, iso::pi, iso::pi / 8,
-                                            &theta);
+    linalg::Trackbar<precision> trackbar_theta("Camera Theta", world.window_name(), -iso::pi, theta, iso::pi,
+                                               iso::pi / 8, &theta);
     linalg::Trackbar<precision> trackbar_phi("Camera Phi", world.window_name(), 0, phi, iso::pi, iso::pi / 16, &phi);
     radius = (world.looking_from() - world.looking_at()).magnitude();
     linalg::Trackbar<precision> trackbar_radius("Camera Radius", world.window_name(), 1.0, radius, 100.0, 5.0, &radius);
@@ -123,8 +124,7 @@ int main(int argc, char *argv[]) {
 
     do {
         if (should_render and animator) {
-
-            raytrace::animation::Attributes cam = animator(); // get the first set of parameters
+            raytrace::animation::Attributes cam = animator();  // get the first set of parameters
             std::cout << "Look From: " << cam.from << "(Camera at)" << std::endl;
             std::cout << "Look At: " << cam.at << " (Towards)" << std::endl;
             std::cout << "FOV: " << cam.fov.value << " (Degrees)" << std::endl;
@@ -160,7 +160,7 @@ int main(int argc, char *argv[]) {
                         fprintf(stdout, "]");
                     } else {
                         size_t count = 0;
-                        std::for_each (completed.begin(), completed.end(), [&](bool p) -> bool {
+                        std::for_each(completed.begin(), completed.end(), [&](bool p) -> bool {
                             count += (p ? 1 : 0);
                             return p;
                         });
@@ -170,11 +170,10 @@ int main(int argc, char *argv[]) {
                                 "\r[ %0.3lf %%] rays cast: %zu dots: %zu cross: %zu intersects: %zu bounced: %zu "
                                 "transmitted: %zu %s ",
                                 done ? 100.0 : percentage, raytrace::statistics::get().cast_rays_from_camera,
-                                geometry::statistics::get().dot_operations,
-                                geometry::statistics::get().cross_products,
+                                geometry::statistics::get().dot_operations, geometry::statistics::get().cross_products,
                                 raytrace::statistics::get().intersections_with_objects,
-                                raytrace::statistics::get().bounced_rays,
-                                raytrace::statistics::get().transmitted_rays, done ? "\r\n" : "");
+                                raytrace::statistics::get().bounced_rays, raytrace::statistics::get().transmitted_rays,
+                                done ? "\r\n" : "");
                         // if (done) return;
                     }
                     fflush(stdout);
@@ -183,8 +182,7 @@ int main(int argc, char *argv[]) {
                 fprintf(stdout, "\r\n");
             };
 
-            auto row_notifier
-                = [&](size_t row_index, bool is_complete) -> void { completed[row_index] = is_complete; };
+            auto row_notifier = [&](size_t row_index, bool is_complete) -> void { completed[row_index] = is_complete; };
 
             if (first_render) {
                 render_image.setTo(cv::Scalar(128, 128, 128));
@@ -197,13 +195,13 @@ int main(int argc, char *argv[]) {
             cv::imshow(world.window_name(), render_image);
             (void)cv::waitKey(1);
             printf("Starting Render (depth=%zu, samples=%zu, aaa?=%s thresh=%zu)...\r\n", params.reflections,
-                    params.subsamples, params.mask_threshold == raytrace::image::AAA_MASK_DISABLED ? "no" : "yes",
-                    params.mask_threshold);
+                   params.subsamples, params.mask_threshold == raytrace::image::AAA_MASK_DISABLED ? "no" : "yes",
+                   params.mask_threshold);
 
             std::thread bar_thread(progress_bar);  // thread starts
             try {
-                scene.render(view, world.output_filename(), params.subsamples, params.reflections,
-                                row_notifier, params.mask_threshold);
+                scene.render(view, world.output_filename(), params.subsamples, params.reflections, row_notifier,
+                             params.mask_threshold);
             } catch (basal::exception const& e) {
                 std::cout << "Caught basal::exception in scene.render()! " << std::endl;
                 std::cout << "What:" << e.what() << " Why:" << e.why() << " Where:" << e.where() << std::endl;
@@ -217,7 +215,7 @@ int main(int argc, char *argv[]) {
 
             std::cout << "Image Rendered in " << diff.count() << " seconds" << std::endl;
 
-            view.capture.for_each ([&](size_t y, size_t x, fourcc::rgb8 const& pixel) -> void {
+            view.capture.for_each([&](size_t y, size_t x, fourcc::rgb8 const& pixel) -> void {
                 render_image.at<cv::Vec3b>(y, x)[0] = pixel.b;
                 render_image.at<cv::Vec3b>(y, x)[1] = pixel.g;
                 render_image.at<cv::Vec3b>(y, x)[2] = pixel.r;
@@ -226,7 +224,7 @@ int main(int argc, char *argv[]) {
             cv::imwrite("render_image.png", render_image);
             video_writer.write(render_image);
             // if (params.mask_threshold < raytrace::image::AAA_MASK_DISABLED) {
-            view.mask.for_each ([&](size_t y, size_t x, uint8_t const& pixel) -> void {
+            view.mask.for_each([&](size_t y, size_t x, uint8_t const& pixel) -> void {
                 mask_image.at<cv::Vec3b>(y, x)[0] = pixel;
                 mask_image.at<cv::Vec3b>(y, x)[1] = pixel;
                 mask_image.at<cv::Vec3b>(y, x)[2] = pixel;
@@ -242,7 +240,8 @@ int main(int argc, char *argv[]) {
         } else {
             if (should_show_help) {
                 printf("Press ENTER to render, ESC or q to quit\n");
-                printf("Use w/s to move camera -phi/+phi, a/d to move camera -theta/+theta, r/f to move camera -r/+r\n");
+                printf(
+                    "Use w/s to move camera -phi/+phi, a/d to move camera -theta/+theta, r/f to move camera -r/+r\n");
                 printf("Use KP 8/2 to look camera +y/-y, 4/6 to look camera -x/x, 9/3 to look camera +z/-z\n");
                 should_show_help = false;
             }

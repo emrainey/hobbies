@@ -26,7 +26,7 @@ bool image<rgba, pixel_format::RGBA>::save(std::string filename) const {
     if (is_extension(filename, ".rgb")) {
         FILE* fp = fopen(filename.c_str(), "wb");
         if (fp) {
-            for_each ([&](fourcc::rgba const& pixel) -> void {
+            for_each([&](fourcc::rgba const& pixel) -> void {
                 fwrite(&pixel.r, sizeof(pixel.r), 1, fp);
                 fwrite(&pixel.g, sizeof(pixel.g), 1, fp);
                 fwrite(&pixel.b, sizeof(pixel.b), 1, fp);
@@ -37,7 +37,7 @@ bool image<rgba, pixel_format::RGBA>::save(std::string filename) const {
     } else if (is_extension(filename, ".bgr")) {
         FILE* fp = fopen(filename.c_str(), "wb");
         if (fp) {
-            for_each ([&](fourcc::rgba const& pixel) -> void {
+            for_each([&](fourcc::rgba const& pixel) -> void {
                 fwrite(&pixel.b, sizeof(pixel.b), 1, fp);
                 fwrite(&pixel.g, sizeof(pixel.g), 1, fp);
                 fwrite(&pixel.r, sizeof(pixel.r), 1, fp);
@@ -53,7 +53,7 @@ bool image<rgba, pixel_format::RGBA>::save(std::string filename) const {
             fprintf(fp, "MAXVAL %u\n", 255u);
             fprintf(fp, "TUPLTYPE %s\n", channel_order(format));
             fprintf(fp, "ENDHDR\n");
-            for_each ([&](rgba const& pixel) -> void {
+            for_each([&](rgba const& pixel) -> void {
                 fwrite(&pixel.r, sizeof(pixel.r), 1, fp);
                 fwrite(&pixel.g, sizeof(pixel.g), 1, fp);
                 fwrite(&pixel.b, sizeof(pixel.b), 1, fp);
@@ -107,7 +107,7 @@ bool image<abgr, pixel_format::ABGR>::save(std::string filename) const {
         fprintf(fp, "MAXVAL %u\n", 255u);
         fprintf(fp, "TUPLTYPE %s\n", channel_order(format));
         fprintf(fp, "ENDHDR\n");
-        for_each ([&](abgr const& pixel) -> void {
+        for_each([&](abgr const& pixel) -> void {
             fwrite(&pixel.b, sizeof(uint8_t), 1, fp);
             fwrite(&pixel.g, sizeof(uint8_t), 1, fp);
             fwrite(&pixel.r, sizeof(uint8_t), 1, fp);
@@ -128,9 +128,7 @@ bool image<rgb8, pixel_format::RGB8>::save(std::string filename) const {
             fprintf(fp, "MAXVAL %u\n", 255u);
             fprintf(fp, "TUPLTYPE %s\n", channel_order(format));
             fprintf(fp, "ENDHDR\n");
-            for_each ([&](rgb8 const& pixel) -> void {
-                fwrite(&pixel, sizeof(rgb8), 1, fp);
-            });
+            for_each([&](rgb8 const& pixel) -> void { fwrite(&pixel, sizeof(rgb8), 1, fp); });
             fclose(fp);
             return true;
         }
@@ -180,9 +178,7 @@ bool image<bgr8, pixel_format::BGR8>::save(std::string filename) const {
         fprintf(fp, "MAXVAL %u\n", 255u);
         fprintf(fp, "TUPLTYPE %s\n", channel_order(format));
         fprintf(fp, "ENDHDR\n");
-        for_each([&](bgr8 const& pixel) -> void {
-            fwrite(&pixel, sizeof(bgr8), 1, fp);
-        });
+        for_each([&](bgr8 const& pixel) -> void { fwrite(&pixel, sizeof(bgr8), 1, fp); });
         fclose(fp);
         return true;
     }
@@ -225,7 +221,7 @@ bool image<rgbh, pixel_format::RGBh>::save(std::string filename) const {
         channel.Write(fp);
         strncpy(channel.name, "B", sizeof(channel.name));
         channel.Write(fp);
-        fwrite(&zero, sizeof(zero), 1, fp); // end of the channel lists
+        fwrite(&zero, sizeof(zero), 1, fp);  // end of the channel lists
 
         openexr::Compression compression = openexr::Compression::None;
         attribute.name = "compression";
@@ -299,13 +295,13 @@ bool image<rgbh, pixel_format::RGBh>::save(std::string filename) const {
             tiledesc.Write(fp);
         }
 
-        fwrite(&zero, sizeof(zero), 1, fp); // end of the header
+        fwrite(&zero, sizeof(zero), 1, fp);  // end of the header
         // get the current position of the file
         size_t header_end = ftell(fp);
         size_t scan_line_pixel_data_size = (width * pixel_size);
         size_t offset_table_size = (height * sizeof(std::uint64_t));
         // allocate the scan line offset table
-        std::uint64_t* scan_line_offset_table = new std::uint64_t[height]; // it's an older code but it checks out
+        std::uint64_t* scan_line_offset_table = new std::uint64_t[height];  // it's an older code but it checks out
         // the start of the image data is after the scan line offset table
         size_t image_data_start = header_end + offset_table_size;
         // the size of each scan line is know already since we already know our channel list
@@ -318,7 +314,8 @@ bool image<rgbh, pixel_format::RGBh>::save(std::string filename) const {
         fwrite(scan_line_offset_table, sizeof(std::uint64_t), height, fp);
 
         size_t here = ftell(fp);
-        basal::exception::throw_unless(here == image_data_start, __func__, __LINE__, "File offset %zu but should be %zu\r\n", here, image_data_start);
+        basal::exception::throw_unless(here == image_data_start, __func__, __LINE__,
+                                       "File offset %zu but should be %zu\r\n", here, image_data_start);
 
         openexr::ScanLine scan_line;
         scan_line.number = 0;
@@ -326,12 +323,16 @@ bool image<rgbh, pixel_format::RGBh>::save(std::string filename) const {
         size_t column = 0;
         size_t row = 0;
 
-        basal::exception::throw_unless(scan_line.data.capacity() == scan_line_pixel_data_size, __func__, __LINE__, "Scan line capacity %zu but should be %zu\r\n", scan_line.data.capacity(), scan_line_size);
+        basal::exception::throw_unless(scan_line.data.capacity() == scan_line_pixel_data_size, __func__, __LINE__,
+                                       "Scan line capacity %zu but should be %zu\r\n", scan_line.data.capacity(),
+                                       scan_line_size);
 
         for_each([&](rgbh const& pixel) -> void {
             if (column == 0) {
                 size_t offset = ftell(fp);
-                basal::exception::throw_if(offset != scan_line_offset_table[row], __func__, __LINE__, "File offset %zu but should be %zu, width=%zu\r\n", offset, scan_line_offset_table[row], width);
+                basal::exception::throw_if(offset != scan_line_offset_table[row], __func__, __LINE__,
+                                           "File offset %zu but should be %zu, width=%zu\r\n", offset,
+                                           scan_line_offset_table[row], width);
                 scan_line.data.resize(scan_line_pixel_data_size);
             }
             if (column < width) {
@@ -342,12 +343,12 @@ bool image<rgbh, pixel_format::RGBh>::save(std::string filename) const {
                 size_t r_index = column * sizeof(basal::half);
                 size_t g_index = r_index + (width * sizeof(basal::half));
                 size_t b_index = g_index + (width * sizeof(basal::half));
-                scan_line.data[r_index+0] = r[0];
-                scan_line.data[r_index+1] = r[1];
-                scan_line.data[g_index+0] = g[0];
-                scan_line.data[g_index+1] = g[1];
-                scan_line.data[b_index+0] = b[0];
-                scan_line.data[b_index+1] = b[1];
+                scan_line.data[r_index + 0] = r[0];
+                scan_line.data[r_index + 1] = r[1];
+                scan_line.data[g_index + 0] = g[0];
+                scan_line.data[g_index + 1] = g[1];
+                scan_line.data[b_index + 0] = b[0];
+                scan_line.data[b_index + 1] = b[1];
                 column++;
             }
             if (column == width) {
@@ -375,9 +376,7 @@ bool image<uint8_t, pixel_format::GREY8>::save(std::string filename) const {
         fprintf(fp, "P5\n");
         fprintf(fp, "%zu %zu\n", width, height);
         fprintf(fp, "%" PRIu32 "\n", uint32_t(1 << (8 * depth)) - 1);
-        for_each([&](uint8_t const& pixel) -> void {
-            fwrite(&pixel, sizeof(pixel), 1, fp);
-        });
+        for_each([&](uint8_t const& pixel) -> void { fwrite(&pixel, sizeof(pixel), 1, fp); });
         fclose(fp);
         return true;
     }
@@ -391,9 +390,7 @@ bool image<uint8_t, pixel_format::Y8>::save(std::string filename) const {
         fprintf(fp, "P5\n");
         fprintf(fp, "%zu %zu\n", width, height);
         fprintf(fp, "%" PRIu32 "\n", uint32_t(1 << (8 * depth)) - 1);
-        for_each([&](uint8_t const& pixel) -> void {
-            fwrite(&pixel, sizeof(pixel), 1, fp);
-        });
+        for_each([&](uint8_t const& pixel) -> void { fwrite(&pixel, sizeof(pixel), 1, fp); });
         fclose(fp);
         return true;
     }
@@ -407,9 +404,7 @@ bool image<uint16_t, pixel_format::Y16>::save(std::string filename) const {
         fprintf(fp, "P5\n");
         fprintf(fp, "%zu %zu\n", width, height);
         fprintf(fp, "%" PRIu32 "\n", uint32_t(1 << (8 * depth)) - 1);
-        for_each([&](uint16_t const& pixel) -> void {
-            fwrite(&pixel, sizeof(pixel), 1, fp);
-        });
+        for_each([&](uint16_t const& pixel) -> void { fwrite(&pixel, sizeof(pixel), 1, fp); });
         fclose(fp);
         return true;
     }
@@ -423,9 +418,7 @@ bool image<rgb565, pixel_format::RGBP>::save(std::string filename) const {
         fprintf(fp, "P565\n");
         fprintf(fp, "%zu %zu\n", width, height);
         fprintf(fp, "%" PRIu32 "\n", uint32_t(1 << (8 * depth)) - 1);
-        for_each([&](rgb565 const& pixel) -> void {
-            fwrite(&pixel, sizeof(pixel), 1, fp);
-        });
+        for_each([&](rgb565 const& pixel) -> void { fwrite(&pixel, sizeof(pixel), 1, fp); });
         fclose(fp);
         return true;
     }
@@ -439,9 +432,7 @@ bool image<uint32_t, pixel_format::Y32>::save(std::string filename) const {
         fprintf(fp, "P5\n");
         fprintf(fp, "%zu %zu\n", width, height);
         fprintf(fp, "%" PRIu32 "\n", uint32_t(1 << (8 * depth)) - 1);
-        for_each([&](uint32_t const& pixel) -> void {
-            fwrite(&pixel, sizeof(pixel), 1, fp);
-        });
+        for_each([&](uint32_t const& pixel) -> void { fwrite(&pixel, sizeof(pixel), 1, fp); });
         fclose(fp);
         return true;
     }
@@ -492,7 +483,7 @@ std::pair<size_t, size_t> dimensions(std::string type) {
     } else if (type == std::string("5KUHD")) {
         return std::make_pair(5120, 2880);
     }
-    return std::make_pair(0,0);
+    return std::make_pair(0, 0);
 }
 
 }  // namespace fourcc

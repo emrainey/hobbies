@@ -34,7 +34,7 @@ noise::pad map;
 constexpr static bool debug = false;
 
 void generate_pad_image(void) {
-    pad_image.for_each ([&](size_t y, size_t x, fourcc::rgb8 &pixel) {
+    pad_image.for_each([&](size_t y, size_t x, fourcc::rgb8 &pixel) {
         noise::precision v = map.at(y, x);
         pixel.r = uint8_t(255u * v);
         pixel.g = uint8_t(255u * v);
@@ -44,7 +44,7 @@ void generate_pad_image(void) {
 
 void generate_noise_image(void) {
     printf("xs: %lf, ys: %lf, power: %lf, size: %lf, scale: %lf\r\n", x_scale, y_scale, power, size, scale);
-    noise_image.for_each ([&](size_t y, size_t x, fourcc::rgb8 &pixel) {
+    noise_image.for_each([&](size_t y, size_t x, fourcc::rgb8 &pixel) {
         noise::point pnt{(noise::precision)x, (noise::precision)y};
         noise::precision n = noise::turbulentsin(pnt, x_scale, y_scale, power, size, scale, map);
         if constexpr (debug) {
@@ -57,7 +57,7 @@ void generate_noise_image(void) {
 }
 
 void copy_to_cv_image(void) {
-    noise_image.for_each ([&](size_t y, size_t x, fourcc::rgb8 &pixel) {
+    noise_image.for_each([&](size_t y, size_t x, fourcc::rgb8 &pixel) {
         render_image.at<cv::Vec3b>(y, x)[0] = pixel.r;
         render_image.at<cv::Vec3b>(y, x)[1] = pixel.g;
         render_image.at<cv::Vec3b>(y, x)[2] = pixel.b;
@@ -65,7 +65,7 @@ void copy_to_cv_image(void) {
 }
 
 void copy_to_pad_image(void) {
-    pad_image.for_each ([&](size_t y, size_t x, fourcc::rgb8 &pixel) {
+    pad_image.for_each([&](size_t y, size_t x, fourcc::rgb8 &pixel) {
         render_pad_image.at<cv::Vec3b>(y, x)[0] = pixel.r;
         render_pad_image.at<cv::Vec3b>(y, x)[1] = pixel.g;
         render_pad_image.at<cv::Vec3b>(y, x)[2] = pixel.b;

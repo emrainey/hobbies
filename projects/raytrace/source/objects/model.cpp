@@ -3,14 +3,24 @@
 namespace raytrace {
 namespace objects {
 
-Model::Model() : object{R3::origin, SIZE_T_MAX, false}, points_{}, normals_{}, texels_{}, faces_{}, parser_{*this}, loaded_{false} {}
+Model::Model()
+    : object{R3::origin, SIZE_T_MAX, false},
+      points_{},
+      normals_{},
+      texels_{},
+      faces_{},
+      parser_{*this},
+      loaded_{false} {
+}
 
 void Model::print(char const name[]) const {
-    printf("Model %s has %zu points, %zu normals, %zu triangles\n", name, points_.size(), normals_.size(), faces_.size());
+    printf("Model %s has %zu points, %zu normals, %zu triangles\n", name, points_.size(), normals_.size(),
+           faces_.size());
 }
 
 std::ostream& Model::operator<<(std::ostream& os) const {
-    return os << "Model has " << points_.size() << " points, " << normals_.size() << " normals, " << texels_.size() << " texels, " << faces_.size() << " faces";
+    return os << "Model has " << points_.size() << " points, " << normals_.size() << " normals, " << texels_.size()
+              << " texels, " << faces_.size() << " faces";
 }
 
 bool Model::is_surface_point(raytrace::point const& world_point) const {
@@ -121,7 +131,8 @@ void Model::addFace(uint32_t a, uint32_t ta, uint32_t b, uint32_t tb, uint32_t c
     }
 }
 
-void Model::addFace(uint32_t v1, uint32_t t1, uint32_t n1, uint32_t v2, uint32_t t2, uint32_t n2, uint32_t v3, uint32_t t3, uint32_t n3) {
+void Model::addFace(uint32_t v1, uint32_t t1, uint32_t n1, uint32_t v2, uint32_t t2, uint32_t n2, uint32_t v3,
+                    uint32_t t3, uint32_t n3) {
     uint32_t iv1 = v1 - 1;
     uint32_t iv2 = v2 - 1;
     uint32_t iv3 = v3 - 1;
@@ -136,10 +147,12 @@ void Model::addFace(uint32_t v1, uint32_t t1, uint32_t n1, uint32_t v2, uint32_t
     bool normals_ok = in1 < normals_.size() and in2 < normals_.size() and in3 < normals_.size();
     if (points_ok and normals_ok and texels_ok) {
         if constexpr (debug) {
-            printf("Model: Adding triangle (%u, %u, %u), (%u, %u, %u), (%u, %u, %u)\n", v1, v2, v3, t1, t2, t3, n1, n2, n3);
+            printf("Model: Adding triangle (%u, %u, %u), (%u, %u, %u), (%u, %u, %u)\n", v1, v2, v3, t1, t2, t3, n1, n2,
+                   n3);
         }
         // swap the order of points so that the normal is facing the right way
-        faces_.emplace_back(points_[iv3], points_[iv2], points_[iv1], texels_[it1], texels_[it2], texels_[it3], normals_[in1], normals_[in2], normals_[in3]);
+        faces_.emplace_back(points_[iv3], points_[iv2], points_[iv1], texels_[it1], texels_[it2], texels_[it3],
+                            normals_[in1], normals_[in2], normals_[in3]);
     } else {
         if constexpr (debug) {
             printf("Model: Index out of bounds! %" PRIu32 " %" PRIu32 " %" PRIu32 "\n", v1, v2, v3);
@@ -151,9 +164,9 @@ size_t Model::GetNumberOfFaces(void) const {
     return faces_.size();
 }
 
-void Model::LoadFromFile(char const * const filename) {
+void Model::LoadFromFile(char const* const filename) {
     if (not loaded_) {
-        FILE * file = fopen(filename, "r");
+        FILE* file = fopen(filename, "r");
         throw_exception_unless(file != nullptr, "File %s was not found!", filename);
         char buffer[1024];
         while (fgets(buffer, sizeof(buffer), file)) {
@@ -184,11 +197,11 @@ void Model::LoadFromFile(char const * const filename) {
             }
             face.position(_new);
         }
-        position(R3::origin + computed_centroid); // this is the center of the model, not each face
+        position(R3::origin + computed_centroid);  // this is the center of the model, not each face
     }
 }
 
-void Model::LoadFromString(char const * const literal) {
+void Model::LoadFromString(char const* const literal) {
     if (not loaded_) {
         parser_.Parse(literal);
         loaded_ = true;
@@ -210,5 +223,5 @@ vector Model::normal_(point const& object_surface_point) const {
     return entity::forward_transform(object_surface_normal);
 }
 
-}   // namespace objects
-}   // namespace raytrace
+}  // namespace objects
+}  // namespace raytrace

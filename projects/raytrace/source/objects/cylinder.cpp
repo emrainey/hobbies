@@ -8,14 +8,16 @@ using namespace linalg::operators;
 
 cylinder::cylinder(point const& C, precision half_height, precision radius)
     : object{C, 2, false}  // 2 collisions, not closed
-    , m_half_height{half_height}
-    , m_radius{radius} {
+      ,
+      m_half_height{half_height},
+      m_radius{radius} {
 }
 
 cylinder::cylinder(point const& base, point const& apex, precision radius)
     : object{base, 2, false}  // 2 collisions, not closed
-    , m_half_height{0.0}
-    , m_radius{radius} {
+      ,
+      m_half_height{0.0},
+      m_radius{radius} {
     R3::vector axis = apex - base;
     R3::vector semi = axis.normalized();
     m_half_height = axis.magnitude() / 2;
@@ -67,7 +69,8 @@ bool cylinder::is_surface_point(point const& world_point) const {
     precision x = object_point.x;
     precision y = object_point.y;
     precision z = object_point.z;
-    return basal::nearly_equals(m_radius * m_radius, (x * x) + (y * y)) and linalg::within(-m_half_height, z, m_half_height);
+    return basal::nearly_equals(m_radius * m_radius, (x * x) + (y * y))
+           and linalg::within(-m_half_height, z, m_half_height);
 }
 
 image::point cylinder::map(point const& object_surface_point) const {

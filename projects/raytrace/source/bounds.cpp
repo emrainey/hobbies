@@ -5,8 +5,8 @@
 namespace raytrace {
 
 Bounds::Bounds()
-    : min{basal::neg_inf, basal::neg_inf, basal::neg_inf}
-    , max{basal::pos_inf, basal::pos_inf, basal::pos_inf} {}
+    : min{basal::neg_inf, basal::neg_inf, basal::neg_inf}, max{basal::pos_inf, basal::pos_inf, basal::pos_inf} {
+}
 
 Bounds::Bounds(point const& min, point const& max) : min{min}, max{max} {
     throw_exception_unless(min.x < max.x, "min.x %lf must be less than max.x %lf\r\n", min.x, max.x);
@@ -22,7 +22,8 @@ point Bounds::center() const {
         return R3::origin + v;
     } else {
         // if the bounds are infinite on both sides, then the center is origin R3::origin
-        if (std::isinf(min.x) and std::isinf(min.y) and std::isinf(min.z) and std::isinf(max.x) and std::isinf(max.y) and std::isinf(max.z)) {
+        if (std::isinf(min.x) and std::isinf(min.y) and std::isinf(min.z) and std::isinf(max.x) and std::isinf(max.y)
+            and std::isinf(max.z)) {
             return R3::origin;
         }
         // if the bounds are infinite on one side but not the other, then there can be no defined center.
@@ -96,13 +97,13 @@ bool Bounds::intersects(ray const& r) const {
 
 /// Determines if another bounds intersects with this bounds.
 bool Bounds::intersects(Bounds const& b) const {
-    return ((min.x <= b.max.x and b.min.x < max.x) and
-            (min.y <= b.max.y and b.min.y < max.y) and
-            (min.z <= b.max.z and b.min.z < max.z));
+    return ((min.x <= b.max.x and b.min.x < max.x) and (min.y <= b.max.y and b.min.y < max.y)
+            and (min.z <= b.max.z and b.min.z < max.z));
 }
 
 bool Bounds::is_infinite() const {
-    return (std::isinf(min.x) or std::isinf(min.y) or std::isinf(min.z) or std::isinf(max.x) or std::isinf(max.y) or std::isinf(max.z));
+    return (std::isinf(min.x) or std::isinf(min.y) or std::isinf(min.z) or std::isinf(max.x) or std::isinf(max.y)
+            or std::isinf(max.z));
 }
 
 void Bounds::grow(Bounds const& b) {
@@ -114,4 +115,4 @@ void Bounds::grow(Bounds const& b) {
     max.z = std::max(max.z, b.max.z);
 }
 
-} // namespace raytrace
+}  // namespace raytrace

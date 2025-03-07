@@ -1,7 +1,8 @@
 ///
 /// @file
 /// @author Erik Rainey (erik.rainey@gmail.com)
-/// @brief Renders a raytraced image of a box with a sphere cutout, then rounded by another sphere with a floating sphere over top.
+/// @brief Renders a raytraced image of a box with a sphere cutout, then rounded by another sphere with a floating
+/// sphere over top.
 /// @date 2021-01-02
 /// @copyright Copyright (c) 2022
 ///
@@ -16,22 +17,24 @@ using namespace iso::literals;
 class DeskToyWorld : public world {
 public:
     DeskToyWorld()
-        : world{}
-        , look_from{20, 20, 20}
-        , look_at{0, 0, 0}
-        , block{R3::origin, 8, 8, 2} // center of the overlap
-        , cutout{raytrace::point{0, 0, 4}, 4}
-        // overlap space centered at R3::origin
-        // cutout from block, centered on block by definition
-        , base{block, cutout, raytrace::objects::overlap::type::subtractive}
-        , floater{raytrace::point{0, 0, 6}, 2.7}
-        , cutout2{raytrace::point{0, 0, -17}, 20}
-        // overlap space will be centered 1/2 way between origin and the cutout2
-        // cutout2 from base. the center will now be at 0, 0, -7.5 due to centroid calculation
-        , final_base{base, cutout2, raytrace::objects::overlap::type::inclusive}
-        , ground{R3::origin, R3::basis::Z}
-        , sunlight{raytrace::vector{-2, 2, -1}, colors::white, lights::intensities::bright}
-        , prick{raytrace::point{0, 0, 3}, colors::white, lights::intensities::bright} {
+        : world{},
+          look_from{20, 20, 20},
+          look_at{0, 0, 0},
+          block{R3::origin, 8, 8, 2}  // center of the overlap
+          ,
+          cutout{raytrace::point{0, 0, 4}, 4}  // overlap space centered at R3::origin
+                                               // cutout from block, centered on block by definition
+          ,
+          base{block, cutout, raytrace::objects::overlap::type::subtractive},
+          floater{raytrace::point{0, 0, 6}, 2.7},
+          cutout2{raytrace::point{0, 0, -17}, 20}
+          // overlap space will be centered 1/2 way between origin and the cutout2
+          // cutout2 from base. the center will now be at 0, 0, -7.5 due to centroid calculation
+          ,
+          final_base{base, cutout2, raytrace::objects::overlap::type::inclusive},
+          ground{R3::origin, R3::basis::Z},
+          sunlight{raytrace::vector{-2, 2, -1}, colors::white, lights::intensities::bright},
+          prick{raytrace::point{0, 0, 3}, colors::white, lights::intensities::bright} {
         // the final base should sit on the ground
         // base.position(raytrace::point{0, 0, 2});
         final_base.position(raytrace::point{0, 0, 2});
@@ -80,18 +83,12 @@ public:
 
     raytrace::animation::anchors get_anchors() const override {
         raytrace::animation::anchors anchors;
-        anchors.push_back(
-            animation::Anchor{
-                animation::Attributes{look_from, look_at, 55.0_deg},
-                animation::Attributes{raytrace::point{20, 0, 20}, look_at, 55.0_deg},
-                animation::Mappers{}, iso::seconds{4.0_p}
-            });
-        anchors.push_back(
-            animation::Anchor{
-                anchors.back().limit,
-                animation::Attributes{raytrace::point{0, 20, 20}, look_at, 55.0_deg},
-                animation::Mappers{}, iso::seconds{4.0_p}
-            });
+        anchors.push_back(animation::Anchor{animation::Attributes{look_from, look_at, 55.0_deg},
+                                            animation::Attributes{raytrace::point{20, 0, 20}, look_at, 55.0_deg},
+                                            animation::Mappers{}, iso::seconds{4.0_p}});
+        anchors.push_back(animation::Anchor{anchors.back().limit,
+                                            animation::Attributes{raytrace::point{0, 20, 20}, look_at, 55.0_deg},
+                                            animation::Mappers{}, iso::seconds{4.0_p}});
         return anchors;
     }
 

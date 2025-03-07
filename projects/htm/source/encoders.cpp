@@ -36,5 +36,5 @@ sparse_word<365 + 31 + 7> dayof() {
     auto u3 = scalar<7>(tm->tm_wday, 1);
     return (u1 + u2) + u3;
 }
-} // namespace encoders
+}  // namespace encoders
 }  // namespace htm

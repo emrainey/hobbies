@@ -14,8 +14,8 @@ using namespace geometry::operators;
 using namespace linalg;
 using namespace linalg::operators;
 
-char const *get_type_as_str(IntersectionType obj) {
-    static char const *names[] = {"NONE", "POINT", "SET OF POINTS", "LINE", "PLANE"};
+char const* get_type_as_str(IntersectionType obj) {
+    static char const* names[] = {"NONE", "POINT", "SET OF POINTS", "LINE", "PLANE"};
     return names[basal::to_underlying(obj)];
 }
 
@@ -33,14 +33,14 @@ IntersectionType get_type(intersection const& var) {
     }
 }
 
-std::ostream &operator<<(std::ostream &os, intersection const& intersector) {
+std::ostream& operator<<(std::ostream& os, intersection const& intersector) {
     IntersectionType type = get_type(intersector);
     os << " Intersection Type: " << get_type_as_str(type) << std::endl;
     os << "\tIntersection => ";
     if (type == IntersectionType::Point) {
         os << as_point(intersector);
     } else if (type == IntersectionType::Points) {
-        for (auto &pnt : as_points(intersector)) {
+        for (auto& pnt : as_points(intersector)) {
             os << " " << pnt;
         }
     } else if (type == IntersectionType::Line) {

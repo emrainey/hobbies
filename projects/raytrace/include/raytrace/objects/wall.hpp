@@ -8,8 +8,7 @@
 namespace raytrace {
 namespace objects {
 /// A pair of opposing planes with a thickness
-class wall
-    : public object {
+class wall : public object {
 public:
     /// Constructs a sphere at a point of a given radius.
     wall(point const& center, vector const& normal, precision thickness);

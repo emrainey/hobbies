@@ -64,14 +64,14 @@ public:
     /// Explicit Constructor for a 4x4 precision matrix
     explicit matrix(precision m[4][4]);
     /// Explicit constructor for a nested vector of precisions
-    explicit matrix(std::vector<std::vector<precision>> const& a);
+    explicit matrix(std::vector<std::vector<precision>> const &a);
 
     /// Copy constructor
-    matrix(matrix const& a) noexcept(false);
+    matrix(matrix const &a) noexcept(false);
     /// Move constructor
     matrix(matrix &&a) noexcept(false);
     /// Copy assignment
-    matrix &operator=(matrix const& a) noexcept(false);
+    matrix &operator=(matrix const &a) noexcept(false);
     /// Move assignment
     matrix &operator=(matrix &&a) noexcept(false);
     /// Assignment operator, fills each matrix value with v
@@ -146,18 +146,18 @@ public:
     void assignInto(matrix &dst, size_t start_row, size_t start_col);
 
     // linear algebra ops
-    matrix &operator+=(matrix const& a);
-    matrix &operator-=(matrix const& a);
-    matrix &operator*=(matrix const& a);
-    matrix &operator/=(matrix const& a);
+    matrix &operator+=(matrix const &a);
+    matrix &operator-=(matrix const &a);
+    matrix &operator*=(matrix const &a);
+    matrix &operator/=(matrix const &a);
 
     // scalar ops
     matrix &operator*=(precision const r);
     matrix &operator/=(precision const r);
 
     // comparisons
-    bool operator==(matrix const& a) const;
-    bool operator!=(matrix const& a) const;
+    bool operator==(matrix const &a) const;
+    bool operator!=(matrix const &a) const;
 
     /// Don't allow the bool operators as it's too ambiguous
     explicit operator bool() const = delete;
@@ -170,7 +170,7 @@ public:
     virtual precision magnitude() const;
     /// Returns the transpose of the matrix
     matrix transpose() const;
-    matrix T() const; ///< shortening of the transpose()
+    matrix T() const;  ///< shortening of the transpose()
 
     /// Removes one row and column to make a sub-matrix.
     /// \note This creates a copy of the memory and does not refer to the original memory */
@@ -247,10 +247,10 @@ public:
     matrix rule_of_sarrus() noexcept(false);
 
     /// Reduces the matrix and returns a reference to itself.
-/// @param stop_row The row to stop the algorithm on. Defaults too all rows.
+    /// @param stop_row The row to stop the algorithm on. Defaults too all rows.
     matrix &reduce(size_t stop_row = std::numeric_limits<size_t>::max());
     /// Copies and reduces a matrix
-/// @param stop_row The row to stop the algorithm on. Defaults too all rows.
+    /// @param stop_row The row to stop the algorithm on. Defaults too all rows.
     matrix reduced(size_t stop_row = std::numeric_limits<size_t>::max()) const;
 
     /// Computes the PLU decomposition of the matrix.
@@ -386,52 +386,52 @@ protected:
 };
 
 /// Add two matrix together
-matrix addition(matrix const& a, matrix const& b) noexcept(false);
+matrix addition(matrix const &a, matrix const &b) noexcept(false);
 
 /// Subtracts b from a (a-b)
-matrix subtraction(matrix const& a, matrix const& b) noexcept(false);
+matrix subtraction(matrix const &a, matrix const &b) noexcept(false);
 
 /// Multiplies to matrix together
-matrix multiply(matrix const& a, matrix const& b) noexcept(false);
+matrix multiply(matrix const &a, matrix const &b) noexcept(false);
 
 /// Multiplies matrix a by scalar r
-matrix multiply(matrix const& a, precision const r) noexcept(false);
+matrix multiply(matrix const &a, precision const r) noexcept(false);
 
 /// Multiplies matrix a by scalar r
-matrix multiply(precision const r, matrix const& a) noexcept(false);
+matrix multiply(precision const r, matrix const &a) noexcept(false);
 
 namespace operators {
-inline matrix operator+(matrix const& a, matrix const& b) noexcept(false) {
+inline matrix operator+(matrix const &a, matrix const &b) noexcept(false) {
     return addition(a, b);
 }
 
-inline matrix operator-(matrix const& a, matrix const& b) noexcept(false) {
+inline matrix operator-(matrix const &a, matrix const &b) noexcept(false) {
     return subtraction(a, b);
 }
 
-inline matrix operator*(matrix const& a, matrix const& b) noexcept(false) {
+inline matrix operator*(matrix const &a, matrix const &b) noexcept(false) {
     return multiply(a, b);
 }
 
-inline matrix operator*(matrix const& a, precision const r) noexcept(false) {
+inline matrix operator*(matrix const &a, precision const r) noexcept(false) {
     return multiply(a, r);
 }
 
-inline matrix operator*(precision const r, matrix const& a) noexcept(false) {
+inline matrix operator*(precision const r, matrix const &a) noexcept(false) {
     return multiply(a, r);
 }
 
 /// Divides a by b. This is equivalent to a*b^-1
-inline matrix operator/(matrix const& a, matrix const& b) noexcept(false) {
+inline matrix operator/(matrix const &a, matrix const &b) noexcept(false) {
     matrix binv = const_cast<matrix &>(b).inverse();
     return multiply(a, binv);
 }
 
-inline matrix operator/(matrix const& a, precision const r) noexcept(false) {
+inline matrix operator/(matrix const &a, precision const r) noexcept(false) {
     return multiply(a, (1.0_p / r));
 }
 
-inline matrix operator/(precision const r, matrix const& a) noexcept(false) {
+inline matrix operator/(precision const r, matrix const &a) noexcept(false) {
     return multiply(a, (1.0_p / r));
 }
 
@@ -444,7 +444,7 @@ matrix operator^(matrix &a, letters l) noexcept(false);
 
 /// The shortcut version of a power operation for specialized symbols like T (transpose) or H (hermitian). Specialized
 /// for conjoined operators */
-matrix operator^(matrix const& a, letters l) noexcept(false);
+matrix operator^(matrix const &a, letters l) noexcept(false);
 }  // namespace operators
 
 /// Joins the matricies horizontally, mxn and mxk to make a mx(n+k) matrix
@@ -458,11 +458,11 @@ inline matrix operator|(matrix &a, matrix &b) noexcept(false) {
 }  // namespace operators
 
 /// Joins the matricies vertically, mxn and kxn to make a (m+k)xn matrix.
-matrix coljoin(matrix const& a, matrix const& b) noexcept(false);
+matrix coljoin(matrix const &a, matrix const &b) noexcept(false);
 
 namespace operators {
 /// Same as coljoin
-inline matrix operator||(matrix const& a, matrix const& b) noexcept(false) {
+inline matrix operator||(matrix const &a, matrix const &b) noexcept(false) {
     return coljoin(a, b);
 }
 }  // namespace operators
@@ -484,7 +484,7 @@ namespace pairwise {
 /// \note B must be a col matrix
 /// \note There might be a better name for this but I don't know it.
 ///
-matrix multiply(matrix const& a, matrix const& b) noexcept(false);
+matrix multiply(matrix const &a, matrix const &b) noexcept(false);
 }  // namespace pairwise
 
 namespace rowwise {
@@ -498,62 +498,62 @@ namespace rowwise {
 /// size_t C[2][2] = {{a*e,b*e},{c*f,d*f}};
 /// \endcode
 ///
-matrix scale(matrix const& a, matrix const& b) noexcept(false);
+matrix scale(matrix const &a, matrix const &b) noexcept(false);
 }  // namespace rowwise
 
 /// The element-wise multiplication of a matrix
 /// @note a and b must have the same dimensions
-matrix hadamard(matrix const& a, matrix const& b) noexcept(false);
+matrix hadamard(matrix const &a, matrix const &b) noexcept(false);
 
 // INLINE SHORTCUTS
 
 /// Returns the determinant of the matrix
-inline precision determinant(matrix const& A) noexcept(false) {
+inline precision determinant(matrix const &A) noexcept(false) {
     return A.determinant();
 }
 
 /// Returns the determinant of the const matrix
-inline precision det(matrix const& A) noexcept(false) {
+inline precision det(matrix const &A) noexcept(false) {
     return A.determinant();
 }
 
 /// Returns the adjugate of the matrix
-inline matrix adj(matrix const& A) noexcept(false) {
+inline matrix adj(matrix const &A) noexcept(false) {
     return A.adjugate();
 }
 
 /// Return the trace of the matrix.
-inline precision tr(matrix const& A) {
+inline precision tr(matrix const &A) {
     return A.trace();
 }
 
 /// Inverts the const matrix
-inline matrix inv(matrix const& A) noexcept(false) {
+inline matrix inv(matrix const &A) noexcept(false) {
     return A.inverse();
 }
 
 /// Returns the absolute value of the matrix
-inline precision abs(matrix const& A) noexcept(false) {
+inline precision abs(matrix const &A) noexcept(false) {
     return A.determinant();
 }
 
 /// Computes the dot of two matrixes (not vectors)
-inline precision dot(matrix const& u, matrix const& v) noexcept(false) {
+inline precision dot(matrix const &u, matrix const &v) noexcept(false) {
     using namespace operators;
     return (v.T() * u).determinant();
 }
 
 /// Returns the nullspace of the matrix
-inline matrix nullspace(matrix const& A) noexcept(false) {
+inline matrix nullspace(matrix const &A) noexcept(false) {
     return A.nullspace();
 }
 
 /// Returns the kernel of a matrix
-inline matrix kern(matrix const& A) noexcept(false) {
+inline matrix kern(matrix const &A) noexcept(false) {
     return A.nullspace();
 }
 
 /// Prints the value of a matrix
-std::ostream &operator<<(std::ostream &os, matrix const& m);
+std::ostream &operator<<(std::ostream &os, matrix const &m);
 
 }  // namespace linalg

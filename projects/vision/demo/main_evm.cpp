@@ -6,26 +6,26 @@
 #include <basal/exception.hpp>
 
 /// @file
-/// @brief This file contains the implementation of the Gaussian Pyramid and Temporal Bandpass Filter for a Eulerian Video Magnification (EVM) implementation.
+/// @brief This file contains the implementation of the Gaussian Pyramid and Temporal Bandpass Filter for a Eulerian
+/// Video Magnification (EVM) implementation.
 /// @data 2025-02-01
 /// @author Erik Rainey
 /// @see https://hbenbel.github.io/blog/evm/
 /// @see https://people.csail.mit.edu/mrub/papers/vidmag.pdf
 
 class GaussianPyramid {
-
 public:
     GaussianPyramid() = delete;
     GaussianPyramid(const GaussianPyramid&) = delete;
     GaussianPyramid& operator=(const GaussianPyramid&) = delete;
     GaussianPyramid(int levels) : levels_(levels - 1) {
         down_.resize(levels_);
-        up_.resize(levels_ - 1); // further number less
+        up_.resize(levels_ - 1);  // further number less
         diff_.resize(levels_ - 1);
     }
 
     void build(const cv::Mat& image) {
-        image_ = image; // copy
+        image_ = image;  // copy
         for (size_t i = 0; i < down_.capacity(); i++) {
             if (i == 0) {
                 cv::pyrDown(image_, down_[i]);
@@ -63,14 +63,14 @@ class TemporalBandpassFilter {
 public:
     TemporalBandpassFilter(iso::hertz low, iso::hertz high, iso::hertz framerate, cv::Size size)
         : low_(low), high_(high), fps_(framerate), size_{size} {
-
         // Create bandpass mask
         filter_mask_ = createBandpassMask();
     }
 
     std::vector<cv::Mat> filter(const std::vector<cv::Mat>& frames) {
         std::vector<cv::Mat> filteredFrames;
-        if (frames.empty()) return filteredFrames;
+        if (frames.empty())
+            return filteredFrames;
         for (const auto& frame : frames) {
             // check the type of the frame to be CV_8U
             throw_exception_unless(frame.type() == CV_8U, "Frame size does not match filter size %u", frame.type());
@@ -93,10 +93,11 @@ public:
             // copies all values from dft_image to rearranged_dft and pads the rest with zeros (but there's no border?)
             cv::copyMakeBorder(dft_image, rearranged_dft, 0, 0, 0, 0, cv::BORDER_CONSTANT, cv::Scalar::all(0));
             // cut the image in quarters and rearrange them
-            int cx = rearranged_dft.cols/2;
-            int cy = rearranged_dft.rows/2;
+            int cx = rearranged_dft.cols / 2;
+            int cy = rearranged_dft.rows / 2;
 
-            // make a quadrants of the rearranged_dft image (these are location within rearranged_dft still, they are not new images)
+            // make a quadrants of the rearranged_dft image (these are location within rearranged_dft still, they are
+            // not new images)
             cv::Mat q0(rearranged_dft, cv::Rect(0, 0, cx, cy));
             cv::Mat q1(rearranged_dft, cv::Rect(cx, 0, cx, cy));
             cv::Mat q2(rearranged_dft, cv::Rect(0, cy, cx, cy));
@@ -114,10 +115,13 @@ public:
 
             // Apply mask which will filter out some data by multiplying it by zero
             cv::Mat spectrums;
-            std::cout << "Rearranged DFT: " << rearranged_dft.size() << " Type: " << rearranged_dft.type() << " Channels: " << rearranged_dft.channels() << std::endl;
-            std::cout << "Filter Mask: " << filter_mask_.size() << " Type: " << filter_mask_.type() << " Channels: " << filter_mask_.channels() << std::endl;
+            std::cout << "Rearranged DFT: " << rearranged_dft.size() << " Type: " << rearranged_dft.type()
+                      << " Channels: " << rearranged_dft.channels() << std::endl;
+            std::cout << "Filter Mask: " << filter_mask_.size() << " Type: " << filter_mask_.type()
+                      << " Channels: " << filter_mask_.channels() << std::endl;
             cv::mulSpectrums(rearranged_dft, filter_mask_, spectrums, 0);
-            std::cout << "Spectrums: " << spectrums.size() << " Type: " << spectrums.type() << " Channels: " << spectrums.channels() << std::endl;
+            std::cout << "Spectrums: " << spectrums.size() << " Type: " << spectrums.type()
+                      << " Channels: " << spectrums.channels() << std::endl;
 
             // Inverse shift
             q0 = spectrums(cv::Rect(0, 0, cx, cy));
@@ -180,7 +184,7 @@ private:
     cv::Mat filter_mask_;
 };
 
-int main(int, char *[]) {
+int main(int, char*[]) {
     // bool verbose = false;
     bool should_exit = false;
     // static constexpr int levels = 4;
@@ -191,7 +195,7 @@ int main(int, char *[]) {
     TemporalBandpassFilter filter(iso::hertz{0.4}, iso::hertz{3}, iso::hertz{30}, image.size());
     filter.show();
     while (not should_exit) {
-        cap >> image; // full frame
+        cap >> image;  // full frame
         if (image.empty()) {
             std::cout << "Could not capture image\n" << std::endl;
             break;

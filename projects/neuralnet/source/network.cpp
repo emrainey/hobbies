@@ -56,7 +56,7 @@ network::~network() {
 
 void network::forward() {
     int index = -1;
-    for_each ([&](layer& _layer) {
+    for_each([&](layer& _layer) {
         if (_layer.isa(layer::type::input)) {
             // printf("i");
             _layer.forward();
@@ -68,8 +68,7 @@ void network::forward() {
             _layer.forward(get(index));
         }
         index++;
-    })
-        ;
+    });
     // printf(">");
 }
 
@@ -101,7 +100,7 @@ layer& network::get(size_t i) {
     return *(layers[i]);
 }
 
-network& network::for_each (std::function<void(layer& l)> block) {
+network& network::for_each(std::function<void(layer& l)> block) {
     for (auto& ptr : layers) {
         block(*ptr);
     }
@@ -109,18 +108,17 @@ network& network::for_each (std::function<void(layer& l)> block) {
 }
 
 void network::set(activation_type type) {
-    for_each ([&](layer& _layer) -> void {
+    for_each([&](layer& _layer) -> void {
         if (_layer.isa(layer::type::input)) {
             return;
         }
         inner& in = dynamic_cast<inner&>(_layer);
         in.set(type);
-    })
-        ;
+    });
 }
 
 void network::update(void) {
-    for_each ([](layer& _layer) {
+    for_each([](layer& _layer) {
         if (_layer.isa(layer::type::input)) {
             return;
         }
@@ -130,7 +128,7 @@ void network::update(void) {
 }
 
 void network::reset(void) {
-    for_each ([](layer& _layer) {
+    for_each([](layer& _layer) {
         if (_layer.isa(layer::type::input)) {
             return;
         }
@@ -212,18 +210,19 @@ static cv::Size compute_complete_dimensions(std::vector<std::vector<cv::Mat>>& i
 
 static void jetImage() {
     static bool showJetImage = false;
-    if (showJetImage) return;
+    if (showJetImage)
+        return;
     showJetImage = true;
     precision high = 1.5;
     precision low = -high;
     int width = (2.0 * high) * 100;
     printf("Jet Image is %d across\n", width);
     linalg::matrix values(1, width);
-    values.for_each ([&](size_t y, size_t x, precision& v) {
+    values.for_each([&](size_t y, size_t x, precision& v) {
         (void)y;
         v = ((precision)x / width);  // 0.0 to 1.0
-        v *= (2.0 * high);        // 0.0 to 3.0
-        v += low;                 // -1.5 to 1.5
+        v *= (2.0 * high);           // 0.0 to 3.0
+        v += low;                    // -1.5 to 1.5
         // should go from lower to high
     });
     cv::Mat bar = linalg::convert(values, CV_8UC3);
@@ -301,8 +300,7 @@ void network::visualize(std::chrono::milliseconds delay) {
         size_t scaling = 270;
         size_t width = 2 * scaling * layers.size();
         size_t height = 0;
-        for_each ([&](layer& _layer) { height = (height < _layer.values.rows ? _layer.values.rows : height); })
-            ;
+        for_each([&](layer& _layer) { height = (height < _layer.values.rows ? _layer.values.rows : height); });
         height *= scaling;
         cv::Mat img(height, width, CV_8UC1);
         img = 255;  // white

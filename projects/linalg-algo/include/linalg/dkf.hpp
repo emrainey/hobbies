@@ -16,11 +16,10 @@ protected:
     /// Number of Measurements
     size_t nm;
     /// The enum of time increments
-    enum time_inc : short
-    {
-        k_1 = 0, ///< The last time measurement
-        k,       ///< The current time measurement
-        N        ///< The number of time measurements
+    enum time_inc : short {
+        k_1 = 0,  ///< The last time measurement
+        k,        ///< The current time measurement
+        N         ///< The number of time measurements
     };
     /// The states of the filter
     matrix x[N];
@@ -43,8 +42,7 @@ public:
     ~dkf();
 
     /// The enumeration of model names
-    enum models : int
-    {
+    enum models : int {
         STATE_TRANSITION,   ///< The model which transforms the previous state to the next state
         INPUT_TRANSLATION,  ///< The model which transforms the input data into the state adjustment
         STATE_MEASUREMENT,  ///< The model which transforms the measurement of state into state adjustments

@@ -8,8 +8,7 @@
 namespace doorgame {
 
 /// A list of boolean attributes
-enum class Attribute : uint16_t
-{
+enum class Attribute : uint16_t {
     Investigated = 0,  //!< Any Target can be investigated
 
     MAX,  //!< The maximum index of all attributes which we use to determine the

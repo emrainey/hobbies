@@ -5,8 +5,7 @@ namespace raytrace {
 namespace lights {
 using namespace linalg::operators;
 
-speck::speck(point const& P, color const& C, precision intensity)
-    : light(P, C, intensity, 1u, Falloff::InverseSquare) {
+speck::speck(point const& P, color const& C, precision intensity) : light(P, C, intensity, 1u, Falloff::InverseSquare) {
 }
 
 speck::speck(point&& P, color const& C, precision intensity)

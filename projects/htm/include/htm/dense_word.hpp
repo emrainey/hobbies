@@ -11,5 +11,4 @@ namespace htm {
 template <size_t BITS>
 using dense_word = std::bitset<BITS>;
 
-} // namespace htm
-
+}  // namespace htm

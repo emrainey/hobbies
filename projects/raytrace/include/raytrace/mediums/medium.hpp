@@ -35,8 +35,7 @@ public:
 
     /// Within reflection, given the surface point, returns a specular color
     /// @param volumetric_point A point on the surface in object space (not world space)
-    virtual color specular(raytrace::point const& volumetric_point, precision scaling,
-                           color const& light_color) const;
+    virtual color specular(raytrace::point const& volumetric_point, precision scaling, color const& light_color) const;
 
     /// Returns the overall tightness the specular highlight (K)
     /// @param volumetric_point A point on the surface in object space (not world space)
@@ -104,8 +103,8 @@ protected:
     /// 0.0_p means bounced light is not allowed at all.
     /// 1.0_p means it's a perfect mirror
     precision m_smoothness;
-    /// The proportion of incoming light which is reflected versus transmitted 1 = (R + T). If 1.0, then all is reflected,
-    /// if 0.0 then all is transmitted
+    /// The proportion of incoming light which is reflected versus transmitted 1 = (R + T). If 1.0, then all is
+    /// reflected, if 0.0 then all is transmitted
     precision m_reflectivity;
     /// The proportion of light which is absorbed when transmitted through a mediums.
     /// A vacuum is 1.0, air is nearly 1.0 and glass is high too. Metal would be nearly zero.

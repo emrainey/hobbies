@@ -28,28 +28,28 @@
 namespace iso {
 
 // feet <=> meters
-feet convert(meters &A);
-meters convert(feet &B);
+feet convert(meters& A);
+meters convert(feet& B);
 // radians <=> turns
-radians convert(turns &A);
-turns convert(radians &A);
+radians convert(turns& A);
+turns convert(radians& A);
 // seconds <=> cycles
-hertz convert(seconds &A);
-seconds convert(hertz &B);
+hertz convert(seconds& A);
+seconds convert(hertz& B);
 
 // slightly different conversions interface
-void convert(feet &f, meters const& m);
-void convert(meters &m, feet const& f);
+void convert(feet& f, meters const& m);
+void convert(meters& m, feet const& f);
 
 // Theres many different combinations of turns, radians, degrees
-void convert(radians &r, turns const& t);
-void convert(turns &t, radians const& r);
-void convert(degrees &d, radians const& r);
-void convert(radians &r, degrees const& d);
+void convert(radians& r, turns const& t);
+void convert(turns& t, radians const& r);
+void convert(degrees& d, radians const& r);
+void convert(radians& r, degrees const& d);
 
 // Another conversion seconds <-> hertz
-void convert(hertz &hz, seconds const& sec);
-void convert(seconds &sec, hertz const& hz);
+void convert(hertz& hz, seconds const& sec);
+void convert(seconds& sec, hertz const& hz);
 
 /// Define the standard distance as meters
 using distance = meters;
@@ -95,13 +95,13 @@ seconds operator/(precision const num, hertz const& denom);
 speed operator/(distance const& num, time const& denom);
 
 /// Creates a speed from a distance over time
-speed operator/(distance &&num, time &&denom);
+speed operator/(distance&& num, time&& denom);
 
 /// Creates a speed from a distance over time
-speed operator/(distance const& num, time &&denom);
+speed operator/(distance const& num, time&& denom);
 
 /// Creates a speed from a distance over time
-speed operator/(distance &&num, time const& denom);
+speed operator/(distance&& num, time const& denom);
 
 /// Alternative constructor
 rate<feet, seconds> operator/(feet const& num, seconds const& denom);
@@ -110,25 +110,25 @@ rate<feet, seconds> operator/(feet const& num, seconds const& denom);
 acceleration operator/(speed const& num, time const& denom);
 
 /// Creates an acceleration from speed per time
-acceleration operator/(speed &&num, time &&denom);
+acceleration operator/(speed&& num, time&& denom);
 
 /// Creates an acceleration from speed per time
-acceleration operator/(speed const& num, time &&denom);
+acceleration operator/(speed const& num, time&& denom);
 
 /// Creates an acceleration from speed per time
-acceleration operator/(speed &&num, time const& denom);
+acceleration operator/(speed&& num, time const& denom);
 
 /// Compounds a newtons-meters together into a torque
 torque operator*(newtons const& N, meters const& m);
 
 /// Compounds a newtons-meters together into a torque
-torque operator*(newtons &&N, meters &&m);
+torque operator*(newtons&& N, meters&& m);
 
 /// Compounds a newtons-meters together into a torque
-torque operator*(newtons const& N, meters &&m);
+torque operator*(newtons const& N, meters&& m);
 
 /// Compounds a newtons-meters together into a torque
-torque operator*(newtons &&N, meters const& m);
+torque operator*(newtons&& N, meters const& m);
 
 // This is to override specific relations where things ARE equal
 
@@ -145,7 +145,8 @@ constexpr long double compute_pi(size_t digits) {
         for (long double j = i; j > 0; j -= 1.0_p) {
             denum *= 16.0_p;
         }
-        pi += ((4.0_p / (8.0_p * i + 1.0_p)) - (2.0_p / (8.0_p * i + 4.0_p)) - (1.0_p / (8.0_p * i + 5.0_p)) - (1.0_p / (8.0_p * i + 6.0_p)))
+        pi += ((4.0_p / (8.0_p * i + 1.0_p)) - (2.0_p / (8.0_p * i + 4.0_p)) - (1.0_p / (8.0_p * i + 5.0_p))
+               - (1.0_p / (8.0_p * i + 6.0_p)))
               / denum;
     }
     return pi;

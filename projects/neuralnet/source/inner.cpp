@@ -7,18 +7,18 @@ using namespace linalg::operators;
 using namespace basal::literals;
 
 inner::inner(layer::type _type, size_t inputs, size_t num)
-    : layer{_type, num}
-    , type{activation_type::Sigmoid}
-    , weights{num, inputs}
-    , biases{num, 1}
-    , delta{num, 1}
-    , zeta{num, 1}
-    , rms{beta.rows, beta.cols}
-    , count{0}
-    , last_delta{num, inputs}
-    , last_bias{num, 1}
-    , delta_weights{num, inputs}
-    , delta_biases{num, 1} {
+    : layer{_type, num},
+      type{activation_type::Sigmoid},
+      weights{num, inputs},
+      biases{num, 1},
+      delta{num, 1},
+      zeta{num, 1},
+      rms{beta.rows, beta.cols},
+      count{0},
+      last_delta{num, inputs},
+      last_bias{num, 1},
+      delta_weights{num, inputs},
+      delta_biases{num, 1} {
     weights.random(-1.0_p, 1.0_p);
     biases.random(0.0_p, 0.1_p);
     // biases.fill(1.0_p);

@@ -8,8 +8,7 @@ namespace raytrace {
 namespace lights {
 
 /// A uniform diffuse light surface with fall-off obeying the inverse square law
-class bulb
-    : public light {
+class bulb : public light {
 public:
     bulb(point const& P, precision radius, raytrace::color const& C, precision intensity, size_t samples);
     bulb(point&& P, precision radius, raytrace::color const& C, precision intensity, size_t samples);

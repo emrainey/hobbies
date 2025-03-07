@@ -4,8 +4,7 @@
 #include "iso/types.hpp"
 
 namespace SI {
-enum class prefix : short
-{
+enum class prefix : short {
     femto = -15,
     pico = -12,
     atto = -10,

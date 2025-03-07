@@ -22,7 +22,7 @@ int16_t kernel_sum(int16_t const (&kernel)[HEIGHT][WIDTH]) {
     for (size_t y = 0; y < HEIGHT; y++) {
         for (size_t x = 0; x < WIDTH; x++) {
             if (kernel[y][x] < 0) {
-                sum -= kernel[y][x]; // subtract the negative value to make a positive
+                sum -= kernel[y][x];  // subtract the negative value to make a positive
             } else {
                 sum += kernel[y][x];
             }
@@ -171,9 +171,12 @@ void filter(image<rgb8, pixel_format::RGB8>& output, image<rgb8, pixel_format::R
     for (size_t y = 0; y < input.height; y++) {
         output.at(y, 0) = input.at(y, 0);
         for (size_t x = 1; x < (input.width - 1); x++) {
-            int16_t r = (kernel[0] * input.at(y, x - 1).r) + (kernel[1] * input.at(y, x - 0).r) + (kernel[2] * input.at(y, x + 1).r);
-            int16_t g = (kernel[0] * input.at(y, x - 1).g) + (kernel[1] * input.at(y, x - 0).g) + (kernel[2] * input.at(y, x + 1).g);
-            int16_t b = (kernel[0] * input.at(y, x - 1).b) + (kernel[1] * input.at(y, x - 0).b) + (kernel[2] * input.at(y, x + 1).b);
+            int16_t r = (kernel[0] * input.at(y, x - 1).r) + (kernel[1] * input.at(y, x - 0).r)
+                        + (kernel[2] * input.at(y, x + 1).r);
+            int16_t g = (kernel[0] * input.at(y, x - 1).g) + (kernel[1] * input.at(y, x - 0).g)
+                        + (kernel[2] * input.at(y, x + 1).g);
+            int16_t b = (kernel[0] * input.at(y, x - 1).b) + (kernel[1] * input.at(y, x - 0).b)
+                        + (kernel[2] * input.at(y, x + 1).b);
             output.at(y, x).r = uint8_t(clamp<int16_t>(r / sum, 0, 255));
             output.at(y, x).g = uint8_t(clamp<int16_t>(g / sum, 0, 255));
             output.at(y, x).b = uint8_t(clamp<int16_t>(b / sum, 0, 255));
@@ -182,7 +185,8 @@ void filter(image<rgb8, pixel_format::RGB8>& output, image<rgb8, pixel_format::R
     }
 }
 
-void filter(image<rgb8, pixel_format::RGB8>& output, image<rgb8, pixel_format::RGB8> const& input, int16_t (&kernel)[3][3]) {
+void filter(image<rgb8, pixel_format::RGB8>& output, image<rgb8, pixel_format::RGB8> const& input,
+            int16_t (&kernel)[3][3]) {
     int16_t const sum = kernel_sum(kernel);
     for (size_t y = 1; y < input.height; y++) {
         if (y == 0 or y == (input.height - 1)) {
@@ -218,13 +222,11 @@ void box(image<rgb8, pixel_format::RGB8>& output, image<rgb8, pixel_format::RGB8
     filter(output, input, kernel);
 }
 
-
 void gaussian(image<rgb8, pixel_format::RGB8>& output, image<rgb8, pixel_format::RGB8> const& input) {
     basal::exception::throw_unless(output.width == input.width, __FILE__, __LINE__);
     basal::exception::throw_unless(output.height == input.height, __FILE__, __LINE__);
     int16_t kernel[3][3] = {{1, 2, 1}, {2, 4, 2}, {1, 2, 1}};
     filter(output, input, kernel);
 }
-
 
 }  // namespace fourcc

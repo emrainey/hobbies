@@ -14,14 +14,12 @@ namespace linalg {
 class kmeans {
 public:
     /// An enumeration to describe how to initialize the initial points
-    enum InitialMethod : int
-    {
+    enum InitialMethod : int {
         RandomPoints,  ///< Use a random assignment of values.
     };
 
     /// An enumeration to describe how to iterate over the points
-    enum IterationMethod : int
-    {
+    enum IterationMethod : int {
         EuclideanDistance,  ///< Use the euclidean distance
     };
 
@@ -32,7 +30,7 @@ public:
     ~kmeans();
 
     /// Tells the algorithm how many cluster points to use and which method to estimate the first steps
-/// @param N A number > 1 and < points.length / 4
+    /// @param N A number > 1 and < points.length / 4
     void configure(size_t N);
 
     /// Creates the first cluster points via some equations

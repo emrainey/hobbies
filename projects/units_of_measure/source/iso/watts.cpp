@@ -103,4 +103,3 @@ iso::watts operator""_W(char const a[]) {
 }
 }  // namespace literals
 }  // namespace iso
-

@@ -10,8 +10,7 @@
 namespace doorgame {
 
 /// An enumeration of possible actions
-enum class Action : char
-{
+enum class Action : char {
     Nothing = 'n',  //!< Do nothing
     Move = 'm',     //!< Move to another Room
     Look = 'l',     //!< Look around (gets more information)

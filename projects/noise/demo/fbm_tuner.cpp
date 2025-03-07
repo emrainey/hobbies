@@ -34,11 +34,11 @@ constexpr static bool debug = false;
 void generate_noise_image(void) {
     printf("octaves: %zu lacunarity: %lf, gain: %lf, amplitude: %lf, frequency: %lf\r\n", octaves, lacunarity, gain,
            amplitude, frequency);
-    noise_image.for_each ([&](size_t y, size_t x, fourcc::yf &pixel) {
+    noise_image.for_each([&](size_t y, size_t x, fourcc::yf &pixel) {
         noise::point pnt{(noise::precision)x / scale, (noise::precision)y / scale};
         pixel.y = (float)noise::fractal_brownian(pnt, seed, octaves, lacunarity, gain, amplitude, frequency);
     });
-    noise_image.for_each ([&](size_t y, size_t x, fourcc::yf &pixel) {
+    noise_image.for_each([&](size_t y, size_t x, fourcc::yf &pixel) {
         float n = pixel.y;  // the intensity, not the cartesian y
         // if min is negative, slide it up to be zero to some larger value
         render_image.at<float>(y, x) = n;

@@ -15,7 +15,7 @@ Animator::operator bool() const {
 }
 
 Attributes Animator::operator()() {
-    using namespace iso::operators; // exposes operators for iso types
+    using namespace iso::operators;  // exposes operators for iso types
     if (index_ >= anchors_.size()) {
         return Attributes{};
     }
@@ -30,14 +30,13 @@ Attributes Animator::operator()() {
     return a;
 }
 
-Attributes Animator::interpolate(Attributes const& start, Attributes const& limit, Mappers const& mappers, precision dt) {
-    return Attributes{
-        geometry::lerp(start.from, limit.from, mappers.from, dt),
-        geometry::lerp(start.at, limit.at, mappers.at, dt),
-        iso::degrees{geometry::lerp(start.fov.value, limit.fov.value, mappers.fov, dt)}
-    };
+Attributes Animator::interpolate(Attributes const& start, Attributes const& limit, Mappers const& mappers,
+                                 precision dt) {
+    return Attributes{geometry::lerp(start.from, limit.from, mappers.from, dt),
+                      geometry::lerp(start.at, limit.at, mappers.at, dt),
+                      iso::degrees{geometry::lerp(start.fov.value, limit.fov.value, mappers.fov, dt)}};
 }
 
-} // namespace animation
+}  // namespace animation
 
 }  // namespace raytrace

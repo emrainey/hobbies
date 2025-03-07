@@ -35,7 +35,6 @@ TEST(SparseWords, CopyConstructors) {
     }
 }
 
-
 TEST(SparseWords, CopyAssign) {
     {
         htm::dense_word<256> dense = 0b100000101000001010;
@@ -110,6 +109,6 @@ TEST(SparseWords, Conjoin) {
     auto c = a + b;
     ASSERT_EQ(30u, c.size());
     ASSERT_EQ(2u, c.count());
-    ASSERT_TRUE(c.test(0+9)); // lower bit
-    ASSERT_TRUE(c.test(13+11));  //upper bit
+    ASSERT_TRUE(c.test(0 + 9));    // lower bit
+    ASSERT_TRUE(c.test(13 + 11));  // upper bit
 }

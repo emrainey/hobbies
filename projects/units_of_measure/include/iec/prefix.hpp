@@ -2,8 +2,7 @@
 #include <cstdint>
 
 namespace IEC {
-enum class prefix : short
-{
+enum class prefix : short {
     kibi = 10,
     mebi = 20,
     gibi = 30,

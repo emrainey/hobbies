@@ -56,8 +56,10 @@ TEST(FourccTest, RGBh) {
         // white -> red
         // |          |
         // blue -> green
-        basal::precision c = static_cast<basal::precision>(sy)/static_cast<basal::precision>(sx);
-        if (c > 1.0f) { c = 1 / c; }
+        basal::precision c = static_cast<basal::precision>(sy) / static_cast<basal::precision>(sx);
+        if (c > 1.0f) {
+            c = 1 / c;
+        }
         pixel.r = 1.0f - (basal::precision(sy) / 480.0f);
         pixel.g = c;
         pixel.b = 1.0f - (basal::precision(sx) / 640.0f);

@@ -8,17 +8,20 @@ namespace basal {
 template <typename UNIT_TYPE>
 class listable : public UNIT_TYPE {
     static_assert(std::is_default_constructible<UNIT_TYPE>::value, "Must be default constructible");
+
 protected:
     listable *_next;
     listable *_prev;
 
 public:
     /// default ctor
-    listable() noexcept : UNIT_TYPE{}, _next{nullptr}, _prev{nullptr} {} // must be default constructable
+    listable() noexcept : UNIT_TYPE{}, _next{nullptr}, _prev{nullptr} {
+    }  // must be default constructable
     /// subclass copy
-    listable(UNIT_TYPE const& sub) : UNIT_TYPE{sub}, _next{nullptr}, _prev{nullptr} {} // must be copy constructable
+    listable(UNIT_TYPE const &sub) : UNIT_TYPE{sub}, _next{nullptr}, _prev{nullptr} {
+    }  // must be copy constructable
     /// copy ctor (not supported)
-    listable(listable const&) noexcept = delete;
+    listable(listable const &) noexcept = delete;
     /// move constructor (replace the other in the list)
     listable(listable &&other) noexcept : UNIT_TYPE{std::move(other)}, _next{other._next}, _prev{other._prev} {
         if (_next) {
@@ -31,7 +34,7 @@ public:
         }
     }
     /// copy assign (not supported)
-    listable &operator=(listable const& other) noexcept = delete;
+    listable &operator=(listable const &other) noexcept = delete;
     /// move assign, we replace to other item in the list
     listable &operator=(listable &&other) noexcept {
         if (this != &other) {
@@ -97,7 +100,7 @@ public:
         }
     }
 
-    void insert_next(listable *obj) noexcept  {
+    void insert_next(listable *obj) noexcept {
         if (obj) {
             obj->_next = _next;
             if (_next) {
@@ -110,21 +113,21 @@ public:
     }
 
     /// Returns the next listable
-    listable const* next() const noexcept {
+    listable const *next() const noexcept {
         return _next;
     }
 
     /// Returns previous listable
-    listable const* prev() const noexcept {
+    listable const *prev() const noexcept {
         return _prev;
     }
 
     /// Returns a listable pointer to itself.
-    listable const* as_listable() const noexcept {
+    listable const *as_listable() const noexcept {
         return this;
     }
 
-    UNIT_TYPE const& as_base() const noexcept {
+    UNIT_TYPE const &as_base() const noexcept {
         return (*this);
     }
 };

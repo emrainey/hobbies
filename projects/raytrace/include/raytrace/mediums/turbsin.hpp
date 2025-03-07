@@ -16,7 +16,8 @@ public:
     /// @param size The power of 2 of the size of features in the turbulence.
     /// @param dark The dark color
     /// @param light The light color
-    turbsin(precision map2d_scale, precision xs, precision ys, precision power, precision scale, precision size, color dark, color light);
+    turbsin(precision map2d_scale, precision xs, precision ys, precision power, precision scale, precision size,
+            color dark, color light);
     virtual ~turbsin() = default;
 
     color diffuse(raytrace::point const& volumetric_point) const final;

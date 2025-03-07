@@ -119,7 +119,6 @@ protected:
     object_list m_infinite_objects;
 
     /// The finite bounds object list sorted into
-
 };
 
 }  // namespace raytrace

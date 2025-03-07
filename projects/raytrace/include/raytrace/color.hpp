@@ -6,7 +6,6 @@
 
 #include "raytrace/types.hpp"
 
-
 namespace raytrace {
 
 /// The Gamma Correction Namespace
@@ -72,8 +71,7 @@ public:
     precision channels[NUM_CHANNELS];
 
     /// Indicates how the values are stored
-    enum class space : int
-    {
+    enum class space : int {
         linear,
         logarithmic,
     } representation;
@@ -149,19 +147,19 @@ public:
     constexpr static precision equality_limit = 1.0E-6;
 
     /// Blends all colors together in a equal weighted average with gamma
-/// correction.
-/// @param subsamples The vector of color samples
+    /// correction.
+    /// @param subsamples The vector of color samples
     static color blend_samples(std::vector<color> const& subsamples);
 
     /// Accumulates all the samples together into a summed color in the linear space
     static color accumulate_samples(std::vector<color> const& samples);
 
     /// Map numbers near the range -1.0_p to 1.0_p to a color in the spectrum.
-/// Bluer for negatives, Reds for Positives.
+    /// Bluer for negatives, Reds for Positives.
     static color jet(precision d);
 
     /// Takes a number between min and max and returns an RGB from 0.0_p to 1.0_p.
-/// If the input is out of range, returns magenta.
+    /// If the input is out of range, returns magenta.
     static color greyscale(precision d, precision min, precision max);
 
     /// Generates a random color.

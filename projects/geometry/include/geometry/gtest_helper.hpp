@@ -9,11 +9,11 @@
 
 #include "basal/gtest_helper.hpp"
 
-#define ASSERT_XYZ_EQ(ax, ay, az, obj) \
-    {                                  \
-        ASSERT_PRECISION_EQ(ax, obj[0]);  \
-        ASSERT_PRECISION_EQ(ay, obj[1]);  \
-        ASSERT_PRECISION_EQ(az, obj[2]);  \
+#define ASSERT_XYZ_EQ(ax, ay, az, obj)   \
+    {                                    \
+        ASSERT_PRECISION_EQ(ax, obj[0]); \
+        ASSERT_PRECISION_EQ(ay, obj[1]); \
+        ASSERT_PRECISION_EQ(az, obj[2]); \
     }
 
 #define ASSERT_POINT_EQ(pa, pb)                                                               \
@@ -40,7 +40,8 @@
 
 #define ASSERT_RAY3_EQ(px, py, pz, vx, vy, vz, r) _assert_ray3_eq(px, py, pz, vx, vy, vz, #r, r)
 
-inline void _assert_ray3_eq(geometry::precision px, geometry::precision py, geometry::precision pz, geometry::precision vx, geometry::precision vy, geometry::precision vz,
+inline void _assert_ray3_eq(geometry::precision px, geometry::precision py, geometry::precision pz,
+                            geometry::precision vx, geometry::precision vy, geometry::precision vz,
                             char const* name __attribute__((unused)), geometry::ray_<3> const& r) {
     ASSERT_XYZ_EQ(px, py, pz, r.location());
     ASSERT_XYZ_EQ(vx, vy, vz, r.direction());
@@ -52,12 +53,11 @@ inline void _assert_ray3_eq(geometry::precision px, geometry::precision py, geom
         ASSERT_VECTOR_EQ(vec, ray.direction()); \
     }
 
-
-#define EXPECT_XYZ_EQ(ax, ay, az, obj) \
-    {                                  \
-        EXPECT_PRECISION_EQ(ax, obj[0]);  \
-        EXPECT_PRECISION_EQ(ay, obj[1]);  \
-        EXPECT_PRECISION_EQ(az, obj[2]);  \
+#define EXPECT_XYZ_EQ(ax, ay, az, obj)   \
+    {                                    \
+        EXPECT_PRECISION_EQ(ax, obj[0]); \
+        EXPECT_PRECISION_EQ(ay, obj[1]); \
+        EXPECT_PRECISION_EQ(az, obj[2]); \
     }
 
 #define EXPECT_POINT_EQ(pa, pb)                                                               \
@@ -84,7 +84,8 @@ inline void _assert_ray3_eq(geometry::precision px, geometry::precision py, geom
 
 #define EXPECT_RAY3_EQ(px, py, pz, vx, vy, vz, r) _expect_ray3_eq(px, py, pz, vx, vy, vz, #r, r)
 
-inline void _expect_ray3_eq(geometry::precision px, geometry::precision py, geometry::precision pz, geometry::precision vx, geometry::precision vy, geometry::precision vz,
+inline void _expect_ray3_eq(geometry::precision px, geometry::precision py, geometry::precision pz,
+                            geometry::precision vx, geometry::precision vy, geometry::precision vz,
                             char const* name __attribute__((unused)), geometry::ray_<3> const& r) {
     EXPECT_XYZ_EQ(px, py, pz, r.location());
     EXPECT_XYZ_EQ(vx, vy, vz, r.direction());

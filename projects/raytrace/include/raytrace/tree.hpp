@@ -26,7 +26,9 @@ public:
     Node(Bounds const& bounds);
 
     /// @return the bounds of the node
-    inline Bounds const& bounds() const { return bounds_; }
+    inline Bounds const& bounds() const {
+        return bounds_;
+    }
 
     /// Determines the hits of the ray intersects with the objects in the node or it's sub-nodes
     hits intersects(raytrace::ray const& ray) const;

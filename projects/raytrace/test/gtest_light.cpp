@@ -28,7 +28,7 @@ TEST(LightTest, InverseSquareLawRange) {
         // Specks obey some form of fade which drops off as distance increases
         precision intensity = light0.intensity_at(surface_point);
         ASSERT_GE(1.0, intensity);
-        ASSERT_GE(1.0_p/d, intensity) << "The simple distance law is not obeyed";
+        ASSERT_GE(1.0_p / d, intensity) << "The simple distance law is not obeyed";
         ASSERT_LE(0.0, intensity);
     }
 }

@@ -9,8 +9,7 @@ using namespace linalg::operators;
 using namespace geometry;
 using namespace geometry::operators;
 
-plane::plane(point const& C, vector const& N)
-    : geometry::plane{C, N}, object{C, 1} {
+plane::plane(point const& C, vector const& N) : geometry::plane{C, N}, object{C, 1} {
     // C.print("plane");
     // N.print("plane");
 }
@@ -23,7 +22,7 @@ hits plane::collisions_along(ray const& object_ray) const {
     hits ts;
     // is the ray parallel to the plane?
     // @note in object space, the center point is at the origin
-    vector const& N = unormal(); // .normalized();
+    vector const& N = unormal();  // .normalized();
     vector const& V = object_ray.direction();
     precision const proj = dot(V, N);
     // if so the projection is not zero they collide *somewhere*
@@ -54,7 +53,8 @@ image::point plane::map(point const& object_surface_point) const {
     geometry::R2::point cartesian(object_surface_point[0], object_surface_point[1]);
     geometry::R2::point polar_space = geometry::cartesian_to_polar(cartesian);
     // v must be between 0 and 1, no negatives (the zero angle line is -X though!)
-    return image::point(polar_space[0] / m_surface_scale.u, ((polar_space[1] + iso::pi) / iso::tau)  / m_surface_scale.v);
+    return image::point(polar_space[0] / m_surface_scale.u,
+                        ((polar_space[1] + iso::pi) / iso::tau) / m_surface_scale.v);
 }
 
 precision plane::get_object_extent(void) const {

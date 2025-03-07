@@ -140,7 +140,6 @@ TYPED_TEST(XMMContainer4, PixelAccumulate) {
 // UNIQUE TESTS
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-
 TYPED_TEST(XMMContainer4, PixelBlend) {
     using namespace intel;
     typename TypeParam::pixel a{0.75_p, 0.25_p, 0.5_p, 0.0625_p};

@@ -17,11 +17,11 @@ static constexpr bool camera_debug = false;
 // static constexpr bool use_grayscale_distance = false;
 
 scene::scene(double art)
-    : adaptive_reflection_threshold{art}
-    , m_objects{}
-    , m_lights{}
-    , m_background{[](raytrace::ray const&) { return colors::black; }}
-    , m_media{&mediums::vacuum}  // default to a vacuum
+    : adaptive_reflection_threshold{art},
+      m_objects{},
+      m_lights{},
+      m_background{[](raytrace::ray const&) { return colors::black; }},
+      m_media{&mediums::vacuum}  // default to a vacuum
 {
 }
 
@@ -89,8 +89,7 @@ objects::hits scene::find_intersections(ray const& world_ray, object_list const&
     return hits;
 }
 
-objects::hit scene::nearest_object(ray const& world_ray, objects::hits const& hits,
-                                           object_list const& objects) {
+objects::hit scene::nearest_object(ray const& world_ray, objects::hits const& hits, object_list const& objects) {
     basal::exception::throw_unless(hits.size() == objects.size(), __FILE__, __LINE__, "Lists must match!");
     precision closest_distance2 = std::numeric_limits<precision>::max();
     objects::hit closest_hit;
@@ -151,7 +150,8 @@ color scene::trace(ray const& world_ray, mediums::medium const& media, size_t re
         // grab the normal on the surface at that point, ensure it's normalized
         vector world_surface_normal = nearest.normal.normalized();
         // if constexpr (enforce_ranges) {
-        //     basal::exception::throw_unless(basal::nearly_equals(world_surface_normal.magnitude(), 1.0), __FILE__, __LINE__,
+        //     basal::exception::throw_unless(basal::nearly_equals(world_surface_normal.magnitude(), 1.0), __FILE__,
+        //     __LINE__,
         //                                    "Must be normalized");
         // }
         // if this is true, we've collided with something from the inside or the "backside"
@@ -160,9 +160,9 @@ color scene::trace(ray const& world_ray, mediums::medium const& media, size_t re
         // compute the reflection vector
         ray world_reflection = obj.reflection(world_ray, world_surface_normal, world_surface_point);
         // compute the refracted vector
-        ray world_refraction
-            = obj.refraction(world_ray, world_surface_normal, world_surface_point, media.refractive_index(object_surface_point),
-                             medium.refractive_index(object_surface_point));
+        ray world_refraction = obj.refraction(world_ray, world_surface_normal, world_surface_point,
+                                              media.refractive_index(object_surface_point),
+                                              medium.refractive_index(object_surface_point));
 
         basal::exception::throw_if(dot(world_ray.direction(), world_refraction.direction()) < 0, __FILE__, __LINE__,
                                    "Refracted ray should not be opposites");
@@ -246,7 +246,8 @@ color scene::trace(ray const& world_ray, mediums::medium const& media, size_t re
                             // object_is_emissive = (nearest.objptr->material().emissive(other_world_point) > 0.0);
                         }
                     }
-                    bool not_in_shadow = (no_intersection or point_farther_than_light or object_is_transparent or object_is_emissive);
+                    bool not_in_shadow
+                        = (no_intersection or point_farther_than_light or object_is_transparent or object_is_emissive);
                     if (not_in_shadow) {
                         statistics::get().color_sampled_rays++;
                         // get the light color at this distance
@@ -365,7 +366,7 @@ void scene::render(camera& view, std::string filename, size_t number_of_samples,
     // if we're doing adaptive anti-aliasing we only shoot 1 ray at first and then compute a contrast mask
     // later
     view.capture.generate_each(tracer, adaptive_antialiasing ? 1 : number_of_samples, row_notifier, &view.mask,
-                                image::AAA_MASK_DISABLED);
+                               image::AAA_MASK_DISABLED);
     // if the threshold is not disabled, then compute the extra pixels based on the mask
     if (aaa_mask_threshold < image::AAA_MASK_DISABLED) {
         // reset all rendered lines

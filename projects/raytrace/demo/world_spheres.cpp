@@ -36,13 +36,14 @@ public:
     SpheresWorld()
         : world{}  //, look_from(-50, 50, 20)
                    //, look_at(0, 0, 0)
-        , look_from{-10.0_p, 6.66_p, 20.0_p}
-        , look_at{3.0_p, 0.0_p, 6.0_p}
-        , custom_grey{0.5_p, 0.5_p, 0.5_p}
-        , custom_metal{custom_grey, raytrace::mediums::smoothness::mirror, raytrace::mediums::roughness::medium}
-        , spheres{}
-        , specks{}
-        , bulbs{} {
+          ,
+          look_from{-10.0_p, 6.66_p, 20.0_p},
+          look_at{3.0_p, 0.0_p, 6.0_p},
+          custom_grey{0.5_p, 0.5_p, 0.5_p},
+          custom_metal{custom_grey, raytrace::mediums::smoothness::mirror, raytrace::mediums::roughness::medium},
+          spheres{},
+          specks{},
+          bulbs{} {
         raytrace::point center = R3::origin;
         spheres.push_back(new raytrace::objects::sphere(center, 6));
         subspheres(spheres, center, 12.0_p, 2);
@@ -54,10 +55,11 @@ public:
         specks.push_back(new lights::speck(raytrace::point{-6, +6, 9}, colors::white, lights::intensities::blinding));
         specks.push_back(new lights::speck(raytrace::point{-6, -6, 9}, colors::white, lights::intensities::blinding));
         specks.push_back(new lights::speck(raytrace::point{+6, -6, 9}, colors::white, lights::intensities::blinding));
-        // bulbs.push_back(new lights::bulb(raytrace::point{+6, +6, 9}, 1.0_p, colors::white, lights::intensities::blinding, 16));
-        // bulbs.push_back(new lights::bulb(raytrace::point{-6, +6, 9}, 1.0_p, colors::white, lights::intensities::blinding, 16));
-        // bulbs.push_back(new lights::bulb(raytrace::point{-6, -6, 9}, 1.0_p, colors::white, lights::intensities::blinding, 16));
-        // bulbs.push_back(new lights::bulb(raytrace::point{+6, -6, 9}, 1.0_p, colors::white, lights::intensities::blinding, 16));
+        // bulbs.push_back(new lights::bulb(raytrace::point{+6, +6, 9}, 1.0_p, colors::white,
+        // lights::intensities::blinding, 16)); bulbs.push_back(new lights::bulb(raytrace::point{-6, +6, 9}, 1.0_p,
+        // colors::white, lights::intensities::blinding, 16)); bulbs.push_back(new lights::bulb(raytrace::point{-6, -6,
+        // 9}, 1.0_p, colors::white, lights::intensities::blinding, 16)); bulbs.push_back(new
+        // lights::bulb(raytrace::point{+6, -6, 9}, 1.0_p, colors::white, lights::intensities::blinding, 16));
     }
 
     ~SpheresWorld() {
@@ -107,14 +109,12 @@ public:
 
     raytrace::animation::anchors get_anchors() const override {
         raytrace::animation::anchors anchors;
-        anchors.push_back(
-            animation::Anchor{
-                animation::Attributes{look_from, look_at, 55.0_deg},
-                animation::Attributes{look_from, look_at, 55.0_deg},
-                animation::Mappers{}, iso::seconds{1.0_p}
-            });
+        anchors.push_back(animation::Anchor{animation::Attributes{look_from, look_at, 55.0_deg},
+                                            animation::Attributes{look_from, look_at, 55.0_deg}, animation::Mappers{},
+                                            iso::seconds{1.0_p}});
         return anchors;
     }
+
 protected:
     raytrace::point look_from;
     raytrace::point look_at;

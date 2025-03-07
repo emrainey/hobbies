@@ -102,7 +102,6 @@ TYPED_TEST(XMMContainer4, VectorInitializerConstructor) {
     EXPECT_PRECISION_EQ(quarter, v.c.w);
 }
 
-
 TYPED_TEST(XMMContainer2, VectorIndexing) {
     using namespace intel;
     typename TypeParam::vector v{one, -eighth};
@@ -222,7 +221,8 @@ TYPED_TEST(XMMContainer4, DotPerf) {
     }
     std::chrono::duration<double> diff = std::chrono::steady_clock::now() - start;
     std::chrono::duration<double> unit = diff / number_of_ops;
-    std::cout << "dot period:" << diff.count() << " sec over " << number_of_ops << " ops. Unit: " << unit.count() << "." << std::endl;
+    std::cout << "dot period:" << diff.count() << " sec over " << number_of_ops << " ops. Unit: " << unit.count() << "."
+              << std::endl;
     double diff_ns = diff.count() / 1E9;
     double rate_Mops = (1.0_p / unit.count()) / 1E6;
     std::cout << "dots rate:" << rate_Mops << " M-dots/sec, Period: " << diff_ns << " sec" << std::endl;
@@ -258,7 +258,8 @@ TYPED_TEST(XMMContainer3, CrossPerf) {
     }
     std::chrono::duration<double> diff = std::chrono::steady_clock::now() - start;
     std::chrono::duration<double> unit = diff / number_of_ops;
-    std::cout << "dot period:" << diff.count() << " sec over " << number_of_ops << " ops. Unit: " << unit.count() << "." << std::endl;
+    std::cout << "dot period:" << diff.count() << " sec over " << number_of_ops << " ops. Unit: " << unit.count() << "."
+              << std::endl;
     double diff_ns = diff.count() / 1E9;
     double rate_Mops = (1.0_p / unit.count()) / 1E6;
     std::cout << "dots rate:" << rate_Mops << " M-dots/sec, Period: " << diff_ns << " sec" << std::endl;

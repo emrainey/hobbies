@@ -23,8 +23,8 @@ size_t diffuse_color_index = 1;
 precision smoothiness = mediums::smoothness::polished;
 precision tightness = mediums::roughness::tight;
 
-color const color_choices[] = {colors::white, colors::red, colors::green, colors::blue,
-                         colors::cyan,  colors::magenta, colors::yellow, colors::black};
+color const color_choices[] = {colors::white, colors::red,     colors::green,  colors::blue,
+                               colors::cyan,  colors::magenta, colors::yellow, colors::black};
 constexpr size_t number_of_colors = dimof(color_choices);
 
 raytrace::mediums::metal const* metal_choices[]
@@ -75,12 +75,14 @@ int main(int argc, char* argv[]) {
     cv::Mat render_image(height, width, CV_8UC3);
     cv::namedWindow(windowName, cv::WINDOW_AUTOSIZE);
 
-    linalg::Trackbar<size_t> trackbar_metal_choice("Metal Choice", windowName, 0u, metal_index, number_of_metals, 1U, &metal_index);
+    linalg::Trackbar<size_t> trackbar_metal_choice("Metal Choice", windowName, 0u, metal_index, number_of_metals, 1U,
+                                                   &metal_index);
     linalg::Trackbar<size_t> trackbar_diff_color("Diffuse Color", windowName, 0u, diffuse_color_index, number_of_colors,
                                                  1u, &diffuse_color_index);
     linalg::Trackbar<size_t> trackbar_amb_color("Ambient Color", windowName, 0u, ambient_color_index, number_of_colors,
                                                 1u, &ambient_color_index);
-    linalg::Trackbar trackbar_amb_scale("Ambient Scale", windowName, 0.0_p, ambient_scale, 1.0_p, 0.1_p, &ambient_scale);
+    linalg::Trackbar trackbar_amb_scale("Ambient Scale", windowName, 0.0_p, ambient_scale, 1.0_p, 0.1_p,
+                                        &ambient_scale);
     linalg::Trackbar trackbar_smoothness("Smoothness", windowName, 0.0_p, smoothiness, 1.0_p, 0.1_p, &smoothiness);
     linalg::Trackbar trackbar_tightness("Tightness", windowName, 0.0_p, tightness, 100.0_p, 5.0_p, &tightness);
     linalg::Trackbar trackbar_repeat("Repeat", windowName, 0.125_p, repeat, 10.0_p, 0.125_p, &repeat);
@@ -120,13 +122,14 @@ int main(int argc, char* argv[]) {
         // scene.background = colors::black;
 
         printf("Amb=%lf Smooth=%lf Tight=%lf\n", ambient_scale, smoothiness, tightness);
-        printf("Repeat=%lf Scale=%lf X Scale=%lf Y Scale=%lf Power=%lf Size=%lf\n", repeat, scale, x_scale, y_scale, power, size);
+        printf("Repeat=%lf Scale=%lf X Scale=%lf Y Scale=%lf Power=%lf Size=%lf\n", repeat, scale, x_scale, y_scale,
+               power, size);
 
         // define some surfaces
         color dark = color_choices[ambient_color_index];
         color light = color_choices[diffuse_color_index];
         mediums::plain test_surface(color_choices[ambient_color_index], ambient_scale,
-                                   color_choices[diffuse_color_index], smoothiness, tightness);
+                                    color_choices[diffuse_color_index], smoothiness, tightness);
         mediums::checkerboard checkers{repeat, dark, light};
         mediums::dots dots{repeat, dark, light};
         mediums::stripes stripes{repeat, dark, light};
@@ -181,7 +184,7 @@ int main(int argc, char* argv[]) {
             printf("Starting Render (depth=%zu, samples=%zu)...\r\n", reflection_depth, subsamples);
             scene.render(view, "demo_sphere_surfaces.tga", subsamples, reflection_depth, std::nullopt, show_bar);
             // copy to the cv::Mat
-            view.capture.for_each ([&](size_t y, size_t x, fourcc::rgb8 const& pixel) -> void {
+            view.capture.for_each([&](size_t y, size_t x, fourcc::rgb8 const& pixel) -> void {
                 render_image.at<cv::Vec3b>(y, x)[0] = pixel.b;
                 render_image.at<cv::Vec3b>(y, x)[1] = pixel.g;
                 render_image.at<cv::Vec3b>(y, x)[2] = pixel.r;

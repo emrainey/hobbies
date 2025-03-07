@@ -13,13 +13,12 @@
 namespace geometry {
 
 /// The types of intersections available
-enum class IntersectionType : int
-{
-    None = 0, ///< No intersection was possible
-    Point,    ///< The objects intersected as a single \ref point
-    Points,   ///< The object intersected as a points
-    Line,     ///< The objects intersected as a \ref line
-    Plane     ///< The objects intersected as a \ref plane
+enum class IntersectionType : int {
+    None = 0,  ///< No intersection was possible
+    Point,     ///< The objects intersected as a single \ref point
+    Points,    ///< The object intersected as a points
+    Line,      ///< The objects intersected as a \ref line
+    Plane      ///< The objects intersected as a \ref plane
 };
 
 /// The intersection itself is an object variant.
@@ -30,7 +29,7 @@ IntersectionType get_type(intersection const& var);
 
 /// Converts an intersection type enum to a string
 /// \return a pointer to a constant "c" string.
-char const *get_type_as_str(IntersectionType obj);
+char const* get_type_as_str(IntersectionType obj);
 
 inline R3::point const& as_point(intersection const& intersector) {
     return std::get<R3::point>(intersector);
@@ -49,7 +48,7 @@ inline plane const& as_plane(intersection const& intersector) {
 }
 
 /// Allow printing of an intersection
-std::ostream &operator<<(std::ostream &os, intersection const& intersector);
+std::ostream& operator<<(std::ostream& os, intersection const& intersector);
 
 /// Determines if a point is on a line.
 bool intersects(R3::point const& p, R3::line const& l);

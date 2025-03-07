@@ -103,4 +103,3 @@ iso::grams operator""_g(char const a[]) {
 }
 }  // namespace literals
 }  // namespace iso
-

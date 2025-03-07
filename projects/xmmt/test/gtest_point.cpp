@@ -58,7 +58,6 @@ TYPED_TEST(XMMContainer4, PointCopyConstruct) {
     EXPECT_PRECISION_EQ(two, b[3]);
 }
 
-
 TYPED_TEST(XMMContainer4, PointCopyAssign) {
     using namespace intel;
     typename TypeParam::point a{eighth, quarter, half, two};

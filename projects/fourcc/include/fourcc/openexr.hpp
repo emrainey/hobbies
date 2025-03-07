@@ -7,16 +7,16 @@
 /// @see https://openexr.com/en/latest/OpenEXRFileLayout.html
 namespace openexr {
 
-static constexpr std::uint32_t magic = 20000630lu; // 0x76, 0x2f, 0x31, 0x01
+static constexpr std::uint32_t magic = 20000630lu;  // 0x76, 0x2f, 0x31, 0x01
 
 struct Version {
-    std::uint32_t version        : 8; ///< bits 0-7
-    std::uint32_t                : 1; ///< bit 8
-    std::uint32_t is_single_tile : 1; ///< bit 9, is a single tiled imaged
-    std::uint32_t has_long_names : 1; ///< bit 10
-    std::uint32_t has_non_image  : 1; ///< bit 11
-    std::uint32_t is_multipart   : 1; ///< bit 12
-    std::uint32_t               : 19; ///< bits 13-31
+    std::uint32_t version : 8;         ///< bits 0-7
+    std::uint32_t : 1;                 ///< bit 8
+    std::uint32_t is_single_tile : 1;  ///< bit 9, is a single tiled imaged
+    std::uint32_t has_long_names : 1;  ///< bit 10
+    std::uint32_t has_non_image : 1;   ///< bit 11
+    std::uint32_t is_multipart : 1;    ///< bit 12
+    std::uint32_t : 19;                ///< bits 13-31
 };
 
 class Serializable {
@@ -27,9 +27,9 @@ public:
 };
 
 struct Attribute : public Serializable {
-    std::string name; // written as up to 32 bytes of null-terminated string
-    std::string type; // written as up to 32 bytes of null-terminated string
-    std::uint32_t size; // size of the attribute value
+    std::string name;    // written as up to 32 bytes of null-terminated string
+    std::string type;    // written as up to 32 bytes of null-terminated string
+    std::uint32_t size;  // size of the attribute value
 
     std::size_t Size() const override {
         return name.size() + 1 + type.size() + 1 + sizeof(size);
@@ -55,13 +55,22 @@ struct Attribute : public Serializable {
     }
 };
 
-char const * const known_attribute_types[] = {
-    "box2i", "box2f", "chlist", "chromaticities", "compression", "compressionLevel", "double", "envmap", "float", "int", "keycode", "lineOrder", "m33f", "m44f", "preview", "rational", "string", "stringvector", "tiledesc", "timecode", "v2f", "v2i", "v3f", "v3i"
-};
+char const* const known_attribute_types[] = {"box2i",       "box2f",
+                                             "chlist",      "chromaticities",
+                                             "compression", "compressionLevel",
+                                             "double",      "envmap",
+                                             "float",       "int",
+                                             "keycode",     "lineOrder",
+                                             "m33f",        "m44f",
+                                             "preview",     "rational",
+                                             "string",      "stringvector",
+                                             "tiledesc",    "timecode",
+                                             "v2f",         "v2i",
+                                             "v3f",         "v3i"};
 
-char const * const required_attribute_names[] = {
-    "channels", "compression", "dataWindow", "displayWindow", "lineOrder", "pixelAspectRatio", "screenWindowCenter", "screenWindowWidth"
-};
+char const* const required_attribute_names[]
+    = {"channels",  "compression",      "dataWindow",         "displayWindow",
+       "lineOrder", "pixelAspectRatio", "screenWindowCenter", "screenWindowWidth"};
 
 template <typename STORAGE_TYPE>
 struct Point_ {
@@ -94,7 +103,6 @@ using Vector3_i = Vector3_<std::int32_t>;
 // Use "vec3f"
 using Vector3_f = Vector3_<float>;
 
-
 template <typename STORAGE_TYPE>
 struct Window_ {
     STORAGE_TYPE width;
@@ -109,12 +117,12 @@ struct Rational {
 
 // Use "timeCode"
 struct TimeCode {
-    std::uint32_t frame_number : 6; // bits 0-5
-    std::uint32_t seconds      : 9; // bits 6-14
-    std::uint32_t minutes      : 8; // bits 15-22
-    std::uint32_t hours        : 7; // bits 23-29
-    std::uint32_t drop         : 1; // bit 30
-    std::uint32_t color        : 1; // bit 31
+    std::uint32_t frame_number : 6;  // bits 0-5
+    std::uint32_t seconds : 9;       // bits 6-14
+    std::uint32_t minutes : 8;       // bits 15-22
+    std::uint32_t hours : 7;         // bits 23-29
+    std::uint32_t drop : 1;          // bit 30
+    std::uint32_t color : 1;         // bit 31
     std::uint32_t user_data;
 };
 
@@ -146,13 +154,13 @@ struct Pixel {
 
 // Use "chlist"
 struct ChannelList : public Serializable {
-    char name[256]{}; // written as a null-terminated string not 32 bytes
+    char name[256]{};  // written as a null-terminated string not 32 bytes
     enum class PixelType : std::uint32_t {
         Uint = 0,
         Half = 1,
         Float = 2
     } pixel_type{PixelType::Float};
-    std::uint8_t pLinear{1}; // 0 or 1 (used as bool)
+    std::uint8_t pLinear{1};  // 0 or 1 (used as bool)
     std::uint8_t _reserved[3]{};
     Point2I sampling{1, 1};
 
@@ -168,7 +176,7 @@ struct ChannelList : public Serializable {
         fwrite(&sampling, sizeof(sampling), 1, fp);
     }
 
-    inline void Read(FILE *fp) override {
+    inline void Read(FILE* fp) override {
         for (size_t i = 0; i < sizeof(name); i++) {
             fread(&name[i], sizeof(char), 1, fp);
             if (name[i] == '\0') {
@@ -237,7 +245,7 @@ using Matrix4x4f = float[4][4];
 // Use "preview"
 struct Preview {
     Window_<std::uint32_t> window;
-    std::vector<std::uint8_t> data; ///< 4 x width x height (which seems excessive...)
+    std::vector<std::uint8_t> data;  ///< 4 x width x height (which seems excessive...)
     // written as the following...
     // Pixel pixel[];
 };
@@ -279,11 +287,11 @@ struct TileDescriptor : public Serializable {
         level_mode = static_cast<LevelMode>(mode & 0x0F);
         round_mode = static_cast<RoundMode>((mode & 0xF0) >> 4);
     }
-}; // 9 bytes
+};  // 9 bytes
 
 struct ScanLine : public Serializable {
     std::uint32_t number;
-    std::vector<std::uint8_t> data; ///< Pixel data is listed in the channel order specified in the header.
+    std::vector<std::uint8_t> data;  ///< Pixel data is listed in the channel order specified in the header.
     // written as the following...
     // std::uint32_t pixel_data_size;  ///< sum of all pixel data across all channels on this row.
     // std::uint8_t data[]; // gcc extension

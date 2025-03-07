@@ -47,5 +47,3 @@ TYPED_TEST(XMMContainer4, PointDeaccumVector) {
     EXPECT_NEAR(1.4_p, a[2], basal::epsilon);
     EXPECT_NEAR(-13.33_p, a[3], basal::epsilon);
 }
-
-

@@ -122,7 +122,7 @@ TEST(TorusTest, Mapping) {
     torus shape(C, r, t);
 
     {
-        raytrace::point p{ -1, 0, 0};
+        raytrace::point p{-1, 0, 0};
         image::point uv(1.0, 1.0);
         image::point tmp = shape.map(p);
         EXPECT_PRECISION_EQ(uv.x, tmp.x);
@@ -136,28 +136,28 @@ TEST(TorusTest, Mapping) {
         EXPECT_PRECISION_EQ(uv.y, tmp.y);
     }
     {
-        raytrace::point p{ 1, 0, 0};
+        raytrace::point p{1, 0, 0};
         image::point uv(0.5, 1.0);
         image::point tmp = shape.map(p);
         EXPECT_PRECISION_EQ(uv.x, tmp.x);
         EXPECT_PRECISION_EQ(uv.y, tmp.y);
     }
     {
-        raytrace::point p{ 2, 0, 1};
+        raytrace::point p{2, 0, 1};
         image::point uv(0.5, 0.75);
         image::point tmp = shape.map(p);
         EXPECT_PRECISION_EQ(uv.x, tmp.x);
         EXPECT_PRECISION_EQ(uv.y, tmp.y);
     }
     {
-        raytrace::point p{ 3, 0, 0};
+        raytrace::point p{3, 0, 0};
         image::point uv(0.5, 0.5);
         image::point tmp = shape.map(p);
         EXPECT_PRECISION_EQ(uv.x, tmp.x);
         EXPECT_PRECISION_EQ(uv.y, tmp.y);
     }
     {
-        raytrace::point p{ 2, 0, -1};
+        raytrace::point p{2, 0, -1};
         image::point uv(0.5, 0.25);
         image::point tmp = shape.map(p);
         EXPECT_PRECISION_EQ(uv.x, tmp.x);
@@ -165,28 +165,28 @@ TEST(TorusTest, Mapping) {
     }
     //--------------------------------------
     {
-        raytrace::point p{ 0, 3, 0};
+        raytrace::point p{0, 3, 0};
         image::point uv(0.75, 0.5);
         image::point tmp = shape.map(p);
         EXPECT_PRECISION_EQ(uv.x, tmp.x);
         EXPECT_PRECISION_EQ(uv.y, tmp.y);
     }
     {
-        raytrace::point p{ 0, 1, 0};
+        raytrace::point p{0, 1, 0};
         image::point uv(0.75, 1.0);
         image::point tmp = shape.map(p);
         EXPECT_PRECISION_EQ(uv.x, tmp.x);
         EXPECT_PRECISION_EQ(uv.y, tmp.y);
     }
     {
-        raytrace::point p{ 0, -1, 0};
+        raytrace::point p{0, -1, 0};
         image::point uv(0.25, 1.0);
         image::point tmp = shape.map(p);
         EXPECT_PRECISION_EQ(uv.x, tmp.x);
         EXPECT_PRECISION_EQ(uv.y, tmp.y);
     }
     {
-        raytrace::point p{ 0, -3, 0};
+        raytrace::point p{0, -3, 0};
         image::point uv(0.25, 0.5);
         image::point tmp = shape.map(p);
         EXPECT_PRECISION_EQ(uv.x, tmp.x);

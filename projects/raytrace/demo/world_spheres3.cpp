@@ -19,28 +19,27 @@ using mat = const mediums::metal;
 class Spheres3x3World : public world {
 public:
     Spheres3x3World()
-        : world{}
-        , look_from{0, -30, 60}
-        , look_at{0, 0, 0}
-        , sunlight{raytrace::vector{1, 8, -8}, colors::white, lights::intensities::full}
-        , dull{colors::white, 0.1_p, colors::red, mediums::smoothness::small, mediums::roughness::loose}
-        , s1x1{raytrace::point{-15, 15, 5}, 5}
-        , happy{2.0_p, colors::black, colors::yellow}
-        , s1x2{raytrace::point{0, 15, 5}, 5}
-        , marble{1024.0_p, 1.65_p, 1.0_p, 4.0_p, 256.0_p, 2.75_p, colors::black, colors::white}
-        , s1x3{raytrace::point{15, 15, 5}, 5}
-        , dots{7.0_p, colors::black, colors::white}
-        , s2x1{raytrace::point{-15, 0, 5}, 5}
-        , s2x2{raytrace::point{0, 0, 5}, 5}
-        , perlin{iso::degrees{81}.value, 10.0_p, 245.4993546_p, colors::black, colors::white}
-        , s2x3{raytrace::point{15, 0, 5}, 5}
-        , stripes{7.0_p, colors::red, colors::white}
-        , s3x1{raytrace::point{-15, -15, 5}, 5}
-        , ikea_checkerboard{5, colors::yellow, colors::blue}
-        , s3x2{raytrace::point{0, -15, 5}, 5}
-        , ikea_voxelboard{0.5, colors::yellow, colors::blue}
-        , s3x3{raytrace::point{15, -15, 5}, 5}
-         {
+        : world{},
+          look_from{0, -30, 60},
+          look_at{0, 0, 0},
+          sunlight{raytrace::vector{1, 8, -8}, colors::white, lights::intensities::full},
+          dull{colors::white, 0.1_p, colors::red, mediums::smoothness::small, mediums::roughness::loose},
+          s1x1{raytrace::point{-15, 15, 5}, 5},
+          happy{2.0_p, colors::black, colors::yellow},
+          s1x2{raytrace::point{0, 15, 5}, 5},
+          marble{1024.0_p, 1.65_p, 1.0_p, 4.0_p, 256.0_p, 2.75_p, colors::black, colors::white},
+          s1x3{raytrace::point{15, 15, 5}, 5},
+          dots{7.0_p, colors::black, colors::white},
+          s2x1{raytrace::point{-15, 0, 5}, 5},
+          s2x2{raytrace::point{0, 0, 5}, 5},
+          perlin{iso::degrees{81}.value, 10.0_p, 245.4993546_p, colors::black, colors::white},
+          s2x3{raytrace::point{15, 0, 5}, 5},
+          stripes{7.0_p, colors::red, colors::white},
+          s3x1{raytrace::point{-15, -15, 5}, 5},
+          ikea_checkerboard{5, colors::yellow, colors::blue},
+          s3x2{raytrace::point{0, -15, 5}, 5},
+          ikea_voxelboard{0.5, colors::yellow, colors::blue},
+          s3x3{raytrace::point{15, -15, 5}, 5} {
         raytrace::point center = look_at;
         s1x1.material(&dull);
         happy.mapper(std::bind(&raytrace::objects::sphere::map, &s1x2, std::placeholders::_1));
@@ -99,14 +98,12 @@ public:
 
     raytrace::animation::anchors get_anchors() const override {
         raytrace::animation::anchors anchors;
-        anchors.push_back(
-            animation::Anchor{
-                animation::Attributes{look_from, look_at, 55.0_deg},
-                animation::Attributes{look_from, look_at, 55.0_deg},
-                animation::Mappers{}, iso::seconds{1.0_p}
-            });
+        anchors.push_back(animation::Anchor{animation::Attributes{look_from, look_at, 55.0_deg},
+                                            animation::Attributes{look_from, look_at, 55.0_deg}, animation::Mappers{},
+                                            iso::seconds{1.0_p}});
         return anchors;
     }
+
 protected:
     raytrace::point look_from;
     raytrace::point look_at;
@@ -121,7 +118,7 @@ protected:
     objects::sphere s1x3;
     mediums::dots dots;
     objects::sphere s2x1;
-    objects::sphere s2x2; // silver mirror
+    objects::sphere s2x2;  // silver mirror
     mediums::perlin perlin;
     objects::sphere s2x3;
     mediums::stripes stripes;

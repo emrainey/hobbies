@@ -29,7 +29,7 @@ line::line(std::vector<precision> const& list)
 line::line(line const& other) : m_udir(other.m_udir), m_zero(other.m_zero) {
 }
 
-line::line(line &&other) : m_udir(std::move(other.m_udir)), m_zero(std::move(other.m_zero)) {
+line::line(line&& other) : m_udir(std::move(other.m_udir)), m_zero(std::move(other.m_zero)) {
 }
 
 R3::point const& line::position() const {
@@ -40,13 +40,13 @@ R3::vector const& line::direction() const {
     return m_udir;
 }
 
-line &line::operator=(line const& other) {
+line& line::operator=(line const& other) {
     m_zero = other.m_zero;
     m_udir = other.m_udir;
     return (*this);
 }
 
-line &line::operator=(line &&other) {
+line& line::operator=(line&& other) {
     m_zero = std::move(other.m_zero);
     m_udir = std::move(other.m_udir);
     return (*this);
@@ -63,7 +63,7 @@ R3::point line::solve(precision t) const {
     return position() + (t * direction());
 }
 
-bool line::solve(point const& P, precision &t) const {
+bool line::solve(point const& P, precision& t) const {
     using namespace geometry::operators;
     // This no longer requires R3 lines.
     // Example:

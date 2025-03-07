@@ -10,8 +10,7 @@
 namespace doorgame {
 
 /// The enumerated value of Damage that an Animate object can take
-enum class Damage : size_t
-{
+enum class Damage : size_t {
     None = 0,
     Sting = 1,
     Bite = 5,

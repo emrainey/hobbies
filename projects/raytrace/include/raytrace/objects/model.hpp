@@ -66,7 +66,8 @@ public:
     /// @param v3 The index of the third vertex.
     /// @param t3 The index of the third texture coordinate.
     /// @param n3 The index of the third normal vector.
-    void addFace(uint32_t v1, uint32_t t1, uint32_t n1, uint32_t v2, uint32_t t2, uint32_t n2, uint32_t v3, uint32_t t3, uint32_t n3) override;
+    void addFace(uint32_t v1, uint32_t t1, uint32_t n1, uint32_t v2, uint32_t t2, uint32_t n2, uint32_t v3, uint32_t t3,
+                 uint32_t n3) override;
 
     /// @brief Gets the number of faces in the model.
     /// @return The number of faces.
@@ -74,11 +75,11 @@ public:
 
     /// @brief Loads the model from a file.
     /// @param filename The path to the file.
-    void LoadFromFile(char const * const filename);
+    void LoadFromFile(char const* const filename);
 
     /// @brief Loads the model from a string literal.
     /// @param literal The string containing the model data.
-    void LoadFromString(char const * const literal);
+    void LoadFromString(char const* const literal);
 
     /// @brief Gets the statistics of the model parser.
     /// @return The statistics of the parser.
@@ -88,8 +89,8 @@ public:
     hits collisions_along(ray const& object_ray) const override;
     image::point map(point const& object_surface_point) const override;
     precision get_object_extent(void) const override;
-protected:
 
+protected:
     vector normal_(point const& object_surface_point) const override;
 
     static constexpr bool debug = false;
@@ -100,5 +101,5 @@ protected:
     obj::Parser parser_;
     bool loaded_;
 };
-}   // namespace objects
-}   // namespace raytrace
+}  // namespace objects
+}  // namespace raytrace

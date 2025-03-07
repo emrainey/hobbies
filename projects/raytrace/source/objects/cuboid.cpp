@@ -9,10 +9,11 @@ vector const cuboid::m_normals[6] = {
 
 cuboid::cuboid(point const& center, precision xhw, precision yhw, precision zhw)
     : object{center, 2, true}  // max 2 collisions, closed surface
-    , x_half_width{m_half_widths[0]}
-    , y_half_width{m_half_widths[1]}
-    , z_half_width{m_half_widths[2]}
-    , m_half_widths{} {
+      ,
+      x_half_width{m_half_widths[0]},
+      y_half_width{m_half_widths[1]},
+      z_half_width{m_half_widths[2]},
+      m_half_widths{} {
     m_half_widths[0] = xhw;
     m_half_widths[1] = yhw;
     m_half_widths[2] = zhw;
@@ -29,10 +30,11 @@ cuboid::cuboid(point const& center, precision xhw, precision yhw, precision zhw)
 
 cuboid::cuboid(point&& center, precision xhw, precision yhw, precision zhw)
     : object{std::move(center), 2, true}  // 2 collisions, closed surface
-    , x_half_width{m_half_widths[0]}
-    , y_half_width{m_half_widths[1]}
-    , z_half_width{m_half_widths[2]}
-    , m_half_widths{} {
+      ,
+      x_half_width{m_half_widths[0]},
+      y_half_width{m_half_widths[1]},
+      z_half_width{m_half_widths[2]},
+      m_half_widths{} {
     m_half_widths[0] = xhw;
     m_half_widths[1] = yhw;
     m_half_widths[2] = zhw;

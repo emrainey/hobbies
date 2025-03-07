@@ -3,8 +3,7 @@
 #include "iso/measurement.hpp"
 
 namespace imperial {
-enum class prefix : short
-{
+enum class prefix : short {
     sixtyfourths = 64,
     thirtyseconds = 32,
     sixteenths = 16,
@@ -14,7 +13,7 @@ enum class prefix : short
     none = 1
 };
 struct suffix_type_ft {
-    constexpr static char const *const suffix = "ft";
+    constexpr static char const* const suffix = "ft";
 };
 }  // namespace imperial
 
@@ -29,7 +28,7 @@ public:
     uint32_t const& sixteenths;
     feet(precision a);
     feet(feet const& other);
-    feet &operator=(feet const& other);
+    feet& operator=(feet const& other);
     // TODO add move as well?
     // TODO fill in all the other overload methods...
     ~feet();

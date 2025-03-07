@@ -26,11 +26,12 @@ public:
 
     /// The dimensionality of the vector
     constexpr static size_t const dimensions = DIM;
+
 protected:
     // the data type array (prealigned for optimizations)
     alignas(16) precision data[dimensions];
-public:
 
+public:
     /// The default constructor
     vector_() : data{} {
     }
@@ -393,7 +394,8 @@ namespace R3 {
 using vector = vector_<3>;
 
 static vector const null{{0.0_p, 0.0_p, 0.0_p}};
-static vector const nan{{static_cast<precision>(basal::nan), static_cast<precision>(basal::nan), static_cast<precision>(basal::nan)}};
+static vector const nan{
+    {static_cast<precision>(basal::nan), static_cast<precision>(basal::nan), static_cast<precision>(basal::nan)}};
 /// Predefine the axis vectors to prevent constant redefinitions in tests and other code
 namespace basis {
 static vector const X{{1.0_p, 0.0_p, 0.0_p}};
@@ -419,7 +421,8 @@ namespace R4 {
 using vector = vector_<4>;
 
 static vector const null{{0.0_p, 0.0_p, 0.0_p, 0.0_p}};
-static vector const nan{{static_cast<precision>(basal::nan), static_cast<precision>(basal::nan), static_cast<precision>(basal::nan), static_cast<precision>(basal::nan)}};
+static vector const nan{{static_cast<precision>(basal::nan), static_cast<precision>(basal::nan),
+                         static_cast<precision>(basal::nan), static_cast<precision>(basal::nan)}};
 /// Predefine the axis vectors to prevent constant redefinitions in tests and other code
 namespace basis {
 static vector const X{{1.0_p, 0.0_p, 0.0_p, 0.0_p}};

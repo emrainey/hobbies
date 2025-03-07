@@ -21,8 +21,8 @@ raytrace::mediums::metal const* my_metals[]
        &raytrace::mediums::metals::silver,   &raytrace::mediums::metals::stainless, &raytrace::mediums::metals::steel,
        &raytrace::mediums::metals::tin};
 
-void subspheres(std::vector<raytrace::objects::sphere*>& spheres, raytrace::point const& center, precision R, precision sR,
-                size_t limit) {
+void subspheres(std::vector<raytrace::objects::sphere*>& spheres, raytrace::point const& center, precision R,
+                precision sR, size_t limit) {
     for (size_t s = 0; s < limit; s++) {
         R3::point pnt = raytrace::mapping::golden_ratio_mapper(s, limit);
         R3::vector dir = pnt - R3::origin;
@@ -41,14 +41,14 @@ void materials(std::vector<mat*>& mats, size_t limits) {
 class Spheres2World : public world {
 public:
     Spheres2World()
-        : world{}
-        , look_from{20, 0, 20}
-        , look_at{0, 0, 0}
-        , number_of_spheres{128}
-        , spheres{}
-        , mats{}
-        , sunlight{raytrace::vector{-2, 2, -1}, colors::white, lights::intensities::bright}
-        , specks{} {
+        : world{},
+          look_from{20, 0, 20},
+          look_at{0, 0, 0},
+          number_of_spheres{128},
+          spheres{},
+          mats{},
+          sunlight{raytrace::vector{-2, 2, -1}, colors::white, lights::intensities::bright},
+          specks{} {
         raytrace::point center = look_at;
         spheres.push_back(new raytrace::objects::sphere(center, 4.5));
         subspheres(spheres, center, 6, 0.4, number_of_spheres);
@@ -56,10 +56,11 @@ public:
         for (size_t s = 0; s < number_of_spheres; s++) {
             spheres[s]->material(mats[s]);
         }
-        // specks.push_back(new lights::speck(raytrace::point{80, 120, 80}, colors::white, lights::intensities::bright));
-        // specks.push_back(new lights::speck(raytrace::point{80, 40, 80}, colors::white, lights::intensities::bright));
-        // specks.push_back(new lights::speck(raytrace::point{40, 80, 80}, colors::white, lights::intensities::bright));
-        // specks.push_back(new lights::speck(raytrace::point{120, 80, 80}, colors::white, 1E11));
+        // specks.push_back(new lights::speck(raytrace::point{80, 120, 80}, colors::white,
+        // lights::intensities::bright)); specks.push_back(new lights::speck(raytrace::point{80, 40, 80}, colors::white,
+        // lights::intensities::bright)); specks.push_back(new lights::speck(raytrace::point{40, 80, 80}, colors::white,
+        // lights::intensities::bright)); specks.push_back(new lights::speck(raytrace::point{120, 80, 80},
+        // colors::white, 1E11));
     }
 
     ~Spheres2World() {
@@ -109,14 +110,12 @@ public:
 
     raytrace::animation::anchors get_anchors() const override {
         raytrace::animation::anchors anchors;
-        anchors.push_back(
-            animation::Anchor{
-                animation::Attributes{look_from, look_at, 55.0_deg},
-                animation::Attributes{look_from, look_at, 55.0_deg},
-                animation::Mappers{}, iso::seconds{1.0_p}
-            });
+        anchors.push_back(animation::Anchor{animation::Attributes{look_from, look_at, 55.0_deg},
+                                            animation::Attributes{look_from, look_at, 55.0_deg}, animation::Mappers{},
+                                            iso::seconds{1.0_p}});
         return anchors;
     }
+
 protected:
     raytrace::point look_from;
     raytrace::point look_at;

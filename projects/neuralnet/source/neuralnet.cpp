@@ -19,15 +19,13 @@ int main(int argc, char* argv[]) {
     std::string data_labels("t10k-labels-idx1-ubyte");
     std::string data_images("t10k-images-idx3-ubyte");
 
-    basal::options::config opts[] = {
-        {"-tl", "--train-labels", training_labels.c_str(), "Training Data Labels"},
-        {"-ti", "--train-images", training_images.c_str(), "Training Data Images"},
-        {"-dl", "--data-labels", data_labels.c_str(), "Data Labels"},
-        {"-di", "--data-images", data_images.c_str(), "Data Images"},
-        {"-c", "--count", int(600u), "Number of repetitions"},
-        {"-m", "--minibatch", int(50u), "Number of items in a minibatch"},
-        {"-r", "--reset", false, "Forces a reset between each minibatch"}
-    };
+    basal::options::config opts[] = {{"-tl", "--train-labels", training_labels.c_str(), "Training Data Labels"},
+                                     {"-ti", "--train-images", training_images.c_str(), "Training Data Images"},
+                                     {"-dl", "--data-labels", data_labels.c_str(), "Data Labels"},
+                                     {"-di", "--data-images", data_images.c_str(), "Data Images"},
+                                     {"-c", "--count", int(600u), "Number of repetitions"},
+                                     {"-m", "--minibatch", int(50u), "Number of items in a minibatch"},
+                                     {"-r", "--reset", false, "Forces a reset between each minibatch"}};
     try {
         constexpr uint32_t const num = nn::mnist::inputs;
         char path[256] = {0};

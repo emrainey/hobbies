@@ -8,7 +8,7 @@ using namespace linalg;
 int main(int argc __attribute__((unused)), char* argv[] __attribute__((unused))) {
     {
         linalg::matrix in{1024, 1024};
-        in.for_each ([&](int y, int x, precision& v) {
+        in.for_each([&](int y, int x, precision& v) {
             precision lr = 2.0 / in.rows;
             v = ((precision)y * lr + ((precision)x / in.cols) * lr) - 1.0;
         });
@@ -21,7 +21,7 @@ int main(int argc __attribute__((unused)), char* argv[] __attribute__((unused)))
     }
     {
         linalg::matrix in{784, 1};
-        in.for_each ([&](int y, int x, precision& v) {
+        in.for_each([&](int y, int x, precision& v) {
             precision lr = 2.0 / in.rows;
             v = ((precision)y * lr + ((precision)x / in.cols) * lr) - 1.0;
         });
@@ -31,7 +31,7 @@ int main(int argc __attribute__((unused)), char* argv[] __attribute__((unused)))
     }
     {
         linalg::matrix in{4, 784};
-        in.for_each ([&](int y, int x, precision& v) {
+        in.for_each([&](int y, int x, precision& v) {
             precision lr = 2.0 / in.rows;
             v = ((precision)y * lr + ((precision)x / in.cols) * lr) - 1.0;
         });
@@ -41,7 +41,7 @@ int main(int argc __attribute__((unused)), char* argv[] __attribute__((unused)))
     }
     {
         linalg::matrix in{10, 16};  // this makes a 3x4 with 2 empty cubes
-        in.for_each ([&](int y, int x, precision& v) {
+        in.for_each([&](int y, int x, precision& v) {
             precision lr = 2.0 / in.rows;
             v = ((precision)y * lr + ((precision)x / in.cols) * lr) - 1.0;
         });

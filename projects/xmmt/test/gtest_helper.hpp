@@ -20,7 +20,7 @@ constexpr static precision zero = 0.0_p;
 constexpr static precision one = 1.0_p;
 constexpr static precision two = 2.0_p;
 constexpr static precision four = 4.0_p;
-}
+}  // namespace
 
 using point2 = intel::point_<intel::double2, 2>;
 using point3 = intel::point_<intel::double3, 3>;
@@ -32,7 +32,6 @@ using vector4 = intel::vector_<intel::double4, 4>;
 
 using pixel4f = intel::pixel_<intel::float4, 4>;
 using pixel4d = intel::pixel_<intel::double4, 4>;
-
 
 template <typename PACK_TYPE>
 class XMMContainer2 : public ::testing::Test {
@@ -63,7 +62,6 @@ public:
 };
 
 typedef ::testing::Types<XMMContainer4<intel::float4>, XMMContainer4<intel::double4>> Implementations4;
-
 
 TYPED_TEST_SUITE(XMMContainer2, Implementations2);
 TYPED_TEST_SUITE(XMMContainer3, Implementations3);

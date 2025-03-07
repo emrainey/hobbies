@@ -9,8 +9,7 @@
 
 namespace doorgame {
 
-enum class Health : size_t
-{
+enum class Health : size_t {
     Dead = 0,
     Critical = 10,
     Injured = 20,

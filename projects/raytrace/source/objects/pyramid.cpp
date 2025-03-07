@@ -13,9 +13,7 @@ using namespace linalg::operators;
 using namespace geometry;
 using namespace geometry::operators;
 
-pyramid::pyramid(point const& base, precision height)
-    : object(base, 2)
-    , m_height{height} {
+pyramid::pyramid(point const& base, precision height) : object(base, 2), m_height{height} {
 }
 
 vector pyramid::normal_(point const& object_surface_point) const {

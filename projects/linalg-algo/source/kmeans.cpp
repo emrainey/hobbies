@@ -14,9 +14,11 @@ kmeans::~kmeans() {
 
 void kmeans::configure(size_t N) {
     // remove all previous entries
-    if (m_centroids.size() > 0) m_centroids.clear();
+    if (m_centroids.size() > 0)
+        m_centroids.clear();
     // clear all the cluster assignments
-    if (m_cluster_assignment.size() > 0) m_cluster_assignment.clear();
+    if (m_cluster_assignment.size() > 0)
+        m_cluster_assignment.clear();
     // add new items
     for (size_t i = 0; i < N; i++) {
         m_centroids.push_back(R2::point());

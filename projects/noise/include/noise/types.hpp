@@ -21,4 +21,4 @@ using array = intel::point_<intel::double2, 2ul>;
 #else
 using array = precision[2];
 #endif
-}
+}  // namespace noise

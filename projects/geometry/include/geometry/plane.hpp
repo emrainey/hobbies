@@ -61,13 +61,13 @@ public:
 
     plane(plane const& other);
 
-    plane(plane &&other);
+    plane(plane&& other);
 
     virtual ~plane() = default;
 
-    plane &operator=(plane const& other);
+    plane& operator=(plane const& other);
 
-    plane &operator=(plane &&other);
+    plane& operator=(plane&& other);
 
     /// List initialization constructor
     explicit plane(std::vector<precision> const& list);
@@ -76,7 +76,7 @@ public:
     explicit plane(precision a, precision b, precision c, precision d);
 
     /// The distance from some point to this plane. Negative values indicates
-/// that the normal is pointing away from the point.
+    /// that the normal is pointing away from the point.
     precision distance(R3::point const& a) const;
 
     /// Determines if the planes are parallel
@@ -102,7 +102,7 @@ public:
     /// Returns the dihedral angle
     precision angle(plane const& P) const;
 
-    friend std::ostream &operator<<(std::ostream &os, plane const& p);
+    friend std::ostream& operator<<(std::ostream& os, plane const& p);
 };
 
 inline bool parallel(plane const& a, plane const& b) {
@@ -116,6 +116,6 @@ inline bool operator||(plane const& a, plane const& b) {
 }
 }  // namespace operators
 
-std::ostream &operator<<(std::ostream &os, plane const& p);
+std::ostream& operator<<(std::ostream& os, plane const& p);
 
 }  // namespace geometry

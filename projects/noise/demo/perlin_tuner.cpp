@@ -34,7 +34,7 @@ cv::Mat render_image(height, width, CV_8UC3);
 cv::Mat vector_image(height, width, CV_8UC3);
 
 void generate_noise_image(void) {
-    noise_image.for_each ([&](int y, int x, fourcc::rgb8 &pixel) {
+    noise_image.for_each([&](int y, int x, fourcc::rgb8 &pixel) {
         noise::point pnt{noise::precision(x), noise::precision(y)};
         noise::precision n = noise::perlin(pnt, scale, seed, gain);
         pixel.r = n * 255;
@@ -44,7 +44,7 @@ void generate_noise_image(void) {
 }
 
 void copy_to_cv_image(void) {
-    noise_image.for_each ([&](int y, int x, fourcc::rgb8 &pixel) {
+    noise_image.for_each([&](int y, int x, fourcc::rgb8 &pixel) {
         render_image.at<cv::Vec3b>(y, x)[0] = pixel.r;
         render_image.at<cv::Vec3b>(y, x)[1] = pixel.g;
         render_image.at<cv::Vec3b>(y, x)[2] = pixel.b;
@@ -70,12 +70,13 @@ void on_scale_update(int value, void *cookie __attribute__((unused))) {
     scale = noise::precision(value + 1);
 }
 
-void DrawGridAndVectors(cv::Mat& vector_image) {
+void DrawGridAndVectors(cv::Mat &vector_image) {
     using namespace geometry::operators;
     vector_image.setTo(cv::Scalar(255, 255, 255));
     const int border = 12;
     const int unit = 20;
-    cv::rectangle(vector_image, cv::Point(border, border), cv::Point(width - border, height - border), cv::Scalar(0, 0, 0), 1);
+    cv::rectangle(vector_image, cv::Point(border, border), cv::Point(width - border, height - border),
+                  cv::Scalar(0, 0, 0), 1);
     for (int i = border; i <= (width - border); i += unit) {
         cv::line(vector_image, cv::Point(i, border), cv::Point(i, height - border), cv::Scalar(0, 0, 0), 1);
         cv::line(vector_image, cv::Point(border, i), cv::Point(width - border, i), cv::Scalar(0, 0, 0), 1);
@@ -83,7 +84,6 @@ void DrawGridAndVectors(cv::Mat& vector_image) {
     // for each intersection of the grid lines, draw a vector which is generated like a perlin noise vector
     for (int y = border; y <= (height - border); y += unit) {
         for (int x = border; x <= (width - border); x += unit) {
-
             // image space point
             noise::point pnt{noise::precision(x), noise::precision(y)};
             noise::point uv;
@@ -97,10 +97,10 @@ void DrawGridAndVectors(cv::Mat& vector_image) {
                 cv::Point{x + unit, y + unit},
             };
             cv::Point end[] = {
-                cv::Point(x + flows[0][0] * (unit/2), y + flows[0][1] * (unit/2)),
-                cv::Point(x + flows[1][0] * (unit/2), y + flows[1][1] * (unit/2)),
-                cv::Point(x + flows[2][0] * (unit/2), y + flows[2][1] * (unit/2)),
-                cv::Point(x + flows[3][0] * (unit/2), y + flows[3][1] * (unit/2)),
+                cv::Point(x + flows[0][0] * (unit / 2), y + flows[0][1] * (unit / 2)),
+                cv::Point(x + flows[1][0] * (unit / 2), y + flows[1][1] * (unit / 2)),
+                cv::Point(x + flows[2][0] * (unit / 2), y + flows[2][1] * (unit / 2)),
+                cv::Point(x + flows[3][0] * (unit / 2), y + flows[3][1] * (unit / 2)),
             };
             cv::arrowedLine(vector_image, start[0], end[0], cv::Scalar(255, 0, 255), 1);
             // cv::arrowedLine(vector_image, start[1], end[1], cv::Scalar(255, 0, 255), 1);

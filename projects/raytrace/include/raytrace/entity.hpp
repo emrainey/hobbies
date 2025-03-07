@@ -16,12 +16,12 @@ template <size_t DIMS>
 class entity_ {
 public:
     entity_()
-        : m_world_position{}
-        , m_rotation{matrix::identity(DIMS, DIMS)}
-        , m_inv_rotation{matrix::identity(DIMS, DIMS)}
-        , m_scaling{{1.0_p, 1.0_p, 1.0_p}}
-        , m_transform{matrix::identity(DIMS + 1, DIMS + 1)}
-        , m_inv_transform{matrix::identity(DIMS + 1, DIMS + 1)} {
+        : m_world_position{},
+          m_rotation{matrix::identity(DIMS, DIMS)},
+          m_inv_rotation{matrix::identity(DIMS, DIMS)},
+          m_scaling{{1.0_p, 1.0_p, 1.0_p}},
+          m_transform{matrix::identity(DIMS + 1, DIMS + 1)},
+          m_inv_transform{matrix::identity(DIMS + 1, DIMS + 1)} {
     }
 
     explicit entity_(point const& position) : entity_{} {
@@ -35,21 +35,21 @@ public:
     }
 
     entity_(entity_ const& other)
-        : m_world_position{other.m_world_position}
-        , m_rotation{other.m_rotation}
-        , m_inv_rotation{other.m_inv_rotation}
-        , m_scaling{other.m_scaling}
-        , m_transform{other.m_transform}
-        , m_inv_transform{other.m_inv_transform} {
+        : m_world_position{other.m_world_position},
+          m_rotation{other.m_rotation},
+          m_inv_rotation{other.m_inv_rotation},
+          m_scaling{other.m_scaling},
+          m_transform{other.m_transform},
+          m_inv_transform{other.m_inv_transform} {
     }
 
     entity_(entity_&& other)
-        : m_world_position{std::move(other.m_world_position)}
-        , m_rotation{std::move(other.m_rotation)}
-        , m_inv_rotation{std::move(other.m_inv_rotation)}
-        , m_scaling{std::move(other.m_scaling)}
-        , m_transform{std::move(other.m_transform)}
-        , m_inv_transform{std::move(other.m_inv_transform)} {
+        : m_world_position{std::move(other.m_world_position)},
+          m_rotation{std::move(other.m_rotation)},
+          m_inv_rotation{std::move(other.m_inv_rotation)},
+          m_scaling{std::move(other.m_scaling)},
+          m_transform{std::move(other.m_transform)},
+          m_inv_transform{std::move(other.m_inv_transform)} {
     }
 
     entity_& operator=(entity_ const& other) {

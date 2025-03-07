@@ -10,8 +10,7 @@
 namespace nn {
 
 /// The enumerations of the activation types for inner layers
-enum class activation_type : int
-{
+enum class activation_type : int {
     Sigmoid,  //!< Uses a sigmoid activation
     RELU,     //!< Uses a RELU activation (fastest)
     Tanh,     //!< Uses a (faster than Sigmoid) hyperbolic tangent function */
@@ -46,8 +45,8 @@ public:
     virtual void forward(layer& other) override;
 
     /// During backwards propagation, the other layer is the lower layer.
-/// @param alpha The direct learning coefficient
-/// @param gamma The "momentum" learning coefficient
+    /// @param alpha The direct learning coefficient
+    /// @param gamma The "momentum" learning coefficient
     virtual void backward(layer& other, precision alpha, precision gamma) override;
 
     /// Applies the change in weights and biases to each layer.

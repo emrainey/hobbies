@@ -33,7 +33,7 @@ precision light::intensity_at(point const& world_point) const {
     } else if (m_falloff == Falloff::Linear) {
         vector direction = position() - world_point;
         precision d = direction.magnitude();
-        return m_intensity / (d + 1.0_p); // this prevents division by zero
+        return m_intensity / (d + 1.0_p);  // this prevents division by zero
     } else if (m_falloff == Falloff::InverseSquare) {
         vector direction = position() - world_point;
         precision d = direction.magnitude();

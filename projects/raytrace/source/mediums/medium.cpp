@@ -4,15 +4,16 @@ namespace raytrace {
 namespace mediums {
 // Surface Constructor
 medium::medium()
-    : m_ambient_scale{mediums::ambient::none}
-    , m_ambient{colors::black}
-    , m_diffuse{colors::grey}
-    , m_tightness{0.0_p}
-    , m_smoothness{mediums::smoothness::none}
-    , m_reflectivity{0.5} // start semi gloss
-    , m_transmissivity{0.0}
-    , m_refractive_index{0.0}
-    , m_reducing_map{nullptr} {
+    : m_ambient_scale{mediums::ambient::none},
+      m_ambient{colors::black},
+      m_diffuse{colors::grey},
+      m_tightness{0.0_p},
+      m_smoothness{mediums::smoothness::none},
+      m_reflectivity{0.5}  // start semi gloss
+      ,
+      m_transmissivity{0.0},
+      m_refractive_index{0.0},
+      m_reducing_map{nullptr} {
 }
 
 color medium::ambient(raytrace::point const& volumetric_point __attribute__((unused))) const {
@@ -54,10 +55,9 @@ precision medium::smoothness(raytrace::point const& volumetric_point __attribute
 void medium::radiosity(raytrace::point const& volumetric_point __attribute__((unused)),
                        precision refractive_index __attribute__((unused)),
                        iso::radians const& incident_angle __attribute__((unused)),
-                       iso::radians const& transmitted_angle __attribute__((unused)),
-                       precision& emitted,
+                       iso::radians const& transmitted_angle __attribute__((unused)), precision& emitted,
                        precision& reflected, precision& transmitted) const {
-    emitted = 0; //@FIXME when adding luminescence, do it here.
+    emitted = 0;  //@FIXME when adding luminescence, do it here.
     reflected = m_reflectivity;
     transmitted = 1.0 - m_reflectivity;
 }

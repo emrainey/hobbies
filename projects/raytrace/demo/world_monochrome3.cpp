@@ -18,23 +18,23 @@ using namespace iso::literals;
 class MonochromeWorld : public world {
 public:
     MonochromeWorld()
-        : light_subsamples{5}
-        , look_from{15, -20, 0}
-        , look_at{10, 20, 20}
-        , light0{raytrace::point{-5, 0, 40}, 1, colors::white, 10, light_subsamples}
-        , light1{raytrace::point{5, 0, 40}, 1, colors::white, 10, light_subsamples}
-        , beam0{raytrace::vector{10, 10, -100}, colors::white, 10E11}
-        , s0{raytrace::point{5, 20, 15}, 6}
-        , t0{raytrace::point{-2, 20, 17}, 3, 1}
-        // , o0{}
-        // coordinates in overlap space
-        , c0{raytrace::point{0, 0, 0}, 100, 100, 100}
-        // coordinates in overlap space
-        , c1{raytrace::point{-15, -100, 35}, 10, 2.5, 10}
-        // coordinates in world space
-        , c2{raytrace::point{15, 20, 35}, 10, 2.5, 10}
-        , o1{c0, c1, raytrace::objects::overlap::type::subtractive}
-        , p0{raytrace::point{20, 20, 15}, 5} {
+        : light_subsamples{5},
+          look_from{15, -20, 0},
+          look_at{10, 20, 20},
+          light0{raytrace::point{-5, 0, 40}, 1, colors::white, 10, light_subsamples},
+          light1{raytrace::point{5, 0, 40}, 1, colors::white, 10, light_subsamples},
+          beam0{raytrace::vector{10, 10, -100}, colors::white, 10E11},
+          s0{raytrace::point{5, 20, 15}, 6},
+          t0{raytrace::point{-2, 20, 17}, 3, 1}  // , o0{}
+                                                 // coordinates in overlap space
+          ,
+          c0{raytrace::point{0, 0, 0}, 100, 100, 100}  // coordinates in overlap space
+          ,
+          c1{raytrace::point{-15, -100, 35}, 10, 2.5, 10}  // coordinates in world space
+          ,
+          c2{raytrace::point{15, 20, 35}, 10, 2.5, 10},
+          o1{c0, c1, raytrace::objects::overlap::type::subtractive},
+          p0{raytrace::point{20, 20, 15}, 5} {
         // assign surfaces and materials
         s0.material(&mediums::metals::stainless);
         t0.material(&mediums::metals::stainless);
@@ -89,12 +89,9 @@ public:
 
     raytrace::animation::anchors get_anchors() const override {
         raytrace::animation::anchors anchors;
-        anchors.push_back(
-            animation::Anchor{
-                animation::Attributes{look_from, look_at, iso::degrees{55.0}},
-                animation::Attributes{look_from, look_at, iso::degrees{55.0}},
-                animation::Mappers{}, iso::seconds{1.0_p}
-            });
+        anchors.push_back(animation::Anchor{animation::Attributes{look_from, look_at, iso::degrees{55.0}},
+                                            animation::Attributes{look_from, look_at, iso::degrees{55.0}},
+                                            animation::Mappers{}, iso::seconds{1.0_p}});
         return anchors;
     }
 
@@ -111,12 +108,11 @@ protected:
     raytrace::objects::torus t0;
     // raytrace::objects::overlap o0; // s0 + t0
     raytrace::objects::cuboid c0;
-    raytrace::objects::cuboid c1; // sunk in
-    raytrace::objects::cuboid c2; // sticks out
-    raytrace::objects::overlap o1; // c0 - c1
+    raytrace::objects::cuboid c1;   // sunk in
+    raytrace::objects::cuboid c2;   // sticks out
+    raytrace::objects::overlap o1;  // c0 - c1
     raytrace::objects::pyramid p0;
 };
-
 
 // declare a single instance and return the reference to it
 world* get_world() {

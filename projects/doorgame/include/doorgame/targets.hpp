@@ -9,8 +9,7 @@
 
 namespace doorgame {
 
-enum class Target : char
-{
+enum class Target : char {
     None = 'n',
     Player = 'p',
     Room = 'r',

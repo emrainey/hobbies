@@ -18,10 +18,14 @@ void plot_points(std::string name, const std::vector<geometry::point_<2>> &data,
     precision x_min, y_min = x_min = std::numeric_limits<precision>::max();
     precision x_max, y_max = x_max = std::numeric_limits<precision>::min();
     for (auto &d : data) {
-        if (y_min > d.y) y_min = d.y;
-        if (y_max < d.y) y_max = d.y;
-        if (x_min > d.x) x_min = d.x;
-        if (x_max < d.x) x_max = d.x;
+        if (y_min > d.y)
+            y_min = d.y;
+        if (y_max < d.y)
+            y_max = d.y;
+        if (x_min > d.x)
+            x_min = d.x;
+        if (x_max < d.x)
+            x_max = d.x;
     }
     precision y_range = y_max - y_min;
     if (debug) {
@@ -86,7 +90,8 @@ void plot_points(std::string name, const std::vector<geometry::point_<2>> &data,
     do {
         ::cv::imshow(window_name, flipped);
         int key = ::cv::waitKey(timeout_ms);
-        if (key == -1) return;
+        if (key == -1)
+            return;
         switch (key & 0xFFFF) {
             case 'q':
                 return;

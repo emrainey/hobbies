@@ -7,7 +7,8 @@ using namespace basal;
 
 class Dummy {
 public:
-    Dummy() : value{0u} {}
+    Dummy() : value{0u} {
+    }
     Dummy(uint32_t x) : value{x} {
     }
     bool operator==(Dummy const& v) const {
@@ -96,5 +97,4 @@ TEST(Listable, Iteration) {
     ASSERT_EQ(nullptr, (void*)tmp->prev()->prev()->prev());
 
     ASSERT_EQ((void*)&f, (void*)tmp->prev()->next());
-
 }

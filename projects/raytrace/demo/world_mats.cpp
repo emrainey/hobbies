@@ -13,22 +13,22 @@
 using namespace raytrace;
 using namespace iso::literals;
 
-constexpr static size_t number_of_spheres_per_side = 11; // 7; // this has to be odd
-constexpr static precision radius = 3.0_p; // 4.5_p;
+constexpr static size_t number_of_spheres_per_side = 11;  // 7; // this has to be odd
+constexpr static precision radius = 3.0_p;                // 4.5_p;
 static_assert(number_of_spheres_per_side % 2 == 1, "number_of_spheres_per_side must be odd");
 
 class MaterialWorld : public world {
 public:
     MaterialWorld()
-        : world{}
-        , look_from{0, -20, 80}
-        , look_at{0, 0, 0}
-        , number_of_spheres{number_of_spheres_per_side*number_of_spheres_per_side}
-        , brightness{lights::intensities::moderate}
-        , spheres{}
-        , mats{}
-        , sunlight{raytrace::vector{0, -1, -1}, colors::white, brightness}
-        , specks{} {
+        : world{},
+          look_from{0, -20, 80},
+          look_at{0, 0, 0},
+          number_of_spheres{number_of_spheres_per_side * number_of_spheres_per_side},
+          brightness{lights::intensities::moderate},
+          spheres{},
+          mats{},
+          sunlight{raytrace::vector{0, -1, -1}, colors::white, brightness},
+          specks{} {
         size_t half_count = number_of_spheres_per_side / 2;
         for (size_t j = 0; j < number_of_spheres_per_side; j++) {
             for (size_t i = 0; i < number_of_spheres_per_side; i++) {
@@ -48,7 +48,7 @@ public:
                 // create a plain material for each sphere
                 precision smooth = 1.0_p * (precision)i / (precision)number_of_spheres_per_side;
                 precision rough = 1.0_p * (precision)j / (precision)number_of_spheres_per_side;
-                auto * mat = new mediums::plain{ c, 0.0_p, c, smooth, rough};
+                auto* mat = new mediums::plain{c, 0.0_p, c, smooth, rough};
                 // assign the material
                 mats.push_back(mat);
                 spheres[s]->material(mats[s]);
@@ -107,14 +107,12 @@ public:
 
     raytrace::animation::anchors get_anchors() const override {
         raytrace::animation::anchors anchors;
-        anchors.push_back(
-            animation::Anchor{
-                animation::Attributes{look_from, look_at, iso::degrees{55.0}},
-                animation::Attributes{look_from, look_at, iso::degrees{55.0}},
-                animation::Mappers{}, iso::seconds{1.0_p}
-            });
+        anchors.push_back(animation::Anchor{animation::Attributes{look_from, look_at, iso::degrees{55.0}},
+                                            animation::Attributes{look_from, look_at, iso::degrees{55.0}},
+                                            animation::Mappers{}, iso::seconds{1.0_p}});
         return anchors;
     }
+
 protected:
     raytrace::point look_from;
     raytrace::point look_at;

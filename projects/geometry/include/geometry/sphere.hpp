@@ -19,7 +19,7 @@ protected:
     precision m_radius;
 
 public:
-    precision const &radius = m_radius;
+    precision const& radius = m_radius;
 
     sphere() = delete;
     /// Generic Constructor
@@ -27,13 +27,13 @@ public:
     /// Copy Constructor
     sphere(sphere const& s);
     /// Move Constructor
-    sphere(sphere &&s);
+    sphere(sphere&& s);
     /// D-tor
     virtual ~sphere() = default;
     /// Copy Assign
-    sphere &operator=(sphere const& s);
+    sphere& operator=(sphere const& s);
     /// Move Assign
-    sphere &operator=(sphere &&s);
+    sphere& operator=(sphere&& s);
 
     /// Indicates if the point is contained in or on the sphere
     virtual bool contains(R3::point const& object_point) const;

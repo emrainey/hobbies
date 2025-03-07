@@ -60,23 +60,23 @@ TEST(LinalgExtraTests, CubeRootTest) {
 
 #define EXPECT_TRIPLE_TUPLE_EQ1(Z, tup)                                            \
     {                                                                              \
-        basal::precision x1 = std::get<0>(tup);                                        \
-        basal::precision x2 = std::get<1>(tup);                                        \
-        basal::precision x3 = std::get<2>(tup);                                        \
+        basal::precision x1 = std::get<0>(tup);                                    \
+        basal::precision x2 = std::get<1>(tup);                                    \
+        basal::precision x3 = std::get<2>(tup);                                    \
         std::cout << "Solutions: " << x1 << ", " << x2 << ", " << x3 << std::endl; \
         std::cout << "Should be: " << Z << std::endl;                              \
-        if (not basal::is_nan(x1)) {                                                  \
-            EXPECT_NEAR(Z, x1, basal::epsilon);                                      \
-            EXPECT_TRUE(basal::is_nan(x2));                                           \
-            EXPECT_TRUE(basal::is_nan(x3));                                           \
-        } else if (not basal::is_nan(x2)) {                                           \
-            EXPECT_TRUE(basal::is_nan(x1));                                           \
-            EXPECT_NEAR(Z, x2, basal::epsilon);                                      \
-            EXPECT_TRUE(basal::is_nan(x3));                                           \
-        } else if (not basal::is_nan(x3)) {                                           \
-            EXPECT_TRUE(basal::is_nan(x1));                                           \
-            EXPECT_TRUE(basal::is_nan(x2));                                           \
-            EXPECT_NEAR(Z, x3, basal::epsilon);                                      \
+        if (not basal::is_nan(x1)) {                                               \
+            EXPECT_NEAR(Z, x1, basal::epsilon);                                    \
+            EXPECT_TRUE(basal::is_nan(x2));                                        \
+            EXPECT_TRUE(basal::is_nan(x3));                                        \
+        } else if (not basal::is_nan(x2)) {                                        \
+            EXPECT_TRUE(basal::is_nan(x1));                                        \
+            EXPECT_NEAR(Z, x2, basal::epsilon);                                    \
+            EXPECT_TRUE(basal::is_nan(x3));                                        \
+        } else if (not basal::is_nan(x3)) {                                        \
+            EXPECT_TRUE(basal::is_nan(x1));                                        \
+            EXPECT_TRUE(basal::is_nan(x2));                                        \
+            EXPECT_NEAR(Z, x3, basal::epsilon);                                    \
         }                                                                          \
     }
 
@@ -94,23 +94,23 @@ TEST(LinalgExtraTests, CubicRoots01) {
 
 #define EXPECT_TRIPLE_TUPLE_EQ2(A, B, tup)                                         \
     {                                                                              \
-        basal::precision x1 = std::get<0>(tup);                                        \
-        basal::precision x2 = std::get<1>(tup);                                        \
-        basal::precision x3 = std::get<2>(tup);                                        \
+        basal::precision x1 = std::get<0>(tup);                                    \
+        basal::precision x2 = std::get<1>(tup);                                    \
+        basal::precision x3 = std::get<2>(tup);                                    \
         std::cout << "Solutions: " << x1 << ", " << x2 << ", " << x3 << std::endl; \
         std::cout << "Should be: " << A << ", " << B << std::endl;                 \
-        if (basal::is_nan(x3)) {                                                      \
-            EXPECT_NEAR(A, x1, basal::epsilon);                                      \
-            EXPECT_NEAR(B, x2, basal::epsilon);                                      \
-            EXPECT_TRUE(basal::is_nan(x3));                                           \
-        } else if (basal::is_nan(x2)) {                                               \
-            EXPECT_NEAR(A, x1, basal::epsilon);                                      \
-            EXPECT_TRUE(basal::is_nan(x2));                                           \
-            EXPECT_NEAR(B, x3, basal::epsilon);                                      \
-        } else if (basal::is_nan(x1)) {                                               \
-            EXPECT_TRUE(basal::is_nan(x1));                                           \
-            EXPECT_NEAR(A, x2, basal::epsilon);                                      \
-            EXPECT_NEAR(B, x3, basal::epsilon);                                      \
+        if (basal::is_nan(x3)) {                                                   \
+            EXPECT_NEAR(A, x1, basal::epsilon);                                    \
+            EXPECT_NEAR(B, x2, basal::epsilon);                                    \
+            EXPECT_TRUE(basal::is_nan(x3));                                        \
+        } else if (basal::is_nan(x2)) {                                            \
+            EXPECT_NEAR(A, x1, basal::epsilon);                                    \
+            EXPECT_TRUE(basal::is_nan(x2));                                        \
+            EXPECT_NEAR(B, x3, basal::epsilon);                                    \
+        } else if (basal::is_nan(x1)) {                                            \
+            EXPECT_TRUE(basal::is_nan(x1));                                        \
+            EXPECT_NEAR(A, x2, basal::epsilon);                                    \
+            EXPECT_NEAR(B, x3, basal::epsilon);                                    \
         }                                                                          \
     }
 
@@ -124,14 +124,14 @@ TEST(LinalgExtraTests, CubicRoots02) {
 
 #define EXPECT_TRIPLE_TUPLE_EQ3(A, B, C, tup)                                      \
     {                                                                              \
-        basal::precision x1 = std::get<0>(tup);                                        \
-        basal::precision x2 = std::get<1>(tup);                                        \
-        basal::precision x3 = std::get<2>(tup);                                        \
+        basal::precision x1 = std::get<0>(tup);                                    \
+        basal::precision x2 = std::get<1>(tup);                                    \
+        basal::precision x3 = std::get<2>(tup);                                    \
         std::cout << "Solutions: " << x1 << ", " << x2 << ", " << x3 << std::endl; \
         std::cout << "Should be: " << A << ", " << B << ", " << C << std::endl;    \
-        EXPECT_NEAR(A, x1, basal::epsilon);                                          \
-        EXPECT_NEAR(B, x2, basal::epsilon);                                          \
-        EXPECT_NEAR(C, x3, basal::epsilon);                                          \
+        EXPECT_NEAR(A, x1, basal::epsilon);                                        \
+        EXPECT_NEAR(B, x2, basal::epsilon);                                        \
+        EXPECT_NEAR(C, x3, basal::epsilon);                                        \
     }
 
 TEST(LinalgExtraTests, CubicRoots03) {
@@ -175,28 +175,28 @@ TEST(LinalgExtraTests, QuarticRoots04) {
 
 #define EXPECT_QUAD_TUPLE_EQ3(A, B, C, tup)                                                      \
     {                                                                                            \
-        basal::precision x1 = std::get<0>(tup);                                                      \
-        basal::precision x2 = std::get<1>(tup);                                                      \
-        basal::precision x3 = std::get<2>(tup);                                                      \
-        basal::precision x4 = std::get<3>(tup);                                                      \
+        basal::precision x1 = std::get<0>(tup);                                                  \
+        basal::precision x2 = std::get<1>(tup);                                                  \
+        basal::precision x3 = std::get<2>(tup);                                                  \
+        basal::precision x4 = std::get<3>(tup);                                                  \
         std::cout << "Solutions: " << x1 << ", " << x2 << ", " << x3 << ", " << x4 << std::endl; \
         std::cout << "Should be: " << A << ", " << B << ", " << C << ", " << std::endl;          \
-        if (basal::is_nan(x1)) {                                                                    \
-            EXPECT_NEAR(A, x2, basal::epsilon);                                                    \
-            EXPECT_NEAR(B, x3, basal::epsilon);                                                    \
-            EXPECT_NEAR(C, x4, basal::epsilon);                                                    \
-        } else if (basal::is_nan(x2)) {                                                             \
-            EXPECT_NEAR(A, x1, basal::epsilon);                                                    \
-            EXPECT_NEAR(B, x3, basal::epsilon);                                                    \
-            EXPECT_NEAR(C, x4, basal::epsilon);                                                    \
-        } else if (basal::is_nan(x3)) {                                                             \
-            EXPECT_NEAR(A, x1, basal::epsilon);                                                    \
-            EXPECT_NEAR(B, x2, basal::epsilon);                                                    \
-            EXPECT_NEAR(C, x4, basal::epsilon);                                                    \
-        } else if (basal::is_nan(x4)) {                                                             \
-            EXPECT_NEAR(A, x1, basal::epsilon);                                                    \
-            EXPECT_NEAR(B, x2, basal::epsilon);                                                    \
-            EXPECT_NEAR(C, x3, basal::epsilon);                                                    \
+        if (basal::is_nan(x1)) {                                                                 \
+            EXPECT_NEAR(A, x2, basal::epsilon);                                                  \
+            EXPECT_NEAR(B, x3, basal::epsilon);                                                  \
+            EXPECT_NEAR(C, x4, basal::epsilon);                                                  \
+        } else if (basal::is_nan(x2)) {                                                          \
+            EXPECT_NEAR(A, x1, basal::epsilon);                                                  \
+            EXPECT_NEAR(B, x3, basal::epsilon);                                                  \
+            EXPECT_NEAR(C, x4, basal::epsilon);                                                  \
+        } else if (basal::is_nan(x3)) {                                                          \
+            EXPECT_NEAR(A, x1, basal::epsilon);                                                  \
+            EXPECT_NEAR(B, x2, basal::epsilon);                                                  \
+            EXPECT_NEAR(C, x4, basal::epsilon);                                                  \
+        } else if (basal::is_nan(x4)) {                                                          \
+            EXPECT_NEAR(A, x1, basal::epsilon);                                                  \
+            EXPECT_NEAR(B, x2, basal::epsilon);                                                  \
+            EXPECT_NEAR(C, x3, basal::epsilon);                                                  \
         }                                                                                        \
     }
 
@@ -210,16 +210,16 @@ TEST(LinalgExtraTests, QuarticRoots03) {
 
 #define EXPECT_QUAD_TUPLE_EQ2(A, B, tup)                                                         \
     {                                                                                            \
-        basal::precision x1 = std::get<0>(tup);                                                      \
-        basal::precision x2 = std::get<1>(tup);                                                      \
-        basal::precision x3 = std::get<2>(tup);                                                      \
-        basal::precision x4 = std::get<3>(tup);                                                      \
+        basal::precision x1 = std::get<0>(tup);                                                  \
+        basal::precision x2 = std::get<1>(tup);                                                  \
+        basal::precision x3 = std::get<2>(tup);                                                  \
+        basal::precision x4 = std::get<3>(tup);                                                  \
         std::cout << "Solutions: " << x1 << ", " << x2 << ", " << x3 << ", " << x4 << std::endl; \
         std::cout << "Should be: " << A << ", " << B << std::endl;                               \
-        EXPECT_NEAR(A, x1, basal::epsilon);                                                        \
-        EXPECT_TRUE(basal::is_nan(x2));                                                             \
-        EXPECT_NEAR(B, x3, basal::epsilon);                                                        \
-        EXPECT_TRUE(basal::is_nan(x4));                                                             \
+        EXPECT_NEAR(A, x1, basal::epsilon);                                                      \
+        EXPECT_TRUE(basal::is_nan(x2));                                                          \
+        EXPECT_NEAR(B, x3, basal::epsilon);                                                      \
+        EXPECT_TRUE(basal::is_nan(x4));                                                          \
     }
 
 TEST(LinalgExtraTests, QuarticRoots02) {
@@ -241,16 +241,16 @@ TEST(LinalgExtraTests, QuarticRoots02) {
         basal::precision x4 = std::get<3>(tup);                                                  \
         std::cout << "Solutions: " << x1 << ", " << x2 << ", " << x3 << ", " << x4 << std::endl; \
         std::cout << "Should be all nan" << std::endl;                                           \
-        if (not basal::is_nan(x1)) {                                                                \
+        if (not basal::is_nan(x1)) {                                                             \
             EXPECT_NEAR(A, x1, basal::epsilon);                                                  \
         }                                                                                        \
-        if (not basal::is_nan(x2)) {                                                                \
+        if (not basal::is_nan(x2)) {                                                             \
             EXPECT_NEAR(A, x2, basal::epsilon);                                                  \
         }                                                                                        \
-        if (not basal::is_nan(x3)) {                                                                \
+        if (not basal::is_nan(x3)) {                                                             \
             EXPECT_NEAR(A, x3, basal::epsilon);                                                  \
         }                                                                                        \
-        if (not basal::is_nan(x4)) {                                                                \
+        if (not basal::is_nan(x4)) {                                                             \
             EXPECT_NEAR(A, x4, basal::epsilon);                                                  \
         }                                                                                        \
     }

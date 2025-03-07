@@ -185,7 +185,7 @@ protected:
     template <size_t B2>
     friend sparse_word<B2> operator!(sparse_word<B2> const& a);
     template <size_t B1, size_t B2>
-    friend sparse_word<B1+B2> operator+(sparse_word<B1> const&, sparse_word<B2> const&);
+    friend sparse_word<B1 + B2> operator+(sparse_word<B1> const&, sparse_word<B2> const&);
     template <size_t B2>
     friend std::ostream& operator<<(std::ostream const&, sparse_word<B2> const&);
 
@@ -193,11 +193,10 @@ protected:
     std::vector<uint16_t> bits;
 };
 
-
 template <size_t B2>
 std::ostream& operator<<(std::ostream& os, sparse_word<B2> const& word) {
-    os << "sparse_word<" << word.size() << ">: population=" << word.population() << " capacity=" << word.capacity() << " sparsity=" << word.sparsity()
-        << " bits={";
+    os << "sparse_word<" << word.size() << ">: population=" << word.population() << " capacity=" << word.capacity()
+       << " sparsity=" << word.sparsity() << " bits={";
     for (size_t i = 0; i < B2; i++) {
         if (word.test(i)) {
             os << i << ", ";

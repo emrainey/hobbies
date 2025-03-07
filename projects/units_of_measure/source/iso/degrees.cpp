@@ -103,4 +103,3 @@ iso::degrees operator""_deg(char const a[]) {
 }
 }  // namespace literals
 }  // namespace iso
-

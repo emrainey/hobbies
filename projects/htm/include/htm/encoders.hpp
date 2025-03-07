@@ -37,5 +37,5 @@ sparse_word<31> dayofmonth();
 sparse_word<7> dayofweek();
 sparse_word<365 + 31 + 7> dayof();
 
-} // namespace encoders
+}  // namespace encoders
 }  // namespace htm

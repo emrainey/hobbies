@@ -38,87 +38,87 @@ precision relu_deriv(precision x) {
 }
 
 matrix sigmoid(matrix&& mat) {
-    return mat.for_each ([](precision& v) { v = sigmoid(v); });
+    return mat.for_each([](precision& v) { v = sigmoid(v); });
 }
 
 matrix sigmoid(matrix const& mat) {
     matrix m{mat.rows, mat.cols};
-    return m.for_each ([&](size_t y, size_t x, precision& v) { v = sigmoid(mat[y][x]); });
+    return m.for_each([&](size_t y, size_t x, precision& v) { v = sigmoid(mat[y][x]); });
 }
 
 matrix sigmoid_deriv(matrix&& mat) {
-    return mat.for_each ([](precision& v) { v = sigmoid_deriv(v); });
+    return mat.for_each([](precision& v) { v = sigmoid_deriv(v); });
 }
 
 matrix sigmoid_deriv(matrix const& mat) {
     matrix m{mat.rows, mat.cols};
-    return m.for_each ([&](size_t y, size_t x, precision& v) { v = sigmoid_deriv(mat[y][x]); });
+    return m.for_each([&](size_t y, size_t x, precision& v) { v = sigmoid_deriv(mat[y][x]); });
 }
 
 matrix tanh_(matrix&& mat) {
-    return mat.for_each ([](precision& v) { v = tanh_(v); });
+    return mat.for_each([](precision& v) { v = tanh_(v); });
 }
 
 matrix tanh_(matrix const& mat) {
     matrix m{mat.rows, mat.cols};
-    return m.for_each ([&](size_t y, size_t x, precision& v) { v = tanh_(mat[y][x]); });
+    return m.for_each([&](size_t y, size_t x, precision& v) { v = tanh_(mat[y][x]); });
 }
 
 matrix tanh_deriv(matrix&& mat) {
-    return mat.for_each ([](precision& v) { v = tanh_deriv(v); });
+    return mat.for_each([](precision& v) { v = tanh_deriv(v); });
 }
 
 matrix tanh_deriv(matrix const& mat) {
     matrix m{mat.rows, mat.cols};
-    return m.for_each ([&](size_t y, size_t x, precision& v) { v = tanh_deriv(mat[y][x]); });
+    return m.for_each([&](size_t y, size_t x, precision& v) { v = tanh_deriv(mat[y][x]); });
 }
 
 matrix relu(matrix&& mat) {
-    return mat.for_each ([](precision& v) { v = relu(v); });
+    return mat.for_each([](precision& v) { v = relu(v); });
 }
 
 matrix relu(matrix const& mat) {
     matrix m{mat.rows, mat.cols};
-    return m.for_each ([&](size_t y, size_t x, precision& v) { v = relu(mat[y][x]); });
+    return m.for_each([&](size_t y, size_t x, precision& v) { v = relu(mat[y][x]); });
 }
 
 matrix relu_deriv(matrix&& mat) {
-    return mat.for_each ([](precision& v) { v = relu_deriv(v); });
+    return mat.for_each([](precision& v) { v = relu_deriv(v); });
 }
 
 matrix relu_deriv(matrix const& mat) {
     matrix m{mat.rows, mat.cols};
-    return m.for_each ([&](size_t y, size_t x, precision& v) { v = relu_deriv(mat[y][x]); });
+    return m.for_each([&](size_t y, size_t x, precision& v) { v = relu_deriv(mat[y][x]); });
 }
 
 matrix squared(matrix const& mat) {
     matrix m{mat.rows, mat.cols};
-    return m.for_each ([&](size_t y, size_t x, precision& v) { v = mat[y][x] * mat[y][x]; });
+    return m.for_each([&](size_t y, size_t x, precision& v) { v = mat[y][x] * mat[y][x]; });
 }
 
 matrix squared(matrix&& mat) {
-    return mat.for_each ([](precision& v) { v = v * v; });
+    return mat.for_each([](precision& v) { v = v * v; });
 }
 
 precision sum(matrix const& mat) {
     precision s = 0.0;
-    mat.for_each ([&](precision const& v) { s += v; });
+    mat.for_each([&](precision const& v) { s += v; });
     return s;
 }
 
 precision sum(matrix&& mat) {
     precision s = 0.0;
-    mat.for_each ([&](precision& v) { s += v; });
+    mat.for_each([&](precision& v) { s += v; });
     return s;
 }
 
 matrix sqrt(matrix const& mat) {
     matrix m{mat.rows, mat.cols};
-    return m.for_each ([&](size_t y, size_t x, precision& v) { v = std::sqrt(mat[y][x]); });
+    return m.for_each([&](size_t y, size_t x, precision& v) { v = std::sqrt(mat[y][x]); });
 }
 
 matrix sqrt(matrix&& mat) {
-    return mat.for_each ([](precision& v) { v = std::sqrt(v); });
+    return mat.for_each([](precision& v) { v = std::sqrt(v); });
 }
 
 }  // namespace nn

@@ -37,22 +37,17 @@ protected:
 public:
     /// Default Constructor
     rate()
-        : _value{0}
-        , value{_value}
-        , _numerator{0}
-        , _denominator{1}
-        , numerator{_numerator}
-        , denominator{_denominator} {
+        : _value{0}, value{_value}, _numerator{0}, _denominator{1}, numerator{_numerator}, denominator{_denominator} {
         snprintf(suffix, sizeof(suffix), "(%5s/%5s)", _numerator.get_suffix(), _denominator.get_suffix());
     }
 
     rate(NumeratorType const& num, DenominatorType const& denom)
-        : _value{0}
-        , value{_value}
-        , _numerator{num}
-        , _denominator{denom}
-        , numerator{_numerator}
-        , denominator{_denominator} {
+        : _value{0},
+          value{_value},
+          _numerator{num},
+          _denominator{denom},
+          numerator{_numerator},
+          denominator{_denominator} {
         _value = reduce();
         if (0 > snprintf(suffix, sizeof(suffix), "(%5s/%5s)", _numerator.get_suffix(), _denominator.get_suffix())) {
             printf("Error: snprintf failed to write to buffer\n");
@@ -60,23 +55,23 @@ public:
     }
 
     rate(double num, double denom)
-        : _value{0}
-        , value{_value}
-        , _numerator{num}
-        , _denominator{denom}
-        , numerator{_numerator}
-        , denominator{_denominator} {
+        : _value{0},
+          value{_value},
+          _numerator{num},
+          _denominator{denom},
+          numerator{_numerator},
+          denominator{_denominator} {
         _value = reduce();
         snprintf(suffix, sizeof(suffix), "(%5s/%5s)", _numerator.get_suffix(), _denominator.get_suffix());
     }
 
     rate(rate const& other)
-        : _value{other.value}
-        , value{_value}
-        , _numerator{other.numerator}
-        , _denominator{other.denominator}
-        , numerator{_numerator}
-        , denominator{_denominator} {
+        : _value{other.value},
+          value{_value},
+          _numerator{other.numerator},
+          _denominator{other.denominator},
+          numerator{_numerator},
+          denominator{_denominator} {
         std::memcpy(suffix, other.suffix, sizeof(suffix));
         suffix[sizeof(suffix) - 1] = '\0';
     }

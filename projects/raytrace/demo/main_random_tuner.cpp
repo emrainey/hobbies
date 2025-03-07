@@ -72,7 +72,7 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
         if (should_render) {
             raytrace::tuning::pseudo_random_noise_params.update();
             raytrace::palette colors = {raytrace::colors::black};  // unused
-            random_noise_image.generate_each([&](raytrace::image::point const& pnt) {
+            random_noise_image.generate_each([&](raytrace::image::point const &pnt) {
                 // create a UV vector which is centered in the middle of the image. This means
                 // the u, v, values are between -1 and 1
                 raytrace::image::point uv(2.0_p * ((pnt.x / random_noise_image.width) - 0.5_p),

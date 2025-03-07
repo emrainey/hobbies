@@ -16,15 +16,15 @@ sphere::sphere(precision r) : m_radius{r} {
 sphere::sphere(sphere const& s) : sphere(s.radius) {
 }
 
-sphere::sphere(sphere &&s) : m_radius(s.radius) {
+sphere::sphere(sphere&& s) : m_radius(s.radius) {
 }
 
-sphere &sphere::operator=(sphere const& s) {
+sphere& sphere::operator=(sphere const& s) {
     m_radius = s.m_radius;
     return (*this);
 }
 
-sphere &sphere::operator=(sphere &&s) {
+sphere& sphere::operator=(sphere&& s) {
     m_radius = s.m_radius;
     return (*this);
 }

@@ -7,8 +7,7 @@ namespace raytrace {
 
 namespace lights {
 /// A point light with fall-off obeying the inverse square law
-class speck
-    : public light {
+class speck : public light {
 public:
     speck(point const& P, raytrace::color const& C, precision intensity);
     speck(point&& P, raytrace::color const& C, precision intensity);

@@ -130,7 +130,6 @@ public:
         std::cout << name << " " << (*this) << std::endl;
     }
 
-
     inline void clamp(void) {
         if constexpr (pack_type::number_of_elements == 2) {
             parallel_type imm = _mm_set1_pd(1.0_p);
@@ -154,7 +153,6 @@ public:
 
     /****** FRIENDS **************************************************************/
 
-
     /// Pixel Scaling
     friend inline pixel_ operator*(pixel_ const& a, element_type const& b) {
         pixel_ c{};
@@ -169,7 +167,6 @@ public:
         }
         return c;
     }
-
 
     /// Pairwise/Hamard Scaling
     friend inline pixel_ operator*(pixel_ const& a, pixel_ const& b) {
@@ -186,14 +183,13 @@ public:
         return c;
     }
 
-
     /// @brief Blends two pixels together with linear interpolation
     /// @warning No gamma correction is applied!
     /// @param a
     /// @param b
     /// @param ratio
     /// @return
-    friend inline pixel_ interpolate(pixel_ const& a, pixel_ const&b, element_type const ratio) {
+    friend inline pixel_ interpolate(pixel_ const& a, pixel_ const& b, element_type const ratio) {
         pixel_ c = a * ratio;
         pixel_ d = b * (1.0 - ratio);
         pixel_ e;
@@ -216,4 +212,4 @@ public:
     }
 };
 
-} // namespace intel
+}  // namespace intel

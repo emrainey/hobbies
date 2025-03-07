@@ -18,39 +18,44 @@ using namespace iso::literals;
 class MonochromeWorld : public world {
 public:
     MonochromeWorld()
-        : light_subsamples{20}
-        , look_from{5, -20, 20}
-        , look_at{0, 0, 0}
-        , plain_white{colors::white, mediums::ambient::none, colors::white, mediums::smoothness::none, roughness::tight}
-        , checkerboard_grid{0.1,colors::blue, colors::yellow, colors::red,  colors::magenta,
-                  colors::green, colors::cyan, colors::black,  colors::white}
-        , floor{R3::origin, R3::basis::Z, 100, 100}
-        , light0{raytrace::point{-5, 0, 10}, 1, colors::white, 10, light_subsamples}
-        , light1{raytrace::point{-4, 0, 10}, 1, colors::white, 10, light_subsamples}
-        , light2{raytrace::point{-3, 0, 10}, 1, colors::white, 10, light_subsamples}
-        , light3{raytrace::point{-2, 0, 10}, 1, colors::white, 10, light_subsamples}
-        , light4{raytrace::point{-1, 0, 10}, 1, colors::white, 10, light_subsamples}
-        , light5{raytrace::point{0, 0, 10}, 1, colors::white, 10, light_subsamples}
-        , light6{raytrace::point{1, 0, 10}, 1, colors::white, 10, light_subsamples}
-        , light7{raytrace::point{2, 0, 10}, 1, colors::white, 10, light_subsamples}
-        , light8{raytrace::point{3, 0, 10}, 1, colors::white, 10, light_subsamples}
-        , light9{raytrace::point{4, 0, 10}, 1, colors::white, 10, light_subsamples}
-        , light10{raytrace::point{5, 0, 10}, 1, colors::white, 10, light_subsamples}
-        // , s1{raytrace::point{4, 2, 1}, 1}
-        , s1{raytrace::point{4, 2, 1}, 1, 1, 1} // ellipsoid
-        , s2{raytrace::point{-4, -2, 2}, 2}
-        , s3{raytrace::point{1, -5, 3}, 3}
-        , c1{raytrace::point{6, 3, 0}, 1, 4}  // cone
-        // , infinite_cylinder{raytrace::point{-2, 3, 2}, 1, 1}  // infinite cylinder
-        // , cylinder_caps{raytrace::point{-2, 3, 2}, R3::basis::Z, 2}  // infinite wall
-        // , cyl{infinite_cylinder, cylinder_caps, overlap::type::inclusive}
-        , cyl{raytrace::point{-2, 3, 2}, 2, 1}  // cylinder
-        , cap{raytrace::point{-2, 3, 4}, R3::basis::Z, 0, 1}
-        , w0{raytrace::point{8, -3, 0}, R3::basis::X, 2}
-        , w1{raytrace::point{8, -3, 0}, R3::basis::Y, 2}
-        , column{w0, w1, overlap::type::inclusive}
-        , t0{raytrace::point{3, 7, 0.5}, 1.4, 0.5}
-        , cb0{raytrace::point{7, -2, 1}, 1, 1, 1} {
+        : light_subsamples{20},
+          look_from{5, -20, 20},
+          look_at{0, 0, 0},
+          plain_white{colors::white, mediums::ambient::none, colors::white, mediums::smoothness::none,
+                      roughness::tight},
+          checkerboard_grid{0.1,           colors::blue, colors::yellow, colors::red,  colors::magenta,
+                            colors::green, colors::cyan, colors::black,  colors::white},
+          floor{R3::origin, R3::basis::Z, 100, 100},
+          light0{raytrace::point{-5, 0, 10}, 1, colors::white, 10, light_subsamples},
+          light1{raytrace::point{-4, 0, 10}, 1, colors::white, 10, light_subsamples},
+          light2{raytrace::point{-3, 0, 10}, 1, colors::white, 10, light_subsamples},
+          light3{raytrace::point{-2, 0, 10}, 1, colors::white, 10, light_subsamples},
+          light4{raytrace::point{-1, 0, 10}, 1, colors::white, 10, light_subsamples},
+          light5{raytrace::point{0, 0, 10}, 1, colors::white, 10, light_subsamples},
+          light6{raytrace::point{1, 0, 10}, 1, colors::white, 10, light_subsamples},
+          light7{raytrace::point{2, 0, 10}, 1, colors::white, 10, light_subsamples},
+          light8{raytrace::point{3, 0, 10}, 1, colors::white, 10, light_subsamples},
+          light9{raytrace::point{4, 0, 10}, 1, colors::white, 10, light_subsamples},
+          light10{raytrace::point{5, 0, 10}, 1, colors::white, 10, light_subsamples}
+          // , s1{raytrace::point{4, 2, 1}, 1}
+          ,
+          s1{raytrace::point{4, 2, 1}, 1, 1, 1}  // ellipsoid
+          ,
+          s2{raytrace::point{-4, -2, 2}, 2},
+          s3{raytrace::point{1, -5, 3}, 3},
+          c1{raytrace::point{6, 3, 0}, 1, 4}  // cone
+          // , infinite_cylinder{raytrace::point{-2, 3, 2}, 1, 1}  // infinite cylinder
+          // , cylinder_caps{raytrace::point{-2, 3, 2}, R3::basis::Z, 2}  // infinite wall
+          // , cyl{infinite_cylinder, cylinder_caps, overlap::type::inclusive}
+          ,
+          cyl{raytrace::point{-2, 3, 2}, 2, 1}  // cylinder
+          ,
+          cap{raytrace::point{-2, 3, 4}, R3::basis::Z, 0, 1},
+          w0{raytrace::point{8, -3, 0}, R3::basis::X, 2},
+          w1{raytrace::point{8, -3, 0}, R3::basis::Y, 2},
+          column{w0, w1, overlap::type::inclusive},
+          t0{raytrace::point{3, 7, 0.5}, 1.4, 0.5},
+          cb0{raytrace::point{7, -2, 1}, 1, 1, 1} {
         // assign surfaces and materials
         floor.material(&plain_white);
         checkerboard_grid.mapper(std::bind(&objects::square::map, &floor, std::placeholders::_1));
@@ -122,14 +127,12 @@ public:
 
     raytrace::animation::anchors get_anchors() const override {
         raytrace::animation::anchors anchors;
-        anchors.push_back(
-            animation::Anchor{
-                animation::Attributes{look_from, look_at, 55.0_deg},
-                animation::Attributes{look_from, look_at, 55.0_deg},
-                animation::Mappers{}, iso::seconds{1.0_p}
-            });
+        anchors.push_back(animation::Anchor{animation::Attributes{look_from, look_at, 55.0_deg},
+                                            animation::Attributes{look_from, look_at, 55.0_deg}, animation::Mappers{},
+                                            iso::seconds{1.0_p}});
         return anchors;
     }
+
 protected:
     size_t light_subsamples;
     raytrace::point look_from;

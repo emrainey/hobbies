@@ -41,7 +41,6 @@ TEST(RingTest, RayIntersectionAtOrigin) {
     ASSERT_EQ(geometry::IntersectionType::None, get_type(ir3T));
 }
 
-
 TEST(RingTest, RayIntersectionAwayFromOrigin) {
     using namespace raytrace;
     using namespace raytrace::objects;

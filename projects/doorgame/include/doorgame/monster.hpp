@@ -5,9 +5,7 @@
 
 namespace doorgame {
 
-class Monster
-    : public Storage
-    , public Animate {
+class Monster : public Storage, public Animate {
 public:
     Monster(size_t loc);
 };

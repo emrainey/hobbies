@@ -68,7 +68,7 @@ struct dendrite_ {
     struct segment_ {
         std::bitset<SYNAPSES_PER_SEGMENT> active;  ///< Determines if this segment is operational
         std::array<synapse, SYNAPSES_PER_SEGMENT> synapses;
-        size_t threshold_count; ///< The number of active synapses required to activate the segment
+        size_t threshold_count;  ///< The number of active synapses required to activate the segment
         bool is_actve() const {
             return (active.count() >= threshold_count);
         }
@@ -90,7 +90,7 @@ struct dendrite_ {
 
 using dendrite = dendrite_<30, 100>;
 
-template < size_t NUM_PROXIMAL_DENDRITES, size_t NUM_DISTAL_DENDRITES>
+template <size_t NUM_PROXIMAL_DENDRITES, size_t NUM_DISTAL_DENDRITES>
 struct neuron_ {
     /// Proxial Dendrites are summed, and only touch neighbors
     std::array<dendrite, NUM_PROXIMAL_DENDRITES> proxial;

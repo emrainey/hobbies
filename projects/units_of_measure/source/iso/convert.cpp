@@ -12,7 +12,7 @@ feet convert(meters& A) {
     return feet{A.value * c};
 }
 meters convert(feet& B) {
-    feet::type c = 0.3048000097536_p; // a double value I think?
+    feet::type c = 0.3048000097536_p;  // a double value I think?
     return meters{static_cast<precision>(B.value * c)};
 }
 
@@ -40,7 +40,7 @@ void convert(feet& f, meters const& m) {
 }
 
 void convert(meters& m, feet const& f) {
-    constexpr precision const C = 0.3048000097536_p; // a double value I think?
+    constexpr precision const C = 0.3048000097536_p;  // a double value I think?
     m = meters(static_cast<precision>(f.value * C));
 }
 

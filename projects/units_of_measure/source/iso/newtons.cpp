@@ -103,4 +103,3 @@ iso::newtons operator""_N(char const a[]) {
 }
 }  // namespace literals
 }  // namespace iso
-

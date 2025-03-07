@@ -9,7 +9,6 @@
 
 using namespace raytrace;
 
-
 class MockObserver : public obj::Observer {
 public:
     MOCK_METHOD3(addVertex, void(float, float, float));
@@ -17,11 +16,12 @@ public:
     MOCK_METHOD2(addTexture, void(float, float));
     MOCK_METHOD3(addFace, void(uint32_t, uint32_t, uint32_t));
     MOCK_METHOD6(addFace, void(uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t));
-    MOCK_METHOD9(addFace, void(uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t));
+    MOCK_METHOD9(addFace,
+                 void(uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t));
 };
 
 TEST(ObjParser, Comment) {
-    char const * const literal = "# Comment";
+    char const* const literal = "# Comment";
     MockObserver mock;
     obj::Parser parser{mock};
     parser.Parse(literal);
@@ -36,7 +36,7 @@ TEST(ObjParser, Comment) {
 }
 
 TEST(ObjParser, Object) {
-    char const * const literal = "o Something";
+    char const* const literal = "o Something";
     MockObserver mock;
     obj::Parser parser{mock};
     parser.Parse(literal);
@@ -51,7 +51,7 @@ TEST(ObjParser, Object) {
 }
 
 TEST(ObjParser, Vertices2) {
-    char const * const literal = "v 1.2 3.4";
+    char const* const literal = "v 1.2 3.4";
     MockObserver mock;
     obj::Parser parser{mock};
     parser.Parse(literal);
@@ -66,7 +66,7 @@ TEST(ObjParser, Vertices2) {
 }
 
 TEST(ObjParser, Vertices3) {
-    char const * const literal = "v 1.2 3.4 5.6";
+    char const* const literal = "v 1.2 3.4 5.6";
     MockObserver mock;
     obj::Parser parser{mock};
     parser.Parse(literal);
@@ -81,7 +81,7 @@ TEST(ObjParser, Vertices3) {
 }
 
 TEST(ObjParser, Normals) {
-    char const * const literal = "vn 1.2 3.4 5.6";
+    char const* const literal = "vn 1.2 3.4 5.6";
     MockObserver mock;
     obj::Parser parser{mock};
     parser.Parse(literal);
@@ -96,7 +96,7 @@ TEST(ObjParser, Normals) {
 }
 
 TEST(ObjParser, Faces) {
-    char const * const literal = "f 1 2 3";
+    char const* const literal = "f 1 2 3";
     MockObserver mock;
     obj::Parser parser{mock};
     parser.Parse(literal);
@@ -110,16 +110,16 @@ TEST(ObjParser, Faces) {
     ASSERT_EQ(2u, parser.GetNumberOfLines());
 }
 
-char const * const literal =
-    "# comment\n"
-    "o Object\n"
-    "v 3.0 2.0 1.0\n"
-    "v 5.0 4.0 6.0\n"
-    "v 7.0 8.0 9.0\n"
-    "vt 0.0 0.0\n"
-    "vn 0.0 0.0 1.0\n"
-    "f 1 2 3\n"
-    "";
+char const* const literal
+    = "# comment\n"
+      "o Object\n"
+      "v 3.0 2.0 1.0\n"
+      "v 5.0 4.0 6.0\n"
+      "v 7.0 8.0 9.0\n"
+      "vt 0.0 0.0\n"
+      "vn 0.0 0.0 1.0\n"
+      "f 1 2 3\n"
+      "";
 
 TEST(ObjParser, SingleTriangle) {
     MockObserver mock;
@@ -150,49 +150,49 @@ TEST(ObjParser, SingleTriangleModel) {
 
 TEST(ObjParser, CubeModelFromString) {
     objects::Model model;
-    char const * const literal =
-        "o Cube\n"
-        "v 1.000000 -1.000000 -1.000000\n"
-        "v 1.000000 -1.000000 1.000000\n"
-        "v -1.000000 -1.000000 1.000000\n"
-        "v -1.000000 -1.000000 -1.000000\n"
-        "v 1.000000 1.000000 -0.999999\n"
-        "v 0.999999 1.000000 1.000001\n"
-        "v -1.000000 1.000000 1.000000\n"
-        "v -1.000000 1.000000 -1.000000\n"
-        "vt 1.000000 0.333333\n"
-        "vt 1.000000 0.666667\n"
-        "vt 0.666667 0.666667\n"
-        "vt 0.666667 0.333333\n"
-        "vt 0.666667 0.000000\n"
-        "vt 0.000000 0.333333\n"
-        "vt 0.000000 0.000000\n"
-        "vt 0.333333 0.000000\n"
-        "vt 0.333333 1.000000\n"
-        "vt 0.000000 1.000000\n"
-        "vt 0.000000 0.666667\n"
-        "vt 0.333333 0.333333\n"
-        "vt 0.333333 0.666667\n"
-        "vt 1.000000 0.000000\n"
-        "vn 0.000000 -1.000000 0.000000\n"
-        "vn 0.000000 1.000000 0.000000\n"
-        "vn 1.000000 0.000000 0.000000\n"
-        "vn -0.000000 0.000000 1.000000\n"
-        "vn -1.000000 -0.000000 -0.000000\n"
-        "vn 0.000000 0.000000 -1.000000\n"
-        "f 2/1/1 3/2/1 4/3/1\n"
-        "f 8/1/2 7/4/2 6/5/2\n"
-        "f 5/6/3 6/7/3 2/8/3\n"
-        "f 6/8/4 7/5/4 3/4/4\n"
-        "f 3/9/5 7/10/5 8/11/5\n"
-        "f 1/12/6 4/13/6 8/11/6\n"
-        "f 1/4/1 2/1/1 4/3/1\n"
-        "f 5/14/2 8/1/2 6/5/2\n"
-        "f 1/12/3 5/6/3 2/8/3\n"
-        "f 2/12/4 6/8/4 3/4/4\n"
-        "f 4/13/5 3/9/5 8/11/5\n"
-        "f 5/6/6 1/12/6 8/11/6\n"
-        "";
+    char const* const literal
+        = "o Cube\n"
+          "v 1.000000 -1.000000 -1.000000\n"
+          "v 1.000000 -1.000000 1.000000\n"
+          "v -1.000000 -1.000000 1.000000\n"
+          "v -1.000000 -1.000000 -1.000000\n"
+          "v 1.000000 1.000000 -0.999999\n"
+          "v 0.999999 1.000000 1.000001\n"
+          "v -1.000000 1.000000 1.000000\n"
+          "v -1.000000 1.000000 -1.000000\n"
+          "vt 1.000000 0.333333\n"
+          "vt 1.000000 0.666667\n"
+          "vt 0.666667 0.666667\n"
+          "vt 0.666667 0.333333\n"
+          "vt 0.666667 0.000000\n"
+          "vt 0.000000 0.333333\n"
+          "vt 0.000000 0.000000\n"
+          "vt 0.333333 0.000000\n"
+          "vt 0.333333 1.000000\n"
+          "vt 0.000000 1.000000\n"
+          "vt 0.000000 0.666667\n"
+          "vt 0.333333 0.333333\n"
+          "vt 0.333333 0.666667\n"
+          "vt 1.000000 0.000000\n"
+          "vn 0.000000 -1.000000 0.000000\n"
+          "vn 0.000000 1.000000 0.000000\n"
+          "vn 1.000000 0.000000 0.000000\n"
+          "vn -0.000000 0.000000 1.000000\n"
+          "vn -1.000000 -0.000000 -0.000000\n"
+          "vn 0.000000 0.000000 -1.000000\n"
+          "f 2/1/1 3/2/1 4/3/1\n"
+          "f 8/1/2 7/4/2 6/5/2\n"
+          "f 5/6/3 6/7/3 2/8/3\n"
+          "f 6/8/4 7/5/4 3/4/4\n"
+          "f 3/9/5 7/10/5 8/11/5\n"
+          "f 1/12/6 4/13/6 8/11/6\n"
+          "f 1/4/1 2/1/1 4/3/1\n"
+          "f 5/14/2 8/1/2 6/5/2\n"
+          "f 1/12/3 5/6/3 2/8/3\n"
+          "f 2/12/4 6/8/4 3/4/4\n"
+          "f 4/13/5 3/9/5 8/11/5\n"
+          "f 5/6/6 1/12/6 8/11/6\n"
+          "";
     model.LoadFromString(literal);
     ASSERT_EQ(8u, model.GetStatistics().vertices);
     ASSERT_EQ(14u, model.GetStatistics().textures);

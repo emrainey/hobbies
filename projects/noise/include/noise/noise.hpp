@@ -53,21 +53,24 @@ point fract(noise::point const& pnt);
 /// @return A value between 0.0 and 1.0 inclusive
 precision random(vector const& pnt, vector const& scalars, precision gain);
 
-/// @brief Computes the perlin cell corner vectors. These are located on the border of a cells and should be completely reproducible.
+/// @brief Computes the perlin cell corner vectors. These are located on the border of a cells and should be completely
+/// reproducible.
 /// @param image_point The point in the image.
 /// @param scale The scale of the cell (how many pixels are along the side of the cell) 32 would mean a 32x32 unit cell.
 /// @param scalars The seed values to help shape the noise
 /// @param gain The magnification of the seed noise
 /// @param[out] uv The output vector which is the fractional vector from the top left corner of the cell.
-/// @param[out] turns The output array of vectors which are the corner flow vectors of the cell. The order of corners if top-left, top-right, bottom-left, bottom-right.
-void cell_flows(point const& image_point, precision scale, vector const& seed, precision gain, point& uv, vector (&flows)[4]);
+/// @param[out] turns The output array of vectors which are the corner flow vectors of the cell. The order of corners if
+/// top-left, top-right, bottom-left, bottom-right.
+void cell_flows(point const& image_point, precision scale, vector const& seed, precision gain, point& uv,
+                vector (&flows)[4]);
 
 /// Improved Perlin Fade, which is defined as 6t^5 - 15t^4 + 10t^3
 constexpr precision fade(precision t) {
-    precision t3 = t*t*t;
-    precision t4 = t3*t;
-    precision t5 = t4*t;
-    return 6.0_p*t5 - 15.0_p*t4 + 10.0_p*t3;
+    precision t3 = t * t * t;
+    precision t4 = t3 * t;
+    precision t5 = t4 * t;
+    return 6.0_p * t5 - 15.0_p * t4 + 10.0_p * t3;
 }
 
 namespace {  // in an anonymous namespace for testing
@@ -161,7 +164,8 @@ precision turbulence(point const& pnt, precision size, precision scale, pad cons
 /// @param map The noise pad to pull values from
 /// @see https://lodev.org/cgtutor/randomnoise.html
 ///
-precision turbulentsin(point const& pnt, precision xs, precision ys, precision power, precision size, precision scale, pad const& map);
+precision turbulentsin(point const& pnt, precision xs, precision ys, precision power, precision size, precision scale,
+                       pad const& map);
 
 namespace gains {
 constexpr precision pink = 1.0_p;
@@ -183,6 +187,7 @@ constexpr precision yellow = 0.5_p;
 /// @param initial_frequency The initial starting frequency
 ///
 precision fractal_brownian(point const& pnt, vector const& seed, size_t octaves, precision lacunarity = 2.0_p,
-                        precision gain = 0.5_p, precision initial_amplitude = 1.0_p, precision initial_frequency = 1.0_p);
+                           precision gain = 0.5_p, precision initial_amplitude = 1.0_p,
+                           precision initial_frequency = 1.0_p);
 
 }  // namespace noise

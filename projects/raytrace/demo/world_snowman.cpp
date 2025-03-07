@@ -18,11 +18,11 @@ using namespace iso::literals;
 class Tree : public group {
 public:
     Tree(raytrace::point const& base)
-        : group{}
-        , leaves{colors::forest_green, 0.0, colors::forest_green, 0.01, 100}
-        , bark{colors::brown, 0.0, colors::brown, 0.01, 100}
-        , body{raytrace::point{0.0, 0.0, 3.0}, 3, 6}
-        , trunk{raytrace::point{0, 0, 2.5}, 2.5, 0.8} {
+        : group{},
+          leaves{colors::forest_green, 0.0, colors::forest_green, 0.01, 100},
+          bark{colors::brown, 0.0, colors::brown, 0.01, 100},
+          body{raytrace::point{0.0, 0.0, 3.0}, 3, 6},
+          trunk{raytrace::point{0, 0, 2.5}, 2.5, 0.8} {
         m_objects.push_back(&body);
         m_objects.push_back(&trunk);
         body.material(&leaves);
@@ -43,52 +43,53 @@ protected:
 class SnowmanWorld : public world {
 public:
     SnowmanWorld()
-        : world{}
-        , look_from{-20, 14, 5.5}
-        , look_at{0, 0, 5.5}
-        , snow(colors::white, mediums::ambient::dim, colors::white, mediums::smoothness::none,
-               mediums::roughness::tight)
-        , red_eyes(colors::red, mediums::ambient::glowy, colors::red, mediums::smoothness::none,
-                   mediums::roughness::tight)
-        , carrot(colors::orange, mediums::ambient::dim, colors::orange, mediums::smoothness::none,
-                 mediums::roughness::tight)
-        , plum{colors::plum, mediums::ambient::none, colors::plum, mediums::smoothness::none, mediums::roughness::loose}
-        , ground{raytrace::point{0, 0, 0}, R3::basis::Z}
-        , sn_btm{raytrace::point{0, 0, 2}, 2.5}
-        , sn_mid{raytrace::point{0, 0, 5}, 2}
-        , sn_top{raytrace::point{0, 0, 7.5}, 1.5}
-        , left_eye{raytrace::point{-0.5, 1.1, 8}, 0.3}
-        , right_eye{raytrace::point{0.5, 1.1, 8}, 0.3}
-        , nose{raytrace::point{0.0, 1.3, 7.5}, 0.3, 1.5}
-        , hat_btm{raytrace::point{0, 0, 8.8}, R3::vector{{0.0, -0.2, -1.0}}, 0.0, 1.5}
-        , hat_core{raytrace::point{0.0, 0.05, 9.05}, raytrace::point{0.0, 0.4, 10.8}, 1.0}
-        , hat_brim{raytrace::point{0.0, 0.0, 8.8}, raytrace::point{0.0, 0.05, 9.05}, 1.5}
-        , hat_rim{raytrace::point{0, 0.05, 9.05}, R3::vector{{0.0, 0.2, 1.0}}, 0.0, 1.5}
-        , hat_ribbon{raytrace::point{0, 0.05, 9.05}, raytrace::point{0, 0.1, 9.3}, 1.1}
-        , hat_top{raytrace::point{0, 0.4, 10.8}, R3::vector{{0.0, 0.2, 1.0}}, 0.0, 1.0}
-        , left_arm{raytrace::point{1, 0, 6.5}, raytrace::point{4, 0, 5}, 0.2}
-        , right_arm{raytrace::point{-1, 0, 6.5}, raytrace::point{-4, 0, 5}, 0.2}
-        , left_elbow{raytrace::point{4, 0, 5}, 0.2}
-        , right_elbow{raytrace::point{-4, 0, 5}, 0.2}
-        , left_forearm{raytrace::point{4, 0, 5}, raytrace::point{2.5, 0, 3}, 0.2}
-        , right_forearm{raytrace::point{-4, 0, 5}, raytrace::point{-2.5, 0, 3}, 0.2}
-        , left_hand{raytrace::point{2.5, 0, 3}, 0.4}
-        , right_hand{raytrace::point{-2.5, 0, 3}, 0.4}
-        , tree01{raytrace::point{-9, -5, 0}}
-        , tree02{raytrace::point{-5, -12, 0}}
-        , tree03{raytrace::point{-7, -8, 0}}
-        , tree04{raytrace::point{-7, -1, 0}}
-        , tree05{raytrace::point{-4, -3, 0}}
-        , tree06{raytrace::point{-15, -11, 0}}
-        , tree07{raytrace::point{0, -11, 0}}
-        , tree08{raytrace::point{9, -5, 0}}
-        , tree09{raytrace::point{5, -12, 0}}
-        , tree10{raytrace::point{7, -8, 0}}
-        , tree11{raytrace::point{7, -1, 0}}
-        , tree12{raytrace::point{4, -3, 0}}
-        , moonlight{R3::vector{{-1, -1, -1}}, colors::silver, lights::intensities::full}
-        , lights{}
-        , starfield{1024}  {
+        : world{},
+          look_from{-20, 14, 5.5},
+          look_at{0, 0, 5.5},
+          snow(colors::white, mediums::ambient::dim, colors::white, mediums::smoothness::none,
+               mediums::roughness::tight),
+          red_eyes(colors::red, mediums::ambient::glowy, colors::red, mediums::smoothness::none,
+                   mediums::roughness::tight),
+          carrot(colors::orange, mediums::ambient::dim, colors::orange, mediums::smoothness::none,
+                 mediums::roughness::tight),
+          plum{colors::plum, mediums::ambient::none, colors::plum, mediums::smoothness::none,
+               mediums::roughness::loose},
+          ground{raytrace::point{0, 0, 0}, R3::basis::Z},
+          sn_btm{raytrace::point{0, 0, 2}, 2.5},
+          sn_mid{raytrace::point{0, 0, 5}, 2},
+          sn_top{raytrace::point{0, 0, 7.5}, 1.5},
+          left_eye{raytrace::point{-0.5, 1.1, 8}, 0.3},
+          right_eye{raytrace::point{0.5, 1.1, 8}, 0.3},
+          nose{raytrace::point{0.0, 1.3, 7.5}, 0.3, 1.5},
+          hat_btm{raytrace::point{0, 0, 8.8}, R3::vector{{0.0, -0.2, -1.0}}, 0.0, 1.5},
+          hat_core{raytrace::point{0.0, 0.05, 9.05}, raytrace::point{0.0, 0.4, 10.8}, 1.0},
+          hat_brim{raytrace::point{0.0, 0.0, 8.8}, raytrace::point{0.0, 0.05, 9.05}, 1.5},
+          hat_rim{raytrace::point{0, 0.05, 9.05}, R3::vector{{0.0, 0.2, 1.0}}, 0.0, 1.5},
+          hat_ribbon{raytrace::point{0, 0.05, 9.05}, raytrace::point{0, 0.1, 9.3}, 1.1},
+          hat_top{raytrace::point{0, 0.4, 10.8}, R3::vector{{0.0, 0.2, 1.0}}, 0.0, 1.0},
+          left_arm{raytrace::point{1, 0, 6.5}, raytrace::point{4, 0, 5}, 0.2},
+          right_arm{raytrace::point{-1, 0, 6.5}, raytrace::point{-4, 0, 5}, 0.2},
+          left_elbow{raytrace::point{4, 0, 5}, 0.2},
+          right_elbow{raytrace::point{-4, 0, 5}, 0.2},
+          left_forearm{raytrace::point{4, 0, 5}, raytrace::point{2.5, 0, 3}, 0.2},
+          right_forearm{raytrace::point{-4, 0, 5}, raytrace::point{-2.5, 0, 3}, 0.2},
+          left_hand{raytrace::point{2.5, 0, 3}, 0.4},
+          right_hand{raytrace::point{-2.5, 0, 3}, 0.4},
+          tree01{raytrace::point{-9, -5, 0}},
+          tree02{raytrace::point{-5, -12, 0}},
+          tree03{raytrace::point{-7, -8, 0}},
+          tree04{raytrace::point{-7, -1, 0}},
+          tree05{raytrace::point{-4, -3, 0}},
+          tree06{raytrace::point{-15, -11, 0}},
+          tree07{raytrace::point{0, -11, 0}},
+          tree08{raytrace::point{9, -5, 0}},
+          tree09{raytrace::point{5, -12, 0}},
+          tree10{raytrace::point{7, -8, 0}},
+          tree11{raytrace::point{7, -1, 0}},
+          tree12{raytrace::point{4, -3, 0}},
+          moonlight{R3::vector{{-1, -1, -1}}, colors::silver, lights::intensities::full},
+          lights{},
+          starfield{1024} {
         ground.material(&snow);
         sn_btm.material(&mediums::metals::stainless);
         sn_mid.material(&mediums::metals::stainless);
@@ -112,8 +113,9 @@ public:
         hat_ribbon.material(&red_eyes);
         hat_top.material(&plum);
         for (int i = 0; i <= 10; i++) {
-            // lights.push_back(new lights::bulb(raytrace::point{i - 5, 0, 15}, 1.0, colors::white, lights::intensities::blinding, 4));
-            // lights.push_back(new lights::speck(raytrace::point{i - 5, 0, 15}, colors::white, 5));
+            // lights.push_back(new lights::bulb(raytrace::point{i - 5, 0, 15}, 1.0, colors::white,
+            // lights::intensities::blinding, 4)); lights.push_back(new lights::speck(raytrace::point{i - 5, 0, 15},
+            // colors::white, 5));
         }
         // move the nose into the right orientation
         nose.rotation(iso::degrees(270), iso::degrees(0), iso::degrees(0));
@@ -188,20 +190,15 @@ public:
 
     raytrace::animation::anchors get_anchors() const override {
         raytrace::animation::anchors anchors;
-        anchors.push_back(
-            animation::Anchor{
-                animation::Attributes{look_from, look_at, 35.0_deg},
-                animation::Attributes{raytrace::point{20, 14, 5.5}, look_at, 35.0_deg},
-                animation::Mappers{}, iso::seconds{5.0_p}
-            });
-        anchors.push_back(
-            animation::Anchor{
-                anchors.back().limit, // previous limit is this start
-                animation::Attributes{look_from, look_at, 35.0_deg},
-                animation::Mappers{}, iso::seconds{5.0_p}
-            });
+        anchors.push_back(animation::Anchor{animation::Attributes{look_from, look_at, 35.0_deg},
+                                            animation::Attributes{raytrace::point{20, 14, 5.5}, look_at, 35.0_deg},
+                                            animation::Mappers{}, iso::seconds{5.0_p}});
+        anchors.push_back(animation::Anchor{anchors.back().limit,  // previous limit is this start
+                                            animation::Attributes{look_from, look_at, 35.0_deg}, animation::Mappers{},
+                                            iso::seconds{5.0_p}});
         return anchors;
     }
+
 protected:
     raytrace::point look_from;
     raytrace::point look_at;

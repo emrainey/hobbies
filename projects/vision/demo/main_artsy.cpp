@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
     cv::imwrite("magnitude.jpg", mag);
     white = cv::Mat(mag.size(), CV_8UC1);
     white.setTo(cv::Scalar::all(255));
-    cv::subtract(white,mag,inv);
+    cv::subtract(white, mag, inv);
     cv::imwrite("inverted.jpg", inv);
     // blend the median image and the inverted edges image
     cv::addWeighted(inv, 0.5, tmp[0], 0.5, 0, blend);

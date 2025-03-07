@@ -16,28 +16,29 @@ using namespace iso::literals;
 class LensWorld : public world {
 public:
     LensWorld()
-        : world{}
-        , look_from{30, 0, 22}
-        , look_at{0, 0, 0}
-        , grid{1.0, colors::dark_olive_green, colors::black}
-        , glass{mediums::refractive_index::glass, 0.22, colors::dark_gray}
-        , info{10.0, iso::radians(iso::pi / 4)}
-        , x0{raytrace::point{info.separation, 0, 0}, info.radius}
-        , x1{raytrace::point{-info.separation, 0, 0}, info.radius}
-        , convex_lens{x0, x1, objects::overlap::type::inclusive}
-        // , pyramid_center{10, 10, 10.1}
-        // , pyramid_core{pyramid_center, 10.1}
-        // , pyramid_bounds{pyramid_center, 5, 5, 10}
-        // , pyramid_overlap{pyramid_core, pyramid_bounds, objects::overlap::type::inclusive}
-        , glass_donut{raytrace::point{10, -10, 3.5}, 5.0, 2.5}
-        , ground{R3::origin, R3::basis::Z, 100, 100}
-        , sunlight{raytrace::vector{-2, 2, -1}, colors::white, lights::intensities::full}
-        , prick{raytrace::point{0, 0, 22}, colors::white, 1E6} {
+        : world{},
+          look_from{30, 0, 22},
+          look_at{0, 0, 0},
+          grid{1.0, colors::dark_olive_green, colors::black},
+          glass{mediums::refractive_index::glass, 0.22, colors::dark_gray},
+          info{10.0, iso::radians(iso::pi / 4)},
+          x0{raytrace::point{info.separation, 0, 0}, info.radius},
+          x1{raytrace::point{-info.separation, 0, 0}, info.radius},
+          convex_lens{x0, x1, objects::overlap::type::inclusive}
+          // , pyramid_center{10, 10, 10.1}
+          // , pyramid_core{pyramid_center, 10.1}
+          // , pyramid_bounds{pyramid_center, 5, 5, 10}
+          // , pyramid_overlap{pyramid_core, pyramid_bounds, objects::overlap::type::inclusive}
+          ,
+          glass_donut{raytrace::point{10, -10, 3.5}, 5.0, 2.5},
+          ground{R3::origin, R3::basis::Z, 100, 100},
+          sunlight{raytrace::vector{-2, 2, -1}, colors::white, lights::intensities::full},
+          prick{raytrace::point{0, 0, 22}, colors::white, 1E6} {
         convex_lens.position(raytrace::point{0, 0, 5});
         // reduce the volumetric point to a planar point
         grid.mapper(std::bind(&raytrace::objects::square::map, &ground, std::placeholders::_1));
         look_at = raytrace::point{0, 0, info.radius};
-        x0.material(&glass );
+        x0.material(&glass);
         x1.material(&glass);
         convex_lens.material(&glass);  // should assign all submaterials too? we assume const refs so it can't.
         // pyramid_core.material(&mediums::metals::chrome);
@@ -85,18 +86,12 @@ public:
 
     raytrace::animation::anchors get_anchors() const override {
         raytrace::animation::anchors anchors;
-        anchors.push_back(
-            animation::Anchor{
-                animation::Attributes{look_from, look_at, 45.0_deg},
-                animation::Attributes{raytrace::point{0, 30, 22}, look_at, 25.0_deg},
-                animation::Mappers{}, iso::seconds{3.0_p}
-            });
-        anchors.push_back(
-            animation::Anchor{
-                anchors.back().limit, // previous limit is this start
-                animation::Attributes{raytrace::point{-30, 0, 22}, look_at, 45.0_deg},
-                animation::Mappers{}, iso::seconds{3.0_p}
-            });
+        anchors.push_back(animation::Anchor{animation::Attributes{look_from, look_at, 45.0_deg},
+                                            animation::Attributes{raytrace::point{0, 30, 22}, look_at, 25.0_deg},
+                                            animation::Mappers{}, iso::seconds{3.0_p}});
+        anchors.push_back(animation::Anchor{anchors.back().limit,  // previous limit is this start
+                                            animation::Attributes{raytrace::point{-30, 0, 22}, look_at, 45.0_deg},
+                                            animation::Mappers{}, iso::seconds{3.0_p}});
         return anchors;
     }
 

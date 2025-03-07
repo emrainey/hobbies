@@ -32,7 +32,6 @@ vector_<pack_type, dimensions> operator-(point_<pack_type, dimensions> const& a,
 
 }  // namespace intel
 
-#endif // defined(__x86_64__)
+#endif  // defined(__x86_64__)
 
-#endif // XMMT_XMMT_HPP_INCLUDED
-
+#endif  // XMMT_XMMT_HPP_INCLUDED

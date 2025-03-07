@@ -112,7 +112,6 @@ struct alignas(uint16_t) rgbh {
 };
 static_assert(sizeof(rgbh) == 6, "rgbh must be 6 bytes");
 
-
 /// Defines a 4 Channel 32 Bit Float Precision Color Format
 struct alignas(float) rgbaf {
     /// Constructor
@@ -149,7 +148,7 @@ enum class pixel_format : std::uint32_t {
     sRGB = four_character_code('s', 'R', 'G', 'B'),   ///< Uses @reg rgbf but limited to 0.0 to 1.0
     RGBf = four_character_code('R', 'G', 'B', 'f'),   ///< Uses @reg rgbf
     RGBh = four_character_code('R', 'G', 'B', 'h'),   ///< Uses @reg rgbh (half precision) with any value
-    RGBAf = four_character_code('R', 'G', 'B', 'F'),   ///< Uses @reg rgbaf
+    RGBAf = four_character_code('R', 'G', 'B', 'F'),  ///< Uses @reg rgbaf
     RGBP = four_character_code('R', 'G', 'B', 'P'),   ///< Uses @reg rgb565
 };
 
@@ -306,12 +305,12 @@ public:
 
     /// Sized and typed constructor
     image(size_t h, size_t w)
-        : depth{channels_in_format(PIXEL_FORMAT)}
-        , width{w}
-        , height{h}
-        , planes{planes_in_format(PIXEL_FORMAT)}
-        , format{PIXEL_FORMAT}
-        , data{planes} {
+        : depth{channels_in_format(PIXEL_FORMAT)},
+          width{w},
+          height{h},
+          planes{planes_in_format(PIXEL_FORMAT)},
+          format{PIXEL_FORMAT},
+          data{planes} {
         for (auto& plane : data) {
             // each unit is a PIXEL_TYPE
             plane.resize(width * height);
@@ -320,19 +319,18 @@ public:
 
     /// Copy constructor
     image(image const& other)
-        : depth{channels_in_format(PIXEL_FORMAT)}
-        , width{other.width}
-        , height{other.height}
-        , planes{planes_in_format(PIXEL_FORMAT)}
-        , format{PIXEL_FORMAT}
-        , data{planes} {
+        : depth{channels_in_format(PIXEL_FORMAT)},
+          width{other.width},
+          height{other.height},
+          planes{planes_in_format(PIXEL_FORMAT)},
+          format{PIXEL_FORMAT},
+          data{planes} {
         for (auto& plane : data) {
             // each unit is a PIXEL_TYPE
             plane.resize(width * height);
         }
         // copy
-        for_each ([&](size_t y, size_t x, PIXEL_TYPE& pixel) { pixel = other.at(y, x); })
-            ;
+        for_each([&](size_t y, size_t x, PIXEL_TYPE& pixel) { pixel = other.at(y, x); });
     }
 
     /// Move constructor
@@ -358,7 +356,7 @@ public:
     using const_ref_pixel = std::function<void(PIXEL_TYPE const& pixel)>;
 
     /// Iterates over each pixel giving a mutable reference to the iterator
-    image& for_each (coord_ref_pixel iter) {
+    image& for_each(coord_ref_pixel iter) {
         for (size_t p = 0; p < planes; p++) {
             // each plane in it's own buffer
             for (size_t y = 0; y < height; y++) {
@@ -372,7 +370,7 @@ public:
     }
 
     /// Iterates over each pixel giving a mutable reference to the iterator
-    image& for_each (ref_pixel iter) {
+    image& for_each(ref_pixel iter) {
         for (size_t p = 0; p < planes; p++) {
             // each plane in it's own buffer
             for (size_t y = 0; y < height; y++) {
@@ -386,7 +384,7 @@ public:
     }
 
     /// Iterates over each pixel giving a const reference to the iterator
-    void for_each (coord_const_ref_pixel iter) const {
+    void for_each(coord_const_ref_pixel iter) const {
         for (size_t p = 0; p < planes; p++) {
             // each plane in it's own buffer
             for (size_t y = 0; y < height; y++) {
@@ -399,7 +397,7 @@ public:
     }
 
     /// Iterates over each pixel giving a const reference to the iterator
-    void for_each (const_ref_pixel iter) const {
+    void for_each(const_ref_pixel iter) const {
         for (size_t p = 0; p < planes; p++) {
             // each plane in it's own buffer
             for (size_t y = 0; y < height; y++) {
@@ -448,13 +446,13 @@ protected:
 
 /// Enumerates the channels
 enum class channel : int8_t {
-    R, ///< Red
-    G, ///< Green
-    B, ///< Blue
-    Y, ///< Luminance
-    U, ///< Chrominance U
-    V, ///< Chrominance V
-    A, ///< Alpha
+    R,  ///< Red
+    G,  ///< Green
+    B,  ///< Blue
+    Y,  ///< Luminance
+    U,  ///< Chrominance U
+    V,  ///< Chrominance V
+    A,  ///< Alpha
 };
 
 /// Convolves a specific channel of the input image and the kernel into the output gradient image
@@ -484,7 +482,8 @@ void filter(fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8>& output,
 
 /// Runs a 2D 3x3 Filter across an image
 /// @warning no gamma correction!
-void filter(image<rgb8, pixel_format::RGB8>& output, image<rgb8, pixel_format::RGB8> const& input, int16_t (&kernel)[3][3]);
+void filter(image<rgb8, pixel_format::RGB8>& output, image<rgb8, pixel_format::RGB8> const& input,
+            int16_t (&kernel)[3][3]);
 
 /// @brief Box 2D filter
 /// @param output The output image

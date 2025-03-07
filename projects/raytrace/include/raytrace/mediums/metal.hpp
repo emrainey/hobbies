@@ -12,8 +12,7 @@ public:
     virtual ~metal() = default;
 
     // metals can alter the specular light given off from them.
-    color specular(raytrace::point const& volumetric_point, precision scaling,
-                   color const& light_color) const override;
+    color specular(raytrace::point const& volumetric_point, precision scaling, color const& light_color) const override;
 
     vector perturbation(raytrace::point const& volumetric_point) const override;
 

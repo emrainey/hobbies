@@ -32,12 +32,11 @@ plane::plane(R3::point const& op, R3::vector const& on) : m_normal{on}, m_center
     m_normal.normalize();
 }
 
-plane::plane(std::vector<precision> const&list) : plane(list[0], list[1], list[2], list[3]) {
+plane::plane(std::vector<precision> const& list) : plane(list[0], list[1], list[2], list[3]) {
     assert(list.size() == 4);
 }
 
-plane::plane(precision a, precision b, precision c, precision d)
-    : m_normal{{a, b, c}}, m_center_point{} {
+plane::plane(precision a, precision b, precision c, precision d) : m_normal{{a, b, c}}, m_center_point{} {
     // before we normalize, we solve for the point
     // normal line through the origin
     R3::line l{m_normal, geometry::R3::origin};
@@ -56,8 +55,7 @@ plane::plane(precision a, precision b, precision c, precision d)
     basal::exception::throw_unless(contains(m_center_point), __FILE__, __LINE__);
 }
 
-plane::plane(R3::point const& a, R3::point const& b, R3::point const& c)
-    : m_normal{}, m_center_point{b} {
+plane::plane(R3::point const& a, R3::point const& b, R3::point const& c) : m_normal{}, m_center_point{b} {
     // we have to declare the vector as a 3 element object (above) so that the move assignment works.
     R3::vector ba = b - a;
     R3::vector ca = c - a;
@@ -73,20 +71,17 @@ plane::plane(R3::point const& a, R3::point const& b, R3::point const& c)
 }
 
 plane::plane(plane const& other)
-    : m_normal{other.m_normal}
-    , m_center_point{other.m_center_point}
-    , eq{other.eq}
-    , m_magnitude{other.m_magnitude} {
+    : m_normal{other.m_normal}, m_center_point{other.m_center_point}, eq{other.eq}, m_magnitude{other.m_magnitude} {
 }
 
-plane::plane(plane &&other)
-    : m_normal{std::move(other.m_normal)}
-    , m_center_point{std::move(other.m_center_point)}
-    , eq{std::move(other.eq)}
-    , m_magnitude{other.m_magnitude} {
+plane::plane(plane&& other)
+    : m_normal{std::move(other.m_normal)},
+      m_center_point{std::move(other.m_center_point)},
+      eq{std::move(other.eq)},
+      m_magnitude{other.m_magnitude} {
 }
 
-plane &plane::operator=(plane const& other) {
+plane& plane::operator=(plane const& other) {
     m_normal = other.m_normal;
     m_center_point = other.m_center_point;
     eq = other.eq;
@@ -94,7 +89,7 @@ plane &plane::operator=(plane const& other) {
     return (*this);
 }
 
-plane &plane::operator=(plane &&other) {
+plane& plane::operator=(plane&& other) {
     m_normal = std::move(other.m_normal);
     m_center_point = std::move(other.m_center_point);
     eq = std::move(other.eq);
@@ -173,7 +168,7 @@ bool plane::contains(R3::line const& l) const {
     return (contains(p1) && contains(p2));
 }
 
-const struct coefficients_t &plane::coefficient() const {
+const struct coefficients_t& plane::coefficient() const {
     return eq;
 }
 
@@ -186,8 +181,8 @@ bool plane::operator==(plane const& other) const {
     return normals && points;
     // they don't have to have the same points.
     // they don't have to have d == d they can be |d| == |d|
-    // return (nearly_equals(eq.d,other.eq.d) && (m_center_point == other.m_center_point) && (m_normal || other.m_normal)); //
-    // the normal could be negative?
+    // return (nearly_equals(eq.d,other.eq.d) && (m_center_point == other.m_center_point) && (m_normal ||
+    // other.m_normal)); // the normal could be negative?
 }
 
 bool plane::operator!=(plane const& other) const {
@@ -198,7 +193,7 @@ precision plane::angle(plane const& P) const {
     return acos(dot(m_normal, P.unormal()));
 }
 
-std::ostream &operator<<(std::ostream &os, plane const& p) {
+std::ostream& operator<<(std::ostream& os, plane const& p) {
     os << "plane(" << p.coefficient().a << "x+" << p.coefficient().b << "y+" << p.coefficient().c << "z+"
        << p.coefficient().d << "=0)";
     return os;

@@ -14,8 +14,8 @@ TEST(LensTest, Raycast) {
     precision const lens_diameter = 10.0;
     iso::radians const half_angle = iso::radians(iso::pi / 4);
     ConvexLensData info{lens_diameter, half_angle};
-    printf("Diameter: %f, Angle: %f, Radius: %f, Separation: %f, Bulge: %f\n",
-            lens_diameter, half_angle.value, info.radius, info.separation, info.bulge);
+    printf("Diameter: %f, Angle: %f, Radius: %f, Separation: %f, Bulge: %f\n", lens_diameter, half_angle.value,
+           info.radius, info.separation, info.bulge);
     raytrace::objects::sphere x0{raytrace::point{info.separation, 0, 0}, info.radius};
     raytrace::objects::sphere x1{raytrace::point{-info.separation, 0, 0}, info.radius};
     raytrace::objects::overlap convex_lens{x0, x1, objects::overlap::type::inclusive};
@@ -41,7 +41,8 @@ TEST(LensTest, Raycast) {
         EXPECT_LT(-1.0_p, hit.normal[0]);
         EXPECT_LT(0.0_p, hit.normal[2]);
 
-        raytrace::ray refraction = convex_lens.refraction(r, hit.normal, as_point(hit.intersect), mediums::earth_atmosphere.refractive_index(as_point(hit.intersect)),
+        raytrace::ray refraction = convex_lens.refraction(
+            r, hit.normal, as_point(hit.intersect), mediums::earth_atmosphere.refractive_index(as_point(hit.intersect)),
             glass.refractive_index(as_point(hit.intersect)));
 
         // EXPECT_VECTOR_EQ(raytrace::vector({-1, 0, 0}), refraction.direction());
@@ -58,7 +59,8 @@ TEST(LensTest, Raycast) {
         EXPECT_LT(-1.0_p, hit.normal[0]);
         EXPECT_LT(0.0_p, hit.normal[2]);
 
-        raytrace::ray refraction = convex_lens.refraction(r, hit.normal, as_point(hit.intersect), mediums::earth_atmosphere.refractive_index(as_point(hit.intersect)),
+        raytrace::ray refraction = convex_lens.refraction(
+            r, hit.normal, as_point(hit.intersect), mediums::earth_atmosphere.refractive_index(as_point(hit.intersect)),
             glass.refractive_index(as_point(hit.intersect)));
 
         // EXPECT_VECTOR_EQ(raytrace::vector({-1, 0, 0}), refraction.direction());
@@ -66,4 +68,3 @@ TEST(LensTest, Raycast) {
         EXPECT_LT(-0.1_p, refraction.direction()[2]);
     }
 }
-

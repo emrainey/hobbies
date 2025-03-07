@@ -41,7 +41,8 @@ constexpr static precision moissanite = 2.65_p;
 
 /// Computes the dispersion of a specific type of dielectric material at an exact wavelength of light.
 /// High quality SCHOTT glass and others can use this formula */
-inline precision dispersion(precision a1, precision a2, precision b1, precision b2, precision c1, precision c2, precision w_nm) {
+inline precision dispersion(precision a1, precision a2, precision b1, precision b2, precision c1, precision c2,
+                            precision w_nm) {
     precision w_um = w_nm * 0.001_p;
     precision w2 = w_um * w_um;
     precision n2 = ((a1 * w2) / (w2 - a2)) + ((b1 * w2) / (w2 - b2)) + ((c1 * w2) / (w2 - c2)) + 1.0_p;

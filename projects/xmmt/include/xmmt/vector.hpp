@@ -117,8 +117,8 @@ public:
 
     /// Scales the vector by the approximate magnitude
     inline vector_& normalize() {
-        double2 tmp;                          // we'll use this for union access only
-        tmp.datum[0] = quadrance();           // put it in the bottom
+        double2 tmp;                 // we'll use this for union access only
+        tmp.datum[0] = quadrance();  // put it in the bottom
         if constexpr (std::is_same_v<element_type, float>) {
             tmp.data = _mm_rsqrt_ps(tmp.data);  // get the inv sqrt approx
         } else {
@@ -245,7 +245,7 @@ public:
                 vector_ c{tmp};
                 d = c[0];
             }
-        } else { // 3 or 4 elements
+        } else {  // 3 or 4 elements
             if constexpr (std::is_same_v<element_type, float>) {
                 __m128 t = _mm_mul_ps(a.data, b.data);
                 __m128 z = _mm_setzero_ps();
@@ -264,7 +264,7 @@ public:
                 d = c[0];
             }
             if constexpr (pack_type::desired_elements == 3) {
-                d -= 1.0_p; // since element 3 should be 1.0_p
+                d -= 1.0_p;  // since element 3 should be 1.0_p
             }
         }
         return d;
@@ -300,7 +300,6 @@ public:
         os << "vector " << b;
         return os;
     }
-
 };
 
-} // namespace intel
+}  // namespace intel

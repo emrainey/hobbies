@@ -6,7 +6,8 @@ namespace objects {
 
 quadratic::quadratic(point const& center)
     : object{center, 2, true}  // 2 collisions, closed surface (CHECK)
-    , m_coefficients{4, 4}     // start zeroed
+      ,
+      m_coefficients{4, 4}  // start zeroed
 {
     basal::exception::throw_unless(m_coefficients.rows == 4 and m_coefficients.cols == 4, __FILE__, __LINE__,
                                    "Must be a 4x4");
@@ -14,7 +15,8 @@ quadratic::quadratic(point const& center)
 
 quadratic::quadratic(point const& center, raytrace::matrix& C)
     : object{center, 2, true}  // 2 collisions, closed surface (CHECK)
-    , m_coefficients{C} {
+      ,
+      m_coefficients{C} {
     basal::exception::throw_unless(m_coefficients.rows == 4 and m_coefficients.cols == 4, __FILE__, __LINE__,
                                    "Must be a 4x4");
 }
@@ -53,10 +55,10 @@ hits quadratic::collisions_along(ray const& object_ray) const {
     precision Q44 = Q.at(4, 4);
     precision a = i * (i * Q11 + j * (Q1221)) + j * (j * Q22 + k * (Q2332)) + k * (k * Q33 + i * (Q1331));
     precision b = i * ((z * (Q1331) + y * (Q1221) + x * (2.0 * Q11)) + (Q1441))
-                     + j * ((z * (Q2332) + x * (Q1221) + y * (2.0 * Q22)) + (Q2442))
-                     + k * ((y * (Q2332) + x * (Q1331) + z * (2.0 * Q33)) + (Q3443));
+                  + j * ((z * (Q2332) + x * (Q1221) + y * (2.0 * Q22)) + (Q2442))
+                  + k * ((y * (Q2332) + x * (Q1331) + z * (2.0 * Q33)) + (Q3443));
     precision c = x * (x * Q11 + y * (Q1221) + z * (Q1331) + (Q1441)) + y * (y * Q22 + z * (Q2332) + (Q2442))
-                     + z * (z * Q33 + (Q3443)) + Q44;
+                  + z * (z * Q33 + (Q3443)) + Q44;
     auto roots = quadratic_roots(a, b, c);
     precision t0 = std::get<0>(roots);
     precision t1 = std::get<1>(roots);

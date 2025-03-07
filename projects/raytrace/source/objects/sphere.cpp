@@ -12,8 +12,8 @@ using namespace geometry;
 using namespace geometry::operators;
 
 sphere::sphere(point const& c, precision r)
-    : geometry::R3::sphere(r)
-    , object(c, 2, true)  // up to 2 collisions, closed surface
+    : geometry::R3::sphere(r),
+      object(c, 2, true)  // up to 2 collisions, closed surface
 {
 }
 
@@ -25,7 +25,6 @@ bool sphere::is_surface_point(point const& world_surface_point) const {
 vector sphere::normal_(point const& object_surface_point) const {
     return geometry::R3::sphere::normal_at(object_surface_point);
 }
-
 
 hits sphere::collisions_along(ray const& object_ray) const {
     hits ts;

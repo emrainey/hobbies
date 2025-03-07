@@ -10,23 +10,26 @@ using namespace linalg::operators;
 
 overlap::overlap(object const& A, object const& B, overlap::type type)
     // FIXME the max collisions are off !
-    : object{A.position(),
-             (A.max_collisions() + B.max_collisions())/(type == overlap::type::inclusive ? 2 : 1),
-             A.is_closed_surface() and B.is_closed_surface()}
-    , m_A{A}
-    , m_B{B}
-    , m_type{type}
-    , m_closed_two_hit_surfaces_{basal::is_even(m_A.max_collisions()) and basal::is_even(m_B.max_collisions()) and m_A.is_closed_surface() and m_B.is_closed_surface()}
-    , m_open_two_hit_surfaces_{basal::is_even(m_A.max_collisions()) and basal::is_even(m_B.max_collisions()) and not m_A.is_closed_surface() and not m_B.is_closed_surface()}
-    , m_open_one_hit_surfaces_{basal::is_odd(m_A.max_collisions()) and basal::is_odd(m_B.max_collisions()) and not m_A.is_closed_surface() and not m_B.is_closed_surface()}
-    {
+    : object{A.position(), (A.max_collisions() + B.max_collisions()) / (type == overlap::type::inclusive ? 2 : 1),
+             A.is_closed_surface() and B.is_closed_surface()},
+      m_A{A},
+      m_B{B},
+      m_type{type},
+      m_closed_two_hit_surfaces_{basal::is_even(m_A.max_collisions()) and basal::is_even(m_B.max_collisions())
+                                 and m_A.is_closed_surface() and m_B.is_closed_surface()},
+      m_open_two_hit_surfaces_{basal::is_even(m_A.max_collisions()) and basal::is_even(m_B.max_collisions())
+                               and not m_A.is_closed_surface() and not m_B.is_closed_surface()},
+      m_open_one_hit_surfaces_{basal::is_odd(m_A.max_collisions()) and basal::is_odd(m_B.max_collisions())
+                               and not m_A.is_closed_surface() and not m_B.is_closed_surface()} {
     if (m_type != overlap::type::subtractive) {
-        // only subtractive objects have their positions as the original objects, otherwise the overlap object is at the centroid of the two
+        // only subtractive objects have their positions as the original objects, otherwise the overlap object is at the
+        // centroid of the two
         position(centroid(A.position(), B.position()));
     }
     // throw_exception_if(m_A.max_collisions() != 2, "First item must have a max of %" PRIu32 " collisions", 2u);
     // throw_exception_if(m_B.max_collisions() != 2, "Second item must have a max of %" PRIu32 " collisions", 2u);
-    throw_exception_unless(m_closed_two_hit_surfaces_ or m_open_one_hit_surfaces_ or m_open_two_hit_surfaces_, "Must be one of these %lu types", 3);
+    throw_exception_unless(m_closed_two_hit_surfaces_ or m_open_one_hit_surfaces_ or m_open_two_hit_surfaces_,
+                           "Must be one of these %lu types", 3);
 }
 
 vector overlap::normal_(point const& overlap_point) const {
@@ -178,7 +181,7 @@ hits overlap::collisions_along(ray const& overlap_ray) const {
         }
         if (m_open_two_hit_surfaces_) {
             // if just [A0, A1] or [B0, B1] then check to see if those points are inside the other
-            if (hitsA.size() == 0) { // then B has to have hits
+            if (hitsA.size() == 0) {  // then B has to have hits
                 point const B0 = object_rayB.distance_along(hitsB[0].distance);
                 point const B1 = object_rayB.distance_along(hitsB[1].distance);
                 if (not m_A.is_outside(B0) and not m_A.is_outside(B1)) {
@@ -186,7 +189,7 @@ hits overlap::collisions_along(ray const& overlap_ray) const {
                 }
                 return hits{};
             }
-            if (hitsB.size() == 0) { // then A has to have hits
+            if (hitsB.size() == 0) {  // then A has to have hits
                 point const A0 = object_rayA.distance_along(hitsA[0].distance);
                 point const A1 = object_rayA.distance_along(hitsA[1].distance);
                 if (not m_B.is_outside(A0) and not m_B.is_outside(A1)) {
@@ -273,11 +276,11 @@ bool overlap::is_outside(point const& world_point) const {
     if (m_type == overlap::type::additive) {
         return outside_A and outside_B;
     } else if (m_type == overlap::type::subtractive) {
-        return not (not outside_A and outside_B);
+        return not(not outside_A and outside_B);
     } else if (m_type == overlap::type::inclusive) {
         return outside_A or outside_B;
     } else if (m_type == overlap::type::exclusive) {
-        return not (outside_A xor outside_B);
+        return not(outside_A xor outside_B);
     }
     return false;
 }

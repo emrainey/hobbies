@@ -5,12 +5,12 @@ namespace raytrace {
 
 stereo_camera::stereo_camera(size_t image_height, size_t image_width, iso::degrees field_of_view,
                              double camera_separation, Layout layout)
-    : m_separation{camera_separation}
-    , m_toe_in{0u}
-    , m_layout{layout}
-    , m_cameras{{image_height, image_width, field_of_view},
-                {image_height, image_width, field_of_view}} {
-    basal::exception::throw_if((m_separation < 0.0), __FILE__, __LINE__, "The camera separation %lf must be greater than 0.", m_separation);
+    : m_separation{camera_separation},
+      m_toe_in{0u},
+      m_layout{layout},
+      m_cameras{{image_height, image_width, field_of_view}, {image_height, image_width, field_of_view}} {
+    basal::exception::throw_if((m_separation < 0.0), __FILE__, __LINE__,
+                               "The camera separation %lf must be greater than 0.", m_separation);
 }
 
 void stereo_camera::move_to(point const& look_from, point const& look_at) {
@@ -58,7 +58,7 @@ image stereo_camera::merge_images(void) const noexcept {
             }
         });
         return merged;
-    } else { // if (m_layout == Layout::TopBottom) {
+    } else {  // if (m_layout == Layout::TopBottom) {
         // the height is the sum of the two heights (top and bottom)
         raytrace::image merged{m_cameras[0].capture.height + m_cameras[1].capture.height, m_cameras[0].capture.width};
         merged.for_each([&](size_t row, size_t col, fourcc::rgb8& pixel) -> void {

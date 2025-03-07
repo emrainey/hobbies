@@ -108,10 +108,7 @@ TEST(FunctionTest, RandomNoise) {
     precision s = 2.0_p;
     palette pal;  // not really used
     img.generate_each([&](image::point const& p1) -> raytrace::color {
-        image::point uv{
-            s * ((p1.x / img.width) - 0.5_p),
-            s * ((p1.y / img.height) - 0.5_p)
-        };
+        image::point uv{s * ((p1.x / img.width) - 0.5_p), s * ((p1.y / img.height) - 0.5_p)};
         return functions::pseudo_random_noise(uv, pal);
         // return colors::red;
     });

@@ -31,7 +31,7 @@ struct config {
 void process(size_t num_opts, config options[], int argc, char* argv[]);
 
 template <size_t NUM_OPTS, typename T>
-bool find(config const(&options)[NUM_OPTS], std::string long_name, T& value) {
+bool find(config const (&options)[NUM_OPTS], std::string long_name, T& value) {
     for (size_t j = 0; j < NUM_OPTS; j++) {
         if (not options[j].long_switch.empty() and options[j].long_switch == long_name) {
             auto value_pointer = std::get_if<T>(&options[j].value);

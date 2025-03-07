@@ -37,11 +37,11 @@ public:
     /// Copy Constructor
     line(line const& other);
     /// Move Constructor
-    line(line &&other);
+    line(line&& other);
     /// Copy Assign
-    line &operator=(line const& other);
+    line& operator=(line const& other);
     /// Move Assign
-    line &operator=(line &&other);
+    line& operator=(line&& other);
     /// Default Destructor
     virtual ~line() = default;
 
@@ -51,7 +51,7 @@ public:
     R3::point solve(precision t) const;
 
     /// Determines if a point is on the line and returns the t value if it is.
-    bool solve(point const& n, precision &t) const;
+    bool solve(point const& n, precision& t) const;
 
     /// Normalizes the direction and returns a point at a distance along the line
     R3::point distance_along(precision t) const;

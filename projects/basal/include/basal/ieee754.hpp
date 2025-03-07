@@ -35,10 +35,12 @@ static_assert(std::numeric_limits<precision>::is_iec559, "Must conform to IEEE75
 
 namespace literals {
 /// When basal's type for precision is defined you can use 1.0_p and it will transparently go to the right type
-constexpr inline precision operator""_p(long double v) { return precision(v); }
+constexpr inline precision operator""_p(long double v) {
+    return precision(v);
+}
 static_assert(std::is_same<decltype(1.0_p), basal::precision>(), "Must be a precision type");
 static_assert(std::is_floating_point<decltype(1.0_p)>(), "Must be a floating value");
-}
+}  // namespace literals
 
 /// If high precision is used, it's 1/(1024*1024) else only (1/1024)
 constexpr static precision epsilon = use_high_precision ? 0x1.0p-20 : 0x1.0p-10;
@@ -94,13 +96,15 @@ inline precision rand_range(precision min_v, precision max_v) {
 }
 
 inline bool is_nan(precision a) {
-    return (a != a); // Only NaN is not equal to itself
+    return (a != a);  // Only NaN is not equal to itself
 }
 
 /// @brief A structure for examining the IEEE754 representation of a single precision floating point number
 struct single {
-    constexpr single() : native{0.0f} {}
-    constexpr single(float f) : native{f} {}
+    constexpr single() : native{0.0f} {
+    }
+    constexpr single(float f) : native{f} {
+    }
 
     static constexpr int bias = 127;
     static constexpr int min_exponent = -126;
@@ -108,9 +112,9 @@ struct single {
     static constexpr int special_exponent = 0b1111'1111;
     static constexpr int zero_exponent = 0b0000'0000;
     struct fields {
-        std::uint32_t mantissa : 23; // bits 0-22
-        std::uint32_t exponent : 8; // bits 23-30
-        std::uint32_t sign     : 1; // bit 31
+        std::uint32_t mantissa : 23;  // bits 0-22
+        std::uint32_t exponent : 8;   // bits 23-30
+        std::uint32_t sign : 1;       // bit 31
     };
     union {
         fields bits;
@@ -119,7 +123,8 @@ struct single {
     };
 
     friend std::ostream& operator<<(std::ostream& os, single const& v) {
-        return os << "single=" << std::hex << "s:" << v.bits.sign << " e:(hex)" << v.bits.exponent << " (dec)" << std::dec << v.bits.exponent << std::hex << " m:" << v.bits.mantissa << " float=" << v.native;
+        return os << "single=" << std::hex << "s:" << v.bits.sign << " e:(hex)" << v.bits.exponent << " (dec)"
+                  << std::dec << v.bits.exponent << std::hex << " m:" << v.bits.mantissa << " float=" << v.native;
     }
 };
 
@@ -130,11 +135,13 @@ struct half {
     static constexpr int max_exponent = 15;
     static constexpr int special_exponent = 0b11111;
     static constexpr int zero_exponent = 0b00000;
-    constexpr half() : raw{0} {}
+    constexpr half() : raw{0} {
+    }
     constexpr half(float f) : raw{0} {
         from(f);
     }
-    constexpr half(std::uint32_t s, std::uint32_t e, std::uint32_t m) : bits(m, e, s) {}
+    constexpr half(std::uint32_t s, std::uint32_t e, std::uint32_t m) : bits(m, e, s) {
+    }
 
     half& operator=(float f) {
         from(f);
@@ -142,10 +149,11 @@ struct half {
     }
 
     struct fields {
-        constexpr fields(std::uint32_t m, std::uint32_t e, std::uint32_t s) : mantissa(m), exponent(e), sign(s) {}
-        std::uint16_t mantissa : 10; // bits 0-9
-        std::uint16_t exponent : 5;  // bits 10-14
-        std::uint16_t sign     : 1;  // bit 15
+        constexpr fields(std::uint32_t m, std::uint32_t e, std::uint32_t s) : mantissa(m), exponent(e), sign(s) {
+        }
+        std::uint16_t mantissa : 10;  // bits 0-9
+        std::uint16_t exponent : 5;   // bits 10-14
+        std::uint16_t sign : 1;       // bit 15
     };
     union {
         fields bits;
@@ -153,7 +161,8 @@ struct half {
     };
 
     friend std::ostream& operator<<(std::ostream& os, half const& h) {
-        return os << "half=" << std::hex << "s:" << h.bits.sign << " e:(hex)" << h.bits.exponent << " (dec)" << std::dec << h.bits.exponent << std::hex << " m:" << h.bits.mantissa;
+        return os << "half=" << std::hex << "s:" << h.bits.sign << " e:(hex)" << h.bits.exponent << " (dec)" << std::dec
+                  << h.bits.exponent << std::hex << " m:" << h.bits.mantissa;
     }
 
     bool operator==(half const& h) const {
@@ -165,9 +174,10 @@ struct half {
         bool special_exp = (bits.exponent == special_exponent);
         bool zero_mantissa = (bits.mantissa == 0);
         bool zero = (bits.exponent == 0b0 and zero_mantissa);
-        return ((zero and same_exponent and same_mantissa) // zeros (+/-) are the same
-                or (special_exp and same_sign and same_exponent and same_mantissa and zero_mantissa) // inf (+/-) not the same
-                or (special_exp and same_exponent and our_some_mantissa and their_some_mantissa) // nan
+        return ((zero and same_exponent and same_mantissa)  // zeros (+/-) are the same
+                or (special_exp and same_sign and same_exponent and same_mantissa
+                    and zero_mantissa)  // inf (+/-) not the same
+                or (special_exp and same_exponent and our_some_mantissa and their_some_mantissa)  // nan
                 or (same_sign and same_exponent and same_mantissa));
     }
     bool operator!=(half const& h) const {
@@ -184,26 +194,26 @@ struct half {
     bool is_nan() const {
         bool special_exp = (bits.exponent == special_exponent);
         bool some_mantissa = (bits.mantissa > 0);
-        return special_exp and some_mantissa; // sign is irrelevant
+        return special_exp and some_mantissa;  // sign is irrelevant
     }
 
     bool is_inf() const {
         bool special_exp = (bits.exponent == special_exponent);
         bool zero_mantissa = (bits.mantissa == 0);
-        return special_exp and zero_mantissa; // sign is irrelevant
+        return special_exp and zero_mantissa;  // sign is irrelevant
     }
 
     bool is_zero() const {
         bool zero_mantissa = (bits.mantissa == 0);
         bool zero = (bits.exponent == 0b0 and zero_mantissa);
-        return zero; // sign is irrelevant
+        return zero;  // sign is irrelevant
     }
 
     explicit operator float() const {
         single single;
         if (bits.exponent == special_exponent) {
             single.bits.exponent = single.special_exponent;
-        }else if (bits.exponent == zero_exponent and bits.mantissa == 0) {
+        } else if (bits.exponent == zero_exponent and bits.mantissa == 0) {
             single.bits.exponent = single.zero_exponent;
         } else {
             single.bits.exponent = (bits.exponent - bias) + single.bias;
@@ -240,7 +250,7 @@ struct half {
         } else {
             bits.sign = single.bits.sign;
             bits.exponent = e + bias;
-            bits.mantissa = single.bits.mantissa >> 13; // loose some precision!
+            bits.mantissa = single.bits.mantissa >> 13;  // loose some precision!
         }
     }
 };
@@ -250,7 +260,7 @@ constexpr half operator""_hf(long double v) {
     float f = static_cast<float>(v);
     return half{f};
 }
-} // namespace half_literals
+}  // namespace half_literals
 
 namespace half_constants {
 static const half positive_infinity{0b0, 0b1'1111, 0b0};
@@ -260,6 +270,6 @@ static const half negative_nan{0b1, 0b1'1111, 0b11'1111'1111};
 static const half positive_zero(0b0, 0b0, 0b0);
 static const half negative_zero(0b1, 0b0, 0b0);
 static const half epsilon{0b0, 0b0'0100, 0b11'1111'1111};
-} // namespace half_constants
+}  // namespace half_constants
 
 }  // namespace basal

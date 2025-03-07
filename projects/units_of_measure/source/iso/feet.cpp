@@ -11,7 +11,7 @@ feet::feet(precision a) : measurement{a}, _sixteenths(std::round(a * subunit)), 
 feet::feet(feet const& other) : measurement(other.value), _sixteenths(other.value * subunit), sixteenths{_sixteenths} {
 }
 
-feet &feet::operator=(feet const& other) {
+feet& feet::operator=(feet const& other) {
     _value = other.value;
     _sixteenths = other._sixteenths;
     return (*this);

@@ -19,7 +19,8 @@ triangle::triangle(R3::point const& A, R3::point const& B, R3::point const& C)
     if constexpr (debug) {
         std::cout << "Triangle Center: " << center << " from A=" << A << " B=" << B << " C=" << C << std::endl;
     }
-    // now relocate all the points so that the center is translated to where ever the points were defined as but each point is not relative to the center
+    // now relocate all the points so that the center is translated to where ever the points were defined as but each
+    // point is not relative to the center
     vector delta = center - R3::origin;
     // adjust all the given points so that they are relative to the R3::origin
     m_points[0] = A - delta;
@@ -79,11 +80,11 @@ hits triangle::collisions_along(ray const& object_ray) const {
     auto collisions = plane::collisions_along(object_ray);
     hits hits;
     for (auto& h : collisions) {
-        if (is_contained(as_point(h.intersect))) { // this is in object space still
+        if (is_contained(as_point(h.intersect))) {  // this is in object space still
             // now we determine if the triangle normal is "facing" the ray or not
             precision projected_length = dot(h.normal, object_ray.direction());
             if (projected_length < 0.0_p) {
-               hits.push_back(h);
+                hits.push_back(h);
             }
         }
     }
@@ -101,7 +102,8 @@ void triangle::print(char const str[]) const {
 }
 
 std::ostream& operator<<(std::ostream& os, triangle const& tri) {
-    os << "Triangle " << tri.points()[0] << "," << tri.points()[1] << "," << tri.points()[2] << " with centroid of " << tri.position() << std::endl;
+    os << "Triangle " << tri.points()[0] << "," << tri.points()[1] << "," << tri.points()[2] << " with centroid of "
+       << tri.position() << std::endl;
     return os;
 }
 

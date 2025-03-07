@@ -31,6 +31,7 @@ public:
 
 protected:
     vector normal_(point const& object_surface_point) const override;
+
 private:
     precision m_bottom_radius;
     precision m_height;

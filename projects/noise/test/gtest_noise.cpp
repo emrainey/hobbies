@@ -88,8 +88,8 @@ TEST(NoiseTest, ReproducibleFlows) {
         noise::point pnt1{0.0_p, 0.0_p};
         noise::point uv1;
         noise::cell_flows(pnt1, scale, seed, 1.0_p, uv1, flows1);
-        for (noise::precision y = 0.0_p; y < scale; y+=(1/scale)) {
-            for (noise::precision x = 0.0_p; x < scale; x+=(1/scale)) {
+        for (noise::precision y = 0.0_p; y < scale; y += (1 / scale)) {
+            for (noise::precision x = 0.0_p; x < scale; x += (1 / scale)) {
                 noise::point pnt2{x, y};
                 noise::vector flows2[4];
                 noise::point uv2;
@@ -103,7 +103,6 @@ TEST(NoiseTest, ReproducibleFlows) {
         }
     }
 }
-
 
 TEST(NoiseTest, AdjacentCellFlows) {
     noise::vector seed = noise::generate_seed();
@@ -164,7 +163,7 @@ TEST(NoiseTest, PadImage) {
     noise::pad_<noise::precision, 128> pad;
     pad.generate();
     fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8> img(128, 128);
-    img.for_each ([&](size_t y, size_t x, fourcc::rgb8& pixel) {
+    img.for_each([&](size_t y, size_t x, fourcc::rgb8& pixel) {
         sum += pad.at(y, x);
         pixel.r = 255u * pad.at(y, x);
         pixel.g = 255u * pad.at(y, x);
@@ -200,7 +199,7 @@ TEST_F(NoiseImageTest, RandomNoiseImage) {
     noise::vector vec_g{{29.81020393_p, 92.9283940_p}};
     noise::vector vec_b{{128.320293_p, 29.908293_p}};
     noise::precision gain = 2389.0283_p;
-    image.for_each ([&](size_t y, size_t x, fourcc::rgb8& pixel) {
+    image.for_each([&](size_t y, size_t x, fourcc::rgb8& pixel) {
         noise::vector vec{{noise::precision(x), noise::precision(y)}};
         noise::precision _r, r = noise::random(vec, vec_r, gain);
         noise::precision _g, g = noise::random(vec, vec_g, gain);
@@ -217,7 +216,7 @@ TEST_F(NoiseImageTest, PerlinNoiseImage) {
     noise::vector seeds = noise::convert_to_seed(iso::turns{sqrt(5)});
     noise::precision scale = 32.0_p;
     noise::precision gain = 245.4993546_p;
-    image.for_each ([&](size_t y, size_t x, fourcc::rgb8& pixel) {
+    image.for_each([&](size_t y, size_t x, fourcc::rgb8& pixel) {
         noise::point pnt{(noise::precision)x, (noise::precision)y};
         noise::precision p = noise::perlin(pnt, scale, seeds, gain);
         pixel.r = 255u * p;
@@ -230,7 +229,7 @@ TEST_F(NoiseImageTest, PerlinNoiseImage) {
 TEST_F(NoiseImageTest, Turbulence) {
     noise::precision size = 9.0_p;
     noise::precision scale = 1.0_p;
-    image.for_each ([&](size_t y, size_t x, fourcc::rgb8& pixel) {
+    image.for_each([&](size_t y, size_t x, fourcc::rgb8& pixel) {
         noise::point pnt{(noise::precision)x, (noise::precision)y};
         noise::precision value = noise::turbulence(pnt, size, scale, pad);
         pixel.r = 255u * value;
@@ -242,9 +241,9 @@ TEST_F(NoiseImageTest, Turbulence) {
 
 TEST_F(NoiseImageTest, TurbulenceSin) {
     noise::precision size = 32.0_p;
-    noise::precision scale = 256.0_p; // how "deep" output pixel values can be
+    noise::precision scale = 256.0_p;  // how "deep" output pixel values can be
     noise::precision xs = 3.0_p, ys = 3.0_p, power = 2.0_p;
-    image.for_each ([&](size_t y, size_t x, fourcc::rgb8& pixel) {
+    image.for_each([&](size_t y, size_t x, fourcc::rgb8& pixel) {
         noise::point pnt{(noise::precision)x, (noise::precision)y};
         noise::precision value = noise::turbulentsin(pnt, xs, ys, power, size, scale, pad);
         // printf("x=%zu, y=%zu, value=%lf\n", x, y, value);
@@ -257,12 +256,12 @@ TEST_F(NoiseImageTest, TurbulenceSin) {
 
 TEST_F(NoiseImageTest, TurbulenceSinNormalized) {
     noise::precision size = 32.0_p;
-    noise::precision scale = 256.0_p; // how "deep" output pixel values can be
+    noise::precision scale = 256.0_p;  // how "deep" output pixel values can be
     noise::precision xs = 3.0_p, ys = 3.0_p, power = 2.0_p;
-    image.for_each ([&](size_t y, size_t x, fourcc::rgb8& pixel) {
+    image.for_each([&](size_t y, size_t x, fourcc::rgb8& pixel) {
         noise::precision u = static_cast<noise::precision>(x) / image.width;
         noise::precision v = static_cast<noise::precision>(y) / image.height;
-        noise::point pnt{u * 1024.0_p, v * 1024.0_p}; // scale to the normailzed range to some
+        noise::point pnt{u * 1024.0_p, v * 1024.0_p};  // scale to the normailzed range to some
         noise::precision value = noise::turbulentsin(pnt, xs, ys, power, size, scale, pad);
         // printf("u,v=%lf,%lf value=%lf\n", u, v, value);
         pixel.r = value;
@@ -280,7 +279,7 @@ TEST_F(NoiseImageTest, FractalBrownian) {
     noise::precision gain = 0.5_p;
     noise::precision amplitude = 0.5;
     noise::precision frequency = 1.0;
-    image.for_each ([&](size_t y, size_t x, fourcc::rgb8& pixel) {
+    image.for_each([&](size_t y, size_t x, fourcc::rgb8& pixel) {
         noise::point pnt{(noise::precision)x / image.width, (noise::precision)y / image.height};
         noise::precision value = noise::fractal_brownian(pnt, seeds, octaves, lacunarity, gain, amplitude, frequency);
         pixel.r = 255u * value;

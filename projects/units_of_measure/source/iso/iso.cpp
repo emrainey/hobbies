@@ -9,7 +9,7 @@ using namespace basal::literals;
 template <>
 precision rescale(precision value, SI::prefix old_scale, SI::prefix new_scale) {
     precision diff = static_cast<typename std::underlying_type<SI::prefix>::type>(old_scale)
-                  - static_cast<typename std::underlying_type<SI::prefix>::type>(new_scale);
+                     - static_cast<typename std::underlying_type<SI::prefix>::type>(new_scale);
     return value * pow(10.0_p, diff);
 }
 
@@ -47,15 +47,15 @@ speed operator/(distance const& num, time const& denom) {
     return speed{num, denom};
 }
 
-speed operator/(distance &&num, time &&denom) {
+speed operator/(distance&& num, time&& denom) {
     return speed{num, denom};
 }
 
-speed operator/(distance const& num, time &&denom) {
+speed operator/(distance const& num, time&& denom) {
     return speed{num, denom};
 }
 
-speed operator/(distance &&num, time const& denom) {
+speed operator/(distance&& num, time const& denom) {
     return speed{num, denom};
 }
 
@@ -64,7 +64,7 @@ rate<feet, seconds> operator/(feet const& num, seconds const& denom) {
     return rate<feet, seconds>(num, denom);
 }
 
-acceleration operator/(speed &&num, time &&denom) {
+acceleration operator/(speed&& num, time&& denom) {
     return acceleration{num, denom};
 }
 
@@ -72,11 +72,11 @@ acceleration operator/(speed const& num, time const& denom) {
     return acceleration{num, denom};
 }
 
-acceleration operator/(speed const& num, time &&denom) {
+acceleration operator/(speed const& num, time&& denom) {
     return acceleration{num, denom};
 }
 
-acceleration operator/(speed &&num, time const& denom) {
+acceleration operator/(speed&& num, time const& denom) {
     return acceleration{num, denom};
 }
 
@@ -84,15 +84,15 @@ torque operator*(newtons const& N, meters const& m) {
     return torque{N, m};
 }
 
-torque operator*(newtons &&N, meters &&m) {
+torque operator*(newtons&& N, meters&& m) {
     return torque{N, m};
 }
 
-torque operator*(newtons const& N, meters &&m) {
+torque operator*(newtons const& N, meters&& m) {
     return torque{N, m};
 }
 
-torque operator*(newtons &&N, meters const& m) {
+torque operator*(newtons&& N, meters const& m) {
     return torque{N, m};
 }
 

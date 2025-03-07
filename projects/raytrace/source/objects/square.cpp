@@ -19,9 +19,9 @@ square::square(point const& C, vector const& N, precision hh, precision hw)
 hits square::collisions_along(ray const& object_ray) const {
     hits ts;
     // is the ray parallel to the plane?
-    vector const& N = unormal(); // .normalized();
+    vector const& N = unormal();  // .normalized();
     vector const& V = object_ray.direction();
-    precision proj = dot(V, N);       // if so the projection is zero
+    precision proj = dot(V, N);          // if so the projection is zero
     if (not basal::nearly_zero(proj)) {  // they collide *somewhere*
         // get the vector of the center to the ray initial
         vector C = position() - object_ray.location();

@@ -72,7 +72,8 @@ TEST(LawsTest, Fresnel) {
     iso::radians incident_angle = geometry::angle(N, -I);
     ASSERT_NEAR(iso::pi / 4.0, incident_angle.value, basal::epsilon);
     iso::radians transmitted_angle = geometry::angle(-N, R);
-    ASSERT_NEAR(0.36136712390670783_p, transmitted_angle.value, basal::epsilon);  // the calculator was in float, not double.
+    ASSERT_NEAR(0.36136712390670783_p, transmitted_angle.value,
+                basal::epsilon);  // the calculator was in float, not double.
     precision Rf = laws::fresnel(n1, n2, incident_angle, transmitted_angle);
     precision Rr = 1.0 - Rf;
     precision Rc = 1.0 - 0.5 * (0.203777 + 0.0415249);  // numbers from calc
@@ -100,7 +101,7 @@ TEST(LawsTest, Lambertian) {
     raytrace::vector N{0, 0, 1};
     raytrace::point I{1, 1, 1};
     raytrace::point C{1, 1, 2};
-    srand(0xCAFE); // seed the random number generator
+    srand(0xCAFE);  // seed the random number generator
     for (int i = 0; i < 100; i++) {
         raytrace::vector V = laws::lambertian(N, I);
         // std::cout << V << std::endl;
@@ -115,10 +116,10 @@ TEST(LawsTest, Lambertian) {
 TEST(LawsTest, PenetrationDepth) {
     iso::hertz red_light{4.3E14};
     // for Silver (Ag) - given by Claude.ai, so I have no idea if it's correct
-    precision conductivity = 6.37E7_p; // Siemens per meter
+    precision conductivity = 6.37E7_p;             // Siemens per meter
     precision resistivity = 1.0_p / conductivity;  // meter per Siemens
-    precision permittivity = -5.0 * 8.885E-12; // Farads per meter
-    precision permeability = 0.999998_p; // Henrys per meter
+    precision permittivity = -5.0 * 8.885E-12;     // Farads per meter
+    precision permeability = 0.999998_p;           // Henrys per meter
     precision depth = laws::penetration_depth(permeability, permittivity, resistivity, red_light);
     ASSERT_FLOAT_EQ(3.405747E-12, depth);
 }

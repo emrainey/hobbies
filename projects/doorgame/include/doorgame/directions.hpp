@@ -9,8 +9,7 @@
 
 namespace doorgame {
 
-enum class Direction : char
-{
+enum class Direction : char {
     Here = 'h',
     North = 'n',
     South = 's',

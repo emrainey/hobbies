@@ -22,38 +22,45 @@ using namespace raytrace::mediums;
 
 /// A template for wrapping the concept of an object, which can have a surface and material properties.
 template <size_t DIMS>
-class object_
-    : public entity_<DIMS>
-    , public basal::printable {
+class object_ : public entity_<DIMS>, public basal::printable {
 public:
-    object_() : entity_<DIMS>()
-              , m_max_collisions{0}
-              , m_closed_surface{false}
-              , m_medium(&mediums::dull)
-              , m_surface_scale{1.0_p, 1.0_p} {
+    object_()
+        : entity_<DIMS>(),
+          m_max_collisions{0},
+          m_closed_surface{false},
+          m_medium(&mediums::dull),
+          m_surface_scale{1.0_p, 1.0_p} {
     }
 
     object_(point const& center, size_t collisions, bool closed = false)
-        : entity_<DIMS>(center)
-        , m_max_collisions{collisions}
-        , m_closed_surface{collisions > 1 ? closed : false}
-        , m_medium{&mediums::dull}
-        , m_surface_scale{1.0_p, 1.0_p} {
+        : entity_<DIMS>(center),
+          m_max_collisions{collisions},
+          m_closed_surface{collisions > 1 ? closed : false},
+          m_medium{&mediums::dull},
+          m_surface_scale{1.0_p, 1.0_p} {
     }
 
     object_(point&& center, size_t collisions, bool closed = false)
-        : entity_<DIMS>(std::move(center))
-        , m_max_collisions{collisions}
-        , m_closed_surface{collisions > 1 ? closed : false}
-        , m_medium{&mediums::dull} {
+        : entity_<DIMS>(std::move(center)),
+          m_max_collisions{collisions},
+          m_closed_surface{collisions > 1 ? closed : false},
+          m_medium{&mediums::dull} {
     }
 
     /// Copy Constructor for the object. This is allowed as the medium is constant!
-    object_(object_ const& that) : entity_<DIMS>(that), m_max_collisions{that.m_max_collisions}, m_closed_surface{that.m_closed_surface}, m_medium(that.m_medium) {
+    object_(object_ const& that)
+        : entity_<DIMS>(that),
+          m_max_collisions{that.m_max_collisions},
+          m_closed_surface{that.m_closed_surface},
+          m_medium(that.m_medium) {
     }
 
     /// Move Constructor for the object. This is allowed as the medium is constant!
-    object_(object_&& that) : entity_<DIMS>(that), m_max_collisions{that.m_max_collisions}, m_closed_surface{that.m_closed_surface}, m_medium(that.m_medium) {
+    object_(object_&& that)
+        : entity_<DIMS>(that),
+          m_max_collisions{that.m_max_collisions},
+          m_closed_surface{that.m_closed_surface},
+          m_medium(that.m_medium) {
     }
 
     /// Copy Assignment for the object. This is allowed as the medium is constant!
@@ -69,13 +76,13 @@ public:
         entity_<DIMS>::operator=(that);
         // m_max_collisions = that.m_max_collisions;
         // m_closed_surface = that.m_closed_surface;
-        m_medium = that.m_medium; // copy is sufficient as the medium is constant
-        that.m_medium = nullptr; // clear the medium from the moved object
+        m_medium = that.m_medium;  // copy is sufficient as the medium is constant
+        that.m_medium = nullptr;   // clear the medium from the moved object
         return *this;
     }
 
     virtual ~object_() {
-        m_medium = nullptr; // forget the medium
+        m_medium = nullptr;  // forget the medium
     }
 
     /// Gives a read-only version of the medium of the object
@@ -156,23 +163,15 @@ public:
     /// During the collision process the points are all in object space
     /// and are converted to world_space when returned.
     struct hit {
-        hit()
-            : intersect{}
-            , distance{std::numeric_limits<precision>::infinity()}
-            , normal{}
-            , object{nullptr} {
+        hit() : intersect{}, distance{std::numeric_limits<precision>::infinity()}, normal{}, object{nullptr} {
         }
         hit(hit const& that) = default;
-        hit(intersection i, precision d, vector n, object_ const* o)
-            : intersect{i}
-            , distance{d}
-            , normal{n}
-            , object{o} {
+        hit(intersection i, precision d, vector n, object_ const* o) : intersect{i}, distance{d}, normal{n}, object{o} {
         }
-        intersection intersect; //!< The type of intersection (includes the point)
-        precision distance;     //!< The distance along the ray of intersection.
-        vector normal;          //!< The normal at the point along the line
-        object_ const * object; //!< The pointer to the object that was hit
+        intersection intersect;  //!< The type of intersection (includes the point)
+        precision distance;      //!< The distance along the ray of intersection.
+        vector normal;           //!< The normal at the point along the line
+        object_ const* object;   //!< The pointer to the object that was hit
 
         /// A hit can be assigned from another hit
         hit& operator=(hit const& that) {
@@ -236,8 +235,8 @@ public:
     virtual hit intersect(ray const& world_ray) const {
         hit closest;
         /// @note While we could be pedantic about having a unit normal, it doesn't really stop us from working.
-        // basal::exception::throw_unless(basal::nearly_equals(world_ray.direction().quadrance(), 1.0_p), __FILE__, __LINE__,
-        // "The ray must have a unit vector");
+        // basal::exception::throw_unless(basal::nearly_equals(world_ray.direction().quadrance(), 1.0_p), __FILE__,
+        // __LINE__, "The ray must have a unit vector");
 
         ray object_ray = entity_<DIMS>::reverse_transform(world_ray);
         // get the set of all collisions with the object
@@ -310,7 +309,7 @@ public:
     /// @return True for point outside the object, false for points on the surface or inside.
     virtual bool is_outside(point const& world_point) const {
         raytrace::vector const& N = normal(world_point);
-        raytrace::point const&P = entity_<DIMS>::position();
+        raytrace::point const& P = entity_<DIMS>::position();
         raytrace::vector V = world_point - P;
         // P.print("center");
         // world_point.print("world_point");
@@ -318,7 +317,7 @@ public:
         // N.print("world_normal");
         precision d = dot(N, V);
         // printf("d=%lf\r\n", d);
-        return (d > 0.0); // if the dot of the Normal on the point from center
+        return (d > 0.0);  // if the dot of the Normal on the point from center
     }
 
     /// Given a world point verify that the point is on the surface of the object.
@@ -332,13 +331,13 @@ public:
         auto r = get_object_extent();
         throw_exception_if(std::isnan(r), "Got a %lf from an extent\r\n", r);
         if (std::isinf(r)) {
-            return Bounds{}; // infinite bounds
+            return Bounds{};  // infinite bounds
         }
         // constructs a local trivial structure
         return Bounds{
-            entity_<DIMS>::forward_transform(raytrace::point{-r, -r, -r}), // min
+            entity_<DIMS>::forward_transform(raytrace::point{-r, -r, -r}),  // min
             // FIXME add an epsilon to the max to avoid floating point errors as the max is exclusive!
-            entity_<DIMS>::forward_transform(raytrace::point{r, r, r}) // max (exclusive)
+            entity_<DIMS>::forward_transform(raytrace::point{r, r, r})  // max (exclusive)
         };
     }
 
@@ -354,8 +353,8 @@ public:
     }
 
 protected:
-
-    /// @brief Computes the normal to the surface given an object space point which is presumed to be the collision point, thus on the surface.
+    /// @brief Computes the normal to the surface given an object space point which is presumed to be the collision
+    /// point, thus on the surface.
     /// @param object_surface_point
     /// @return
     virtual vector normal_(point const& object_surface_point) const = 0;
@@ -365,13 +364,13 @@ protected:
     /// Some objects may return more than 1 collisions but are not closed surfaces
     bool const m_closed_surface;
     /// The pointer to the medium to use
-    raytrace::mediums::medium const * m_medium;
+    raytrace::mediums::medium const* m_medium;
     /// The std::bind or used to reference the instance of the mapping function
     std::function<geometry::R2::point(geometry::R3::point const&)> m_bound_map;
     /// The UV surface scaling factors
     struct {
-            precision u; ///< The scaling factor for U
-            precision v; ///< The scaling factor for V
+        precision u;  ///< The scaling factor for U
+        precision v;  ///< The scaling factor for V
     } m_surface_scale;
 };
 

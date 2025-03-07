@@ -5,7 +5,8 @@ namespace raytrace {
 namespace tree {
 
 /// Constructs a node with the given bounds
-Node::Node(Bounds const& bounds) : bounds_(bounds), has_subnodes_{false}, objects_{}, nodes_{} {}
+Node::Node(Bounds const& bounds) : bounds_(bounds), has_subnodes_{false}, objects_{}, nodes_{} {
+}
 
 size_t Node::IndexOf(raytrace::point const& point) const {
     size_t index = 0;
@@ -72,7 +73,7 @@ objects::object::hits Node::intersects(raytrace::ray const& ray) const {
 }
 
 bool Node::any_of(std::function<bool(Node const&)> const& func) const {
-    std::vector<bool> ret(nodes_.size()); // all false at first
+    std::vector<bool> ret(nodes_.size());  // all false at first
     for (auto& node : nodes_) {
         ret.push_back(func(node));
     }
@@ -120,7 +121,8 @@ bool Node::add_object(objects::object const* object) {
                 // copy the object vector here
                 std::vector<objects::object const*> temp_objects = objects_;
                 objects_.clear();
-                /// move all objects into the sub-nodes if they intersect, any object that intersects all the subnodes stays in this node.
+                /// move all objects into the sub-nodes if they intersect, any object that intersects all the subnodes
+                /// stays in this node.
                 for (auto obj : temp_objects) {
                     if (insert(obj)) {
                         // do nothing
@@ -144,26 +146,17 @@ std::vector<Bounds> Node::split_bounds() {
     // need to create all the min points and max points
     // mins are mixed between min and mid
     std::array<point, NumSubNodes> sub_min{
-        point{min.x, min.y, min.z},
-        point{min.x, min.y, mid.z},
-        point{min.x, mid.y, min.z},
-        point{min.x, mid.y, mid.z},
-        point{mid.x, min.y, min.z},
-        point{mid.x, min.y, mid.z},
-        point{mid.x, mid.y, min.z},
-        mid
-    };
+        point{min.x, min.y, min.z}, point{min.x, min.y, mid.z}, point{min.x, mid.y, min.z}, point{min.x, mid.y, mid.z},
+        point{mid.x, min.y, min.z}, point{mid.x, min.y, mid.z}, point{mid.x, mid.y, min.z}, mid};
     // maxs are mixed between mid and max
-    std::array<point, NumSubNodes> sub_max{
-        mid,
-        point{mid.x, mid.y, max.z},
-        point{mid.x, max.y, mid.z},
-        point{mid.x, max.y, max.z},
-        point{max.x, mid.y, mid.z},
-        point{max.x, mid.y, max.z},
-        point{max.x, max.y, mid.z},
-        max
-    };
+    std::array<point, NumSubNodes> sub_max{mid,
+                                           point{mid.x, mid.y, max.z},
+                                           point{mid.x, max.y, mid.z},
+                                           point{mid.x, max.y, max.z},
+                                           point{max.x, mid.y, mid.z},
+                                           point{max.x, mid.y, max.z},
+                                           point{max.x, max.y, mid.z},
+                                           max};
     for (size_t i = 0; i < NumSubNodes; i++) {
         sub_bounds.emplace_back(sub_min[i], sub_max[i]);
         std::cout << "Bound[" << i << "] Min " << sub_min[i] << " Max " << sub_max[i] << std::endl;

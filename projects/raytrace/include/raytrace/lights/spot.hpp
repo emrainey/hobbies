@@ -8,8 +8,7 @@ namespace raytrace {
 namespace lights {
 /// A Spot light is a speck (point light) with a limiting angle of incoming ray angle. This still obeys the inverse
 /// square law for fall-off. */
-class spot
-    : public light {
+class spot : public light {
 public:
     spot(raytrace::ray const& r, raytrace::color const& C, precision intensity, iso::degrees const& incoming_angle);
     spot(raytrace::ray&& r, raytrace::color const& C, precision intensity, iso::degrees const& incoming_angle);

@@ -73,7 +73,6 @@ TEST(CuboidTest, IntersectionHitX) {
     ASSERT_POINT_EQ(h0, i0);
 }
 
-
 TEST(CuboidTest, IntersectionHitOffOrigin) {
     using namespace raytrace;
     using namespace raytrace::objects;

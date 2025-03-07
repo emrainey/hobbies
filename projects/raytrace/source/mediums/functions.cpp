@@ -47,7 +47,8 @@ color checkerboard(image::point const& p, palette const& pal) {
 
 color checkerboard(raytrace::point const& p, palette const& pal) {
     // palette could have up to 8 colors, don't worry about it here
-    basal::exception::throw_unless(pal.size() >= 2, __FILE__, __LINE__, "Must have at least two colors in checkerboard");
+    basal::exception::throw_unless(pal.size() >= 2, __FILE__, __LINE__,
+                                   "Must have at least two colors in checkerboard");
     static constexpr precision h = 0.5;
     precision u = std::fmod(p.x, 1.0);
     precision v = std::fmod(p.y, 1.0);
@@ -201,15 +202,17 @@ color pseudo_random_noise(image::point const& p, palette const& pal __attribute_
     noise::vector vec{{p.x, p.y}};
     // if you normalize the vector, you get a circular pattern
     // vec = (vec == geometry::R2::null) ? geometry::R2::null : vec.normalized();
-    precision _r, r = noise::random(vec, tuning::pseudo_random_noise_params.vec_r, tuning::pseudo_random_noise_params.gain);
-    precision _g, g = noise::random(vec, tuning::pseudo_random_noise_params.vec_g, tuning::pseudo_random_noise_params.gain);
-    precision _b, b = noise::random(vec, tuning::pseudo_random_noise_params.vec_b, tuning::pseudo_random_noise_params.gain);
+    precision _r,
+        r = noise::random(vec, tuning::pseudo_random_noise_params.vec_r, tuning::pseudo_random_noise_params.gain);
+    precision _g,
+        g = noise::random(vec, tuning::pseudo_random_noise_params.vec_g, tuning::pseudo_random_noise_params.gain);
+    precision _b,
+        b = noise::random(vec, tuning::pseudo_random_noise_params.vec_b, tuning::pseudo_random_noise_params.gain);
     precision px = std::modf(r, &_r);
     precision py = std::modf(g, &_g);
     precision pz = std::modf(b, &_b);
     return color{px, py, pz};
 }
-
 
 color happy_face(raytrace::point const& p, palette const& pal) {
     basal::exception::throw_unless(pal.size() == 2, __FILE__, __LINE__, "Must have only two colors in happy-face");
@@ -219,8 +222,8 @@ color happy_face(raytrace::point const& p, palette const& pal) {
     image::point uv{u, v};
     precision const eye_radius = 1.0_p / 9.0_p;
     precision const mouth_radius = 2.0_p / 9.0_p;
-    image::point le{3.0_p/9.0_p, 3.0_p/9.0_p};
-    image::point re{6.0_p/9.0_p, 3.0_p/9.0_p};
+    image::point le{3.0_p / 9.0_p, 3.0_p / 9.0_p};
+    image::point re{6.0_p / 9.0_p, 3.0_p / 9.0_p};
     image::point mc{0.5_p, 0.5_p};
     precision dle = (uv - le).magnitude();
     precision dre = (uv - re).magnitude();
@@ -246,8 +249,8 @@ color happy_face(image::point const& p, palette const& pal) {
     image::point uv{u, v};
     precision const eye_radius = 1.0_p / 9.0_p;
     precision const mouth_radius = 2.0_p / 9.0_p;
-    image::point le{3.0_p/9.0_p, 3.0_p/9.0_p};
-    image::point re{6.0_p/9.0_p, 3.0_p/9.0_p};
+    image::point le{3.0_p / 9.0_p, 3.0_p / 9.0_p};
+    image::point re{6.0_p / 9.0_p, 3.0_p / 9.0_p};
     image::point mc{0.5_p, 0.5_p};
     precision dle = (uv - le).magnitude();
     precision dre = (uv - re).magnitude();

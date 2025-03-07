@@ -8,8 +8,7 @@
 using namespace linalg;
 using namespace linalg::operators;
 
-enum
-{
+enum {
     POINTS,
     LINES,
 };
@@ -24,14 +23,18 @@ void plot(std::string name, std::vector<T> &data, matrix &beta, matrix &domain) 
     T x_min, y_min = x_min = std::numeric_limits<T>::max();
     T x_max, y_max = x_max = std::numeric_limits<T>::min();
     for (auto &d : data) {
-        if (y_min > d) y_min = d;
-        if (y_max < d) y_max = d;
+        if (y_min > d)
+            y_min = d;
+        if (y_max < d)
+            y_max = d;
     }
     T y_range = y_max - y_min;
     printf("y_min:%lf y_max:%lf y_range:%lf\n", y_min, y_max, y_range);
-    domain.for_each ([&](precision &v) {
-        if (x_min > v) x_min = v;
-        if (x_max < v) x_max = v;
+    domain.for_each([&](precision &v) {
+        if (x_min > v)
+            x_min = v;
+        if (x_max < v)
+            x_max = v;
     });
     T x_range = x_max - x_min;
     printf("x_min:%lf x_max:%lf x_range:%lf\n", x_min, x_max, x_range);
@@ -113,7 +116,7 @@ std::vector<precision> generate_random_linear_dataset(matrix &domain) {
     precision tolerance = 20.0 * num(gen);
     printf("m=%lf, b=%lf\n", m, b);
     std::vector<precision> data;
-    domain.for_each ([&](precision &x) {
+    domain.for_each([&](precision &x) {
         precision y = m * x + b;
         std::uniform_real_distribution<> rnd(y - tolerance, y + tolerance);
         // printf("%lf = m * %lf + b\n", y, x);
@@ -134,7 +137,7 @@ void least_squares(std::vector<precision> &dataset, matrix &beta, matrix &domain
 
 int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused))) {
     matrix domain(1, 300);  // generate a domain set
-    domain.for_each ([](size_t row, size_t col, precision &v) {
+    domain.for_each([](size_t row, size_t col, precision &v) {
         row |= 0;
         v = -150.0 + col;
     });

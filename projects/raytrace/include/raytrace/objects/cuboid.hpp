@@ -13,7 +13,7 @@ namespace objects {
 class cuboid : public object {
 public:
     /// Constructs a cuboid at a point of a given set of half widths. When the half-width are the same,
-/// it is a cube.
+    /// it is a cube.
     cuboid(point const& center, precision x_half_width, precision y_half_width, precision z_half_width);
     /// Uses the point move syntax
     cuboid(point&& center, precision x_half_width, precision y_half_width, precision z_half_width);

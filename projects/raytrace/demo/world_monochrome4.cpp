@@ -18,21 +18,25 @@ using namespace iso::literals;
 class MonochromeWorld : public world {
 public:
     MonochromeWorld()
-        : light_subsamples{5}
-        , look_from{40, 9, 37}
-        , look_at{0, 0, 15}
-        , light0{raytrace::point{-5, 0, 40}, 1, colors::white, 10, light_subsamples}
-        , light1{raytrace::point{5, 0, 40}, 1, colors::white, 10, light_subsamples}
-        , beam0{-R3::basis::Z, colors::white, 10E11}
-        , s0{raytrace::point{0, 0, 5}, 5}
-        , s1{raytrace::point{0, 0, 15}, 5}
-        , s2{raytrace::point{0, 0, 25}, 5}
-        , wall0{raytrace::point{0, 10, 0}, -R3::basis::Y}  // left
-        , wall1{raytrace::point{0, -10, 0}, R3::basis::Y}  // right
-        , wall2{raytrace::point{-10, 0, 0}, R3::basis::X}  // back
-        , wall3{R3::origin, R3::basis::Z}                   // floor
-        , wall4{raytrace::point{0, 0, 160}, -R3::basis::Z}  // ceiling
-        {
+        : light_subsamples{5},
+          look_from{40, 9, 37},
+          look_at{0, 0, 15},
+          light0{raytrace::point{-5, 0, 40}, 1, colors::white, 10, light_subsamples},
+          light1{raytrace::point{5, 0, 40}, 1, colors::white, 10, light_subsamples},
+          beam0{-R3::basis::Z, colors::white, 10E11},
+          s0{raytrace::point{0, 0, 5}, 5},
+          s1{raytrace::point{0, 0, 15}, 5},
+          s2{raytrace::point{0, 0, 25}, 5},
+          wall0{raytrace::point{0, 10, 0}, -R3::basis::Y}  // left
+          ,
+          wall1{raytrace::point{0, -10, 0}, R3::basis::Y}  // right
+          ,
+          wall2{raytrace::point{-10, 0, 0}, R3::basis::X}  // back
+          ,
+          wall3{R3::origin, R3::basis::Z}  // floor
+          ,
+          wall4{raytrace::point{0, 0, 160}, -R3::basis::Z}  // ceiling
+    {
         // assign surfaces and materials
         s0.material(&mediums::metals::silver);
         s1.material(&mediums::metals::silver);
@@ -84,14 +88,12 @@ public:
 
     raytrace::animation::anchors get_anchors() const override {
         raytrace::animation::anchors anchors;
-        anchors.push_back(
-            animation::Anchor{
-                animation::Attributes{look_from, look_at, 55.0_deg},
-                animation::Attributes{look_from, look_at, 55.0_deg},
-                animation::Mappers{}, iso::seconds{1.0_p}
-            });
+        anchors.push_back(animation::Anchor{animation::Attributes{look_from, look_at, 55.0_deg},
+                                            animation::Attributes{look_from, look_at, 55.0_deg}, animation::Mappers{},
+                                            iso::seconds{1.0_p}});
         return anchors;
     }
+
 protected:
     size_t light_subsamples;
     raytrace::point look_from;
@@ -111,7 +113,6 @@ protected:
     raytrace::objects::plane wall3;
     raytrace::objects::plane wall4;
 };
-
 
 // declare a single instance and return the reference to it
 world* get_world() {

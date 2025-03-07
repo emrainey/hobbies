@@ -4,8 +4,18 @@ namespace raytrace {
 
 namespace mediums {
 
-turbsin::turbsin(precision map2d_scale, precision xs, precision ys, precision power, precision size, precision scale, color dark, color light)
-    : opaque{}, m_pad{}, m_dark{dark}, m_light{light}, m_xs{xs}, m_ys{ys}, m_power{power}, m_scale{scale}, m_size{size}, m_2dscale{map2d_scale} {
+turbsin::turbsin(precision map2d_scale, precision xs, precision ys, precision power, precision size, precision scale,
+                 color dark, color light)
+    : opaque{},
+      m_pad{},
+      m_dark{dark},
+      m_light{light},
+      m_xs{xs},
+      m_ys{ys},
+      m_power{power},
+      m_scale{scale},
+      m_size{size},
+      m_2dscale{map2d_scale} {
     m_ambient = colors::white;
     m_ambient_scale = mediums::ambient::none;
     m_smoothness = mediums::smoothness::small;  // moderate polish

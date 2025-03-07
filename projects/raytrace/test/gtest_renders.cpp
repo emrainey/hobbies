@@ -19,20 +19,20 @@ using namespace basal::literals;
 class RenderTest : public ::testing::Test {
 public:
     RenderTest()
-        : image_height{480}
-        , image_width{640}
-        , field_of_view{90}
-        , checkers{4, colors::blue, colors::yellow}
-        , checkers2{0.25, colors::blue, colors::white}
-        , plastic{colors::cyan, mediums::ambient::none, colors::white, mediums::smoothness::small, roughness::tight}
-        , rubber{colors::grey, mediums::ambient::none, colors::grey, mediums::smoothness::none, roughness::tight}
-        , steel{colors::grey, mediums::smoothness::polished, roughness::tight}
-        , polka{13, colors::cyan, colors::blue}
-        , beam_of_light{raytrace::vector{-20, 0, -21}, colors::white, lights::intensities::full}
-        , inner_light{raytrace::point{0, 0, 10}, colors::white, lights::intensities::moderate}
-        , look_at{0, 0, 10}
-        , plane0{R3::point{0, 0, 0}, R3::basis::Z}
-        , scenes{} {
+        : image_height{480},
+          image_width{640},
+          field_of_view{90},
+          checkers{4, colors::blue, colors::yellow},
+          checkers2{0.25, colors::blue, colors::white},
+          plastic{colors::cyan, mediums::ambient::none, colors::white, mediums::smoothness::small, roughness::tight},
+          rubber{colors::grey, mediums::ambient::none, colors::grey, mediums::smoothness::none, roughness::tight},
+          steel{colors::grey, mediums::smoothness::polished, roughness::tight},
+          polka{13, colors::cyan, colors::blue},
+          beam_of_light{raytrace::vector{-20, 0, -21}, colors::white, lights::intensities::full},
+          inner_light{raytrace::point{0, 0, 10}, colors::white, lights::intensities::moderate},
+          look_at{0, 0, 10},
+          plane0{R3::point{0, 0, 0}, R3::basis::Z},
+          scenes{} {
     }
 
     ~RenderTest() {
@@ -40,9 +40,12 @@ public:
 
     void SetUp() {
         precision r = 40.0_p;
-        raytrace::point look_froms[] = {raytrace::point{static_cast<precision>(r * cos(0)), static_cast<precision>(r * sin(0)), 40.0_p},
-                                        raytrace::point{static_cast<precision>(r * cos(iso::pi / 4)), static_cast<precision>(r * sin(iso::pi / 4)), 40.0_p},
-                                        raytrace::point{static_cast<precision>(r * cos(iso::pi / 2)), static_cast<precision>(r * sin(iso::pi / 2)), 40.0_p}};
+        raytrace::point look_froms[]
+            = {raytrace::point{static_cast<precision>(r * cos(0)), static_cast<precision>(r * sin(0)), 40.0_p},
+               raytrace::point{static_cast<precision>(r * cos(iso::pi / 4)),
+                               static_cast<precision>(r * sin(iso::pi / 4)), 40.0_p},
+               raytrace::point{static_cast<precision>(r * cos(iso::pi / 2)),
+                               static_cast<precision>(r * sin(iso::pi / 2)), 40.0_p}};
         plane0.material(&plastic);
         for (size_t i = 0; i < number_of_scenes; i++) {
             scenes.push_back(new scene{});
@@ -66,13 +69,13 @@ public:
         scenes.clear();
     }
 
-    void add_object(object const* ptr) {
+    void add_object(object const *ptr) {
         for (size_t i = 0; i < number_of_scenes; i++) {
             scenes[i]->add_object(ptr);
         }
     }
 
-    void add_light(lights::light const* ptr) {
+    void add_light(lights::light const *ptr) {
         for (size_t i = 0; i < number_of_scenes; i++) {
             scenes[i]->add_light(ptr);
         }
@@ -87,10 +90,10 @@ public:
             scenes[i]->print(buffer);
             scenes[i]->render(*views[i], buffer, 1, 2);
             fprintf(stdout, "Intersections %zu (Point/Points/Line) %zu %zu %zu\n",
-                raytrace::statistics::get().intersections_with_objects,
-                raytrace::statistics::get().intersections_with_point,
-                raytrace::statistics::get().intersections_with_points,
-                raytrace::statistics::get().intersections_with_line);
+                    raytrace::statistics::get().intersections_with_objects,
+                    raytrace::statistics::get().intersections_with_point,
+                    raytrace::statistics::get().intersections_with_points,
+                    raytrace::statistics::get().intersections_with_line);
         }
     }
 
@@ -301,7 +304,7 @@ TEST_F(RenderTest, DISABLED_SubtractiveOverlapCubes) {
         // FIXME there are a lot of single hit returns from cuboids so it's hard to reason about
         shape.material(&steel);
         add_object(&shape);
-        add_light(&inner_light); // FIXME this is producing weird speckles on the floor
+        add_light(&inner_light);  // FIXME this is producing weird speckles on the floor
     } else {
         outer_box.material(&steel);
         inner_box.material(&steel);

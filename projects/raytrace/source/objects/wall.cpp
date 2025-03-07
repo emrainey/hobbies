@@ -11,10 +11,11 @@ using namespace geometry;
 using namespace geometry::operators;
 
 wall::wall(point const& C, vector const& N, precision thickness)
-    : object{C, 2, false} // a wall is not a closed surface
-    // the "wall space" has the center at the origin and the walls are just offset from origin
-    , m_front_{R3::origin + (N.normalized() * thickness/2.0_p), N.normalized()}
-    , m_back_{R3::origin + ((-N.normalized()) * thickness/2.0_p), -N.normalized()} {
+    : object{C, 2, false}  // a wall is not a closed surface
+                           // the "wall space" has the center at the origin and the walls are just offset from origin
+      ,
+      m_front_{R3::origin + (N.normalized() * thickness / 2.0_p), N.normalized()},
+      m_back_{R3::origin + ((-N.normalized()) * thickness / 2.0_p), -N.normalized()} {
 }
 
 vector wall::normal_(point const& wall_point) const {
@@ -35,9 +36,9 @@ vector wall::normal_(point const& wall_point) const {
     precision projection_to_front_plane = dot(Nf, Vf);
     precision projection_to_back_plane = dot(Nb, Vb);
     if (basal::nearly_zero(projection_to_front_plane)) {
-        return Nf; // already forward transformed
+        return Nf;  // already forward transformed
     } else if (basal::nearly_zero(projection_to_back_plane)) {
-        return Nb; // already forward transformed
+        return Nb;  // already forward transformed
     }
     // std::abort();
     // either between or nearly so
@@ -84,8 +85,7 @@ image::point wall::map(point const& world_point) const {
     point wall_point = reverse_transform(world_point);
     if (m_front_.is_surface_point(wall_point)) {
         return m_front_.map(wall_point);
-    }
-    else if (m_back_.is_surface_point(wall_point)) {
+    } else if (m_back_.is_surface_point(wall_point)) {
         return m_back_.map(wall_point);
     }
     return geometry::R2::origin;

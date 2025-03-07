@@ -8,8 +8,7 @@ namespace mediums {
 /// A standard binn-phong model diffuse surface with specular highlights
 class plain : public opaque {
 public:
-    plain(color const& ambient, precision ambient_scale, color const& diffuse, precision smoothness,
-          precision rough);
+    plain(color const& ambient, precision ambient_scale, color const& diffuse, precision smoothness, precision rough);
     virtual ~plain() = default;
 };
 

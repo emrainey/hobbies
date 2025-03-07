@@ -13,8 +13,9 @@ class triangle : public plane {
 public:
     /// Constructs a triangle from three points.
     /// Point B is considered the middle point for computation of the normal.
-    /// The origin of the triangle is considered to be the R3::origin but will be computed as the centroid of the three given points.
-    /// All the points will be adjusted so that the center is at the R3::origin and the entire triangle has been translated by the centroid
+    /// The origin of the triangle is considered to be the R3::origin but will be computed as the centroid of the three
+    /// given points. All the points will be adjusted so that the center is at the R3::origin and the entire triangle
+    /// has been translated by the centroid
     triangle(point const& A, point const& B, point const& C);
     virtual ~triangle() = default;
 

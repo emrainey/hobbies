@@ -26,7 +26,7 @@ constexpr static precision bright{1E1};
 constexpr static precision intense{1E2};
 constexpr static precision radiant{1E3};
 constexpr static precision blinding{1E11};
-}
+}  // namespace intensities
 
 /// An interface to all light types in the system which is used to determine the color contribution at some surface
 /// point.
@@ -40,7 +40,8 @@ public:
     /// @param number_of_samples The number of samples to request to be averaged in order to get a good sampling of the
     /// light.
     ///
-    light(raytrace::point const& P, raytrace::color const& C, precision intensity, size_t number_of_samples, Falloff falloff);
+    light(raytrace::point const& P, raytrace::color const& C, precision intensity, size_t number_of_samples,
+          Falloff falloff);
 
     /// Default Destructor
     virtual ~light() = default;

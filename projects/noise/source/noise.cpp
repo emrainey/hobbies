@@ -15,12 +15,7 @@ noise::point const corners[] = {
 };
 
 // The set of 2d perlin noise gradients
-vector gradients[] = {
-    vector{{-1, -1}},
-    vector{{1, -1}},
-    vector{{-1, 1}},
-    vector{{1, 1}}
-};
+vector gradients[] = {vector{{-1, -1}}, vector{{1, -1}}, vector{{-1, 1}}, vector{{1, 1}}};
 
 precision sequence_pseudorandom1(uint32_t x) {
     x = (x << 13) ^ x;  // XOR with shifted version of itself
@@ -44,7 +39,7 @@ vector convert_to_seed(iso::degrees d) {
 }
 
 vector generate_seed() {
-    precision d = (precision)rand() / RAND_MAX;           // 0.0 to 1.0
+    precision d = (precision)rand() / RAND_MAX;  // 0.0 to 1.0
     constexpr precision const C = 2.0;
     iso::radians r{(C * iso::pi * d) - iso::pi};  // -pi to +pi
     return convert_to_seed(r);
@@ -82,7 +77,8 @@ precision random(vector const& vec, vector const& seeds, precision gain) {
     return (scaled_value - std::floor(scaled_value));
 }
 
-void cell_flows(point const& image_point, precision scale, vector const& seed, precision gain, point& uv, vector (&flows)[4]) {
+void cell_flows(point const& image_point, precision scale, vector const& seed, precision gain, point& uv,
+                vector (&flows)[4]) {
     // converts the image point to the cell top left corner this will be the same for all points in the cell
     noise::point flr = floor(image_point * (1.0_p / scale));
     // the fractional part of the point from the top left corner which is unique for all points in the cell
@@ -101,14 +97,14 @@ void cell_flows(point const& image_point, precision scale, vector const& seed, p
         flr + corners[2],
         flr + corners[3],
     };
-    // generate 4 random number between 0.0 and 1.0 which will be the "turns" around the unit circle for each corner of the cell then use those to make vectors
+    // generate 4 random number between 0.0 and 1.0 which will be the "turns" around the unit circle for each corner of
+    // the cell then use those to make vectors
     flows[0] = noise::convert_to_seed(iso::turns{random(feed[0], seed, gain)});
     flows[1] = noise::convert_to_seed(iso::turns{random(feed[1], seed, gain)});
     flows[2] = noise::convert_to_seed(iso::turns{random(feed[2], seed, gain)});
     flows[3] = noise::convert_to_seed(iso::turns{random(feed[3], seed, gain)});
     return;
 }
-
 
 precision perlin(point const& pnt, precision scale, vector const& seeds, precision gain) {
     noise::point uv;
@@ -169,9 +165,11 @@ precision turbulence(point const& pnt, precision size, precision scale, pad cons
     return (scale * value) / initialSize;
 }
 
-precision turbulentsin(point const& pnt, precision xs, precision ys, precision power, precision size, precision scale, pad const& map) {
+precision turbulentsin(point const& pnt, precision xs, precision ys, precision power, precision size, precision scale,
+                       pad const& map) {
     if constexpr (debug) {
-        printf("pnt={%lf, %lf} xs,ys={%lf, %lf}, power=%lf size=%lf, scale=%lf\n", pnt.x, pnt.y, xs, ys, power, size, scale);
+        printf("pnt={%lf, %lf} xs,ys={%lf, %lf}, power=%lf size=%lf, scale=%lf\n", pnt.x, pnt.y, xs, ys, power, size,
+               scale);
     }
     precision x = pnt.x * xs / map.dimensions;
     precision y = pnt.y * ys / map.dimensions;
@@ -216,7 +214,7 @@ static precision fractal_noise(point const& pnt, vector const& seed, precision r
 }
 
 precision fractal_brownian(point const& pnt, vector const& seed, size_t octaves, precision lacunarity, precision gain,
-                        precision initial_amplitude, precision initial_frequency) {
+                           precision initial_amplitude, precision initial_frequency) {
     precision value = 0.0;
     precision amplitude = initial_amplitude;
     precision frequency = initial_frequency;

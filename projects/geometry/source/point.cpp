@@ -181,36 +181,35 @@ point<DIMS> divide(point<DIMS> const& a, point<DIMS> const& b) noexcept(false) {
 
 // Explicit Instantiations for 2D
 template class point<2>;
-template bool operators::operator==<2ul>(point<2ul> const&, point<2ul> const&);
-template bool operators::operator!=<2ul>(point<2ul> const&, point<2ul> const&);
-template point<2ul> operators::operator*<2ul>(linalg::matrix const&, point<2ul> const&) noexcept(false);
+template bool operators::operator== <2ul>(point<2ul> const&, point<2ul> const&);
+template bool operators::operator!= <2ul>(point<2ul> const&, point<2ul> const&);
+template point<2ul> operators::operator* <2ul>(linalg::matrix const&, point<2ul> const&) noexcept(false);
 template point<2ul> multiply<2ul>(point<2ul> const&, double);
 template point<2ul> multiply<2ul>(double, point<2ul> const&);
 template point<2ul> pairwise::divide<2ul>(point<2ul> const&, point<2ul> const&);
 template point<2ul> pairwise::multiply<2ul>(point<2ul> const&, point<2ul> const&);
-template std::ostream& operator<<<2ul>(std::ostream&, point<2ul> const&);
+template std::ostream& operator<< <2ul>(std::ostream&, point<2ul> const&);
 
 // Explicit Instantiations for 3D
 template class point<3>;
-template bool operators::operator==<3ul>(point<3ul> const&, point<3ul> const&);
-template bool operators::operator!=<3ul>(point<3ul> const&, point<3ul> const&);
-template point<3ul> operators::operator*<3ul>(linalg::matrix const&, point<3ul> const&) noexcept(false);
+template bool operators::operator== <3ul>(point<3ul> const&, point<3ul> const&);
+template bool operators::operator!= <3ul>(point<3ul> const&, point<3ul> const&);
+template point<3ul> operators::operator* <3ul>(linalg::matrix const&, point<3ul> const&) noexcept(false);
 template point<3ul> multiply<3ul>(point<3ul> const&, double);
 template point<3ul> multiply<3ul>(double, point<3ul> const&);
 template point<3ul> pairwise::divide<3ul>(point<3ul> const&, point<3ul> const&);
 template point<3ul> pairwise::multiply<3ul>(point<3ul> const&, point<3ul> const&);
-template std::ostream& operator<<<3ul>(std::ostream&, point<3ul> const&);
+template std::ostream& operator<< <3ul>(std::ostream&, point<3ul> const&);
 
 // Explicit Instantiations for 4D
 template class point<4ul>;
-template bool operators::operator==<4ul>(point<4ul> const&, point<4ul> const&);
-template bool operators::operator!=<4ul>(point<4ul> const&, point<4ul> const&);
-template point<4ul> operators::operator*<4ul>(linalg::matrix const&, point<4ul> const&) noexcept(false);
+template bool operators::operator== <4ul>(point<4ul> const&, point<4ul> const&);
+template bool operators::operator!= <4ul>(point<4ul> const&, point<4ul> const&);
+template point<4ul> operators::operator* <4ul>(linalg::matrix const&, point<4ul> const&) noexcept(false);
 template point<4ul> multiply<4ul>(point<4ul> const&, double);
 template point<4ul> multiply<4ul>(double, point<4ul> const&);
 template point<4ul> pairwise::divide<4ul>(point<4ul> const&, point<4ul> const&);
 template point<4ul> pairwise::multiply<4ul>(point<4ul> const&, point<4ul> const&);
-template std::ostream& operator<<<4ul>(std::ostream&, point<4ul> const&);
-
+template std::ostream& operator<< <4ul>(std::ostream&, point<4ul> const&);
 
 }  // namespace geometry

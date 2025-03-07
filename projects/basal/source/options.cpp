@@ -12,7 +12,8 @@ namespace options {
 
 void process(size_t num_opts, config options[], int argc, char* argv[]) {
     for (int i = 1; i < argc; i++) {
-        if (argv[i] == nullptr) break;  // shouldn't hit this.
+        if (argv[i] == nullptr)
+            break;  // shouldn't hit this.
         for (size_t j = 0; j < num_opts; j++) {
             if ((not options[j].short_switch.empty() and strcmp(options[j].short_switch.c_str(), argv[i]) == 0)
                 or (not options[j].long_switch.empty() and strcmp(options[j].long_switch.c_str(), argv[i]) == 0)) {
@@ -55,7 +56,8 @@ void print(size_t num_opts, config options[]) {
                    options[j].long_switch.c_str(), std::get<size_t>(options[j].value), options[j].description.c_str());
         } else if (std::holds_alternative<precision>(options[j].value)) {
             printf("\t%3s, %20s (default: %lf) desc: %s\n", options[j].short_switch.c_str(),
-                   options[j].long_switch.c_str(), std::get<precision>(options[j].value), options[j].description.c_str());
+                   options[j].long_switch.c_str(), std::get<precision>(options[j].value),
+                   options[j].description.c_str());
         } else if (std::holds_alternative<std::string>(options[j].value)) {
             printf("\t%3s, %20s (default: %s) desc: %s\n", options[j].short_switch.c_str(),
                    options[j].long_switch.c_str(), std::get<std::string>(options[j].value).c_str(),

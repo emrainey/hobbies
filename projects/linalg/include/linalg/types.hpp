@@ -4,14 +4,13 @@
 /// @copyright Copyright 2019 (C) Erik Rainey.
 
 #include <limits>
-//#include <iso/iso.hpp>
+// #include <iso/iso.hpp>
 #include <basal/basal.hpp>
 
 namespace linalg {
 
 /// These are specialized symbols used to notate math ops or commonly used values in a simple way
-typedef enum letters_e : short
-{
+typedef enum letters_e : short {
     T = std::numeric_limits<short>::min(),  //!< The Transpose operation
     H,                                      //< The Hermitian transpose
 

@@ -7,17 +7,21 @@ namespace objects {
 // FIXME delete or modify!
 cone::cone(point const& C, iso::radians angle)
     : object{C, 2, true}  // 2 collisions, closed (infinite)
-    , m_bottom_radius{0.0}
-    , m_height{std::numeric_limits<precision>::infinity()}  // infinite
-    , m_angle{angle} {
-    basal::exception::throw_if(m_angle >= iso::radians(iso::pi / 2), __FILE__, __LINE__, "Angle %lf is too large", m_angle.value);
+      ,
+      m_bottom_radius{0.0},
+      m_height{std::numeric_limits<precision>::infinity()}  // infinite
+      ,
+      m_angle{angle} {
+    basal::exception::throw_if(m_angle >= iso::radians(iso::pi / 2), __FILE__, __LINE__, "Angle %lf is too large",
+                               m_angle.value);
 }
 
 cone::cone(point const& C, precision bottom_radius, precision height)
     : object{C, 2, false}  // 2 collisions, not closed
-    , m_bottom_radius{bottom_radius}
-    , m_height{height}
-    , m_angle{std::atan2(bottom_radius, height)} {
+      ,
+      m_bottom_radius{bottom_radius},
+      m_height{height},
+      m_angle{std::atan2(bottom_radius, height)} {
 }
 
 vector cone::normal_(point const& object_surface_point) const {

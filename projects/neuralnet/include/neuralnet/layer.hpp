@@ -13,8 +13,7 @@ using precision = basal::precision;
 class layer {
 public:
     /// The enumeration of layer types
-    enum class type : int
-    {
+    enum class type : int {
         input,   ///< inputs just have inputs which are transformed from some other data
                  ///< and they have encoders which translate some data into 0.0-1.0 values.
         hidden,  ///< hidden layers have reference to their input layer

@@ -148,8 +148,8 @@ class point_ : public point<N> {
 template <>
 class point_<2> : public point<2> {
 public:
-    precision& x; ///< First dimensional reference
-    precision& y; ///< Second dimensional reference
+    precision& x;  ///< First dimensional reference
+    precision& y;  ///< Second dimensional reference
     /// Custom empty constructor
     point_() : point<2>{}, x(m_data[0]), y(m_data[1]) {
     }
@@ -216,9 +216,9 @@ public:
 template <>
 class point_<3> : public point<3> {
 public:
-    precision& x; ///< First dimensional reference
-    precision& y; ///< Second dimensional reference
-    precision& z; ///< Third dimensional reference
+    precision& x;  ///< First dimensional reference
+    precision& y;  ///< Second dimensional reference
+    precision& z;  ///< Third dimensional reference
     /// Custom empty constructor
     point_() : point<3>{}, x(m_data[0]), y(m_data[1]), z(m_data[2]) {
     }
@@ -301,10 +301,10 @@ public:
 template <>
 class point_<4> : public point<4> {
 public:
-    precision& x; ///< First dimensional reference
-    precision& y; ///< Second dimensional reference
-    precision& z; ///< Third dimensional reference
-    precision& w; ///< Fourth dimensional reference
+    precision& x;  ///< First dimensional reference
+    precision& y;  ///< Second dimensional reference
+    precision& z;  ///< Third dimensional reference
+    precision& w;  ///< Fourth dimensional reference
     /// Custom empty constructor
     point_() : point<4>{}, x(m_data[0]), y(m_data[1]), z(m_data[2]), w(m_data[3]) {
     }

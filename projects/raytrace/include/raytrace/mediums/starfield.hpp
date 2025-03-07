@@ -13,13 +13,14 @@ public:
     raytrace::color operator()(raytrace::vector const& world_vector) const {
         // classify the vector to find which quadrant it belongs to
         Index quad = Classify(world_vector);
-        // search the quadrant list for a star which closely matches the vector by checking the dot product and comparing to nearly 1.0
+        // search the quadrant list for a star which closely matches the vector by checking the dot product and
+        // comparing to nearly 1.0
         for (size_t i = 0; i < star_vectors[quad.index].size(); ++i) {
             auto d = dot(star_vectors[quad.index][i], world_vector);
             auto const limit = 1.0f - epsilon;
             if (d > limit) {
                 // interpolate the color based on the distance from the center
-                auto diff = (1.0f - d) * scale; // should now be 0 to 1
+                auto diff = (1.0f - d) * scale;  // should now be 0 to 1
                 return interpolate(colors::black, colors::white, diff);
             }
         }
@@ -29,7 +30,7 @@ public:
 private:
     static constexpr precision scale{1'048'576.0f};
     static constexpr precision epsilon{1.0f / scale};
-    static constexpr size_t limit = 6 * scale; ///< the number of possible locations for a star on the golden spiral
+    static constexpr size_t limit = 6 * scale;  ///< the number of possible locations for a star on the golden spiral
 
     enum class Type : uint8_t {
         Space = 0,
@@ -39,23 +40,29 @@ private:
     };
 
     struct Index {
-        Index() : index{0}, type{Type::Space} {}
-        uint8_t index : 3; // 0-7 quadrants
-        Type type     : 2;
-        uint8_t       : 3;
+        Index() : index{0}, type{Type::Space} {
+        }
+        uint8_t index : 3;  // 0-7 quadrants
+        Type type : 2;
+        uint8_t : 3;
     };
 
     Index Classify(raytrace::vector const& vec) const {
         Index quad;
         // classify the quadrant that the vector belongs to
-        if (vec[0] >= 0.0f) { quad.index |= 0b001; }
-        if (vec[1] >= 0.0f) { quad.index |= 0b010; }
-        if (vec[2] >= 0.0f) { quad.index |= 0b100; }
+        if (vec[0] >= 0.0f) {
+            quad.index |= 0b001;
+        }
+        if (vec[1] >= 0.0f) {
+            quad.index |= 0b010;
+        }
+        if (vec[2] >= 0.0f) {
+            quad.index |= 0b100;
+        }
         return quad;
     }
 
     void ComputeStarVectors() {
-
         // compute a ray
         for (size_t i = 0; i < count; ++i) {
             // pick a random number
@@ -78,5 +85,5 @@ private:
     std::vector<raytrace::vector> star_vectors[8];
 };
 
-} // namespace mediums
+}  // namespace mediums
 }  // namespace raytrace

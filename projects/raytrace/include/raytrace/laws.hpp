@@ -47,9 +47,9 @@ inline vector lambertian(vector const& N, point const& I) {
     // since the sphere is a sphere we don't need to rotate or scale the point
     // translate the point from the unit sphere to the sphere at the point of intersection
     // by computing the vector from the incidence point to the point on the sphere.
-    raytrace::point C = I + N; // center of the sphere
-    raytrace::point S = C + P; // the point on the sphere.
-    raytrace::vector R = S - I; // the vector from the incidence point to the point on the sphere.
+    raytrace::point C = I + N;   // center of the sphere
+    raytrace::point S = C + P;   // the point on the sphere.
+    raytrace::vector R = S - I;  // the vector from the incidence point to the point on the sphere.
 
     // we just need to be cautious about points at or near the point of incidence
     // since that can cause zero length vectors.
@@ -77,8 +77,7 @@ inline vector reflection(vector const& N, vector const& I) {
 /// @param theta_tr The refracted angle to the normal
 /// @return The coefficient of reflectance. The coefficient of refraction is 1 - reflectance.
 ///
-inline precision fresnel(precision n1, precision n2, iso::radians const& theta_i,
-                            iso::radians const& theta_tr) {
+inline precision fresnel(precision n1, precision n2, iso::radians const& theta_i, iso::radians const& theta_tr) {
     precision cos_theta_i = std::cos(theta_i.value);
     precision cos_theta_t = std::cos(theta_tr.value);
     precision Rs = (n1 * cos_theta_i - n2 * cos_theta_t) / (n1 * cos_theta_i + n2 * cos_theta_t);
@@ -121,7 +120,7 @@ inline precision cauchy(precision a, precision b, iso::hertz light) {
 /// @return The depth in meters?
 /// @see https://en.wikipedia.org/wiki/Skin_effect
 inline precision penetration_depth(precision permeability, precision permittivity, precision resistivity,
-                                      iso::hertz frequency) {
+                                   iso::hertz frequency) {
     // omega = 2 * pi * f
     precision omega = 2 * iso::pi * frequency.value;
     // rwe = rho * omega * epsilon
@@ -148,7 +147,7 @@ inline precision beers(vector const& D, precision C) {
 /// Throws an exception if the distance is less than zero.
 inline precision inverse_square(precision distance) {
     throw_exception_if(distance < 0.0_p, "Distance %lf must be greater than or equal to zero.", distance);
-    precision const b = distance + 1.0_p; // to avoid division by zero and infinite values.
+    precision const b = distance + 1.0_p;  // to avoid division by zero and infinite values.
     return 1.0_p / (b * b);
 }
 

@@ -98,7 +98,8 @@ precision gamma_interpolate(precision const a, precision const b, precision cons
     if (enforce_contract) {
         basal::exception::throw_unless(0.0_p <= a and a <= 1.0_p, __FILE__, __LINE__, "Channel is incorrect");
         basal::exception::throw_unless(0.0_p <= b and b <= 1.0_p, __FILE__, __LINE__, "Channel is incorrect");
-        basal::exception::throw_unless(0.0_p <= s and s <= 1.0_p, __FILE__, __LINE__, "Interpolation Scalar is incorrect");
+        basal::exception::throw_unless(0.0_p <= s and s <= 1.0_p, __FILE__, __LINE__,
+                                       "Interpolation Scalar is incorrect");
     }
     constexpr static precision const constants[] = {0.0_p, 1.0_p};
     // linear to log
@@ -124,7 +125,8 @@ color interpolate(color const& x, color const& y, precision a) {
 }
 
 bool operator==(color const& a, color const& b) {
-    return basal::nearly_equals(a.red(), b.red(), color::equality_limit) and basal::nearly_equals(a.green(), b.green(), color::equality_limit)
+    return basal::nearly_equals(a.red(), b.red(), color::equality_limit)
+           and basal::nearly_equals(a.green(), b.green(), color::equality_limit)
            and basal::nearly_equals(a.blue(), b.blue(), color::equality_limit);
 }
 

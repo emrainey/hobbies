@@ -13,9 +13,7 @@ using namespace basal;
 namespace raytrace {
 /// The Camera of the Raytrace library. The contains the 'view' which holds the image plane properties.
 /// @see http://www.cs.cmu.edu/~16385/s17/Slides/11.1_Camera_matrix.pdf
-class camera
-    : public entity
-    , public basal::printable {
+class camera : public entity, public basal::printable {
 public:
     /// Default constructor
     camera() = delete;
@@ -71,8 +69,8 @@ public:
     ray up() const;
 
     ///      * Returns the left ray from the camera point to the leftward orientation of
-/// the camera in the world space. Mainly used to debug the position and orientation of the camera.
-/// @return ray
+    /// the camera in the world space. Mainly used to debug the position and orientation of the camera.
+    /// @return ray
     ray left() const;
 
     ///
@@ -95,7 +93,7 @@ public:
     fourcc::image<uint8_t, fourcc::pixel_format::Y8> mask;  ///< The mask of the capture image
 protected:
     linalg::matrix m_intrinsics;   ///< Camera Intrinsics
-    precision m_pixel_scale;    ///< The scaling factor for sizing pixels in the image plane
+    precision m_pixel_scale;       ///< The scaling factor for sizing pixels in the image plane
     iso::degrees m_field_of_view;  ///< The horizontal field of view of the camera.
 
     point m_world_look_at;  ///< The location in the world where the principal point will be located

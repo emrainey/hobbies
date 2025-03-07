@@ -9,8 +9,8 @@ namespace mediums {
 class dots : public opaque {
 public:
     /// @param r The number of repeats of the pattern.
-/// @param dot The color of the dot
-/// @param background The background color of the dot
+    /// @param dot The color of the dot
+    /// @param background The background color of the dot
     dots(precision r, color dot, color background);
     virtual ~dots() = default;
 

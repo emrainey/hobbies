@@ -222,37 +222,37 @@ TEST(SphereTest, ScaledSphere) {
     ASSERT_TRUE(s0.is_surface_point(back));
 
     // determine the intersection of a ray from above to the where the top point should be
-    raytrace::ray top_down{raytrace::point{1, 1, 6}, -R3::basis::Z}; // from above
+    raytrace::ray top_down{raytrace::point{1, 1, 6}, -R3::basis::Z};  // from above
     geometry::intersection iTD = s0.intersect(top_down).intersect;
     ASSERT_EQ(geometry::IntersectionType::Point, geometry::get_type(iTD));
     ASSERT_POINT_EQ(top, geometry::as_point(iTD));
 
     // determine the intersection of a ray from below to the where the bottom point should be
-    raytrace::ray bottom_up{raytrace::point{1, 1, -6}, R3::basis::Z}; // from below
+    raytrace::ray bottom_up{raytrace::point{1, 1, -6}, R3::basis::Z};  // from below
     geometry::intersection iBU = s0.intersect(bottom_up).intersect;
     ASSERT_EQ(geometry::IntersectionType::Point, geometry::get_type(iBU));
     ASSERT_POINT_EQ(bottom, geometry::as_point(iBU));
 
     // determine the intersection of a ray from the left to the where the left point should be
-    raytrace::ray left_right{raytrace::point{-6, 1, 1}, R3::basis::X}; // from left
+    raytrace::ray left_right{raytrace::point{-6, 1, 1}, R3::basis::X};  // from left
     geometry::intersection iLR = s0.intersect(left_right).intersect;
     ASSERT_EQ(geometry::IntersectionType::Point, geometry::get_type(iLR));
     ASSERT_POINT_EQ(left, geometry::as_point(iLR));
 
     // determine the intersection of a ray from the right to the where the right point should be
-    raytrace::ray right_left{raytrace::point{6, 1, 1}, -R3::basis::X}; // from right
+    raytrace::ray right_left{raytrace::point{6, 1, 1}, -R3::basis::X};  // from right
     geometry::intersection iRL = s0.intersect(right_left).intersect;
     ASSERT_EQ(geometry::IntersectionType::Point, geometry::get_type(iRL));
     ASSERT_POINT_EQ(right, geometry::as_point(iRL));
 
     // determine the intersection of a ray from the front to the where the front point should be
-    raytrace::ray front_back{raytrace::point{1, 6, 1}, -R3::basis::Y}; // from front
+    raytrace::ray front_back{raytrace::point{1, 6, 1}, -R3::basis::Y};  // from front
     geometry::intersection iFB = s0.intersect(front_back).intersect;
     ASSERT_EQ(geometry::IntersectionType::Point, geometry::get_type(iFB));
     ASSERT_POINT_EQ(front, geometry::as_point(iFB));
 
     // determine the intersection of a ray from the back to the where the back point should be
-    raytrace::ray back_front{raytrace::point{1, -6, 1}, R3::basis::Y}; // from back
+    raytrace::ray back_front{raytrace::point{1, -6, 1}, R3::basis::Y};  // from back
     geometry::intersection iBF = s0.intersect(back_front).intersect;
     ASSERT_EQ(geometry::IntersectionType::Point, geometry::get_type(iBF));
     ASSERT_POINT_EQ(back, geometry::as_point(iBF));

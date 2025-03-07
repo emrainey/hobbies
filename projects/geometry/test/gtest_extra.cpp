@@ -221,11 +221,12 @@ TEST(Mappers, Lerp) {
 }
 
 TEST(Mappers, LerpFunctors) {
-    std::vector<mapper> mappers = {mapping::linear, mapping::quadratic, mapping::cubic, mapping::sqrt, mapping::sin,
-                               mapping::ease, mapping::curb, mapping::root_spindle, mapping::spindle, mapping::exponential};
+    std::vector<mapper> mappers
+        = {mapping::linear, mapping::quadratic, mapping::cubic,        mapping::sqrt,    mapping::sin,
+           mapping::ease,   mapping::curb,      mapping::root_spindle, mapping::spindle, mapping::exponential};
 
     for (auto& m : mappers) {
-        for (precision i = 0.0; i <= 1.0; i += 1.0/256.0_p) {
+        for (precision i = 0.0; i <= 1.0; i += 1.0 / 256.0_p) {
             auto v = lerp(0.0, 1.0, m(i));
             ASSERT_GE(v, 0.0_p);
             ASSERT_LE(v, 1.0_p);

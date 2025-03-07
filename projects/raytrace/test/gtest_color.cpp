@@ -92,7 +92,7 @@ TEST(ColorTest, PairWiseMult) {
 
 TEST(ColorTest, InterpolateGreyScale) {
     fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8> img4(256, 256);
-    img4.for_each ([&](size_t y, size_t x, fourcc::rgb8& pixel) {
+    img4.for_each([&](size_t y, size_t x, fourcc::rgb8& pixel) {
         y |= 0;
         precision a = precision(x) / img4.width;
         color c = interpolate(colors::white, colors::black, a);
@@ -103,7 +103,7 @@ TEST(ColorTest, InterpolateGreyScale) {
 
 TEST(ColorTest, InterpolateCorners) {
     fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8> img5(480, 640);
-    img5.for_each ([&](size_t y, size_t x, fourcc::rgb8& pixel) {
+    img5.for_each([&](size_t y, size_t x, fourcc::rgb8& pixel) {
         precision a = precision(x) / img5.width;
         precision b = precision(y) / img5.height;
         color c = interpolate(colors::red, colors::green, a);
@@ -116,7 +116,7 @@ TEST(ColorTest, InterpolateCorners) {
 
 TEST(ColorTest, LinearGreyscale) {
     fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8> img6(256, 256);
-    img6.for_each ([&](size_t y, size_t x, fourcc::rgb8& pixel) {
+    img6.for_each([&](size_t y, size_t x, fourcc::rgb8& pixel) {
         y |= 0;
         precision v = precision(x) / img6.width;
         color c{v, v, v};  // starts linear
@@ -128,7 +128,7 @@ TEST(ColorTest, LinearGreyscale) {
 
 TEST(ColorTest, LogarithmicGreyscale) {
     fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8> img7(256, 256);
-    img7.for_each ([&](size_t y, size_t x, fourcc::rgb8& pixel) {
+    img7.for_each([&](size_t y, size_t x, fourcc::rgb8& pixel) {
         y |= 0;
         precision v = precision(x) / img7.width;
         color c{v, v, v};

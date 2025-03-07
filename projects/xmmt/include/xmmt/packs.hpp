@@ -36,15 +36,18 @@ public:
     constexpr float3() : float3{0.0f, 0.0f, 0.0f} {
     }
     /// Forwarding Element Parameter Constructor
-    constexpr explicit float3(element_type a, element_type b, element_type d) : datum{a, b, d, 1.0_p} {}
+    constexpr explicit float3(element_type a, element_type b, element_type d) : datum{a, b, d, 1.0_p} {
+    }
     /// Forwarding Element Parameter Constructor
     constexpr explicit float3(other_type a, other_type b, other_type d)
-        : float3{static_cast<element_type>(a), static_cast<element_type>(b), static_cast<element_type>(d)} {}
+        : float3{static_cast<element_type>(a), static_cast<element_type>(b), static_cast<element_type>(d)} {
+    }
     /// Parallel Parameter Constructor
     float3(parallel_type a) : data{a} {
     }
     /// Copy Constructor
-    float3(float3 const& other) : data{other.data} {}
+    float3(float3 const& other) : data{other.data} {
+    }
     /// Move Constructor
     float3(float3&& other) : data{other.data} {
         other.zero();
@@ -126,12 +129,15 @@ public:
     }
     /// Forwarding Element Parameter Constructor
     constexpr explicit float4(other_type a, other_type b, other_type d, other_type e)
-        : float4{static_cast<element_type>(a), static_cast<element_type>(b), static_cast<element_type>(d), static_cast<element_type>(e)} {}
+        : float4{static_cast<element_type>(a), static_cast<element_type>(b), static_cast<element_type>(d),
+                 static_cast<element_type>(e)} {
+    }
     /// Parallel Parameter Constructor
     float4(parallel_type a) : data{a} {
     }
     /// Copy Constructor
-    float4(float4 const& other) : data{other.data} {}
+    float4(float4 const& other) : data{other.data} {
+    }
     /// Move Constructor
     float4(float4&& other) : data{other.data} {
         other.zero();
@@ -190,15 +196,18 @@ public:
     constexpr double2() : double2{0.0, 0.0} {
     }
     /// Forwarding Element Parameter Constructor
-    constexpr double2(element_type a, element_type b) : datum{a, b} {}
+    constexpr double2(element_type a, element_type b) : datum{a, b} {
+    }
     /// Forwarding Element Parameter Constructor
     constexpr double2(other_type a, other_type b)
-        : double2{static_cast<element_type>(a), static_cast<element_type>(b)} {}
+        : double2{static_cast<element_type>(a), static_cast<element_type>(b)} {
+    }
     /// Parallel Parameter Constructor
     double2(parallel_type a) : data{a} {
     }
     /// Copy Constructor
-    double2(double2 const& other) : data{other.data} {}
+    double2(double2 const& other) : data{other.data} {
+    }
     /// Move Constructor
     double2(double2&& other) : data{other.data} {
         other.zero();
@@ -269,13 +278,15 @@ public:
     }
     /// Forwarding Element Parameter Constructor
     constexpr explicit double3(other_type a, other_type b, other_type d)
-        : double3{static_cast<element_type>(a), static_cast<element_type>(b), static_cast<element_type>(d)} {}
+        : double3{static_cast<element_type>(a), static_cast<element_type>(b), static_cast<element_type>(d)} {
+    }
 
     /// Parallel Parameter Constructor
     double3(parallel_type a) : data{a} {
     }
     /// Copy Constructor
-    double3(double3 const& other) : data{other.data} {}
+    double3(double3 const& other) : data{other.data} {
+    }
     /// Move Constructor
     double3(double3&& other) : data{other.data} {
         other.zero();
@@ -331,16 +342,22 @@ public:
     /// define the number of element types within a data unit
     constexpr static size_t number_of_elements = sizeof(parallel_type) / sizeof(element_type);
     /// Default Constructor
-    constexpr double4() : double4{0.0, 0.0, 0.0, 0.0} {}
+    constexpr double4() : double4{0.0, 0.0, 0.0, 0.0} {
+    }
     /// Forwarding Element Parameter Constructor
-    constexpr explicit double4(element_type a, element_type b, element_type d, element_type e) : datum{a, b, d, e} {}
+    constexpr explicit double4(element_type a, element_type b, element_type d, element_type e) : datum{a, b, d, e} {
+    }
     /// Forwarding Element Parameter Constructor
     constexpr explicit double4(other_type a, other_type b, other_type d, other_type e)
-        : double4{static_cast<element_type>(a), static_cast<element_type>(b), static_cast<element_type>(d), static_cast<element_type>(e)} {}
+        : double4{static_cast<element_type>(a), static_cast<element_type>(b), static_cast<element_type>(d),
+                  static_cast<element_type>(e)} {
+    }
     /// Parallel Parameter Constructor
-    double4(parallel_type a) : data{a} {}
+    double4(parallel_type a) : data{a} {
+    }
     /// Copy Constructor
-    double4(double4 const& other) : data{other.data} {}
+    double4(double4 const& other) : data{other.data} {
+    }
     /// Move Constructor
     double4(double4&& other) : data{other.data} {
         other.zero();

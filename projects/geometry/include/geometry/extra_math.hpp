@@ -66,7 +66,7 @@ matrix rowjoin(matrix& a, vector_<DIMS>& b) noexcept(false) {
             v = b[r];
         }
     };
-    return matrix(a.rows, a.cols + b.cols).for_each (iter);
+    return matrix(a.rows, a.cols + b.cols).for_each(iter);
 }
 
 /// Creates a matrix from an array of column vectors
@@ -115,7 +115,7 @@ constexpr precision sin(precision x) {
 }
 
 constexpr precision ease(precision x) {
-    return (std::sin((x * iso::pi) - (iso::pi/2.0_p)) / 2.0_p) + 0.5_p;
+    return (std::sin((x * iso::pi) - (iso::pi / 2.0_p)) / 2.0_p) + 0.5_p;
 }
 
 /// x^(1/x)
@@ -138,9 +138,7 @@ constexpr precision exponential(precision x) {
     return std::exp(x / iso::invln2) - 1.0_p;
 }
 
-} // namespace mapping
-
-
+}  // namespace mapping
 
 namespace R2 {
 using interpolator = std::function<point(point const&, point const&, mapper, precision)>;

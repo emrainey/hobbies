@@ -19,11 +19,10 @@ PYBIND11_MODULE(pyhobbies, module) {
             // .def("green", &raytrace::color::green)
             // .def("blue", &raytrace::color::blue)
             .def("clamp", &raytrace::color::clamp)
-            .def(
-                "__repr__", [](raytrace::color const& c) -> auto {
-                    return "<raytrace.color = R:" + std::to_string(c.red()) + " G:" + std::to_string(c.green())
-                           + " B:" + std::to_string(c.blue()) + ">";
-                });
+            .def("__repr__", [](raytrace::color const& c) -> auto {
+                return "<raytrace.color = R:" + std::to_string(c.red()) + " G:" + std::to_string(c.green())
+                       + " B:" + std::to_string(c.blue()) + ">";
+            });
         // py::class_<raytrace::point> point(sub, "point");
         // point.def(py::init<precision, precision, precision>())
         //     .def("x", &raytrace::point::x)

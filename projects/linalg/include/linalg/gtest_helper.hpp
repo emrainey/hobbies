@@ -13,7 +13,7 @@
         ASSERT_EQ(a.rows, b.rows);                                                            \
         for (size_t j = 0; j < a.rows; j++) {                                                 \
             for (size_t i = 0; i < a.cols; i++) {                                             \
-                ASSERT_NEAR(a[j][i], b[j][i], basal::epsilon)                                          \
+                ASSERT_NEAR(a[j][i], b[j][i], basal::epsilon)                                 \
                     << "at [" << j << "][" << i << "]"                                        \
                     << " from " << #a << " " << a << " from " << #b << " " << b << std::endl; \
             }                                                                                 \
@@ -26,7 +26,7 @@
         ASSERT_EQ(a.rows, b.rows);                                                            \
         for (size_t j = 0; j < a.rows; j++) {                                                 \
             for (size_t i = 0; i < a.cols; i++) {                                             \
-                EXPECT_NEAR(a[j][i], b[j][i], basal::epsilon)                                          \
+                EXPECT_NEAR(a[j][i], b[j][i], basal::epsilon)                                 \
                     << "at [" << j << "][" << i << "]"                                        \
                     << " from " << #a << " " << a << " from " << #b << " " << b << std::endl; \
             }                                                                                 \

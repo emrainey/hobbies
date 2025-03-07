@@ -103,4 +103,3 @@ iso::hertz operator""_Hz(char const a[]) {
 }
 }  // namespace literals
 }  // namespace iso
-

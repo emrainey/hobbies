@@ -8,14 +8,13 @@ namespace objects {
 
 class face : public triangle {
 public:
-
     face(point const& A, point const& B, point const& C);
 
-    face(point const& A, point const& B, point const& C, image::point const& a, image::point const& b, image::point const& c);
+    face(point const& A, point const& B, point const& C, image::point const& a, image::point const& b,
+         image::point const& c);
 
-    face(point const& A, point const& B, point const& C,
-        image::point const& a, image::point const& b, image::point const& c,
-        vector const& na, vector const& nb, vector const& nc);
+    face(point const& A, point const& B, point const& C, image::point const& a, image::point const& b,
+         image::point const& c, vector const& na, vector const& nb, vector const& nc);
 
     virtual ~face() = default;
 
@@ -24,12 +23,14 @@ public:
     bool is_surface_point(point const& world_point) const override;
     precision get_object_extent(void) const override;
     image::point map(point const& object_surface_point) const override;
+
 protected:
     vector normal_(point const& object_surface_point) const override;
+
 protected:
     std::array<image::point, raytrace::dimensions> m_texture_coords;
     std::array<raytrace::vector, raytrace::dimensions> m_normals;
 };
 
-} // namespace objects
+}  // namespace objects
 }  // namespace raytrace

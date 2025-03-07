@@ -53,17 +53,15 @@ int main(int argc, char *argv[]) {
     std::string module_name;
     bool should_show_help = true;
 
-    basal::options::config opts[] = {
-        {"-d", "--dims", std::string("QVGA"), "Use text video format like VGA or 2K"},
-        {"-b", "--subsamples", (size_t)1, "Number of subsamples"},
-        {"-r", "--reflections", (size_t)4, "Reflection Depth"},
-        {"-f", "--fov", 55.0_p, "Field of View in Degrees"},
-        {"-v", "--verbose", false, "Enables showing the early debugging"},
-        {"-m", "--module", std::string(""), "Module to load"},
-        {"-a", "--aaa", (size_t)raytrace::image::AAA_MASK_DISABLED,
-         "Adaptive Anti-Aliasing Threshold value (255 disables)"},
-        {"-s", "--separation", 0.0, "Stereo Camera view separation"}
-    };
+    basal::options::config opts[] = {{"-d", "--dims", std::string("QVGA"), "Use text video format like VGA or 2K"},
+                                     {"-b", "--subsamples", (size_t)1, "Number of subsamples"},
+                                     {"-r", "--reflections", (size_t)4, "Reflection Depth"},
+                                     {"-f", "--fov", 55.0_p, "Field of View in Degrees"},
+                                     {"-v", "--verbose", false, "Enables showing the early debugging"},
+                                     {"-m", "--module", std::string(""), "Module to load"},
+                                     {"-a", "--aaa", (size_t)raytrace::image::AAA_MASK_DISABLED,
+                                      "Adaptive Anti-Aliasing Threshold value (255 disables)"},
+                                     {"-s", "--separation", 0.0, "Stereo Camera view separation"}};
 
     basal::options::process(dimof(opts), opts, argc, argv);
     my_assert(basal::options::find(opts, "--dims", params.dim_name), "Must have a text value");
@@ -91,7 +89,7 @@ int main(int argc, char *argv[]) {
         printf("Invalid dimensions\n");
         return -1;
     }
-    size_t stride = 2 * width; // requires Left Right layout
+    size_t stride = 2 * width;  // requires Left Right layout
     SDL_Init(SDL_INIT_VIDEO);
     SDL_Window *window
         = SDL_CreateWindow("Raytracer", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, stride, height, 0);
@@ -108,7 +106,8 @@ int main(int argc, char *argv[]) {
             // tiny image, simple camera placement
             raytrace::scene scene;
             // camera setup
-            raytrace::stereo_camera stereo_view(height, width, iso::degrees(params.fov), params.separation, raytrace::stereo_camera::Layout::LeftRight);
+            raytrace::stereo_camera stereo_view(height, width, iso::degrees(params.fov), params.separation,
+                                                raytrace::stereo_camera::Layout::LeftRight);
             stereo_view.move_to(world.looking_from(), world.looking_at());
             stereo_view.print("Stereo View");
             scene.set_background_mapper(std::bind(&raytrace::world::background, &world, std::placeholders::_1));
@@ -118,7 +117,7 @@ int main(int argc, char *argv[]) {
             }
 
             size_t view_offset = 0u;
-            for (auto& view : stereo_view) {
+            for (auto &view : stereo_view) {
                 // The completion data will be stored in here, a bool per line.
                 std::vector<bool> completed(view.capture.height);
                 std::fill(completed.begin(), completed.end(), false);
@@ -136,20 +135,20 @@ int main(int argc, char *argv[]) {
                             fprintf(stdout, "]");
                         } else {
                             size_t count = 0;
-                            std::for_each (completed.begin(), completed.end(), [&](bool p) -> bool {
+                            std::for_each(completed.begin(), completed.end(), [&](bool p) -> bool {
                                 count += (p ? 1 : 0);
                                 return p;
                             });
                             double percentage = 100.0 * count / completed.size();
                             bool done = (count == completed.size());
                             fprintf(stdout,
-                                    "\r[ %0.3lf %%] rays cast: %zu dots: %zu cross: %zu 2r: %zu 3r: %zu 4r: %zu intersects: %zu (%zu/%zu/%zu) bounced: %zu "
+                                    "\r[ %0.3lf %%] rays cast: %zu dots: %zu cross: %zu 2r: %zu 3r: %zu 4r: %zu "
+                                    "intersects: %zu (%zu/%zu/%zu) bounced: %zu "
                                     "transmitted: %zu %s ",
                                     done ? 100.0 : percentage, raytrace::statistics::get().cast_rays_from_camera,
                                     geometry::statistics::get().dot_operations,
                                     geometry::statistics::get().cross_products,
-                                    linalg::statistics::get().quadratic_roots,
-                                    linalg::statistics::get().cubic_roots,
+                                    linalg::statistics::get().quadratic_roots, linalg::statistics::get().cubic_roots,
                                     linalg::statistics::get().quartic_roots,
                                     raytrace::statistics::get().intersections_with_objects,
                                     raytrace::statistics::get().intersections_with_point,
@@ -175,10 +174,12 @@ int main(int argc, char *argv[]) {
                                 return;
                             }
                         }
-                        view.capture.for_each ([&](size_t y, size_t x, fourcc::rgb8 const& pixel) -> void {
-                            if (row_index != y) return; // if it's not this row, skip it
-                            uint8_t *pixels = reinterpret_cast<uint8_t *>(surface->pixels); // this is double width!
-                            size_t offset = (y * surface->pitch) + (x * sizeof(fourcc::bgra)) + (view_offset * sizeof(fourcc::bgra));
+                        view.capture.for_each([&](size_t y, size_t x, fourcc::rgb8 const &pixel) -> void {
+                            if (row_index != y)
+                                return;  // if it's not this row, skip it
+                            uint8_t *pixels = reinterpret_cast<uint8_t *>(surface->pixels);  // this is double width!
+                            size_t offset = (y * surface->pitch) + (x * sizeof(fourcc::bgra))
+                                            + (view_offset * sizeof(fourcc::bgra));
                             // B G R A order
                             pixels[offset + 0u] = pixel.b;
                             pixels[offset + 1u] = pixel.g;
@@ -186,7 +187,7 @@ int main(int argc, char *argv[]) {
                             pixels[offset + 3u] = 0u;
                         });
                         if (window_mutex.try_lock()) {
-                            SDL_UpdateWindowSurface(window); // calling this across threads is bad
+                            SDL_UpdateWindowSurface(window);  // calling this across threads is bad
                             window_mutex.unlock();
                         }
                         if (should_lock) {
@@ -195,14 +196,14 @@ int main(int argc, char *argv[]) {
                     }
                 };
                 printf("Starting Render (depth=%zu, samples=%zu, aaa?=%s thresh=%zu)...\r\n", params.reflections,
-                        params.subsamples, params.mask_threshold == raytrace::image::AAA_MASK_DISABLED ? "no" : "yes",
-                        params.mask_threshold);
+                       params.subsamples, params.mask_threshold == raytrace::image::AAA_MASK_DISABLED ? "no" : "yes",
+                       params.mask_threshold);
 
                 std::thread bar_thread(progress_bar);  // thread starts
                 try {
-                    scene.render(view, world.output_filename(), params.subsamples, params.reflections,
-                                    row_notifier, params.mask_threshold);
-                } catch (basal::exception const& e) {
+                    scene.render(view, world.output_filename(), params.subsamples, params.reflections, row_notifier,
+                                 params.mask_threshold);
+                } catch (basal::exception const &e) {
                     std::cout << "Caught basal::exception in scene.render()! " << std::endl;
                     std::cout << "What:" << e.what() << " Why:" << e.why() << " Where:" << e.where() << std::endl;
                 } catch (...) {
@@ -222,9 +223,10 @@ int main(int argc, char *argv[]) {
                         return -1;
                     }
                 }
-                view.capture.for_each ([&](size_t y, size_t x, fourcc::rgb8 const& pixel) -> void {
+                view.capture.for_each([&](size_t y, size_t x, fourcc::rgb8 const &pixel) -> void {
                     uint8_t *pixels = reinterpret_cast<uint8_t *>(surface->pixels);
-                    size_t offset = (y * surface->pitch) + (x * sizeof(fourcc::bgra)) + (view_offset * sizeof(fourcc::bgra));
+                    size_t offset
+                        = (y * surface->pitch) + (x * sizeof(fourcc::bgra)) + (view_offset * sizeof(fourcc::bgra));
                     // B G R A order
                     pixels[offset + 0u] = pixel.b;
                     pixels[offset + 1u] = pixel.g;

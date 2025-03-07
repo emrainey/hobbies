@@ -8,9 +8,7 @@
 namespace raytrace {
 namespace objects {
 /// The Classical Roundy-Boi
-class sphere
-    : public geometry::R3::sphere
-    , public object {
+class sphere : public geometry::R3::sphere, public object {
 public:
     /// Constructs a sphere at a point of a given radius.
     sphere(point const& center, precision radius);

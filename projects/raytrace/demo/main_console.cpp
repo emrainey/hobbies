@@ -196,7 +196,7 @@ int main(int argc, char* argv[]) {
     auto progress_bar = [&]() -> void {
         while (running) {
             size_t count = 0;
-            std::for_each (completed.begin(), completed.end(), [&](bool p) -> bool {
+            std::for_each(completed.begin(), completed.end(), [&](bool p) -> bool {
                 count += (p ? 1 : 0);
                 return p;
             });
@@ -279,8 +279,7 @@ int main(int argc, char* argv[]) {
                 for (size_t x = 0; x < view.capture.width; x++) {
                     fourcc::rgb8 top = view.capture.at(y + 0, x);
                     fourcc::rgb8 btm = view.capture.at(y + 1, x);
-                    printf("\x1b[48;2;%d;%d;%dm\x1b[38;2;%d;%d;%dm\u2584", top.r, top.g, top.b, btm.r, btm.g,
-                            btm.b);
+                    printf("\x1b[48;2;%d;%d;%dm\x1b[38;2;%d;%d;%dm\u2584", top.r, top.g, top.b, btm.r, btm.g, btm.b);
                 }
             }
             printf("\e[?25h");
@@ -301,12 +300,11 @@ int main(int argc, char* argv[]) {
                     console.print(6, 2, "START TIME: %s, RENDERING TIME: ??? secs", time_string);
                     std::thread bar_thread(progress_bar);  // thread starts
                     try {
-                        scene.render(view, world.output_filename(), params.subsamples, params.reflections,
-                                        row_notifier, params.mask_threshold);
+                        scene.render(view, world.output_filename(), params.subsamples, params.reflections, row_notifier,
+                                     params.mask_threshold);
                     } catch (basal::exception const& e) {
                         std::cout << "Caught basal::exception in scene.render()! " << std::endl;
-                        std::cout << "What:" << e.what() << " Why:" << e.why() << " Where:" << e.where()
-                                    << std::endl;
+                        std::cout << "What:" << e.what() << " Why:" << e.why() << " Where:" << e.where() << std::endl;
                     } catch (...) {
                         std::cout << "Caught unknown exception in scene.render()! " << std::endl;
                     }

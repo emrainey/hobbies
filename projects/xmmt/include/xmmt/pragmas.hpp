@@ -46,4 +46,4 @@
 #pragma message("SSE Disabled")
 #endif
 
-#endif // XMMT_PRAGMAS_HPP
+#endif  // XMMT_PRAGMAS_HPP

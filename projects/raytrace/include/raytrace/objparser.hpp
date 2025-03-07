@@ -29,7 +29,10 @@ public:
     /// @brief Adds a Triangular Face to the Observer given the indices of the vertexes, and normals
     virtual void addFace(uint32_t v1, uint32_t n1, uint32_t v2, uint32_t n2, uint32_t v3, uint32_t n3) = 0;
     /// @brief Adds a Triangular Face to the Observer given the indices of the vertexes, normals, and textures
-    virtual void addFace(uint32_t v1, uint32_t t1, uint32_t n1, uint32_t v2, uint32_t t2, uint32_t n2, uint32_t v3, uint32_t t3, uint32_t n3) = 0;
+    virtual void addFace(uint32_t v1, uint32_t t1, uint32_t n1, uint32_t v2, uint32_t t2, uint32_t n2, uint32_t v3,
+                         uint32_t t3, uint32_t n3)
+        = 0;
+
 protected:
     ~Observer() = default;
 };
@@ -38,20 +41,20 @@ class Parser {
 public:
     /// @brief The state of the parser.
     enum class State : char {
-        Unknown = 'u', ///< Unknown state
-        Comment = 'c', ///< Comment line
-        Object = 'o', ///< The object name is being parsed
-        Vertices = 'v', ///< A vertex is being parsed
-        Textures = 't', ///< A texture vertex is being parsed
-        Normals = 'n',  ///< A normal is being parsed
-        Faces = 'f' ///< A face is being parsed.
+        Unknown = 'u',   ///< Unknown state
+        Comment = 'c',   ///< Comment line
+        Object = 'o',    ///< The object name is being parsed
+        Vertices = 'v',  ///< A vertex is being parsed
+        Textures = 't',  ///< A texture vertex is being parsed
+        Normals = 'n',   ///< A normal is being parsed
+        Faces = 'f'      ///< A face is being parsed.
     };
     /// @brief  The state within each state.
     enum class SubState : char {
-        None = ' ', ///< An invalid state
-        String = 's', ///< Any characters up to the line terminators
-        FloatingPoint = 'f', ///< Digits, -, +, .
-        Integer = 'i', ///< Unsigned Digits, no point.
+        None = ' ',           ///< An invalid state
+        String = 's',         ///< Any characters up to the line terminators
+        FloatingPoint = 'f',  ///< Digits, -, +, .
+        Integer = 'i',        ///< Unsigned Digits, no point.
     };
 
     struct Statistics {
@@ -63,7 +66,8 @@ public:
     };
 
     /// Constructs a parser with a given observer
-    Parser(Observer& observer) : m_buffer_{}, m_index_{0u}, m_line_{1u}, m_observer_{observer} {}
+    Parser(Observer& observer) : m_buffer_{}, m_index_{0u}, m_line_{1u}, m_observer_{observer} {
+    }
 
     /// Returns the current state
     inline State GetState(void) const {
@@ -77,14 +81,14 @@ public:
 
     /// Parses a string character by character
     inline void Parse(std::string str) {
-        for (char const * tmp = str.c_str(); *tmp != '\0'; tmp++) {
+        for (char const* tmp = str.c_str(); *tmp != '\0'; tmp++) {
             Parse(*tmp);
         }
     }
 
     /// Parses a string literal
-    inline void Parse(char const * const str) {
-        for (char const * tmp = str; *tmp != '\0'; tmp++) {
+    inline void Parse(char const* const str) {
+        for (char const* tmp = str; *tmp != '\0'; tmp++) {
             Parse(*tmp);
         }
     }
@@ -204,7 +208,8 @@ public:
 protected:
     void Complete(void) {
         if constexpr (debug) {
-            printf("state=%c sub=%c Buffer=%s\n", basal::to_underlying(m_state_), basal::to_underlying(m_substate_), m_buffer_);
+            printf("state=%c sub=%c Buffer=%s\n", basal::to_underlying(m_state_), basal::to_underlying(m_substate_),
+                   m_buffer_);
         }
         switch (m_state_) {
             case State::Vertices:
@@ -256,8 +261,9 @@ protected:
                     uint32_t d = UINT32_MAX;
                     uint32_t e = UINT32_MAX;
                     uint32_t f = UINT32_MAX;
-                    scans = sscanf(m_buffer_, " %" SCNu32 "/%" SCNu32 " %" SCNu32 "/%" SCNu32 " %" SCNu32 "/%" SCNu32 "",
-                                     &a, &d, &b, &e, &c, &f);
+                    scans
+                        = sscanf(m_buffer_, " %" SCNu32 "/%" SCNu32 " %" SCNu32 "/%" SCNu32 " %" SCNu32 "/%" SCNu32 "",
+                                 &a, &d, &b, &e, &c, &f);
                     if (6u == scans) {
                         m_observer_.addFace(a, d, b, e, c, f);
                         m_statistics_.faces++;
@@ -266,8 +272,10 @@ protected:
                     uint32_t g = UINT32_MAX;
                     uint32_t h = UINT32_MAX;
                     uint32_t i = UINT32_MAX;
-                    scans = sscanf(m_buffer_, " %" SCNu32 "/%" SCNu32 "/%" SCNu32 " %" SCNu32 "/%" SCNu32 "/%" SCNu32 " %" SCNu32 "/%" SCNu32 "/%" SCNu32 "",
-                                     &a, &d, &g, &b, &e, &h, &c, &f, &i);
+                    scans = sscanf(m_buffer_,
+                                   " %" SCNu32 "/%" SCNu32 "/%" SCNu32 " %" SCNu32 "/%" SCNu32 "/%" SCNu32 " %" SCNu32
+                                   "/%" SCNu32 "/%" SCNu32 "",
+                                   &a, &d, &g, &b, &e, &h, &c, &f, &i);
                     if (9u == scans) {
                         m_observer_.addFace(a, d, g, b, e, h, c, f, i);
                         m_statistics_.faces++;
@@ -289,7 +297,7 @@ protected:
     Statistics m_statistics_;
 };
 
-} // namespace obj
-} // namespace raytrace
+}  // namespace obj
+}  // namespace raytrace
 
-#endif // RAYTRACE_OBJPARSER_H_
+#endif  // RAYTRACE_OBJPARSER_H_

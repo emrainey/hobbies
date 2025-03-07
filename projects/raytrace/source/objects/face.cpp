@@ -4,21 +4,19 @@ namespace raytrace {
 namespace objects {
 
 face::face(point const& A, point const& B, point const& C)
-    : triangle(A, B, C)
-    , m_texture_coords{image::point{1, 0}, image::point{0, 0}, image::point{0, 1}}
-    , m_normals{m_normal, m_normal, m_normal} {
+    : triangle(A, B, C),
+      m_texture_coords{image::point{1, 0}, image::point{0, 0}, image::point{0, 1}},
+      m_normals{m_normal, m_normal, m_normal} {
 }
 
-face::face(point const& A, point const& B, point const& C, image::point const& a, image::point const& b, image::point const& c)
-    : triangle(A, B, C)
-    , m_texture_coords{a, b, c}
-    , m_normals{m_normal, m_normal, m_normal} {
+face::face(point const& A, point const& B, point const& C, image::point const& a, image::point const& b,
+           image::point const& c)
+    : triangle(A, B, C), m_texture_coords{a, b, c}, m_normals{m_normal, m_normal, m_normal} {
 }
 
-face::face(point const& A, point const& B, point const& C, image::point const& a, image::point const& b, image::point const& c, vector const& na, vector const& nb, vector const& nc)
-    : triangle(A, B, C)
-    , m_texture_coords{a, b, c}
-    , m_normals{na, nb, nc} {
+face::face(point const& A, point const& B, point const& C, image::point const& a, image::point const& b,
+           image::point const& c, vector const& na, vector const& nb, vector const& nc)
+    : triangle(A, B, C), m_texture_coords{a, b, c}, m_normals{na, nb, nc} {
     std::cout << "Face center is " << position() << std::endl;
 }
 
@@ -27,7 +25,8 @@ hits face::collisions_along(ray const& object_ray) const {
 }
 
 void face::print(char const str[]) const {
-    std::cout << str << " Face @" << this << " " << position() << " Normal " << unormal() << " A=" << m_points[0] << " B=" << m_points[1] << " C=" << m_points[2] << std::endl;
+    std::cout << str << " Face @" << this << " " << position() << " Normal " << unormal() << " A=" << m_points[0]
+              << " B=" << m_points[1] << " C=" << m_points[2] << std::endl;
 }
 
 bool face::is_surface_point(point const& world_point) const {
@@ -52,8 +51,8 @@ image::point face::map(point const& object_surface_point) const {
     precision a = dot(AB, DB) / AB.magnitude();
     precision b = dot(CB, DB) / CB.magnitude();
     // create the 2d vector along ab, cb in UV space
-    image::vector ab = (m_texture_coords[0] - m_texture_coords[1]); // the 2d vector along AB
-    image::vector cb = (m_texture_coords[2] - m_texture_coords[1]); // the 2d vector along CB
+    image::vector ab = (m_texture_coords[0] - m_texture_coords[1]);  // the 2d vector along AB
+    image::vector cb = (m_texture_coords[2] - m_texture_coords[1]);  // the 2d vector along CB
     // scale the vectors by the normalized values
     image::vector uv_ab = a * ab;
     image::vector uv_db = b * cb;
@@ -61,5 +60,5 @@ image::point face::map(point const& object_surface_point) const {
     return uv;
 }
 
-} // namespace objects
+}  // namespace objects
 }  // namespace raytrace

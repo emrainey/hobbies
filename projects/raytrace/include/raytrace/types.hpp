@@ -62,18 +62,19 @@ public:
 /// Once initialized use the values to construct two sphere at a +/- separation from the origin of the specific radius.
 /// Pass both into an inclusive overlap to make a convex lens.
 class ConvexLensData {
-    public:
-        /// Constructs a convex lens with the given diameter and angle.
-        /// @param lens_diameter The desired diameter of the lens itself, not the intersecting spheres.
-        /// @param half_angle The half angle of the lens in radians.
-        ConvexLensData(precision lens_diameter, iso::radians half_angle) {
-            radius = (lens_diameter * 0.5) / std::sin(half_angle.value);
-            separation = (lens_diameter * 0.5) / std::tan(half_angle.value);
-            bulge = radius - separation;
-        }
-        precision radius;       ///< The radius of the sphere needed
-        precision separation;   ///< from the common origin to the center of the overlapped spheres, not the absolute distance between their points
-        precision bulge;        ///< the thickness of the lens from the origin to the edge of the glass
-    };
+public:
+    /// Constructs a convex lens with the given diameter and angle.
+    /// @param lens_diameter The desired diameter of the lens itself, not the intersecting spheres.
+    /// @param half_angle The half angle of the lens in radians.
+    ConvexLensData(precision lens_diameter, iso::radians half_angle) {
+        radius = (lens_diameter * 0.5) / std::sin(half_angle.value);
+        separation = (lens_diameter * 0.5) / std::tan(half_angle.value);
+        bulge = radius - separation;
+    }
+    precision radius;      ///< The radius of the sphere needed
+    precision separation;  ///< from the common origin to the center of the overlapped spheres, not the absolute
+                           ///< distance between their points
+    precision bulge;       ///< the thickness of the lens from the origin to the edge of the glass
+};
 
 }  // namespace raytrace

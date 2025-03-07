@@ -23,7 +23,6 @@ R3::point centroid(std::vector<R3::point> const& points) {
     return D;
 }
 
-
 R3::point centroid(R3::point const& A, R3::point const& B, R3::point const& C) {
     R3::point D;
     for (size_t i = 0; i < D.dimensions; i++) {
@@ -31,7 +30,6 @@ R3::point centroid(R3::point const& A, R3::point const& B, R3::point const& C) {
     }
     return D;
 }
-
 
 R3::point centroid(R3::point const& A, R3::point const& B) {
     R3::point D;

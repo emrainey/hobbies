@@ -18,41 +18,47 @@ using namespace iso::literals;
 class ExampleWorld : public world {
 public:
     ExampleWorld()
-        : world{}
-        , look_from{-50, -50, 50}
-        , look_at{0, 0, 0}
-        , tilt{{-0.2_p, +0.2_p, 1.0_p}}
-        // define some surfaces
-        , plain_yellow{colors::yellow, mediums::ambient::none, colors::yellow, mediums::smoothness::small, mediums::roughness::tight}
-        , plain_blue{colors::white, mediums::ambient::none, colors::blue, mediums::smoothness::small, mediums::roughness::tight}
-        , plain_red{colors::white, mediums::ambient::none, colors::red, mediums::smoothness::small, mediums::roughness::tight}
-        , plain_cyan{colors::white, mediums::ambient::none, colors::cyan, mediums::smoothness::small, mediums::roughness::tight}
-        , grey_checkers{3, colors::grey, colors::red}
-        , ikea_checkers{5, colors::yellow, colors::blue}
-        , polka_dots{3.0_p, colors::black, colors::white}
-        , bw_marble{1024.0_p, 1.675_p, 1.0_p, 6.0_p, 256.0_p, 4.75_p, colors::black, colors::white}
-        , candy_stripes{1.0_p, colors::red, colors::white}
-        , grid1{10.0_p, colors::green, colors::black}
-        , checker_ball_radius{7.5_p}
-        , checker_ball_ring_radius_inner{checker_ball_radius + 2.0_p}
-        , checker_ball_ring_radius_outer{checker_ball_ring_radius_inner + 9.0_p}
-        , checker_ball{raytrace::point{0, 30, checker_ball_radius}, checker_ball_radius}
-        , checker_ball_ring0{checker_ball.position(), tilt, checker_ball_ring_radius_inner, checker_ball_ring_radius_outer}
-        , checker_ball_ring1{checker_ball.position(), -tilt, checker_ball_ring_radius_inner, checker_ball_ring_radius_outer}
-        , cyl_position{-30, 00, 10}
-        , top{cyl_position + R3::vector{{0, 0, 10}}}
-        , cap{top, R3::basis::Z, 0, 10}
-        , column{cyl_position, 10, 10}
-        , polka_dot_cube{raytrace::point{30, 0, 7.5_p}, 7.5_p, 7.5_p, 7.5_p}
-        , ground{R3::origin, R3::basis::Z}
-        , cone_position{0, 0, 10}
-        , inner_cone{cone_position, iso::radians(iso::pi / 12)}
-        , bounding_cone{cone_position, 10, 10, 10}
-        , overlapped_cone{inner_cone, bounding_cone, overlap::type::inclusive}
-        , torus1{raytrace::point{0, 0, 10}, 7, 2}
-        , pyramid{raytrace::point{0, -30, 10}, 10}
-        , white_light{raytrace::point{20, 20, 20}, colors::white, lights::intensities::full}
-        , sunlight{raytrace::vector{0, 1, -1}, colors::white, lights::intensities::full} {
+        : world{},
+          look_from{-50, -50, 50},
+          look_at{0, 0, 0},
+          tilt{{-0.2_p, +0.2_p, 1.0_p}}  // define some surfaces
+          ,
+          plain_yellow{colors::yellow, mediums::ambient::none, colors::yellow, mediums::smoothness::small,
+                       mediums::roughness::tight},
+          plain_blue{colors::white, mediums::ambient::none, colors::blue, mediums::smoothness::small,
+                     mediums::roughness::tight},
+          plain_red{colors::white, mediums::ambient::none, colors::red, mediums::smoothness::small,
+                    mediums::roughness::tight},
+          plain_cyan{colors::white, mediums::ambient::none, colors::cyan, mediums::smoothness::small,
+                     mediums::roughness::tight},
+          grey_checkers{3, colors::grey, colors::red},
+          ikea_checkers{5, colors::yellow, colors::blue},
+          polka_dots{3.0_p, colors::black, colors::white},
+          bw_marble{1024.0_p, 1.675_p, 1.0_p, 6.0_p, 256.0_p, 4.75_p, colors::black, colors::white},
+          candy_stripes{1.0_p, colors::red, colors::white},
+          grid1{10.0_p, colors::green, colors::black},
+          checker_ball_radius{7.5_p},
+          checker_ball_ring_radius_inner{checker_ball_radius + 2.0_p},
+          checker_ball_ring_radius_outer{checker_ball_ring_radius_inner + 9.0_p},
+          checker_ball{raytrace::point{0, 30, checker_ball_radius}, checker_ball_radius},
+          checker_ball_ring0{checker_ball.position(), tilt, checker_ball_ring_radius_inner,
+                             checker_ball_ring_radius_outer},
+          checker_ball_ring1{checker_ball.position(), -tilt, checker_ball_ring_radius_inner,
+                             checker_ball_ring_radius_outer},
+          cyl_position{-30, 00, 10},
+          top{cyl_position + R3::vector{{0, 0, 10}}},
+          cap{top, R3::basis::Z, 0, 10},
+          column{cyl_position, 10, 10},
+          polka_dot_cube{raytrace::point{30, 0, 7.5_p}, 7.5_p, 7.5_p, 7.5_p},
+          ground{R3::origin, R3::basis::Z},
+          cone_position{0, 0, 10},
+          inner_cone{cone_position, iso::radians(iso::pi / 12)},
+          bounding_cone{cone_position, 10, 10, 10},
+          overlapped_cone{inner_cone, bounding_cone, overlap::type::inclusive},
+          torus1{raytrace::point{0, 0, 10}, 7, 2},
+          pyramid{raytrace::point{0, -30, 10}, 10},
+          white_light{raytrace::point{20, 20, 20}, colors::white, lights::intensities::full},
+          sunlight{raytrace::vector{0, 1, -1}, colors::white, lights::intensities::full} {
         // assign materials in the body of the constructor!
 
         // 2d mapping instead of 3d
@@ -73,7 +79,7 @@ public:
         // plane is already 2d, no mapping needed
         grid1.mapper(std::bind(&raytrace::objects::plane::map, &ground, std::placeholders::_1));
         ground.material(&grid1);
-        ground.set_surface_scale(1.0_p, 1.0_p/32);
+        ground.set_surface_scale(1.0_p, 1.0_p / 32);
 
         inner_cone.material(&plain_red);
         bounding_cone.material(&plain_red);
@@ -133,18 +139,12 @@ public:
 
     raytrace::animation::anchors get_anchors() const override {
         raytrace::animation::anchors anchors;
-        anchors.push_back(
-            animation::Anchor{
-                animation::Attributes{look_from, look_at, 55.0_deg},
-                animation::Attributes{raytrace::point{-50, 50, 30}, look_at, 23.0_deg},
-                animation::Mappers{}, iso::seconds{10.0_p}
-            });
-        anchors.push_back(
-            animation::Anchor{
-                anchors.back().limit, // previous limit is this start
-                animation::Attributes{raytrace::point{50, -50, 30}, look_at, 23.0_deg},
-                animation::Mappers{}, iso::seconds{10.0_p}
-            });
+        anchors.push_back(animation::Anchor{animation::Attributes{look_from, look_at, 55.0_deg},
+                                            animation::Attributes{raytrace::point{-50, 50, 30}, look_at, 23.0_deg},
+                                            animation::Mappers{}, iso::seconds{10.0_p}});
+        anchors.push_back(animation::Anchor{anchors.back().limit,  // previous limit is this start
+                                            animation::Attributes{raytrace::point{50, -50, 30}, look_at, 23.0_deg},
+                                            animation::Mappers{}, iso::seconds{10.0_p}});
         return anchors;
     }
 

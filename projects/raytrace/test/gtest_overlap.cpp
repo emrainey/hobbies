@@ -9,7 +9,6 @@
 #include "raytrace/gtest_helper.hpp"
 
 TEST(OverlapTest, RayIntersectionsInclusive) {
-
     using namespace raytrace;
     using namespace raytrace::objects;
 
@@ -55,7 +54,7 @@ TEST(OverlapTest, RayIntersectionsSubtractive) {
         raytrace::point A{-1, 0, 0};
         ASSERT_POINT_EQ(A, as_point(h.intersect));
         raytrace::vector N{1, 0, 0};
-        ASSERT_VECTOR_EQ(N, h.normal); // should reflect backwards, not into the sphere
+        ASSERT_VECTOR_EQ(N, h.normal);  // should reflect backwards, not into the sphere
     }
     {
         raytrace::ray r{raytrace::point{-4, 0, 0}, R3::basis::X};
@@ -64,7 +63,7 @@ TEST(OverlapTest, RayIntersectionsSubtractive) {
         raytrace::point A{-3, 0, 0};
         ASSERT_POINT_EQ(A, as_point(h.intersect));
         raytrace::vector N{-1, 0, 0};
-        ASSERT_VECTOR_EQ(N, h.normal); // should reflect backwards
+        ASSERT_VECTOR_EQ(N, h.normal);  // should reflect backwards
     }
 }
 
@@ -100,7 +99,8 @@ TEST(OverlapTest, RayIntersectionsExclusive) {
     using namespace raytrace::objects;
     objects::sphere s0{R3::point(-1, 0, 0), 2};
     objects::sphere s1{R3::point(1, 0, 0), 2};
-    overlap shape(s0, s1, overlap::type::exclusive);  // exclusive overlap which makes a reverse or inverse "lens" like shape
+    overlap shape(s0, s1,
+                  overlap::type::exclusive);  // exclusive overlap which makes a reverse or inverse "lens" like shape
     // check for collisions at the lens edges which are INTERNAL to the structure
     {
         raytrace::ray r{raytrace::point{0, 0, 0}, -R3::basis::X};
@@ -140,7 +140,6 @@ TEST(OverlapTest, RayIntersectionsExclusive) {
         ASSERT_VECTOR_EQ(N, h.normal);
     }
 }
-
 
 TEST(OverlapTest, TripleSphereOverlapInclusive) {
     using namespace raytrace;
@@ -192,7 +191,7 @@ TEST(OverlapTest, TripleSphereOverlapSubtractive) {
     objects::sphere s1{R3::point(1, 0, 0), 2};
     objects::sphere s2{R3::point(0, 0, 0), sqrt(2.0_p)};
     overlap shape1(s0, s1, overlap::type::subtractive);
-    shape1.position(R3::origin); // the position of the overlap to be centered so that the next subtraction will work
+    shape1.position(R3::origin);  // the position of the overlap to be centered so that the next subtraction will work
     overlap shape2(shape1, s2, overlap::type::subtractive);
 
     // check for collisions at the combined shape edges
@@ -327,7 +326,6 @@ TEST(OverlapTest, TripleSphereOverlapExclusive) {
 TEST(OverlapTest, CuboidSphereSubtractiveAndSphereInclusive) {
     using namespace raytrace;
     using namespace raytrace::objects;
-
 
     objects::cuboid box{R3::origin, 8, 8, 2};
     objects::sphere cutout{R3::point(0, 0, 4), 4};

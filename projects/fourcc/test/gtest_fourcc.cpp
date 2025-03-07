@@ -80,7 +80,7 @@ TEST(FourccTest, Filter) {
     });
     img.save("pre-filter.ppm");
     image<rgb8, pixel_format::RGB8> filtered(480, 640);
-    int16_t kernel[3] = {-1, 2, -1};
+    int16_t kernel[3] = {-1, 2, 1};
     filter(filtered, img, kernel);
     filtered.save("post-filter.ppm");
 }
@@ -107,4 +107,52 @@ TEST(FourccTest, SobelEdge) {
     image<uint8_t, pixel_format::Y8> edge(480, 640);
     sobel_mask(img, edge);
     edge.save("sobel_mask.ppm");
+}
+
+TEST(FourccTest, BoxFilter) {
+    image<rgb8, pixel_format::RGB8> img(480, 640);
+    img.for_each([](size_t y, size_t x, rgb8& pixel) {
+        // find the distance from the center
+        int dx = x - 320;
+        int dy = y - 240;
+        int d = sqrt(dx * dx + dy * dy);
+        // make a circle
+        if (d < 100) {
+            pixel.r = (x + y + 48) % 256;
+            pixel.g = (x + y + 111) % 256;
+            pixel.b = (x + y + 27) % 256;
+        } else {
+            pixel.r = 0;
+            pixel.g = 0;
+            pixel.b = 0;
+        }
+    });
+    img.save("pre-box.ppm");
+    image<rgb8, pixel_format::RGB8> boxed(480, 640);
+    box(boxed, img);
+    boxed.save("post-box.ppm");
+}
+
+TEST(FourccTest, GaussianFilter) {
+    image<rgb8, pixel_format::RGB8> img(480, 640);
+    img.for_each([](size_t y, size_t x, rgb8& pixel) {
+        // find the distance from the center
+        int dx = x - 320;
+        int dy = y - 240;
+        int d = sqrt(dx * dx + dy * dy);
+        // make a circle
+        if (d < 100) {
+            pixel.r = (x + y + 48) % 256;
+            pixel.g = (x + y + 111) % 256;
+            pixel.b = (x + y + 27) % 256;
+        } else {
+            pixel.r = 0;
+            pixel.g = 0;
+            pixel.b = 0;
+        }
+    });
+    img.save("pre-gaussian.ppm");
+    image<rgb8, pixel_format::RGB8> output(480, 640);
+    gaussian(output, img);
+    output.save("post-gaussian.ppm");
 }

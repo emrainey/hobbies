@@ -482,6 +482,20 @@ void sobel_mask(fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8> const& r
 void filter(fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8>& output,
             fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8> const& input, int16_t const kernel[3]);
 
+/// Runs a 2D 3x3 Filter across an image
+/// @warning no gamma correction!
+void filter(image<rgb8, pixel_format::RGB8>& output, image<rgb8, pixel_format::RGB8> const& input, int16_t (&kernel)[3][3]);
+
+/// @brief Box 2D filter
+/// @param output The output image
+/// @param input The input image
+void box(image<rgb8, pixel_format::RGB8>& output, image<rgb8, pixel_format::RGB8> const& input);
+
+/// @brief Gaussian 2D filter
+/// @param output The output image
+/// @param input The input image
+void gaussian(image<rgb8, pixel_format::RGB8>& output, image<rgb8, pixel_format::RGB8> const& input);
+
 /// Returns the dimensions given a constant string.
 /// @code
 /// auto [width, height] = fourcc::dimensions("VGA");

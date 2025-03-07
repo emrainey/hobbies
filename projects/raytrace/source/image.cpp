@@ -47,11 +47,11 @@ void image::generate_each(subsampler get_color, size_t number_of_samples, std::o
             for (size_t s = 0; s < number_of_samples; s++) {
                 // create a random 2d unit vector from this point.
                 // except the first point, it should be dead center
-                precision dx = s > 0 ? delta() : 0.0;
-                precision dy = s > 0 ? delta() : 0.0;
+                precision dx = s > 0 ? delta() : 0.0_p;
+                precision dy = s > 0 ? delta() : 0.0_p;
                 precision _x = precision(x) + dx;
                 precision _y = precision(y) + dy;
-                image::point p{precision(_x + 0.5), precision(_y + 0.5)};
+                image::point p{precision(_x + 0.5_p), precision(_y + 0.5_p)};
                 samples[s] = get_color(p);
             }
             // now average all the samples together.

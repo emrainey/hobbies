@@ -113,10 +113,10 @@ TEST(ImageTest, SubsamplingChecker) {
             if ((not ix and not iy) or (ix and iy)) {
                 image5.at(n) = colors::red.to_rgb8();
             } else {
-                image5.at(n) = colors::black.to_rgb8();
+                image5.at(n) = colors::blue.to_rgb8();
             }
             return colors::yellow;
         },
-        16);
+        32);
     image5.save("subsampling.ppm");
 }

@@ -352,17 +352,17 @@ void scene::render(camera& view, std::string filename, size_t number_of_samples,
         view.print("Camera Info:\n");
     }
 
-    // FIXME insert the code which creates the octotree here as it can't be done in the add_object method correctly
+    // FIXME insert the code which creates the octo-tree here as it can't be done in the add_object method correctly
 
     auto tracer = [&](image::point const& pnt) -> color {
         // create the ray at each point in the image along the vector
         // from the image plane along the camera ray.
         ray world_ray = view.cast(pnt);
 
-        // trace the ray out to the world, starting from a vaccum
+        // trace the ray out to the world, starting from a vacuum
         return trace(world_ray, *m_media, reflection_depth);
     };
-    // if we're doing adaptive anti-aliasing we only shoot 1 ray at first and then compute a constrast mask
+    // if we're doing adaptive anti-aliasing we only shoot 1 ray at first and then compute a contrast mask
     // later
     view.capture.generate_each(tracer, adaptive_antialiasing ? 1 : number_of_samples, row_notifier, &view.mask,
                                 image::AAA_MASK_DISABLED);
@@ -384,7 +384,7 @@ void scene::render(camera& view, std::string filename, size_t number_of_samples,
     if (filter_capture) {
         // copy the image into a duplicate
         fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8> capture_copy(view.capture);
-        int16_t kernel[3]{-1, 2, 1};
+        int16_t kernel[3]{1, 2, 1};
         fourcc::filter(view.capture, capture_copy, kernel);
     }
     view.capture.save(filename);

@@ -11,15 +11,15 @@ using namespace linalg::operators;
 overlap::overlap(object const& A, object const& B, overlap::type type)
     // FIXME the max collisions are off !
     : object{A.position(), (A.max_collisions() + B.max_collisions()) / (type == overlap::type::inclusive ? 2 : 1),
-             A.is_closed_surface() and B.is_closed_surface()},
-      m_A{A},
-      m_B{B},
-      m_type{type},
-      m_closed_two_hit_surfaces_{basal::is_even(m_A.max_collisions()) and basal::is_even(m_B.max_collisions())
-                                 and m_A.is_closed_surface() and m_B.is_closed_surface()},
-      m_open_two_hit_surfaces_{basal::is_even(m_A.max_collisions()) and basal::is_even(m_B.max_collisions())
-                               and not m_A.is_closed_surface() and not m_B.is_closed_surface()},
-      m_open_one_hit_surfaces_{basal::is_odd(m_A.max_collisions()) and basal::is_odd(m_B.max_collisions())
+             A.is_closed_surface() and B.is_closed_surface()}
+    , m_A{A}
+    , m_B{B}
+    , m_type{type}
+    , m_closed_two_hit_surfaces_{basal::is_even(m_A.max_collisions()) and basal::is_even(m_B.max_collisions())
+                                 and m_A.is_closed_surface() and m_B.is_closed_surface()}
+    , m_open_two_hit_surfaces_{basal::is_even(m_A.max_collisions()) and basal::is_even(m_B.max_collisions())
+                               and not m_A.is_closed_surface() and not m_B.is_closed_surface()}
+    , m_open_one_hit_surfaces_{basal::is_odd(m_A.max_collisions()) and basal::is_odd(m_B.max_collisions())
                                and not m_A.is_closed_surface() and not m_B.is_closed_surface()} {
     if (m_type != overlap::type::subtractive) {
         // only subtractive objects have their positions as the original objects, otherwise the overlap object is at the

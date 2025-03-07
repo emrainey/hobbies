@@ -41,14 +41,14 @@ void materials(std::vector<mat*>& mats, size_t limits) {
 class Spheres2World : public world {
 public:
     Spheres2World()
-        : world{},
-          look_from{20, 0, 20},
-          look_at{0, 0, 0},
-          number_of_spheres{128},
-          spheres{},
-          mats{},
-          sunlight{raytrace::vector{-2, 2, -1}, colors::white, lights::intensities::bright},
-          specks{} {
+        : world{}
+        , look_from{20, 0, 20}
+        , look_at{0, 0, 0}
+        , number_of_spheres{128}
+        , spheres{}
+        , mats{}
+        , sunlight{raytrace::vector{-2, 2, -1}, colors::white, lights::intensities::bright}
+        , specks{} {
         raytrace::point center = look_at;
         spheres.push_back(new raytrace::objects::sphere(center, 4.5));
         subspheres(spheres, center, 6, 0.4, number_of_spheres);

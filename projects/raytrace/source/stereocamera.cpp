@@ -5,10 +5,10 @@ namespace raytrace {
 
 stereo_camera::stereo_camera(size_t image_height, size_t image_width, iso::degrees field_of_view,
                              double camera_separation, Layout layout)
-    : m_separation{camera_separation},
-      m_toe_in{0u},
-      m_layout{layout},
-      m_cameras{{image_height, image_width, field_of_view}, {image_height, image_width, field_of_view}} {
+    : m_separation{camera_separation}
+    , m_toe_in{0u}
+    , m_layout{layout}
+    , m_cameras{{image_height, image_width, field_of_view}, {image_height, image_width, field_of_view}} {
     basal::exception::throw_if((m_separation < 0.0), __FILE__, __LINE__,
                                "The camera separation %lf must be greater than 0.", m_separation);
 }

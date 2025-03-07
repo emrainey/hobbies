@@ -4,9 +4,9 @@ namespace raytrace {
 namespace objects {
 
 face::face(point const& A, point const& B, point const& C)
-    : triangle(A, B, C),
-      m_texture_coords{image::point{1, 0}, image::point{0, 0}, image::point{0, 1}},
-      m_normals{m_normal, m_normal, m_normal} {
+    : triangle(A, B, C)
+    , m_texture_coords{image::point{1, 0}, image::point{0, 0}, image::point{0, 1}}
+    , m_normals{m_normal, m_normal, m_normal} {
 }
 
 face::face(point const& A, point const& B, point const& C, image::point const& a, image::point const& b,

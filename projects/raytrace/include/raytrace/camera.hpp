@@ -13,7 +13,9 @@ using namespace basal;
 namespace raytrace {
 /// The Camera of the Raytrace library. The contains the 'view' which holds the image plane properties.
 /// @see http://www.cs.cmu.edu/~16385/s17/Slides/11.1_Camera_matrix.pdf
-class camera : public entity, public basal::printable {
+class camera
+    : public entity
+    , public basal::printable {
 public:
     /// Default constructor
     camera() = delete;

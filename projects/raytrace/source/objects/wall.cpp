@@ -13,9 +13,8 @@ using namespace geometry::operators;
 wall::wall(point const& C, vector const& N, precision thickness)
     : object{C, 2, false}  // a wall is not a closed surface
                            // the "wall space" has the center at the origin and the walls are just offset from origin
-      ,
-      m_front_{R3::origin + (N.normalized() * thickness / 2.0_p), N.normalized()},
-      m_back_{R3::origin + ((-N.normalized()) * thickness / 2.0_p), -N.normalized()} {
+    , m_front_{R3::origin + (N.normalized() * thickness / 2.0_p), N.normalized()}
+    , m_back_{R3::origin + ((-N.normalized()) * thickness / 2.0_p), -N.normalized()} {
 }
 
 vector wall::normal_(point const& wall_point) const {

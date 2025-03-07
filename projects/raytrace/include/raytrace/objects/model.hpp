@@ -10,7 +10,9 @@ namespace objects {
 /// @class Model
 /// @brief Represents a 3D model object in the ray tracing system.
 
-class Model : public object, protected obj::Observer {
+class Model
+    : public object
+    , protected obj::Observer {
 public:
     /// @brief Default constructor for the Model class.
     Model();

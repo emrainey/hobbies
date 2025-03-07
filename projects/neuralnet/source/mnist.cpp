@@ -4,16 +4,16 @@
 namespace nn {
 
 mnist::mnist(std::string indexes, std::string images, uint32_t limit)
-    : image_file{images},
-      index_file{indexes},
-      num_entries{0},
-      fimages{nullptr},
-      findexes{nullptr},
-      labels{},
-      width{0},
-      height{0},
-      images{},
-      limit{limit} {
+    : image_file{images}
+    , index_file{indexes}
+    , num_entries{0}
+    , fimages{nullptr}
+    , findexes{nullptr}
+    , labels{}
+    , width{0}
+    , height{0}
+    , images{}
+    , limit{limit} {
 }
 
 mnist::~mnist() {

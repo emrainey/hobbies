@@ -8,16 +8,14 @@ using namespace linalg::operators;
 
 cylinder::cylinder(point const& C, precision half_height, precision radius)
     : object{C, 2, false}  // 2 collisions, not closed
-      ,
-      m_half_height{half_height},
-      m_radius{radius} {
+    , m_half_height{half_height}
+    , m_radius{radius} {
 }
 
 cylinder::cylinder(point const& base, point const& apex, precision radius)
     : object{base, 2, false}  // 2 collisions, not closed
-      ,
-      m_half_height{0.0},
-      m_radius{radius} {
+    , m_half_height{0.0}
+    , m_radius{radius} {
     R3::vector axis = apex - base;
     R3::vector semi = axis.normalized();
     m_half_height = axis.magnitude() / 2;

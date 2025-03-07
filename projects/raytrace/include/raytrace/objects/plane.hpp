@@ -8,7 +8,9 @@
 namespace raytrace {
 namespace objects {
 /// Constructs a 1 sided infinite plane
-class plane : public geometry::plane, public object {
+class plane
+    : public geometry::plane
+    , public object {
 public:
     /// Constructs a plane from a point and a normal.
     plane(point const& point, vector const& normal);

@@ -61,13 +61,13 @@ public:
 class OutrunWorld : public world {
 public:
     OutrunWorld()
-        : look_from{0, 50, 10},
-          look_at{0, 0, 10},
-          sun_rays{raytrace::vector{-20, 0, -21}, colors::white, 1E4},
-          grid{10.0, outrun::neon_pink, colors::black},
-          floor{R3::origin, R3::basis::Z, 100.0, 100.0},
-          sun_surface{},
-          sun{raytrace::point{0, -300, 50}, 100.0} {
+        : look_from{0, 50, 10}
+        , look_at{0, 0, 10}
+        , sun_rays{raytrace::vector{-20, 0, -21}, colors::white, 1E4}
+        , grid{10.0, outrun::neon_pink, colors::black}
+        , floor{R3::origin, R3::basis::Z, 100.0, 100.0}
+        , sun_surface{}
+        , sun{raytrace::point{0, -300, 50}, 100.0} {
         grid.mapper(std::bind(&raytrace::objects::square::map, &floor, std::placeholders::_1));
         floor.material(&grid);
         sun.material(&sun_surface);

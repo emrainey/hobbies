@@ -36,14 +36,13 @@ public:
     SpheresWorld()
         : world{}  //, look_from(-50, 50, 20)
                    //, look_at(0, 0, 0)
-          ,
-          look_from{-10.0_p, 6.66_p, 20.0_p},
-          look_at{3.0_p, 0.0_p, 6.0_p},
-          custom_grey{0.5_p, 0.5_p, 0.5_p},
-          custom_metal{custom_grey, raytrace::mediums::smoothness::mirror, raytrace::mediums::roughness::medium},
-          spheres{},
-          specks{},
-          bulbs{} {
+        , look_from{-10.0_p, 6.66_p, 20.0_p}
+        , look_at{3.0_p, 0.0_p, 6.0_p}
+        , custom_grey{0.5_p, 0.5_p, 0.5_p}
+        , custom_metal{custom_grey, raytrace::mediums::smoothness::mirror, raytrace::mediums::roughness::medium}
+        , spheres{}
+        , specks{}
+        , bulbs{} {
         raytrace::point center = R3::origin;
         spheres.push_back(new raytrace::objects::sphere(center, 6));
         subspheres(spheres, center, 12.0_p, 2);

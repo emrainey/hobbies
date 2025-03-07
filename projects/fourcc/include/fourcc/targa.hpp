@@ -27,11 +27,11 @@ enum class ImageMapType : uint8_t {
 /// The Targa Header definition
 struct __attribute__((packed)) header {
     constexpr header()
-        : id_length{0},
-          color_map_type{ColorMapType::None},
-          image_map_type{ImageMapType::UncompressedTrueColor},
-          color_map{},
-          image_map{} {
+        : id_length{0}
+        , color_map_type{ColorMapType::None}
+        , image_map_type{ImageMapType::UncompressedTrueColor}
+        , color_map{}
+        , image_map{} {
     }
     uint8_t id_length;
     ColorMapType color_map_type;

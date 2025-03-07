@@ -19,20 +19,20 @@ using namespace basal::literals;
 class RenderTest : public ::testing::Test {
 public:
     RenderTest()
-        : image_height{480},
-          image_width{640},
-          field_of_view{90},
-          checkers{4, colors::blue, colors::yellow},
-          checkers2{0.25, colors::blue, colors::white},
-          plastic{colors::cyan, mediums::ambient::none, colors::white, mediums::smoothness::small, roughness::tight},
-          rubber{colors::grey, mediums::ambient::none, colors::grey, mediums::smoothness::none, roughness::tight},
-          steel{colors::grey, mediums::smoothness::polished, roughness::tight},
-          polka{13, colors::cyan, colors::blue},
-          beam_of_light{raytrace::vector{-20, 0, -21}, colors::white, lights::intensities::full},
-          inner_light{raytrace::point{0, 0, 10}, colors::white, lights::intensities::moderate},
-          look_at{0, 0, 10},
-          plane0{R3::point{0, 0, 0}, R3::basis::Z},
-          scenes{} {
+        : image_height{480}
+        , image_width{640}
+        , field_of_view{90}
+        , checkers{4, colors::blue, colors::yellow}
+        , checkers2{0.25, colors::blue, colors::white}
+        , plastic{colors::cyan, mediums::ambient::none, colors::white, mediums::smoothness::small, roughness::tight}
+        , rubber{colors::grey, mediums::ambient::none, colors::grey, mediums::smoothness::none, roughness::tight}
+        , steel{colors::grey, mediums::smoothness::polished, roughness::tight}
+        , polka{13, colors::cyan, colors::blue}
+        , beam_of_light{raytrace::vector{-20, 0, -21}, colors::white, lights::intensities::full}
+        , inner_light{raytrace::point{0, 0, 10}, colors::white, lights::intensities::moderate}
+        , look_at{0, 0, 10}
+        , plane0{R3::point{0, 0, 0}, R3::basis::Z}
+        , scenes{} {
     }
 
     ~RenderTest() {

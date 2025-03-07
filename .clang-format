@@ -112,9 +112,9 @@ BreakBeforeConceptDeclarations: Always
 BreakBeforeBraces: Attach
 BreakBeforeInlineASMColon: OnlyMultiline
 BreakBeforeTernaryOperators: true
-BreakConstructorInitializers: BeforeColon
+BreakConstructorInitializers: BeforeComma
 BreakFunctionDefinitionParameters: false
-BreakInheritanceList: BeforeColon
+BreakInheritanceList: BeforeComma
 BreakStringLiterals: true
 BreakTemplateDeclarations: Yes
 ColumnLimit: 120

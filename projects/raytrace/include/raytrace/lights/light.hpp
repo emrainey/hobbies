@@ -31,7 +31,9 @@ constexpr static precision blinding{1E11};
 /// An interface to all light types in the system which is used to determine the color contribution at some surface
 /// point.
 /// @note Color is being used as a stand-in for a power-spectrum graph.
-class light : public entity, public basal::printable {
+class light
+    : public entity
+    , public basal::printable {
 public:
     /// Parameter Constructor
     /// @param P the point in world space to place the light

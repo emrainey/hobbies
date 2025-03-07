@@ -12,8 +12,8 @@ using namespace geometry;
 using namespace geometry::operators;
 
 sphere::sphere(point const& c, precision r)
-    : geometry::R3::sphere(r),
-      object(c, 2, true)  // up to 2 collisions, closed surface
+    : geometry::R3::sphere(r)
+    , object(c, 2, true)  // up to 2 collisions, closed surface
 {
 }
 

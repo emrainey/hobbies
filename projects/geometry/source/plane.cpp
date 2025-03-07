@@ -75,10 +75,10 @@ plane::plane(plane const& other)
 }
 
 plane::plane(plane&& other)
-    : m_normal{std::move(other.m_normal)},
-      m_center_point{std::move(other.m_center_point)},
-      eq{std::move(other.eq)},
-      m_magnitude{other.m_magnitude} {
+    : m_normal{std::move(other.m_normal)}
+    , m_center_point{std::move(other.m_center_point)}
+    , eq{std::move(other.eq)}
+    , m_magnitude{other.m_magnitude} {
 }
 
 plane& plane::operator=(plane const& other) {

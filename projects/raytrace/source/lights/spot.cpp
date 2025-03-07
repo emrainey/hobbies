@@ -3,16 +3,16 @@
 namespace raytrace {
 namespace lights {
 spot::spot(raytrace::ray const& r, raytrace::color const& C, precision intensity, iso::degrees const& incoming_angle)
-    : light{r.location(), C, intensity, 1u, Falloff::InverseSquare},
-      m_direction{r.direction()},
-      m_incoming_angle{incoming_angle} {
+    : light{r.location(), C, intensity, 1u, Falloff::InverseSquare}
+    , m_direction{r.direction()}
+    , m_incoming_angle{incoming_angle} {
     basal::exception::throw_unless(incoming_angle.value > 0, __FILE__, __LINE__, "Must be positive angle.");
 }
 
 spot::spot(raytrace::ray&& r, raytrace::color const& C, precision intensity, iso::degrees const& incoming_angle)
-    : light{std::move(r.location()), C, intensity, 1u, Falloff::InverseSquare},
-      m_direction{std::move(r.direction())},
-      m_incoming_angle{std::move(incoming_angle)} {
+    : light{std::move(r.location()), C, intensity, 1u, Falloff::InverseSquare}
+    , m_direction{std::move(r.direction())}
+    , m_incoming_angle{std::move(incoming_angle)} {
     basal::exception::throw_unless(incoming_angle.value > 0, __FILE__, __LINE__, "Must be positive angle.");
 }
 

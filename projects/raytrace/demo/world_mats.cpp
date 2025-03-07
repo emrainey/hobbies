@@ -20,15 +20,15 @@ static_assert(number_of_spheres_per_side % 2 == 1, "number_of_spheres_per_side m
 class MaterialWorld : public world {
 public:
     MaterialWorld()
-        : world{},
-          look_from{0, -20, 80},
-          look_at{0, 0, 0},
-          number_of_spheres{number_of_spheres_per_side * number_of_spheres_per_side},
-          brightness{lights::intensities::moderate},
-          spheres{},
-          mats{},
-          sunlight{raytrace::vector{0, -1, -1}, colors::white, brightness},
-          specks{} {
+        : world{}
+        , look_from{0, -20, 80}
+        , look_at{0, 0, 0}
+        , number_of_spheres{number_of_spheres_per_side * number_of_spheres_per_side}
+        , brightness{lights::intensities::moderate}
+        , spheres{}
+        , mats{}
+        , sunlight{raytrace::vector{0, -1, -1}, colors::white, brightness}
+        , specks{} {
         size_t half_count = number_of_spheres_per_side / 2;
         for (size_t j = 0; j < number_of_spheres_per_side; j++) {
             for (size_t i = 0; i < number_of_spheres_per_side; i++) {

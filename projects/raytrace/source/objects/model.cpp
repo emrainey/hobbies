@@ -4,13 +4,13 @@ namespace raytrace {
 namespace objects {
 
 Model::Model()
-    : object{R3::origin, SIZE_T_MAX, false},
-      points_{},
-      normals_{},
-      texels_{},
-      faces_{},
-      parser_{*this},
-      loaded_{false} {
+    : object{R3::origin, SIZE_T_MAX, false}
+    , points_{}
+    , normals_{}
+    , texels_{}
+    , faces_{}
+    , parser_{*this}
+    , loaded_{false} {
 }
 
 void Model::print(char const name[]) const {

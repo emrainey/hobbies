@@ -19,14 +19,13 @@ class GapWallWorld : public world {
 public:
     GapWallWorld()
         : world{}  // , look_from{0, -100, 0}
-          ,
-          look_from{-30, -50, 100},
-          look_at{0, 0, 0},
-          wall1{R3::origin, R3::basis::Y, 20.0_p},
-          subgap{R3::origin, R3::basis::X, 30.0_p},
-          gap{wall1, subgap, raytrace::objects::overlap::type::subtractive},
-          sphere{R3::origin, 15},
-          sunlight{R3::vector{0, 100, -100}, raytrace::colors::white, lights::intensities::blinding} {
+        , look_from{-30, -50, 100}
+        , look_at{0, 0, 0}
+        , wall1{R3::origin, R3::basis::Y, 20.0_p}
+        , subgap{R3::origin, R3::basis::X, 30.0_p}
+        , gap{wall1, subgap, raytrace::objects::overlap::type::subtractive}
+        , sphere{R3::origin, 15}
+        , sunlight{R3::vector{0, 100, -100}, raytrace::colors::white, lights::intensities::blinding} {
         wall1.material(&raytrace::mediums::metals::copper);
         // wall1.print("Wall1");
         subgap.material(&raytrace::mediums::metals::copper);

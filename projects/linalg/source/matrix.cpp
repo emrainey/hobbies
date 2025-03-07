@@ -46,12 +46,12 @@ matrix::matrix(size_t r, size_t c) : matrix(r, c, true) {
 }
 
 matrix::matrix(size_t r, size_t c, bool allocate)
-    : rows{r},
-      cols{c},
-      bytes{static_cast<size_t>(rows * cols) * sizeof(precision)},
-      external_memory{false},
-      memory{nullptr},
-      array{nullptr} {
+    : rows{r}
+    , cols{c}
+    , bytes{static_cast<size_t>(rows * cols) * sizeof(precision)}
+    , external_memory{false}
+    , memory{nullptr}
+    , array{nullptr} {
     basal::exception::throw_unless(rows > 0, g_filename, __LINE__);
     basal::exception::throw_unless(cols > 0, g_filename, __LINE__);
     if (allocate && create(rows, cols, bytes)) {
@@ -65,12 +65,12 @@ matrix::matrix(size_t r, size_t c, bool allocate)
 }
 
 matrix::matrix(size_t rs, size_t cs, precision mat[])
-    : rows{rs},
-      cols{cs},
-      bytes{static_cast<size_t>(rows * cols) * sizeof(precision)},
-      external_memory{true},
-      memory{mat},
-      array{nullptr} {
+    : rows{rs}
+    , cols{cs}
+    , bytes{static_cast<size_t>(rows * cols) * sizeof(precision)}
+    , external_memory{true}
+    , memory{mat}
+    , array{nullptr} {
     basal::exception::throw_unless(rows > 0, g_filename, __LINE__);
     basal::exception::throw_unless(cols > 0, g_filename, __LINE__);
     basal::exception::throw_unless(memory != nullptr, g_filename, __LINE__);
@@ -83,12 +83,12 @@ matrix::matrix(size_t rs, size_t cs, precision mat[])
 }
 
 matrix::matrix(std::vector<std::vector<precision>> const& a)
-    : rows{a.size()},
-      cols{a[0].size()},
-      bytes{static_cast<size_t>(rows * cols) * sizeof(precision)},
-      external_memory{false},
-      memory{nullptr},
-      array{nullptr} {
+    : rows{a.size()}
+    , cols{a[0].size()}
+    , bytes{static_cast<size_t>(rows * cols) * sizeof(precision)}
+    , external_memory{false}
+    , memory{nullptr}
+    , array{nullptr} {
     if (create(rows, cols, bytes)) {
         for (size_t i = 0; array && i < rows; i++) {
             array[i] = &memory[i * cols];
@@ -120,12 +120,12 @@ matrix::matrix(matrix const& other) noexcept(false)
 
 // move constructor, deep copy (transfer of ownership), no chaining constructor
 matrix::matrix(matrix&& other) noexcept(false)
-    : rows{other.rows},
-      cols{other.cols},
-      bytes{other.bytes},
-      external_memory{other.external_memory},
-      memory{nullptr},
-      array{nullptr} {
+    : rows{other.rows}
+    , cols{other.cols}
+    , bytes{other.bytes}
+    , external_memory{other.external_memory}
+    , memory{nullptr}
+    , array{nullptr} {
     basal::exception::throw_unless(this->rows == other.rows, g_filename, __LINE__, "Must be equal rows");
     basal::exception::throw_unless(this->cols == other.cols, g_filename, __LINE__, "Must be equal cols");
     memory = other.memory;

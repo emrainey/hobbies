@@ -305,12 +305,12 @@ public:
 
     /// Sized and typed constructor
     image(size_t h, size_t w)
-        : depth{channels_in_format(PIXEL_FORMAT)},
-          width{w},
-          height{h},
-          planes{planes_in_format(PIXEL_FORMAT)},
-          format{PIXEL_FORMAT},
-          data{planes} {
+        : depth{channels_in_format(PIXEL_FORMAT)}
+        , width{w}
+        , height{h}
+        , planes{planes_in_format(PIXEL_FORMAT)}
+        , format{PIXEL_FORMAT}
+        , data{planes} {
         for (auto& plane : data) {
             // each unit is a PIXEL_TYPE
             plane.resize(width * height);
@@ -319,12 +319,12 @@ public:
 
     /// Copy constructor
     image(image const& other)
-        : depth{channels_in_format(PIXEL_FORMAT)},
-          width{other.width},
-          height{other.height},
-          planes{planes_in_format(PIXEL_FORMAT)},
-          format{PIXEL_FORMAT},
-          data{planes} {
+        : depth{channels_in_format(PIXEL_FORMAT)}
+        , width{other.width}
+        , height{other.height}
+        , planes{planes_in_format(PIXEL_FORMAT)}
+        , format{PIXEL_FORMAT}
+        , data{planes} {
         for (auto& plane : data) {
             // each unit is a PIXEL_TYPE
             plane.resize(width * height);

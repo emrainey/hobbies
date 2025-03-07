@@ -18,24 +18,20 @@ using namespace iso::literals;
 class MonochromeWorld : public world {
 public:
     MonochromeWorld()
-        : light_subsamples{5},
-          look_from{40, 9, 37},
-          look_at{0, 0, 15},
-          light0{raytrace::point{-5, 0, 40}, 1, colors::white, 10, light_subsamples},
-          light1{raytrace::point{5, 0, 40}, 1, colors::white, 10, light_subsamples},
-          beam0{-R3::basis::Z, colors::white, 10E11},
-          s0{raytrace::point{0, 0, 5}, 5},
-          s1{raytrace::point{0, 0, 15}, 5},
-          s2{raytrace::point{0, 0, 25}, 5},
-          wall0{raytrace::point{0, 10, 0}, -R3::basis::Y}  // left
-          ,
-          wall1{raytrace::point{0, -10, 0}, R3::basis::Y}  // right
-          ,
-          wall2{raytrace::point{-10, 0, 0}, R3::basis::X}  // back
-          ,
-          wall3{R3::origin, R3::basis::Z}  // floor
-          ,
-          wall4{raytrace::point{0, 0, 160}, -R3::basis::Z}  // ceiling
+        : light_subsamples{5}
+        , look_from{40, 9, 37}
+        , look_at{0, 0, 15}
+        , light0{raytrace::point{-5, 0, 40}, 1, colors::white, 10, light_subsamples}
+        , light1{raytrace::point{5, 0, 40}, 1, colors::white, 10, light_subsamples}
+        , beam0{-R3::basis::Z, colors::white, 10E11}
+        , s0{raytrace::point{0, 0, 5}, 5}
+        , s1{raytrace::point{0, 0, 15}, 5}
+        , s2{raytrace::point{0, 0, 25}, 5}
+        , wall0{raytrace::point{0, 10, 0}, -R3::basis::Y}   // left
+        , wall1{raytrace::point{0, -10, 0}, R3::basis::Y}   // right
+        , wall2{raytrace::point{-10, 0, 0}, R3::basis::X}   // back
+        , wall3{R3::origin, R3::basis::Z}                   // floor
+        , wall4{raytrace::point{0, 0, 160}, -R3::basis::Z}  // ceiling
     {
         // assign surfaces and materials
         s0.material(&mediums::metals::silver);

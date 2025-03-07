@@ -22,45 +22,47 @@ using namespace raytrace::mediums;
 
 /// A template for wrapping the concept of an object, which can have a surface and material properties.
 template <size_t DIMS>
-class object_ : public entity_<DIMS>, public basal::printable {
+class object_
+    : public entity_<DIMS>
+    , public basal::printable {
 public:
     object_()
-        : entity_<DIMS>(),
-          m_max_collisions{0},
-          m_closed_surface{false},
-          m_medium(&mediums::dull),
-          m_surface_scale{1.0_p, 1.0_p} {
+        : entity_<DIMS>()
+        , m_max_collisions{0}
+        , m_closed_surface{false}
+        , m_medium(&mediums::dull)
+        , m_surface_scale{1.0_p, 1.0_p} {
     }
 
     object_(point const& center, size_t collisions, bool closed = false)
-        : entity_<DIMS>(center),
-          m_max_collisions{collisions},
-          m_closed_surface{collisions > 1 ? closed : false},
-          m_medium{&mediums::dull},
-          m_surface_scale{1.0_p, 1.0_p} {
+        : entity_<DIMS>(center)
+        , m_max_collisions{collisions}
+        , m_closed_surface{collisions > 1 ? closed : false}
+        , m_medium{&mediums::dull}
+        , m_surface_scale{1.0_p, 1.0_p} {
     }
 
     object_(point&& center, size_t collisions, bool closed = false)
-        : entity_<DIMS>(std::move(center)),
-          m_max_collisions{collisions},
-          m_closed_surface{collisions > 1 ? closed : false},
-          m_medium{&mediums::dull} {
+        : entity_<DIMS>(std::move(center))
+        , m_max_collisions{collisions}
+        , m_closed_surface{collisions > 1 ? closed : false}
+        , m_medium{&mediums::dull} {
     }
 
     /// Copy Constructor for the object. This is allowed as the medium is constant!
     object_(object_ const& that)
-        : entity_<DIMS>(that),
-          m_max_collisions{that.m_max_collisions},
-          m_closed_surface{that.m_closed_surface},
-          m_medium(that.m_medium) {
+        : entity_<DIMS>(that)
+        , m_max_collisions{that.m_max_collisions}
+        , m_closed_surface{that.m_closed_surface}
+        , m_medium(that.m_medium) {
     }
 
     /// Move Constructor for the object. This is allowed as the medium is constant!
     object_(object_&& that)
-        : entity_<DIMS>(that),
-          m_max_collisions{that.m_max_collisions},
-          m_closed_surface{that.m_closed_surface},
-          m_medium(that.m_medium) {
+        : entity_<DIMS>(that)
+        , m_max_collisions{that.m_max_collisions}
+        , m_closed_surface{that.m_closed_surface}
+        , m_medium(that.m_medium) {
     }
 
     /// Copy Assignment for the object. This is allowed as the medium is constant!

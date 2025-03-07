@@ -7,7 +7,9 @@
 namespace raytrace {
 
 /// @brief Stereo Cameras have 2 cameras.
-class stereo_camera : public entity, public basal::printable {
+class stereo_camera
+    : public entity
+    , public basal::printable {
 public:
     constexpr static size_t NumberOfCameras = 2;
     using iterator = camera*;

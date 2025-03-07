@@ -17,11 +17,11 @@ static constexpr bool camera_debug = false;
 // static constexpr bool use_grayscale_distance = false;
 
 scene::scene(double art)
-    : adaptive_reflection_threshold{art},
-      m_objects{},
-      m_lights{},
-      m_background{[](raytrace::ray const&) { return colors::black; }},
-      m_media{&mediums::vacuum}  // default to a vacuum
+    : adaptive_reflection_threshold{art}
+    , m_objects{}
+    , m_lights{}
+    , m_background{[](raytrace::ray const&) { return colors::black; }}
+    , m_media{&mediums::vacuum}  // default to a vacuum
 {
 }
 

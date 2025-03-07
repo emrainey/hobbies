@@ -6,18 +6,18 @@ namespace linalg {
 using namespace operators;
 
 dkf::dkf(size_t num_variables_in_state, size_t num_variables_in_input, size_t num_variables_in_measurement)
-    : ns{num_variables_in_state},
-      ni{num_variables_in_input},
-      nm{num_variables_in_measurement},
-      x{{ns, 1}, {ns, 1}},
-      A{ns, ns},
-      B{ns, ni},
-      H{nm, ns},
-      K{ns, nm},
-      Q{ns, ns},
-      R{nm, nm},
-      I{ns, ns},
-      P{{ns, ns}, {ns, ns}} {
+    : ns{num_variables_in_state}
+    , ni{num_variables_in_input}
+    , nm{num_variables_in_measurement}
+    , x{{ns, 1}, {ns, 1}}
+    , A{ns, ns}
+    , B{ns, ni}
+    , H{nm, ns}
+    , K{ns, nm}
+    , Q{ns, ns}
+    , R{nm, nm}
+    , I{ns, ns}
+    , P{{ns, ns}, {ns, ns}} {
     fprintf(stderr, "Warning: Untested!\n");
     A = matrix::identity(ns, ns);
     B = matrix::identity(ns, ni);

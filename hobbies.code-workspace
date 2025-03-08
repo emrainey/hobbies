@@ -76,11 +76,6 @@
 		"C_Cpp.default.browse.databaseFilename": "${command:cmake.buildDirectory}/browse.db",
 		"C_Cpp.formatting": "clangFormat",
 		"cSpell.enabled": true,
-		"cSpell.enableFiletypes": [
-			"cpp",
-			"hpp",
-			"md"
-		],
 		"cSpell.customDictionaries": {
 			"project-words": {
 				"name": "project-words",
@@ -107,6 +102,19 @@
 			"**/*.js",
 			"**/*.xml"
 		],
+		"todo-tree.general.rootFolder": "${workspaceFolder}",
+		"todo-tree.general.showActivityBarBadge": true,
+		"todo-tree.general.tags": [
+			"BUG",
+			"HACK",
+			"FIXME",
+			"TODO",
+			"XXX",
+			"[ ]",
+			"[x]",
+			"FUTURE"
+		],
+		"todo-tree.filtering.useBuiltInExcludes": "file and search excludes",
 		"testExplorer.showOnRun": true,
 		"testExplorer.codeLens": true,
 		"testMate.cpp.test.workingDirectory": "${workspaceFolder}/testing",
@@ -130,7 +138,6 @@
 			"externalConsole": false
 		},
 		"python.testing.pytestEnabled": true,
-		"python.v": "${workspaceFolder}/venv",
 		"python.envFile": "${workspaceFolder}/.env",
 		"files.associations": {
 			".clang-format": "json",

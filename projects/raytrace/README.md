@@ -265,7 +265,7 @@ This is also a useful project to understand how to optimize with SSE2/AVX as wel
   * The ray points into the surface - this is a collision (`dot(R,N) < 0`)
   * The ray points away (or tangent) from the surface - this is not a collision (`dot(R, N) > -basal::epsilon`)
 
-## TODOs
+## Todos
 
 * TODO Shadow Rays traced through transparent objects
 * TODO implement diffraction (a special case of which is refraction and reflection)

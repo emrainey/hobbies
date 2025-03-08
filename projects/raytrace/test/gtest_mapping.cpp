@@ -1,6 +1,7 @@
 
 #include <gtest/gtest.h>
 
+#include <geometry/gtest_helper.hpp>
 #include <raytrace/raytrace.hpp>
 
 using namespace geometry;
@@ -19,4 +20,43 @@ TEST(MappingTest, GoldenRatio) {
         ASSERT_FLOAT_EQ(1.0, D) << i << "/" << count << " Point is " << points[i];
     }
     // FIXME add more assumptions here about the spread of the golden ratio points across the sphere.
+}
+
+TEST(MappingTest, PlanarPolar) {
+    {
+        raytrace::vector N{0, 0, 1};
+        raytrace::vector X{1, 0, 0};
+        raytrace::point C{0, 0, 0};
+        geometry::R3::point P{1, 1, 1};
+        geometry::R2::point polar = raytrace::mapping::planar_polar(N, X, C, P);
+        ASSERT_PRECISION_EQ(sqrt(2.0_p), polar.x);
+        ASSERT_PRECISION_EQ(1.0_p / 8.0_p, polar.y);
+    }
+    {
+        raytrace::vector N{0, 0, 1};
+        raytrace::vector X{1, 0, 0};
+        raytrace::point C{0, 0, 0};
+        geometry::R3::point P{-1, 1, 1};
+        geometry::R2::point polar = raytrace::mapping::planar_polar(N, X, C, P);
+        ASSERT_PRECISION_EQ(sqrt(2.0_p), polar.x);
+        ASSERT_PRECISION_EQ(3.0_p / 8.0_p, polar.y);
+    }
+    {
+        raytrace::vector N{0, 0, 1};
+        raytrace::vector X{1, 0, 0};
+        raytrace::point C{0, 0, 0};
+        geometry::R3::point P{-1, -1, 1};
+        geometry::R2::point polar = raytrace::mapping::planar_polar(N, X, C, P);
+        ASSERT_PRECISION_EQ(sqrt(2.0_p), polar.x);
+        ASSERT_PRECISION_EQ(5.0_p / 8.0_p, polar.y);
+    }
+    {
+        raytrace::vector N{0, 0, 1};
+        raytrace::vector X{1, 0, 0};
+        raytrace::point C{0, 0, 0};
+        geometry::R3::point P{1, -1, 1};
+        geometry::R2::point polar = raytrace::mapping::planar_polar(N, X, C, P);
+        ASSERT_PRECISION_EQ(sqrt(2.0_p), polar.x);
+        ASSERT_PRECISION_EQ(7.0_p / 8.0_p, polar.y);
+    }
 }

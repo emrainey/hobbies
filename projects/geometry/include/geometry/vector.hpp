@@ -304,7 +304,7 @@ public:
     }
 };
 
-/// Computes the angle between two vectors in radians
+/// Computes the angle between two vectors in radians between 0 and pi
 template <size_t DIMS>
 iso::radians angle(vector_<DIMS> const& a, vector_<DIMS> const& b) {
     iso::radians r{acos(dot(a, b) / (a.norm() * b.norm()))};

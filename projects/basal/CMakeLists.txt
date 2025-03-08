@@ -3,6 +3,12 @@ project(basal LANGUAGES CXX VERSION 0.5.0)  # This must match the conanfile.py!
 
 option(USE_PRECISION_AS_FLOAT "Use float (ON) as the precision type or double (OFF)" OFF)
 
+if (USE_PRECISION_AS_FLOAT)
+    message(AUTHOR_WARNING "Using float as the precision type")
+else()
+    message(AUTHOR_WARNING "Using double as the precision type")
+endif()
+
 add_library(hobbies-basal)
 target_sources(hobbies-basal
     PRIVATE

@@ -16,12 +16,6 @@
 
 #include "world.hpp"
 
-#if defined(USE_PRECISION_AS_FLOAT)
-#warning "Using precision as float"
-#else
-#warning "Using precision as double"
-#endif
-
 using namespace std::placeholders;
 constexpr static bool live_preview{true};
 

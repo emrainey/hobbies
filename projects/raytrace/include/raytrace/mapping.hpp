@@ -24,11 +24,20 @@ geometry::R2::point spherical(geometry::R3::vector const& q);
 /// @note Use std::bind(scale, _1) to fix a certain scale height when creating a mapper
 geometry::R2::point cylindrical(precision scale, geometry::R3::point const& p);
 
-// FIXME create a toriodal mapping from a single larger radius value
+/// Maps on to an ideal toroidal shape of a given radius. The toriod is surrounding the Z axis.
+/// @param r1 The given inner radius of the toroid
+/// @param p The point in 3 space to map
+/// @return The surface point in 2 space (phi, theta)
 geometry::R2::point toroidal(precision r1, geometry::R3::point const& p);
 
-// FIXME create a planar polar mapping given a Normal ray and the "X" unit point
-geometry::R2::point planar_polar(raytrace::ray const& N, raytrace::point const& X, geometry::R3::point const& p);
+/// Maps a point on to a plane in polar coordinates
+/// @param N The normal vector to the plane
+/// @param X The x basis in the plane.
+/// @param C The center unit point on the plane
+/// @param p The point in 3 space to map
+/// @return The surface point in 2 space (theta, radius)
+geometry::R2::point planar_polar(raytrace::vector const& N, raytrace::vector const& X, raytrace::point const& C,
+                                 geometry::R3::point const& p);
 
 /// Defines a method which can map a value within a unit range given a integer ratio, to a 3D surface
 using expander = std::function<geometry::R3::point(size_t const numerator, size_t const denominator)>;

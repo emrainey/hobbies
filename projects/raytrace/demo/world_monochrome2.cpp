@@ -22,7 +22,7 @@ public:
         , look_from{5, -20, 20}
         , look_at{0, 0, 0}
         , plain_white{colors::white, mediums::ambient::none, colors::white, mediums::smoothness::none, roughness::tight}
-        , checkerboard_grid{0.1,           colors::blue, colors::yellow, colors::red,  colors::magenta,
+        , checkerboard_grid{0.1_p,         colors::blue, colors::yellow, colors::red,  colors::magenta,
                             colors::green, colors::cyan, colors::black,  colors::white}
         , floor{R3::origin, R3::basis::Z, 100, 100}
         , light0{raytrace::point{-5, 0, 10}, 1, colors::white, 10, light_subsamples}
@@ -49,7 +49,7 @@ public:
         , w0{raytrace::point{8, -3, 0}, R3::basis::X, 2}
         , w1{raytrace::point{8, -3, 0}, R3::basis::Y, 2}
         , column{w0, w1, overlap::type::inclusive}
-        , t0{raytrace::point{3, 7, 0.5}, 1.4, 0.5}
+        , t0{raytrace::point{3, 7, 0.5_p}, 1.4_p, 0.5_p}
         , cb0{raytrace::point{7, -2, 1}, 1, 1, 1} {
         // assign surfaces and materials
         floor.material(&plain_white);
@@ -91,7 +91,7 @@ public:
         // this creates a gradient from top to bottom
         iso::radians A = angle(R3::basis::Z, world_ray.direction());
         precision B = A.value / iso::pi;
-        return color(0.8 * B, 0.8 * B, 0.8 * B);
+        return color(0.8_p * B, 0.8_p * B, 0.8_p * B);
     }
 
     void add_to(scene& scene) override {

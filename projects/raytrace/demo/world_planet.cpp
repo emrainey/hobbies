@@ -19,13 +19,13 @@ public:
         , sun_rays{raytrace::vector{-20, 0, -21}, colors::white, lights::intensities::bright / 2}
         , inner_light{raytrace::point{0, 0, 80}, colors::white, lights::intensities::blinding}
         , center{0, 0, 0}
-        , ringA{center, R3::basis::Z, 10.0, 11.8}
-        , ringB{center, R3::basis::Z, 12.0, 12.2}
-        , ringC{center, R3::basis::Z, 12.4, 13.2}
-        , ringD{center, R3::basis::Z, 14.0, 14.2}
-        , ringE{center, R3::basis::Z, 14.5, 14.7}
-        , ringF{center, R3::basis::Z, 15.0, 16.7}
-        , planet{center, 1.0}
+        , ringA{center, R3::basis::Z, 10.0_p, 11.8_p}
+        , ringB{center, R3::basis::Z, 12.0_p, 12.2_p}
+        , ringC{center, R3::basis::Z, 12.4_p, 13.2_p}
+        , ringD{center, R3::basis::Z, 14.0_p, 14.2_p}
+        , ringE{center, R3::basis::Z, 14.5_p, 14.7_p}
+        , ringF{center, R3::basis::Z, 15.0_p, 16.7_p}
+        , planet{center, 1.0_p}
         , starfield{1024} {
         planet.material(&mediums::metals::stainless);
         ringA.material(&mediums::metals::stainless);

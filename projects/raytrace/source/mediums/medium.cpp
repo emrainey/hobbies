@@ -9,9 +9,9 @@ medium::medium()
     , m_diffuse{colors::grey}
     , m_tightness{0.0_p}
     , m_smoothness{mediums::smoothness::none}
-    , m_reflectivity{0.5}  // start semi gloss
-    , m_transmissivity{0.0}
-    , m_refractive_index{0.0}
+    , m_reflectivity{0.5_p}  // start semi gloss
+    , m_transmissivity{0.0_p}
+    , m_refractive_index{0.0_p}
     , m_reducing_map{nullptr} {
 }
 
@@ -58,7 +58,7 @@ void medium::radiosity(raytrace::point const& volumetric_point __attribute__((un
                        precision& reflected, precision& transmitted) const {
     emitted = 0;  //@FIXME when adding luminescence, do it here.
     reflected = m_reflectivity;
-    transmitted = 1.0 - m_reflectivity;
+    transmitted = 1.0_p - m_reflectivity;
 }
 
 precision medium::refractive_index(raytrace::point const& volumetric_point __attribute__((unused))) const {

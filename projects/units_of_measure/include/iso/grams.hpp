@@ -16,7 +16,7 @@ namespace iso {
 
 /// A structure used to hold the postfix for grams
 struct suffix_type_g {
-    constexpr static char const* suffix = "g";
+    constexpr static char const *suffix = "g";
 };
 
 ///
@@ -72,27 +72,27 @@ public:
 };
 
 namespace operators {
-/// Addition operator
-grams operator+(grams const& A, grams const& B);
-/// Subtraction operator
-grams operator-(grams const& A, grams const& B);
-/// Left Scaling Operator
-grams operator*(grams const& A, precision factor);
-/// Right Scaling Operator
-grams operator*(precision factor, grams const& A);
-/// Inverse Scaling Operator
-grams operator/(grams const& A, precision factor);
-/// Scale factor
-precision operator/(grams const& A, grams const& B);
-}  // namespace operators
+    /// Addition operator
+    grams operator+(grams const& A, grams const& B);
+    /// Subtraction operator
+    grams operator-(grams const& A, grams const& B);
+    /// Left Scaling Operator
+    grams operator*(grams const& A, precision factor);
+    /// Right Scaling Operator
+    grams operator*(precision factor, grams const& A);
+    /// Inverse Scaling Operator
+    grams operator/(grams const& A, precision factor);
+    /// Scale factor
+    precision operator/(grams const& A, grams const& B);
+}
 
 namespace literals {
-/// Literal Double, Quote Operator
-grams operator""_g(long double value);
-/// Literal Int, Quote Operator
-grams operator""_g(unsigned long long value);
-/// Literal String, Quote Operator
-iso::grams operator""_g(char const a[]);
-}  // namespace literals
+    /// Literal Double, Quote Operator
+    grams operator""_g(long double value);
+    /// Literal Int, Quote Operator
+    grams operator""_g(unsigned long long value);
+    /// Literal String, Quote Operator
+    iso::grams operator""_g(char const a[]);
+}
 
-}  // namespace iso
+}

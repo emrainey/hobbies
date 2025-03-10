@@ -96,10 +96,12 @@ iso::watts operator""_W(long double a) {
     return iso::watts(static_cast<precision>(a));
 }
 iso::watts operator""_W(unsigned long long a) {
-    return iso::watts(a);
+    return iso::watts(static_cast<precision>(a));
 }
 iso::watts operator""_W(char const a[]) {
-    return iso::watts(atol(a));
+    iso::precision p = static_cast<iso::precision>(atol(a));
+    return iso::watts(p);
 }
 }  // namespace literals
 }  // namespace iso
+

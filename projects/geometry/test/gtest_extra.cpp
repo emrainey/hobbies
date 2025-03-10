@@ -67,7 +67,7 @@ TEST(GeomExtraTests, RotationMatch) {
     iso::radians const theta(iso::tau / 4);
     matrix rz = rotation(R3::basis::Z, theta);
     // this rotates around Z
-    matrix R2z{{{0.0, -1.0, 0.0}, {1.0, 0.0, 0.0}, {0.0, 0.0, 1.0}}};
+    matrix R2z{{{0.0_p, -1.0_p, 0.0_p}, {1.0_p, 0.0_p, 0.0_p}, {0.0_p, 0.0_p, 1.0_p}}};
     matrix x{{{1}, {0}, {0}}};
     matrix rzx = rz * x;
     matrix y{{{0}, {1}, {0}}};
@@ -105,8 +105,8 @@ TEST(GeomExtraTests, RotationOfVectors) {
 }
 
 TEST(GeomExtraTests, DotPerf) {
-    R4::vector v{{1.0, 0.4, 0.8, 0.0}};
-    R4::vector u{{0.5, 1.0, 0.4, 1.0}};
+    R4::vector v{{1.0_p, 0.4_p, 0.8_p, 0.0_p}};
+    R4::vector u{{0.5_p, 1.0_p, 0.4_p, 1.0_p}};
     constexpr size_t number_of_ops = 100'000'000;
     auto start = std::chrono::steady_clock::now();
     for (size_t count = 0; count < number_of_ops; /* count++ */) {
@@ -119,8 +119,8 @@ TEST(GeomExtraTests, DotPerf) {
 }
 
 TEST(GeomExtraTests, CrossPerf) {
-    R3::vector a{{1.0, 3.0, 7.2}};
-    R3::vector b{{-4.0, 0.9, 12}};
+    R3::vector a{{1.0_p, 3.0_p, 7.2_p}};
+    R3::vector b{{-4.0_p, 0.9_p, 12}};
     constexpr size_t number_of_ops = 100'000'000;
     auto start = std::chrono::steady_clock::now();
     for (size_t count = 0; count < number_of_ops; /* count++ */) {
@@ -165,59 +165,59 @@ TEST(MappingTests, CartesianToPolarTest) {
 }
 
 TEST(Mappers, LinearMapperTest) {
-    ASSERT_NEAR(0.0, mapping::linear(0.0), 1E-6_p);
-    ASSERT_NEAR(1.0, mapping::linear(1.0), 1E-6_p);
+    ASSERT_NEAR(0.0_p, mapping::linear(0.0_p), 1E-6_p);
+    ASSERT_NEAR(1.0_p, mapping::linear(1.0_p), 1E-6_p);
 }
 
 TEST(Mappers, QuadraticMapperTest) {
-    ASSERT_NEAR(0.0, mapping::quadratic(0.0), 1E-6_p);
-    ASSERT_NEAR(1.0, mapping::quadratic(1.0), 1E-6_p);
+    ASSERT_NEAR(0.0_p, mapping::quadratic(0.0_p), 1E-6_p);
+    ASSERT_NEAR(1.0_p, mapping::quadratic(1.0_p), 1E-6_p);
 }
 
 TEST(Mappers, Cubic) {
-    ASSERT_NEAR(0.0, mapping::cubic(0.0), 1E-6_p);
-    ASSERT_NEAR(1.0, mapping::cubic(1.0), 1E-6_p);
+    ASSERT_NEAR(0.0_p, mapping::cubic(0.0_p), 1E-6_p);
+    ASSERT_NEAR(1.0_p, mapping::cubic(1.0_p), 1E-6_p);
 }
 
 TEST(Mappers, Sqrt) {
-    ASSERT_NEAR(0.0, mapping::sqrt(0.0), 1E-6_p);
-    ASSERT_NEAR(1.0, mapping::sqrt(1.0), 1E-6_p);
+    ASSERT_NEAR(0.0_p, mapping::sqrt(0.0_p), 1E-6_p);
+    ASSERT_NEAR(1.0_p, mapping::sqrt(1.0_p), 1E-6_p);
 }
 
 TEST(Mappers, Sin) {
-    ASSERT_NEAR(0.0, mapping::sin(0.0), 1E-6_p);
-    ASSERT_NEAR(1.0, mapping::sin(1.0), 1E-6_p);
+    ASSERT_NEAR(0.0_p, mapping::sin(0.0_p), 1E-6_p);
+    ASSERT_NEAR(1.0_p, mapping::sin(1.0_p), 1E-6_p);
 }
 
 TEST(Mappers, Ease) {
-    ASSERT_NEAR(0.0, mapping::ease(0.0), 1E-6_p);
-    ASSERT_NEAR(1.0, mapping::ease(1.0), 1E-6_p);
+    ASSERT_NEAR(0.0_p, mapping::ease(0.0_p), 1E-6_p);
+    ASSERT_NEAR(1.0_p, mapping::ease(1.0_p), 1E-6_p);
 }
 
 TEST(Mappers, Curb) {
-    ASSERT_NEAR(0.0, mapping::curb(0.0), 1E-6_p);
-    ASSERT_NEAR(1.0, mapping::curb(1.0), 1E-6_p);
+    ASSERT_NEAR(0.0_p, mapping::curb(0.0_p), 1E-6_p);
+    ASSERT_NEAR(1.0_p, mapping::curb(1.0_p), 1E-6_p);
 }
 
 TEST(Mappers, RootSpindle) {
-    ASSERT_NEAR(0.0, mapping::root_spindle(0.0), 1E-6_p);
-    ASSERT_NEAR(1.0, mapping::root_spindle(1.0), 1E-6_p);
+    ASSERT_NEAR(0.0_p, mapping::root_spindle(0.0_p), 1E-6_p);
+    ASSERT_NEAR(1.0_p, mapping::root_spindle(1.0_p), 1E-6_p);
 }
 
 TEST(Mappers, Spindle) {
-    ASSERT_NEAR(0.0, mapping::spindle(0.0), 1E-6_p);
-    ASSERT_NEAR(1.0, mapping::spindle(1.0), 1E-6_p);
+    ASSERT_NEAR(0.0_p, mapping::spindle(0.0_p), 1E-6_p);
+    ASSERT_NEAR(1.0_p, mapping::spindle(1.0_p), 1E-6_p);
 }
 
 TEST(Mappers, Exponential) {
-    ASSERT_NEAR(0.0, mapping::exponential(0.0), 1E-6_p);
-    ASSERT_NEAR(1.0, mapping::exponential(1.0), 1E-6_p);
+    ASSERT_NEAR(0.0_p, mapping::exponential(0.0_p), 1E-6_p);
+    ASSERT_NEAR(1.0_p, mapping::exponential(1.0_p), 1E-6_p);
 }
 
 TEST(Mappers, Lerp) {
-    ASSERT_NEAR(0.0, lerp(0.0, 1.0, 0.0), 1E-6_p);
-    ASSERT_NEAR(0.5, lerp(0.0, 1.0, 0.5), 1E-6_p);
-    ASSERT_NEAR(1.0, lerp(0.0, 1.0, 1.0), 1E-6_p);
+    ASSERT_NEAR(0.0_p, lerp(0.0_p, 1.0_p, 0.0_p), 1E-6_p);
+    ASSERT_NEAR(0.5_p, lerp(0.0_p, 1.0_p, 0.5_p), 1E-6_p);
+    ASSERT_NEAR(1.0_p, lerp(0.0_p, 1.0_p, 1.0_p), 1E-6_p);
 }
 
 TEST(Mappers, LerpFunctors) {
@@ -226,8 +226,8 @@ TEST(Mappers, LerpFunctors) {
            mapping::ease,   mapping::curb,      mapping::root_spindle, mapping::spindle, mapping::exponential};
 
     for (auto& m : mappers) {
-        for (precision i = 0.0; i <= 1.0; i += 1.0 / 256.0_p) {
-            auto v = lerp(0.0, 1.0, m(i));
+        for (precision i = 0.0_p; i <= 1.0_p; i += 1.0_p / 256.0_p) {
+            auto v = lerp(0.0_p, 1.0_p, m(i));
             ASSERT_GE(v, 0.0_p);
             ASSERT_LE(v, 1.0_p);
         }

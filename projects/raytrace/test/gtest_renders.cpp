@@ -23,7 +23,7 @@ public:
         , image_width{640}
         , field_of_view{90}
         , checkers{4, colors::blue, colors::yellow}
-        , checkers2{0.25, colors::blue, colors::white}
+        , checkers2{0.25_p, colors::blue, colors::white}
         , plastic{colors::cyan, mediums::ambient::none, colors::white, mediums::smoothness::small, roughness::tight}
         , rubber{colors::grey, mediums::ambient::none, colors::grey, mediums::smoothness::none, roughness::tight}
         , steel{colors::grey, mediums::smoothness::polished, roughness::tight}
@@ -227,7 +227,7 @@ TEST_F(RenderTest, DISABLED_Torus) {
 }
 
 TEST_F(RenderTest, DISABLED_QuadraticCylinder) {
-    ellipticalcylinder shape(look_at, 5.0, 5.0);
+    ellipticalcylinder shape(look_at, 5.0_p, 5.0_p);
     ASSERT_TRUE(shape.is_closed_surface());
     shape.material(&plastic);
     add_object(&shape);
@@ -235,7 +235,7 @@ TEST_F(RenderTest, DISABLED_QuadraticCylinder) {
 }
 
 TEST_F(RenderTest, DISABLED_QuadraticCone) {
-    ellipticalcone shape(look_at, 0.3, 0.3);
+    ellipticalcone shape(look_at, 0.3_p, 0.3_p);
     ASSERT_TRUE(shape.is_closed_surface());
     shape.material(&plastic);
     add_object(&shape);
@@ -243,7 +243,7 @@ TEST_F(RenderTest, DISABLED_QuadraticCone) {
 }
 
 TEST_F(RenderTest, DISABLED_QuadraticEllipsoid) {
-    ellipsoid shape(look_at, 10.0, 8.0, 6.0);
+    ellipsoid shape(look_at, 10.0_p, 8.0_p, 6.0_p);
     ASSERT_TRUE(shape.is_closed_surface());
     shape.material(&plastic);
     add_object(&shape);
@@ -251,7 +251,7 @@ TEST_F(RenderTest, DISABLED_QuadraticEllipsoid) {
 }
 
 TEST_F(RenderTest, DISABLED_QuadraticParaboloid) {
-    paraboloid shape(look_at, 0.5, 0.5, 1.0);
+    paraboloid shape(look_at, 0.5_p, 0.5_p, 1.0_p);
     ASSERT_TRUE(shape.is_closed_surface());
     shape.material(&plastic);
     add_object(&shape);
@@ -259,7 +259,7 @@ TEST_F(RenderTest, DISABLED_QuadraticParaboloid) {
 }
 
 TEST_F(RenderTest, DISABLED_QuadraticHyperboloid) {
-    hyperboloid shape(look_at, 3.0, 3.0, 3.0);
+    hyperboloid shape(look_at, 3.0_p, 3.0_p, 3.0_p);
     ASSERT_TRUE(shape.is_closed_surface());
     shape.material(&plastic);
     add_object(&shape);
@@ -332,7 +332,7 @@ TEST_F(RenderTest, DISABLED_SphereBunchOfSpecks) {
     std::vector<raytrace::lights::speck *> specks;
     for (size_t i = 0; i < 20; i++) {
         for (size_t j = 0; j < 20; j++) {
-            raytrace::point pnt((i * 20.0) - 200.0, (j * 20.0) - 200.0, 2000.0);
+            raytrace::point pnt((i * 20.0_p) - 200.0_p, (j * 20.0_p) - 200.0_p, 2000.0_p);
             specks.push_back(new raytrace::lights::speck(pnt, colors::white, 1E3));
             add_light(specks.back());
         }

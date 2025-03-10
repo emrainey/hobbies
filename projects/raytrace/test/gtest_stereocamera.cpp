@@ -17,7 +17,7 @@ TEST(StereoCameraTest, CodedImageLeftRight) {
     iso::degrees fov(90);
     size_t const width = 240;
     size_t const height = 120;
-    stereo_camera cam(height, width, fov, 0.0, stereo_camera::Layout::LeftRight);
+    stereo_camera cam(height, width, fov, 0.0_p, stereo_camera::Layout::LeftRight);
     raytrace::point look_from(-6000, 0, 0);
     raytrace::point look_at(0, 0, 0);
     cam.move_to(look_from, look_at);
@@ -82,7 +82,7 @@ TEST(StereoCameraTest, CodedImageTopBottom) {
     iso::degrees fov(90);
     size_t const width = 240;
     size_t const height = 120;
-    stereo_camera cam(height, width, fov, 0.0, stereo_camera::Layout::TopBottom);
+    stereo_camera cam(height, width, fov, 0.0_p, stereo_camera::Layout::TopBottom);
     raytrace::point look_from(-6000, 0, 0);
     raytrace::point look_at(0, 0, 0);
     cam.move_to(look_from, look_at);
@@ -147,21 +147,21 @@ TEST(StereoCameraTest, Separation) {
     iso::degrees fov(90);
     size_t const width = 240;
     size_t const height = 120;
-    double const separation = 10.0;
-    double const sqrt2 = std::sqrt(2.0);
+    double const separation = 10.0_p;
+    double const sqrt2 = std::sqrt(2.0_p);
     double const hsepsqrt2 = separation / (2 * sqrt2);
     using set = raytrace::point[4];
     set sets[] = {
-        {raytrace::point{0.0, 0.0, 0.0}, raytrace::point{0.0, 100, 0.0}, raytrace::point{-5.0, 0.0, 0.0},
-         raytrace::point{5.0, 0.0, 0.0}},
-        {raytrace::point{0.0, 0.0, 0.0}, raytrace::point{0.0, -100, 0.0}, raytrace::point{5.0, 0.0, 0.0},
-         raytrace::point{-5.0, 0.0, 0.0}},
-        {raytrace::point{0.0, 0.0, 0.0}, raytrace::point{100, 0.0, 0.0}, raytrace::point{0.0, 5.0, 0.0},
-         raytrace::point{0.0, -5.0, 0.0}},
-        {raytrace::point{0.0, 0.0, 0.0}, raytrace::point{-100, 0.0, 0.0}, raytrace::point{0.0, -5.0, 0.0},
-         raytrace::point{0.0, 5.0, 0.0}},
-        {raytrace::point{0.0, 0.0, 0.0}, raytrace::point{100 / sqrt2, 100.0 / sqrt2, 0.0},
-         raytrace::point{-hsepsqrt2, hsepsqrt2, 0.0}, raytrace::point{hsepsqrt2, -hsepsqrt2, 0.0}},
+        {raytrace::point{0.0_p, 0.0_p, 0.0_p}, raytrace::point{0.0_p, 100, 0.0_p},
+         raytrace::point{-5.0_p, 0.0_p, 0.0_p}, raytrace::point{5.0_p, 0.0_p, 0.0_p}},
+        {raytrace::point{0.0_p, 0.0_p, 0.0_p}, raytrace::point{0.0_p, -100, 0.0_p},
+         raytrace::point{5.0_p, 0.0_p, 0.0_p}, raytrace::point{-5.0_p, 0.0_p, 0.0_p}},
+        {raytrace::point{0.0_p, 0.0_p, 0.0_p}, raytrace::point{100, 0.0_p, 0.0_p}, raytrace::point{0.0_p, 5.0_p, 0.0_p},
+         raytrace::point{0.0_p, -5.0_p, 0.0_p}},
+        {raytrace::point{0.0_p, 0.0_p, 0.0_p}, raytrace::point{-100, 0.0_p, 0.0_p},
+         raytrace::point{0.0_p, -5.0_p, 0.0_p}, raytrace::point{0.0_p, 5.0_p, 0.0_p}},
+        {raytrace::point{0.0_p, 0.0_p, 0.0_p}, raytrace::point{100 / sqrt2, 100.0_p / sqrt2, 0.0_p},
+         raytrace::point{-hsepsqrt2, hsepsqrt2, 0.0_p}, raytrace::point{hsepsqrt2, -hsepsqrt2, 0.0_p}},
     };
     printf("Running %zu tests\n", dimof(sets));
     for (size_t i = 0; i < dimof(sets); i++) {
@@ -179,6 +179,6 @@ TEST(StereoCameraTest, Separation) {
         ASSERT_POINT_EQ(left.position(), left_camera_position);
         ASSERT_POINT_EQ(right.position(), right_camera_position);
 
-        ASSERT_NEAR(tan(5.0 / 100.0), cam.toe_in().value, 0.01) << "iteration " << i;
+        ASSERT_NEAR(tan(5.0_p / 100.0_p), cam.toe_in().value, 0.01_p) << "iteration " << i;
     }
 }

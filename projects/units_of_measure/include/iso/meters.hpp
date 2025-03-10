@@ -16,7 +16,7 @@ namespace iso {
 
 /// A structure used to hold the postfix for meters
 struct suffix_type_m {
-    constexpr static char const* suffix = "m";
+    constexpr static char const *suffix = "m";
 };
 
 ///
@@ -72,27 +72,27 @@ public:
 };
 
 namespace operators {
-/// Addition operator
-meters operator+(meters const& A, meters const& B);
-/// Subtraction operator
-meters operator-(meters const& A, meters const& B);
-/// Left Scaling Operator
-meters operator*(meters const& A, precision factor);
-/// Right Scaling Operator
-meters operator*(precision factor, meters const& A);
-/// Inverse Scaling Operator
-meters operator/(meters const& A, precision factor);
-/// Scale factor
-precision operator/(meters const& A, meters const& B);
-}  // namespace operators
+    /// Addition operator
+    meters operator+(meters const& A, meters const& B);
+    /// Subtraction operator
+    meters operator-(meters const& A, meters const& B);
+    /// Left Scaling Operator
+    meters operator*(meters const& A, precision factor);
+    /// Right Scaling Operator
+    meters operator*(precision factor, meters const& A);
+    /// Inverse Scaling Operator
+    meters operator/(meters const& A, precision factor);
+    /// Scale factor
+    precision operator/(meters const& A, meters const& B);
+}
 
 namespace literals {
-/// Literal Double, Quote Operator
-meters operator""_m(long double value);
-/// Literal Int, Quote Operator
-meters operator""_m(unsigned long long value);
-/// Literal String, Quote Operator
-iso::meters operator""_m(char const a[]);
-}  // namespace literals
+    /// Literal Double, Quote Operator
+    meters operator""_m(long double value);
+    /// Literal Int, Quote Operator
+    meters operator""_m(unsigned long long value);
+    /// Literal String, Quote Operator
+    iso::meters operator""_m(char const a[]);
+}
 
-}  // namespace iso
+}

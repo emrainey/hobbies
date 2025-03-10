@@ -124,10 +124,10 @@ char const* const literal
 TEST(ObjParser, SingleTriangle) {
     MockObserver mock;
     obj::Parser parser{mock};
-    EXPECT_CALL(mock, addVertex(3.0, 2.0, 1.0)).Times(1);
-    EXPECT_CALL(mock, addVertex(5.0, 4.0, 6.0)).Times(1);
-    EXPECT_CALL(mock, addVertex(7.0, 8.0, 9.0)).Times(1);
-    EXPECT_CALL(mock, addNormal(0.0, 0.0, 1.0)).Times(1);
+    EXPECT_CALL(mock, addVertex(3.0_p, 2.0_p, 1.0_p)).Times(1);
+    EXPECT_CALL(mock, addVertex(5.0_p, 4.0_p, 6.0_p)).Times(1);
+    EXPECT_CALL(mock, addVertex(7.0_p, 8.0_p, 9.0_p)).Times(1);
+    EXPECT_CALL(mock, addNormal(0.0_p, 0.0_p, 1.0_p)).Times(1);
     // TODO add texture at some point
     EXPECT_CALL(mock, addFace(1, 2, 3)).Times(1);
     parser.Parse(literal);
@@ -224,17 +224,17 @@ TEST(ObjParser, DISABLED_CubeModelAsObject) {
 
     // show that some rays don't work
     {
-        raytrace::ray r0{raytrace::point(0.0, -2.0, 0.0), R3::basis::Y};
+        raytrace::ray r0{raytrace::point(0.0_p, -2.0_p, 0.0_p), R3::basis::Y};
         auto hit = model.intersect(r0);
         EXPECT_EQ(geometry::IntersectionType::None, get_type(hit.intersect));
     }
 
     // shoot some rays at it to see if the transform works
     {
-        raytrace::ray r0{raytrace::point{10.5, 8.0, 10.5}, R3::basis::Y};
+        raytrace::ray r0{raytrace::point{10.5_p, 8.0_p, 10.5_p}, R3::basis::Y};
         auto hit = model.intersect(r0);
         EXPECT_EQ(geometry::IntersectionType::Point, get_type(hit.intersect));
-        EXPECT_POINT_EQ(raytrace::point(10.5, 9.0, 10.5), as_point(hit.intersect));
+        EXPECT_POINT_EQ(raytrace::point(10.5_p, 9.0_p, 10.5_p), as_point(hit.intersect));
         EXPECT_VECTOR_EQ(raytrace::vector({0, -1, 0}), hit.normal);
     }
 }

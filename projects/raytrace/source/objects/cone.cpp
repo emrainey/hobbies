@@ -7,7 +7,7 @@ namespace objects {
 // FIXME delete or modify!
 cone::cone(point const& C, iso::radians angle)
     : object{C, 2, true}  // 2 collisions, closed (infinite)
-    , m_bottom_radius{0.0}
+    , m_bottom_radius{0.0_p}
     , m_height{std::numeric_limits<precision>::infinity()}  // infinite
     , m_angle{angle} {
     basal::exception::throw_if(m_angle >= iso::radians(iso::pi / 2), __FILE__, __LINE__, "Angle %lf is too large",
@@ -29,7 +29,7 @@ vector cone::normal_(point const& object_surface_point) const {
             return R3::null;
         }
     } else {
-        height = 1.0;
+        height = 1.0_p;
         radius = std::tan(m_angle.value);
     }
     if (basal::nearly_zero(object_surface_point.x) and basal::nearly_zero(object_surface_point.y)) {
@@ -73,10 +73,10 @@ hits cone::collisions_along(ray const& object_ray) const {
     precision i = object_ray.direction()[0];
     precision j = object_ray.direction()[1];
     precision k = object_ray.direction()[2];
-    precision h = std::isinf(m_height) ? 0.0 : m_height;
+    precision h = std::isinf(m_height) ? 0.0_p : m_height;
     precision br = m_bottom_radius;
     precision f = std::tan(m_angle.value);
-    precision s = basal::nearly_zero(h) ? 1.0 / (f * f) : (h * h) / (br * br);
+    precision s = basal::nearly_zero(h) ? 1.0_p / (f * f) : (h * h) / (br * br);
     precision z_h = z - h;
     precision a = s * (i * i + j * j) - k * k;
     precision b = 2 * (s * (i * x + j * y) - k * z_h);
@@ -111,15 +111,15 @@ bool cone::is_surface_point(point const& world_point) const {
 image::point cone::map(point const& object_surface_point) const {
     geometry::point_<2> cartesian(object_surface_point[0], object_surface_point[1]);
     geometry::point_<2> polar = geometry::cartesian_to_polar(cartesian);
-    precision h = (m_height > 0) ? m_height : 1.0;
+    precision h = (m_height > 0) ? m_height : 1.0_p;
     // some range of z based in the half_height we want -h2 to map to zero and +h2 to 1.0
-    precision u = (object_surface_point[2] / (-2.0 * h)) + 0.5;
-    // theta goes from +pi to -pi we want to map -pi to 1.0 and + pi to zero
-    precision v = 0.0;
+    precision u = (object_surface_point[2] / (-2.0_p * h)) + 0.5_p;
+    // theta goes from +pi to -pi we want to map -pi to 1.0_p and + pi to zero
+    precision v = 0.0_p;
     if (polar.y >= 0) {
-        v = 0.5 - (polar.y / (+2.0 * iso::pi));
+        v = 0.5_p - (polar.y / (+2.0_p * iso::pi));
     } else {
-        v = 0.5 + (polar.y / (-2.0 * iso::pi));
+        v = 0.5_p + (polar.y / (-2.0_p * iso::pi));
     }
     return image::point(u, v);
 }

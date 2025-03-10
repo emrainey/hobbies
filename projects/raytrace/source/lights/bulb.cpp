@@ -20,7 +20,7 @@ ray bulb::incident(point const& world_point, size_t sample_index) const {
     // we'll get a perturbation vector from the golden_ratio_mapper
     raytrace::vector perturb = raytrace::mapping::golden_ratio_mapper(sample_index, m_samples) - geometry::R3::origin;
     raytrace::vector shadow = position() - world_point;
-    // if (dot(perturb, shadow) > 0.0) { // check for visibility
+    // if (dot(perturb, shadow) > 0.0_p) { // check for visibility
     //  if the dot is positive, the point is on the non-visible side of the sphere
     //  reflect it to the visible side with the precision cross
     //    perturb = laws::reflection(cross(cross(perturb, shadow), shadow), perturb);

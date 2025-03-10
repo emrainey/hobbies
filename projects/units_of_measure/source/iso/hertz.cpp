@@ -96,10 +96,12 @@ iso::hertz operator""_Hz(long double a) {
     return iso::hertz(static_cast<precision>(a));
 }
 iso::hertz operator""_Hz(unsigned long long a) {
-    return iso::hertz(a);
+    return iso::hertz(static_cast<precision>(a));
 }
 iso::hertz operator""_Hz(char const a[]) {
-    return iso::hertz(atol(a));
+    iso::precision p = static_cast<iso::precision>(atol(a));
+    return iso::hertz(p);
 }
 }  // namespace literals
 }  // namespace iso
+

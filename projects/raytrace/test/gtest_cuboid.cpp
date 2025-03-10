@@ -14,7 +14,7 @@ TEST(CuboidTest, Normals) {
     using namespace raytrace::objects;
 
     raytrace::point P{3, 3, 3};
-    cuboid c0{P, 1.0, 1.0, 1.0};
+    cuboid c0{P, 1.0_p, 1.0_p, 1.0_p};
 
     raytrace::point pX = P + raytrace::vector{1, 0, 0};
     raytrace::point nX = P + raytrace::vector{-1, 0, 0};
@@ -47,8 +47,8 @@ TEST(CuboidTest, IntersectionMissed) {
     using namespace raytrace::objects;
 
     raytrace::point P{0, 0, 0};
-    cuboid c0{P, 1.0, 1.0, 1.0};
-    raytrace::point Q{2.0, 2.0, 2.0};
+    cuboid c0{P, 1.0_p, 1.0_p, 1.0_p};
+    raytrace::point Q{2.0_p, 2.0_p, 2.0_p};
     vector R{{1, 1, 0}};
 
     ray complete_miss(Q, R);
@@ -61,11 +61,11 @@ TEST(CuboidTest, IntersectionHitX) {
     using namespace raytrace::objects;
 
     raytrace::point P{0, 0, 0};
-    cuboid c0{P, 1.0, 1.0, 1.0};
-    raytrace::point Q{2.0, 0.75, 0.25};
+    cuboid c0{P, 1.0_p, 1.0_p, 1.0_p};
+    raytrace::point Q{2.0_p, 0.75_p, 0.25_p};
     vector R{{-1, 0, 0}};
     ray hit0(Q, R);
-    raytrace::point h0{1.0, 0.75, 0.25};
+    raytrace::point h0{1.0_p, 0.75_p, 0.25_p};
 
     geometry::intersection ipx = c0.intersect(hit0).intersect;
     ASSERT_EQ(geometry::IntersectionType::Point, get_type(ipx));
@@ -78,12 +78,12 @@ TEST(CuboidTest, IntersectionHitOffOrigin) {
     using namespace raytrace::objects;
 
     raytrace::point P{9, -14, 77};
-    cuboid c0{P, 2.0, 3.0, 4.0};
-    raytrace::point Q{4.0, 0.75, 0.25};
+    cuboid c0{P, 2.0_p, 3.0_p, 4.0_p};
+    raytrace::point Q{4.0_p, 0.75_p, 0.25_p};
     raytrace::vector v1 = P - R3::origin;
     vector R{{-1, 0, 0}};
     ray hit0((Q + v1), R);
-    raytrace::point h0{2.0, 0.75, 0.25};
+    raytrace::point h0{2.0_p, 0.75_p, 0.25_p};
     raytrace::point h1 = h0 + v1;
 
     geometry::intersection ipx = c0.intersect(hit0).intersect;
@@ -97,9 +97,9 @@ TEST(CuboidTest, IntersectionMassXY) {
     using namespace raytrace::objects;
 
     raytrace::point P{7, 22, -19};
-    precision w = 0.5;  // the half-width of the cuboid
+    precision w = 0.5_p;  // the half-width of the cuboid
     cuboid c0{P, w, w, w};
-    precision u = 1.0 / 8.0;  // the testing step
+    precision u = 1.0_p / 8.0_p;  // the testing step
 
     // in the XY plane
     for (precision y = (-w + u + P.y); y < (w + P.y); y += u) {
@@ -120,7 +120,7 @@ TEST(CuboidTest, IntersectionsOnSurface) {
     using namespace raytrace::objects;
 
     raytrace::point center(0, 0, 0);
-    precision w = 2.0;
+    precision w = 2.0_p;
     cuboid c0{center, w, w, w};
     raytrace::point A{w, 0, 0};
     raytrace::point B{-w, 0, 0};

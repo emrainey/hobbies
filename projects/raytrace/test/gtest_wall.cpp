@@ -13,7 +13,7 @@ TEST(WallTest, Position) {
     using namespace raytrace;
     using namespace raytrace::objects;
     raytrace::point C{7, 7, 7};
-    raytrace::objects::wall w0{C, R3::basis::Z, 2.0};
+    raytrace::objects::wall w0{C, R3::basis::Z, 2.0_p};
     ASSERT_POINT_EQ(C, w0.position());
 }
 
@@ -21,7 +21,7 @@ TEST(WallTest, Normals) {
     using namespace raytrace;
     using namespace raytrace::objects;
     raytrace::point C{7, 7, 7};
-    raytrace::objects::wall w0{C, R3::basis::Z, 2.0};
+    raytrace::objects::wall w0{C, R3::basis::Z, 2.0_p};
     // shouldn't this return a null in the inside?
     auto should_be_null = w0.normal(C);
     auto should_be_Z = w0.normal(raytrace::point{7, 7, 8});
@@ -35,7 +35,7 @@ TEST(WallTest, InsideOutside) {
     using namespace raytrace;
     using namespace raytrace::objects;
     raytrace::point C{7, 7, 7};
-    raytrace::objects::wall w0{C, R3::basis::Z, 2.0};
+    raytrace::objects::wall w0{C, R3::basis::Z, 2.0_p};
     ASSERT_FALSE(w0.is_outside(C));
     ASSERT_TRUE(w0.is_outside(raytrace::point{9, 9, 9}));
     ASSERT_FALSE(w0.is_outside(raytrace::point{7, 7, 8}));
@@ -48,7 +48,7 @@ TEST(WallTest, OnSurface) {
     using namespace raytrace;
     using namespace raytrace::objects;
     raytrace::point C{7, 7, 7};
-    raytrace::objects::wall w0{C, R3::basis::Z, 2.0};
+    raytrace::objects::wall w0{C, R3::basis::Z, 2.0_p};
 
     ASSERT_TRUE(w0.is_surface_point(raytrace::point{7, 7, 8}));
     ASSERT_TRUE(w0.is_surface_point(raytrace::point{7, 7, 6}));
@@ -59,7 +59,7 @@ TEST(WallTest, Intersections) {
     using namespace raytrace::objects;
 
     raytrace::point C{0, 0, 0};
-    raytrace::objects::wall w0{C, R3::basis::X, 2.0};
+    raytrace::objects::wall w0{C, R3::basis::X, 2.0_p};
 
     raytrace::ray r0{raytrace::point{2, 1, 1}, -R3::basis::X};
     raytrace::ray r1{raytrace::point{-2, 1, 1}, R3::basis::X};
@@ -84,15 +84,15 @@ TEST(WallTest, Rotations) {
     using namespace raytrace::objects;
 
     raytrace::point C{1, 1, 1};
-    raytrace::objects::wall w0{C, R3::basis::X, 2.0};
-    w0.rotation(iso::degrees{0.0}, iso::degrees{0.0}, iso::degrees{180.0});
+    raytrace::objects::wall w0{C, R3::basis::X, 2.0_p};
+    w0.rotation(iso::degrees{0.0_p}, iso::degrees{0.0_p}, iso::degrees{180.0_p});
 }
 
 TEST(WallTest, ColumnMisses) {
     using namespace raytrace;
     using namespace geometry::operators;
-    objects::wall w0{raytrace::point{0, 0, 0}, R3::basis::X, 2.0};
-    objects::wall w1{raytrace::point{0, 0, 0}, R3::basis::Y, 2.0};
+    objects::wall w0{raytrace::point{0, 0, 0}, R3::basis::X, 2.0_p};
+    objects::wall w1{raytrace::point{0, 0, 0}, R3::basis::Y, 2.0_p};
     objects::overlap column{w0, w1, objects::overlap::type::inclusive};
     {
         raytrace::ray r{raytrace::point{2, 2, 2}, -R3::basis::X};
@@ -119,8 +119,8 @@ TEST(WallTest, ColumnMisses) {
 TEST(WallTest, ColumnHitsDeadCenter) {
     using namespace raytrace;
     using namespace geometry::operators;
-    objects::wall w0{raytrace::point{0, 0, 0}, R3::basis::X, 2.0};
-    objects::wall w1{raytrace::point{0, 0, 0}, R3::basis::Y, 2.0};
+    objects::wall w0{raytrace::point{0, 0, 0}, R3::basis::X, 2.0_p};
+    objects::wall w1{raytrace::point{0, 0, 0}, R3::basis::Y, 2.0_p};
     objects::overlap column{w0, w1, objects::overlap::type::inclusive};
     {
         raytrace::ray r{raytrace::point{2, 0, 0}, (-R3::basis::X)};
@@ -155,8 +155,8 @@ TEST(WallTest, ColumnHitsDeadCenter) {
 TEST(WallTest, ColumnHitsDiagonals) {
     using namespace raytrace;
     using namespace geometry::operators;
-    objects::wall w0{raytrace::point{0, 0, 0}, R3::basis::X, 2.0};
-    objects::wall w1{raytrace::point{0, 0, 0}, R3::basis::Y, 2.0};
+    objects::wall w0{raytrace::point{0, 0, 0}, R3::basis::X, 2.0_p};
+    objects::wall w1{raytrace::point{0, 0, 0}, R3::basis::Y, 2.0_p};
     objects::overlap column{w0, w1, objects::overlap::type::inclusive};
     {
         raytrace::ray r{raytrace::point{2, 2, 2}, raytrace::vector{-1, -1, -1}};
@@ -177,9 +177,9 @@ TEST(WallTest, ColumnHitsDiagonals) {
 TEST(WallTest, BoxFromWalls) {
     using namespace raytrace;
     using namespace geometry::operators;
-    objects::wall w0{raytrace::point{0, 0, 0}, R3::basis::X, 2.0};
-    objects::wall w1{raytrace::point{0, 0, 0}, R3::basis::Y, 2.0};
-    objects::wall w2{raytrace::point{0, 0, 0}, R3::basis::Z, 2.0};
+    objects::wall w0{raytrace::point{0, 0, 0}, R3::basis::X, 2.0_p};
+    objects::wall w1{raytrace::point{0, 0, 0}, R3::basis::Y, 2.0_p};
+    objects::wall w2{raytrace::point{0, 0, 0}, R3::basis::Z, 2.0_p};
     objects::overlap column{w0, w1, objects::overlap::type::inclusive};
     objects::overlap box{column, w2, objects::overlap::type::inclusive};
     {

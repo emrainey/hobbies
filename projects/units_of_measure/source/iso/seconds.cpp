@@ -96,10 +96,12 @@ iso::seconds operator""_sec(long double a) {
     return iso::seconds(static_cast<precision>(a));
 }
 iso::seconds operator""_sec(unsigned long long a) {
-    return iso::seconds(a);
+    return iso::seconds(static_cast<precision>(a));
 }
 iso::seconds operator""_sec(char const a[]) {
-    return iso::seconds(atol(a));
+    iso::precision p = static_cast<iso::precision>(atol(a));
+    return iso::seconds(p);
 }
 }  // namespace literals
 }  // namespace iso
+

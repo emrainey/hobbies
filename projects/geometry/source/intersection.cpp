@@ -75,7 +75,7 @@ bool intersects(R3::point const& pt, R3::line const& lin) {
         return true;
     } else {
         // find the t which it does intersect or it will return false if it does not
-        precision t = 0.0;
+        precision t = 0.0_p;
         return lin.solve(pt, t);
     }
 }
@@ -108,12 +108,12 @@ intersection intersects(R3::line const& l, plane const& P) {
     } else if (orthogonal(P.unormal(), l.direction())) {  // parallel to plane
         return intersection();
     } else {
-        R3::point a = l.solve(0.0);
-        R3::point b = l.solve(1.0);
+        R3::point a = l.solve(0.0_p);
+        R3::point b = l.solve(1.0_p);
         precision da = P.distance(a);
         precision db = P.distance(b);
         precision dd = (da > db ? da - db : db - da);  // distance between the points
-        precision tn = 0.0;
+        precision tn = 0.0_p;
         // the plane can be below, above or between the points.
         // sometimes these are very close to zero but not zero
         if (basal::nearly_zero(da)) {
@@ -124,16 +124,16 @@ intersection intersects(R3::line const& l, plane const& P) {
         }
         if ((da > 0 && db < 0) || (da < 0 && db > 0)) {
             if (da > db) {
-                tn = da / dd + 0.0;
+                tn = da / dd + 0.0_p;
             } else if (db > da) {
-                tn = 1.0 - db / dd;
+                tn = 1.0_p - db / dd;
             }
         } else if (da > db) {
             // e.g. a = 27, b = 14
-            tn = (db / dd) + 1.0;
+            tn = (db / dd) + 1.0_p;
         } else if (da < db) {
             // e.g. a = 14, b = 27
-            tn = 0.0 - (da / dd);
+            tn = 0.0_p - (da / dd);
         }
         point c = l.solve(tn);
         // basal::exception::throw_unless(P.contains(c), __FILE__, __LINE__);
@@ -186,10 +186,10 @@ intersection intersects(R3::sphere const& S, R3::line const& l) noexcept(false) 
             // a = (vx^2 + vy^2 + vz^2)
             // b = (2vx_px + 2vy_py + 2vz_pz)
             // c = (px^2 + py^2 + pz^2) - r^2
-            precision a = 0;
-            precision b = 0;
-            precision c = 0;
-            for (size_t i = 0; i < p.dimensions; i++) {
+            precision a = 0.0_p;
+            precision b = 0.0_p;
+            precision c = 0.0_p;
+            for (size_t i = 0U; i < p.dimensions; i++) {
                 a += v[i] * v[i];
                 b += 2 * p[i] * v[i];
                 c += p[i] * p[i];
@@ -217,12 +217,12 @@ intersection intersects(R3::sphere const& S, R3::line const& l) noexcept(false) 
 
             // find the internal t to P to determine if the vector is
             // going towards or away from P
-            precision t = 0.0;
+            precision t = 0.0_p;
             assert(l.solve(P, t));
             // if t == 0 then P == Z0
             // if t < 0 then V is facing away from P
             // if t > 0 then V is facing towards P
-            precision u = (t < 0 ? -1.0 : 1.0);
+            precision u = (t < 0.0_p ? -1.0_p : 1.0_p);
 
             // line passes through the center
             if (basal::nearly_zero(d)) {
@@ -243,7 +243,7 @@ intersection intersects(R3::sphere const& S, R3::line const& l) noexcept(false) 
                 // C != P and d < r
                 // Solve for R and Q (the two sphere point intersections)
                 // distance from R/Q to P (c^2 - b^2 = a^2) where c is r and b is d
-                precision m = sqrt(r * r - d * d);
+                precision m = sqrt((r * r) - (d * d));
                 // vector from P to the zero point
                 R3::vector pz = Z0 - P;
                 precision k = pz.norm();
@@ -260,7 +260,7 @@ intersection intersects(R3::sphere const& S, R3::line const& l) noexcept(false) 
                 } else if (basal::nearly_equals(k, m)) {
                     // we'll call the one we're on R and the other Q
                     R = Z0;
-                    Q = l.distance_along(2 * m * u);
+                    Q = l.distance_along(2.0_p * m * u);
                     assert(S.on_surface(Q));
                 } else {  // k > m
                     // zero point is outside the sphere.

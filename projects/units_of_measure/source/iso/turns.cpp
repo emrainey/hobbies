@@ -96,10 +96,12 @@ iso::turns operator""_Tau(long double a) {
     return iso::turns(static_cast<precision>(a));
 }
 iso::turns operator""_Tau(unsigned long long a) {
-    return iso::turns(a);
+    return iso::turns(static_cast<precision>(a));
 }
 iso::turns operator""_Tau(char const a[]) {
-    return iso::turns(atol(a));
+    iso::precision p = static_cast<iso::precision>(atol(a));
+    return iso::turns(p);
 }
 }  // namespace literals
 }  // namespace iso
+

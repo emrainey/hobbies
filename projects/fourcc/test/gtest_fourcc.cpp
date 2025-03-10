@@ -70,7 +70,7 @@ TEST(FourccTest, RGBh) {
 TEST(FourccTest, Filter) {
     image<rgb8, pixel_format::RGB8> img(480, 640);
     img.for_each([](size_t y, size_t x, rgb8& pixel) {
-        if ((x / 2) % 2 == 0) {
+        if (((x / 2) % 2) == 0) {
             pixel.r = (x + y + 137) % 256;
             pixel.g = (x + y + 11) % 256;
             pixel.b = (x + y + 89) % 256;

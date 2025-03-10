@@ -7,14 +7,14 @@ using namespace linalg;
 using namespace linalg::operators;
 
 output::output(size_t prev, size_t num)
-    : inner{layer::type::output, prev, num}, error{num, 1}, error_value{0.0}, rms_value{0.0} {
+    : inner{layer::type::output, prev, num}, error{num, 1}, error_value{0.0_p}, rms_value{0.0_p} {
 }
 
 output::~output() {
 }
 
 size_t output::infer_label(precision& out) {
-    precision tmp = 0.0;
+    precision tmp = 0.0_p;
     size_t index = 0;
     values.for_each([&](size_t y, size_t x, precision const& v) {
         (void)x;
@@ -30,13 +30,13 @@ size_t output::infer_label(precision& out) {
 void output::reset(void) {
     inner::reset();
     error.zero();
-    error_value = rms_value = 0.0;
+    error_value = rms_value = 0.0_p;
 }
 
 void output::update(void) {
     inner::update();
-    rms_value = nn::sum(rms) / rms.rows;
-    error_value = nn::sum(error) / error.rows;
+    rms_value = nn::sum(rms) / static_cast<precision>(rms.rows);
+    error_value = nn::sum(error) / static_cast<precision>(error.rows);
 }
 
 void output::learn_label(size_t index, precision min, precision max) {

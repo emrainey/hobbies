@@ -107,13 +107,13 @@ void plot(std::string name, std::vector<T> &data, matrix &beta, matrix &domain) 
 std::vector<precision> generate_random_linear_dataset(matrix &domain) {
     std::random_device rd{};
     std::mt19937 gen(rd());
-    std::uniform_real_distribution<> num(-1.0, 1.0);
+    std::uniform_real_distribution<> num(-1.0_p, 1.0_p);
     // slope
-    precision m = 2.0 * num(gen);
+    precision m = 2.0_p * num(gen);
     // offset
-    precision b = 10.0 * num(gen);
+    precision b = 10.0_p * num(gen);
     // we want the dots clustered around a random line equation by this tolerance.
-    precision tolerance = 20.0 * num(gen);
+    precision tolerance = 20.0_p * num(gen);
     printf("m=%lf, b=%lf\n", m, b);
     std::vector<precision> data;
     domain.for_each([&](precision &x) {
@@ -139,7 +139,7 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
     matrix domain(1, 300);  // generate a domain set
     domain.for_each([](size_t row, size_t col, precision &v) {
         row |= 0;
-        v = -150.0 + col;
+        v = -150.0_p + col;
     });
     // generate a random data set within bounds
     std::vector<precision> dataset = generate_random_linear_dataset(domain);

@@ -16,7 +16,7 @@ namespace iso {
 
 /// A structure used to hold the postfix for radians
 struct suffix_type_rad {
-    constexpr static char const* suffix = "rad";
+    constexpr static char const *suffix = "rad";
 };
 
 ///
@@ -72,27 +72,27 @@ public:
 };
 
 namespace operators {
-/// Addition operator
-radians operator+(radians const& A, radians const& B);
-/// Subtraction operator
-radians operator-(radians const& A, radians const& B);
-/// Left Scaling Operator
-radians operator*(radians const& A, precision factor);
-/// Right Scaling Operator
-radians operator*(precision factor, radians const& A);
-/// Inverse Scaling Operator
-radians operator/(radians const& A, precision factor);
-/// Scale factor
-precision operator/(radians const& A, radians const& B);
-}  // namespace operators
+    /// Addition operator
+    radians operator+(radians const& A, radians const& B);
+    /// Subtraction operator
+    radians operator-(radians const& A, radians const& B);
+    /// Left Scaling Operator
+    radians operator*(radians const& A, precision factor);
+    /// Right Scaling Operator
+    radians operator*(precision factor, radians const& A);
+    /// Inverse Scaling Operator
+    radians operator/(radians const& A, precision factor);
+    /// Scale factor
+    precision operator/(radians const& A, radians const& B);
+}
 
 namespace literals {
-/// Literal Double, Quote Operator
-radians operator""_rad(long double value);
-/// Literal Int, Quote Operator
-radians operator""_rad(unsigned long long value);
-/// Literal String, Quote Operator
-iso::radians operator""_rad(char const a[]);
-}  // namespace literals
+    /// Literal Double, Quote Operator
+    radians operator""_rad(long double value);
+    /// Literal Int, Quote Operator
+    radians operator""_rad(unsigned long long value);
+    /// Literal String, Quote Operator
+    iso::radians operator""_rad(char const a[]);
+}
 
-}  // namespace iso
+}

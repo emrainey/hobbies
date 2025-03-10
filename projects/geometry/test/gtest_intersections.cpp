@@ -10,8 +10,8 @@ using namespace geometry::operators;
 
 TEST(IntersectionTest, Constructions) {
     point P{{4, 42, -9}};
-    point R{{-1, -0.7, iso::pi}};
-    point Q{{-90, 4, 72.0 / 3}};
+    point R{{-1, -0.7_p, iso::pi}};
+    point Q{{-90, 4, 72.0_p / 3}};
     R3::vector N{{3, 4, 5}};
 
     intersection i0;
@@ -76,7 +76,7 @@ TEST(IntersectionTest, GeneralIntersections) {
 
     intersection ilxyz = intersects(lx, yz2);
     ASSERT_TRUE(get_type(ilxyz) == IntersectionType::Point);
-    point lx_yz2 = lx.solve(1.0);  // where it aught to intersect
+    point lx_yz2 = lx.solve(1.0_p);  // where it aught to intersect
     // print_this(lx_yz2);
     // print_this(ilxyz.pt);
     ASSERT_TRUE(basal::nearly_zero(yz2.distance(lx_yz2)));
@@ -118,12 +118,12 @@ TEST(IntersectionTest, PlaneLine) {
     point pl1 = as_point(ip1l1);
     // a negative value for t indicates the intersection is backwards
     // from the direction of the R3::line from it's constructor
-    point pl2 = L1.solve(-30.0 / 17.0);
+    point pl2 = L1.solve(-30.0_p / 17.0_p);
     ASSERT_POINT_EQ(pl2, pl1);
     // find an intersection that should be in the plane
     R3::vector U{{0, 0, 1}};
     R3::vector J = R3::cross(U, P1.unormal());  // parallel to the plane
-    R3::line L2{J, L1.solve(0.0)};
+    R3::line L2{J, L1.solve(0.0_p)};
     // should not intersect at all
     intersection ip1l2 = intersects(P1, L2);
     ASSERT_EQ(IntersectionType::None, get_type(ip1l2));
@@ -197,7 +197,7 @@ TEST(IntersectionTest, LineLine) {
     intersection ab = intersects(a, b);
     // print_this(ab);
     ASSERT_TRUE(get_type(ab) == IntersectionType::Point);
-    point c{{9, 23.0 / 2, 4}};
+    point c{{9, 23.0_p / 2, 4}};
     ASSERT_POINT_EQ(c, as_point(ab));
     point px{{2, 0, 0}};
     point py{{0, 2, 0}};
@@ -247,8 +247,8 @@ TEST(IntersectionTest, PlanePlane) {
     // print_this(p1p2);
     // print_this(as_line(iP1P2));
     ASSERT_TRUE(as_line(iP1P2) == p1p2);
-    ASSERT_TRUE(P1.contains(p1p2.solve(0.0)));
-    ASSERT_TRUE(P2.contains(p1p2.solve(0.0)));
+    ASSERT_TRUE(P1.contains(p1p2.solve(0.0_p)));
+    ASSERT_TRUE(P2.contains(p1p2.solve(0.0_p)));
     ASSERT_TRUE(P1.contains(p1p2));
     ASSERT_TRUE(P2.contains(p1p2));
 }
@@ -284,18 +284,18 @@ TEST(IntersectionTest, SphereOffCenterNonOrigin) {
 TEST(IntersectionTest, SphereCenter) {
     point p1{{15, 15, 15}};
     R3::vector n{{-1, -1, -1}};
-    R3::sphere s1{5.0};
+    R3::sphere s1{5.0_p};
     R3::line l1{p1, n};
     // this should pass through the center
     intersection is1l1 = intersects(s1, l1);
     ASSERT_EQ(IntersectionType::Points, get_type(is1l1));
     R3::vector v = as_points(is1l1)[0] - R3::origin;
     R3::vector u = as_points(is1l1)[1] - R3::origin;
-    ASSERT_PRECISION_EQ(5.0, v.norm());
-    ASSERT_PRECISION_EQ(5.0, u.norm());
+    ASSERT_PRECISION_EQ(5.0_p, v.norm());
+    ASSERT_PRECISION_EQ(5.0_p, u.norm());
 
-    R3::sphere s2{1.0};
-    R3::point p2{2.0, 0.0, 0.0};
+    R3::sphere s2{1.0_p};
+    R3::point p2{2.0_p, 0.0_p, 0.0_p};
     R3::vector v2 = -R3::basis::X;
     R3::line l2{v2, p2};
     // this should pass through the center
@@ -306,14 +306,14 @@ TEST(IntersectionTest, SphereCenter) {
     std::cout << "is2l2" << is2l2 << std::endl;
     // either R or Q is +X or -X
     R3::vector d = R - Q;
-    ASSERT_PRECISION_EQ(2.0, d.norm());
+    ASSERT_PRECISION_EQ(2.0_p, d.norm());
 
     ASSERT_TRUE(s2.on_surface(R));
     ASSERT_TRUE(s2.on_surface(Q));
 }
 
 TEST(IntersectionTest, SphereNone) {
-    R3::sphere s1{5.0};
+    R3::sphere s1{5.0_p};
     R3::line l3{point{{72, 42, 99}}, point{{73, 42, 99}}};
     // this should not intersect at all.
     intersection iss1l3 = intersects(s1, l3);
@@ -321,7 +321,7 @@ TEST(IntersectionTest, SphereNone) {
 }
 
 TEST(IntersectionTest, SphereInside) {
-    R3::sphere s1{5.0};
+    R3::sphere s1{5.0_p};
     R3::line l3{point{{1, 1, 1}}, point{{2, 2, 1}}};
     // this will intersect with two points which both point away from the zero
     intersection iss1l3 = intersects(s1, l3);
@@ -335,7 +335,7 @@ TEST(IntersectionTest, SphereInside) {
 }
 
 TEST(IntersectionTest, SphereTangent) {
-    R3::sphere s1{5.0};
+    R3::sphere s1{5.0_p};
     R3::line l4{{0, 0, -1, 5, 0, 5}};
     // a tangent R3::line should only have a point as an intersection.
     intersection isl4s1 = intersects(s1, l4);

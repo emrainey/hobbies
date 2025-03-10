@@ -11,9 +11,9 @@ color simple(image::point const& p __attribute__((unused)), palette const& pal _
 
 color checkerboard(image::point const& p, palette const& pal) {
     basal::exception::throw_unless(pal.size() == 8, __FILE__, __LINE__, "Must have all 8 colors in checkerboard");
-    precision h = 0.5;
-    precision u = std::fmod(p.x, 1.0);  // values between -1.0 and 1.0 exclusive
-    precision v = std::fmod(p.y, 1.0);  // values between -1.0 and 1.0 exclusive
+    precision h = 0.5_p;
+    precision u = std::fmod(p.x, 1.0_p);  // values between -1.0_p and 1.0_p exclusive
+    precision v = std::fmod(p.y, 1.0_p);  // values between -1.0_p and 1.0_p exclusive
     // this only really works in u > 0 && v > 0
     if (u >= 0 and v >= 0) {  // quad 1
         if ((u < h and v < h) or (u >= h and v >= h)) {
@@ -49,10 +49,10 @@ color checkerboard(raytrace::point const& p, palette const& pal) {
     // palette could have up to 8 colors, don't worry about it here
     basal::exception::throw_unless(pal.size() >= 2, __FILE__, __LINE__,
                                    "Must have at least two colors in checkerboard");
-    static constexpr precision h = 0.5;
-    precision u = std::fmod(p.x, 1.0);
-    precision v = std::fmod(p.y, 1.0);
-    precision w = std::fmod(p.z, 1.0);
+    static constexpr precision h = 0.5_p;
+    precision u = std::fmod(p.x, 1.0_p);
+    precision v = std::fmod(p.y, 1.0_p);
+    precision w = std::fmod(p.z, 1.0_p);
 
     // there are 8 cases of p/ne (if you just do std::abs, you get a weird pattern)
     if (u >= 0 and v >= 0 and w >= 0) {
@@ -108,46 +108,46 @@ color checkerboard(raytrace::point const& p, palette const& pal) {
 
 color diagonal(raytrace::point const& p, palette const& pal) {
     basal::exception::throw_unless(pal.size() == 2, __FILE__, __LINE__, "Must have only two colors in checkerboard");
-    precision u = std::fmod(p.x, 1.0);
-    precision v = std::fmod(p.y, 1.0);
-    precision w = std::fmod(p.z, 1.0);
+    precision u = std::fmod(p.x, 1.0_p);
+    precision v = std::fmod(p.y, 1.0_p);
+    precision w = std::fmod(p.z, 1.0_p);
     precision upvw = u + v + w;
-    if ((0.0 <= upvw and upvw < 0.5)) {
+    if ((0.0_p <= upvw and upvw < 0.5_p)) {
         return pal[0];
-    } else if (0.5 <= upvw and upvw < 1.0) {
+    } else if (0.5_p <= upvw and upvw < 1.0_p) {
         return pal[1];
-    } else if (1.0 <= upvw and upvw < 1.5) {
+    } else if (1.0_p <= upvw and upvw < 1.5_p) {
         return pal[0];
-    } else {  // if (1.5 <= upvw and upvw < 2.0) {
+    } else {  // if (1.5_p <= upvw and upvw < 2.0_p) {
         return pal[1];
     }
 }
 
 color diagonal(image::point const& p, palette const& pal) {
     basal::exception::throw_unless(pal.size() == 2, __FILE__, __LINE__, "Must have only two colors in checkerboard");
-    precision u = std::fmod(p.x, 1.0);
-    precision v = std::fmod(p.y, 1.0);
+    precision u = std::fmod(p.x, 1.0_p);
+    precision v = std::fmod(p.y, 1.0_p);
     precision upv = u + v;
-    if ((0.0 <= upv and upv < 0.5)) {
+    if ((0.0_p <= upv and upv < 0.5_p)) {
         return pal[0];
-    } else if (0.5 <= upv and upv < 1.0) {
+    } else if (0.5_p <= upv and upv < 1.0_p) {
         return pal[1];
-    } else if (1.0 <= upv and upv < 1.5) {
+    } else if (1.0_p <= upv and upv < 1.5_p) {
         return pal[0];
-    } else {  // if (1.5 <= upv and upv < 2.0) {
+    } else {  // if (1.5_p <= upv and upv < 2.0_p) {
         return pal[1];
     }
 }
 
 color dots(image::point const& p, palette const& pal) {
     basal::exception::throw_unless(pal.size() == 2, __FILE__, __LINE__, "Must have only two colors in checkerboard");
-    precision u = std::abs(std::fmod(p.x, 1.0));
-    precision v = std::abs(std::fmod(p.y, 1.0));
-    precision h = 0.5;
+    precision u = std::abs(std::fmod(p.x, 1.0_p));
+    precision v = std::abs(std::fmod(p.y, 1.0_p));
+    precision h = 0.5_p;
     precision rx = std::abs(h - u);
     precision ry = std::abs(h - v);
     precision r = std::sqrt(rx * rx + ry * ry);
-    if (r < 0.3) {
+    if (r < 0.3_p) {
         return pal[1];
     } else {
         return pal[0];
@@ -156,15 +156,15 @@ color dots(image::point const& p, palette const& pal) {
 
 color dots(raytrace::point const& p, palette const& pal) {
     basal::exception::throw_unless(pal.size() == 2, __FILE__, __LINE__, "Must have only two colors in checkerboard");
-    precision u = std::abs(std::fmod(p.x, 1.0));
-    precision v = std::abs(std::fmod(p.y, 1.0));
-    precision w = std::abs(std::fmod(p.z, 1.0));
-    precision h = 0.5;
+    precision u = std::abs(std::fmod(p.x, 1.0_p));
+    precision v = std::abs(std::fmod(p.y, 1.0_p));
+    precision w = std::abs(std::fmod(p.z, 1.0_p));
+    precision h = 0.5_p;
     precision rx = std::abs(h - u);
     precision ry = std::abs(h - v);
     precision rz = std::abs(h - w);
     precision r = std::sqrt(rx * rx + ry * ry + rz * rz);
-    if (r < 0.3) {
+    if (r < 0.3_p) {
         return pal[1];
     } else {
         return pal[0];
@@ -173,10 +173,10 @@ color dots(raytrace::point const& p, palette const& pal) {
 
 color grid(image::point const& p, palette const& pal) {
     basal::exception::throw_unless(pal.size() == 2, __FILE__, __LINE__, "Must have only two colors in checkerboard");
-    precision u = std::abs(std::fmod(p.x, 1.0));
-    precision v = std::abs(std::fmod(p.y, 1.0));
-    precision const l = 0.0625;  // a 1/16
-    precision const a = 1.0 - l;
+    precision u = std::abs(std::fmod(p.x, 1.0_p));
+    precision v = std::abs(std::fmod(p.y, 1.0_p));
+    precision const l = 0.0625_p;  // a 1/16
+    precision const a = 1.0_p - l;
     if (l < u and u <= a and l < v and v <= a) {
         return pal[1];
     } else {
@@ -186,11 +186,11 @@ color grid(image::point const& p, palette const& pal) {
 
 color grid(raytrace::point const& p, palette const& pal) {
     basal::exception::throw_unless(pal.size() == 2, __FILE__, __LINE__, "Must have only two colors in checkerboard");
-    precision u = std::abs(std::fmod(p.x, 1.0));
-    precision v = std::abs(std::fmod(p.y, 1.0));
-    precision w = std::abs(std::fmod(p.z, 1.0));
-    precision const l = 0.0625;
-    precision const a = 1.0 - l;
+    precision u = std::abs(std::fmod(p.x, 1.0_p));
+    precision v = std::abs(std::fmod(p.y, 1.0_p));
+    precision w = std::abs(std::fmod(p.z, 1.0_p));
+    precision const l = 0.0625_p;
+    precision const a = 1.0_p - l;
     if (l < u and u <= a and l < v and v <= a and l < w and w <= a) {
         return pal[1];
     } else {
@@ -216,9 +216,9 @@ color pseudo_random_noise(image::point const& p, palette const& pal __attribute_
 
 color happy_face(raytrace::point const& p, palette const& pal) {
     basal::exception::throw_unless(pal.size() == 2, __FILE__, __LINE__, "Must have only two colors in happy-face");
-    precision u = std::abs(std::fmod(p.x, 1.0));
-    precision v = std::abs(std::fmod(p.y, 1.0));
-    // precision w = std::abs(std::fmod(p.z, 1.0));
+    precision u = std::abs(std::fmod(p.x, 1.0_p));
+    precision v = std::abs(std::fmod(p.y, 1.0_p));
+    // precision w = std::abs(std::fmod(p.z, 1.0_p));
     image::point uv{u, v};
     precision const eye_radius = 1.0_p / 9.0_p;
     precision const mouth_radius = 2.0_p / 9.0_p;
@@ -235,7 +235,7 @@ color happy_face(raytrace::point const& p, palette const& pal) {
     } else if (dmt < mouth_radius) {
         image::vector mv{0.0_p, -1.0_p};
         precision md = dot(mv, (uv - mc));
-        if (md < 0.0) {
+        if (md < 0.0_p) {
             return pal[0];
         }
     }
@@ -244,8 +244,8 @@ color happy_face(raytrace::point const& p, palette const& pal) {
 
 color happy_face(image::point const& p, palette const& pal) {
     basal::exception::throw_unless(pal.size() == 2, __FILE__, __LINE__, "Must have only two colors in happy-face");
-    precision u = std::abs(std::fmod(p.x, 1.0));
-    precision v = std::abs(std::fmod(p.y, 1.0));
+    precision u = std::abs(std::fmod(p.x, 1.0_p));
+    precision v = std::abs(std::fmod(p.y, 1.0_p));
     image::point uv{u, v};
     precision const eye_radius = 1.0_p / 9.0_p;
     precision const mouth_radius = 2.0_p / 9.0_p;
@@ -262,7 +262,7 @@ color happy_face(image::point const& p, palette const& pal) {
     } else if (dmt < mouth_radius) {
         image::vector mv{0.0_p, -1.0_p};
         precision md = dot(mv, (uv - mc));
-        if (md < 0.0) {
+        if (md < 0.0_p) {
             return pal[0];
         }
     }
@@ -281,9 +281,9 @@ void prn_parameters::initialize(bool again) {
     if (not _initialized or (_initialized and again)) {
         gain = 1.0_p;
         radius = 1.0_p;
-        theta_r = iso::radians(iso::tau * 0.5);
-        theta_g = iso::radians(iso::tau * 0.2);
-        theta_b = iso::radians(iso::tau * 0.8);
+        theta_r = iso::radians(iso::tau * 0.5_p);
+        theta_g = iso::radians(iso::tau * 0.2_p);
+        theta_b = iso::radians(iso::tau * 0.8_p);
         _initialized = true;
     }
 }

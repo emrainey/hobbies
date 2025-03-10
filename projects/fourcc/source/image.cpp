@@ -73,9 +73,9 @@ bool image<rgba, pixel_format::RGBA>::save(std::string filename) const {
             hdr.color_map.entry_size = 0;
             hdr.image_map.x_origin = 0;
             hdr.image_map.y_origin = 0;
-            hdr.image_map.image_width = width;
-            hdr.image_map.image_height = height;
-            hdr.image_map.pixel_depth = depth * 8;
+            hdr.image_map.image_width = width & 0xFFFFU;
+            hdr.image_map.image_height = height & 0xFFFFU;
+            hdr.image_map.pixel_depth = (depth & 0x0FU) * 8U;
             hdr.image_map.image_descriptor = 0;  // avoid complex interleaving
             fwrite(&hdr, sizeof(hdr), 1, fp);
             // identification string
@@ -144,9 +144,9 @@ bool image<rgb8, pixel_format::RGB8>::save(std::string filename) const {
             hdr.color_map.entry_size = 0;
             hdr.image_map.x_origin = 0;
             hdr.image_map.y_origin = 0;
-            hdr.image_map.image_width = width;
-            hdr.image_map.image_height = height;
-            hdr.image_map.pixel_depth = depth * 8;
+            hdr.image_map.image_width = width & 0xFFFFU;
+            hdr.image_map.image_height = height & 0xFFFFU;
+            hdr.image_map.pixel_depth = (depth & 0x0FU) * 8;
             hdr.image_map.image_descriptor = 0;  // avoid complex interleaving
             fwrite(&hdr, sizeof(hdr), 1, fp);
             // identification string
@@ -214,7 +214,7 @@ bool image<rgbh, pixel_format::RGBh>::save(std::string filename) const {
         channel.pLinear = 1;
         channel.sampling.x = 1;
         channel.sampling.y = 1;
-        attribute.size = (channel.Size() * 3u) + 1u;
+        attribute.size = static_cast<uint32_t>(channel.Size() * 3u) + 1u;
         attribute.Write(fp);
         channel.Write(fp);
         strncpy(channel.name, "G", sizeof(channel.name));
@@ -233,8 +233,8 @@ bool image<rgbh, pixel_format::RGBh>::save(std::string filename) const {
         openexr::Box2I dataWindow;
         dataWindow.min.x = 0;
         dataWindow.min.y = 0;
-        dataWindow.max.x = width - 1;
-        dataWindow.max.y = height - 1;
+        dataWindow.max.x = static_cast<int>(width - 1);
+        dataWindow.max.y = static_cast<int>(height - 1);
         attribute.name = "dataWindow";
         attribute.type = "box2i";
         attribute.size = sizeof(dataWindow);
@@ -244,8 +244,8 @@ bool image<rgbh, pixel_format::RGBh>::save(std::string filename) const {
         openexr::Box2I displayWindow;
         displayWindow.min.x = 0;
         displayWindow.min.y = 0;
-        displayWindow.max.x = width - 1;
-        displayWindow.max.y = height - 1;
+        displayWindow.max.x = static_cast<int>(width - 1);
+        displayWindow.max.y = static_cast<int>(height - 1);
         attribute.name = "displayWindow";
         attribute.type = "box2i";
         attribute.size = sizeof(displayWindow);
@@ -290,14 +290,14 @@ bool image<rgbh, pixel_format::RGBh>::save(std::string filename) const {
             tiledesc.round_mode = openexr::TileDescriptor::RoundMode::RoundDown;
             attribute.name = "tiles";
             attribute.type = "tiledesc";
-            attribute.size = tiledesc.Size();
+            attribute.size = static_cast<uint32_t>(tiledesc.Size());
             attribute.Write(fp);
             tiledesc.Write(fp);
         }
 
         fwrite(&zero, sizeof(zero), 1, fp);  // end of the header
         // get the current position of the file
-        size_t header_end = ftell(fp);
+        size_t header_end = static_cast<size_t>(ftell(fp));
         size_t scan_line_pixel_data_size = (width * pixel_size);
         size_t offset_table_size = (height * sizeof(std::uint64_t));
         // allocate the scan line offset table
@@ -313,7 +313,7 @@ bool image<rgbh, pixel_format::RGBh>::save(std::string filename) const {
         // write the scan line offset table (32 bit offsets)
         fwrite(scan_line_offset_table, sizeof(std::uint64_t), height, fp);
 
-        size_t here = ftell(fp);
+        size_t here = static_cast<size_t>(ftell(fp));
         basal::exception::throw_unless(here == image_data_start, __func__, __LINE__,
                                        "File offset %zu but should be %zu\r\n", here, image_data_start);
 
@@ -329,7 +329,7 @@ bool image<rgbh, pixel_format::RGBh>::save(std::string filename) const {
 
         for_each([&](rgbh const& pixel) -> void {
             if (column == 0) {
-                size_t offset = ftell(fp);
+                size_t offset = static_cast<size_t>(ftell(fp));
                 basal::exception::throw_if(offset != scan_line_offset_table[row], __func__, __LINE__,
                                            "File offset %zu but should be %zu, width=%zu\r\n", offset,
                                            scan_line_offset_table[row], width);

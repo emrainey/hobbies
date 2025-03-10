@@ -4,37 +4,37 @@
 namespace nn {
 
 precision sigmoid(precision x) {
-    precision s = 1.0 / (1.0 + std::exp(-x));
-    if (s == -0.0) {
-        s = 0.0;
+    precision s = 1.0_p / (1.0_p + std::exp(-x));
+    if (s == -0.0_p) {
+        s = 0.0_p;
     }
     return s;
 }
 
 precision sigmoid_deriv(precision x) {
-    return sigmoid(x) * (1.0 - sigmoid(x));
+    return sigmoid(x) * (1.0_p - sigmoid(x));
 }
 
 precision tanh_(precision x) {
-    // return 0.5 * (1.0 + std::tanh((x * 2.0) - 1.0));
-    // return tanh(2.0 * x);
+    // return 0.5_p * (1.0_p + std::tanh((x * 2.0_p) - 1.0_p));
+    // return tanh(2.0_p * x);
     return tanh(x);
 }
 
 precision tanh_deriv(precision x) {
-    // return 1.0 - (tanh(x-0.5) + tanh(x-0.5));
-    // return 2.0 - 2.0*(tanh(2.0*x) * tanh(2.0*x));
-    return 1.0 - (tanh(x) * tanh(x));
+    // return 1.0_p - (tanh(x-0.5_p) + tanh(x-0.5_p));
+    // return 2.0_p - 2.0*(tanh(2.0*x) * tanh(2.0*x));
+    return 1.0_p - (tanh(x) * tanh(x));
 }
 
 precision relu(precision x) {
-    return (x > 1.0 ? 1.0 : (x < 0.0 ? (x * leaky) : x));
-    // return (x > 1.0 ? 1.0 : (x < -1.0 ? -1.0 : x));
+    return (x > 1.0_p ? 1.0_p : (x < 0.0_p ? (x * leaky) : x));
+    // return (x > 1.0_p ? 1.0_p : (x < -1.0_p ? -1.0_p : x));
 }
 
 precision relu_deriv(precision x) {
-    return (x > 1.0 ? 0.0 : (x < 0.0 ? leaky : 1.0));
-    // return (x > 1.0 ? 0.0 : (x < -1.0 ? 0.0 : 1.0));
+    return (x > 1.0_p ? 0.0_p : (x < 0.0_p ? leaky : 1.0_p));
+    // return (x > 1.0_p ? 0.0_p : (x < -1.0_p ? 0.0_p : 1.0_p));
 }
 
 matrix sigmoid(matrix&& mat) {
@@ -101,13 +101,13 @@ matrix squared(matrix&& mat) {
 }
 
 precision sum(matrix const& mat) {
-    precision s = 0.0;
+    precision s = 0.0_p;
     mat.for_each([&](precision const& v) { s += v; });
     return s;
 }
 
 precision sum(matrix&& mat) {
-    precision s = 0.0;
+    precision s = 0.0_p;
     mat.for_each([&](precision& v) { s += v; });
     return s;
 }

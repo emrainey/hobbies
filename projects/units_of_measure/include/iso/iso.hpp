@@ -140,7 +140,7 @@ bool operator==(joules const& J, torque const& T);
 constexpr long double compute_pi(size_t digits) {
     using namespace basal::literals;
     long double pi = 0.0_p;
-    for (long double i = 0.0_p; i < digits; i += 1.0_p) {
+    for (long double i = 0.0_p; i < static_cast<double>(digits); i += 1.0_p) {
         long double denum = 1.0_p;
         for (long double j = i; j > 0; j -= 1.0_p) {
             denum *= 16.0_p;

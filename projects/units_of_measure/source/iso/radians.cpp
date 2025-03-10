@@ -96,10 +96,12 @@ iso::radians operator""_rad(long double a) {
     return iso::radians(static_cast<precision>(a));
 }
 iso::radians operator""_rad(unsigned long long a) {
-    return iso::radians(a);
+    return iso::radians(static_cast<precision>(a));
 }
 iso::radians operator""_rad(char const a[]) {
-    return iso::radians(atol(a));
+    iso::precision p = static_cast<iso::precision>(atol(a));
+    return iso::radians(p);
 }
 }  // namespace literals
 }  // namespace iso
+

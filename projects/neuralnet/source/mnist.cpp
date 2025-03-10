@@ -26,7 +26,7 @@ bool mnist::load() {
         return false;
     }
     uint32_t tmp = 0;
-    ssize_t elem = fread(&tmp, sizeof(tmp), 1, fimages);
+    size_t elem = fread(&tmp, sizeof(tmp), 1, fimages);
     if (elem == 1) {
         tmp = __builtin_bswap32(tmp);
         if (tmp != 2051) {

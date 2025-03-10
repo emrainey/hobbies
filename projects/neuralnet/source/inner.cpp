@@ -196,7 +196,7 @@ void inner::update(void) {
     if (count > 0) {
         weights += (delta_weights / 1);
         biases += (delta_biases / 1);
-        rms /= count;
+        rms /= static_cast<precision>(count);
         rms = sqrt(rms);
     }
 }

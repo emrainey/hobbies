@@ -96,10 +96,12 @@ iso::meters operator""_m(long double a) {
     return iso::meters(static_cast<precision>(a));
 }
 iso::meters operator""_m(unsigned long long a) {
-    return iso::meters(a);
+    return iso::meters(static_cast<precision>(a));
 }
 iso::meters operator""_m(char const a[]) {
-    return iso::meters(atol(a));
+    iso::precision p = static_cast<iso::precision>(atol(a));
+    return iso::meters(p);
 }
 }  // namespace literals
 }  // namespace iso
+

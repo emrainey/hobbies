@@ -96,10 +96,11 @@ iso::{{classname}} operator""_{{postfix}}(long double a) {
     return iso::{{classname}}(static_cast<precision>(a));
 }
 iso::{{classname}} operator""_{{postfix}}(unsigned long long a) {
-    return iso::{{classname}}(a);
+    return iso::{{classname}}(static_cast<precision>(a));
 }
 iso::{{classname}} operator""_{{postfix}}(char const a[]) {
-    return iso::{{classname}}(atol(a));
+    iso::precision p = static_cast<iso::precision>(atol(a));
+    return iso::{{classname}}(p);
 }
 }  // namespace literals
 }  // namespace iso

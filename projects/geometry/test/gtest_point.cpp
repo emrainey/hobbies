@@ -130,7 +130,7 @@ TEST(PointTest, ClassOperators) {
     ASSERT_PRECISION_EQ(p3[1], p1.y);
     ASSERT_PRECISION_EQ(p3[2], p1.z);
 
-    p3 *= 2.0;
+    p3 *= 2.0_p;
     ASSERT_PRECISION_EQ(10, p3[0]);
     ASSERT_PRECISION_EQ(14, p3[1]);
     ASSERT_PRECISION_EQ(18, p3[2]);
@@ -174,11 +174,11 @@ TEST(PointTest, Templates) {
 }
 
 TEST(PointTest, PointHomogenizing) {
-    point_<2> u(2.3, 4.5);
+    point_<2> u(2.3_p, 4.5_p);
     point_<3> v{u};  // homogenizing 2d->3d
-    ASSERT_PRECISION_EQ(2.3, v.x);
-    ASSERT_PRECISION_EQ(4.5, v.y);
-    ASSERT_PRECISION_EQ(1.0, v.z);
+    ASSERT_PRECISION_EQ(2.3_p, v.x);
+    ASSERT_PRECISION_EQ(4.5_p, v.y);
+    ASSERT_PRECISION_EQ(1.0_p, v.z);
 
     point_<3> p3{1, 2, 3};
     point_<4> p4{p3};  // homogenizing 3d->4d
@@ -212,10 +212,10 @@ TEST(PointTest, VectorToPoint) {
 TEST(PointTest, Scaling) {
     point<3> p1{{1, 2, 3}};
     point<3> p2{{0, 0, 0}};
-    p2 = p1 * 2.0;
+    p2 = p1 * 2.0_p;
     point p3{{2, 4, 6}};
     ASSERT_POINT_EQ(p3, p2);
-    p2 = 2.0 * p1;
+    p2 = 2.0_p * p1;
     ASSERT_POINT_EQ(p3, p2);
 }
 
@@ -244,12 +244,12 @@ TEST(PointTest, Centroid) {
     point<3> A{{2, 3, 4}};
     point<3> B{{-1, -10, 30}};
     point<3> C{{0, 4, -6}};
-    point<3> E{{1.0 / 3.0, -1.0, 28.0 / 3.0}};
+    point<3> E{{1.0_p / 3.0_p, -1.0_p, 28.0_p / 3.0_p}};
     R3::point D = centroid(A, B, C);
     ASSERT_POINT_EQ(E, D);
 
     R3::point F = centroid(A, B);
-    point<3> G{{0.5, -3.5, 17}};
+    point<3> G{{0.5_p, -3.5_p, 17}};
     ASSERT_POINT_EQ(G, F);
 }
 

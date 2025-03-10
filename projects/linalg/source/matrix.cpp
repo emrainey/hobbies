@@ -18,24 +18,24 @@ namespace linalg {
 static char const* g_filename = __FILE__;
 
 matrix matrix::zeros(size_t rows, size_t cols) {
-    return matrix{rows, cols}.fill(0.0);
+    return matrix{rows, cols}.fill(0.0_p);
 }
 
 matrix matrix::ones(size_t rows, size_t cols) {
-    return matrix{rows, cols}.fill(1.0);
+    return matrix{rows, cols}.fill(1.0_p);
 }
 
 matrix matrix::identity(size_t rows, size_t cols) {
-    ref_coord_iterator iter = [](size_t r, size_t c, precision& v) -> void { v = (r == c ? 1.0 : 0.0); };
+    ref_coord_iterator iter = [](size_t r, size_t c, precision& v) -> void { v = (r == c ? 1.0_p : 0.0_p); };
     return matrix{rows, cols}.for_each(iter);
 }
 
 matrix matrix::col(std::vector<precision>& data) {
-    return matrix(static_cast<int>(data.size()), 1, data.data());
+    return matrix(data.size(), 1U, data.data());
 }
 
 matrix matrix::row(std::vector<precision>& data) {
-    return matrix(1, static_cast<int>(data.size()), data.data());
+    return matrix(1U, data.size(), data.data());
 }
 
 // ****************************************************************************
@@ -107,13 +107,13 @@ matrix::matrix(matrix const& other) noexcept(false)
     if (create(rows, cols, bytes)) {
         memcpy(memory, other.memory, bytes);
         // copy row order
-        std::vector<int> ro(rows);
+        std::vector<ptrdiff_t> ro(rows);
         for (size_t r = 0; r < rows; r++) {
             ptrdiff_t pdiff = other.array[r] - other.memory;
-            ro[r] = pdiff / cols;
+            ro[r] = pdiff / static_cast<ptrdiff_t>(cols);
         }
         for (size_t r = 0; r < rows; r++) {
-            array[r] = &memory[ro[r] * cols];
+            array[r] = &memory[static_cast<size_t>(ro[r]) * cols];
         }
     }
 }
@@ -150,14 +150,14 @@ matrix& matrix::operator=(matrix const& other) noexcept(false) {
     if (this != &other) {
         memcpy(memory, other.memory, bytes);
         // copy row order by computing the pointer offsets
-        std::vector<int> ro(rows);
+        std::vector<ptrdiff_t> ro(rows);
         for (size_t r = 0; r < rows; r++) {
             ptrdiff_t pdiff = other.array[r] - other.memory;
-            ro[r] = pdiff / cols;
+            ro[r] = pdiff / static_cast<ptrdiff_t>(cols);
         }
         // and duplicating the same offsets from our memory
         for (size_t r = 0; r < rows; r++) {
-            array[r] = &memory[ro[r] * cols];
+            array[r] = &memory[static_cast<size_t>(ro[r]) * cols];
         }
     }
     return *this;
@@ -283,7 +283,7 @@ matrix& matrix::fill(precision v) {
 }
 
 matrix& matrix::zero() {
-    fill(0.0);
+    fill(0.0_p);
     return *this;
 }
 
@@ -422,7 +422,7 @@ matrix matrix::copy() {
 
 precision matrix::trace() const {
     basal::exception::throw_unless(rows == cols, g_filename, __LINE__);
-    precision sum = 0.0;
+    precision sum = 0.0_p;
     for (size_t i = 0; i < rows; i++) {
         sum += array[i][i];
     }
@@ -443,7 +443,7 @@ matrix matrix::T() const {
 }
 
 matrix& matrix::negative() {
-    operator*=(-1.0);
+    operator*=(-1.0_p);
     return (*this);
 }
 
@@ -542,7 +542,7 @@ matrix matrix::eigenvalues() const noexcept(false) {
         // solve the determinant
         // (a - L)*(d - L) - b*c = 0
         // a*d - d*L - a*L +L*L - b*c = 0
-        precision a = 1.0;
+        precision a = 1.0_p;
         precision b = -trace();
         precision c = determinant();
         auto roots = quadratic_roots(a, b, c);
@@ -562,10 +562,10 @@ matrix matrix::inverse() const noexcept(false) {
                                    "Must be a square matrix");  // no inverses for non square matrix
     matrix m{rows, cols};
     precision det = determinant();
-    basal::exception::throw_unless(det != 0.0, g_filename, __LINE__, "Matrix is singular, not invertible");
+    basal::exception::throw_unless(det != 0.0_p, g_filename, __LINE__, "Matrix is singular, not invertible");
 
     if (rows == 1) {
-        m[0][0] = 1.0 / det;
+        m[0][0] = 1.0_p / det;
     } else if (rows == 2) {
         m[0][0] = array[1][1] / det;
         m[0][1] = -array[0][1] / det;
@@ -573,7 +573,7 @@ matrix matrix::inverse() const noexcept(false) {
         m[1][1] = array[0][0] / det;
     } else {
         using namespace operators;
-        return (1.0 / det) * adjugate();
+        return (1.0_p / det) * adjugate();
     }
     return m;
 }
@@ -623,7 +623,7 @@ precision matrix::minor(size_t nrow, size_t ncol) const {
 }
 
 precision matrix::cofactor(size_t nrow, size_t ncol) const {
-    return minor(nrow, ncol) * pow(-1.0, (nrow + 1) + (ncol + 1));
+    return minor(nrow, ncol) * pow(-1.0_p, (nrow + 1) + (ncol + 1));
 }
 
 matrix matrix::minors() const {
@@ -641,7 +641,7 @@ matrix matrix::adjugate() const {
 }
 
 precision matrix::determinant() const noexcept(false) {
-    precision det = 0.0;
+    precision det = 0.0_p;
     basal::exception::throw_unless(rows == cols, g_filename, __LINE__, "Must be a square matrix");
     statistics::get().matrix_determinants++;
     if (rows == 1) {
@@ -670,7 +670,7 @@ matrix matrix::random(size_t rows, size_t cols, precision min, precision max, pr
     // std::default_random_engine re;
     std::random_device rd;
     std::mt19937 gen(rd());
-    ref_iterator iter = [&](precision& v) { v = std::ceil(unif(gen) * std::pow(10.0, p)) / std::pow(10.0, p); };
+    ref_iterator iter = [&](precision& v) { v = std::ceil(unif(gen) * std::pow(10.0_p, p)) / std::pow(10.0_p, p); };
     return R.for_each(iter);
 }
 
@@ -678,7 +678,7 @@ matrix& matrix::random(precision min, precision max, precision p) {
     std::uniform_real_distribution<precision> unif(min, max);
     std::random_device rd;
     std::mt19937 gen(rd());
-    ref_iterator iter = [&](precision& v) { v = std::ceil(unif(gen) * std::pow(10.0, p)) / std::pow(10.0, p); };
+    ref_iterator iter = [&](precision& v) { v = std::ceil(unif(gen) * std::pow(10.0_p, p)) / std::pow(10.0_p, p); };
     return for_each(iter);
 }
 
@@ -929,11 +929,11 @@ matrix& matrix::eschelon(size_t stop_col) {
         sort_leading_nonzero(c, r, lr);  // in this column
         // printf("Pivot: %E\n", array[r][c]);
         // r aught to be on the pivot then
-        row_scale(r, 1.0 / array[r][c]);
+        row_scale(r, 1.0_p / array[r][c]);
         for (size_t i = r + 1; i < rows; i++) {
             if (!basal::nearly_zero(array[i][c])) {
-                row_scale(i, -1.0 / array[i][c]);
-                row_add(i, r, 1.0);
+                row_scale(i, -1.0_p / array[i][c]);
+                row_add(i, r, 1.0_p);
             }
         }
         // reset counters
@@ -957,7 +957,7 @@ matrix& matrix::reduce(size_t stop_row) {
         // pivot column
         size_t pc = lnz[i];
         // pivot row
-        size_t pr = static_cast<int>(i);
+        size_t pr = i;
         // zero row gets skipped
         if (pc == std::numeric_limits<size_t>::max()) {
             continue;
@@ -1089,7 +1089,7 @@ matrix matrix::nullspace() const noexcept(false) {
                 if (bpv[br] == true)  // variable is not a free variable in another column
                     B[br][nf] = C[cr++][0];
                 else
-                    B[br][nf] = 0.0;  // column is a free variable in another column
+                    B[br][nf] = 0.0_p;  // column is a free variable in another column
             } else if (br == c) {
                 B[br][nf] = 1;  // column is the free variable in this spot
             }
@@ -1160,7 +1160,7 @@ matrix multiply(matrix const& a, matrix const& b) noexcept(false) {
     statistics::get().matrix_multiply++;
     for (size_t r = 0; r < m.rows; r++) {
         for (size_t c = 0; c < m.cols; c++) {
-            m[r][c] = 0.0;
+            m[r][c] = 0.0_p;
             for (size_t i = 0; i < a.cols; i++) {
                 m[r][c] += (a[r][i] * b[i][c]);
                 // printf("m[%u][%u] = %lf += (%lf * %lf)\n", r, c, m[r][c], a[r][i], b[i][c]);

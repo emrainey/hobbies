@@ -64,8 +64,8 @@ void sobel_mask(image<iyu2, pixel_format::IYU2> const& iyu2_image, image<uint8_t
     mask.for_each([&](size_t y, size_t x, uint8_t& pixel) {
         int16_t a = grad_x.at(y, x);
         int16_t b = grad_y.at(y, x);
-        int32_t c = std::sqrt(a * a + b * b);
-        pixel = std::min(c, 255);
+        int32_t c = static_cast<int32_t>(std::sqrt((a * a) + (b * b)));
+        pixel = static_cast<uint8_t>(std::min(c, 255));
     });
 }
 
@@ -83,9 +83,9 @@ void convert(image<rgb8, pixel_format::RGB8> const& in, image<iyu2, pixel_format
             int32_t y_ = (int32_t)Y;
             int32_t u_ = (int32_t)Cb + 128;
             int32_t v_ = (int32_t)Cr + 128;
-            uint8_t _u = (u_ > 255 ? 255 : (u_ < 0 ? 0 : u_));
-            uint8_t _y = (y_ > 255 ? 255 : (y_ < 0 ? 0 : y_));
-            uint8_t _v = (v_ > 255 ? 255 : (v_ < 0 ? 0 : v_));
+            uint8_t _u = (u_ > 255 ? 255 : (u_ < 0 ? 0U : static_cast<uint8_t>(u_)));
+            uint8_t _y = (y_ > 255 ? 255 : (y_ < 0 ? 0U : static_cast<uint8_t>(y_)));
+            uint8_t _v = (v_ > 255 ? 255 : (v_ < 0 ? 0U : static_cast<uint8_t>(v_)));
             iyu2 pixel;
             pixel.u = _u;
             pixel.y = _y;
@@ -105,12 +105,14 @@ void convolve(image<int16_t, pixel_format::Y16>& out, int16_t const (&kernel)[3]
                 for (int i = -1; i <= 1; i++) {
                     div += kernel[j + 1][i + 1];
                     uint8_t v = 0;
+                    size_t h = static_cast<size_t>(static_cast<int>(x) + i);
+                    size_t k = static_cast<size_t>(static_cast<int>(y) + j);
                     if (channel == channel::R) {
-                        v = input.at(y + j, x + i).r;
+                        v = input.at(k, h).r;
                     } else if (channel == channel::G) {
-                        v = input.at(y + j, x + i).g;
+                        v = input.at(k, h).g;
                     } else if (channel == channel::B) {
-                        v = input.at(y + j, x + i).b;
+                        v = input.at(k, h).b;
                     }
                     sum += v * kernel[j + 1][i + 1];
                 }
@@ -123,7 +125,7 @@ void convolve(image<int16_t, pixel_format::Y16>& out, int16_t const (&kernel)[3]
             }
             sum = 0;
             div = 0;
-            out.at(y, x) = value;
+            out.at(y, x) = static_cast<int16_t>(value);
         }
     }
 }
@@ -138,12 +140,14 @@ void convolve(image<int16_t, pixel_format::Y16>& out, int16_t const (&kernel)[3]
                 for (int i = -1; i <= 1; i++) {
                     div += kernel[j + 1][i + 1];
                     uint8_t v = 0;
+                    size_t h = static_cast<size_t>(static_cast<int>(x) + i);
+                    size_t k = static_cast<size_t>(static_cast<int>(y) + j);
                     if (channel == channel::Y) {
-                        v = input.at(y + j, x + i).y;
+                        v = input.at(k, h).y;
                     } else if (channel == channel::U) {
-                        v = input.at(y + j, x + i).u;
+                        v = input.at(k, h).u;
                     } else if (channel == channel::V) {
-                        v = input.at(y + j, x + i).v;
+                        v = input.at(k, h).v;
                     }
                     sum += v * kernel[j + 1][i + 1];
                 }
@@ -156,7 +160,7 @@ void convolve(image<int16_t, pixel_format::Y16>& out, int16_t const (&kernel)[3]
             }
             sum = 0;
             div = 0;
-            out.at(y, x) = value;
+            out.at(y, x) = static_cast<int16_t>(value);
         }
     }
 }
@@ -202,9 +206,11 @@ void filter(image<rgb8, pixel_format::RGB8>& output, image<rgb8, pixel_format::R
             int16_t b = 0;
             for (int j = -1; j <= 1; j++) {
                 for (int i = -1; i <= 1; i++) {
-                    r += kernel[j + 1][i + 1] * input.at(y + j, x + i).r;
-                    g += kernel[j + 1][i + 1] * input.at(y + j, x + i).g;
-                    b += kernel[j + 1][i + 1] * input.at(y + j, x + i).b;
+                    size_t h = static_cast<size_t>(static_cast<int>(x) + i);
+                    size_t k = static_cast<size_t>(static_cast<int>(y) + j);
+                    r += kernel[j + 1][i + 1] * input.at(k, h).r;
+                    g += kernel[j + 1][i + 1] * input.at(k, h).g;
+                    b += kernel[j + 1][i + 1] * input.at(k, h).b;
                 }
             }
             output.at(y, x).r = uint8_t(clamp<int16_t>(r / sum, 0, 255));

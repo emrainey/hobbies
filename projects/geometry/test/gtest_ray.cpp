@@ -26,10 +26,10 @@ TEST(RayTests, RayCross) {
 
 TEST(RayTests, InvalidCross) {
     R3::point o;  // defaults to origin
-    R3::vector x{{1.0, 0.0, 0.0}};
+    R3::vector x{{1.0_p, 0.0_p, 0.0_p}};
     R3::ray a{o, x};
-    R3::point w{1.0, 1.0, 1.0};
-    R3::vector v{{-1.0, -1.0, -1.0}};
+    R3::point w{1.0_p, 1.0_p, 1.0_p};
+    R3::vector v{{-1.0_p, -1.0_p, -1.0_p}};
     R3::ray j{w, v};
     // Can't cross rays if they aren't at the same point
     ASSERT_THROW(R3::ray f = cross(a, j), basal::exception);

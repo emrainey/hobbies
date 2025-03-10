@@ -18,7 +18,7 @@ point Bounds::center() const {
     if (not is_infinite()) {
         auto vmin = min - R3::origin;
         auto vmax = max - R3::origin;
-        auto v = (vmin + vmax) / 2.0;
+        auto v = (vmin + vmax) / 2.0_p;
         return R3::origin + v;
     } else {
         // if the bounds are infinite on both sides, then the center is origin R3::origin

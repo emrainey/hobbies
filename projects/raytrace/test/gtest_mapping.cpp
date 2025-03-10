@@ -17,7 +17,7 @@ TEST(MappingTest, GoldenRatio) {
         // compute the distance to the origin and it should always be ~1.0
         geometry::R3::vector R = points[i] - geometry::R3::origin;
         precision D = R.magnitude();
-        ASSERT_FLOAT_EQ(1.0, D) << i << "/" << count << " Point is " << points[i];
+        ASSERT_FLOAT_EQ(1.0_p, D) << i << "/" << count << " Point is " << points[i];
     }
     // FIXME add more assumptions here about the spread of the golden ratio points across the sphere.
 }

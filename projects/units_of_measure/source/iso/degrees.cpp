@@ -8,7 +8,7 @@
 #include "iso/degrees.hpp"
 
 namespace iso {
-char const* const suffix_type_d::suffix;
+char const* const suffix_type_deg::suffix;
 // default
 degrees::degrees() : measurement{} {
 }
@@ -96,10 +96,12 @@ iso::degrees operator""_deg(long double a) {
     return iso::degrees(static_cast<precision>(a));
 }
 iso::degrees operator""_deg(unsigned long long a) {
-    return iso::degrees(a);
+    return iso::degrees(static_cast<precision>(a));
 }
 iso::degrees operator""_deg(char const a[]) {
-    return iso::degrees(atol(a));
+    iso::precision p = static_cast<iso::precision>(atol(a));
+    return iso::degrees(p);
 }
 }  // namespace literals
 }  // namespace iso
+

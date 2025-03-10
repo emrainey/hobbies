@@ -38,7 +38,7 @@ public:
         , s3x1{raytrace::point{-15, -15, 5}, 5}
         , ikea_checkerboard{5, colors::yellow, colors::blue}
         , s3x2{raytrace::point{0, -15, 5}, 5}
-        , ikea_voxelboard{0.5, colors::yellow, colors::blue}
+        , ikea_voxelboard{0.5_p, colors::yellow, colors::blue}
         , s3x3{raytrace::point{15, -15, 5}, 5} {
         raytrace::point center = look_at;
         s1x1.material(&dull);
@@ -80,7 +80,7 @@ public:
     raytrace::color background(raytrace::ray const& world_ray) const override {
         iso::radians A = angle(R3::basis::Z, world_ray.direction());
         precision B = A.value / iso::pi;
-        return color(0.8 * B, 0.8 * B, 0.8 * B);
+        return color(0.8_p * B, 0.8_p * B, 0.8_p * B);
     }
 
     void add_to(scene& scene) override {

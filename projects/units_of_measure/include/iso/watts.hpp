@@ -16,7 +16,7 @@ namespace iso {
 
 /// A structure used to hold the postfix for watts
 struct suffix_type_W {
-    constexpr static char const* suffix = "W";
+    constexpr static char const *suffix = "W";
 };
 
 ///
@@ -72,27 +72,27 @@ public:
 };
 
 namespace operators {
-/// Addition operator
-watts operator+(watts const& A, watts const& B);
-/// Subtraction operator
-watts operator-(watts const& A, watts const& B);
-/// Left Scaling Operator
-watts operator*(watts const& A, precision factor);
-/// Right Scaling Operator
-watts operator*(precision factor, watts const& A);
-/// Inverse Scaling Operator
-watts operator/(watts const& A, precision factor);
-/// Scale factor
-precision operator/(watts const& A, watts const& B);
-}  // namespace operators
+    /// Addition operator
+    watts operator+(watts const& A, watts const& B);
+    /// Subtraction operator
+    watts operator-(watts const& A, watts const& B);
+    /// Left Scaling Operator
+    watts operator*(watts const& A, precision factor);
+    /// Right Scaling Operator
+    watts operator*(precision factor, watts const& A);
+    /// Inverse Scaling Operator
+    watts operator/(watts const& A, precision factor);
+    /// Scale factor
+    precision operator/(watts const& A, watts const& B);
+}
 
 namespace literals {
-/// Literal Double, Quote Operator
-watts operator""_W(long double value);
-/// Literal Int, Quote Operator
-watts operator""_W(unsigned long long value);
-/// Literal String, Quote Operator
-iso::watts operator""_W(char const a[]);
-}  // namespace literals
+    /// Literal Double, Quote Operator
+    watts operator""_W(long double value);
+    /// Literal Int, Quote Operator
+    watts operator""_W(unsigned long long value);
+    /// Literal String, Quote Operator
+    iso::watts operator""_W(char const a[]);
+}
 
-}  // namespace iso
+}

@@ -9,7 +9,7 @@ stereo_camera::stereo_camera(size_t image_height, size_t image_width, iso::degre
     , m_toe_in{0u}
     , m_layout{layout}
     , m_cameras{{image_height, image_width, field_of_view}, {image_height, image_width, field_of_view}} {
-    basal::exception::throw_if((m_separation < 0.0), __FILE__, __LINE__,
+    basal::exception::throw_if((m_separation < 0.0_p), __FILE__, __LINE__,
                                "The camera separation %lf must be greater than 0.", m_separation);
 }
 
@@ -20,8 +20,8 @@ void stereo_camera::move_to(point const& look_from, point const& look_at) {
     // compute the actual up vector
     raytrace::vector up = cross(right, look);
     // the offsets from the look_from
-    raytrace::vector left_camera_offset = -right * (m_separation * 0.5);
-    raytrace::vector right_camera_offset = right * (m_separation * 0.5);
+    raytrace::vector left_camera_offset = -right * (m_separation * 0.5_p);
+    raytrace::vector right_camera_offset = right * (m_separation * 0.5_p);
     // using the offsets, compute the positions
     raytrace::point left_camera_position = look_from + left_camera_offset;
     raytrace::point right_camera_position = look_from + right_camera_offset;

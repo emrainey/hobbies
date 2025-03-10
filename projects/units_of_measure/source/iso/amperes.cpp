@@ -96,10 +96,12 @@ iso::amperes operator""_A(long double a) {
     return iso::amperes(static_cast<precision>(a));
 }
 iso::amperes operator""_A(unsigned long long a) {
-    return iso::amperes(a);
+    return iso::amperes(static_cast<precision>(a));
 }
 iso::amperes operator""_A(char const a[]) {
-    return iso::amperes(atol(a));
+    iso::precision p = static_cast<iso::precision>(atol(a));
+    return iso::amperes(p);
 }
 }  // namespace literals
 }  // namespace iso
+

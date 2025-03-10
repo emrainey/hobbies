@@ -16,16 +16,16 @@ camera::camera(size_t image_height, size_t image_width, iso::degrees field_of_vi
     , capture{image_height, image_width}
     , mask{image_height, image_width}
     , m_intrinsics{matrix::identity(raytrace::dimensions, raytrace::dimensions)}
-    , m_pixel_scale{1.0}  // will be computed in a second
+    , m_pixel_scale{1.0_p}  // will be computed in a second
     , m_field_of_view{field_of_view}
-    , m_world_look_at{1.0, 0.0, 0.0}
+    , m_world_look_at{1.0_p, 0.0_p, 0.0_p}
     , m_world_look{m_world_look_at - m_world_position}  // position starts at 0,0,0
     , m_world_up{R3::basis::Z}
     , m_world_left{R3::basis::Y} {
     // compute f so that pixel_scale will remain 1 at first.
     iso::radians rfov;
     iso::convert(rfov, m_field_of_view);
-    precision f = (image_width / 2) / std::tan(rfov.value / 2.0);
+    precision f = (static_cast<precision>(image_width) / 2.0_p) / std::tan(rfov.value / 2.0_p);
     m_world_look_at.x = f;
 
     // the rotation from camera (+Z forward, -Y up) to world frame (+Z up, +X forward)
@@ -35,7 +35,7 @@ camera::camera(size_t image_height, size_t image_width, iso::degrees field_of_vi
     m_camera_to_object_rotation = r2 * r1;
 
     // rotation matrix always must have a determinant of 1
-    assert(basal::nearly_equals(det(m_camera_to_object_rotation), 1.0));
+    assert(basal::nearly_equals(det(m_camera_to_object_rotation), 1.0_p));
 
     // we can't move anything until the camera to world rotation has been computed, as we use it.
     move_to(m_world_position, m_world_look_at);
@@ -48,9 +48,9 @@ camera::camera(camera&& other)
     , capture{other.capture.height, other.capture.width}  // create our own
     , mask{other.mask.height, other.mask.width}
     , m_intrinsics{matrix::identity(raytrace::dimensions, raytrace::dimensions)}
-    , m_pixel_scale{1.0}  // will be computed in a second
+    , m_pixel_scale{1.0_p}  // will be computed in a second
     , m_field_of_view{other.m_field_of_view}
-    , m_world_look_at{1.0, 0.0, 0.0}
+    , m_world_look_at{1.0_p, 0.0_p, 0.0_p}
     , m_world_look{other.m_world_look_at - other.m_world_position}  // position starts at 0,0,0
     , m_world_up{R3::basis::Z}
     , m_world_left{R3::basis::Y} {
@@ -67,25 +67,21 @@ void camera::move_to(point const& look_from, point const& look_at) {
         std::cout << "Look At " << look_at << std::endl;
         std::cout << "World Look " << world_look << std::endl;
     }
-    if (world_look.magnitude() == 0.0) {
-        throw basal::exception("From and At are the same point", __FILE__, __LINE__);
-    }
+    basal::exception::throw_if(basal::nearly_zero(world_look.magnitude()), __FILE__, __LINE__,
+                               "Look vector can't be zero");
     // create the left by crossing with up (+Z)
     vector world_up = R3::basis::Z;
     // check that the vectors aren't the same
-    if (world_look.normalized() == world_up) {
-        throw basal::exception("Can't look straight up +Z or down -Z", __FILE__, __LINE__);
-    }
+    basal::exception::throw_if(world_look.normalized() == world_up, __FILE__, __LINE__,
+                               "Can't look straight up +Z or down -Z");
 
     vector world_left = R3::cross(world_up, world_look);
     if constexpr (debug) {
         std::cout << "World Left " << world_left << std::endl;
     }
-    if (world_left.magnitude() == 0.0) {
-        throw basal::exception(
-            "Look and Up are co-linear, unable to cross. This camera assumes +Z is up in world coordinates", __FILE__,
-            __LINE__);
-    }
+    basal::exception::throw_if(
+        basal::nearly_zero(world_left.magnitude()), __FILE__, __LINE__,
+        "Look and Up are co-linear, unable to cross. This camera assumes +Z is up in world coordinates");
     //==========================================================
     // now update the variables that we've passed the exceptions
     m_world_position = look_from;
@@ -120,15 +116,15 @@ void camera::move_to(point const& look_from, point const& look_at) {
 
     // update the intrinsics which converts the focal distance into scaling for pixel
     iso::radians phi;  // half of the field of view
-    iso::convert(phi, m_field_of_view * 0.5);
+    iso::convert(phi, m_field_of_view * 0.5_p);
     precision w = precision(capture.width);
     precision h = precision(capture.height);
-    m_pixel_scale = 2.0 * image_distance * std::tan(phi.value) / w;
+    m_pixel_scale = 2.0_p * image_distance * std::tan(phi.value) / w;
     m_intrinsics[0][0] = m_pixel_scale;
     m_intrinsics[1][1] = m_pixel_scale;
     m_intrinsics[2][2] = image_distance;
-    m_intrinsics[0][2] = -((w / 2.0) * m_pixel_scale);  // primary point x
-    m_intrinsics[1][2] = -((h / 2.0) * m_pixel_scale);  // primary point y
+    m_intrinsics[0][2] = -((w / 2.0_p) * m_pixel_scale);  // primary point x
+    m_intrinsics[1][2] = -((h / 2.0_p) * m_pixel_scale);  // primary point y
 
     // now verify the look_at by casting a ray through the principal point and determine what t the look_at is at
     // (should be zero).

@@ -36,18 +36,18 @@ TEST(ColorTest, Assignment) {
 }
 
 TEST(ColorTest, Logarithmic) {
-    color tmp(0.7, 0.5, 0.2);  // starts in linear
+    color tmp(0.7_p, 0.5_p, 0.2_p);  // starts in linear
     // convert to log
     tmp.to_space(color::space::logarithmic);
     // check values
-    ASSERT_NEAR(tmp.red(), 0.44798841244188325, basal::epsilon);
-    ASSERT_NEAR(tmp.green(), 0.21404114048223255, basal::epsilon);
-    ASSERT_NEAR(tmp.blue(), 0.033104766570885055, basal::epsilon);
+    ASSERT_NEAR(tmp.red(), 0.44798841244188325_p, basal::epsilon);
+    ASSERT_NEAR(tmp.green(), 0.21404114048223255_p, basal::epsilon);
+    ASSERT_NEAR(tmp.blue(), 0.033104766570885055_p, basal::epsilon);
 }
 
 TEST(ColorTest, Scaling) {
     color g = grey;
-    g *= 2.0;  // scale 0.5 to 1.0
+    g *= 2.0_p;  // scale 0.5_p to 1.0
     ASSERT_TRUE(g == white);
 }
 
@@ -66,7 +66,7 @@ TEST(ColorTest, RGBAComponents) {
 }
 
 TEST(ColorTest, Accumulate) {
-    color qtr(0.25, 0.25, 0.25);
+    color qtr(0.25_p, 0.25_p, 0.25_p);
     color value;
     value += qtr;
     value += qtr;
@@ -76,16 +76,16 @@ TEST(ColorTest, Accumulate) {
 }
 
 TEST(ColorTest, ChannelComponents) {
-    precision gg = 0.73536062;
+    precision gg = 0.73536062_p;
     color w = colors::white;
     w.per_channel([&](precision c) -> precision { return c * gg; });
     ASSERT_COLOR_EQ(w, colors::grey);
 }
 
 TEST(ColorTest, PairWiseMult) {
-    color w{0.5, 0.25, 0.75};
-    color v{0.5, 1.0, 0.8};
-    color u{0.25, 0.25, 0.6};
+    color w{0.5_p, 0.25_p, 0.75_p};
+    color v{0.5_p, 1.0_p, 0.8_p};
+    color u{0.25_p, 0.25_p, 0.6_p};
     color t = w * v;
     ASSERT_COLOR_EQ(u, t);
 }

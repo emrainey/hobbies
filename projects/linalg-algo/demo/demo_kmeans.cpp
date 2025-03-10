@@ -39,7 +39,7 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
         iteration++;
         printf("Iteration %zu, Error %lf\r", iteration, error);
         linalg::plot_points(std::string("k-means"), points, km.indexes(), colors, 1);
-    } while (error > 0.1);
+    } while (error > 0.1_p);
     printf("Error is %lf after %zu iterations\n", error, iteration);
     linalg::plot_points(std::string("k-means"), points, km.indexes(), colors, 120);
     return 0;

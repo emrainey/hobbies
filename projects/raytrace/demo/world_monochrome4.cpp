@@ -64,7 +64,7 @@ public:
         // this creates a gradient from top to bottom
         iso::radians A = angle(R3::basis::Z, world_ray.direction());
         precision B = A.value / iso::pi;
-        return color(0.8 * B, 0.8 * B, 0.8 * B);
+        return color(0.8_p * B, 0.8_p * B, 0.8_p * B);
     }
 
     void add_to(scene& scene) override {

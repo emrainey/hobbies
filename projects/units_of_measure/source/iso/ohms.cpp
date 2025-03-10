@@ -96,10 +96,12 @@ iso::ohms operator""_Ohm(long double a) {
     return iso::ohms(static_cast<precision>(a));
 }
 iso::ohms operator""_Ohm(unsigned long long a) {
-    return iso::ohms(a);
+    return iso::ohms(static_cast<precision>(a));
 }
 iso::ohms operator""_Ohm(char const a[]) {
-    return iso::ohms(atol(a));
+    iso::precision p = static_cast<iso::precision>(atol(a));
+    return iso::ohms(p);
 }
 }  // namespace literals
 }  // namespace iso
+

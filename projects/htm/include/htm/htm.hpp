@@ -159,7 +159,7 @@ protected:
     float const minimum_strength;
 
 public:
-    network_() : minimum_overlap(2.0_p), minimum_activate(0.8_p), minimum_strength(0.7_p) {
+    network_() : minimum_overlap(2.0f), minimum_activate(0.8f), minimum_strength(0.7f) {
         srand(time(nullptr));
         for (size_t j = 0; j < H; j++) {
             for (size_t i = 0; i < W; i++) {

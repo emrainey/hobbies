@@ -76,17 +76,17 @@ hits torus::collisions_along(ray const& object_ray) const {
         precision a = ii_jj_kk * ii_jj_kk;
         // t^3 terms: 4*t^3(xi^3 + yj^3 + zk^3 + i^2(j+k) + j^2(i+k) + k^2(j+i))
         // simplified: 4*ii_jj_kk*ix_jy_kz
-        precision b = 4.0 * ii_jj_kk * ix_jy_kz;
+        precision b = 4.0_p * ii_jj_kk * ix_jy_kz;
         // t^2 terms: 2*(i^2(q^2-r^2) + j^2(q^2-r^2) + k^2(q^2-r^2)
         //               + x^2(3i^2+j^2+k^) + y^2(i^2+3j^2+k^2) + z^2(i^2+j^+3k^2)
         //               + 4(ijxy + ikxz + jkyz))
         // simplified: 2*ii_jj_kk*(xx_yy_zz+rr_qq) +
         //             4*ix_jy_kz*ix_jy_kz + 4*qq*kk
-        precision c = 2.0 * ii_jj_kk * xx_yy_zz_rr_qq + 4.0 * ix_jy_kz * ix_jy_kz;
+        precision c = 2.0_p * ii_jj_kk * xx_yy_zz_rr_qq + 4.0_p * ix_jy_kz * ix_jy_kz;
         // t^1 terms: 4*(ix(q^2-r^2)+jy(q^2-r^2)+kz(q^2-r^2) + ix^3 + jy^3 + kz^3
         //               + x^2(jy+kz) + y^2(ix+kz) + z^2(ix+jy))
         // simplified: 4*(xx_yy_zz - rr_qq)*ix_jy_kz + 8.0*qq*kz
-        precision d = 4.0 * xx_yy_zz_rr_qq * ix_jy_kz;
+        precision d = 4.0_p * xx_yy_zz_rr_qq * ix_jy_kz;
         // t^0 terms; q^4 + r^4 + x^4 + y^4 + z^4
         //            + 2q^2(x^2+y^2+z^2) - 2r^2(q^2+x^2+y^2+z^2)
         //            + 2(x^2y^2 + x^2z^2 + y^2z^2)
@@ -94,9 +94,9 @@ hits torus::collisions_along(ray const& object_ray) const {
         precision e = xx_yy_zz_rr_qq * xx_yy_zz_rr_qq;
         // corrections from the other side of the squaring
         // c -= 4*qq*(ii + jj);
-        c += 4.0 * qq * kk;
+        c += 4.0_p * qq * kk;
         // d -= 8*qq*(ix + jy);
-        d += 8.0 * qq * kz;
+        d += 8.0_p * qq * kz;
         // e -= 4*qq*(xx + yy);
         e -= 4 * qq * (rr - zz);
         // now the terms are in the format needed (ax^4+bx^3+cx^2+dx+e = 0)

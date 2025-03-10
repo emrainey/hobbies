@@ -96,10 +96,12 @@ iso::volts operator""_V(long double a) {
     return iso::volts(static_cast<precision>(a));
 }
 iso::volts operator""_V(unsigned long long a) {
-    return iso::volts(a);
+    return iso::volts(static_cast<precision>(a));
 }
 iso::volts operator""_V(char const a[]) {
-    return iso::volts(atol(a));
+    iso::precision p = static_cast<iso::precision>(atol(a));
+    return iso::volts(p);
 }
 }  // namespace literals
 }  // namespace iso
+

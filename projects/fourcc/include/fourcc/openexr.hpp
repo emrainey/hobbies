@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <cstdint>
 #include <filesystem>
+#include <basal/basal.hpp>
 
 /// A namespace to hold the defined structures of the OpenEXR format
 /// @see https://openexr.com/en/latest/OpenEXRFileLayout.html
@@ -275,7 +276,8 @@ struct TileDescriptor : public Serializable {
     inline void Write(FILE* fp) override {
         fwrite(&x_size, sizeof(x_size), 1, fp);
         fwrite(&y_size, sizeof(y_size), 1, fp);
-        std::uint8_t mode = static_cast<std::uint8_t>(level_mode) | (static_cast<std::uint8_t>(round_mode) << 4);
+        std::uint8_t mode
+            = basal::to_underlying(level_mode) | static_cast<uint8_t>(basal::to_underlying(round_mode) << 4);
         fwrite(&mode, sizeof(mode), 1, fp);
     }
 
@@ -302,7 +304,7 @@ struct ScanLine : public Serializable {
 
     inline void Write(FILE* fp) override {
         fwrite(&number, sizeof(number), 1, fp);
-        std::uint32_t pixel_data_size = data.size();
+        std::uint32_t pixel_data_size = static_cast<uint32_t>(data.size());
         fwrite(&pixel_data_size, sizeof(pixel_data_size), 1, fp);
         fwrite(data.data(), sizeof(std::uint8_t), data.size(), fp);
         // std::cout << "Wrote " << data.size() << " bytes of pixel data" << std::endl;

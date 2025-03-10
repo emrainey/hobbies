@@ -62,10 +62,10 @@ TEST(SceneTest, LowResSpheres) {
     using namespace raytrace::objects;
 
     // define an object
-    raytrace::objects::sphere s0{raytrace::point{4, 0, 0}, 0.50};
-    raytrace::objects::sphere s1{raytrace::point{4, -2, 0}, 0.75};
-    raytrace::objects::sphere s2{raytrace::point{4, 2, 0}, 0.25};
-    raytrace::mediums::checkerboard c0{6.0, colors::red, colors::green};
+    raytrace::objects::sphere s0{raytrace::point{4, 0, 0}, 0.50_p};
+    raytrace::objects::sphere s1{raytrace::point{4, -2, 0}, 0.75_p};
+    raytrace::objects::sphere s2{raytrace::point{4, 2, 0}, 0.25_p};
+    raytrace::mediums::checkerboard c0{6.0_p, colors::red, colors::green};
     raytrace::lights::beam sunlight{raytrace::vector{0, 0, -1}, raytrace::colors::white, lights::intensities::blinding};
     s0.material(&c0);
     s1.material(&raytrace::mediums::metals::bronze);

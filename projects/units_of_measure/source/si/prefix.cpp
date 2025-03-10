@@ -7,7 +7,8 @@ namespace SI {
 
 namespace operators {
 iso::precision operator*(iso::precision const a, SI::prefix p) {
-    return a * pow(10.0, static_cast<iso::precision>(p));
+    double const base{10.0};
+    return a * pow(base, static_cast<iso::precision>(p));
 }
 
 }  // namespace operators

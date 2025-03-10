@@ -20,8 +20,8 @@ TEST(FaceTest, Basics) {
     raytrace::vector n = f.normal(D);
     EXPECT_VECTOR_EQ(R3::basis::Z, f.normal(D));
     image::point p = f.map(R3::origin);
-    EXPECT_PRECISION_EQ(p[0], 1.0 / 3.0_p);
-    EXPECT_PRECISION_EQ(p[1], 1.0 / 3.0_p);
+    EXPECT_PRECISION_EQ(p[0], 1.0_p / 3.0_p);
+    EXPECT_PRECISION_EQ(p[1], 1.0_p / 3.0_p);
 
     raytrace::objects::face f2{f};
     EXPECT_POINT_EQ(raytrace::point(1.0_p / 3.0_p, 1.0_p / 3.0_p, 0.0_p / 3.0_p), f2.position());

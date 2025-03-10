@@ -44,7 +44,7 @@ public:
                 // move the sphere to the correct location
                 spheres[s]->move_by(mover);
                 // pick the color based on the position
-                raytrace::color c = j % 2 == 0 ? colors::red : colors::green;
+                raytrace::color c = ((j % 2) == 0) ? colors::red : colors::green;
                 // create a plain material for each sphere
                 precision smooth = 1.0_p * (precision)i / (precision)number_of_spheres_per_side;
                 precision rough = 1.0_p * (precision)j / (precision)number_of_spheres_per_side;
@@ -107,8 +107,8 @@ public:
 
     raytrace::animation::anchors get_anchors() const override {
         raytrace::animation::anchors anchors;
-        anchors.push_back(animation::Anchor{animation::Attributes{look_from, look_at, iso::degrees{55.0}},
-                                            animation::Attributes{look_from, look_at, iso::degrees{55.0}},
+        anchors.push_back(animation::Anchor{animation::Attributes{look_from, look_at, iso::degrees{55.0_p}},
+                                            animation::Attributes{look_from, look_at, iso::degrees{55.0_p}},
                                             animation::Mappers{}, iso::seconds{1.0_p}});
         return anchors;
     }

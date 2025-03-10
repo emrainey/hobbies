@@ -51,7 +51,7 @@ namespace literals {
 /// Special String Quote Operator
 inline uint64_t operator""_kilobytes(long long unsigned int a) {
     using namespace operators;
-    return a * SI::prefix::kilo;
+    return static_cast<uint64_t>(static_cast<iso::precision>(a) * SI::prefix::kilo);
 }
 }  // namespace literals
 }  // namespace SI

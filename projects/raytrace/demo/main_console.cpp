@@ -79,7 +79,7 @@ public:
         move(row, lb);
         addch('[');
         for (size_t x = lb + 1; x < (m_width - rb); x++) {
-            precision here = 100.0 * (x - lb) / span;
+            precision here = 100.0_p * (x - lb) / span;
             move(row, x);
             if (here <= percent) {
                 addch('*');
@@ -200,11 +200,11 @@ int main(int argc, char* argv[]) {
                 count += (p ? 1 : 0);
                 return p;
             });
-            precision percentage = 100.0 * count / completed.size();
+            precision percentage = 100.0_p * count / completed.size();
             bool done = (count == completed.size());
             if (state == State::MENU) {
                 size_t h = console.get_height() - 2;  // account for border
-                console.print(h - 1, 2, " >> PROGRESS [ %0.3lf %%]", done ? 100.0 : percentage);
+                console.print(h - 1, 2, " >> PROGRESS [ %0.3lf %%]", done ? 100.0_p : percentage);
                 console.progress(h, percentage);
 
                 console.print(9, 2, "GEOMETRY");

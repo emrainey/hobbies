@@ -66,10 +66,10 @@ public:
     point& operator*=(precision s) noexcept(false);
 
     /// Indexer
-    precision& operator[](int i);
+    precision& operator[](size_t i);
 
     /// Indexer for Const objects
-    precision operator[](int i) const;
+    precision operator[](size_t i) const;
 
     /// Clears the point to zero values
     void zero();

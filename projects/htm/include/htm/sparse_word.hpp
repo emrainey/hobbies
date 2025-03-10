@@ -54,7 +54,7 @@ public:
     void set(size_t index) {
         // printf("size_t index %zu of %zu\n", index, BITS);
         index %= BITS;
-        bits.push_back(index);
+        bits.push_back(index & 0xFFFFU);
         correct();  // this will sort
     }
 
@@ -112,7 +112,7 @@ public:
         size_t num = std::tgamma(BITS + 1);
         size_t n_w = BITS - population();
         size_t den = std::tgamma(population() + 1) * std::tgamma(n_w + 1);
-        return ((float)num / den);
+        return ((float)num / (float)den);
     }
 
     float sparsity() const {

@@ -126,7 +126,7 @@ bool plane::contains(R3::point const& pt) const {
     constexpr bool use_vector_method = false;
     constexpr bool use_equation_method = true;  // seems like the fewest steps
     constexpr bool use_distance_method = false;
-    precision value = 1.0;  // checking for nearly_equals to zero so initialize to nonzero
+    precision value = 1.0_p;  // checking for nearly_equals to zero so initialize to nonzero
     // static_assert(use_distance_method or use_equation_method or use_vector_method, "Only one should be active");
 
     // determine if pt is in the plane by the vector method, the equation method and the distance method
@@ -137,7 +137,7 @@ bool plane::contains(R3::point const& pt) const {
         // which will be zero when normal and v are perpendicular
         value = dot(v, m_normal);
     } else {
-        value = 1.0;
+        value = 1.0_p;
     }
     bool const vector_method = basal::nearly_zero(value);
 
@@ -145,7 +145,7 @@ bool plane::contains(R3::point const& pt) const {
         // solve the equation with this point and it must be zero
         value = pt.x * eq.a + pt.y * eq.b + pt.z * eq.c + eq.d;
     } else {
-        value = 1.0;
+        value = 1.0_p;
     }
     bool const equation_method = basal::nearly_zero(value);
 
@@ -153,7 +153,7 @@ bool plane::contains(R3::point const& pt) const {
         // find the distance from the plane
         value = distance(pt);
     } else {
-        value = 1.0;
+        value = 1.0_p;
     }
     bool const distance_method = basal::nearly_zero(value);
 
@@ -163,8 +163,8 @@ bool plane::contains(R3::point const& pt) const {
 }
 
 bool plane::contains(R3::line const& l) const {
-    R3::point p1 = l.solve(0);
-    R3::point p2 = l.solve(1.0);
+    R3::point p1 = l.solve(0.0_p);
+    R3::point p2 = l.solve(1.0_p);
     return (contains(p1) && contains(p2));
 }
 
@@ -195,7 +195,7 @@ precision plane::angle(plane const& P) const {
 
 std::ostream& operator<<(std::ostream& os, plane const& p) {
     os << "plane(" << p.coefficient().a << "x+" << p.coefficient().b << "y+" << p.coefficient().c << "z+"
-       << p.coefficient().d << "=0)";
+       << p.coefficient().d << "=0.0_p)";
     return os;
 }
 

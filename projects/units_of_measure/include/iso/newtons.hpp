@@ -16,7 +16,7 @@ namespace iso {
 
 /// A structure used to hold the postfix for newtons
 struct suffix_type_N {
-    constexpr static char const* suffix = "N";
+    constexpr static char const *suffix = "N";
 };
 
 ///
@@ -72,27 +72,27 @@ public:
 };
 
 namespace operators {
-/// Addition operator
-newtons operator+(newtons const& A, newtons const& B);
-/// Subtraction operator
-newtons operator-(newtons const& A, newtons const& B);
-/// Left Scaling Operator
-newtons operator*(newtons const& A, precision factor);
-/// Right Scaling Operator
-newtons operator*(precision factor, newtons const& A);
-/// Inverse Scaling Operator
-newtons operator/(newtons const& A, precision factor);
-/// Scale factor
-precision operator/(newtons const& A, newtons const& B);
-}  // namespace operators
+    /// Addition operator
+    newtons operator+(newtons const& A, newtons const& B);
+    /// Subtraction operator
+    newtons operator-(newtons const& A, newtons const& B);
+    /// Left Scaling Operator
+    newtons operator*(newtons const& A, precision factor);
+    /// Right Scaling Operator
+    newtons operator*(precision factor, newtons const& A);
+    /// Inverse Scaling Operator
+    newtons operator/(newtons const& A, precision factor);
+    /// Scale factor
+    precision operator/(newtons const& A, newtons const& B);
+}
 
 namespace literals {
-/// Literal Double, Quote Operator
-newtons operator""_N(long double value);
-/// Literal Int, Quote Operator
-newtons operator""_N(unsigned long long value);
-/// Literal String, Quote Operator
-iso::newtons operator""_N(char const a[]);
-}  // namespace literals
+    /// Literal Double, Quote Operator
+    newtons operator""_N(long double value);
+    /// Literal Int, Quote Operator
+    newtons operator""_N(unsigned long long value);
+    /// Literal String, Quote Operator
+    iso::newtons operator""_N(char const a[]);
+}
 
-}  // namespace iso
+}

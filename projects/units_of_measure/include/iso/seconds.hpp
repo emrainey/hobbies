@@ -16,7 +16,7 @@ namespace iso {
 
 /// A structure used to hold the postfix for seconds
 struct suffix_type_sec {
-    constexpr static char const* suffix = "sec";
+    constexpr static char const *suffix = "sec";
 };
 
 ///
@@ -72,27 +72,27 @@ public:
 };
 
 namespace operators {
-/// Addition operator
-seconds operator+(seconds const& A, seconds const& B);
-/// Subtraction operator
-seconds operator-(seconds const& A, seconds const& B);
-/// Left Scaling Operator
-seconds operator*(seconds const& A, precision factor);
-/// Right Scaling Operator
-seconds operator*(precision factor, seconds const& A);
-/// Inverse Scaling Operator
-seconds operator/(seconds const& A, precision factor);
-/// Scale factor
-precision operator/(seconds const& A, seconds const& B);
-}  // namespace operators
+    /// Addition operator
+    seconds operator+(seconds const& A, seconds const& B);
+    /// Subtraction operator
+    seconds operator-(seconds const& A, seconds const& B);
+    /// Left Scaling Operator
+    seconds operator*(seconds const& A, precision factor);
+    /// Right Scaling Operator
+    seconds operator*(precision factor, seconds const& A);
+    /// Inverse Scaling Operator
+    seconds operator/(seconds const& A, precision factor);
+    /// Scale factor
+    precision operator/(seconds const& A, seconds const& B);
+}
 
 namespace literals {
-/// Literal Double, Quote Operator
-seconds operator""_sec(long double value);
-/// Literal Int, Quote Operator
-seconds operator""_sec(unsigned long long value);
-/// Literal String, Quote Operator
-iso::seconds operator""_sec(char const a[]);
-}  // namespace literals
+    /// Literal Double, Quote Operator
+    seconds operator""_sec(long double value);
+    /// Literal Int, Quote Operator
+    seconds operator""_sec(unsigned long long value);
+    /// Literal String, Quote Operator
+    iso::seconds operator""_sec(char const a[]);
+}
 
-}  // namespace iso
+}

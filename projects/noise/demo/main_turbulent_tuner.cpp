@@ -22,12 +22,12 @@ fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8> pad_image(noise::pad::di
 // the render image
 cv::Mat render_image(height, width, CV_8UC3);
 cv::Mat render_pad_image(noise::pad::dimensions, noise::pad::dimensions, CV_8UC3);
-noise::precision x_scale = 1.0;
-noise::precision y_scale = 1.0;
-noise::precision power = 1.0;
-noise::precision size = 32.0;
+noise::precision x_scale = 1.0_p;
+noise::precision y_scale = 1.0_p;
+noise::precision power = 1.0_p;
+noise::precision size = 32.0_p;
 // The initialize scale value
-noise::precision scale = 256.0;
+noise::precision scale = 256.0_p;
 // the map of noise values (generate once)
 noise::pad map;
 
@@ -140,10 +140,10 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
                 should_render = true;
                 break;  // (CR) ENTER
             case '[':
-                scale -= 1.0;
+                scale -= 1.0_p;
                 break;
             case ']':
-                scale += 1.0;
+                scale += 1.0_p;
                 break;
             default:
                 break;

@@ -9,27 +9,27 @@ using namespace raytrace::colors;
 using namespace raytrace::operators;
 
 TEST(LightTest, SpeckLightColor) {
-    raytrace::point source(0.0, 0.0, 0.0);
-    raytrace::point surface_point(0.0, 0.0, 0.0);
+    raytrace::point source(0.0_p, 0.0_p, 0.0_p);
+    raytrace::point surface_point(0.0_p, 0.0_p, 0.0_p);
     vector diff = source - surface_point;
-    lights::speck light0(source, colors::white, 1.0);
-    ASSERT_FLOAT_EQ(1.0, light0.intensity_at(surface_point));
+    lights::speck light0(source, colors::white, 1.0_p);
+    ASSERT_FLOAT_EQ(1.0_p, light0.intensity_at(surface_point));
     ASSERT_TRUE(colors::white == light0.color_at(surface_point));
 }
 
 TEST(LightTest, InverseSquareLawRange) {
     for (precision d = 0.0_p; d < 10.0_p; d += 0.0625_p) {
-        raytrace::point source(0.0, 0.0, d);
-        raytrace::point surface_point(0.0, 0.0, 0.0);
+        raytrace::point source(0.0_p, 0.0_p, d);
+        raytrace::point surface_point(0.0_p, 0.0_p, 0.0_p);
         vector diff = source - surface_point;
 
-        lights::speck light0(source, colors::white, 1.0);
+        lights::speck light0(source, colors::white, 1.0_p);
 
         // Specks obey some form of fade which drops off as distance increases
         precision intensity = light0.intensity_at(surface_point);
-        ASSERT_GE(1.0, intensity);
+        ASSERT_GE(1.0_p, intensity);
         ASSERT_GE(1.0_p / d, intensity) << "The simple distance law is not obeyed";
-        ASSERT_LE(0.0, intensity);
+        ASSERT_LE(0.0_p, intensity);
     }
 }
 
@@ -72,7 +72,7 @@ TEST(LightTest, DISABLED_TriColorSpots) {
 TEST(LightTest, DISABLED_BulbTest) {
     raytrace::objects::sphere shape(raytrace::point{0, 0, 3}, 3);
     raytrace::objects::plane floor(raytrace::point{0, 0, 0}, R3::basis::Z);
-    raytrace::lights::bulb light(raytrace::point{0, 0, 9}, 0.2, colors::white, lights::intensities::blinding, 100);
+    raytrace::lights::bulb light(raytrace::point{0, 0, 9}, 0.2_p, colors::white, lights::intensities::blinding, 100);
     raytrace::scene scene;
     raytrace::camera view(480, 640, iso::degrees(55));
     view.move_to(raytrace::point{30, 30, 30}, raytrace::point{29, 29, 29});

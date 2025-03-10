@@ -22,12 +22,12 @@ fourcc::image<fourcc::yf, fourcc::pixel_format::YF> noise_image(height, width);
 // the render image
 cv::Mat render_image(height, width, CV_32FC1);  // CV_8UC3);
 size_t octaves = 6;
-noise::precision lacunarity = 2.0;
-noise::precision gain = 0.5;
-noise::precision amplitude = 0.5;
-noise::precision frequency = 1.0;
-iso::degrees angle{81};
-noise::precision magnitude = 78.0;
+noise::precision lacunarity = 2.0_p;
+noise::precision gain = 0.5_p;
+noise::precision amplitude = 0.5_p;
+noise::precision frequency = 1.0_p;
+iso::degrees angle{81.0_p};
+noise::precision magnitude = 78.0_p;
 noise::vector seed = noise::convert_to_seed(angle);
 constexpr static bool debug = false;
 

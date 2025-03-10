@@ -11,7 +11,7 @@
 using namespace raytrace;
 
 TEST(LensTest, Raycast) {
-    precision const lens_diameter = 10.0;
+    precision const lens_diameter = 10.0_p;
     iso::radians const half_angle = iso::radians(iso::pi / 4);
     ConvexLensData info{lens_diameter, half_angle};
     printf("Diameter: %f, Angle: %f, Radius: %f, Separation: %f, Bulge: %f\n", lens_diameter, half_angle.value,
@@ -19,7 +19,7 @@ TEST(LensTest, Raycast) {
     raytrace::objects::sphere x0{raytrace::point{info.separation, 0, 0}, info.radius};
     raytrace::objects::sphere x1{raytrace::point{-info.separation, 0, 0}, info.radius};
     raytrace::objects::overlap convex_lens{x0, x1, objects::overlap::type::inclusive};
-    raytrace::mediums::transparent glass{mediums::refractive_index::glass, 0.22, colors::dark_gray};
+    raytrace::mediums::transparent glass{mediums::refractive_index::glass, 0.22_p, colors::dark_gray};
     convex_lens.material(&glass);
     EXPECT_POINT_EQ(raytrace::point(0, 0, 0), convex_lens.position());
     convex_lens.position(raytrace::point{0, 0, 5});

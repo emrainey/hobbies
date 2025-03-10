@@ -17,7 +17,7 @@ cuboid::cuboid(point const& center, precision xhw, precision yhw, precision zhw)
     m_half_widths[1] = yhw;
     m_half_widths[2] = zhw;
     for (auto width : m_half_widths) {
-        basal::exception::throw_if(width == 0.0, __FILE__, __LINE__, "Half-width can't be zero");
+        basal::exception::throw_if(basal::nearly_zero(width), __FILE__, __LINE__, "Half-width can't be zero");
     }
     m_faces[0] = point(x_half_width, 0, 0);
     m_faces[1] = point(-x_half_width, 0, 0);
@@ -37,7 +37,7 @@ cuboid::cuboid(point&& center, precision xhw, precision yhw, precision zhw)
     m_half_widths[1] = yhw;
     m_half_widths[2] = zhw;
     for (auto width : m_half_widths) {
-        basal::exception::throw_if(width == 0.0, __FILE__, __LINE__, "Half-width can't be zero");
+        basal::exception::throw_if(basal::nearly_zero(width), __FILE__, __LINE__, "Half-width can't be zero");
     }
     m_faces[0] = point(x_half_width, 0, 0);
     m_faces[1] = point(-x_half_width, 0, 0);
@@ -135,44 +135,44 @@ hits cuboid::collisions_along(ray const& object_ray) const {
 image::point cuboid::map(point const& object_surface_point) const {
     // map some range of object 3D points to some 2D u,v pair
     // isolate which axis this is on and return the forward_transformed normal
-    precision u = 0.0, v = 0.0;
+    precision u = 0.0_p, v = 0.0_p;
 
     if (basal::nearly_equals(object_surface_point.x, x_half_width)) {
         // positive yz plane
         // u = -y -> +y
-        u = ((object_surface_point.y / (2.0 * y_half_width)) + 0.5);
+        u = ((object_surface_point.y / (2.0_p * y_half_width)) + 0.5_p);
         // v = +z -> -z
-        v = -((object_surface_point.z / (2.0 * z_half_width)) - 0.5);
+        v = -((object_surface_point.z / (2.0_p * z_half_width)) - 0.5_p);
     } else if (basal::nearly_equals(object_surface_point.x, -x_half_width)) {
         // negative yz plane
         // u = +y -> -y
-        u = -((object_surface_point.y / (2.0 * y_half_width)) - 0.5);
+        u = -((object_surface_point.y / (2.0_p * y_half_width)) - 0.5_p);
         // v = +z -> -z
-        v = -((object_surface_point.z / (2.0 * z_half_width)) - 0.5);
+        v = -((object_surface_point.z / (2.0_p * z_half_width)) - 0.5_p);
     } else if (basal::nearly_equals(object_surface_point.y, y_half_width)) {
         // positive xz plane
         // u = +x -> -x
-        u = -((object_surface_point.x / (2.0 * x_half_width)) - 0.5);
+        u = -((object_surface_point.x / (2.0_p * x_half_width)) - 0.5_p);
         // v = +z -> -z
-        v = -((object_surface_point.z / (2.0 * z_half_width)) - 0.5);
+        v = -((object_surface_point.z / (2.0_p * z_half_width)) - 0.5_p);
     } else if (basal::nearly_equals(object_surface_point.y, -y_half_width)) {
         // negative xz plane
         // u = -x -> +x
-        u = ((object_surface_point.x / (2.0 * x_half_width)) + 0.5);
+        u = ((object_surface_point.x / (2.0_p * x_half_width)) + 0.5_p);
         // v = +z -> -z
-        v = -((object_surface_point.z / (2.0 * z_half_width)) - 0.5);
+        v = -((object_surface_point.z / (2.0_p * z_half_width)) - 0.5_p);
     } else if (basal::nearly_equals(object_surface_point.z, z_half_width)) {
         // positive xy plane
         // u = +x -> -x
-        u = -((object_surface_point.x / (2.0 * x_half_width)) - 0.5);
+        u = -((object_surface_point.x / (2.0_p * x_half_width)) - 0.5_p);
         // v = +y -> -y
-        v = -((object_surface_point.y / (2.0 * y_half_width)) - 0.5);
+        v = -((object_surface_point.y / (2.0_p * y_half_width)) - 0.5_p);
     } else if (basal::nearly_equals(object_surface_point.z, -z_half_width)) {
         // negative xy plane
         // u = -x -> +x
-        u = ((object_surface_point.x / (2.0 * x_half_width)) + 0.5);
+        u = ((object_surface_point.x / (2.0_p * x_half_width)) + 0.5_p);
         // v = +y -> -y
-        v = -((object_surface_point.y / (2.0 * y_half_width)) - 0.5);
+        v = -((object_surface_point.y / (2.0_p * y_half_width)) - 0.5_p);
     }
 
     // if all the clauses miss, then it returns 0,0

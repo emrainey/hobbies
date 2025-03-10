@@ -96,10 +96,12 @@ iso::grams operator""_g(long double a) {
     return iso::grams(static_cast<precision>(a));
 }
 iso::grams operator""_g(unsigned long long a) {
-    return iso::grams(a);
+    return iso::grams(static_cast<precision>(a));
 }
 iso::grams operator""_g(char const a[]) {
-    return iso::grams(atol(a));
+    iso::precision p = static_cast<iso::precision>(atol(a));
+    return iso::grams(p);
 }
 }  // namespace literals
 }  // namespace iso
+

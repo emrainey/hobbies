@@ -96,10 +96,12 @@ iso::newtons operator""_N(long double a) {
     return iso::newtons(static_cast<precision>(a));
 }
 iso::newtons operator""_N(unsigned long long a) {
-    return iso::newtons(a);
+    return iso::newtons(static_cast<precision>(a));
 }
 iso::newtons operator""_N(char const a[]) {
-    return iso::newtons(atol(a));
+    iso::precision p = static_cast<iso::precision>(atol(a));
+    return iso::newtons(p);
 }
 }  // namespace literals
 }  // namespace iso
+

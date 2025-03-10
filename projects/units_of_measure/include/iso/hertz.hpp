@@ -16,7 +16,7 @@ namespace iso {
 
 /// A structure used to hold the postfix for hertz
 struct suffix_type_Hz {
-    constexpr static char const* suffix = "Hz";
+    constexpr static char const *suffix = "Hz";
 };
 
 ///
@@ -72,27 +72,27 @@ public:
 };
 
 namespace operators {
-/// Addition operator
-hertz operator+(hertz const& A, hertz const& B);
-/// Subtraction operator
-hertz operator-(hertz const& A, hertz const& B);
-/// Left Scaling Operator
-hertz operator*(hertz const& A, precision factor);
-/// Right Scaling Operator
-hertz operator*(precision factor, hertz const& A);
-/// Inverse Scaling Operator
-hertz operator/(hertz const& A, precision factor);
-/// Scale factor
-precision operator/(hertz const& A, hertz const& B);
-}  // namespace operators
+    /// Addition operator
+    hertz operator+(hertz const& A, hertz const& B);
+    /// Subtraction operator
+    hertz operator-(hertz const& A, hertz const& B);
+    /// Left Scaling Operator
+    hertz operator*(hertz const& A, precision factor);
+    /// Right Scaling Operator
+    hertz operator*(precision factor, hertz const& A);
+    /// Inverse Scaling Operator
+    hertz operator/(hertz const& A, precision factor);
+    /// Scale factor
+    precision operator/(hertz const& A, hertz const& B);
+}
 
 namespace literals {
-/// Literal Double, Quote Operator
-hertz operator""_Hz(long double value);
-/// Literal Int, Quote Operator
-hertz operator""_Hz(unsigned long long value);
-/// Literal String, Quote Operator
-iso::hertz operator""_Hz(char const a[]);
-}  // namespace literals
+    /// Literal Double, Quote Operator
+    hertz operator""_Hz(long double value);
+    /// Literal Int, Quote Operator
+    hertz operator""_Hz(unsigned long long value);
+    /// Literal String, Quote Operator
+    iso::hertz operator""_Hz(char const a[]);
+}
 
-}  // namespace iso
+}

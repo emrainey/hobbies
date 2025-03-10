@@ -20,7 +20,7 @@ exception::exception(std::string desc, std::string loc, std::size_t line)
     : std::exception{}, description{desc}, location{loc}, line_number{line} {
 #if defined(__linux__) || defined(__APPLE__)
     if (support_backtrace) {
-        size = backtrace(stack.data(), stack.size());
+        size = static_cast<size_t>(backtrace(stack.data(), stack.size()));
         // print out all the frames to stderr
         stack_strings = backtrace_symbols(stack.data(), size);
         if (stack_strings) {

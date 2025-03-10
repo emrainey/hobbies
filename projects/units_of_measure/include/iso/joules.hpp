@@ -16,7 +16,7 @@ namespace iso {
 
 /// A structure used to hold the postfix for joules
 struct suffix_type_J {
-    constexpr static char const* suffix = "J";
+    constexpr static char const *suffix = "J";
 };
 
 ///
@@ -72,27 +72,27 @@ public:
 };
 
 namespace operators {
-/// Addition operator
-joules operator+(joules const& A, joules const& B);
-/// Subtraction operator
-joules operator-(joules const& A, joules const& B);
-/// Left Scaling Operator
-joules operator*(joules const& A, precision factor);
-/// Right Scaling Operator
-joules operator*(precision factor, joules const& A);
-/// Inverse Scaling Operator
-joules operator/(joules const& A, precision factor);
-/// Scale factor
-precision operator/(joules const& A, joules const& B);
-}  // namespace operators
+    /// Addition operator
+    joules operator+(joules const& A, joules const& B);
+    /// Subtraction operator
+    joules operator-(joules const& A, joules const& B);
+    /// Left Scaling Operator
+    joules operator*(joules const& A, precision factor);
+    /// Right Scaling Operator
+    joules operator*(precision factor, joules const& A);
+    /// Inverse Scaling Operator
+    joules operator/(joules const& A, precision factor);
+    /// Scale factor
+    precision operator/(joules const& A, joules const& B);
+}
 
 namespace literals {
-/// Literal Double, Quote Operator
-joules operator""_J(long double value);
-/// Literal Int, Quote Operator
-joules operator""_J(unsigned long long value);
-/// Literal String, Quote Operator
-iso::joules operator""_J(char const a[]);
-}  // namespace literals
+    /// Literal Double, Quote Operator
+    joules operator""_J(long double value);
+    /// Literal Int, Quote Operator
+    joules operator""_J(unsigned long long value);
+    /// Literal String, Quote Operator
+    iso::joules operator""_J(char const a[]);
+}
 
-}  // namespace iso
+}

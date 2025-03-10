@@ -41,7 +41,7 @@ inline vector snell(vector const& N, vector const& I, precision eta1, precision 
 inline vector lambertian(vector const& N, point const& I) {
     // pick a random number in a power of two range so we don't have to use %, instead use &
     size_t const range = (1U << 16U);
-    size_t const value = rand() & (range - 1U);
+    size_t const value = static_cast<size_t>(rand() & static_cast<int>(range - 1U));
     // use the golden ratio mapper to find a point on the unit sphere then make it a vector from the unit center
     raytrace::vector P = (mapping::golden_ratio_mapper(value, range) - geometry::R3::origin);
     // since the sphere is a sphere we don't need to rotate or scale the point

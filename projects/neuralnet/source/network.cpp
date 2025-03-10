@@ -55,26 +55,25 @@ network::~network() {
 }
 
 void network::forward() {
-    int index = -1;
+    size_t index{0u};
     for_each([&](layer& _layer) {
         if (_layer.isa(layer::type::input)) {
             // printf("i");
             _layer.forward();
         } else if (_layer.isa(layer::type::hidden)) {
             // printf("h");
-            _layer.forward(get(index));
+            _layer.forward(get(index++));
         } else if (_layer.isa(layer::type::output)) {
             // printf("o");
-            _layer.forward(get(index));
+            _layer.forward(get(index++));
         }
-        index++;
     });
     // printf(">");
 }
 
 void network::backward(precision alpha, precision gamma) {
     basal::exception::throw_unless(layers.size() > 2, __FILE__, __LINE__);
-    for (int index = layers.size() - 1; index >= 0; index--) {
+    for (size_t index = layers.size() - 1U; index >= 0; index--) {
         layer& _layer = (*layers[index]);
         if (_layer.isa(layer::type::input)) {
             _layer.backward();
@@ -82,6 +81,9 @@ void network::backward(precision alpha, precision gamma) {
             _layer.backward(get(index - 1), alpha, gamma);
         } else if (_layer.isa(layer::type::output)) {
             _layer.backward(get(index - 1), alpha, gamma);
+        }
+        if (index == 0) {
+            break;
         }
     }
 }
@@ -145,7 +147,7 @@ static void print(cv::Mat& img, cv::Point& pt, char const fmt[], ...) {
     va_start(list, fmt);
     vsnprintf(buffer, sizeof(buffer), fmt, list);
     va_end(list);
-    precision scl = 0.5;
+    precision scl = 0.5_p;
     int thickness = 1;
     int baseline = 0;
     int fontFace = cv::FONT_HERSHEY_SCRIPT_SIMPLEX;
@@ -175,15 +177,15 @@ static cv::Size compute_complete_dimensions(std::vector<std::vector<cv::Mat>>& i
             ix += border;
             // will scale this up to to fit the exact scale_to
             if (img.rows < scale_to and img.cols == 1) {
-                int scale_factor = (int)std::round((float)scale_to / img.rows);
+                int scale_factor = (int)std::round((float)scale_to / (float)img.rows);
                 rects[lidx].push_back(cv::Rect(ix, border, scale_factor, scale_to));
             } else if (img.rows == img.cols) {
                 // square weights should scale up to a integer multiple under or at the scale_to
-                int scale_factor = (int)std::round((float)scale_to / img.rows);
+                int scale_factor = (int)std::round((float)scale_to / (float)img.rows);
                 rects[lidx].push_back(cv::Rect(ix, border, scale_factor * img.cols, scale_factor * img.rows));
             } else if (img.rows > 1 and img.cols > 1) {
                 // rectangular
-                int scale_factor = (int)std::round((float)scale_to / img.rows);
+                int scale_factor = (int)std::round((float)scale_to / (float)img.rows);
                 rects[lidx].push_back(cv::Rect(ix, border, scale_factor * img.cols, scale_factor * img.rows));
             } else {
                 // just the normal sizes
@@ -213,16 +215,16 @@ static void jetImage() {
     if (showJetImage)
         return;
     showJetImage = true;
-    precision high = 1.5;
+    precision high = 1.5_p;
     precision low = -high;
-    int width = (2.0 * high) * 100;
+    int width = 100 * static_cast<int>(2.0_p * high);
     printf("Jet Image is %d across\n", width);
-    linalg::matrix values(1, width);
+    linalg::matrix values(1U, static_cast<size_t>(width));
     values.for_each([&](size_t y, size_t x, precision& v) {
         (void)y;
-        v = ((precision)x / width);  // 0.0 to 1.0
-        v *= (2.0 * high);           // 0.0 to 3.0
-        v += low;                    // -1.5 to 1.5
+        v = ((precision)x / (precision)width);  // 0.0_p to 1.0_p
+        v *= (2.0_p * high);                    // 0.0_p to 3.0_p
+        v += low;                               // -1.5_p to 1.5_p
         // should go from lower to high
     });
     cv::Mat bar = linalg::convert(values, CV_8UC3);
@@ -232,7 +234,7 @@ static void jetImage() {
     cv::Point origin;
     cv::Rect rect(origin, tophalf);
     scaled = cv::Scalar(255, 255, 255);
-    cv::resize(bar, scaled(rect), rect.size(), 0.0, 0.0, cv::INTER_NEAREST);
+    cv::resize(bar, scaled(rect), rect.size(), 0.0_p, 0.0_p, cv::INTER_NEAREST);
     print(scaled, btmRow, "Jet Image Scale, %lf to %lf", low, high);
     cv::imshow("Color Scale", scaled);
 }
@@ -274,9 +276,10 @@ void network::visualize(std::chrono::milliseconds delay) {
         }
         size_t border = 20;
         size_t min_height = 224 + 2 * border;
-        cv::Size sz = compute_complete_dimensions(images, rects, min_height, border);
+        cv::Size sz
+            = compute_complete_dimensions(images, rects, static_cast<int>(min_height), static_cast<int>(border));
         // size_t width = sz.width;
-        size_t height = sz.height;
+        size_t height = static_cast<size_t>(sz.height);
         // std::cout << windowName << "=" << sz << std::endl;
         cv::Mat img(sz, CV_8UC3);
         // fill with white.
@@ -288,10 +291,10 @@ void network::visualize(std::chrono::milliseconds delay) {
                 print(img, pt, "%s", names[lidx][idx].c_str());
                 cv::Size _sz = rects[lidx][idx].size();
                 cv::resize(images[lidx][idx], img(rects[lidx][idx]), _sz, 0, 0, cv::INTER_NEAREST);
-                ix += _sz.width + border;
+                ix += static_cast<size_t>(_sz.width) + border;
             }
             // separator
-            cv::Point top(ix, 0), btm(ix, height - 1);
+            cv::Point top(static_cast<int>(ix), 0), btm(static_cast<int>(ix), static_cast<int>(height - 1));
             cv::line(img, top, btm, cv::Scalar(0, 0, 0), 1, 8, 0);
         }
         cv::imshow(windowName, img);
@@ -302,7 +305,7 @@ void network::visualize(std::chrono::milliseconds delay) {
         size_t height = 0;
         for_each([&](layer& _layer) { height = (height < _layer.values.rows ? _layer.values.rows : height); });
         height *= scaling;
-        cv::Mat img(height, width, CV_8UC1);
+        cv::Mat img(static_cast<int>(height), static_cast<int>(width), CV_8UC1);
         img = 255;  // white
         // organized as layers (outer) then columns node_ptr[l][n]
         std::vector<std::vector<cv::Point>> node_pts(layers.size());  // start with # layers
@@ -313,12 +316,12 @@ void network::visualize(std::chrono::milliseconds delay) {
                 y = n * scaling + scaling / 2;
                 cv::Point pt{(int)x, (int)y};
                 node_pts[l].push_back(pt);
-                cv::circle(img, pt, scaling / 3, black, 1, 8, 0);
+                cv::circle(img, pt, int(scaling) / 3, black, 1, 8, 0);
                 print(img, pt, "v=%0.3lf", layers[l]->values[n][0]);
                 if (layers[l]->layer_type != layer::type::input) {
-                    cv::Point b0 = pt + cv::Point(0, scaling / 3);
-                    cv::Point B0 = pt + cv::Point(0, scaling / 6);
-                    cv::Point z0 = pt - cv::Point(0, scaling / 6);
+                    cv::Point b0 = pt + cv::Point(0, int(scaling) / 3);
+                    cv::Point B0 = pt + cv::Point(0, int(scaling) / 6);
+                    cv::Point z0 = pt - cv::Point(0, int(scaling) / 6);
                     nn::inner& in = as_inner(l);
                     print(img, b0, "b=%0.3lf", in.biases[n][0]);
                     print(img, B0, "B=%0.3lf", in.beta[n][0]);
@@ -345,7 +348,7 @@ void network::visualize(std::chrono::milliseconds delay) {
         print(img, br, "RMS=%07lf", out.rms_value);
         cv::imshow(windowName, img);
     }
-    int ms = delay.count();
+    int ms = static_cast<int>(delay.count());
     int key = cv::waitKey(ms);
     switch ((key & 0xFF)) {
         case 'q':

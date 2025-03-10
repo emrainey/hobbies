@@ -254,7 +254,7 @@ public:
                     vector const N = normal_(object_ray.location());
                     vector const& I = object_ray.direction();
                     precision d = dot(N, I);
-                    if (d < 0) {  // the ray points "into" the material so it's a collision
+                    if (d < 0.0_p) {  // the ray points "into" the material so it's a collision
                         // however if the material is transparent, that's ok and it should not count as a collision
                         if (m_medium and m_medium->refractive_index(object_ray.location()) > 0.0_p) {
                             continue;

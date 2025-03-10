@@ -11,7 +11,7 @@ using namespace operators;
 namespace R3 {
 
 sphere::sphere(precision r) : m_radius{r} {
-    basal::exception::throw_if(m_radius == 0.0, __FILE__, __LINE__, "Radius can't be zero");
+    basal::exception::throw_if(basal::nearly_zero(m_radius), __FILE__, __LINE__, "Radius can't be zero");
 }
 sphere::sphere(sphere const& s) : sphere(s.radius) {
 }

@@ -95,7 +95,7 @@ TEST(PlaneTest, ScaleRotateTranslate) {
     using namespace raytrace::objects;
     raytrace::point C{7, 7, 7};
     raytrace::objects::plane P0{C, geometry::R3::basis::X};
-    P0.rotation(iso::degrees{0.0}, iso::degrees{0.0}, iso::degrees{180.0});
+    P0.rotation(iso::degrees{0.0_p}, iso::degrees{0.0_p}, iso::degrees{180.0_p});
     vector const& should_be_negative_X = P0.normal(C);
     vector const negative_X = -geometry::R3::basis::X;
     ASSERT_EQ(negative_X.dimensions, 3ul);

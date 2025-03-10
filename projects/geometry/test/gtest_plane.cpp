@@ -45,8 +45,8 @@ TEST(PlaneTest, IntersectionWithNullspace) {
     // print_this(as_line(iP1P2));
     ASSERT_TRUE(as_line(iP1P2) == p1p2);
     // each plane aught to contain the R3::line of intersection and points on the R3::line
-    ASSERT_TRUE(P1.contains(p1p2.solve(0.0)));
-    ASSERT_TRUE(P2.contains(p1p2.solve(0.0)));
+    ASSERT_TRUE(P1.contains(p1p2.solve(0.0_p)));
+    ASSERT_TRUE(P2.contains(p1p2.solve(0.0_p)));
     ASSERT_TRUE(P1.contains(p1p2));
     ASSERT_TRUE(P2.contains(p1p2));
 }
@@ -56,7 +56,7 @@ TEST(PlaneTest, Parallel) {
     R3::point B{2, 3, 1};
     R3::point C{3, -1, 2};
     plane P{A, B, C};
-    plane Q{9.0, 1.0, -5.0, -16.0};
+    plane Q{9.0_p, 1.0_p, -5.0_p, -16.0_p};
     // print_this(P);
     // print_this(Q);
     //  see ELA p.156
@@ -72,9 +72,9 @@ TEST(PlaneTest, Perpendicular) {
     // print_this(P1);
     precision P0toPt = P0.distance(Pt);
     precision P1toPt = P1.distance(Pt);
-    // printf("P0toPt = %E, P1toPt = %E, real=%E\n", P0toPt, P1toPt, 3.0 / 7.0);
-    ASSERT_NEAR(-3.0 / 7.0, P0toPt, basal::epsilon);
-    ASSERT_NEAR(-3.0 / 7.0, P1toPt, basal::epsilon);
+    // printf("P0toPt = %E, P1toPt = %E, real=%E\n", P0toPt, P1toPt, 3.0_p / 7.0_p);
+    ASSERT_NEAR(-3.0_p / 7.0_p, P0toPt, basal::epsilon);
+    ASSERT_NEAR(-3.0_p / 7.0_p, P1toPt, basal::epsilon);
     ASSERT_TRUE(P0 || P1);
     plane P2{{3, -1, 1, -4}};
     plane P3{{1, 0, 2, 1}};

@@ -18,7 +18,7 @@ R3::point centroid(std::vector<R3::point> const& points) {
         }
     }
     for (size_t i = 0; i < D.dimensions; i++) {
-        D[i] /= points.size();
+        D[i] /= static_cast<precision>(points.size());
     }
     return D;
 }
@@ -99,8 +99,8 @@ linalg::matrix rotation(R3::vector const& axis, iso::radians const theta) {
     precision a = axis[0];
     precision b = axis[1];
     precision c = axis[2];
-    precision o = 1.0;
-    precision cos_t = std::sin(theta.value + iso::pi / 2.0);
+    precision o = 1.0_p;
+    precision cos_t = std::sin(theta.value + iso::pi / 2.0_p);
     precision sin_t = std::sin(theta.value);
     precision one_cos_t = o - cos_t;
     linalg::matrix r{

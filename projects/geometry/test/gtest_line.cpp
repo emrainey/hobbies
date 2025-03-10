@@ -27,8 +27,8 @@ TEST(LineTest, Distance) {
     R3::line l{geometry::R3::origin, v};
     R3::point p{3, 3, 5};
     R3::point q{-2, -3, 0};
-    ASSERT_PRECISION_EQ(5.0, l.distance(p));
-    ASSERT_PRECISION_EQ(sqrt(2.0) / 2, l.distance(q));
+    ASSERT_PRECISION_EQ(5.0_p, l.distance(p));
+    ASSERT_PRECISION_EQ(sqrt(2.0_p) / 2, l.distance(q));
 }
 
 TEST(LineTest, Solves) {
@@ -43,7 +43,7 @@ TEST(LineTest, Solves) {
     ASSERT_FLOAT_EQ(0, t);
 
     ASSERT_TRUE(L0.solve(B, t));
-    ASSERT_FLOAT_EQ(3.0, t);
+    ASSERT_FLOAT_EQ(3.0_p, t);
 
     ASSERT_FALSE(L0.solve(C, t));
 }
@@ -60,7 +60,7 @@ TEST(LineTest, SolvesFlattened) {
     ASSERT_FLOAT_EQ(0, t);
 
     ASSERT_TRUE(L0.solve(B, t));
-    ASSERT_FLOAT_EQ(3.0, t);
+    ASSERT_FLOAT_EQ(3.0_p, t);
 
     ASSERT_FALSE(L0.solve(C, t));
 }

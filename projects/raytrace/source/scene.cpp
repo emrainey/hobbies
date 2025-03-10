@@ -150,7 +150,7 @@ color scene::trace(ray const& world_ray, mediums::medium const& media, size_t re
         // grab the normal on the surface at that point, ensure it's normalized
         vector world_surface_normal = nearest.normal.normalized();
         // if constexpr (enforce_ranges) {
-        //     basal::exception::throw_unless(basal::nearly_equals(world_surface_normal.magnitude(), 1.0), __FILE__,
+        //     basal::exception::throw_unless(basal::nearly_equals(world_surface_normal.magnitude(), 1.0_p), __FILE__,
         //     __LINE__,
         //                                    "Must be normalized");
         // }
@@ -169,9 +169,9 @@ color scene::trace(ray const& world_ray, mediums::medium const& media, size_t re
 
         // today we get the surface's reflectivity at this texture point
         // (which means the surface could be like a film of mirror with bits flaking off)
-        precision reflectivity = 0;
-        precision transparency = 0;
-        precision emissivity = 0;
+        precision reflectivity = 0.0_p;
+        precision transparency = 0.0_p;
+        precision emissivity = 0.0_p;
 
         // several different types of color in this area to contend with
         color surface_color, emitted_color, reflected_color, transmitted_color;
@@ -194,12 +194,12 @@ color scene::trace(ray const& world_ray, mediums::medium const& media, size_t re
                          emissivity, reflectivity, transparency);
 
         // the medium is emitting light
-        if (emissivity > 0) {
+        if (emissivity > 0.0_p) {
             // light sources which emit light
             emitted_color = medium.emissive(object_surface_point) * emissivity;
         }
         // on the very last depth call we still have to return the surface color, just no more casts
-        if (reflectivity > 0.0) {
+        if (reflectivity > 0.0_p) {
             // find the *reflected* medium color from all lights (without blocked paths)
             // The set of colors from each light source (including ambient)
             std::vector<color> surface_colors;
@@ -242,8 +242,8 @@ color scene::trace(ray const& world_ray, mediums::medium const& media, size_t re
                             auto other_world_point = as_point(blocker.intersect);
                             // FIXME is a refractive object so it must be transparent?
                             // object_is_transparent =
-                            // (nearest.objptr->material().refractive_index(other_world_point) > 0.0);
-                            // object_is_emissive = (nearest.objptr->material().emissive(other_world_point) > 0.0);
+                            // (nearest.objptr->material().refractive_index(other_world_point) > 0.0_p);
+                            // object_is_emissive = (nearest.objptr->material().emissive(other_world_point) > 0.0_p);
                         }
                     }
                     bool not_in_shadow
@@ -254,15 +254,15 @@ color scene::trace(ray const& world_ray, mediums::medium const& media, size_t re
                         color raw_light_color = scene_light.color_at(world_surface_point);
                         // the scaling at this point due to this light source's
                         // relationship with the normal of the medium this will be
-                        // some fractional component from -1.0 to 1.0 since both input vectors are normalized.
+                        // some fractional component from -1.0_p to 1.0_p since both input vectors are normalized.
                         precision incident_scaling = dot(normalized_light_direction, world_surface_normal);
-                        // basal::exception::throw_unless(within_inclusive(-1.0, incident_scaling, 1.0), __FILE__,
+                        // basal::exception::throw_unless(within_inclusive(-1.0_p, incident_scaling, 1.0_p), __FILE__,
                         // __LINE__, "Must be within bounds");
                         color incident_light
-                            = (incident_scaling > 0.0) ? incident_scaling * raw_light_color : colors::black;
+                            = (incident_scaling > 0.0_p) ? incident_scaling * raw_light_color : colors::black;
                         color diffuse_light = medium.diffuse(object_surface_point);
                         precision specular_scaling = dot(normalized_light_direction, world_reflection.direction());
-                        // basal::exception::throw_unless(within_inclusive(-1.0, specular_scaling, 1.0), __FILE__,
+                        // basal::exception::throw_unless(within_inclusive(-1.0_p, specular_scaling, 1.0_p), __FILE__,
                         // __LINE__, "Must be within bounds");
                         color specular_light = medium.specular(object_surface_point, specular_scaling, raw_light_color);
                         // blend the light color and the surface color together
@@ -296,7 +296,7 @@ color scene::trace(ray const& world_ray, mediums::medium const& media, size_t re
             if (reflection_depth > 0) {
                 // mix how much local surface color versus reflected surface there should be
                 precision smoothness = medium.smoothness(object_surface_point);
-                if (smoothness > 0.0) {
+                if (smoothness > 0.0_p) {
                     // should we continue bouncing given the contribution?
                     if (recursive_contribution < adaptive_reflection_threshold) {
                         // count this as a save bounce (plus the rest we won't do)
@@ -325,7 +325,7 @@ color scene::trace(ray const& world_ray, mediums::medium const& media, size_t re
                 reflected_color = surface_properties_color;
             }
         }
-        if (reflection_depth > 0 and transparency > 0.0 and not world_refraction.direction().is_zero()) {
+        if (reflection_depth > 0 and transparency > 0.0_p and not world_refraction.direction().is_zero()) {
             // this ray was transmitted through the new medium
             statistics::get().transmitted_rays++;
             // get the colors from the transmitted light

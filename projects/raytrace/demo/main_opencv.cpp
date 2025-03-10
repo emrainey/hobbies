@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
         {"-m", "--module", std::string(""), "Module to load"},
         {"-a", "--aaa", (size_t)raytrace::image::AAA_MASK_DISABLED,
          "Adaptive Anti-Aliasing Threshold value (255 disables)"},
-        {"-s", "--fps", 24.0, "Frames per second"},
+        {"-s", "--fps", 24.0_p, "Frames per second"},
     };
 
     basal::options::process(dimof(opts), opts, argc, argv);
@@ -106,7 +106,8 @@ int main(int argc, char* argv[]) {
                                                iso::pi / 8, &theta);
     linalg::Trackbar<precision> trackbar_phi("Camera Phi", world.window_name(), 0, phi, iso::pi, iso::pi / 16, &phi);
     radius = (world.looking_from() - world.looking_at()).magnitude();
-    linalg::Trackbar<precision> trackbar_radius("Camera Radius", world.window_name(), 1.0, radius, 100.0, 5.0, &radius);
+    linalg::Trackbar<precision> trackbar_radius("Camera Radius", world.window_name(), 1.0_p, radius, 100.0_p, 5.0_p,
+                                                &radius);
     linalg::Trackbar<size_t> trackbar_subsamples("Subsamples", world.window_name(), 1, params.subsamples, 16, 1,
                                                  &params.subsamples);
     linalg::Trackbar<size_t> trackbar_reflect("Reflections", world.window_name(), 0, params.reflections, 10, 1,
@@ -164,12 +165,12 @@ int main(int argc, char* argv[]) {
                             count += (p ? 1 : 0);
                             return p;
                         });
-                        double percentage = 100.0 * count / completed.size();
+                        double percentage = 100.0_p * count / completed.size();
                         bool done = (count == completed.size());
                         fprintf(stdout,
                                 "\r[ %0.3lf %%] rays cast: %zu dots: %zu cross: %zu intersects: %zu bounced: %zu "
                                 "transmitted: %zu %s ",
-                                done ? 100.0 : percentage, raytrace::statistics::get().cast_rays_from_camera,
+                                done ? 100.0_p : percentage, raytrace::statistics::get().cast_rays_from_camera,
                                 geometry::statistics::get().dot_operations, geometry::statistics::get().cross_products,
                                 raytrace::statistics::get().intersections_with_objects,
                                 raytrace::statistics::get().bounced_rays, raytrace::statistics::get().transmitted_rays,

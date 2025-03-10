@@ -16,7 +16,7 @@ namespace iso {
 
 /// A structure used to hold the postfix for turns
 struct suffix_type_Tau {
-    constexpr static char const* suffix = "Tau";
+    constexpr static char const *suffix = "Tau";
 };
 
 ///
@@ -72,27 +72,27 @@ public:
 };
 
 namespace operators {
-/// Addition operator
-turns operator+(turns const& A, turns const& B);
-/// Subtraction operator
-turns operator-(turns const& A, turns const& B);
-/// Left Scaling Operator
-turns operator*(turns const& A, precision factor);
-/// Right Scaling Operator
-turns operator*(precision factor, turns const& A);
-/// Inverse Scaling Operator
-turns operator/(turns const& A, precision factor);
-/// Scale factor
-precision operator/(turns const& A, turns const& B);
-}  // namespace operators
+    /// Addition operator
+    turns operator+(turns const& A, turns const& B);
+    /// Subtraction operator
+    turns operator-(turns const& A, turns const& B);
+    /// Left Scaling Operator
+    turns operator*(turns const& A, precision factor);
+    /// Right Scaling Operator
+    turns operator*(precision factor, turns const& A);
+    /// Inverse Scaling Operator
+    turns operator/(turns const& A, precision factor);
+    /// Scale factor
+    precision operator/(turns const& A, turns const& B);
+}
 
 namespace literals {
-/// Literal Double, Quote Operator
-turns operator""_Tau(long double value);
-/// Literal Int, Quote Operator
-turns operator""_Tau(unsigned long long value);
-/// Literal String, Quote Operator
-iso::turns operator""_Tau(char const a[]);
-}  // namespace literals
+    /// Literal Double, Quote Operator
+    turns operator""_Tau(long double value);
+    /// Literal Int, Quote Operator
+    turns operator""_Tau(unsigned long long value);
+    /// Literal String, Quote Operator
+    iso::turns operator""_Tau(char const a[]);
+}
 
-}  // namespace iso
+}

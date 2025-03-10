@@ -33,7 +33,7 @@ fourcc::rgb8& image::at(image::point const& p) {
 void image::generate_each(subsampler get_color, size_t number_of_samples, std::optional<rendered_line> row_notifier,
                           fourcc::image<uint8_t, fourcc::pixel_format::Y8>* mask, uint8_t mask_threshold) {
     std::default_random_engine generator;
-    std::uniform_real_distribution<precision> distribution(-0.5, 0.5);
+    std::uniform_real_distribution<precision> distribution(-0.5_p, 0.5_p);
     auto delta = std::bind(distribution, generator);
 
 #pragma omp parallel for shared(data, delta, get_color)

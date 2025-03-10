@@ -96,10 +96,12 @@ iso::joules operator""_J(long double a) {
     return iso::joules(static_cast<precision>(a));
 }
 iso::joules operator""_J(unsigned long long a) {
-    return iso::joules(a);
+    return iso::joules(static_cast<precision>(a));
 }
 iso::joules operator""_J(char const a[]) {
-    return iso::joules(atol(a));
+    iso::precision p = static_cast<iso::precision>(atol(a));
+    return iso::joules(p);
 }
 }  // namespace literals
 }  // namespace iso
+

@@ -10,14 +10,14 @@ using namespace raytrace::operators;
 using namespace iso::literals;
 
 namespace outrun {
-constexpr color neon_orange(1.0, 108.0 / 255, 17.0 / 255);
-constexpr color neon_pink(246.0 / 255, 1.0 / 255, 157.0 / 255);
+constexpr color neon_orange(1.0_p, 108.0_p / 255, 17.0_p / 255);
+constexpr color neon_pink(246.0_p / 255, 1.0_p / 255, 157.0_p / 255);
 
 class Sun : public raytrace::mediums::opaque {
 public:
     Sun() : opaque{} {
         m_ambient = colors::white;
-        m_ambient_scale = 0.0;
+        m_ambient_scale = 0.0_p;
         m_smoothness = smoothness::none;
         m_tightness = roughness::loose;
     }
@@ -34,15 +34,15 @@ public:
     color emissive(raytrace::point const& volumetric_point) const override {
         raytrace::vector obj_vec = volumetric_point - R3::origin;
         iso::radians obj_angle = angle(R3::basis::Z, obj_vec);
-        precision scalar = obj_angle.value / (iso::pi / 2.0);
-        if (scalar < 1.0) {
+        precision scalar = obj_angle.value / (iso::pi / 2.0_p);
+        if (scalar < 1.0_p) {
             return interpolate(colors::orange_red, colors::yellow, scalar);
         } else {
-            if ((1.0 < scalar and scalar <= 1.05) or (1.1 < scalar and scalar <= 1.15)
-                or (1.2 < scalar and scalar <= 1.25) or (1.3 < scalar and scalar <= 1.35)) {
+            if ((1.0_p < scalar and scalar <= 1.05_p) or (1.1_p < scalar and scalar <= 1.15_p)
+                or (1.2_p < scalar and scalar <= 1.25_p) or (1.3_p < scalar and scalar <= 1.35_p)) {
                 return colors::black;
             } else {
-                return interpolate(colors::red, colors::orange_red, 1.0 - scalar);
+                return interpolate(colors::red, colors::orange_red, 1.0_p - scalar);
             }
         }
     }
@@ -50,9 +50,9 @@ public:
     void radiosity(raytrace::point const& volumetric_point, precision refractive_index,
                    iso::radians const& incident_angle, iso::radians const& transmitted_angle, precision& emitted,
                    precision& reflected, precision& transmitted) const override {
-        emitted = 1.0;
+        emitted = 1.0_p;
         reflected = m_reflectivity;
-        transmitted = 1.0 - m_reflectivity;
+        transmitted = 1.0_p - m_reflectivity;
     }
 };
 }  // namespace outrun
@@ -64,10 +64,10 @@ public:
         : look_from{0, 50, 10}
         , look_at{0, 0, 10}
         , sun_rays{raytrace::vector{-20, 0, -21}, colors::white, 1E4}
-        , grid{10.0, outrun::neon_pink, colors::black}
-        , floor{R3::origin, R3::basis::Z, 100.0, 100.0}
+        , grid{10.0_p, outrun::neon_pink, colors::black}
+        , floor{R3::origin, R3::basis::Z, 100.0_p, 100.0_p}
         , sun_surface{}
-        , sun{raytrace::point{0, -300, 50}, 100.0} {
+        , sun{raytrace::point{0, -300, 50}, 100.0_p} {
         grid.mapper(std::bind(&raytrace::objects::square::map, &floor, std::placeholders::_1));
         floor.material(&grid);
         sun.material(&sun_surface);
@@ -109,8 +109,8 @@ public:
 
     raytrace::animation::anchors get_anchors() const override {
         raytrace::animation::anchors anchors;
-        anchors.push_back(animation::Anchor{animation::Attributes{look_from, look_at, iso::degrees{55.0}},
-                                            animation::Attributes{look_from, look_at, iso::degrees{55.0}},
+        anchors.push_back(animation::Anchor{animation::Attributes{look_from, look_at, iso::degrees{55.0_p}},
+                                            animation::Attributes{look_from, look_at, iso::degrees{55.0_p}},
                                             animation::Mappers{}, iso::seconds{1.0_p}});
         return anchors;
     }

@@ -15,8 +15,8 @@
 namespace iso {
 
 /// A structure used to hold the postfix for degrees
-struct suffix_type_d {
-    constexpr static char const* suffix = "d";
+struct suffix_type_deg {
+    constexpr static char const *suffix = "deg";
 };
 
 ///
@@ -29,7 +29,7 @@ struct suffix_type_d {
 /// overload >,<,==,!=,<=,>=
 /// not overloaded %=,%
 ///
-class degrees : public measurement<precision, SI::prefix, suffix_type_d> {
+class degrees : public measurement<precision, SI::prefix, suffix_type_deg> {
 public:
     /// Default constructor
     degrees();
@@ -72,27 +72,27 @@ public:
 };
 
 namespace operators {
-/// Addition operator
-degrees operator+(degrees const& A, degrees const& B);
-/// Subtraction operator
-degrees operator-(degrees const& A, degrees const& B);
-/// Left Scaling Operator
-degrees operator*(degrees const& A, precision factor);
-/// Right Scaling Operator
-degrees operator*(precision factor, degrees const& A);
-/// Inverse Scaling Operator
-degrees operator/(degrees const& A, precision factor);
-/// Scale factor
-precision operator/(degrees const& A, degrees const& B);
-}  // namespace operators
+    /// Addition operator
+    degrees operator+(degrees const& A, degrees const& B);
+    /// Subtraction operator
+    degrees operator-(degrees const& A, degrees const& B);
+    /// Left Scaling Operator
+    degrees operator*(degrees const& A, precision factor);
+    /// Right Scaling Operator
+    degrees operator*(precision factor, degrees const& A);
+    /// Inverse Scaling Operator
+    degrees operator/(degrees const& A, precision factor);
+    /// Scale factor
+    precision operator/(degrees const& A, degrees const& B);
+}
 
 namespace literals {
-/// Literal Double, Quote Operator
-degrees operator""_deg(long double value);
-/// Literal Int, Quote Operator
-degrees operator""_deg(unsigned long long value);
-/// Literal String, Quote Operator
-iso::degrees operator""_deg(char const a[]);
-}  // namespace literals
+    /// Literal Double, Quote Operator
+    degrees operator""_deg(long double value);
+    /// Literal Int, Quote Operator
+    degrees operator""_deg(unsigned long long value);
+    /// Literal String, Quote Operator
+    iso::degrees operator""_deg(char const a[]);
+}
 
-}  // namespace iso
+}

@@ -16,7 +16,7 @@ namespace iso {
 
 /// A structure used to hold the postfix for pascals
 struct suffix_type_Pa {
-    constexpr static char const* suffix = "Pa";
+    constexpr static char const *suffix = "Pa";
 };
 
 ///
@@ -72,27 +72,27 @@ public:
 };
 
 namespace operators {
-/// Addition operator
-pascals operator+(pascals const& A, pascals const& B);
-/// Subtraction operator
-pascals operator-(pascals const& A, pascals const& B);
-/// Left Scaling Operator
-pascals operator*(pascals const& A, precision factor);
-/// Right Scaling Operator
-pascals operator*(precision factor, pascals const& A);
-/// Inverse Scaling Operator
-pascals operator/(pascals const& A, precision factor);
-/// Scale factor
-precision operator/(pascals const& A, pascals const& B);
-}  // namespace operators
+    /// Addition operator
+    pascals operator+(pascals const& A, pascals const& B);
+    /// Subtraction operator
+    pascals operator-(pascals const& A, pascals const& B);
+    /// Left Scaling Operator
+    pascals operator*(pascals const& A, precision factor);
+    /// Right Scaling Operator
+    pascals operator*(precision factor, pascals const& A);
+    /// Inverse Scaling Operator
+    pascals operator/(pascals const& A, precision factor);
+    /// Scale factor
+    precision operator/(pascals const& A, pascals const& B);
+}
 
 namespace literals {
-/// Literal Double, Quote Operator
-pascals operator""_Pa(long double value);
-/// Literal Int, Quote Operator
-pascals operator""_Pa(unsigned long long value);
-/// Literal String, Quote Operator
-iso::pascals operator""_Pa(char const a[]);
-}  // namespace literals
+    /// Literal Double, Quote Operator
+    pascals operator""_Pa(long double value);
+    /// Literal Int, Quote Operator
+    pascals operator""_Pa(unsigned long long value);
+    /// Literal String, Quote Operator
+    iso::pascals operator""_Pa(char const a[]);
+}
 
-}  // namespace iso
+}

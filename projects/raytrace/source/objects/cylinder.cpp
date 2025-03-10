@@ -14,7 +14,7 @@ cylinder::cylinder(point const& C, precision half_height, precision radius)
 
 cylinder::cylinder(point const& base, point const& apex, precision radius)
     : object{base, 2, false}  // 2 collisions, not closed
-    , m_half_height{0.0}
+    , m_half_height{0.0_p}
     , m_radius{radius} {
     R3::vector axis = apex - base;
     R3::vector semi = axis.normalized();
@@ -42,7 +42,7 @@ hits cylinder::collisions_along(ray const& object_ray) const {
     precision dx = object_ray.direction()[0];
     precision dy = object_ray.direction()[1];
     precision a = (dx * dx + dy * dy);
-    precision b = 2.0 * (dx * px + dy * py);
+    precision b = 2.0_p * (dx * px + dy * py);
     precision c = (px * px + py * py) - (m_radius * m_radius);
     auto roots = linalg::quadratic_roots(a, b, c);
     precision t0 = std::get<0>(roots);
@@ -75,13 +75,13 @@ image::point cylinder::map(point const& object_surface_point) const {
     geometry::point_<2> cartesian(object_surface_point[0], object_surface_point[1]);
     geometry::point_<2> polar = geometry::cartesian_to_polar(cartesian);
     // some range of z based in the half_height we want -h2 to map to zero and +h2 to 1.0
-    precision u = (object_surface_point[2] / (-2.0 * m_half_height)) + 0.5;
-    // theta goes from +pi to -pi we want to map -pi to 1.0 and + pi to zero
-    precision v = 0.0;
+    precision u = (object_surface_point[2] / (-2.0_p * m_half_height)) + 0.5_p;
+    // theta goes from +pi to -pi we want to map -pi to 1.0_p and + pi to zero
+    precision v = 0.0_p;
     if (polar.y >= 0) {
-        v = 0.5 - (polar.y / (+2.0 * iso::pi));
+        v = 0.5_p - (polar.y / (+2.0_p * iso::pi));
     } else {
-        v = 0.5 + (polar.y / (-2.0 * iso::pi));
+        v = 0.5_p + (polar.y / (-2.0_p * iso::pi));
     }
     return image::point(u, v);
 }

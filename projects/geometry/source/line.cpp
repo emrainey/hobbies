@@ -75,7 +75,7 @@ bool line::solve(point const& P, precision& t) const {
     if (geometry::operators::operator==(P, position())) {  // HACK (operators) why does this work, but not just ==?
                                                            // if (P == position()) {
         //  this just helps eliminate math problems later
-        t = 0.0;
+        t = 0.0_p;
         return true;
     }
     size_t const dims = position().dimensions;
@@ -127,7 +127,7 @@ bool operator==(line const& a, line const& b) {
     // 1.) vectors are parallel
     // 2.) their point is on our line!
     bool pv = R3::parallel(a.direction(), b.direction());
-    precision t = 0.0;
+    precision t = 0.0_p;
     bool pp = a.solve(b.position(), t);
     return (pv && pp);
 }

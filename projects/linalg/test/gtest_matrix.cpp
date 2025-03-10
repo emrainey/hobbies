@@ -45,7 +45,7 @@ TEST(MatrixTest, ArrayConstructor) {
     ASSERT_PRECISION_EQ(4, m2a[1][1]);
 
     // only the row accessor has a throw, the other is just a precision[]
-    ASSERT_THROW(m2a[7][1] += 0.0, basal::exception);
+    ASSERT_THROW(m2a[7][1] += 0.0_p, basal::exception);
 
     precision a2[2][2] = {{5, 6}, {7, 8}};
     matrix m2{a2};
@@ -166,20 +166,20 @@ TEST(MatrixTest, Indexing) {
     ASSERT_THROW(m.at(-1, -1), basal::exception);
     ASSERT_THROW(m.at(0, 0), basal::exception);
     // The at() notation is 1-based
-    ASSERT_PRECISION_EQ(1.0, m.at(1, 1));
-    ASSERT_PRECISION_EQ(6.0, m(1, 2));
-    ASSERT_PRECISION_EQ(7.0, m.index(6));
-    ASSERT_PRECISION_EQ(8.0, m[2][1]);
-    ASSERT_PRECISION_EQ(9.0, m.index(2, 2));
+    ASSERT_PRECISION_EQ(1.0_p, m.at(1, 1));
+    ASSERT_PRECISION_EQ(6.0_p, m(1, 2));
+    ASSERT_PRECISION_EQ(7.0_p, m.index(6));
+    ASSERT_PRECISION_EQ(8.0_p, m[2][1]);
+    ASSERT_PRECISION_EQ(9.0_p, m.index(2, 2));
     // The at() notation is 1-based
-    ASSERT_PRECISION_EQ(1.0, n.at(1, 1));
-    ASSERT_PRECISION_EQ(6.0, n(1, 2));
-    ASSERT_PRECISION_EQ(7.0, n.index(6));
-    ASSERT_PRECISION_EQ(8.0, n[2][1]);
-    ASSERT_PRECISION_EQ(9.0, n.index(2, 2));
+    ASSERT_PRECISION_EQ(1.0_p, n.at(1, 1));
+    ASSERT_PRECISION_EQ(6.0_p, n(1, 2));
+    ASSERT_PRECISION_EQ(7.0_p, n.index(6));
+    ASSERT_PRECISION_EQ(8.0_p, n[2][1]);
+    ASSERT_PRECISION_EQ(9.0_p, n.index(2, 2));
 
     n.zero();
-    ASSERT_PRECISION_EQ(0.0, n[2][2]);
+    ASSERT_PRECISION_EQ(0.0_p, n[2][2]);
 }
 
 TEST(MatrixTest, StaticMethods) {
@@ -215,10 +215,10 @@ TEST(MatrixTest, ClassOperators) {
     B -= A2;
     matrix C{{{1, 2}, {3, 4}}};
     ASSERT_MATRIX_EQ(C, B);
-    C *= 2.0;
+    C *= 2.0_p;
     matrix D{{{2, 4}, {6, 8}}};
     ASSERT_MATRIX_EQ(D, C);
-    D /= 2.0;
+    D /= 2.0_p;
     matrix E{{{1, 2}, {3, 4}}};
     ASSERT_MATRIX_EQ(E, D);
     B *= A2;
@@ -249,8 +249,8 @@ TEST(MatrixTest, NamespaceOperators) {
     matrix AdB = A / B;
     ASSERT_MATRIX_EQ(F, AdB);
     matrix G{{{15, 18}, {21, 24}}};
-    matrix Bm3 = B * 3.0;
-    matrix Bd3 = Bm3 / 3.0;
+    matrix Bm3 = B * 3.0_p;
+    matrix Bd3 = Bm3 / 3.0_p;
     ASSERT_MATRIX_EQ(G, Bm3);
     ASSERT_MATRIX_EQ(B, Bd3);
 }
@@ -258,7 +258,7 @@ TEST(MatrixTest, NamespaceOperators) {
 TEST(MatrixTest, Inverse) {
     using namespace linalg;
     precision h[2][2] = {{1, 2}, {3, 4}};
-    precision hi[2][2] = {{-2, 1}, {1.5, -0.5}};
+    precision hi[2][2] = {{-2, 1}, {1.5_p, -0.5_p}};
     matrix H{h}, Hi{hi};
     ASSERT_TRUE(H.inverse() == Hi);
 }
@@ -291,7 +291,7 @@ TEST(MatrixTest, TransposeRules) {
     using namespace linalg::operators;
 
     matrix A{{{1, 2, 3}, {0, -4, 1}, {0, 3, -1}}};
-    matrix B = matrix::random(3, 3, 1.0, 10.0);
+    matrix B = matrix::random(3, 3, 1.0_p, 10.0_p);
     matrix C{{{1, 4, 7}, {3, 0, 5}, {-1, 9, 11}}};
     precision r = iso::tau / 2;
     // A = A^T^T
@@ -326,7 +326,7 @@ TEST(MatrixTest, SingleAssignment) {
 
     matrix mZ = matrix::zeros(3, 3);
     matrix ones(3, 3);  // empty
-    ones = 1.0;         // Single Assignment to all elements
+    ones = 1.0_p;       // Single Assignment to all elements
     ASSERT_TRUE(mZ == (ones - ones));
 }
 
@@ -338,15 +338,15 @@ TEST(MatrixTest, Determinants) {
     matrix C{{{1, 4, 7}, {3, 0, 5}, {-1, 9, 11}}};
     matrix D{{{8}}};
     matrix zD = D.inverse();
-    ASSERT_PRECISION_EQ(8.0, D.determinant());
-    ASSERT_PRECISION_EQ(0.125, zD[0][0]);
+    ASSERT_PRECISION_EQ(8.0_p, D.determinant());
+    ASSERT_PRECISION_EQ(0.125_p, zD[0][0]);
     matrix mZ = matrix::zeros(3, 3);
     // det(A) == 1
-    ASSERT_PRECISION_EQ(1.0, det(A));
-    ASSERT_PRECISION_EQ(1.0, A.determinant());
+    ASSERT_PRECISION_EQ(1.0_p, det(A));
+    ASSERT_PRECISION_EQ(1.0_p, A.determinant());
     // det(zeroes) == 0
-    ASSERT_PRECISION_EQ(0.0, det(mZ));
-    ASSERT_PRECISION_EQ(0.0, mZ.determinant());
+    ASSERT_PRECISION_EQ(0.0_p, det(mZ));
+    ASSERT_PRECISION_EQ(0.0_p, mZ.determinant());
     // determinents are communicative
     ASSERT_TRUE(det(A * C) == det(A) * det(C));
 }
@@ -354,8 +354,8 @@ TEST(MatrixTest, Determinants) {
 TEST(MatrixTest, Cofactors) {
     using namespace linalg;
     matrix C{{{1, 4, 7}, {3, 0, 5}, {-1, 9, 11}}};
-    ASSERT_PRECISION_EQ(13.0, C.minor(1, 2));
-    ASSERT_PRECISION_EQ(-13.0, C.cofactor(1, 2));
+    ASSERT_PRECISION_EQ(13.0_p, C.minor(1, 2));
+    ASSERT_PRECISION_EQ(-13.0_p, C.cofactor(1, 2));
 }
 
 TEST(MatrixTest, NonSingularRules) {
@@ -472,7 +472,7 @@ TEST(MatrixTest, Joinery) {
     precision g[2][4] = {{2, 6, 1, 2}, {1, 3, 3, 4}};
     matrix G{2, 4, g[0]};
     precision h[2][2] = {{1, 2}, {3, 4}};
-    precision hi[2][2] = {{-2, 1}, {1.5, -0.5}};
+    precision hi[2][2] = {{-2, 1}, {1.5_p, -0.5_p}};
     matrix H{h}, Hi{hi};
     precision j[4][2] = {{2, 6}, {1, 3}, {1, 2}, {3, 4}};
     matrix J{4, 2, j[0]};
@@ -505,7 +505,7 @@ TEST(MatrixTest, AssignIntoRowCol) {
 TEST(MatrixTest, Nullspace) {
     using namespace linalg;
     matrix A{{{2, 3, 5}, {-4, 2, 3}}};
-    matrix Arref{{{1, 0, 1.0 / 16}, {0, 1, 13.0 / 8}}};
+    matrix Arref{{{1, 0, 1.0_p / 16}, {0, 1, 13.0_p / 8}}};
     ASSERT_TRUE(A.rref() == Arref);
     matrix B{{{1, 2, 3, 4, 5}, {2, 5, 8, 11, 14}, {1, 3, 5, 8, 11}, {4, 10, 16, 23, 30}}};
     matrix Brref{{{1, 0, -1, 0, 1}, {0, 1, 2, 0, -2}, {0, 0, 0, 1, 2}, {0, 0, 0, 0, 0}}};

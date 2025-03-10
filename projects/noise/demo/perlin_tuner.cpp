@@ -23,9 +23,9 @@ iso::radians angle{-11 * iso::pi / 57};
 // The perlin noise seed for the pattern
 noise::vector seed = noise::convert_to_seed(angle);
 // not sure how this effects the pattern yet
-noise::precision gain = 32.0;
+noise::precision gain = 32.0_p;
 // scale of the pattern
-noise::precision scale = 32.0;
+noise::precision scale = 32.0_p;
 // noise image
 fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8> noise_image(height, width);
 // the render image
@@ -57,7 +57,7 @@ void on_seed_angle_update(int value, void *cookie __attribute__((unused))) {
         angle_pos = value;
         // value from 0 - 1024
         // convert to 0 - 2.0
-        noise::precision u = (noise::precision)value / 512.0;
+        noise::precision u = (noise::precision)value / 512.0_p;
         // converts to 0 - 2pi
         noise::precision v = u * iso::pi;
         // then to -pi to +pi
@@ -129,9 +129,9 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
     gain_fraction = gain / 0.125_p;
     linalg::Trackbar<size_t> trackbar_gain(gainName, windowName, 0, gain_fraction, 128, 1, &gain_fraction);
     // default_value = static_cast<size_t>(std::floor((seed[0] * 1E2) / iso::pi + 500));
-    //  first convert from -1.0 to 1.0 by div by pi
-    //  then + 1.0 to get 0.0 - 2.0 then by 512 and floor
-    angle_pos = std::floor(((angle.value / iso::pi) + 1.0) * 512);
+    //  first convert from -1.0_p to 1.0_p by div by pi
+    //  then + 1.0_p to get 0.0_p - 2.0_p then by 512 and floor
+    angle_pos = std::floor(((angle.value / iso::pi) + 1.0_p) * 512);
     cv::createTrackbar(seedName, windowName, &angle_pos, 1024, on_seed_angle_update,
                        nullptr);  // from -pi to +pi by going from 0 to 1024
     default_value = static_cast<size_t>(std::floor(scale - 1));
@@ -139,8 +139,8 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
 
     std::random_device rd;
     std::mt19937 gen{rd()};
-    std::uniform_real_distribution<> huge(-10000.0, 10000.0);
-    std::uniform_real_distribution<> modr(-10.0, 10.0);
+    std::uniform_real_distribution<> huge(-10000.0_p, 10000.0_p);
+    std::uniform_real_distribution<> modr(-10.0_p, 10.0_p);
 
     do {
         // update value
@@ -169,19 +169,19 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
                 should_render = true;
                 break;  // (CR) ENTER
             case '[':
-                scale -= 1.0;
+                scale -= 1.0_p;
                 break;
             case ']':
-                scale += 1.0;
+                scale += 1.0_p;
                 break;
             case 'x':
                 gain = iso::pi * huge(gen);
                 break;
             case 'w':
-                gain += iso::pi / 100.0;
+                gain += iso::pi / 100.0_p;
                 break;
             case 's':
-                gain -= iso::pi / 100.0;
+                gain -= iso::pi / 100.0_p;
                 break;
             case 'd':
                 on_seed_angle_update(angle_pos + 1, nullptr);

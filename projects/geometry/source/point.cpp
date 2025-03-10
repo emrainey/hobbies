@@ -54,19 +54,19 @@ point<DIMS>& point<DIMS>::operator=(point<DIMS>&& other) {
 
 /// Indexer
 template <size_t DIMS>
-precision& point<DIMS>::operator[](int i) {
-    return m_data[static_cast<size_t>(i)];
+precision& point<DIMS>::operator[](size_t i) {
+    return m_data[i];
 }
 
 template <size_t DIMS>
-precision point<DIMS>::operator[](int i) const {
-    return m_data[static_cast<size_t>(i)];
+precision point<DIMS>::operator[](size_t i) const {
+    return m_data[i];
 }
 
 template <size_t DIMS>
 void point<DIMS>::zero(void) {
     for (size_t r = 0; r < dimensions; r++) {
-        m_data[r] = 0.0;
+        m_data[r] = 0.0_p;
     }
 }
 

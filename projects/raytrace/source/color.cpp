@@ -133,7 +133,7 @@ bool operator==(color const& a, color const& b) {
 color color::blend_samples(std::vector<color> const& subsamples) {
     color tmp;
     tmp.to_space(color::space::logarithmic);
-    precision div = subsamples.size();
+    precision div = static_cast<precision>(subsamples.size());
     for (auto& sub : subsamples) {
         color c = sub;
         c.to_space(color::space::logarithmic);

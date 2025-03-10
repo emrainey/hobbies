@@ -6,11 +6,11 @@ linalg::matrix convert(::cv::Mat& img) {
     linalg::matrix mat = linalg::matrix(img.rows, img.cols);
     return mat.for_each([&](int y, int x, precision& v) {
         if (img.type() == CV_8UC1) {
-            v = precision(img.at<uint8_t>(y, x)) / 255.0;
+            v = precision(img.at<uint8_t>(y, x)) / 255.0_p;
         } else if (img.type() == CV_8UC3) {
-            v = 0.0;
+            v = 0.0_p;
         } else if (img.type() == CV_16UC1) {
-            v = precision(img.at<uint16_t>(y, x)) / 65535.0;
+            v = precision(img.at<uint16_t>(y, x)) / 65535.0_p;
         } else if (img.type() == CV_32SC1) {
             v = precision(img.at<uint32_t>(y, x)) / precision(std::numeric_limits<int32_t>::max());
         } else {  // if (img.type() == CV_8UC3) { // BGR usually
@@ -23,7 +23,7 @@ linalg::matrix convert(::cv::Mat& img) {
     ::cv::Mat img(mat.rows, mat.cols, type);
     mat.for_each([&](int y, int x, precision const& v) {
         if (type == CV_8UC1) {
-            img.at<uint8_t>(y, x) = uint8_t(std::ceil(v * 255.0));
+            img.at<uint8_t>(y, x) = uint8_t(std::ceil(v * 255.0_p));
         } else if (type == CV_8UC3) {
             cv::Scalar_<uint8_t> j = jet(v);
             uint8_t* tmp = img.ptr<uint8_t>(y);
@@ -31,7 +31,7 @@ linalg::matrix convert(::cv::Mat& img) {
             tmp[x * 3 + 1] = j[1];
             tmp[x * 3 + 2] = j[2];
         } else if (type == CV_16UC1) {
-            img.at<uint16_t>(y, x) = uint16_t(std::ceil(v * 65535.0));
+            img.at<uint16_t>(y, x) = uint16_t(std::ceil(v * 65535.0_p));
         } else if (type == CV_32SC1) {
             img.at<uint16_t>(y, x) = uint32_t(std::ceil(v * std::numeric_limits<int32_t>::max()));
         } else {
@@ -52,7 +52,7 @@ linalg::matrix convert(::cv::Mat& img) {
         int iy = n / W;
         int ix = n % W;
         if (type == CV_8UC1) {
-            img.at<uint8_t>(iy, ix) = uint8_t(std::ceil(v * 255.0));
+            img.at<uint8_t>(iy, ix) = uint8_t(std::ceil(v * 255.0_p));
         } else if (type == CV_8UC3) {
             cv::Scalar_<uint8_t> j = jet(v);
             uint8_t* tmp = img.ptr<uint8_t>(iy);
@@ -60,7 +60,7 @@ linalg::matrix convert(::cv::Mat& img) {
             tmp[ix * 3 + 1] = j[1];
             tmp[ix * 3 + 2] = j[2];
         } else if (type == CV_16UC1) {
-            img.at<uint16_t>(iy, ix) = uint16_t(std::ceil(v * 65535.0));
+            img.at<uint16_t>(iy, ix) = uint16_t(std::ceil(v * 65535.0_p));
         } else if (type == CV_32SC1) {
             img.at<uint16_t>(iy, ix) = uint32_t(std::ceil(v * std::numeric_limits<int32_t>::max()));
         } else {
@@ -100,20 +100,20 @@ static precision interpolate(precision val, precision y0, precision x0, precisio
 }
 
 static precision base(precision val) {
-    if (val <= -0.75)
-        return 0.0;
-    else if (val <= -0.25)
-        return interpolate(val, 0.0, -0.75, 1.0, -0.25);
-    else if (val <= 0.25)
-        return 1.0;
-    else if (val <= 0.75)
-        return interpolate(val, 1.0, 0.25, 0.0, 0.75);
+    if (val <= -0.75_p)
+        return 0.0_p;
+    else if (val <= -0.25_p)
+        return interpolate(val, 0.0_p, -0.75_p, 1.0_p, -0.25_p);
+    else if (val <= 0.25_p)
+        return 1.0_p;
+    else if (val <= 0.75_p)
+        return interpolate(val, 1.0_p, 0.25_p, 0.0_p, 0.75_p);
     else
-        return 0.0;
+        return 0.0_p;
 }
 
 static precision red(precision gray) {
-    return base(gray - 0.5);
+    return base(gray - 0.5_p);
 }
 
 static precision green(precision gray) {
@@ -121,18 +121,18 @@ static precision green(precision gray) {
 }
 
 static precision blue(precision gray) {
-    return base(gray + 0.5);
+    return base(gray + 0.5_p);
 }
 
 cv::Scalar_<uint8_t> jet(cv::Scalar_<uint8_t>& grey) {
-    precision v = precision(grey[0]) / 255.0;
+    precision v = precision(grey[0]) / 255.0_p;
     return jet(v);
 }
 
 cv::Scalar_<uint8_t> jet(precision v) {
     // must be between 0 and 1.0
-    return cv::Scalar(uint8_t(std::ceil(red(v) * 255.0)), uint8_t(std::ceil(green(v) * 255.0)),
-                      uint8_t(std::ceil(blue(v) * 255.0)));
+    return cv::Scalar(uint8_t(std::ceil(red(v) * 255.0_p)), uint8_t(std::ceil(green(v) * 255.0_p)),
+                      uint8_t(std::ceil(blue(v) * 255.0_p)));
 }
 
 }  // namespace linalg

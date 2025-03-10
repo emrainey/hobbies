@@ -5,8 +5,8 @@ namespace raytrace {
 namespace mediums {
 
 conductor::conductor() : medium{} {
-    m_reflectivity = 0.95;    // all light is bounced, any transmitted light is absorbed immediately within nanometers
-    m_transmissivity = 0.05;  // most light does not continue once transmitted
+    m_reflectivity = 0.95_p;    // all light is bounced, any transmitted light is absorbed immediately within nanometers
+    m_transmissivity = 0.05_p;  // most light does not continue once transmitted
 }
 
 color conductor::bounced(raytrace::point const& volumetric_point, color const& incoming) const {

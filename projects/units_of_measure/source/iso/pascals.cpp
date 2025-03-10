@@ -96,10 +96,12 @@ iso::pascals operator""_Pa(long double a) {
     return iso::pascals(static_cast<precision>(a));
 }
 iso::pascals operator""_Pa(unsigned long long a) {
-    return iso::pascals(a);
+    return iso::pascals(static_cast<precision>(a));
 }
 iso::pascals operator""_Pa(char const a[]) {
-    return iso::pascals(atol(a));
+    iso::precision p = static_cast<iso::precision>(atol(a));
+    return iso::pascals(p);
 }
 }  // namespace literals
 }  // namespace iso
+

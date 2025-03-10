@@ -50,8 +50,8 @@ public:
         , sunlight{raytrace::vector{-2, 2, -1}, colors::white, lights::intensities::bright}
         , specks{} {
         raytrace::point center = look_at;
-        spheres.push_back(new raytrace::objects::sphere(center, 4.5));
-        subspheres(spheres, center, 6, 0.4, number_of_spheres);
+        spheres.push_back(new raytrace::objects::sphere(center, 4.5_p));
+        subspheres(spheres, center, 6, 0.4_p, number_of_spheres);
         materials(mats, spheres.size());
         for (size_t s = 0; s < number_of_spheres; s++) {
             spheres[s]->material(mats[s]);
@@ -94,7 +94,7 @@ public:
     raytrace::color background(raytrace::ray const& world_ray) const override {
         iso::radians A = angle(R3::basis::Z, world_ray.direction());
         precision B = A.value / iso::pi;
-        return color(0.8 * B, 0.8 * B, 0.8 * B);
+        return color(0.8_p * B, 0.8_p * B, 0.8_p * B);
     }
 
     void add_to(scene& scene) override {

@@ -42,7 +42,7 @@ void kmeans::initial(InitialMethod method) {
 
 /// Iterates the method and reports the error
 precision kmeans::iteration(IterationMethod method) {
-    precision error = 0.0;
+    precision error = 0.0_p;
 
     auto euclidean = [](R2::point const& A, R2::point const& B) -> precision { return (A - B).quadrance(); };
 

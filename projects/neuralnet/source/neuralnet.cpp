@@ -9,8 +9,8 @@ using namespace linalg;
 
 /// The learning rate of the network
 namespace local {
-constexpr precision alpha = -0.25;
-constexpr precision gamma = -0.9;
+constexpr precision alpha = -0.25_p;
+constexpr precision gamma = -0.9_p;
 }  // namespace local
 
 int main(int argc, char* argv[]) {
@@ -77,7 +77,7 @@ int main(int argc, char* argv[]) {
                 uint8_t answer = learning.get_label(idx);
                 in.encode(learning, idx);
                 net.forward();
-                out.learn_label(answer, 0.0, 1.0);
+                out.learn_label(answer, 0.0_p, 1.0_p);
                 net.backward(local::alpha, local::gamma);
                 if (idx > 0 and (idx % minibatch) == 0) {
                     net.visualize(std::chrono::milliseconds(1));
@@ -91,7 +91,7 @@ int main(int argc, char* argv[]) {
             net.update();
             printf("RMS: %0.5lf\n", out.rms_value);
 
-            if (out.rms_value < 0.005) {
+            if (out.rms_value < 0.005_p) {
                 printf("Done!\n");
                 break;
             }
@@ -106,7 +106,7 @@ int main(int argc, char* argv[]) {
             cv::imshow(named_i1, inm);
             net.forward();
 
-            precision value = 0.0;
+            precision value = 0.0_p;
             size_t idx = out.infer_label(value);
             if (idx == testdata.get_label(i)) {
                 hits++;

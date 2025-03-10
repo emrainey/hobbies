@@ -21,11 +21,11 @@ sparse_word<N> scalar(size_t value, size_t W) {
         o.set((size_t)value);
     } else {
         size_t hW = W / 2;
-        int _min = value - hW;
-        int _max = value + hW;
-        printf("encode %zu in %zu bits with %zu width from %d to %d!\n", value, N, W, _min, _max);
+        size_t _min = value - hW;
+        size_t _max = value + hW;
+        printf("encode %zu in %zu bits with %zu width from %zu to %zu!\n", value, N, W, _min, _max);
         // when the width is higher, width also should be odd.
-        for (int i = _min; i <= _max; i++) {
+        for (size_t i = _min; i <= _max; i++) {
             o.set(i);
         }
     }

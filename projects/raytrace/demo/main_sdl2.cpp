@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
                                      {"-m", "--module", std::string(""), "Module to load"},
                                      {"-a", "--aaa", (size_t)raytrace::image::AAA_MASK_DISABLED,
                                       "Adaptive Anti-Aliasing Threshold value (255 disables)"},
-                                     {"-s", "--separation", 0.0, "Stereo Camera view separation"}};
+                                     {"-s", "--separation", 0.0_p, "Stereo Camera view separation"}};
 
     basal::options::process(dimof(opts), opts, argc, argv);
     my_assert(basal::options::find(opts, "--dims", params.dim_name), "Must have a text value");
@@ -133,13 +133,13 @@ int main(int argc, char *argv[]) {
                                 count += (p ? 1 : 0);
                                 return p;
                             });
-                            double percentage = 100.0 * count / completed.size();
+                            double percentage = 100.0_p * count / completed.size();
                             bool done = (count == completed.size());
                             fprintf(stdout,
                                     "\r[ %0.3lf %%] rays cast: %zu dots: %zu cross: %zu 2r: %zu 3r: %zu 4r: %zu "
                                     "intersects: %zu (%zu/%zu/%zu) bounced: %zu "
                                     "transmitted: %zu %s ",
-                                    done ? 100.0 : percentage, raytrace::statistics::get().cast_rays_from_camera,
+                                    done ? 100.0_p : percentage, raytrace::statistics::get().cast_rays_from_camera,
                                     geometry::statistics::get().dot_operations,
                                     geometry::statistics::get().cross_products,
                                     linalg::statistics::get().quadratic_roots, linalg::statistics::get().cubic_roots,
@@ -333,11 +333,11 @@ int main(int argc, char *argv[]) {
                         has_changed = true;
                         break;
                     case SDLK_z:
-                        params.separation += 0.25;
+                        params.separation += 0.25_p;
                         has_changed = true;
                         break;
                     case SDLK_x:
-                        params.separation -= 0.25;
+                        params.separation -= 0.25_p;
                         has_changed = true;
                         break;
                     case SDLK_u:

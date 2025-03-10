@@ -27,7 +27,7 @@ precision spot::intensity_at(point const& world_point) const {
     if (deg_angle <= m_incoming_angle) {
         return light::intensity_at(world_point);  // use parent logic
     } else {
-        return 0.0;
+        return 0.0_p;
     }
 }
 

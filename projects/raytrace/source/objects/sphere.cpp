@@ -35,7 +35,7 @@ hits sphere::collisions_along(ray const& object_ray) const {
     precision dy = object_ray.direction()[1];
     precision dz = object_ray.direction()[2];
     precision a = (dx * dx + dy * dy + dz * dz);
-    precision b = 2.0 * (dx * px + dy * py + dz * pz);
+    precision b = 2.0_p * (dx * px + dy * py + dz * pz);
     precision c = (px * px + py * py + pz * pz) - (m_radius * m_radius);
     auto roots = linalg::quadratic_roots(a, b, c);
     precision t0 = std::get<0>(roots);
@@ -56,7 +56,7 @@ image::point sphere::map(point const& object_surface_point) const {
     // get the polar coordinates
     point pol = geometry::R3::sphere::cart_to_polar(object_surface_point);
     precision u = pol[1] / iso::tau;  // 0-theta-2pi
-    u = (u < 0 ? 1.0 + u : u);
+    u = (u < 0 ? 1.0_p + u : u);
     precision v = pol[2] / iso::pi;  // 0-phi-pi
     image::point uv{u, v};
     // std::cout << "R3: " << object_surface_point << " => R2: " << uv;

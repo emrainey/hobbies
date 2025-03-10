@@ -73,7 +73,8 @@ inline bool nearly_equals(precision a, precision b) {
 /// Determines if a precision is very close to zero
 inline bool nearly_zero(precision a) {
     using namespace basal::literals;
-    return nearly_equals(a, 0.0_p, basal::epsilon);
+    // return nearly_equals(a, 0.0_p, basal::epsilon);
+    return std::abs(a) < basal::epsilon;
 }
 
 /// @brief Returns true if the precision is either exactly +0.0 or -0.0
@@ -149,7 +150,8 @@ struct half {
     }
 
     struct fields {
-        constexpr fields(std::uint32_t m, std::uint32_t e, std::uint32_t s) : mantissa(m), exponent(e), sign(s) {
+        constexpr fields(std::uint32_t m, std::uint32_t e, std::uint32_t s)
+            : mantissa(m & 0x03FFU), exponent(e & 0x1FU), sign(s & 0x1U) {
         }
         std::uint16_t mantissa : 10;  // bits 0-9
         std::uint16_t exponent : 5;   // bits 10-14
@@ -218,7 +220,7 @@ struct half {
         } else {
             single.bits.exponent = (bits.exponent - bias) + single.bias;
         }
-        single.bits.mantissa = bits.mantissa << 13;
+        single.bits.mantissa = static_cast<uint32_t>(bits.mantissa << 13U);
         single.bits.sign = bits.sign;
         return single.native;
     }
@@ -249,7 +251,7 @@ struct half {
             bits.mantissa = 0b0;
         } else {
             bits.sign = single.bits.sign;
-            bits.exponent = e + bias;
+            bits.exponent = static_cast<uint16_t>(e + bias);
             bits.mantissa = single.bits.mantissa >> 13;  // loose some precision!
         }
     }

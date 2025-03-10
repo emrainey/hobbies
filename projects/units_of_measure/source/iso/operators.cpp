@@ -14,7 +14,8 @@ iso::amperes operator""_mA(long double a) {
 }
 // Specialized Quote Operator
 iso::amperes operator""_mA(char const a[]) {
-    return iso::amperes(atol(a) * SI::prefix::milli);
+    iso::precision p = static_cast<iso::precision>(atol(a));
+    return iso::amperes(p * SI::prefix::milli);
 }
 // Specialized Quote Operator
 iso::ohms operator""_mOhm(long double a) {
@@ -22,7 +23,8 @@ iso::ohms operator""_mOhm(long double a) {
 }
 // Specialized Quote Operator
 iso::ohms operator""_mOhm(char const a[]) {
-    return iso::ohms(atol(a) * SI::prefix::milli);
+    iso::precision p = static_cast<iso::precision>(atol(a));
+    return iso::ohms(p * SI::prefix::milli);
 }
 // Specialized Quote Operator
 iso::ohms operator""_KOhm(long double a) {
@@ -30,7 +32,8 @@ iso::ohms operator""_KOhm(long double a) {
 }
 // Specialized Quote Operator
 iso::ohms operator""_KOhm(char const a[]) {
-    return iso::ohms(atol(a) * SI::prefix::kilo);
+    iso::precision p = static_cast<iso::precision>(atol(a));
+    return iso::ohms(p * SI::prefix::kilo);
 }
 // Specialized Quote Operator
 iso::volts operator""_mV(long double a) {
@@ -38,7 +41,8 @@ iso::volts operator""_mV(long double a) {
 }
 // Specialized Quote Operator
 iso::volts operator""_mV(char const a[]) {
-    return iso::volts(atol(a) * SI::prefix::milli);
+    iso::precision p = static_cast<iso::precision>(atol(a));
+    return iso::volts(p * SI::prefix::milli);
 }
 // Specialized Quote Operator
 iso::watts operator""_mW(long double a) {
@@ -46,7 +50,8 @@ iso::watts operator""_mW(long double a) {
 }
 // Specialized Quote Operator
 iso::watts operator""_mW(char const a[]) {
-    return iso::watts(atol(a) * SI::prefix::milli);
+    iso::precision p = static_cast<iso::precision>(atol(a));
+    return iso::watts(p * SI::prefix::milli);
 }
 }  // namespace literals
 }  // namespace iso

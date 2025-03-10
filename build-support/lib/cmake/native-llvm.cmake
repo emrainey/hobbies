@@ -17,7 +17,7 @@ add_link_options(-L/opt/homebrew/opt/libomp/lib -lomp)
 if (NOT TARGET enabled-warnings)
 add_library(enabled-warnings INTERFACE)
 target_compile_options(enabled-warnings INTERFACE
-    $<BUILD_INTERFACE:-Wall -Wextra -Werror -pedantic>
+    $<BUILD_INTERFACE:-Wall -Wextra -Werror -pedantic -Wconversion>
 )
 endif()
 

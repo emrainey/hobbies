@@ -24,9 +24,9 @@ vector quadratic::normal_(point const& object_surface_point) const {
     precision x = object_surface_point.x;
     precision y = object_surface_point.y;
     precision z = object_surface_point.z;
-    precision Nx = 2.0 * (Q.at(1, 1) * x + Q.at(1, 2) * y + Q.at(1, 3) * z + Q.at(1, 4));
-    precision Ny = 2.0 * (Q.at(2, 1) * x + Q.at(2, 2) * y + Q.at(2, 3) * z + Q.at(2, 4));
-    precision Nz = 2.0 * (Q.at(3, 1) * x + Q.at(3, 2) * y + Q.at(3, 3) * z + Q.at(3, 4));
+    precision Nx = 2.0_p * (Q.at(1, 1) * x + Q.at(1, 2) * y + Q.at(1, 3) * z + Q.at(1, 4));
+    precision Ny = 2.0_p * (Q.at(2, 1) * x + Q.at(2, 2) * y + Q.at(2, 3) * z + Q.at(2, 4));
+    precision Nz = 2.0_p * (Q.at(3, 1) * x + Q.at(3, 2) * y + Q.at(3, 3) * z + Q.at(3, 4));
     vector object_normal{{Nx, Ny, Nz}};
     object_normal.normalize();
     return forward_transform(object_normal);
@@ -52,9 +52,9 @@ hits quadratic::collisions_along(ray const& object_ray) const {
     precision Q33 = Q.at(3, 3);
     precision Q44 = Q.at(4, 4);
     precision a = i * (i * Q11 + j * (Q1221)) + j * (j * Q22 + k * (Q2332)) + k * (k * Q33 + i * (Q1331));
-    precision b = i * ((z * (Q1331) + y * (Q1221) + x * (2.0 * Q11)) + (Q1441))
-                  + j * ((z * (Q2332) + x * (Q1221) + y * (2.0 * Q22)) + (Q2442))
-                  + k * ((y * (Q2332) + x * (Q1331) + z * (2.0 * Q33)) + (Q3443));
+    precision b = i * ((z * (Q1331) + y * (Q1221) + x * (2.0_p * Q11)) + (Q1441))
+                  + j * ((z * (Q2332) + x * (Q1221) + y * (2.0_p * Q22)) + (Q2442))
+                  + k * ((y * (Q2332) + x * (Q1331) + z * (2.0_p * Q33)) + (Q3443));
     precision c = x * (x * Q11 + y * (Q1221) + z * (Q1331) + (Q1441)) + y * (y * Q22 + z * (Q2332) + (Q2442))
                   + z * (z * Q33 + (Q3443)) + Q44;
     auto roots = quadratic_roots(a, b, c);
@@ -89,7 +89,7 @@ bool quadratic::is_surface_point(point const& world_point) const {
 image::point quadratic::map(point const& object_surface_point __attribute__((unused))) const {
     // map some range of object 3D points to some 2D u,v pair
     // isolate which axis this is on and return the forward_transformed normal
-    precision u = 0.0, v = 0.0;
+    precision u = 0.0_p, v = 0.0_p;
     // TODO implement mapping for quadratic surface... how??
     return image::point(u, v);
 }

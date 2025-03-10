@@ -183,7 +183,7 @@ void Model::LoadFromFile(char const* const filename) {
             }
             computed_centroid += v;
         }
-        computed_centroid /= points_.size();
+        computed_centroid /= static_cast<precision>(points_.size());
         if constexpr (debug) {
             std::cout << "Computed Centroid of Model: " << computed_centroid << std::endl;
         }

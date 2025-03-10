@@ -13,12 +13,12 @@ TEST(LinalgExtraTests, QuadraticRoots) {
     auto roots = quadratic_roots(4, 4, 1);
     ASSERT_PRECISION_EQ(std::get<0>(roots), std::get<1>(roots));
     // printf("roots=%E\n", std::get<0>(roots));
-    ASSERT_PRECISION_EQ(-4.0 / 8.0, std::get<0>(roots));
+    ASSERT_PRECISION_EQ(-4.0_p / 8.0_p, std::get<0>(roots));
     roots = quadratic_roots(1, -9, 7);
-    ASSERT_PRECISION_EQ((9 + sqrt(53.0)) / 2.0, std::get<0>(roots));
-    ASSERT_PRECISION_EQ((9 - sqrt(53.0)) / 2.0, std::get<1>(roots));
+    ASSERT_PRECISION_EQ((9 + sqrt(53.0_p)) / 2.0_p, std::get<0>(roots));
+    ASSERT_PRECISION_EQ((9 - sqrt(53.0_p)) / 2.0_p, std::get<1>(roots));
     roots = quadratic_roots(2, 5, -3);
-    ASSERT_PRECISION_EQ(0.5, std::get<0>(roots));
+    ASSERT_PRECISION_EQ(0.5_p, std::get<0>(roots));
     ASSERT_PRECISION_EQ(-3, std::get<1>(roots));
 }
 
@@ -42,14 +42,14 @@ TEST(LinalgExtraTests, CubeRootTest) {
     auto g3 = linalg::cbrt(g);
 
     // this is what the real part should be
-    basal::precision d1 = 2.0_p * sqrt(2) * cos(iso::pi / 12.0);
-    basal::precision d2 = 2.0_p * sqrt(2) * cos(iso::pi / 12.0 + 2 * iso::pi / 3);
-    basal::precision d3 = 2.0_p * sqrt(2) * cos(iso::pi / 12.0 + 4 * iso::pi / 3);
+    basal::precision d1 = 2.0_p * sqrt(2) * cos(iso::pi / 12.0_p);
+    basal::precision d2 = 2.0_p * sqrt(2) * cos(iso::pi / 12.0_p + 2 * iso::pi / 3);
+    basal::precision d3 = 2.0_p * sqrt(2) * cos(iso::pi / 12.0_p + 4 * iso::pi / 3);
 
     auto h = std::get<0>(f3) + std::get<0>(g3);
     ASSERT_PRECISION_EQ(abs(h), real(h));
     ASSERT_NEAR(d1, real(h), basal::epsilon);
-    ASSERT_PRECISION_EQ(0.0, imag(h));
+    ASSERT_PRECISION_EQ(0.0_p, imag(h));
 
     auto k = std::get<2>(f3) + std::get<1>(g3);
     ASSERT_NEAR(d3, real(k), basal::epsilon);
@@ -167,7 +167,8 @@ TEST(LinalgExtraTests, QuarticRoots04) {
     EXPECT_QUAD_TUPLE_EQ4(3, -1, 2, -2, roots);
 
     roots = quartic_roots(1, -4, -2, 12, -3);
-    EXPECT_QUAD_TUPLE_EQ4(3.7320508075688767, 0.26794919243112258, 1.7320508075688774, -1.7320508075688767, roots);
+    EXPECT_QUAD_TUPLE_EQ4(3.7320508075688767_p, 0.26794919243112258_p, 1.7320508075688774_p, -1.7320508075688767_p,
+                          roots);
 
     roots = quartic_roots(1, 6, -5, -10, -3);
     EXPECT_QUAD_TUPLE_EQ4((1 + sqrt(5)) / 2, (1 - sqrt(5)) / 2, (-7 + sqrt(37)) / 2, (-7 - sqrt(37)) / 2, roots);
@@ -227,10 +228,10 @@ TEST(LinalgExtraTests, QuarticRoots02) {
     // @see https://www.desmos.com/calculator/nnybnwsnkn
     // for playing with the a,b,c,d dials and checking if D < 0 for these cases
     auto roots = quartic_roots(1, -4, 6, -4, -3);
-    EXPECT_QUAD_TUPLE_EQ2(2.4142135623730949, -0.414214, roots);
+    EXPECT_QUAD_TUPLE_EQ2(2.4142135623730949_p, -0.414214_p, roots);
 
     roots = quartic_roots(1, 6, 7, -7, -12);
-    EXPECT_QUAD_TUPLE_EQ2(1.1478990357, -4, roots);
+    EXPECT_QUAD_TUPLE_EQ2(1.1478990357_p, -4, roots);
 }
 
 #define EXPECT_QUAD_TUPLE_EQ1(A, tup)                                                            \
@@ -280,6 +281,6 @@ TEST(LinalgExtraTests, QuarticRoots00) {
     using namespace linalg;
     // @see https://www.desmos.com/calculator/nnybnwsnkn
     // for playing with the a,b,c,d dials and checking if D < 0 for these cases
-    auto roots = quartic_roots(0.6, -3.4, 5.8, -2.8, 1.4);
+    auto roots = quartic_roots(0.6_p, -3.4_p, 5.8_p, -2.8_p, 1.4_p);
     EXPECT_QUAD_TUPLE_EQ0(roots);
 }

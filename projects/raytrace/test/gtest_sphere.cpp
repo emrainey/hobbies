@@ -14,7 +14,7 @@ using namespace raytrace;
 
 TEST(SphereTest, NormalReflection) {
     raytrace::point C{1, 1, 1};
-    raytrace::objects::sphere s0{C, 1.0};
+    raytrace::objects::sphere s0{C, 1.0_p};
     raytrace::point P{0, 1, 1};
     ASSERT_TRUE(s0.is_surface_point(P));
     vector N = s0.normal(P);
@@ -28,7 +28,7 @@ TEST(SphereTest, NormalReflection) {
 }
 
 TEST(SphereTest, Mapping) {
-    raytrace::objects::sphere s0{raytrace::point{1, 1, 1}, 1.0};
+    raytrace::objects::sphere s0{raytrace::point{1, 1, 1}, 1.0_p};
 
     raytrace::point surface_points[] = {
         raytrace::point{1, 0, 0},
@@ -38,10 +38,10 @@ TEST(SphereTest, Mapping) {
     };
     size_t const dimof_sp = dimof(surface_points);
     image::point uv_points_truth[] = {
-        image::point(0.0, 0.5),
-        image::point(0.5, 0.5),
-        image::point(0.25, 0.5),
-        image::point(0.75, 0.5),
+        image::point(0.0_p, 0.5_p),
+        image::point(0.5_p, 0.5_p),
+        image::point(0.25_p, 0.5_p),
+        image::point(0.75_p, 0.5_p),
     };
     size_t const dimof_uv = dimof(uv_points_truth);
 
@@ -108,8 +108,8 @@ TEST(SphereTest, IntersectionsFromRays) {
 
     ASSERT_EQ(geometry::IntersectionType::Point, geometry::get_type(iSBmx));
     vector V = geometry::as_point(iSBmx) - B;
-    ASSERT_LT(V.magnitude(), 4.0);
-    ASSERT_GT(V.magnitude(), 2.0);
+    ASSERT_LT(V.magnitude(), 4.0_p);
+    ASSERT_GT(V.magnitude(), 2.0_p);
 
     ASSERT_EQ(geometry::IntersectionType::None, geometry::get_type(iSBpx));
 
@@ -140,17 +140,17 @@ TEST(SphereTest, Refraction) {
         iso::radians exit_exterior_angle;
     } params[] = {
         {mediums::refractive_index::water, iso::radians{0}, iso::radians{0}, iso::radians{0}, iso::radians{0}},
-        {mediums::refractive_index::water, iso::radians{iso::pi / 12}, iso::radians{0.19540396},
-         iso::radians{0.12900853}, iso::radians{0.2617994}},
-        {mediums::refractive_index::water, iso::radians{iso::pi / 6}, iso::radians{0.38449794},
-         iso::radians{0.24539709}, iso::radians{0.52359879}},
+        {mediums::refractive_index::water, iso::radians{iso::pi / 12}, iso::radians{0.19540396_p},
+         iso::radians{0.12900853_p}, iso::radians{0.2617994_p}},
+        {mediums::refractive_index::water, iso::radians{iso::pi / 6}, iso::radians{0.38449794_p},
+         iso::radians{0.24539709_p}, iso::radians{0.52359879_p}},
     };
     for (auto& param : params) {
         precision eta = param.eta;
         precision entry_y = std::cos(param.entry_exterior_angle.value);
         precision entry_z = std::sin(param.entry_exterior_angle.value);
-        raytrace::objects::sphere shape(R3::origin, 1.0);
-        raytrace::mediums::transparent med(eta, 0.0, colors::white);
+        raytrace::objects::sphere shape(R3::origin, 1.0_p);
+        raytrace::mediums::transparent med(eta, 0.0_p, colors::white);
         shape.material(&med);
         raytrace::vector incident{0, -1, 0};
         raytrace::ray shot{raytrace::point{0, 2, entry_z}, incident};
@@ -167,7 +167,7 @@ TEST(SphereTest, Refraction) {
         std::cout << "Entry Normal: " << normal << std::endl;
         iso::radians incident_angle = geometry::angle(-normal, shot.direction());
         ASSERT_NEAR(param.entry_exterior_angle.value, incident_angle.value, basal::epsilon);
-        raytrace::ray refracted_ray = shape.refraction(shot, normal, entry_surface_point, 1.0, eta);
+        raytrace::ray refracted_ray = shape.refraction(shot, normal, entry_surface_point, 1.0_p, eta);
         std::cout << "Refracted: " << refracted_ray << std::endl;
         ASSERT_POINT_EQ(entry_surface_point, refracted_ray.location());
         iso::radians refracted_angle = geometry::angle(-normal, refracted_ray.direction());
@@ -183,7 +183,7 @@ TEST(SphereTest, Refraction) {
         incident_angle = geometry::angle(normal, shot.direction());
         std::cout << "Exit Incident Angle: " << incident_angle.value << std::endl;
         EXPECT_NEAR(param.exit_interior_angle.value, incident_angle.value, basal::epsilon);
-        raytrace::ray transmitted_ray = shape.refraction(refracted_ray, normal, exit_surface_point, eta, 1.0);
+        raytrace::ray transmitted_ray = shape.refraction(refracted_ray, normal, exit_surface_point, eta, 1.0_p);
         std::cout << "Transmitted Ray: " << transmitted_ray << std::endl;
         refracted_angle = geometry::angle(normal, transmitted_ray.direction());
         EXPECT_NEAR(param.exit_exterior_angle.value, refracted_angle.value, basal::epsilon);
@@ -203,8 +203,8 @@ TEST(SphereTest, ScaledSphere) {
 
     raytrace::point top{1, 1, 2 * 2 + 1};
     raytrace::point bottom{1, 1, -2 * 2 + 1};
-    raytrace::point left{-2 * 0.5 + 1, 1, 1};
-    raytrace::point right{2 * 0.5 + 1, 1, 1};
+    raytrace::point left{-2 * 0.5_p + 1, 1, 1};
+    raytrace::point right{2 * 0.5_p + 1, 1, 1};
     raytrace::point front{1, 2 * 1 + 1, 1};
     raytrace::point back{1, -2 * 1 + 1, 1};
 

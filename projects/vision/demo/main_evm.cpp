@@ -18,7 +18,7 @@ public:
     GaussianPyramid() = delete;
     GaussianPyramid(const GaussianPyramid&) = delete;
     GaussianPyramid& operator=(const GaussianPyramid&) = delete;
-    GaussianPyramid(int levels) : levels_(levels - 1) {
+    GaussianPyramid(size_t levels) : levels_(levels - 1) {
         down_.resize(levels_);
         up_.resize(levels_ - 1);  // further number less
         diff_.resize(levels_ - 1);
@@ -56,7 +56,7 @@ private:
     std::vector<cv::Mat> down_;
     std::vector<cv::Mat> up_;
     std::vector<cv::Mat> diff_;
-    int levels_;
+    size_t levels_;
 };
 
 class TemporalBandpassFilter {
@@ -185,6 +185,8 @@ private:
 };
 
 int main(int, char*[]) {
+    using namespace basal;
+    using namespace basal::literals;
     // bool verbose = false;
     bool should_exit = false;
     // static constexpr int levels = 4;
@@ -192,7 +194,7 @@ int main(int, char*[]) {
     cv::Mat image;
     std::vector<cv::Mat> frames;
     cap >> image;
-    TemporalBandpassFilter filter(iso::hertz{0.4}, iso::hertz{3}, iso::hertz{30}, image.size());
+    TemporalBandpassFilter filter(iso::hertz{0.4_p}, iso::hertz{3.0_p}, iso::hertz{30.0_p}, image.size());
     filter.show();
     while (not should_exit) {
         cap >> image;  // full frame

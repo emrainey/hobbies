@@ -7,7 +7,7 @@ namespace raytrace {
 
 static constexpr bool hit_debug = false;
 static constexpr bool camera_debug = false;
-// static constexpr bool enforce_ranges = true;
+static constexpr bool enforce_ranges = true;
 /// uses fixed color scheme for shadows, light, near-zero values
 // static constexpr bool debug_shadows_and_light = false;
 // static constexpr bool use_incident_scaling = true;
@@ -149,11 +149,10 @@ color scene::trace(ray const& world_ray, mediums::medium const& media, size_t re
         raytrace::point object_surface_point = obj.reverse_transform(world_surface_point);
         // grab the normal on the surface at that point, ensure it's normalized
         vector world_surface_normal = nearest.normal.normalized();
-        // if constexpr (enforce_ranges) {
-        //     basal::exception::throw_unless(basal::nearly_equals(world_surface_normal.magnitude(), 1.0_p), __FILE__,
-        //     __LINE__,
-        //                                    "Must be normalized");
-        // }
+        if constexpr (enforce_ranges) {
+            basal::exception::throw_unless(basal::nearly_equals(world_surface_normal.magnitude(), 1.0_p), __FILE__,
+                                           __LINE__, "Must be normalized");
+        }
         // if this is true, we've collided with something from the inside or the "backside"
         bool inside_out = (dot(world_surface_normal, world_ray.direction()) > 0);
 
@@ -256,14 +255,14 @@ color scene::trace(ray const& world_ray, mediums::medium const& media, size_t re
                         // relationship with the normal of the medium this will be
                         // some fractional component from -1.0_p to 1.0_p since both input vectors are normalized.
                         precision incident_scaling = dot(normalized_light_direction, world_surface_normal);
-                        // basal::exception::throw_unless(within_inclusive(-1.0_p, incident_scaling, 1.0_p), __FILE__,
-                        // __LINE__, "Must be within bounds");
+                        basal::exception::throw_unless(within_inclusive(-1.0_p, incident_scaling, 1.0_p), __FILE__,
+                                                       __LINE__, "Must be within bounds");
                         color incident_light
                             = (incident_scaling > 0.0_p) ? incident_scaling * raw_light_color : colors::black;
                         color diffuse_light = medium.diffuse(object_surface_point);
                         precision specular_scaling = dot(normalized_light_direction, world_reflection.direction());
-                        // basal::exception::throw_unless(within_inclusive(-1.0_p, specular_scaling, 1.0_p), __FILE__,
-                        // __LINE__, "Must be within bounds");
+                        basal::exception::throw_unless(within_inclusive(-1.0_p, specular_scaling, 1.0_p), __FILE__,
+                                                       __LINE__, "Must be within bounds");
                         color specular_light = medium.specular(object_surface_point, specular_scaling, raw_light_color);
                         // blend the light color and the surface color together
                         surface_color_samples[sample_index] = (diffuse_light * incident_light);

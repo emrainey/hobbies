@@ -29,6 +29,16 @@ public:
     /// Vectors in the image plane are 2D
     using vector = geometry::vector_<2>;
 
+    /// A class which perturbates the samples around the pixel center
+    class SampleFuzzer {
+    public:
+        /// Returns a small vector to offset the pixel from dead center (0.5_, 0.5_p)
+        /// @param index The sample index
+        virtual image::vector operator()(size_t index) = 0;
+
+        virtual ~SampleFuzzer() = default;
+    };
+
     /// A function which gives an image point and expects a color returned.
     using subsampler = std::function<color(image::point const&)>;
 

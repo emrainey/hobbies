@@ -1,5 +1,4 @@
-#ifndef RAYTRACE_OBJPARSER_H_
-#define RAYTRACE_OBJPARSER_H_
+#pragma once
 
 #include <cstdint>
 #include <cstdio>
@@ -299,5 +298,3 @@ protected:
 
 }  // namespace obj
 }  // namespace raytrace
-
-#endif  // RAYTRACE_OBJPARSER_H_

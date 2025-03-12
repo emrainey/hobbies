@@ -9,9 +9,12 @@ Bounds::Bounds()
 }
 
 Bounds::Bounds(point const& min, point const& max) : min{min}, max{max} {
-    throw_exception_unless(min.x < max.x, "min.x %lf must be less than max.x %lf\r\n", min.x, max.x);
-    throw_exception_unless(min.y < max.y, "min.y %lf must be less than max.y %lf\r\n", min.y, max.y);
-    throw_exception_unless(min.z < max.z, "min.z %lf must be less than max.z %lf\r\n", min.z, max.z);
+    basal::exception::throw_unless(min.x < max.x, __FILE__, __LINE__, "min.x %lf must be less than max.x %lf\r\n",
+                                   min.x, max.x);
+    basal::exception::throw_unless(min.y < max.y, __FILE__, __LINE__, "min.y %lf must be less than max.y %lf\r\n",
+                                   min.y, max.y);
+    basal::exception::throw_unless(min.z < max.z, __FILE__, __LINE__, "min.z %lf must be less than max.z %lf\r\n",
+                                   min.z, max.z);
 }
 
 point Bounds::center() const {

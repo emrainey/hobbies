@@ -161,7 +161,7 @@ void exception::throw_unless(bool condition, char const loc[], std::size_t line)
 }
 
 /// Simplifies catch the same exception within code blocks
-void assert_if_thrown(char const statement[], std::function<void(void) noexcept(false)> block) noexcept {
+void exit_if_thrown(char const statement[], std::function<void(void) noexcept(false)> block) noexcept {
     try {
         block();
         fprintf(stdout, "%s did not throw! Success!\n", statement);
@@ -178,7 +178,7 @@ void assert_if_thrown(char const statement[], std::function<void(void) noexcept(
 }
 
 /// Allows the execution of a block which must throw an exception
-void assert_if_not_thrown(char const statement[], std::function<void(void) noexcept(false)> block) noexcept {
+void exit_if_not_thrown(char const statement[], std::function<void(void) noexcept(false)> block) noexcept {
     try {
         block();
         fprintf(stderr, "ERROR: %s did not throw an exception\n", statement);
@@ -187,6 +187,30 @@ void assert_if_not_thrown(char const statement[], std::function<void(void) noexc
         fprintf(stdout, "%s threw Exception! Success: %s\nWhere: %s\n", statement, me.why(), me.where());
     } catch (...) {
         fprintf(stdout, "%s threw unknown exception! Success?\n", statement);
+    }
+}
+
+void exit_if(bool condition, char const loc[], size_t const line, char const fmt[], ...) noexcept {
+    if (condition) {
+        fprintf(stdout, "ERROR: Condition was true!\nWhere: %s:%zu\n", loc, line);
+        char buffer[1024];
+        va_list list;
+        va_start(list, fmt);
+        vsnprintf(buffer, sizeof(buffer), fmt, list);
+        va_end(list);
+        exit(-1);
+    }
+}
+
+void exit_unless(bool condition, char const loc[], size_t const line, char const fmt[], ...) noexcept {
+    if (not condition) {
+        fprintf(stdout, "ERROR: Condition was false!\nWhere: %s:%zu\n", loc, line);
+        char buffer[1024];
+        va_list list;
+        va_start(list, fmt);
+        vsnprintf(buffer, sizeof(buffer), fmt, list);
+        va_end(list);
+        exit(-1);
     }
 }
 

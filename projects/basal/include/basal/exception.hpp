@@ -47,23 +47,13 @@ public:
     static void throw_unless(bool condition, char const loc[], size_t const len, char const fmt[], ...) noexcept(false);
 };
 
-/// Simplifies catch the same exception within code blocks
-void assert_if_thrown(char const statement[], std::function<void(void) noexcept(false)> block) noexcept(true);
+void exit_if(bool condition, char const loc[], size_t const line, char const fmt[], ...) noexcept(true);
 
-/// Wraps a try {} catch{} block around a statement. Asserts if an exception is thrown.
-#define try_catch(statement) basal::assert_if_thrown(#statement, [&](void) -> void { statement; })
+void exit_unless(bool condition, char const loc[], size_t const line, char const fmt[], ...) noexcept(true);
+
+/// Simplifies catch the same exception within code blocks
+void exit_if_thrown(char const statement[], std::function<void(void) noexcept(false)> block) noexcept(true);
 
 /// Allows the execution of a block which must throw an exception
-void assert_if_not_thrown(char const statement[], std::function<void(void) noexcept(false)> block) noexcept(true);
-
-/// The wrapped statement must produce an exception or an assert will fire
-#define catch_exception(statement) basal::assert_if_not_thrown(#statement, [&](void) -> void { statement; })
-
-/// Macro to wrap static method with filename and line information
-#define throw_exception_if(condition, fmt, ...) \
-    basal::exception::throw_if(condition, __FILE__, __LINE__, fmt, __VA_ARGS__)
-
-/// Macro to wrap static method with filename and line information
-#define throw_exception_unless(condition, fmt, ...) \
-    basal::exception::throw_unless(condition, __FILE__, __LINE__, fmt, __VA_ARGS__)
+void exit_if_not_thrown(char const statement[], std::function<void(void) noexcept(false)> block) noexcept(true);
 }  // namespace basal

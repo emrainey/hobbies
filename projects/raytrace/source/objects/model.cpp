@@ -167,7 +167,7 @@ size_t Model::GetNumberOfFaces(void) const {
 void Model::LoadFromFile(char const* const filename) {
     if (not loaded_) {
         FILE* file = fopen(filename, "r");
-        throw_exception_unless(file != nullptr, "File %s was not found!", filename);
+        basal::exception::throw_unless(file != nullptr, __FILE__, __LINE__, "File %s was not found!", filename);
         char buffer[1024];
         while (fgets(buffer, sizeof(buffer), file)) {
             parser_.Parse(buffer);

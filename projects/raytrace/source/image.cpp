@@ -9,10 +9,8 @@
 
 namespace raytrace {
 
-#define is_odd(x) (x & 1)
-
 image::image(size_t h, size_t w) : fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8>(h, w) {
-    basal::exception::throw_if(is_odd(height) or is_odd(width), __FILE__, __LINE__,
+    basal::exception::throw_if(basal::is_odd(height) or basal::is_odd(width), __FILE__, __LINE__,
                                "Height %d and Width %d must be even", height, width);
 }
 

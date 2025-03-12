@@ -2,10 +2,7 @@
 /// The command line options argument processor
 
 #include "basal/options.hpp"
-
-#ifndef PRIz
-#define PRIz "zu"
-#endif
+#include "basal/printable.hpp"
 
 namespace basal {
 namespace options {

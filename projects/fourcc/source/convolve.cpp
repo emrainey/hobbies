@@ -70,8 +70,10 @@ void sobel_mask(image<iyu2, pixel_format::IYU2> const& iyu2_image, image<uint8_t
 }
 
 void convert(image<rgb8, pixel_format::RGB8> const& in, image<iyu2, pixel_format::IYU2>& out) {
-    throw_exception_unless(in.height == out.height, "Must be the same height %zu != %zu", in.height, out.height);
-    throw_exception_unless(in.width == out.width, "Must be the same width %zu != %zu", in.width, out.width);
+    basal::exception::throw_unless(in.height == out.height, __FILE__, __LINE__, "Must be the same height %zu != %zu",
+                                   in.height, out.height);
+    basal::exception::throw_unless(in.width == out.width, __FILE__, __LINE__, "Must be the same width %zu != %zu",
+                                   in.width, out.width);
     for (size_t y = 0; y < in.height; y++) {
         for (size_t x = 0; x < in.width; x++) {
             precision R = in.at(y, x).r;

@@ -28,7 +28,6 @@ void Game::process(Event event) {
             switch (action) {
                 case Action::Move: {
                     if (object == Target::Player) {
-                        // throw_exception_unless(std::holds_alternative<Direction>(param), "Must have a Direction");
                         Direction dir = std::get<1>(param);
                         if (dir == Direction::Here) {
                             succeeded = true;
@@ -40,7 +39,6 @@ void Game::process(Event event) {
                 }
                 case Action::Pickup: {
                     if (object == Target::Item) {
-                        // throw_exception_unless(std::holds_alternative<Item>(param), "Must have an Item");
                         Item item = std::get<2>(param);
                         // remove from room.
                         if (map.get_room(player).remove(item)) {
@@ -51,7 +49,6 @@ void Game::process(Event event) {
                     break;
                 }
                 case Action::Look: {
-                    // throw_exception_unless(std::holds_alternative<Direction>(param), "Must have a Direction");
                     // the player investigates (looks) in a certain direction
                     if (object == Target::Room) {
                         Direction dir = std::get<1>(param);
@@ -74,7 +71,6 @@ void Game::process(Event event) {
                     break;
                 }
                 case Action::Attack: {
-                    // throw_exception_unless(std::holds_alternative<Target>(param), "Must have a Target");
                     if (object == Target::Player) {
                         Damage dmg = std::get<3>(param);
                         player.take(dmg);
@@ -90,7 +86,6 @@ void Game::process(Event event) {
                 }
                 case Action::Use: {
                     if (object == Target::Item) {
-                        // throw_exception_unless(std::holds_alternative<Item>(param), "Must have an Item");
                         Item item = std::get<2>(param);
                         if (item == Item::Torch) {
                             map.get_room(player).investigated();

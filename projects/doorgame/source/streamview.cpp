@@ -204,7 +204,6 @@ void StreamView::attempt(Event event) {
     }
     switch (action) {
         case Action::Attack: {
-            // throw_exception_unless(std::holds_alternative<Target>(param), "Must have a Target");
             if (subject == Target::Player) {
                 if (object == Target::Monster) {
                     // Damage dmg = std::get<3>(param);
@@ -247,7 +246,6 @@ void StreamView::complete(Event event, bool result) noexcept(false) {
         case Target::Player: {
             switch (action) {
                 case Action::Attack: {
-                    // throw_exception_unless(std::holds_alternative<Target>(param), "Must have a Target");
                     if (object == Target::None) {
                         std::cout << "You think twice and do not attack the heavy weight of tension in the air."
                                   << std::endl;
@@ -261,14 +259,12 @@ void StreamView::complete(Event event, bool result) noexcept(false) {
                     break;
                 }
                 case Action::Pickup: {
-                    // throw_exception_unless(std::holds_alternative<Item>(param), "Must have an Item");
                     Item item = std::get<2>(param);
                     std::cout << "You picked up " << item << std::endl;
                     break;
                 }
                 case Action::Use: {
                     if (object == Target::Item) {
-                        // throw_exception_unless(std::holds_alternative<Item>(param), "Must have an Item");
                         Item item = std::get<2>(param);
                         if (item == Item::Torch) {
                             std::cout << "You have used a lit torch and can see the room better" << std::endl;
@@ -292,7 +288,6 @@ void StreamView::complete(Event event, bool result) noexcept(false) {
                         }
                     }
                     if (object == Target::Room) {
-                        // throw_exception_unless(std::holds_alternative<Direction>(param), "Must have a Direction");
                         Direction dir = std::get<1>(param);
                         if (result) {
                             if (dir != Direction::Here) {

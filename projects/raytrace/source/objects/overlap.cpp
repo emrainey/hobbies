@@ -26,10 +26,12 @@ overlap::overlap(object const& A, object const& B, overlap::type type)
         // centroid of the two
         position(centroid(A.position(), B.position()));
     }
-    // throw_exception_if(m_A.max_collisions() != 2, "First item must have a max of %" PRIu32 " collisions", 2u);
-    // throw_exception_if(m_B.max_collisions() != 2, "Second item must have a max of %" PRIu32 " collisions", 2u);
-    throw_exception_unless(m_closed_two_hit_surfaces_ or m_open_one_hit_surfaces_ or m_open_two_hit_surfaces_,
-                           "Must be one of these %lu types", 3);
+    // basal::exception::throw_if(m_A.max_collisions() != 2, __FILE__, __LINE__, "First item must have a max of %"
+    // PRIu32 " collisions", 2u);
+    // basal::exception::throw_if((m_B.max_collisions() != 2, __FILE__, __LINE__, "Second
+    // item must have a max of %" PRIu32 " collisions", 2u);
+    basal::exception::throw_unless(m_closed_two_hit_surfaces_ or m_open_one_hit_surfaces_ or m_open_two_hit_surfaces_,
+                                   __FILE__, __LINE__, "Must be one of these %lu types", 3);
 }
 
 vector overlap::normal_(point const& overlap_point) const {

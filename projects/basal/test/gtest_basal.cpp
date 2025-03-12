@@ -15,13 +15,13 @@ TEST(BasalTest, FloatCheck) {
 
 TEST(BasalTest, ThrowAndCatch) {
     bool must_set = false;
-    basal::assert_if_not_thrown("Must throw exception", [&](void) -> void {
+    basal::exit_if_not_thrown("Must throw exception", [&](void) -> void {
         must_set = true;
         basal::exception::throw_unless(must_set == false, __FILE__, __LINE__);
     });
     ASSERT_TRUE(must_set);
     must_set = false;
-    basal::assert_if_not_thrown("Must throw exception", [&](void) -> void {
+    basal::exit_if_not_thrown("Must throw exception", [&](void) -> void {
         must_set = true;
         basal::exception::throw_if(must_set == true, __FILE__, __LINE__);
     });

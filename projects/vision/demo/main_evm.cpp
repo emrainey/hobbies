@@ -73,7 +73,8 @@ public:
             return filteredFrames;
         for (const auto& frame : frames) {
             // check the type of the frame to be CV_8U
-            throw_exception_unless(frame.type() == CV_8U, "Frame size does not match filter size %u", frame.type());
+            basal::exception::throw_unless(frame.type() == CV_8U, __FILE__, __LINE__,
+                                           "Frame size does not match filter size %u", frame.type());
 
             // Convert to frequency domain with a real and imaginary pair. The imaginary plane is zeros for now
             cv::Mat planes[] = {cv::Mat_<float>(frame), cv::Mat::zeros(frame.size(), CV_32F)};

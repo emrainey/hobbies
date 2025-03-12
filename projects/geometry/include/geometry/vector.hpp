@@ -168,10 +168,6 @@ public:
     vector_& normalize() noexcept(false) {
         precision m = magnitude();
         basal::exception::throw_if(basal::nearly_zero(m), __FILE__, __LINE__, "Magnitude is zero, can't normalize");
-        // if (basal::nearly_zero(m)) {
-        //     // don't do anything
-        //     return (*this);
-        // }
         return operator/=(m);
     }
 

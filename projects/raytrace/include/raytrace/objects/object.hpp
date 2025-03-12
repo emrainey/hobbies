@@ -248,7 +248,7 @@ public:
             if (basal::is_nan(collision.distance)) {
                 continue;
             }
-            throw_exception_if(collision.normal == R3::null, "The normal can't be null, (%d)", 0);
+            basal::exception::throw_if(collision.normal == R3::null, __FILE__, __LINE__, "The normal can't be null");
             if constexpr (can_ray_origin_be_collision) {
                 if (basal::nearly_zero(collision.distance)) {
                     vector const N = normal_(object_ray.location());
@@ -331,7 +331,7 @@ public:
     Bounds get_world_bounds(void) const {
         // finds the object's maximum radial distance from the object origin
         auto r = get_object_extent();
-        throw_exception_if(std::isnan(r), "Got a %lf from an extent\r\n", r);
+        basal::exception::throw_if(std::isnan(r), __FILE__, __LINE__, "Got a %lf from an extent\r\n", r);
         if (std::isinf(r)) {
             return Bounds{};  // infinite bounds
         }

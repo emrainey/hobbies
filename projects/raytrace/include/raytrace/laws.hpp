@@ -146,7 +146,8 @@ inline precision beers(vector const& D, precision C) {
 /// Computes the inverse square of distance. At zero distance, the values is 1.0 and drop below 1 as distance increases.
 /// Throws an exception if the distance is less than zero.
 inline precision inverse_square(precision distance) {
-    throw_exception_if(distance < 0.0_p, "Distance %lf must be greater than or equal to zero.", distance);
+    basal::exception::throw_if(distance < 0.0_p, __FILE__, __LINE__,
+                               "Distance %lf must be greater than or equal to zero.", distance);
     precision const b = distance + 1.0_p;  // to avoid division by zero and infinite values.
     return 1.0_p / (b * b);
 }

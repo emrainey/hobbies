@@ -22,8 +22,8 @@ plane::plane(R3::vector const& on, R3::point const& op) : plane(op, on) {
 }
 
 plane::plane(R3::point const& op, R3::vector const& on) : m_normal{on}, m_center_point{op} {
-    basal::exception::throw_unless(!basal::nearly_zero(m_normal.norm()), __FILE__, __LINE__,
-                                   "The magnitude of the normal can't be zero");
+    basal::exception::throw_if(basal::nearly_zero(m_normal.norm()), __FILE__, __LINE__,
+                               "The magnitude of the normal can't be zero");
     eq.a = m_normal[0];
     eq.b = m_normal[1];
     eq.c = m_normal[2];

@@ -22,12 +22,13 @@ hits plane::collisions_along(ray const& object_ray) const {
     hits ts;
     // is the ray parallel to the plane?
     // @note in object space, the center point is at the origin
-    vector const& N = unormal();  // .normalized();
+    vector const& N = unormal().normalized();
     vector const& V = object_ray.direction();
     precision const proj = dot(V, N);
     // if so the projection is not zero they collide *somewhere*
-    // could be positive or negative t.
-    if (not basal::nearly_zero(proj)) {  // they collide *somewhere* ( and proj < 0.0_p?)
+    // could be positive or negative t. Don't check for proj < 0.0_p since we may be
+    // concerned with colliding with the back-side of walls
+    if (not basal::nearly_zero(proj)) {  // they collide *somewhere*
         point const& P = object_ray.location();
         // get the vector of the center to the ray initial
         vector const C = geometry::R3::origin - P;
@@ -45,7 +46,7 @@ bool plane::is_surface_point(point const& world_point) const {
     if (T == R3::null) {
         return true;
     }
-    return basal::nearly_zero(dot(unormal(), T));
+    return basal::nearly_zero(dot(unormal().normalized(), T));
 }
 
 image::point plane::map(point const& object_surface_point) const {
@@ -65,7 +66,7 @@ bool plane::is_along_infinite_extent(ray const& world_ray) const {
     // is the ray parallel to the plane?
     auto object_ray = reverse_transform(world_ray);
     // @note in object space, the center point is at the origin
-    vector const& N = unormal();
+    vector const& N = unormal().normalized();
     vector const& V = object_ray.direction();
     // projection of normal on ray direction
     precision const proj = dot(V, N);

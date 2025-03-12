@@ -130,14 +130,6 @@ protected:
     static int const PROGRESS_PAIR = 2;
 };
 
-#define my_assert(condition, statement)                       \
-    {                                                         \
-        if ((condition) == false) {                           \
-            printf("%s failed, %s\n", #condition, statement); \
-            exit(-1);                                         \
-        }                                                     \
-    }
-
 int main(int argc, char* argv[]) {
     Parameters params;
     bool verbose = false;
@@ -161,21 +153,27 @@ int main(int argc, char* argv[]) {
     };
 
     basal::options::process(basal::dimof(opts), opts, argc, argv);
-    my_assert(basal::options::find(opts, "--dims", params.dim_name), "Must have a text value");
-    my_assert(basal::options::find(opts, "--fov", params.fov), "Must have a FOV value");
-    my_assert(basal::options::find(opts, "--verbose", verbose), "Must be able to assign bool");
-    my_assert(basal::options::find(opts, "--subsamples", params.subsamples), "Must have some number of subsamples");
-    my_assert(basal::options::find(opts, "--reflections", params.reflections), "Must have some number of reflections");
-    my_assert(basal::options::find(opts, "--module", params.module), "Must choose a module to load");
-    my_assert(basal::options::find(opts, "--aaa", params.mask_threshold), "Must be get value");
+    basal::exit_unless(basal::options::find(opts, "--dims", params.dim_name), __FILE__, __LINE__,
+                       "Must have a text value");
+    basal::exit_unless(basal::options::find(opts, "--fov", params.fov), __FILE__, __LINE__, "Must have a FOV value");
+    basal::exit_unless(basal::options::find(opts, "--verbose", verbose), __FILE__, __LINE__,
+                       "Must be able to assign bool");
+    basal::exit_unless(basal::options::find(opts, "--subsamples", params.subsamples), __FILE__, __LINE__,
+                       "Must have some number of subsamples");
+    basal::exit_unless(basal::options::find(opts, "--reflections", params.reflections), __FILE__, __LINE__,
+                       "Must have some number of reflections");
+    basal::exit_unless(basal::options::find(opts, "--module", params.module), __FILE__, __LINE__,
+                       "Must choose a module to load");
+    basal::exit_unless(basal::options::find(opts, "--aaa", params.mask_threshold), __FILE__, __LINE__,
+                       "Must be get value");
     basal::options::print(basal::dimof(opts), opts);
 
     basal::module mod(params.module.c_str());
-    my_assert(mod.is_loaded(), "Must have loaded module");
+    basal::exit_unless(mod.is_loaded(), __FILE__, __LINE__, "Must have loaded module");
 
     // get the symbol to load wth
     auto get_world = mod.get_symbol<raytrace::world_getter>("get_world");
-    my_assert(get_world != nullptr, "Must find module to load");
+    basal::exit_unless(get_world != nullptr, __FILE__, __LINE__, "Must find module to load");
 
     // creates a local reference to the object
     raytrace::world& world = *get_world();
@@ -183,7 +181,7 @@ int main(int argc, char* argv[]) {
     // Ncurses console
     Console console;
 #if defined(RENDER_TO_CONSOLE)
-    my_assert(console.get_width() % 2 == 0, "Must be an even console width");
+    basal::exit_unless(console.get_width() % 2 == 0, __FILE__, __LINE__, "Must be an even console width");
 #endif
     // The completion data will be stored in here, a bool per line.
 #if defined(RENDER_TO_CONSOLE)

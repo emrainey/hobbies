@@ -107,7 +107,7 @@ inline precision schlicks(precision n1, precision n2, iso::radians const& theta)
 /// @param b The second value
 /// @param light The frequency of the light
 inline precision cauchy(precision a, precision b, iso::hertz light) {
-    auto wavelength = 1.0f / light.value;
+    auto wavelength = 1.0_p / light.value;
     return a + (b / (wavelength * wavelength));
 }
 

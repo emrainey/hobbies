@@ -29,12 +29,13 @@ public:
                   mediums::roughness::tight}
         , yellowish{colors::yellow, mediums::ambient::dim, colors::yellow, mediums::smoothness::none,
                     mediums::roughness::tight} {
+        cb0.mapper(std::bind(&raytrace::objects::plane::map, &floor, std::placeholders::_1));
         floor.material(&cb0);
         s0.material(&reddish);
         s1.material(&greenish);
         s2.material(&blueish);
-        // s3.material(&yellowish);
-        s3.material(&mediums::metals::stainless);
+        s3.material(&yellowish);
+        s3.material(&mediums::metals::chrome);
     }
 
     ~PIleWorld() = default;
@@ -64,7 +65,6 @@ public:
     }
 
     void add_to(scene& scene) override {
-        // scene.add_light(&inner_light);
         scene.add_light(&sun_rays);
         scene.add_object(&floor);
         scene.add_object(&s0);
@@ -94,7 +94,7 @@ public:
 protected:
     raytrace::point look_from;
     raytrace::point look_at;
-    lights::beam sun_rays;
+    raytrace::lights::beam sun_rays;
     raytrace::point center;
     raytrace::objects::square floor;
     raytrace::mediums::checkerboard cb0;

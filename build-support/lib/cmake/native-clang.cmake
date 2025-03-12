@@ -3,18 +3,13 @@ set(CMAKE_SYSTEM_NAME ${CMAKE_HOST_SYSTEM_NAME})
 set(CMAKE_SYSTEM_PROCESSOR ${CMAKE_HOST_SYSTEM_PROCESSOR})
 
 # Set CC and CXX to clang and clang++ respectively
-# find_program(CMAKE_C_COMPILER NAME clang REQUIRED)
-# find_program(CMAKE_CXX_COMPILER NAME clang++ REQUIRED)
-
-# Since OpenMP is not supported by the default Clang anymore, we need to manually do this
-message(STATUS "Enabling OpenMP manually! Homebrew=$ENV{HOMEBREW_ROOT}")
-include_directories(/opt/homebrew/opt/libomp/include)
-add_link_options(-L/opt/homebrew/opt/libomp/lib -lomp)
+find_program(CMAKE_C_COMPILER NAME clang REQUIRED)
+find_program(CMAKE_CXX_COMPILER NAME clang++ REQUIRED)
 
 if (NOT TARGET enabled-warnings)
 add_library(enabled-warnings INTERFACE)
 target_compile_options(enabled-warnings INTERFACE
-    $<BUILD_INTERFACE:-Wall -Wextra -Werror -pedantic>
+    $<BUILD_INTERFACE:-Wall -Wextra -Werror -pedantic -Wconversion -Wdouble-promotion -Wfloat-equal>
 )
 endif()
 

@@ -5,9 +5,10 @@ find_package(OpenMP)
 if (NOT OpenMP_FOUND)
     # Homebrew's libomp is not in the default search path
     add_library(OpenMP::OpenMP_CXX INTERFACE IMPORTED)
-    target_compile_options(OpenMP::OpenMP_CXX INTERFACE -fopenmp)
+    target_compile_options(OpenMP::OpenMP_CXX INTERFACE $<IF:$<COMPILE_LANG_AND_ID:CXX,AppleClang>,,-fopenmp>)
     target_link_libraries(OpenMP::OpenMP_CXX INTERFACE omp)
-    target_link_directories(OpenMP::OpenMP_CXX INTERFACE /opt/homebrew/Cellar/libomp/19.1.6/lib/)
+    target_link_directories(OpenMP::OpenMP_CXX INTERFACE /opt/homebrew/opt/libomp/lib/)
+    target_include_directories(OpenMP::OpenMP_CXX INTERFACE /opt/homebrew/opt/libomp/include/)
 endif()
 
 add_library(hobbies-raytrace

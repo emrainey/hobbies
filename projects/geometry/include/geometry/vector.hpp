@@ -100,7 +100,7 @@ public:
     /// Determines if the vector's components are all zero
     inline bool is_zero(void) const {
         for (size_t i = 0; i < dimensions; i++) {
-            if (data[i] != 0.0_p or data[i] != -0.0_p) {
+            if (not basal::is_exactly_zero(data[i])) {
                 return false;
             }
         }

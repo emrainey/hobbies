@@ -5,6 +5,13 @@ namespace noise {
 using namespace linalg::operators;
 using namespace geometry::operators;
 
+namespace {  // in an anonymous namespace for testing
+// enforce the correctness at compile time!
+// static_assert(fade(0.5_p) == 0.5_p, "Must be equal");
+// static_assert(fade(1.0_p) == 1.0_p, "Must be equal");
+// static_assert(fade(2.0_p) == 32.0_p, "Must be equal");
+}  // namespace
+
 constexpr bool debug = false;
 
 noise::point const corners[] = {

@@ -71,22 +71,22 @@ precision Model::get_object_extent(void) const {
 
 void Model::addVertex(float x, float y, float z) {
     if constexpr (debug) {
-        printf("Model: Adding vertex %f %f %f\n", x, y, z);
+        printf("Model: Adding vertex %f %f %f\n", (double)x, (double)y, (double)z);
     }
     points_.emplace_back(x, y, z);
 }
 
 void Model::addNormal(float dx, float dy, float dz) {
     if constexpr (debug) {
-        printf("Model: Adding vector %f %f %f\n", dx, dy, dz);
+        printf("Model: Adding vector %f %f %f\n", (double)dx, (double)dy, (double)dz);
     }
-    raytrace::vector normal{dx, dy, dz};
+    raytrace::vector normal{(double)dx, (double)dy, (double)dz};
     normals_.emplace_back(normal);
 }
 
 void Model::addTexture(float u, float v) {
     if constexpr (debug) {
-        printf("Model: Adding texture %f %f\n", u, v);
+        printf("Model: Adding texture %f %f\n", (double)u, (double)v);
     }
     texels_.emplace_back(u, v);
 }

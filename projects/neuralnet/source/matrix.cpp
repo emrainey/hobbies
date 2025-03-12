@@ -5,7 +5,7 @@ namespace nn {
 
 precision sigmoid(precision x) {
     precision s = 1.0_p / (1.0_p + std::exp(-x));
-    if (s == -0.0_p) {
+    if (basal::is_exactly_zero(s)) {
         s = 0.0_p;
     }
     return s;

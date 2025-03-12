@@ -562,7 +562,7 @@ matrix matrix::inverse() const noexcept(false) {
                                    "Must be a square matrix");  // no inverses for non square matrix
     matrix m{rows, cols};
     precision det = determinant();
-    basal::exception::throw_unless(det != 0.0_p, g_filename, __LINE__, "Matrix is singular, not invertible");
+    basal::exception::throw_if(basal::nearly_zero(det), g_filename, __LINE__, "Matrix is singular, not invertible");
 
     if (rows == 1) {
         m[0][0] = 1.0_p / det;

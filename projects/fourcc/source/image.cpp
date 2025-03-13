@@ -121,14 +121,21 @@ bool image<abgr, pixel_format::ABGR>::save(std::string filename) const {
 template <>
 bool image<rgb8, pixel_format::RGB8>::save(std::string filename) const {
     if (is_extension(filename, ".ppm")) {
+        static constexpr bool use_p6 = true;
         FILE* fp = fopen(filename.c_str(), "wb");
         if (fp) {
-            fprintf(fp, "P7\n");
-            fprintf(fp, "WIDTH %zu\nHEIGHT %zu\nDEPTH %zu\n", width, height, depth);
-            fprintf(fp, "MAXVAL %u\n", 255u);
-            fprintf(fp, "TUPLTYPE %s\n", channel_order(format));
-            fprintf(fp, "ENDHDR\n");
-            for_each([&](rgb8 const& pixel) -> void { fwrite(&pixel, sizeof(rgb8), 1, fp); });
+            if constexpr (use_p6) {
+                fprintf(fp, "P6\n");
+                fprintf(fp, "%zu %zu\n255\n", width, height);
+                for_each([&](rgb8 const& pixel) -> void { fwrite(&pixel, sizeof(rgb8), 1, fp); });
+            } else {
+                fprintf(fp, "P7\n");
+                fprintf(fp, "WIDTH %zu\nHEIGHT %zu\nDEPTH %zu\n", width, height, depth);
+                fprintf(fp, "MAXVAL %u\n", 255u);
+                fprintf(fp, "TUPLTYPE %s\n", channel_order(format));
+                fprintf(fp, "ENDHDR\n");
+                for_each([&](rgb8 const& pixel) -> void { fwrite(&pixel, sizeof(rgb8), 1, fp); });
+            }
             fclose(fp);
             return true;
         }
@@ -164,6 +171,7 @@ bool image<rgb8, pixel_format::RGB8>::save(std::string filename) const {
                 }
             }
             fclose(fp);
+            return true;
         }
     }
     return false;

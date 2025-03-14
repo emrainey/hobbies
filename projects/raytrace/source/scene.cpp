@@ -76,6 +76,8 @@ objects::hits scene::find_intersections(ray const& world_ray, object_list const&
         auto collision = objptr->intersect(world_ray);
         if (get_type(collision.intersect) != IntersectionType::None) {
             statistics::get().intersections_with_objects++;
+        } else {
+            statistics::get().missed_rays++;
         }
         if (get_type(collision.intersect) == IntersectionType::Point) {
             statistics::get().intersections_with_point++;

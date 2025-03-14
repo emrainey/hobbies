@@ -153,3 +153,22 @@ TEST(TreeTest, AddObjects) {
     EXPECT_EQ(&s0, hits[0].object);
     EXPECT_EQ(&s2, hits[1].object);
 }
+
+static void subspheres(std::vector<raytrace::objects::sphere*>& spheres, raytrace::point const& center, precision R,
+                       size_t depth) {
+    if (depth > 0) {
+        precision radius = R / 6.0_p;
+        for (precision z = -R; z <= R; z += R) {
+            for (precision y = -R; y <= R; y += R) {
+                for (precision x = -R; x <= R; x += R) {
+                    // if all are zero, continue
+                    if (basal::equivalent(x, 0.0_p) and basal::equivalent(y, 0.0_p) and basal::equivalent(z, 0.0_p)) {
+                        continue;
+                    }
+                    spheres.push_back(new raytrace::objects::sphere(center + R3::vector{{x, y, z}}, radius));
+                    subspheres(spheres, spheres.back()->position(), R / 3.0_p, depth - 1);
+                }
+            }
+        }
+    }
+}

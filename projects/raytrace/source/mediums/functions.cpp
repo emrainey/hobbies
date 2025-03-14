@@ -14,26 +14,30 @@ color checkerboard(image::point const& p, palette const& pal) {
     precision h = 0.5_p;
     precision u = std::fmod(p.x, 1.0_p);  // values between -1.0_p and 1.0_p exclusive
     precision v = std::fmod(p.y, 1.0_p);  // values between -1.0_p and 1.0_p exclusive
+
+    const bool u_positive = basal::is_greater_than_or_equal_to_zero(u);
+    const bool v_positive = basal::is_greater_than_or_equal_to_zero(v);
+
     // this only really works in u > 0 && v > 0
-    if (u >= 0.0_p and v >= 0.0_p) {  // quad 1
+    if (u_positive and v_positive) {  // quad 1
         if ((u < h and v < h) or (u >= h and v >= h)) {
             return pal[0];
         } else {
             return pal[1];
         }
-    } else if (u < 0.0_p and v >= 0.0_p) {  // quad 2
+    } else if ((not u_positive) and v_positive) {  // quad 2
         if ((u > -h and v < h) or (u <= -h and v >= h)) {
             return pal[3];
         } else {
             return pal[2];
         }
-    } else if (u >= 0.0_p and v < 0.0_p) {  // quad 4
+    } else if (u_positive and (not v_positive)) {  // quad 4
         if ((u < h and v > -h) or (u >= h and v <= -h)) {
             return pal[7];
         } else {
             return pal[6];
         }
-    } else if (u < 0.0_p and v < 0.0_p) {  // quad 3
+    } else if ((not u_positive) and (not v_positive)) {  // quad 3
         if ((u > -h and v > -h) or (u <= -h and v <= -h)) {
             return pal[4];
         } else {
@@ -54,50 +58,54 @@ color checkerboard(raytrace::point const& p, palette const& pal) {
     precision v = std::fmod(p.y, 1.0_p);  // values between -1.0_p and 1.0_p exclusive
     precision w = std::fmod(p.z, 1.0_p);  // values between -1.0_p and 1.0_p exclusive
 
+    const bool u_positive = basal::is_greater_than_or_equal_to_zero(u);
+    const bool v_positive = basal::is_greater_than_or_equal_to_zero(v);
+    const bool w_positive = basal::is_greater_than_or_equal_to_zero(w);
+
     // there are 8 cases of p/ne (if you just do std::abs, you get a weird pattern)
-    if (u >= 0.0_p and v >= 0.0_p and w >= 0.0_p) {
+    if (u_positive and v_positive and w_positive) {
         if ((u < h and v < h) or (u >= h and v >= h)) {
             return (w < h ? pal[0] : pal[1]);
         } else {
             return (w < h ? pal[1] : pal[0]);
         }
-    } else if (u < 0.0_p and v >= 0.0_p and w >= 0.0_p) {
+    } else if ((not u_positive) and v_positive and w_positive) {
         if ((u < -h and v < h) or (u >= -h and v >= h)) {
             return (w < h ? pal[0] : pal[1]);
         } else {
             return (w < h ? pal[1] : pal[0]);
         }
-    } else if (u < 0.0_p and v < 0.0_p and w >= 0.0_p) {
+    } else if ((not u_positive) and (not v_positive) and w_positive) {
         if ((u < -h and v < -h) or (u >= -h and v >= -h)) {
             return (w < h ? pal[0] : pal[1]);
         } else {
             return (w < h ? pal[1] : pal[0]);
         }
-    } else if (u >= 0.0_p and v < 0.0_p and w >= 0.0_p) {
+    } else if (u_positive and (not v_positive) and w_positive) {
         if ((u < h and v < -h) or (u >= h and v >= -h)) {
             return (w < h ? pal[0] : pal[1]);
         } else {
             return (w < h ? pal[1] : pal[0]);
         }
-    } else if (u >= 0.0_p and v >= 0.0_p and w < 0.0_p) {
+    } else if (u_positive and v_positive and (not w_positive)) {
         if ((u < h and v < h) or (u >= h and v >= h)) {
             return (w < -h ? pal[0] : pal[1]);
         } else {
             return (w < -h ? pal[1] : pal[0]);
         }
-    } else if (u < 0.0_p and v >= 0.0_p and w < 0.0_p) {
+    } else if ((not u_positive) and v_positive and (not w_positive)) {
         if ((u < -h and v < h) or (u >= -h and v >= h)) {
             return (w < -h ? pal[0] : pal[1]);
         } else {
             return (w < -h ? pal[1] : pal[0]);
         }
-    } else if (u < 0.0_p and v < 0.0_p and w < 0.0_p) {
+    } else if ((not u_positive) and (not v_positive) and (not w_positive)) {
         if ((u < -h and v < -h) or (u >= -h and v >= -h)) {
             return (w < -h ? pal[0] : pal[1]);
         } else {
             return (w < -h ? pal[1] : pal[0]);
         }
-    } else {  // if (u >= 0.0_p and v < 0.0_p and w < 0.0_p) {
+    } else {  // if (u_positive and (not v_positive) and (not w_positive)) {
         if ((u < h and v < -h) or (u >= h and v >= -h)) {
             return (w < -h ? pal[0] : pal[1]);
         } else {

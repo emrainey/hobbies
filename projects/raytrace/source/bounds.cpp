@@ -49,14 +49,14 @@ bool Bounds::intersects(ray const& r) const {
     precision const& k = r.direction()[2];
     if (not basal::is_exactly_zero(i)) {
         precision t_min = (min.x - x) / i;
-        if (t_min >= 0.0_p) {
+        if (basal::is_greater_than_or_equal_to_zero(t_min)) {
             auto point_min = r.distance_along(t_min);
             if (contained(point_min)) {
                 return true;
             }
         }
         precision t_max = (max.x - x) / i;
-        if (t_max >= 0.0_p) {
+        if (basal::is_greater_than_or_equal_to_zero(t_max)) {
             auto point_max = r.distance_along(t_max);
             if (contained(point_max)) {
                 return true;
@@ -65,14 +65,14 @@ bool Bounds::intersects(ray const& r) const {
     }
     if (not basal::is_exactly_zero(j)) {
         precision t_min = (min.y - y) / j;
-        if (t_min >= 0.0_p) {
+        if (basal::is_greater_than_or_equal_to_zero(t_min)) {
             auto point_min = r.distance_along(t_min);
             if (contained(point_min)) {
                 return true;
             }
         }
         precision t_max = (max.y - y) / j;
-        if (t_max >= 0.0_p) {
+        if (basal::is_greater_than_or_equal_to_zero(t_max)) {
             auto point_max = r.distance_along(t_max);
             if (contained(point_max)) {
                 return true;
@@ -81,14 +81,14 @@ bool Bounds::intersects(ray const& r) const {
     }
     if (not basal::is_exactly_zero(k)) {
         precision t_min = (min.z - z) / k;
-        if (t_min >= 0.0_p) {
+        if (basal::is_greater_than_or_equal_to_zero(t_min)) {
             auto point_min = r.distance_along(t_min);
             if (contained(point_min)) {
                 return true;
             }
         }
         precision t_max = (max.z - z) / k;
-        if (t_max >= 0.0_p) {
+        if (basal::is_greater_than_or_equal_to_zero(t_max)) {
             auto point_max = r.distance_along(t_max);
             if (contained(point_max)) {
                 return true;

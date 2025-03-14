@@ -35,6 +35,8 @@ public:
     size_t intersections_with_points{0u};
     /// Intersections with Lines
     size_t intersections_with_line{0u};
+    /// No intersections with objects
+    size_t missed_rays{0u};
     /// The count of rays reflected off objects
     size_t bounced_rays{0u};
     /// The count of rays transmitted through mediums via refraction

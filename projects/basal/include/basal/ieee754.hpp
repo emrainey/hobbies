@@ -55,6 +55,8 @@ constexpr static precision smallish = use_high_precision ? 0x1.0p-10 : 0x1.0p-8;
 constexpr static precision nan = std::numeric_limits<precision>::quiet_NaN();
 constexpr static precision pos_inf = std::numeric_limits<precision>::infinity();
 constexpr static precision neg_inf = std::numeric_limits<precision>::infinity() * -1;
+constexpr static precision pos_zero = precision(0.0);
+constexpr static precision neg_zero = precision(-0.0);
 
 inline precision clamp(precision min, precision value, precision max) {
     return std::max(min, std::min(value, max));
@@ -81,6 +83,18 @@ inline bool nearly_zero(precision a) {
 /// @param a The precision to check
 inline bool is_exactly_zero(precision a) {
     return (FP_ZERO == std::fpclassify(a));
+}
+
+/// @brief Returns true if the value is greater than or equal to zero (+/-0.0_p)
+inline bool is_greater_than_or_equal_to_zero(precision a) {
+    using namespace basal::literals;
+    return (a > 0.0_p or is_exactly_zero(a));
+}
+
+/// @brief Returns true if the value is less than or equal to zero (+/-0.0_p)
+inline bool is_less_than_or_equal_to_zero(precision a) {
+    using namespace basal::literals;
+    return (a < 0.0_p or is_exactly_zero(a));
 }
 
 /// A comparison which neither value is larger than the other, effectively equivalent

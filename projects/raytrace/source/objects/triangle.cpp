@@ -69,7 +69,8 @@ bool triangle::is_contained(point const& object_point) const {
             NdDBxBC = R3::triple(N, DB, BC);
             NdDCxCA = R3::triple(N, DC, CA);
         }
-        if (NdDAxAB >= 0 and NdDBxBC >= 0 and NdDCxCA >= 0) {
+        if (basal::is_greater_than_or_equal_to_zero(NdDAxAB) and basal::is_greater_than_or_equal_to_zero(NdDBxBC)
+            and basal::is_greater_than_or_equal_to_zero(NdDCxCA)) {
             return true;
         }
     }

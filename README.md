@@ -41,12 +41,12 @@ You can open either the `hobbies.code-workspace` or the folder itself. VSCode ca
 
 ## Building
 
-Due to issues with OpenMP no longer being supported on Apple Clang and GCC not being able to link (can't find libgcrt1.a), LLVM 18 is the currently working compiler.
+Due to issues with OpenMP no longer being supported on Apple Clang and GCC not being able to link (can't find libgcrt1.a), LLVM is the currently working compiler.
 
 ```bash
 # Building on Apple Silicon
-cmake --preset native-llvm-18
-cmake --build build/native-llvm-18
+cmake --preset native-llvm-19
+cmake --build build/native-llvm-19
 ```
 
 ### Conan
@@ -59,7 +59,7 @@ While in the hobbies' root, you can run things by pre-pending the LD (DYLD) path
 
 ```bash
 # Running the NCurses Raytracing Console on Mac
-DYLD_LIBRARY_PATH=install/lib:build/projects/raytrace ./build/projects/raytrace/demo_curses -m libworld_example.dylib
+DYLD_LIBRARY_PATH=install/lib:build/projects/raytrace ./build/projects/raytrace/demo_curses -m world_example -d QCIF -r 4 -b 5
 ```
 
 ## Testing Folder

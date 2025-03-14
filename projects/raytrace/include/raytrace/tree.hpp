@@ -6,6 +6,13 @@
 namespace raytrace {
 
 namespace tree {
+
+/// @brief  A node in the tree structure. It contains a bounding box and a list of objects. Each node can have up to N
+/// subnodes. Abstractly a node is a bounding box that can contain or share objects with other peer-level nodes. When an
+/// object is shared it should not be add to the subnodes of the node. The node can be split into 8 subnodes (octants)
+/// if it has more than a certain number of objects. The node can also be used to determine if a ray intersects with the
+/// objects in the node or any of its subnodes.
+/// @note   The node is not a tree, but it can be used to build a tree structure by linking nodes together.
 class Node {
 public:
     using hits = objects::object::hits;

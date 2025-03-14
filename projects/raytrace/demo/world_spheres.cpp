@@ -38,7 +38,7 @@ public:
                    //, look_at(0, 0, 0)
         , look_from{-10.0_p, 6.66_p, 20.0_p}
         , look_at{3.0_p, 0.0_p, 6.0_p}
-        , custom_grey{0.5_p, 0.5_p, 0.5_p}
+        , custom_grey{0.75_p, 0.75_p, 0.75_p}
         , custom_metal{custom_grey, raytrace::mediums::smoothness::mirror, raytrace::mediums::roughness::medium}
         , spheres{}
         , specks{}
@@ -48,17 +48,20 @@ public:
         subspheres(spheres, center, 12.0_p, 2);
         for (auto& s : spheres) {
             // s->material(&custom_metal);
-            s->material(&mediums::metals::steel);
+            s->material(&mediums::metals::stainless);
         }
         specks.push_back(new lights::speck(raytrace::point{+6, +6, 9}, colors::white, lights::intensities::blinding));
         specks.push_back(new lights::speck(raytrace::point{-6, +6, 9}, colors::white, lights::intensities::blinding));
         specks.push_back(new lights::speck(raytrace::point{-6, -6, 9}, colors::white, lights::intensities::blinding));
         specks.push_back(new lights::speck(raytrace::point{+6, -6, 9}, colors::white, lights::intensities::blinding));
-        // bulbs.push_back(new lights::bulb(raytrace::point{+6, +6, 9}, 1.0_p, colors::white,
-        // lights::intensities::blinding, 16)); bulbs.push_back(new lights::bulb(raytrace::point{-6, +6, 9}, 1.0_p,
-        // colors::white, lights::intensities::blinding, 16)); bulbs.push_back(new lights::bulb(raytrace::point{-6, -6,
-        // 9}, 1.0_p, colors::white, lights::intensities::blinding, 16)); bulbs.push_back(new
-        // lights::bulb(raytrace::point{+6, -6, 9}, 1.0_p, colors::white, lights::intensities::blinding, 16));
+        // bulbs.push_back(
+        //     new lights::bulb(raytrace::point{+6, +6, 9}, 1.0_p, colors::white, lights::intensities::blinding, 16));
+        // bulbs.push_back(
+        //     new lights::bulb(raytrace::point{-6, +6, 9}, 1.0_p, colors::white, lights::intensities::blinding, 16));
+        // bulbs.push_back(
+        //     new lights::bulb(raytrace::point{-6, -6, 9}, 1.0_p, colors::white, lights::intensities::blinding, 16));
+        // bulbs.push_back(
+        //     new lights::bulb(raytrace::point{+6, -6, 9}, 1.0_p, colors::white, lights::intensities::blinding, 16));
     }
 
     ~SpheresWorld() {

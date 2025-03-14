@@ -116,7 +116,7 @@ image::point cone::map(point const& object_surface_point) const {
     precision u = (object_surface_point[2] / (-2.0_p * h)) + 0.5_p;
     // theta goes from +pi to -pi we want to map -pi to 1.0_p and + pi to zero
     precision v = 0.0_p;
-    if (polar.y >= 0) {
+    if (basal::is_greater_than_or_equal_to_zero(polar.y)) {
         v = 0.5_p - (polar.y / (+2.0_p * iso::pi));
     } else {
         v = 0.5_p + (polar.y / (-2.0_p * iso::pi));

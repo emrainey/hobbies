@@ -22,7 +22,7 @@ std::tuple<precision, precision> quadratic_roots(precision a, precision b, preci
         return std::make_tuple(basal::nan, basal::nan);
     }
     auto i = (b * b) - (4.0_p * a * c);
-    if (i >= 0.0_p) {
+    if (basal::is_greater_than_or_equal_to_zero(i)) {
         auto p = (-b + sqrt(i)) / (2.0_p * a);
         auto q = (-b - sqrt(i)) / (2.0_p * a);
         return std::make_tuple(p, q);
@@ -194,11 +194,11 @@ std::tuple<precision, precision, precision, precision> quartic_roots(precision a
     complex_ X3 = ((-b * 0.5_p) + m - gamma) * 0.5_p;
     complex_ X4 = ((-b * 0.5_p) - m - delta) * 0.5_p;
 
-    if (alpha_plus_beta.real() >= 0) {
+    if (alpha_plus_beta.real() >= 0.0) {
         x1 = std::isinf(X1.real()) ? basal::nan : X1.real();
         x3 = std::isinf(X3.real()) ? basal::nan : X3.real();
     }
-    if (alpha_minus_beta.real() >= 0) {
+    if (alpha_minus_beta.real() >= 0.0) {
         x2 = std::isinf(X2.real()) ? basal::nan : X2.real();
         x4 = std::isinf(X4.real()) ? basal::nan : X4.real();
     }

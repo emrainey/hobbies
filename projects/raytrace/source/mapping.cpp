@@ -34,7 +34,7 @@ geometry::R2::point cylindrical(precision scale, geometry::R3::point const& p) {
     precision u = (p.z / (-2.0_p * scale)) + 0.5_p;
     // theta goes from +pi to -pi we want to map -pi to 1.0_p and + pi to zero
     precision v = 0.0_p;
-    if (polar.y >= 0) {
+    if (basal::is_greater_than_or_equal_to_zero(polar.y)) {
         v = 0.5_p - (polar.y / (+2.0_p * iso::pi));
     } else {
         v = 0.5_p + (polar.y / (-2.0_p * iso::pi));
@@ -91,7 +91,7 @@ geometry::R2::point planar_polar(raytrace::vector const& N, raytrace::vector con
     // printf("Theta0: %f, Theta1: %f\n", theta0, theta1);
     precision theta = theta0;
     // if the theta1 is > pi/2 then we need to consider the theta0 angle as a negative angle.
-    if (theta1 > iso::pi / 2) {
+    if (theta1 > iso::pi / 2.0_p) {
         theta = (iso::pi - theta0) + iso::pi;
     }
 
@@ -105,7 +105,7 @@ geometry::R3::point golden_ratio_mapper(size_t const numerator, size_t const den
     // derived from https://stackoverflow.com/questions/9600801/evenly-distributing-n-points-on-a-sphere
 
     // this part can be computed once and applied again and again
-    static precision const golden_phi_radians = iso::pi * (1.0_p + std::sqrt(5));
+    static precision const golden_phi_radians = iso::pi * (1.0_p + std::sqrt(5.0));
     precision const value = ((precision)numerator + 0.5_p) / (precision)denominator;
     precision const phi = std::acos(1.0_p - (2.0_p * value));
     precision const theta = golden_phi_radians * static_cast<precision>(numerator);

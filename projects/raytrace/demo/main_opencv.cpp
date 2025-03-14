@@ -168,12 +168,12 @@ int main(int argc, char* argv[]) {
                         bool done = (count == completed.size());
                         fprintf(stdout,
                                 "\r[ %0.3lf %%] rays cast: %zu dots: %zu cross: %zu intersects: %zu bounced: %zu "
-                                "transmitted: %zu %s ",
+                                "transmitted: %zu missed: %zu %s ",
                                 done ? 100.0_p : percentage, raytrace::statistics::get().cast_rays_from_camera,
                                 geometry::statistics::get().dot_operations, geometry::statistics::get().cross_products,
                                 raytrace::statistics::get().intersections_with_objects,
                                 raytrace::statistics::get().bounced_rays, raytrace::statistics::get().transmitted_rays,
-                                done ? "\r\n" : "");
+                                raytrace::statistics::get().missed_rays, done ? "\r\n" : "");
                         // if (done) return;
                     }
                     fflush(stdout);

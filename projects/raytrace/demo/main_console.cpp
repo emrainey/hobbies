@@ -224,6 +224,7 @@ int main(int argc, char* argv[]) {
                 console.print(16, w, "SAMPLE: %zu", raytrace::statistics::get().sampled_rays);
                 console.print(17, w, " S.CLR: %zu", raytrace::statistics::get().color_sampled_rays);
                 console.print(18, w, "ABSORB: %zu", raytrace::statistics::get().absorbed_rays);
+                console.print(19, w, "MISSED: %zu", raytrace::statistics::get().missed_rays);
                 console.refresh();
             }
             // sleep for a bit

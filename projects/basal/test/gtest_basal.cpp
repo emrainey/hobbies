@@ -1,16 +1,100 @@
 #include <gtest/gtest.h>
 
 #include <basal/basal.hpp>
+#include <basal/gtest_helper.hpp>
 
 using namespace basal::literals;
 
-TEST(BasalTest, FloatCheck) {
+TEST(BasalTest, PrecisionLiteral) {
+    using namespace basal::literals;
+    ASSERT_PRECISION_EQ(0.0_p, 0.0);  // test precision literal
+}
+
+TEST(BasalTest, PrecisionEpsilon) {
+    ASSERT_LT(
+        std::numeric_limits<basal::precision>::epsilon(),
+        basal::epsilon);  // our epsilon is larger than std::numeric_limits<basal::precision>::epsilon() on purpose
+    // this lets us have larger numbers which can have some precision loss
+}
+
+TEST(BasalTest, PrecisionConstants) {
+    ASSERT_LE(basal::epsilon, 1.0 / 1024.0);  // At least this small
+    ASSERT_PRECISION_EQ(basal::pos_inf, std::numeric_limits<basal::precision>::infinity());
+    ASSERT_PRECISION_EQ(basal::neg_inf, -std::numeric_limits<basal::precision>::infinity());
+    // ASSERT_PRECISION_EQ(basal::nan, std::numeric_limits<basal::precision>::quiet_NaN()); // this won't be true
+}
+
+TEST(BasalTest, PrecisionNearlyEquals) {
     ASSERT_TRUE(basal::nearly_equals(0.0125_p, 0.0124_p, 0.001_p));
     ASSERT_FALSE(basal::nearly_equals(0.0125_p, 0.0124_p, 0.0001_p));
-    ASSERT_FALSE(basal::nearly_equals(0.0125_p, 0.0124_p));
-    ASSERT_TRUE(basal::nearly_equals(0.0125_p, 0.0125_p));
+    ASSERT_FALSE(basal::nearly_equals(0.0125_p, 0.0124_p, std::numeric_limits<basal::precision>::epsilon()));
+    ASSERT_FALSE(basal::nearly_equals(0.0125_p, 0.0124_p));  // uses default epsilon
+    ASSERT_TRUE(basal::nearly_equals(0.0125_p, 0.0125_p));   // uses default epsilon
     basal::precision value = 1.0_p / 3.0_p;
     ASSERT_TRUE(basal::nearly_equals(value * 3.0_p, 1.0_p));
+    // 256 is already too large to keep track of the precision of the epsilon
+    ASSERT_TRUE(basal::nearly_equals(256.0_p + std::numeric_limits<basal::precision>::epsilon(), 256.0_p));
+    ASSERT_TRUE(
+        basal::nearly_equals(256.0_p + basal::epsilon,
+                             256.0_p));  // our epsilon is larger than std::numeric_limits<basal::precision>::epsilon()
+}
+
+TEST(BasalTest, PrecisionNearlyZero) {
+    ASSERT_TRUE(basal::nearly_zero(0.0_p));
+    ASSERT_TRUE(basal::nearly_zero(-0.0_p));
+    ASSERT_TRUE(basal::nearly_zero(std::numeric_limits<basal::precision>::epsilon()));
+    ASSERT_FALSE(basal::nearly_zero(basal::epsilon));
+    ASSERT_FALSE(basal::nearly_zero(1.0_p));
+    ASSERT_FALSE(basal::nearly_zero(-1.0_p));
+}
+
+TEST(BasalTest, PrecisionEquivalent) {
+    // 256 is already too large to keep track of the precision of the epsilon
+    ASSERT_TRUE(basal::equivalent(256.0_p + std::numeric_limits<basal::precision>::epsilon(), 256.0_p));
+    // 1 is not too large to keep track of the precision of the epsilon
+    ASSERT_FALSE(basal::equivalent(1.0_p + std::numeric_limits<basal::precision>::epsilon(), 1.0_p));
+    // 0.5 is not too large to keep track of the precision of the epsilon
+    ASSERT_FALSE(basal::equivalent(0.5_p + std::numeric_limits<basal::precision>::epsilon(), 0.5_p));
+    // negative zero is equivalent to positive zero
+    ASSERT_TRUE(basal::equivalent(0.0_p, -0.0_p));
+}
+
+TEST(BasalTest, PrecisionIsExactlyZero) {
+    ASSERT_TRUE(basal::is_exactly_zero(0.0_p));
+    ASSERT_TRUE(basal::is_exactly_zero(-0.0_p));
+    ASSERT_FALSE(basal::is_exactly_zero(std::numeric_limits<basal::precision>::epsilon()));
+}
+
+TEST(BasalTest, PrecisionNan) {
+    // Only NaN is itself
+    ASSERT_TRUE(basal::is_nan(basal::nan));
+    ASSERT_FALSE(basal::is_nan(0.0_p));
+}
+
+TEST(BasalTest, PrecisionClamp) {
+    ASSERT_PRECISION_EQ(basal::clamp(0.0_p, 1.0_p, 2.0_p), 1.0_p);
+    ASSERT_PRECISION_EQ(basal::clamp(0.0_p, 3.0_p, 2.0_p), 2.0_p);
+    ASSERT_PRECISION_EQ(basal::clamp(1.0_p, -3.0_p, 2.0_p), 1.0_p);
+    ASSERT_PRECISION_EQ(basal::clamp(-1.0_p, -4.0_p, 2.0_p), -1.0_p);
+}
+
+TEST(BasalTest, PrecisionIsGreaterThanOrEqualToZero) {
+    ASSERT_TRUE(basal::is_greater_than_or_equal_to_zero(0.0_p));
+    ASSERT_TRUE(basal::is_greater_than_or_equal_to_zero(-0.0_p));
+    ASSERT_TRUE(basal::is_greater_than_or_equal_to_zero(std::numeric_limits<basal::precision>::epsilon()));
+    ASSERT_TRUE(basal::is_greater_than_or_equal_to_zero(1.0_p));
+    ASSERT_TRUE(basal::is_greater_than_or_equal_to_zero(std::numeric_limits<basal::precision>::infinity()));
+    ASSERT_FALSE(basal::is_greater_than_or_equal_to_zero(-std::numeric_limits<basal::precision>::epsilon()));
+    ASSERT_FALSE(basal::is_greater_than_or_equal_to_zero(-1.0_p));
+}
+
+TEST(BasalTest, PrecisionIsLessThanOrEqualToZero) {
+    ASSERT_TRUE(basal::is_less_than_or_equal_to_zero(0.0_p));
+    ASSERT_TRUE(basal::is_less_than_or_equal_to_zero(-0.0_p));
+    ASSERT_TRUE(basal::is_less_than_or_equal_to_zero(-std::numeric_limits<basal::precision>::epsilon()));
+    ASSERT_FALSE(basal::is_less_than_or_equal_to_zero(std::numeric_limits<basal::precision>::epsilon()));
+    ASSERT_FALSE(basal::is_less_than_or_equal_to_zero(1.0_p));
+    ASSERT_TRUE(basal::is_less_than_or_equal_to_zero(-std::numeric_limits<basal::precision>::infinity()));
 }
 
 TEST(BasalTest, ThrowAndCatch) {

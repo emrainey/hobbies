@@ -79,7 +79,7 @@ hits pyramid::collisions_along(ray const& object_ray) const {
     };
     for (size_t i = 0; i < 4; i++) {
         if (not basal::is_nan(t[i])) {
-            if (usable[i] and basal::is_greater_than_or_equal_to_zero(t[i])) {
+            if (usable[i]) {
                 point R = object_ray.distance_along(t[i]);
                 ts.emplace_back(intersection{R}, t[i], normal_(R), this);
             }

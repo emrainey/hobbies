@@ -145,7 +145,7 @@ color scene::trace(ray const& world_ray, mediums::medium const& media, size_t re
         // grab the normal on the surface at that point, ensure it's normalized
         vector world_surface_normal = nearest.normal.normalized();
         if constexpr (enforce_ranges) {
-            basal::exception::throw_unless(basal::nearly_equals(world_surface_normal.magnitude(), 1.0_p), __FILE__,
+            basal::exception::throw_unless(basal::nearly_equals(world_surface_normal.quadrance(), 1.0_p), __FILE__,
                                            __LINE__, "Must be normalized");
         }
         // if this is true, we've collided with something from the inside or the "backside"

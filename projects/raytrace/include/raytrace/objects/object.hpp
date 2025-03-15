@@ -236,10 +236,11 @@ public:
     ///
     virtual hit intersect(ray const& world_ray) const {
         hit closest;
-        /// @note While we could be pedantic about having a unit normal, it doesn't really stop us from working.
-        // basal::exception::throw_unless(basal::nearly_equals(world_ray.direction().quadrance(), 1.0_p), __FILE__,
-        // __LINE__, "The ray must have a unit vector");
-
+        if constexpr (enforce_ranges) {
+            /// @note While we could be pedantic about having a unit normal, it doesn't really stop us from working.
+            basal::exception::throw_unless(basal::nearly_equals(world_ray.direction().quadrance(), 1.0_p), __FILE__,
+                                           __LINE__, "The ray must have a unit vector");
+        }
         ray object_ray = entity_<DIMS>::reverse_transform(world_ray);
         // get the set of all collisions with the object
         hits collisions = collisions_along(object_ray);

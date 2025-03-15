@@ -1,5 +1,8 @@
 #pragma once
 
+/// @file
+/// The Raytrace library scene header
+
 #include <basal/printable.hpp>
 #include <vector>
 

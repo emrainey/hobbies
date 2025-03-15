@@ -12,8 +12,6 @@ constexpr bool is_newline(char const c) {
 namespace raytrace {
 namespace obj {
 
-static constexpr bool debug = false;
-
 class Observer {
 public:
     /// @brief Adds a vertex to the Observer
@@ -150,7 +148,7 @@ public:
                 Subparse(c);
                 break;
             case State::Vertices:
-                if constexpr (debug) {
+                if constexpr (debug::objparser) {
                     printf("Vertices subtype?: %c\n", c);
                 }
                 if (c == 'n') {
@@ -206,7 +204,7 @@ public:
 
 protected:
     void Complete(void) {
-        if constexpr (debug) {
+        if constexpr (debug::objparser) {
             printf("state=%c sub=%c Buffer=%s\n", basal::to_underlying(m_state_), basal::to_underlying(m_substate_),
                    m_buffer_);
         }

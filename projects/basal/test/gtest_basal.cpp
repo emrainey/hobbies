@@ -164,3 +164,45 @@ TEST(BasalTest, FloatToHalfToFloat) {
 
     ASSERT_FLOAT_EQ(0.99951172f, float(0.99951172_hf));
 }
+
+class DebuggableFixture
+    : public ::testing::Test
+    , public basal::debuggable {
+public:
+    DebuggableFixture() : debuggable{} {
+        // constructor
+    }
+
+    ~DebuggableFixture() = default;
+
+    void SetUp() override {
+        // setup code
+        ASSERT_EQ(0u, mask().all);  // ensure all zones are clear
+    }
+    void TearDown() override {
+        // teardown code
+        mask().all = 0u;  // clear all zones
+    }
+};
+
+TEST_F(DebuggableFixture, Empty) {
+}
+
+TEST_F(DebuggableFixture, Mask) {
+    // set the mask to all zones
+    mask().all = 0xFFFFFFFF;
+    ASSERT_EQ(0xFFFFFFFFu, mask().all);
+    ASSERT_TRUE(mask().zones.priority);
+    ASSERT_TRUE(mask().zones.fatal);
+    ASSERT_TRUE(mask().zones.error);
+    ASSERT_TRUE(mask().zones.warn);
+    ASSERT_TRUE(mask().zones.api);
+    ASSERT_TRUE(mask().zones.info);
+    mask().zones.info = 0;  // clear the info zone
+    ASSERT_FALSE(mask().zones.info);
+}
+
+TEST_F(DebuggableFixture, Emit) {
+    // emit a message
+    emit("Hello World");
+}

@@ -6,9 +6,7 @@
 ///
 #pragma once
 
-/// The doorgame namespace
-namespace doorgame {}
-
+#include "doorgame/configuration.hpp"
 #include "doorgame/actions.hpp"
 #include "doorgame/damages.hpp"
 #include "doorgame/directions.hpp"

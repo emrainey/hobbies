@@ -20,7 +20,7 @@ public:
     MonochromeWorld()
         : light_subsamples{5}
         , look_from{15, -20, 0}
-        , look_at{10, 20, 20}
+        , look_at{20, 20, 15}  // , look_at{10, 20, 20}
         , light0{raytrace::point{-5, 0, 40}, 1, colors::white, 10, light_subsamples}
         , light1{raytrace::point{5, 0, 40}, 1, colors::white, 10, light_subsamples}
         , beam0{raytrace::vector{10, 10, -100}, colors::white, 10E11}

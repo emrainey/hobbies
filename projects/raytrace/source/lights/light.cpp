@@ -5,8 +5,6 @@ namespace raytrace {
 namespace lights {
 using namespace linalg::operators;
 
-constexpr static bool use_true_intensity{true};
-
 light::light(point const& position, color const& color, precision intensity, size_t number_of_samples, Falloff falloff)
     : entity{position}, m_color{color}, m_intensity{intensity}, m_samples{number_of_samples}, m_falloff{falloff} {
 }

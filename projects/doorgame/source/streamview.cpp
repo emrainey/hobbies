@@ -1,10 +1,9 @@
+#include "doorgame/configuration.hpp"
 #include "doorgame/streamview.hpp"
 
 #include <basal/basal.hpp>
 
 namespace doorgame {
-
-constexpr static bool debug_input = false;
 
 std::ostream& operator<<(std::ostream& os, Action a) {
     // cSpell: disable
@@ -198,7 +197,7 @@ void StreamView::attempt(Event event) {
     Action action = std::get<1>(event);
     Target object = std::get<2>(event);
     Parameter param = std::get<3>(event);
-    if constexpr (debug_input) {
+    if constexpr (debug::input) {
         std::cout << "[DEBUG] " << subject << " chose " << action << " to " << object << " with/by " << param
                   << std::endl;
     }

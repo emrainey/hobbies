@@ -6,9 +6,6 @@
 
 #include "iso/radians.hpp"
 
-// When true, enable printing some intermediate results in the math
-constexpr static bool debug = false;
-
 namespace raytrace {
 
 camera::camera(size_t image_height, size_t image_width, iso::degrees field_of_view)
@@ -62,7 +59,7 @@ void camera::move_to(point const& look_from, point const& look_at) {
 
     // set the look vector (which will be reported as "forward")
     vector world_look = look_at - look_from;
-    if constexpr (debug) {
+    if constexpr (debug::camera) {
         std::cout << "Look From " << look_from << std::endl;
         std::cout << "Look At " << look_at << std::endl;
         std::cout << "World Look " << world_look << std::endl;
@@ -76,7 +73,7 @@ void camera::move_to(point const& look_from, point const& look_at) {
                                "Can't look straight up +Z or down -Z");
 
     vector world_left = R3::cross(world_up, world_look);
-    if constexpr (debug) {
+    if constexpr (debug::camera) {
         std::cout << "World Left " << world_left << std::endl;
     }
     basal::exception::throw_if(
@@ -91,7 +88,7 @@ void camera::move_to(point const& look_from, point const& look_at) {
     precision image_distance = m_world_look.magnitude();
     // which we'll use to make the actual up
     m_world_up = R3::cross(m_world_look, world_left);
-    if constexpr (debug) {
+    if constexpr (debug::camera) {
         std::cout << "World Up " << m_world_up << std::endl;
     }
     // convert the work look into a point in R3
@@ -101,7 +98,7 @@ void camera::move_to(point const& look_from, point const& look_at) {
     iso::radians rx{0};                                       // no barrel roll
     iso::radians ry{spherical_world_point[2] - iso::pi / 2};  // phi with "level" at XY plane
     iso::radians rz{spherical_world_point[1]};                // theta
-    if constexpr (debug) {
+    if constexpr (debug::camera) {
         std::cout << "Rotation X (Barrel)" << rx.value << std::endl;
         std::cout << "Rotation Y (Tilt)" << ry.value << std::endl;
         std::cout << "Rotation Z (Pan)" << rz.value << std::endl;
@@ -135,7 +132,7 @@ void camera::move_to(point const& look_from, point const& look_at) {
     geometry::R3::line world_line = as_line(world_ray);
     // t should be zero, as it is the position of the world ray and line
     bool principal_found_at_look_at = world_line.solve(look_at, t);
-    if constexpr (debug) {
+    if constexpr (debug::camera) {
         print(">>> Camera State at the end of move_to()\r\n");
         std::cout << "Look at " << look_at << " is at t=" << t << " Found?=" << principal_found_at_look_at << std::endl;
         std::cout << "######### END OF MOVE ######### " << std::endl;
@@ -156,16 +153,15 @@ void camera::print(char const str[]) const {
 }
 
 ray camera::cast(image::point const& image_point) const {
-    constexpr static bool cast_debug = false;
     // the input point may have some subsampling offset around
     // the point, so don't expect whole numbers
     // the point is in "raster" or "pixel" coordinates, homogenize it (add a "z")
-    if constexpr (cast_debug) {
+    if constexpr (debug::cast) {
         std::cout << "+++ CAST() " << std::endl;
         std::cout << "\tImage Point " << image_point << std::endl;
     }
     point hg_image_point(image_point);
-    if constexpr (cast_debug) {
+    if constexpr (debug::cast) {
         std::cout << "\tImage Point Homogenized " << hg_image_point << std::endl;
     }
     // convert to the x.y,z of the camera coordinates
@@ -173,7 +169,7 @@ ray camera::cast(image::point const& image_point) const {
     // basically there has to be a assumed arrangement
     // of the camera point and the image plane.
     geometry::point camera_point(m_intrinsics * hg_image_point);
-    if constexpr (cast_debug) {
+    if constexpr (debug::cast) {
         std::cout << "\tCamera Intrinsics " << m_intrinsics << std::endl;
         std::cout << "\tNew Camera Point " << camera_point << std::endl;
         std::cout << "\tCamera to Object Rotation " << m_camera_to_object_rotation << std::endl;
@@ -185,7 +181,7 @@ ray camera::cast(image::point const& image_point) const {
     // now that we know where the world_point is for this image point,
     // find the vector from the camera origin (in world coord) to the world_point on the image plane
     vector world_direction = world_point - position();
-    if constexpr (cast_debug) {
+    if constexpr (debug::cast) {
         std::cout << "\tCamera Object Point " << object_point << std::endl;
         std::cout << "\tCamera Transform to World " << m_transform << std::endl;
         std::cout << "\tCamera World Point " << world_point << std::endl;

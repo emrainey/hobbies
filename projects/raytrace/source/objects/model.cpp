@@ -63,21 +63,21 @@ precision Model::get_object_extent(void) const {
             max_extent = extent;
         }
     }
-    if constexpr (debug) {
+    if constexpr (debug::model) {
         printf("Model: Returning %lf for max extent\r\n", max_extent);
     }
     return max_extent;
 }
 
 void Model::addVertex(float x, float y, float z) {
-    if constexpr (debug) {
+    if constexpr (debug::model) {
         printf("Model: Adding vertex %f %f %f\n", (double)x, (double)y, (double)z);
     }
     points_.emplace_back(x, y, z);
 }
 
 void Model::addNormal(float dx, float dy, float dz) {
-    if constexpr (debug) {
+    if constexpr (debug::model) {
         printf("Model: Adding vector %f %f %f\n", (double)dx, (double)dy, (double)dz);
     }
     raytrace::vector normal{(double)dx, (double)dy, (double)dz};
@@ -85,7 +85,7 @@ void Model::addNormal(float dx, float dy, float dz) {
 }
 
 void Model::addTexture(float u, float v) {
-    if constexpr (debug) {
+    if constexpr (debug::model) {
         printf("Model: Adding texture %f %f\n", (double)u, (double)v);
     }
     texels_.emplace_back(u, v);
@@ -97,13 +97,13 @@ void Model::addFace(uint32_t a, uint32_t b, uint32_t c) {
     uint32_t ic = c - 1;
     bool points_ok = ia < points_.size() and ib < points_.size() and ic < points_.size();
     if (points_ok) {
-        if constexpr (debug) {
+        if constexpr (debug::model) {
             printf("Model: Adding triangle %u %u %u\n", a, b, c);
         }
         // swap the order of points so that the normal is facing the right way
         faces_.emplace_back(points_[ic], points_[ib], points_[ia]);
     } else {
-        if constexpr (debug) {
+        if constexpr (debug::model) {
             printf("Model: Index out of bounds! %" PRIu32 " %" PRIu32 " %" PRIu32 "\n", a, b, c);
         }
     }
@@ -119,13 +119,13 @@ void Model::addFace(uint32_t a, uint32_t ta, uint32_t b, uint32_t tb, uint32_t c
     uint32_t itc = tc - 1;
     bool texels_ok = ita < texels_.size() and itb < texels_.size() and itc < texels_.size();
     if (points_ok and texels_ok) {
-        if constexpr (debug) {
+        if constexpr (debug::model) {
             printf("Model: Adding triangle (%u %u %u), (%u %u %u)\n", a, b, c, ta, tb, tc);
         }
         // swap the order of points so that the normal is facing the right way
         faces_.emplace_back(points_[ic], points_[ib], points_[ia], texels_[ita], texels_[itb], texels_[itc]);
     } else {
-        if constexpr (debug) {
+        if constexpr (debug::model) {
             printf("Model: Index out of bounds! %" PRIu32 " %" PRIu32 " %" PRIu32 "\n", a, b, c);
         }
     }
@@ -146,7 +146,7 @@ void Model::addFace(uint32_t v1, uint32_t t1, uint32_t n1, uint32_t v2, uint32_t
     uint32_t in3 = n3 - 1;
     bool normals_ok = in1 < normals_.size() and in2 < normals_.size() and in3 < normals_.size();
     if (points_ok and normals_ok and texels_ok) {
-        if constexpr (debug) {
+        if constexpr (debug::model) {
             printf("Model: Adding triangle (%u, %u, %u), (%u, %u, %u), (%u, %u, %u)\n", v1, v2, v3, t1, t2, t3, n1, n2,
                    n3);
         }
@@ -154,7 +154,7 @@ void Model::addFace(uint32_t v1, uint32_t t1, uint32_t n1, uint32_t v2, uint32_t
         faces_.emplace_back(points_[iv3], points_[iv2], points_[iv1], texels_[it1], texels_[it2], texels_[it3],
                             normals_[in1], normals_[in2], normals_[in3]);
     } else {
-        if constexpr (debug) {
+        if constexpr (debug::model) {
             printf("Model: Index out of bounds! %" PRIu32 " %" PRIu32 " %" PRIu32 "\n", v1, v2, v3);
         }
     }
@@ -178,13 +178,13 @@ void Model::LoadFromFile(char const* const filename) {
         vector computed_centroid;
         for (auto& pnt : points_) {
             vector v = pnt - R3::origin;
-            if constexpr (debug) {
+            if constexpr (debug::model) {
                 std::cout << "Point Offset " << v << std::endl;
             }
             computed_centroid += v;
         }
         computed_centroid /= static_cast<precision>(points_.size());
-        if constexpr (debug) {
+        if constexpr (debug::model) {
             std::cout << "Computed Centroid of Model: " << computed_centroid << std::endl;
         }
         // adjust each face position now to be relative to the center
@@ -192,7 +192,7 @@ void Model::LoadFromFile(char const* const filename) {
             face.print("Face");
             auto _old = face.position();
             auto _new = (_old - computed_centroid);
-            if constexpr (debug) {
+            if constexpr (debug::model) {
                 std::cout << "Old Position " << _old << " New Position " << _new << std::endl;
             }
             face.position(_new);

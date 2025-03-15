@@ -3,15 +3,13 @@
 #include <cmath>
 #include <cstdint>
 #include <fourcc/image.hpp>
-
+#include "raytrace/configuration.hpp"
 #include "raytrace/types.hpp"
 
 namespace raytrace {
 
 /// The Gamma Correction Namespace
 namespace gamma {
-
-constexpr static bool use_full = true;
 
 ///
 /// Removes Gamma Correction

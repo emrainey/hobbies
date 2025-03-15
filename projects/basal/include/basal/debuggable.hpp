@@ -16,12 +16,13 @@ union zone_mask {
     uint32_t all;  ///< the union of all zones below
     /// This struct of bits should follow the enumeration above.
     struct {
+        uint32_t priority : 1;
         uint32_t fatal : 1;
         uint32_t error : 1;
         uint32_t warn : 1;
         uint32_t api : 1;
         uint32_t info : 1;
-        uint32_t : 27;  ///< NOTE when a new zone is added one should be removed from here
+        uint32_t : 26;  ///< NOTE when a new zone is added one should be removed from here
     } zones;
 };
 

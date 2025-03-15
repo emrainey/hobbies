@@ -12,8 +12,6 @@ namespace {  // in an anonymous namespace for testing
 // static_assert(fade(2.0_p) == 32.0_p, "Must be equal");
 }  // namespace
 
-constexpr bool debug = false;
-
 noise::point const corners[] = {
     noise::point{0.0_p, 0.0_p},  // top left
     noise::point{1.0_p, 0.0_p},  // top right
@@ -143,7 +141,7 @@ precision smooth(point const& pnt, pad const& map) {
     size_t x2 = (static_cast<size_t>(base.x) + map.dimensions - 1) % map.dimensions;
     size_t y2 = (static_cast<size_t>(base.y) + map.dimensions - 1) % map.dimensions;
 
-    if constexpr (debug) {
+    if constexpr (debug::smooth) {
         printf("b={%lf,%lf} f={%lf,%lf} x1,y1={%zu,%zu} x2,y2={%zu,%zu}\n", base.x, base.y, frat.x, frat.y, x1, y1, x2,
                y2);
         printf("noise: %lf, %lf, %lf, %lf\n", map.at(y1, x1), map.at(y1, x2), map.at(y2, x1), map.at(y2, x2));
@@ -163,7 +161,7 @@ precision turbulence(point const& pnt, precision size, precision scale, pad cons
     while (size >= 1.0_p) {
         point pnt2{pnt};  // copy
         pnt2 *= 1.0_p / size;
-        if constexpr (debug) {
+        if constexpr (debug::turbulence) {
             printf("pnt={%lf, %lf}, pnt2={%lf, %lf} scale=%lf\n", pnt.x, pnt.y, pnt2.x, pnt2.y, 1.0_p / size);
         }
         value += smooth(pnt2, map) * size;
@@ -174,14 +172,14 @@ precision turbulence(point const& pnt, precision size, precision scale, pad cons
 
 precision turbulentsin(point const& pnt, precision xs, precision ys, precision power, precision size, precision scale,
                        pad const& map) {
-    if constexpr (debug) {
+    if constexpr (debug::turbulentsin) {
         printf("pnt={%lf, %lf} xs,ys={%lf, %lf}, power=%lf size=%lf, scale=%lf\n", pnt.x, pnt.y, xs, ys, power, size,
                scale);
     }
     precision x = pnt.x * xs / map.dimensions;
     precision y = pnt.y * ys / map.dimensions;
     precision xyValue = x + y + power * turbulence(pnt, size, scale, map) / scale;
-    if constexpr (debug) {
+    if constexpr (debug::turbulentsin) {
         printf("x=%lf, y=%lf, xyValue = %lf\n", x, y, xyValue);
     }
     // converts any input x into an output between 0.0_p and 1.0_p then scaled to whatever you need

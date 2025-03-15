@@ -1,7 +1,14 @@
 #pragma once
 
+#include <geometry/geometry.hpp>
+
+/// @file
+/// The Raytrace library header
+
 #include <limits>
 #include <basal/ieee754.hpp>
+
+#include "raytrace/configuration.hpp"
 
 #include "raytrace/camera.hpp"
 #include "raytrace/stereocamera.hpp"

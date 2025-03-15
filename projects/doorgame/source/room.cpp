@@ -1,16 +1,15 @@
+#include "doorgame/configuration.hpp"
 #include "doorgame/room.hpp"
 
 #include <basal/basal.hpp>
 
 namespace doorgame {
 
-constexpr static bool load_debug = false;
-
 Room::Room(size_t id) : Storage{1}, m_id{id}, doors{id, id, id, id}, has_investigated{false} {
 }  // starts empty
 
 void Room::set_adjacent(size_t other_id, Direction d) {
-    if constexpr (load_debug) {
+    if constexpr (debug::load) {
         fprintf(stderr, "[DEBUG] Connecting room %zu (%p) to room %zu on the %c side\r\n", m_id, (void *)this, other_id,
                 basal::to_underlying(d));
     }

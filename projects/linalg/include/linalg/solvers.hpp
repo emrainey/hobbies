@@ -48,7 +48,7 @@ template <typename T>
 std::tuple<std::complex<T>, std::complex<T>, std::complex<T>> cbrt(std::complex<T>& v) {
     constexpr int n = 3;
     // convert to a polar notation and use the cbrt procedure there
-    if constexpr (false) {
+    if constexpr (debug::root) {
         std::cout << "r=" << abs(v) << ", phi=" << arg(v) << std::endl;
     }
     T r = std::cbrt(std::abs(v));

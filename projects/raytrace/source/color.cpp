@@ -92,10 +92,8 @@ void color::to_space(space desired) {
     }
 }
 
-constexpr static bool enforce_contract = false;
-
 precision gamma_interpolate(precision const a, precision const b, precision const s) {
-    if (enforce_contract) {
+    if (gamma::enforce_contract) {
         basal::exception::throw_unless(0.0_p <= a and a <= 1.0_p, __FILE__, __LINE__, "Channel is incorrect");
         basal::exception::throw_unless(0.0_p <= b and b <= 1.0_p, __FILE__, __LINE__, "Channel is incorrect");
         basal::exception::throw_unless(0.0_p <= s and s <= 1.0_p, __FILE__, __LINE__,

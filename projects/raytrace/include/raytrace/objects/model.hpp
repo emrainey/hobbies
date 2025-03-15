@@ -94,8 +94,6 @@ public:
 
 protected:
     vector normal_(point const& object_surface_point) const override;
-
-    static constexpr bool debug = false;
     std::vector<raytrace::point> points_;
     std::vector<raytrace::vector> normals_;
     std::vector<image::point> texels_;

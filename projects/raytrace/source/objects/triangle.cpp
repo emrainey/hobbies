@@ -10,13 +10,11 @@ using namespace linalg::operators;
 using namespace geometry;
 using namespace geometry::operators;
 
-static constexpr bool debug = false;
-
 triangle::triangle(R3::point const& A, R3::point const& B, R3::point const& C)
     : plane{R3::origin, R3::cross(A - B, C - B).normalized()}, m_points{} {
     // this defines the center of the given points which will be the translated center to the triangle
     point center = centroid(A, B, C);
-    if constexpr (debug) {
+    if constexpr (debug::triangle) {
         std::cout << "Triangle Center: " << center << " from A=" << A << " B=" << B << " C=" << C << std::endl;
     }
     // now relocate all the points so that the center is translated to where ever the points were defined as but each
@@ -26,12 +24,12 @@ triangle::triangle(R3::point const& A, R3::point const& B, R3::point const& C)
     m_points[0] = A - delta;
     m_points[1] = B - delta;
     m_points[2] = C - delta;
-    if constexpr (debug) {
+    if constexpr (debug::triangle) {
         std::cout << "\tMoved points to A=" << m_points[0] << " B=" << m_points[1] << " C=" << m_points[2] << std::endl;
     }
     // now the relocated center is moved
     position(center);
-    if constexpr (debug) {
+    if constexpr (debug::triangle) {
         std::cout << "\tMoved center to " << position() << std::endl;
     }
     // now find the farthest point from the origin of the triangle
@@ -45,7 +43,7 @@ bool triangle::is_contained(point const& object_point) const {
     precision r2 = (object_point - R3::origin).quadrance();
     // do we need to do a more in depth test?
     if (r2 < m_radius2) {
-        constexpr static bool use_triple = true;
+        static constexpr bool use_triple = true;
         // now determine if the point is in the triangle
         vector N = unormal();
         vector AB = m_points[1] - m_points[0];

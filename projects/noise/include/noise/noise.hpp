@@ -14,6 +14,13 @@
 ///
 namespace noise {
 
+namespace debug {
+static constexpr bool turbulentsin{false};  ///< Enables debug for the turbulentsin noise
+static constexpr bool turbulence{false};    ///< Enables debug for the turbulence noise
+static constexpr bool perlin{false};        ///< Enables debug for the perlin noise
+static constexpr bool smooth{false};        ///< Enables debug for the smooth noise
+}  // namespace debug
+
 /// Generates a pseudo random sequence
 precision sequence_pseudorandom1(uint32_t x);
 

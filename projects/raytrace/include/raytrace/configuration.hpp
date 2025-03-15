@@ -1,0 +1,59 @@
+#pragma once
+
+/// @file
+/// The Raytrace library configuration header
+
+#include <geometry/geometry.hpp>
+
+//
+// Configuration Variables
+//
+namespace raytrace {
+namespace debug {
+/// Enables generic debug statements
+static constexpr bool generic{false};
+/// Enables debug for the ray casting calls
+static constexpr bool cast{false};
+/// Enables debug for the ray tracing calls
+static constexpr bool hit{false};
+/// Enables debug for the camera setup
+static constexpr bool camera{false};
+/// Enables debug for the scene setup
+static constexpr bool scene{false};
+/// Enables debug for the objparser calls
+static constexpr bool objparser{false};
+/// Enables debug for the triangle
+static constexpr bool triangle{false};
+/// Enables debug for the model loader
+static constexpr bool model{false};
+}  // namespace debug
+
+/// Enforces range checking on some calls
+static constexpr bool enforce_ranges{true};
+
+/// Enables using true intensity for lights or a clamped intensity
+static constexpr bool use_true_intensity{true};
+
+/// If true, use random sample points, otherwise use fixed sample points for samplers
+static constexpr bool use_random_sample_points{false};
+
+/// uses fixed color scheme for shadows, light, near-zero values
+static constexpr bool debug_shadows_and_light{false};
+static constexpr bool use_incident_scaling{true};
+static constexpr bool use_specular_scaling{true};
+
+/// displays the distance to a light in shadow as a grayscale value (black is still shadow, white is very close)
+static constexpr bool use_grayscale_distance{false};
+
+/// Determines if points are on surfaces, thus having a normal
+static constexpr bool check_on_surface = geometry::check_on_surface;
+
+namespace gamma {
+/// Control if the full correction or the fast correction is used
+static constexpr bool use_full = true;
+
+/// @brief If true, use the adaptive threshold for raytracing
+static constexpr bool enforce_contract = false;
+}  // namespace gamma
+
+}  // namespace raytrace

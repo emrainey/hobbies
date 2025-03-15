@@ -3,8 +3,6 @@
 
 namespace linalg {
 
-constexpr const static bool debug = false;
-
 void plot_points(std::string name, const std::vector<geometry::point_<2>> &data, const std::vector<size_t> &indexes,
                  const std::vector<cv::Scalar> &colors, int timeout_ms) {
     cv::String window_name(name);
@@ -28,22 +26,22 @@ void plot_points(std::string name, const std::vector<geometry::point_<2>> &data,
             x_max = d.x;
     }
     precision y_range = y_max - y_min;
-    if (debug) {
+    if constexpr (debug::plotting) {
         printf("y_min:%lf y_max:%lf y_range:%lf\n", y_min, y_max, y_range);
     }
     precision x_range = x_max - x_min;
-    if (debug) {
+    if constexpr (debug::plotting) {
         printf("x_min:%lf x_max:%lf x_range:%lf\n", x_min, x_max, x_range);
     }
 
     size_t width = static_cast<size_t>(x_range);
     size_t height = static_cast<size_t>(y_range);
-    if (debug) {
+    if constexpr (debug::plotting) {
         printf("Active area: %zux%zu\n", width, height);
     }
 
     cv::Size window_size(border + width, border + height);
-    if (debug) {
+    if constexpr (debug::plotting) {
         printf("Window: %ux%u\n", window_size.width, window_size.height);
     }
     cv::Mat img(window_size, CV_8UC3);

@@ -17,7 +17,7 @@
 #include "world.hpp"
 
 using namespace std::placeholders;
-constexpr static bool live_preview{true};
+static constexpr bool live_preview{true};
 
 struct Parameters {
     std::string dim_name;
@@ -119,7 +119,7 @@ int main(int argc, char *argv[]) {
                 auto start = std::chrono::steady_clock::now();
                 auto progress_bar = [&]() -> void {
                     while (running) {
-                        constexpr static bool use_bar = false;
+                        static constexpr bool use_bar = false;
                         if constexpr (use_bar) {
                             fprintf(stdout, "\r [");
                             for (size_t i = 0; i < completed.size(); i++) {

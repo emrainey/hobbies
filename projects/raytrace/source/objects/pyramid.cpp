@@ -19,9 +19,11 @@ pyramid::pyramid(point const& base, precision height) : object(base, 2), m_heigh
 vector pyramid::normal_(point const& object_surface_point) const {
     bool positive_x = (object_surface_point.x > 0.0_p);
     bool positive_y = (object_surface_point.y > 0.0_p);
-    vector object_surface_normal{
-        {precision(positive_x ? 1.0_p : -1.0_p), precision(positive_y ? 1.0_p : -1.0_p), precision(1.0_p)}};
-    return forward_transform(object_surface_normal.normalized());
+    precision x = positive_x ? basal::inv_sqrt_3 : -basal::inv_sqrt_3;
+    precision y = positive_y ? basal::inv_sqrt_3 : -basal::inv_sqrt_3;
+    precision z = basal::inv_sqrt_3;
+    vector object_surface_normal{{x, y, z}};
+    return forward_transform(object_surface_normal);
 }
 
 inline bool is_positive(precision p, precision d, precision t) {

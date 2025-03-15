@@ -29,7 +29,7 @@ noise::precision frequency = 1.0_p;
 iso::degrees angle{81.0_p};
 noise::precision magnitude = 78.0_p;
 noise::vector seed = noise::convert_to_seed(angle);
-constexpr static bool debug = false;
+static constexpr bool debug = false;
 
 void generate_noise_image(void) {
     printf("octaves: %zu lacunarity: %lf, gain: %lf, amplitude: %lf, frequency: %lf\r\n", octaves, lacunarity, gain,

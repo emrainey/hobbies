@@ -5,8 +5,6 @@
 
 namespace linalg {
 
-constexpr static bool root_debug = false;
-
 /// in order to save some typing just a shorter definition of complex numbers
 using complex_ = std::complex<precision>;
 
@@ -15,7 +13,7 @@ using namespace basal::literals;
 
 std::tuple<precision, precision> quadratic_roots(precision a, precision b, precision c) {
     statistics::get().quadratic_roots++;
-    if constexpr (root_debug) {
+    if constexpr (debug::root) {
         std::cout << "Quadratic Coefficients a=" << a << ", b=" << b << ", c=" << c << std::endl;
     }
     if (basal::nearly_zero(a)) {
@@ -38,7 +36,7 @@ std::tuple<precision, precision, precision> cubic_roots(precision a, precision b
         // not a valid case
         return std::make_tuple(basal::nan, basal::nan, basal::nan);
     }
-    if constexpr (root_debug) {
+    if constexpr (debug::root) {
         std::cout << "Cubic Coefficients a=" << a << ", b=" << b << ", c=" << c << ", d=" << d << std::endl;
     }
     // reduce b,c,d by a to do less math overall
@@ -54,7 +52,7 @@ std::tuple<precision, precision, precision> cubic_roots(precision a, precision b
     complex_ R = ((b * ((9.0_p * c) - (2.0_p * b * b))) - (27.0_p * d)) / 54.0_p;
     // this is the discriminant which tells us how may solutions there are
     complex_ D = (Q * Q * Q) + (R * R);
-    if constexpr (root_debug) {
+    if constexpr (debug::root) {
         std::cout << "Q: " << Q << std::endl;
         std::cout << "R: " << R << std::endl;
         std::cout << "D: " << D << std::endl;
@@ -68,7 +66,7 @@ std::tuple<precision, precision, precision> cubic_roots(precision a, precision b
         complex_ T_ = R - sqrt(D);
         auto S3 = cbrt(S_);  // returns 3 roots
         auto T3 = cbrt(T_);  // returns 3 roots
-        if constexpr (root_debug) {
+        if constexpr (debug::root) {
             std::cout << "one real and two complex (which does cross y=0)" << std::endl;
             std::cout << "S0: " << std::get<0>(S3) << std::endl;
             std::cout << "S1: " << std::get<1>(S3) << std::endl;
@@ -85,7 +83,7 @@ std::tuple<precision, precision, precision> cubic_roots(precision a, precision b
         x3 = (not basal::nearly_zero(X3.imag()) ? basal::nan : (X3.real() + shift));
     } else if (basal::nearly_zero(D.real())) {
         auto R3 = cbrt(R);
-        if constexpr (root_debug) {
+        if constexpr (debug::root) {
             std::cout << "Either 2 real or at the zero inflection" << std::endl;
             std::cout << "R0: " << std::get<0>(R3) << std::endl;
             std::cout << "R1: " << std::get<1>(R3) << std::endl;
@@ -102,7 +100,7 @@ std::tuple<precision, precision, precision> cubic_roots(precision a, precision b
         precision T_ = R.real() - sqrt(D.real());
         precision S = std::cbrt(S_);
         precision T = std::cbrt(T_);
-        if constexpr (root_debug) {
+        if constexpr (debug::root) {
             std::cout << "one real and two complex (which does not cross y=0)" << std::endl;
             std::cout << "S: " << S << std::endl;
             std::cout << "T: " << T << std::endl;
@@ -111,7 +109,7 @@ std::tuple<precision, precision, precision> cubic_roots(precision a, precision b
         X1 = S + T;
         x1 = X1.real() + shift;
     }
-    if constexpr (root_debug) {
+    if constexpr (debug::root) {
         std::cout << "Cubic Complex Roots (no shift): X1=" << X1 << ", X2=" << X2 << ", X3=" << X3 << std::endl;
         std::cout << "Cubic Real Roots: x1=" << x1 << ", x2=" << x2 << ", x3=" << x3 << std::endl;
     }
@@ -128,7 +126,7 @@ std::tuple<precision, precision, precision, precision> quartic_roots(precision a
                                                                      precision e) {
     using namespace std::literals::complex_literals;
     statistics::get().quartic_roots++;
-    if constexpr (root_debug) {
+    if constexpr (debug::root) {
         std::cout << "Quartic Coefficients: a=" << a << ", b=" << b << ", c=" << c << ", d=" << d << ", e=" << e
                   << std::endl;
     }
@@ -157,7 +155,7 @@ std::tuple<precision, precision, precision, precision> quartic_roots(precision a
     z = basal::is_nan(z) ? std::get<2>(cr) : z;
     complex_ mm = (0.25_p * b * b) - c + z;
     complex_ m, n;
-    if constexpr (root_debug) {
+    if constexpr (debug::root) {
         std::cout << "z=" << z << ", m^2=" << mm << std::endl;
     }
     m = std::sqrt(mm);
@@ -169,24 +167,24 @@ std::tuple<precision, precision, precision, precision> quartic_roots(precision a
         n = std::sqrt(n);
     } else {
         // all imaginary roots
-        if constexpr (root_debug) {
+        if constexpr (debug::root) {
             std::cout << "Quartic roots are all imaginary. Returning NaNs" << std::endl;
         }
         return std::make_tuple(basal::nan, basal::nan, basal::nan, basal::nan);
     }
-    if constexpr (root_debug) {
+    if constexpr (debug::root) {
         std::cout << "m=" << m << ", n=" << n << std::endl;
     }
     complex_ alpha = (0.5_p * b * b) - z - c;
     complex_ beta = (4.0_p * n) - (b * m);
-    if constexpr (root_debug) {
+    if constexpr (debug::root) {
         std::cout << "α=" << alpha << ", β=" << beta << std::endl;
     }
     complex_ alpha_plus_beta = alpha + beta;
     complex_ alpha_minus_beta = alpha - beta;
     complex_ gamma = std::sqrt(alpha_plus_beta);
     complex_ delta = std::sqrt(alpha_minus_beta);
-    if constexpr (root_debug) {
+    if constexpr (debug::root) {
         std::cout << "γ=" << gamma << ", δ=" << delta << std::endl;
     }
     complex_ X1 = ((-b * 0.5_p) + m + gamma) * 0.5_p;
@@ -202,7 +200,7 @@ std::tuple<precision, precision, precision, precision> quartic_roots(precision a
         x2 = std::isinf(X2.real()) ? basal::nan : X2.real();
         x4 = std::isinf(X4.real()) ? basal::nan : X4.real();
     }
-    if constexpr (root_debug) {
+    if constexpr (debug::root) {
         std::cout << "Quartic Complex Roots: X1=" << X1 << ", X2=" << X2 << ", X3=" << X3 << ", X4=" << X4 << std::endl;
         std::cout << "Quartic Real Roots: x1=" << x1 << ", x2=" << x2 << ", x3=" << x3 << ", x4=" << x4 << std::endl;
     }

@@ -19,9 +19,6 @@ using line = geometry::R3::line;
 /// Reusing other matrix
 using matrix = linalg::matrix;
 
-/// Determines if points are on surfaces, thus having a normal
-constexpr static bool check_on_surface = geometry::check_on_surface;
-
 /// Collects the statistics from the raytracing library
 struct statistics {
 public:
@@ -35,6 +32,8 @@ public:
     size_t intersections_with_points{0u};
     /// Intersections with Lines
     size_t intersections_with_line{0u};
+    /// Intersection from the back side of an object (inside outwards or on the side away from the normal)
+    size_t inside_out_intersections{0u};
     /// No intersections with objects
     size_t missed_rays{0u};
     /// The count of rays reflected off objects

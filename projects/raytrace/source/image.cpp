@@ -65,10 +65,6 @@ static image::vector fixed_sampling_pattern[] = {
 };
 static constexpr size_t fixed_sampling_pattern_count = basal::dimof(fixed_sampling_pattern);
 
-/// @brief If true, use random sample points, otherwise use fixed sample points.
-// FIXME move to a configuration file
-static constexpr bool use_random_sample_points = false;
-
 class RandomSampleFuzzer : public image::SampleFuzzer {
 public:
     RandomSampleFuzzer()

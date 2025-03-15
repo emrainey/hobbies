@@ -5,17 +5,6 @@
 
 namespace raytrace {
 
-static constexpr bool hit_debug = false;
-static constexpr bool camera_debug = false;
-static constexpr bool enforce_ranges = true;
-/// uses fixed color scheme for shadows, light, near-zero values
-// static constexpr bool debug_shadows_and_light = false;
-// static constexpr bool use_incident_scaling = true;
-// static constexpr bool use_specular_scaling = true;
-
-/// displays the distance to a light in shadow as a grayscale value (black is still shadow, white is very close)
-// static constexpr bool use_grayscale_distance = false;
-
 scene::scene(double art)
     : adaptive_reflection_threshold{art}
     , m_objects{}
@@ -34,13 +23,17 @@ void scene::add_object(objects::object const* obj) {
     m_objects.push_back(obj);
     // compute the bounding box for the scene
     auto bounds = obj->get_world_bounds();
-    obj->print("Object for Bounds");
-    std::cout << " Min: " << bounds.min << " Max: " << bounds.max << std::endl;
+    if constexpr (debug::scene) {
+        obj->print("Object for Bounds");
+        std::cout << " Min: " << bounds.min << " Max: " << bounds.max << std::endl;
+    }
     if (bounds.is_infinite()) {
         m_infinite_objects.push_back(obj);
     } else {
         m_bounds.grow(bounds);
-        std::cout << " Bounds: " << m_bounds.min << " Max: " << m_bounds.max << std::endl;
+        if constexpr (debug::scene) {
+            std::cout << "Growing Bounds to: " << m_bounds.min << " Max: " << m_bounds.max << std::endl;
+        }
     }
 }
 
@@ -96,7 +89,7 @@ objects::hit scene::nearest_object(ray const& world_ray, objects::hits const& hi
     precision closest_distance2 = std::numeric_limits<precision>::max();
     objects::hit closest_hit;
     for (auto const& this_hit : hits) {
-        if constexpr (hit_debug) {
+        if constexpr (debug::hit) {
             std::cout << this_hit << std::endl;
         }
         if (get_type(this_hit.intersect) == IntersectionType::Point) {
@@ -157,6 +150,7 @@ color scene::trace(ray const& world_ray, mediums::medium const& media, size_t re
         }
         // if this is true, we've collided with something from the inside or the "backside"
         bool inside_out = (dot(world_surface_normal, world_ray.direction()) > 0);
+        raytrace::statistics::get().inside_out_intersections += (inside_out ? 1 : 0);
 
         // compute the reflection vector
         ray world_reflection = obj.reflection(world_ray, world_surface_normal, world_surface_point);
@@ -350,7 +344,7 @@ color scene::trace(ray const& world_ray, mediums::medium const& media, size_t re
 void scene::render(camera& view, std::string filename, size_t number_of_samples, size_t reflection_depth,
                    std::optional<image::rendered_line> row_notifier, uint8_t aaa_mask_threshold, bool filter_capture) {
     bool adaptive_antialiasing = aaa_mask_threshold != raytrace::image::AAA_MASK_DISABLED;
-    if constexpr (camera_debug) {
+    if constexpr (debug::camera) {
         view.print("Camera Info:\n");
     }
 

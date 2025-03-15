@@ -12,9 +12,6 @@
 #include <cstdlib>
 #include <cstring>
 
-constexpr static bool support_backtrace = false;
-constexpr static bool debug = false;
-
 namespace basal {
 exception::exception(std::string desc, std::string loc, std::size_t line)
     : std::exception{}, description{desc}, location{loc}, line_number{line} {
@@ -27,7 +24,7 @@ exception::exception(std::string desc, std::string loc, std::size_t line)
             description.append("\n");
             for (size_t s = 1; s < size; s++) {
                 size_t function_name_size = 256;
-                if (debug) {
+                if constexpr (debug::exceptions) {
                     printf("%s", stack_strings[s]);
                 }
                 char *funcname = static_cast<char *>(malloc(function_name_size));

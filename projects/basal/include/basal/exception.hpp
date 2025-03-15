@@ -1,5 +1,8 @@
 #pragma once
 
+/// @file
+/// The basal exception header
+
 #include <array>
 #include <cstdlib>  // exit
 #include <exception>
@@ -9,6 +12,12 @@
 #include <string>
 
 namespace basal {
+
+static constexpr bool support_backtrace = false;
+namespace debug {
+static constexpr bool exceptions{true};  ///< Enables debug for the exceptions
+}  // namespace debug
+
 /// Stack Tracking Exception
 class exception : public std::exception {
 private:

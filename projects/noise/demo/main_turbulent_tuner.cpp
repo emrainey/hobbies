@@ -31,8 +31,6 @@ noise::precision scale = 256.0_p;
 // the map of noise values (generate once)
 noise::pad map;
 
-constexpr static bool debug = false;
-
 void generate_pad_image(void) {
     pad_image.for_each([&](size_t y, size_t x, fourcc::rgb8 &pixel) {
         noise::precision v = map.at(y, x);
@@ -47,7 +45,7 @@ void generate_noise_image(void) {
     noise_image.for_each([&](size_t y, size_t x, fourcc::rgb8 &pixel) {
         noise::point pnt{(noise::precision)x, (noise::precision)y};
         noise::precision n = noise::turbulentsin(pnt, x_scale, y_scale, power, size, scale, map);
-        if constexpr (debug) {
+        if constexpr (noise::debug::turbulentsin) {
             printf("x,y={%lf, %lf} = %lf\n", pnt.x, pnt.y, n);
         }
         pixel.r = uint8_t(std::floor(n));

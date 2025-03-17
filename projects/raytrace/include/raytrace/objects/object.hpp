@@ -236,7 +236,7 @@ public:
     ///
     virtual hit intersect(ray const& world_ray) const {
         hit closest;
-        if constexpr (enforce_ranges) {
+        if constexpr (enforce_contracts) {
             /// @note While we could be pedantic about having a unit normal, it doesn't really stop us from working.
             basal::exception::throw_unless(basal::nearly_equals(world_ray.direction().quadrance(), 1.0_p), __FILE__,
                                            __LINE__, "The ray must have a unit vector");

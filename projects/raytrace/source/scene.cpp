@@ -144,7 +144,7 @@ color scene::trace(ray const& world_ray, mediums::medium const& media, size_t re
         raytrace::point object_surface_point = obj.reverse_transform(world_surface_point);
         // grab the normal on the surface at that point, ensure it's normalized
         vector world_surface_normal = nearest.normal.normalized();
-        if constexpr (enforce_ranges) {
+        if constexpr (enforce_contracts) {
             basal::exception::throw_unless(basal::nearly_equals(world_surface_normal.quadrance(), 1.0_p), __FILE__,
                                            __LINE__, "Must be normalized");
         }
@@ -158,10 +158,10 @@ color scene::trace(ray const& world_ray, mediums::medium const& media, size_t re
         ray world_refraction = obj.refraction(world_ray, world_surface_normal, world_surface_point,
                                               media.refractive_index(object_surface_point),
                                               medium.refractive_index(object_surface_point));
-
-        basal::exception::throw_if(dot(world_ray.direction(), world_refraction.direction()) < 0, __FILE__, __LINE__,
-                                   "Refracted ray should not be opposites");
-
+        if constexpr (enforce_contracts) {
+            basal::exception::throw_if(dot(world_ray.direction(), world_refraction.direction()) < 0, __FILE__, __LINE__,
+                                       "Refracted ray should not be opposites");
+        }
         // today we get the surface's reflectivity at this texture point
         // (which means the surface could be like a film of mirror with bits flaking off)
         precision reflectivity = 0.0_p;
@@ -251,14 +251,18 @@ color scene::trace(ray const& world_ray, mediums::medium const& media, size_t re
                         // relationship with the normal of the medium this will be
                         // some fractional component from -1.0_p to 1.0_p since both input vectors are normalized.
                         precision incident_scaling = dot(normalized_light_direction, world_surface_normal);
-                        basal::exception::throw_unless(within_inclusive(-1.0_p, incident_scaling, 1.0_p), __FILE__,
-                                                       __LINE__, "Must be within bounds");
+                        if constexpr (enforce_contracts) {
+                            basal::exception::throw_unless(within_inclusive(-1.0_p, incident_scaling, 1.0_p), __FILE__,
+                                                           __LINE__, "Must be within bounds");
+                        }
                         color incident_light
                             = (incident_scaling > 0.0_p) ? incident_scaling * raw_light_color : colors::black;
                         color diffuse_light = medium.diffuse(object_surface_point);
                         precision specular_scaling = dot(normalized_light_direction, world_reflection.direction());
-                        basal::exception::throw_unless(within_inclusive(-1.0_p, specular_scaling, 1.0_p), __FILE__,
-                                                       __LINE__, "Must be within bounds");
+                        if constexpr (enforce_contracts) {
+                            basal::exception::throw_unless(within_inclusive(-1.0_p, specular_scaling, 1.0_p), __FILE__,
+                                                           __LINE__, "Must be within bounds");
+                        }
                         color specular_light = medium.specular(object_surface_point, specular_scaling, raw_light_color);
                         // blend the light color and the surface color together
                         surface_color_samples[sample_index] = (diffuse_light * incident_light);

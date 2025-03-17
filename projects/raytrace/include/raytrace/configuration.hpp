@@ -29,7 +29,7 @@ static constexpr bool model{false};
 }  // namespace debug
 
 /// Enforces range checking on some calls
-static constexpr bool enforce_ranges{true};
+static constexpr bool enforce_contracts{true};
 
 /// Enables using true intensity for lights or a clamped intensity
 static constexpr bool use_true_intensity{true};

@@ -41,8 +41,8 @@ TEST(PlaneTest, Intersections) {
     raytrace::point C{0, 0, -1};
     raytrace::objects::plane PL{C, R3::basis::Z};
 
-    raytrace::ray r0{raytrace::point{1, 1, 1}, vector{{1, 1, 1}}};
-    raytrace::ray r1{raytrace::point{1, 1, 1}, vector{{-1, -1, -1}}};
+    raytrace::ray r0{raytrace::point{1, 1, 1}, vector{{1, 1, 1}}.normalized()};
+    raytrace::ray r1{raytrace::point{1, 1, 1}, vector{{-1, -1, -1}}.normalized()};
     raytrace::point A{-1, -1, -1};  // in the plane
     ray r2{C, R3::basis::Z};
     ray r3{C, -R3::basis::Z};
@@ -69,8 +69,8 @@ TEST(PlaneTest, SandwichRays) {
 
     raytrace::objects::plane P0{raytrace::point{0, 0, 10}, vector{{0, 0, -1}}};
     raytrace::objects::plane P1{raytrace::point{0, 0, -10}, vector{{0, 0, 1}}};
-    ray r0{raytrace::point{0, 0, 0}, vector{{1, 0, 1}}};
-    ray r1{raytrace::point{0, 0, 0}, vector{{1, 0, -1}}};
+    ray r0{raytrace::point{0, 0, 0}, vector{{1, 0, 1}}.normalized()};
+    ray r1{raytrace::point{0, 0, 0}, vector{{1, 0, -1}}.normalized()};
 
     raytrace::point p0{10, 0, 10};
     raytrace::point p1{10, 0, -10};

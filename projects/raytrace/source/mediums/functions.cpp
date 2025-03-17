@@ -183,7 +183,7 @@ color grid(image::point const& p, palette const& pal) {
     basal::exception::throw_unless(pal.size() == 2, __FILE__, __LINE__, "Must have only two colors in checkerboard");
     precision u = std::abs(std::fmod(p.x, 1.0_p));
     precision v = std::abs(std::fmod(p.y, 1.0_p));
-    precision const l = 0.0625_p;  // a 1/16
+    precision const l = 1.0_p / 32.0_p;  // line width
     precision const a = 1.0_p - l;
     if (l < u and u <= a and l < v and v <= a) {
         return pal[1];
@@ -197,7 +197,7 @@ color grid(raytrace::point const& p, palette const& pal) {
     precision u = std::abs(std::fmod(p.x, 1.0_p));
     precision v = std::abs(std::fmod(p.y, 1.0_p));
     precision w = std::abs(std::fmod(p.z, 1.0_p));
-    precision const l = 0.0625_p;
+    precision const l = 1.0_p / 32.0_p;  // line width
     precision const a = 1.0_p - l;
     if (l < u and u <= a and l < v and v <= a and l < w and w <= a) {
         return pal[1];

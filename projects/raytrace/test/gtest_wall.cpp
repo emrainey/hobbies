@@ -159,14 +159,14 @@ TEST(WallTest, ColumnHitsDiagonals) {
     objects::wall w1{raytrace::point{0, 0, 0}, R3::basis::Y, 2.0_p};
     objects::overlap column{w0, w1, objects::overlap::type::inclusive};
     {
-        raytrace::ray r{raytrace::point{2, 2, 2}, raytrace::vector{-1, -1, -1}};
+        raytrace::ray r{raytrace::point{2, 2, 2}, raytrace::vector{-1, -1, -1}.normalized()};
         geometry::intersection is = column.intersect(r).intersect;
         ASSERT_EQ(geometry::IntersectionType::Point, get_type(is));
         raytrace::point A{1, 1, 1};
         ASSERT_POINT_EQ(A, as_point(is));
     }
     {
-        raytrace::ray r{raytrace::point{-2, -2, -2}, raytrace::vector{1, 1, 1}};
+        raytrace::ray r{raytrace::point{-2, -2, -2}, raytrace::vector{1, 1, 1}.normalized()};
         geometry::intersection is = column.intersect(r).intersect;
         ASSERT_EQ(geometry::IntersectionType::Point, get_type(is));
         raytrace::point A{-1, -1, -1};

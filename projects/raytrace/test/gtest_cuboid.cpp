@@ -51,7 +51,7 @@ TEST(CuboidTest, IntersectionMissed) {
     raytrace::point Q{2.0_p, 2.0_p, 2.0_p};
     vector R{{1, 1, 0}};
 
-    ray complete_miss(Q, R);
+    ray complete_miss(Q, R.normalized());
     geometry::intersection icm = c0.intersect(complete_miss).intersect;
     ASSERT_EQ(geometry::IntersectionType::None, get_type(icm));
 }
@@ -129,12 +129,12 @@ TEST(CuboidTest, IntersectionsOnSurface) {
     raytrace::point E{0, 0, w};
     raytrace::point F{0, 0, -w};
 
-    ray rA0(A, A - center);
-    ray rB0(B, B - center);
-    ray rC0(C, C - center);
-    ray rD0(D, D - center);
-    ray rE0(E, E - center);
-    ray rF0(F, F - center);
+    ray rA0(A, (A - center).normalized());
+    ray rB0(B, (B - center).normalized());
+    ray rC0(C, (C - center).normalized());
+    ray rD0(D, (D - center).normalized());
+    ray rE0(E, (E - center).normalized());
+    ray rF0(F, (F - center).normalized());
 
     geometry::intersection irA0c0 = c0.intersect(rA0).intersect;
     geometry::intersection irB0c0 = c0.intersect(rB0).intersect;
@@ -150,12 +150,12 @@ TEST(CuboidTest, IntersectionsOnSurface) {
     EXPECT_EQ(geometry::IntersectionType::None, get_type(irE0c0));
     EXPECT_EQ(geometry::IntersectionType::None, get_type(irF0c0));
 
-    ray rA1(A, center - A);
-    ray rB1(B, center - B);
-    ray rC1(C, center - C);
-    ray rD1(D, center - D);
-    ray rE1(E, center - E);
-    ray rF1(F, center - F);
+    ray rA1(A, (center - A).normalized());
+    ray rB1(B, (center - B).normalized());
+    ray rC1(C, (center - C).normalized());
+    ray rD1(D, (center - D).normalized());
+    ray rE1(E, (center - E).normalized());
+    ray rF1(F, (center - F).normalized());
 
     geometry::intersection irA1c0 = c0.intersect(rA1).intersect;
     geometry::intersection irB1c0 = c0.intersect(rB1).intersect;

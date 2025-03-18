@@ -93,6 +93,7 @@ find_package(GTest)
 if (Threads_FOUND AND GTest_FOUND)
     add_executable(gtest_basal
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_basal.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_fraction.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_listable.cpp
     )
     target_link_libraries(gtest_basal PRIVATE hobbies-basal GTest::gtest GTest::gtest_main Threads::Threads)

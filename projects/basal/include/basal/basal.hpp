@@ -5,6 +5,7 @@
 #include <basal/ieee754.hpp>
 #include <basal/listable.hpp>
 #include <basal/printable.hpp>
+#include <basal/fraction.hpp>
 #include <type_traits>
 
 namespace basal {

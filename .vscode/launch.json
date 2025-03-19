@@ -157,6 +157,14 @@
             "cwd": "${workspaceFolder}/testing"
         },
         {
+            "name": "(lldb) Demo Functions",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${command:cmake.buildDirectory}/projects/raytrace/demo_functions",
+            "args": [],
+            "cwd": "${workspaceFolder}/testing"
+        },
+        {
             "name": "(lldb) Demo OpenCV GUI",
             "type": "lldb",
             "request": "launch",

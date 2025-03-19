@@ -113,6 +113,11 @@ add_executable(demo_random_tuner
     ${CMAKE_CURRENT_SOURCE_DIR}/demo/main_random_tuner.cpp
 )
 target_link_libraries(demo_random_tuner PRIVATE ${OpenCV_LIBS} hobbies-raytrace hobbies-linalg-utils Threads::Threads)
+
+add_executable(demo_functions
+    ${CMAKE_CURRENT_SOURCE_DIR}/demo/main_functions.cpp
+)
+target_link_libraries(demo_functions PRIVATE ${OpenCV_LIBS} hobbies-raytrace hobbies-linalg-utils Threads::Threads)
 endif()
 
 find_package(Threads)

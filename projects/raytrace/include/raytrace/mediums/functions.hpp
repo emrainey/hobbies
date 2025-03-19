@@ -73,6 +73,9 @@ color happy_face(raytrace::point const& p, palette const& pal);
 /// Happy Face (2 eyes and a hemi-circle open mouth)
 color happy_face(image::point const& p, palette const& pal);
 
+///
+color contours(image::point const& p, palette const& pal);
+
 }  // namespace functions
 
 namespace tuning {

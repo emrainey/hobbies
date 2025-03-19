@@ -5,12 +5,12 @@ namespace raytrace {
 namespace functions {
 
 color simple(image::point const& p __attribute__((unused)), palette const& pal __attribute__((unused))) {
-    basal::exception::throw_if(pal.size() == 0, __FILE__, __LINE__, "Must have at least 1 color");
+    basal::exception::throw_unless(pal.size() >= 1, __FILE__, __LINE__, "Must have at least 1 color");
     return pal[0];
 }
 
 color checkerboard(image::point const& p, palette const& pal) {
-    basal::exception::throw_unless(pal.size() == 8, __FILE__, __LINE__, "Must have all 8 colors in checkerboard");
+    basal::exception::throw_unless(pal.size() >= 8, __FILE__, __LINE__, "Must have at least 8 colors in checkerboard");
     precision h = 0.5_p;
     precision u = std::fmod(p.x, 1.0_p);  // values between -1.0_p and 1.0_p exclusive
     precision v = std::fmod(p.y, 1.0_p);  // values between -1.0_p and 1.0_p exclusive
@@ -115,7 +115,8 @@ color checkerboard(raytrace::point const& p, palette const& pal) {
 }
 
 color diagonal(raytrace::point const& p, palette const& pal) {
-    basal::exception::throw_unless(pal.size() == 2, __FILE__, __LINE__, "Must have only two colors in checkerboard");
+    basal::exception::throw_unless(pal.size() >= 2, __FILE__, __LINE__,
+                                   "Must have at least two colors in checkerboard");
     precision u = std::fmod(p.x, 1.0_p);
     precision v = std::fmod(p.y, 1.0_p);
     precision w = std::fmod(p.z, 1.0_p);
@@ -132,11 +133,20 @@ color diagonal(raytrace::point const& p, palette const& pal) {
 }
 
 color diagonal(image::point const& p, palette const& pal) {
-    basal::exception::throw_unless(pal.size() == 2, __FILE__, __LINE__, "Must have only two colors in checkerboard");
+    basal::exception::throw_unless(pal.size() >= 2, __FILE__, __LINE__,
+                                   "Must have at least two colors in checkerboard");
     precision u = std::fmod(p.x, 1.0_p);
     precision v = std::fmod(p.y, 1.0_p);
     precision upv = u + v;
-    if ((0.0_p <= upv and upv < 0.5_p)) {
+    if (-2.0_p <= upv and upv < -1.5_p) {
+        return pal[0];
+    } else if (-1.5_p <= upv and upv < -1.0_p) {
+        return pal[1];
+    } else if (-1.0_p <= upv and upv < -0.5_p) {
+        return pal[0];
+    } else if (-0.5_p <= upv and upv < 0.0_p) {
+        return pal[1];
+    } else if ((0.0_p <= upv and upv < 0.5_p)) {
         return pal[0];
     } else if (0.5_p <= upv and upv < 1.0_p) {
         return pal[1];
@@ -148,7 +158,8 @@ color diagonal(image::point const& p, palette const& pal) {
 }
 
 color dots(image::point const& p, palette const& pal) {
-    basal::exception::throw_unless(pal.size() == 2, __FILE__, __LINE__, "Must have only two colors in checkerboard");
+    basal::exception::throw_unless(pal.size() >= 2, __FILE__, __LINE__,
+                                   "Must have at least two colors in checkerboard");
     precision u = std::abs(std::fmod(p.x, 1.0_p));
     precision v = std::abs(std::fmod(p.y, 1.0_p));
     precision h = 0.5_p;
@@ -163,7 +174,8 @@ color dots(image::point const& p, palette const& pal) {
 }
 
 color dots(raytrace::point const& p, palette const& pal) {
-    basal::exception::throw_unless(pal.size() == 2, __FILE__, __LINE__, "Must have only two colors in checkerboard");
+    basal::exception::throw_unless(pal.size() >= 2, __FILE__, __LINE__,
+                                   "Must have at least two colors in checkerboard");
     precision u = std::abs(std::fmod(p.x, 1.0_p));
     precision v = std::abs(std::fmod(p.y, 1.0_p));
     precision w = std::abs(std::fmod(p.z, 1.0_p));
@@ -180,7 +192,8 @@ color dots(raytrace::point const& p, palette const& pal) {
 }
 
 color grid(image::point const& p, palette const& pal) {
-    basal::exception::throw_unless(pal.size() == 2, __FILE__, __LINE__, "Must have only two colors in checkerboard");
+    basal::exception::throw_unless(pal.size() >= 2, __FILE__, __LINE__,
+                                   "Must have at least two colors in checkerboard");
     precision u = std::abs(std::fmod(p.x, 1.0_p));
     precision v = std::abs(std::fmod(p.y, 1.0_p));
     precision const l = 1.0_p / 32.0_p;  // line width
@@ -193,7 +206,8 @@ color grid(image::point const& p, palette const& pal) {
 }
 
 color grid(raytrace::point const& p, palette const& pal) {
-    basal::exception::throw_unless(pal.size() == 2, __FILE__, __LINE__, "Must have only two colors in checkerboard");
+    basal::exception::throw_unless(pal.size() >= 2, __FILE__, __LINE__,
+                                   "Must have at least two colors in checkerboard");
     precision u = std::abs(std::fmod(p.x, 1.0_p));
     precision v = std::abs(std::fmod(p.y, 1.0_p));
     precision w = std::abs(std::fmod(p.z, 1.0_p));
@@ -223,7 +237,8 @@ color pseudo_random_noise(image::point const& p, palette const& pal __attribute_
 }
 
 color happy_face(raytrace::point const& p, palette const& pal) {
-    basal::exception::throw_unless(pal.size() == 2, __FILE__, __LINE__, "Must have only two colors in happy-face");
+    basal::exception::throw_unless(pal.size() >= 2, __FILE__, __LINE__,
+                                   "Must have at least two colors in palette for happy-face");
     precision u = std::abs(std::fmod(p.x, 1.0_p));
     precision v = std::abs(std::fmod(p.y, 1.0_p));
     // precision w = std::abs(std::fmod(p.z, 1.0_p));
@@ -251,7 +266,8 @@ color happy_face(raytrace::point const& p, palette const& pal) {
 }
 
 color happy_face(image::point const& p, palette const& pal) {
-    basal::exception::throw_unless(pal.size() == 2, __FILE__, __LINE__, "Must have only two colors in happy-face");
+    basal::exception::throw_unless(pal.size() >= 2, __FILE__, __LINE__,
+                                   "Must have at least two colors in palette for happy-face");
     precision u = std::abs(std::fmod(p.x, 1.0_p));
     precision v = std::abs(std::fmod(p.y, 1.0_p));
     image::point uv{u, v};
@@ -275,6 +291,38 @@ color happy_face(image::point const& p, palette const& pal) {
         }
     }
     return pal[1];
+}
+
+color contours(image::point const& p, palette const& pal) {
+    basal::exception::throw_unless(pal.size() >= 8, __FILE__, __LINE__,
+                                   "Must have at least two colors in palette for happy-face");
+    precision u = std::abs(std::fmod(p.x, 1.0_p));
+    precision v = std::abs(std::fmod(p.y, 1.0_p));
+    image::point const uv{u, v};
+    image::point const a{0.25_p, 0.5_p};
+    image::point const b{0.75_p, 0.5_p};
+    precision const delta = 0.125_p;
+    precision a1 = (p - a).magnitude();
+    precision b1 = (p - b).magnitude();
+    precision r1 = a1 / b1;
+
+    if ((0.875_p - delta) <= r1 and r1 < (0.875_p + delta)) {
+        return pal[7];
+    } else if ((0.750_p - delta) <= r1 and r1 < (0.750_p + delta)) {
+        return pal[6];
+    } else if ((0.625_p - delta) <= r1 and r1 < (0.625_p + delta)) {
+        return pal[5];
+    } else if ((0.5_p - delta) <= r1 and r1 < (0.5_p + delta)) {
+        return pal[4];
+    } else if ((0.375_p - delta) <= r1 and r1 < (0.375_p + delta)) {
+        return pal[3];
+    } else if ((0.25_p - delta) <= r1 and r1 < (0.25_p + delta)) {
+        return pal[2];
+    } else if ((0.125_p - delta) <= r1 and r1 < (0.125_p + delta)) {
+        return pal[1];
+    } else {
+        return pal[0];
+    }
 }
 
 }  // namespace functions
@@ -304,10 +352,12 @@ void prn_parameters::update() {
     vec_b[0] = radius * std::cos(theta_b.value);
     vec_b[1] = radius * std::sin(theta_b.value);
 
-    std::cout << "Gain: " << gain << " Radius: " << radius << std::endl;
-    std::cout << "Theta R/pi: " << theta_r.value / iso::pi << " Vec R: " << vec_r << std::endl;
-    std::cout << "Theta G/pi: " << theta_g.value / iso::pi << " Vec G: " << vec_g << std::endl;
-    std::cout << "Theta B/pi: " << theta_b.value / iso::pi << " Vec B: " << vec_b << std::endl;
+    if (debug::generic) {
+        std::cout << "Gain: " << gain << " Radius: " << radius << std::endl;
+        std::cout << "Theta R/pi: " << theta_r.value / iso::pi << " Vec R: " << vec_r << std::endl;
+        std::cout << "Theta G/pi: " << theta_g.value / iso::pi << " Vec G: " << vec_g << std::endl;
+        std::cout << "Theta B/pi: " << theta_b.value / iso::pi << " Vec B: " << vec_b << std::endl;
+    }
 }
 
 // The global instance of the parameters used by the pseudo_random_noise

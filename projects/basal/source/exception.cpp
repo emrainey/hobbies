@@ -123,21 +123,22 @@ void exception::throw_if(bool condition, char const loc[], std::size_t line) noe
 void exception::throw_unless(bool condition, char const loc[], std::size_t line, char const fmt[],
                              ...) noexcept(false) {
     if (not condition) {
-        char const *value = std::getenv("ABORT");
-        if (value) {
-            fprintf(stdout, "ABORT=%s\n", value);
-            std::string state{value};
-            if (state == "1" || state == "true")
-                std::abort();  // lldb or gdb should catch
-        } else {
-            fprintf(stdout, "Use ABORT=1 in env to cause an std::abort\n");
-        }
         char buffer[1024];
         va_list list;
         va_start(list, fmt);
         vsnprintf(buffer, sizeof(buffer), fmt, list);
         va_end(list);
         fprintf(stdout, "%s", buffer);
+        char const *value = std::getenv("ABORT");
+        if (value) {
+            fprintf(stdout, "ABORT=%s\n", value);
+            std::string state{value};
+            if (state == "1" || state == "true") {
+                std::abort();  // lldb or gdb should catch
+            }
+        } else {
+            fprintf(stdout, "Use ABORT=1 in env to cause an std::abort\n");
+        }
         throw basal::exception(buffer, loc, line);
     }
 }

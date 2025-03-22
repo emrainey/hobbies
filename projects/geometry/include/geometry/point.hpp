@@ -22,6 +22,9 @@ public:
     /// The dimensionality of the point
     constexpr static size_t const dimensions{DIMS};
 
+    constexpr static bool use_distance_sort{false};
+    constexpr static bool use_lexical_sort{true};
+
     /// Default
     point();
 
@@ -93,6 +96,9 @@ bool operator==(point<DIMS> const& a, point<DIMS> const& b);
 /// Inequality Operator
 template <size_t DIMS>
 bool operator!=(point<DIMS> const& a, point<DIMS> const& b) noexcept(false);
+
+template <size_t DIMS>
+bool operator<(point<DIMS> const& a, point<DIMS> const& b) noexcept(false);
 
 template <size_t DIMS>
 inline point<DIMS> operator*(point<DIMS> const& a, precision s) noexcept(false) {
@@ -210,6 +216,27 @@ public:
     // friend inline bool operator!=(point_ const& a, point_ const& b) noexcept(false) {
     //     return operators::operator!=(a, b);
     // }
+
+    /// Uses distance from origin to sort a pair of points.
+    /// @param a
+    /// @param b
+    /// @return
+    bool operator<(point_<2> const& other) const noexcept(false) {
+        if constexpr (point::use_distance_sort) {
+            vector_<2> a0 = (*this) - point_<2>{};
+            vector_<2> b0 = other - point_<2>{};
+            return (a0.quadrance() < b0.quadrance());
+        }
+        if constexpr (point::use_lexical_sort) {
+            if (x < other.x) {
+                return true;
+            } else if (x > other.x) {
+                return false;
+            }
+            return (y < other.y);
+        }
+        return false;  // Default to false if neither sort is specified
+    }
 };
 
 /// Specific 3d point template wrapper to define easy access reference to \ref x, \ref y and \ref z
@@ -295,9 +322,35 @@ public:
     // friend inline bool operator!=(point_ const& a, point_ const& b) noexcept(false) {
     //     return operators::operator!=(a, b);
     // }
+
+    /// Uses distance from origin to sort a pair of points.
+    /// @param a
+    /// @param b
+    /// @return
+    bool operator<(point_<3> const& other) const noexcept(false) {
+        if constexpr (point::use_distance_sort) {
+            vector_<3> a0 = (*this) - point_<3>{};
+            vector_<3> b0 = other - point_<3>{};
+            return (a0.quadrance() < b0.quadrance());
+        }
+        if constexpr (point::use_lexical_sort) {
+            if (x < other.x) {
+                return true;
+            } else if (x > other.x) {
+                return false;
+            }
+            if (y < other.y) {
+                return true;
+            } else if (y > other.y) {
+                return false;
+            }
+            return (z < other.z);
+        }
+        return false;  // Default to false if neither sort is specified
+    }
 };
 
-/// Specific 4d point template wrapper to define easy access reference to \ref x, \ref y and \ref z
+/// Specific 4d point template wrapper to define easy access reference to \ref x, \ref y \ref z and \ref w
 template <>
 class point_<4> : public point<4> {
 public:
@@ -329,7 +382,7 @@ public:
         z = other.z;
         w = other.w;
     }
-    /// Custom triple input constructor
+    /// Custom four input constructor
     explicit point_(precision a, precision b, precision c, precision d) : point_{} {
         x = a;
         y = b;
@@ -379,6 +432,37 @@ public:
     // friend inline bool operator!=(point_ const& a, point_ const& b) noexcept(false) {
     //     return operators::operator!=(a, b);
     // }
+
+    /// Uses distance from origin to sort a pair of points.
+    /// @param a
+    /// @param b
+    /// @return
+    bool operator<(point_<4> const& other) const noexcept(false) {
+        if constexpr (point::use_distance_sort) {
+            vector_<4> a0 = (*this) - point_<4>{};
+            vector_<4> b0 = other - point_<4>{};
+            return (a0.quadrance() < b0.quadrance());
+        }
+        if constexpr (point::use_lexical_sort) {
+            if (x < other.x) {
+                return true;
+            } else if (x > other.x) {
+                return false;
+            }
+            if (y < other.y) {
+                return true;
+            } else if (y > other.y) {
+                return false;
+            }
+            if (z < other.z) {
+                return true;
+            } else if (z > other.z) {
+                return false;
+            }
+            return (w < other.w);
+        }
+        return false;  // Default to false if neither sort is specified
+    }
 };
 
 template <size_t DIMS>

@@ -17,12 +17,10 @@ TEST(SceneTest, ObjectIntersections) {
     // define a ray
     ray r0{raytrace::point{0, 0, 5}, vector{{0, 0, -1}}};
     // define the object list
-    scene::object_list objects;
-    objects.push_back(&s0);
+    scene scene;
+    scene.add_object(&s0);
     // find the intersections (this should pass through the center)
-    objects::hits list = scene::find_intersections(r0, objects);
-    // there must be same as object list
-    ASSERT_EQ(objects.size(), list.size());
+    objects::hits list = scene.find_intersections(r0);
     // that is a point
     ASSERT_EQ(geometry::IntersectionType::Point, get_type(list[0].intersect));
     // that point is at 0,0,2
@@ -40,18 +38,16 @@ TEST(SceneTest, NearestObjectIntersections) {
     // define a ray
     ray r0{raytrace::point{0, -3, 0}, vector{{0, 1, 0}}};
     // define the object list
-    scene::object_list objects;
-    objects.push_back(&s0);
-    objects.push_back(&s1);
+    scene scene;
+    scene.add_object(&s0);
+    scene.add_object(&s1);
     // find the intersections
-    objects::hits list = scene::find_intersections(r0, objects);
-    // there must be 2
-    ASSERT_EQ(objects.size(), list.size());
+    objects::hits list = scene.find_intersections(r0);
     // there should both be points (non-facing normals removed already)
     ASSERT_EQ(geometry::IntersectionType::Point, get_type(list[0].intersect));
     ASSERT_EQ(geometry::IntersectionType::Point, get_type(list[1].intersect));
     // find the nearest object to the ray
-    objects::hit nearest = scene::nearest_object(r0, list, objects);
+    objects::hit nearest = scene.nearest_object(r0, list);
     ASSERT_PRECISION_EQ(1, nearest.distance);
     ASSERT_EQ(geometry::IntersectionType::Point, get_type(nearest.intersect));
     ASSERT_EQ(&s0, nearest.object);

@@ -17,7 +17,7 @@ class Node {
 public:
     using hits = objects::object::hits;
     /// the number of subnodes is 8, but magic numbers can go awry
-    static constexpr size_t NumSubNodes{8U};
+    static constexpr size_t NumSubNodes{Bounds::NumSubBounds};
     /// Determines the index of the octant that contains the point
     /// @retval 0: (-x, -y, -z)
     /// @retval 1: (-x, -y, +z)
@@ -37,7 +37,8 @@ public:
         return bounds_;
     }
 
-    /// Determines the hits of the ray intersects with the objects in the node or it's sub-nodes
+    /// Determines the hits of the ray where it intersects with the objects in the node or it's sub-nodes
+    /// @retval No hits if the ray does not intersect with anything in the node tree.
     hits intersects(raytrace::ray const& ray) const;
 
     /// Determines if the object's extent intersects with the bounds of the node
@@ -49,20 +50,28 @@ public:
     /// Iterates over all the subnodes in the node
     bool any_of(std::function<bool(Node const&)> const& func) const;
 
-    /// Returns true if the object is in the existing object list
+    /// Returns true if the object is in this nodes object list
+    /// @note This does not check the subnodes
     /// @param object The object to check for
     bool has(objects::object const* object) const;
 
-    /// Recursively checks to see if the object is under this node
+    /// Recursively checks to see if the object is in any of this node's subnodes.
+    /// @note Does not check this node's object list.
     /// @param object The object to check for
     /// @return true if somewhere under the node (@see has for this node)
     bool under(objects::object const* object) const;
 
+    /// Checks if the object is in this node or any of its subnodes
+    bool contains(objects::object const* object) const;
+
     /// @return the number of objects in this node only, not subnodes
-    size_t object_count() const;
+    size_t direct_object_count() const;
 
     /// @return the number of sub nodes in this node
     size_t node_count() const;
+
+    /// @return the number of objects in this node and all subnodes
+    size_t all_object_count() const;
 
     /// Inserts the object into the list of objects or the subnode lists
     /// @param object The object to insert
@@ -70,8 +79,8 @@ public:
     /// @retval false if the object was not inserted
     bool insert(objects::object const* object);
 
-    /// Splits the current bounds into 8 sub-bounds
-    std::vector<Bounds> split_bounds();
+    /// Returns the number of instances of the object that are in this node tree.
+    size_t count_of(objects::object const* object) const;
 
 protected:
     /// The bounding area of the node

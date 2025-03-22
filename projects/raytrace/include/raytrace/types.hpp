@@ -32,6 +32,8 @@ public:
     size_t intersections_with_points{0u};
     /// Intersections with Lines
     size_t intersections_with_line{0u};
+    /// Intersections with bounding boxes
+    size_t intersections_with_bounds{0u};
     /// Intersection from the back side of an object (inside outwards or on the side away from the normal)
     size_t inside_out_intersections{0u};
     /// No intersections with objects

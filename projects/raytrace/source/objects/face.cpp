@@ -17,6 +17,9 @@ face::face(point const& A, point const& B, point const& C, image::point const& a
 face::face(point const& A, point const& B, point const& C, image::point const& a, image::point const& b,
            image::point const& c, vector const& na, vector const& nb, vector const& nc)
     : triangle(A, B, C), m_texture_coords{a, b, c}, m_normals{na, nb, nc} {
+    if constexpr (debug::triangle) {
+        std::cout << "Face created with normals: " << na << " " << nb << " " << nc << std::endl;
+    }
     std::cout << "Face center is " << position() << std::endl;
 }
 

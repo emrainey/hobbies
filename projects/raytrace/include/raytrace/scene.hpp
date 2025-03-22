@@ -39,7 +39,7 @@ public:
     /// @param objects [in] The list of objects in the scene.
     /// @return
     ///
-    static objects::hits find_intersections(ray const& world_ray, object_list const& objects);
+    objects::hits find_intersections(ray const& world_ray);
 
     ///
     /// Given a set of hits, finds the closest intersection to a point.
@@ -48,7 +48,7 @@ public:
     /// @param [in] objects The list of objects in the scene.
     /// @return Returns the pointer to the nearest object to the point.
     ///
-    static objects::hit nearest_object(ray const& world_ray, objects::hits const& hits, object_list const&);
+    objects::hit nearest_object(ray const& world_ray, objects::hits const& hits);
 
     ///
     /// Traces the path of a world ray within the scene and returns the color.
@@ -121,7 +121,8 @@ protected:
     /// The infinite bounds object list
     object_list m_infinite_objects;
 
-    /// The finite bounds object list sorted into
+    /// The finite bounds object list sorted into nodes
+    std::vector<tree::Node> m_nodes;
 };
 
 }  // namespace raytrace

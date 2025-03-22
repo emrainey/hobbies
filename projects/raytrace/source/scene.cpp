@@ -30,7 +30,11 @@ void scene::add_object(objects::object const* obj) {
     if (bounds.is_infinite()) {
         m_infinite_objects.push_back(obj);
     } else {
-        m_bounds.grow(bounds);
+        if (m_bounds.is_infinite()) {
+            m_bounds = bounds;  // first object sets the bounds
+        } else {
+            m_bounds.grow(bounds);
+        }
         if constexpr (debug::scene) {
             std::cout << "Growing Bounds to: " << m_bounds.min << " Max: " << m_bounds.max << std::endl;
         }
@@ -60,32 +64,82 @@ size_t scene::number_of_lights(void) const {
     return m_lights.size();
 }
 
-objects::hits scene::find_intersections(ray const& world_ray, object_list const& objects) {
+objects::hits scene::find_intersections(ray const& world_ray) {
     // find collisions (objects determine number of collisions) with the environment
     objects::hits hits;
-    /// FIXME this is not very efficient as we could use a some structure to determine where the ray is intersecting
-    for (auto objptr : objects) {
-        basal::exception::throw_if(objptr == nullptr, __FILE__, __LINE__, "Object can't be nullptr");
-        auto collision = objptr->intersect(world_ray);
-        if (get_type(collision.intersect) != IntersectionType::None) {
-            statistics::get().intersections_with_objects++;
-        } else {
-            statistics::get().missed_rays++;
+    if (m_objects.size() < brute_force_to_bounding_box) {
+        /// this is not very efficient but for a low number of objects
+        /// it's faster then using a tree w/ bounds checks
+        for (auto objptr : m_objects) {
+            if constexpr (enforce_contracts) {
+                basal::exception::throw_if(objptr == nullptr, __FILE__, __LINE__, "Object can't be nullptr");
+            }
+            auto collision = objptr->intersect(world_ray);
+            if (get_type(collision.intersect) != IntersectionType::None) {
+                statistics::get().intersections_with_objects++;
+            } else {
+                continue;  // skip this object as it didn't hit anything
+            }
+            if (get_type(collision.intersect) == IntersectionType::Point) {
+                statistics::get().intersections_with_point++;
+            } else if (get_type(collision.intersect) == IntersectionType::Points) {
+                statistics::get().intersections_with_points++;
+            } else if (get_type(collision.intersect) == IntersectionType::Line) {
+                statistics::get().intersections_with_line++;
+            }
+            hits.push_back(collision);
         }
-        if (get_type(collision.intersect) == IntersectionType::Point) {
-            statistics::get().intersections_with_point++;
-        } else if (get_type(collision.intersect) == IntersectionType::Points) {
-            statistics::get().intersections_with_points++;
-        } else if (get_type(collision.intersect) == IntersectionType::Line) {
-            statistics::get().intersections_with_line++;
+    } else {
+        // check the infinite objects list as we know those will get hit
+        for (auto objptr : m_infinite_objects) {
+            if constexpr (enforce_contracts) {
+                basal::exception::throw_if(objptr == nullptr, __FILE__, __LINE__, "Object can't be nullptr");
+            }
+            auto collision = objptr->intersect(world_ray);
+            if (get_type(collision.intersect) != IntersectionType::None) {
+                statistics::get().intersections_with_objects++;
+            } else {
+                continue;  // skip this object as it didn't hit anything
+            }
+            if (get_type(collision.intersect) == IntersectionType::Point) {
+                statistics::get().intersections_with_point++;
+            } else if (get_type(collision.intersect) == IntersectionType::Points) {
+                statistics::get().intersections_with_points++;
+            } else if (get_type(collision.intersect) == IntersectionType::Line) {
+                statistics::get().intersections_with_line++;
+            }
+            hits.push_back(collision);
         }
-        hits.push_back(collision);
+        auto fast_hits = m_nodes.front().intersects(world_ray);
+        if (fast_hits.empty()) {
+            return hits;  // no hits so return empty
+        }
+        // search for the intersection in the nodes of the tree.
+        for (auto& collision : fast_hits) {
+            // each collision is a definite hit, but may not be the first hit.
+            if (get_type(collision.intersect) != IntersectionType::None) {
+                statistics::get().intersections_with_objects++;
+            }
+            if (get_type(collision.intersect) == IntersectionType::Point) {
+                statistics::get().intersections_with_point++;
+            } else if (get_type(collision.intersect) == IntersectionType::Points) {
+                statistics::get().intersections_with_points++;
+            } else if (get_type(collision.intersect) == IntersectionType::Line) {
+                statistics::get().intersections_with_line++;
+            }
+            hits.push_back(collision);
+        }
+    }
+    if (hits.size() == 0) {
+        statistics::get().missed_rays++;
     }
     return hits;
 }
 
-objects::hit scene::nearest_object(ray const& world_ray, objects::hits const& hits, object_list const& objects) {
-    basal::exception::throw_unless(hits.size() == objects.size(), __FILE__, __LINE__, "Lists must match!");
+objects::hit scene::nearest_object(ray const& world_ray, objects::hits const& hits) {
+    if constexpr (enforce_contracts) {
+        basal::exception::throw_if(m_objects.empty(), __FILE__, __LINE__, "Object list can't be empty");
+    }
     precision closest_distance2 = std::numeric_limits<precision>::max();
     objects::hit closest_hit;
     for (auto const& this_hit : hits) {
@@ -126,10 +180,10 @@ color scene::trace(ray const& world_ray, mediums::medium const& media, size_t re
     color traced_color;
 
     // finds all the intersections with the objects
-    objects::hits hits = find_intersections(world_ray, m_objects);
+    objects::hits hits = find_intersections(world_ray);
 
     // find the closest intersection object
-    objects::hit nearest = nearest_object(world_ray, hits, m_objects);
+    objects::hit nearest = nearest_object(world_ray, hits);
 
     // if it was a point...
     if (get_type(nearest.intersect) == IntersectionType::Point) {
@@ -220,10 +274,10 @@ color scene::trace(ray const& world_ray, mediums::medium const& media, size_t re
                     // construct a world ray from that point and normalized vector
                     ray world_ray(world_surface_point, normalized_light_direction);
                     // is the light blocked by anything?
-                    objects::hits blockers = find_intersections(world_ray, m_objects);
+                    objects::hits blockers = find_intersections(world_ray);
                     // find the nearest object in the light path, which may include P (at/near zero)
                     // if the current object is blocking the light.
-                    objects::hit blocker = nearest_object(world_ray, blockers, m_objects);
+                    objects::hit blocker = nearest_object(world_ray, blockers);
                     // is this point in a shadow of this light?
                     // either there's no intersection to the light, or
                     // there is one but it's farther away than the light itself.
@@ -352,7 +406,16 @@ void scene::render(camera& view, std::string filename, size_t number_of_samples,
         view.print("Camera Info:\n");
     }
 
-    // FIXME insert the code which creates the octo-tree here as it can't be done in the add_object method correctly
+    // create the tree here as it can't be done in the add_object method correctly
+    if (m_nodes.size() == 0U) {
+        m_nodes.emplace_back(m_bounds);
+        // insert everything from the objects list into the nodes if it is not in the infinite list.
+        for (auto const* obj : m_objects) {
+            if (std::find(m_infinite_objects.begin(), m_infinite_objects.end(), obj) == m_infinite_objects.end()) {
+                m_nodes.back().add_object(obj);
+            }
+        }
+    }
 
     auto tracer = [&](image::point const& pnt) -> color {
         // create the ray at each point in the image along the vector

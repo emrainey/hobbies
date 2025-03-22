@@ -34,16 +34,18 @@ point Bounds::center() const {
     }
 }
 
-/// Determines if a point is within the bounds
 bool Bounds::contained(point const& p) const {
     return (min.x <= p.x and p.x < max.x and min.y <= p.y and p.y < max.y and min.z <= p.z and p.z < max.z);
 }
 
-/// Determines if a ray intersects the bounds
 bool Bounds::intersects(ray const& r) const {
     precision const& x = r.location().x;
     precision const& y = r.location().y;
     precision const& z = r.location().z;
+    if (contained(r.location())) {
+        raytrace::statistics::get().intersections_with_bounds++;
+        return true;
+    }
     precision const& i = r.direction()[0];
     precision const& j = r.direction()[1];
     precision const& k = r.direction()[2];
@@ -52,6 +54,7 @@ bool Bounds::intersects(ray const& r) const {
         if (basal::is_greater_than_or_equal_to_zero(t_min)) {
             auto point_min = r.distance_along(t_min);
             if (contained(point_min)) {
+                raytrace::statistics::get().intersections_with_bounds++;
                 return true;
             }
         }
@@ -59,6 +62,7 @@ bool Bounds::intersects(ray const& r) const {
         if (basal::is_greater_than_or_equal_to_zero(t_max)) {
             auto point_max = r.distance_along(t_max);
             if (contained(point_max)) {
+                raytrace::statistics::get().intersections_with_bounds++;
                 return true;
             }
         }
@@ -68,6 +72,7 @@ bool Bounds::intersects(ray const& r) const {
         if (basal::is_greater_than_or_equal_to_zero(t_min)) {
             auto point_min = r.distance_along(t_min);
             if (contained(point_min)) {
+                raytrace::statistics::get().intersections_with_bounds++;
                 return true;
             }
         }
@@ -75,6 +80,7 @@ bool Bounds::intersects(ray const& r) const {
         if (basal::is_greater_than_or_equal_to_zero(t_max)) {
             auto point_max = r.distance_along(t_max);
             if (contained(point_max)) {
+                raytrace::statistics::get().intersections_with_bounds++;
                 return true;
             }
         }
@@ -84,6 +90,7 @@ bool Bounds::intersects(ray const& r) const {
         if (basal::is_greater_than_or_equal_to_zero(t_min)) {
             auto point_min = r.distance_along(t_min);
             if (contained(point_min)) {
+                raytrace::statistics::get().intersections_with_bounds++;
                 return true;
             }
         }
@@ -91,6 +98,7 @@ bool Bounds::intersects(ray const& r) const {
         if (basal::is_greater_than_or_equal_to_zero(t_max)) {
             auto point_max = r.distance_along(t_max);
             if (contained(point_max)) {
+                raytrace::statistics::get().intersections_with_bounds++;
                 return true;
             }
         }
@@ -110,12 +118,44 @@ bool Bounds::is_infinite() const {
 }
 
 void Bounds::grow(Bounds const& b) {
+    basal::exception::throw_if(b.is_infinite(), __FILE__, __LINE__, "Cannot grow to infinite bounds");
+    basal::exception::throw_if(is_infinite(), __FILE__, __LINE__, "Cannot grow to an already infinite bounds");
     min.x = std::min(min.x, b.min.x);
     min.y = std::min(min.y, b.min.y);
     min.z = std::min(min.z, b.min.z);
     max.x = std::max(max.x, b.max.x);
     max.y = std::max(max.y, b.max.y);
     max.z = std::max(max.z, b.max.z);
+}
+
+std::vector<Bounds> Bounds::split() const {
+    std::vector<Bounds> sub_bounds;
+    raytrace::point mid{(min.x + max.x) / 2.0_p, (min.y + max.y) / 2.0_p, (min.z + max.z) / 2.0_p};
+    // need to create all the min points and max points
+    // mins are mixed between min and mid
+    std::array<point, NumSubBounds> sub_min{
+        point{min.x, min.y, min.z}, point{min.x, min.y, mid.z}, point{min.x, mid.y, min.z}, point{min.x, mid.y, mid.z},
+        point{mid.x, min.y, min.z}, point{mid.x, min.y, mid.z}, point{mid.x, mid.y, min.z}, mid};
+    // maxs are mixed between mid and max
+    std::array<point, NumSubBounds> sub_max{mid,
+                                            point{mid.x, mid.y, max.z},
+                                            point{mid.x, max.y, mid.z},
+                                            point{mid.x, max.y, max.z},
+                                            point{max.x, mid.y, mid.z},
+                                            point{max.x, mid.y, max.z},
+                                            point{max.x, max.y, mid.z},
+                                            max};
+    for (size_t i = 0; i < NumSubBounds; i++) {
+        sub_bounds.emplace_back(sub_min[i], sub_max[i]);
+        if constexpr (debug::generic) {
+            std::cout << "Bound[" << i << "] " << sub_bounds.back() << std::endl;
+        }
+    }
+    return sub_bounds;
+}
+
+std::ostream& operator<<(std::ostream& os, Bounds const& b) {
+    return os << "Bounds{min=" << b.min << ", max=" << b.max << "}";
 }
 
 }  // namespace raytrace

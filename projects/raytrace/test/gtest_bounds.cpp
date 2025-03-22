@@ -32,6 +32,12 @@ TEST(BoundsTest, NoIntersect) {
     EXPECT_FALSE(bounds.intersects(r2));
 }
 
+TEST(BoundsTest, Inside) {
+    auto bounds = raytrace::Bounds{raytrace::point(0, 0, 0), raytrace::point(1, 1, 1)};
+    auto r = raytrace::ray{raytrace::point(0.5_p, 0.5_p, 0.5_p), raytrace::vector{0, 0, 1}};
+    EXPECT_TRUE(bounds.intersects(r));
+}
+
 TEST(BoundsTest, Overlap) {
     auto bounds = raytrace::Bounds{raytrace::point(0, 0, 0), raytrace::point(1, 1, 1)};
     auto b = raytrace::Bounds{raytrace::point(0.5_p, 0.5_p, 0.5_p), raytrace::point(1.5_p, 1.5_p, 1.5_p)};
@@ -62,6 +68,30 @@ TEST(BoundsTest, Grow) {
     bounds.grow(b);
     EXPECT_POINT_EQ(bounds.min, raytrace::point(0, 0, 0));
     EXPECT_POINT_EQ(bounds.max, raytrace::point(1.5_p, 1.5_p, 1.5_p));
+}
+
+TEST(BoundsTest, Split) {
+    raytrace::Bounds bounds{raytrace::point{0, 0, 0}, raytrace::point{2, 2, 2}};
+    auto sub_bounds = bounds.split();
+    // express the asserts for each min/max pair in the sub_bounds
+
+    EXPECT_POINT_EQ(raytrace::point(0.0_p, 0.0_p, 0.0_p), sub_bounds[0].min);  // 0: (-x, -y, -z)
+    EXPECT_POINT_EQ(raytrace::point(0.0_p, 0.0_p, 1.0_p), sub_bounds[1].min);  // 1: (-x, -y, +z)
+    EXPECT_POINT_EQ(raytrace::point(0.0_p, 1.0_p, 0.0_p), sub_bounds[2].min);  // 2: (-x, +y, -z)
+    EXPECT_POINT_EQ(raytrace::point(0.0_p, 1.0_p, 1.0_p), sub_bounds[3].min);  // 3: (-x, +y, +z)
+    EXPECT_POINT_EQ(raytrace::point(1.0_p, 0.0_p, 0.0_p), sub_bounds[4].min);  // 4: (+x, -y, -z)
+    EXPECT_POINT_EQ(raytrace::point(1.0_p, 0.0_p, 1.0_p), sub_bounds[5].min);  // 5: (+x, -y, +z)
+    EXPECT_POINT_EQ(raytrace::point(1.0_p, 1.0_p, 0.0_p), sub_bounds[6].min);  // 6: (+x, +y, -z)
+    EXPECT_POINT_EQ(raytrace::point(1.0_p, 1.0_p, 1.0_p), sub_bounds[7].min);  // 7: (+x, +y, +z)
+
+    EXPECT_POINT_EQ(raytrace::point(1.0_p, 1.0_p, 1.0_p), sub_bounds[0].max);  // 0: (-x, -y, -z)
+    EXPECT_POINT_EQ(raytrace::point(1.0_p, 1.0_p, 2.0_p), sub_bounds[1].max);  // 1: (-x, -y, +z)
+    EXPECT_POINT_EQ(raytrace::point(1.0_p, 2.0_p, 1.0_p), sub_bounds[2].max);  // 2: (-x, +y, -z)
+    EXPECT_POINT_EQ(raytrace::point(1.0_p, 2.0_p, 2.0_p), sub_bounds[3].max);  // 3: (-x, +y, +z)
+    EXPECT_POINT_EQ(raytrace::point(2.0_p, 1.0_p, 1.0_p), sub_bounds[4].max);  // 4: (+x, -y, -z)
+    EXPECT_POINT_EQ(raytrace::point(2.0_p, 1.0_p, 2.0_p), sub_bounds[5].max);  // 5: (+x, -y, +z)
+    EXPECT_POINT_EQ(raytrace::point(2.0_p, 2.0_p, 1.0_p), sub_bounds[6].max);  // 6: (+x, +y, -z)
+    EXPECT_POINT_EQ(raytrace::point(2.0_p, 2.0_p, 2.0_p), sub_bounds[7].max);  // 7: (+x, +y, +z)
 }
 
 TEST(BoundsTest, NotInfinite) {

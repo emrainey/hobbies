@@ -41,12 +41,24 @@ bool Node::under(objects::object const* object) const {
     return false;
 }
 
-size_t Node::object_count() const {
+bool Node::contains(objects::object const* object) const {
+    return has(object) || under(object);
+}
+
+size_t Node::direct_object_count() const {
     return objects_.size();
 }
 
 size_t Node::node_count() const {
     return nodes_.size();
+}
+
+size_t Node::all_object_count() const {
+    size_t count = direct_object_count();
+    for (auto const& node : nodes_) {
+        count += node.all_object_count();
+    }
+    return count;
 }
 
 bool Node::intersects(objects::object const* object) const {
@@ -55,6 +67,8 @@ bool Node::intersects(objects::object const* object) const {
 
 objects::object::hits Node::intersects(raytrace::ray const& ray) const {
     hits hits;
+    // if there's no objects and no subnodes, then it doesn't matter if it intersects?
+    // we still want to know if it could have intersected. So leave it this way.
     if (bounds_.intersects(ray)) {
         for (auto const& object : objects_) {
             auto hit = object->intersect(ray);
@@ -80,6 +94,17 @@ bool Node::any_of(std::function<bool(Node const&)> const& func) const {
     return std::any_of(ret.begin(), ret.end(), [](bool b) { return b; });
 }
 
+size_t Node::count_of(objects::object const* object) const {
+    size_t count = 0;
+    if (has(object)) {
+        count++;
+    }
+    for (auto const& node : nodes_) {
+        count += node.count_of(object);
+    }
+    return count;
+}
+
 bool Node::insert(objects::object const* object) {
     size_t added{0U};
     size_t intersects{0U};
@@ -89,12 +114,12 @@ bool Node::insert(objects::object const* object) {
             intersects++;
         }
     }
-    if (intersects == 8) {
-        // if the object intersects all the subnodes, then it stays in this node
+    if (intersects > 1) {
+        // if the object intersects more than one of the subnodes, then it stays in this node
         objects_.push_back(object);
         added++;
     } else {
-        // if the object intersects some of the subnodes, then it goes into the subnode
+        // if the object intersects only a sub node then it goes into the subnode
         for (size_t i = 0; i < NumSubNodes; i++) {
             if (nodes_[i].add_object(object)) {
                 added++;
@@ -114,7 +139,7 @@ bool Node::add_object(objects::object const* object) {
                 // mark the node as now having subnodes
                 has_subnodes_ = true;
                 // first create 8 sub-bounds from the current bounds
-                std::vector<Bounds> sub_bounds = split_bounds();
+                std::vector<Bounds> sub_bounds = bounds_.split();
                 for (size_t i = 0; i < NumSubNodes; i++) {
                     nodes_.push_back(sub_bounds[i]);
                 }
@@ -136,32 +161,6 @@ bool Node::add_object(objects::object const* object) {
         }
     }
     return (added > 0U);
-}
-
-std::vector<Bounds> Node::split_bounds() {
-    std::vector<Bounds> sub_bounds;
-    point mid = bounds_.center();
-    point min = bounds_.min;
-    point max = bounds_.max;
-    // need to create all the min points and max points
-    // mins are mixed between min and mid
-    std::array<point, NumSubNodes> sub_min{
-        point{min.x, min.y, min.z}, point{min.x, min.y, mid.z}, point{min.x, mid.y, min.z}, point{min.x, mid.y, mid.z},
-        point{mid.x, min.y, min.z}, point{mid.x, min.y, mid.z}, point{mid.x, mid.y, min.z}, mid};
-    // maxs are mixed between mid and max
-    std::array<point, NumSubNodes> sub_max{mid,
-                                           point{mid.x, mid.y, max.z},
-                                           point{mid.x, max.y, mid.z},
-                                           point{mid.x, max.y, max.z},
-                                           point{max.x, mid.y, mid.z},
-                                           point{max.x, mid.y, max.z},
-                                           point{max.x, max.y, mid.z},
-                                           max};
-    for (size_t i = 0; i < NumSubNodes; i++) {
-        sub_bounds.emplace_back(sub_min[i], sub_max[i]);
-        std::cout << "Bound[" << i << "] Min " << sub_min[i] << " Max " << sub_max[i] << std::endl;
-    }
-    return sub_bounds;
 }
 
 }  // namespace tree

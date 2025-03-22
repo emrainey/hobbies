@@ -34,8 +34,19 @@ constexpr bool is_odd(TYPE value) {
     return (value & 0b1) == 0b1;
 }
 
+template <typename TYPE>
+constexpr TYPE exponentiate(TYPE base, unsigned long exp) {
+    static_assert(std::is_integral<TYPE>::value, "Must be an integral type");
+    TYPE result = 1U;
+    for (unsigned long i = 0U; i < exp; ++i) {
+        result *= base;
+    }
+    return result;
+}
+
 namespace {
 int __secret_anonymous_array__[2];
 static_assert(dimof(__secret_anonymous_array__) == 2, "Must be 2");
+static_assert(exponentiate(2UL, 5UL) == 32UL, "Must be 32");
 }  // namespace
 }  // namespace basal

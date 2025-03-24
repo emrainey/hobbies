@@ -148,8 +148,8 @@ int main(int argc, char *argv[]) {
                                 raytrace::statistics::get().intersections_with_points,
                                 raytrace::statistics::get().intersections_with_line,
                                 raytrace::statistics::get().bounced_rays, raytrace::statistics::get().transmitted_rays,
-                                raytrace::statistics::get().intersections_with_bounds,
-                                raytrace::statistics::get().missed_rays, done ? "\r\n" : "");
+                                raytrace::statistics::get().missed_rays,
+                                raytrace::statistics::get().intersections_with_bounds, done ? "\r\n" : "");
                             // if (done) return;
                         }
                         fflush(stdout);

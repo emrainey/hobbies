@@ -111,9 +111,6 @@ objects::hits scene::find_intersections(ray const& world_ray) {
             hits.push_back(collision);
         }
         auto fast_hits = m_nodes.front().intersects(world_ray);
-        if (fast_hits.empty()) {
-            return hits;  // no hits so return empty
-        }
         // search for the intersection in the nodes of the tree.
         for (auto& collision : fast_hits) {
             // each collision is a definite hit, but may not be the first hit.

@@ -402,10 +402,10 @@ TEST(MatrixTest, FileWriting) {
     using namespace linalg;
     std::string path = "./m.bin";
     matrix m{{{4, 6, 9}, {-8, 11, 1}, {0, -3, 4}}};
-    m.print("old m ");
+    m.print(std::cout, "old m ");
     ASSERT_TRUE(m.to_file(path));
     matrix n = matrix::from_file(path);
-    n.print("new m? ");
+    n.print(std::cout, "new m? ");
     ASSERT_TRUE(m == n);
 }
 
@@ -620,14 +620,14 @@ TEST(MatrixTest, PLU) {
     matrix N_rre{{{1, 0, 6, 0}, {0, 1, 4, 0}, {0, 0, 0, 1}}};
     matrix O{{{3, 2, 2, 3, 1}, {6, 4, 4, 6, 2}, {9, 6, 6, 9, 1}}};
     matrix A{{{1, 2, 3, 4}, {5, 6, 7, 8}, {1, -1, 2, 3}, {2, 1, 1, 2}}};
-    A.print("A");
+    A.print(std::cout, "A");
     matrix P{4, 4};
     matrix L{4, 4};
     matrix U{4, 4};
     A.PLU(P, L, U);
-    P.print("P");
-    L.print("L");
-    U.print("U");
+    P.print(std::cout, "P");
+    L.print(std::cout, "L");
+    U.print(std::cout, "U");
     ASSERT_MATRIX_EQ(A, (L * U));
     ASSERT_MATRIX_EQ((P * A), (L * U));
 }

@@ -118,8 +118,8 @@ bool plane::perpendicular(plane const& P) const {
     return (m_normal | P.unormal());  // check for orthogonal
 }
 
-void plane::print(char const name[]) const {
-    std::cout << name << " " << (*this) << " hessian " << m_normal << ", " << m_center_point << std::endl;
+void plane::print(std::ostream& os, char const name[]) const {
+    os << name << " " << (*this) << " hessian " << m_normal << ", " << m_center_point << std::endl;
 }
 
 bool plane::contains(R3::point const& pt) const {

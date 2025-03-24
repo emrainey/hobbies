@@ -7,6 +7,9 @@ ellipsoid::ellipsoid(point const& center, precision a, precision b, precision c)
                                      {0.0_p, 1.0_p / (b * b), 0.0_p, 0.0_p},
                                      {0.0_p, 0.0_p, 1.0_p / (c * c), 0.0_p},
                                      {0.0_p, 0.0_p, 0.0_p, -1.0_p}}};
+    m_type = Type::Ellipsoid;
+    m_max_collisions = 2;          // up to 2 collisions
+    m_has_infinite_extent = true;  // closed surface
 }
 
 precision ellipsoid::get_object_extent(void) const {

@@ -41,9 +41,9 @@ void stereo_camera::move_to(point const& look_from, point const& look_at) {
     m_look_at = look_at;
 }
 
-void stereo_camera::print(char const str[]) const {
-    m_cameras[0].print(str);
-    m_cameras[1].print(str);
+void stereo_camera::print(std::ostream& os, char const str[]) const {
+    m_cameras[0].print(os, str);
+    m_cameras[1].print(os, str);
 }
 
 image stereo_camera::merge_images(void) const noexcept {
@@ -70,6 +70,14 @@ image stereo_camera::merge_images(void) const noexcept {
         });
         return merged;
     }
+}
+
+std::ostream& operator<<(std::ostream& os, stereo_camera const& cam) {
+    os << "Stereo Camera: " << std::endl;
+    for (size_t i = 0; i < stereo_camera::NumberOfCameras; ++i) {
+        os << "\tCamera " << i << ": " << cam.m_cameras[i] << std::endl;
+    }
+    return os;
 }
 
 }  // namespace raytrace

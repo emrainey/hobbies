@@ -100,10 +100,9 @@ bool line::solve(point const& P, precision& t) const {
     }
     return false;
 }
-
-void line::print(char const name[]) const {
-    position().print(name);
-    direction().print(name);
+void line::print(std::ostream& os, char const name[]) const {
+    position().print(os, name);
+    direction().print(os, name);
 }
 
 precision line::distance(R3::point const& p) const {

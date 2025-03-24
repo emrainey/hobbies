@@ -5,15 +5,15 @@ namespace raytrace {
 namespace objects {
 
 quadratic::quadratic(point const& center)
-    : object{center, 2, true}  // 2 collisions, closed surface (CHECK)
-    , m_coefficients{4, 4}     // start zeroed
+    : object{center, 2, Type::Quadratic, true}  // 2 collisions, closed surface for now, subclasses must correctly set!
+    , m_coefficients{4, 4}                      // start zeroed
 {
     basal::exception::throw_unless(m_coefficients.rows == 4 and m_coefficients.cols == 4, __FILE__, __LINE__,
                                    "Must be a 4x4");
 }
 
 quadratic::quadratic(point const& center, raytrace::matrix& C)
-    : object{center, 2, true}  // 2 collisions, closed surface (CHECK)
+    : object{center, 2, Type::None, true}  // 2 collisions, closed surface for now, subclasses must correctly set!
     , m_coefficients{C} {
     basal::exception::throw_unless(m_coefficients.rows == 4 and m_coefficients.cols == 4, __FILE__, __LINE__,
                                    "Must be a 4x4");
@@ -94,19 +94,15 @@ image::point quadratic::map(point const& object_surface_point __attribute__((unu
     return image::point(u, v);
 }
 
-void quadratic::print(char const name[]) const {
-    std::cout << name << " " << *this << std::endl;
+void quadratic::print(std::ostream& os, char const name[]) const {
+    os << " Quadratic " << this << " " << name << " " << position() << ", Coefficients {" << m_coefficients << "}"
+       << std::endl;
 }
 
 precision quadratic::get_object_extent(void) const {
     // if it's an sphere, ellipsoid, the extent can be computed,
     // if it's an paraboloid, hyperboloid, the extent cannot be computed,
     return basal::pos_inf;
-}
-
-std::ostream& operator<<(std::ostream& os, quadratic const& q) {
-    os << " Quadratic " << q.position() << ", Coefficients {" << q.m_coefficients << "}";
-    return os;
 }
 
 }  // namespace objects

@@ -97,7 +97,7 @@ int main(int argc __attribute__((unused)), char* argv[] __attribute__((unused)))
             linalg::matrix a = (in.values | out.values);
             linalg::matrix b = (a | out.beta);
             linalg::matrix c = (b | out.rms);
-            c.print("in/out/beta/rms");
+            c.print(std::cout, "in/out/beta/rms");
             printf("Sum of Errors: %lf\n", out.rms_value);
             net.visualize(std::chrono::milliseconds(100000));
         }

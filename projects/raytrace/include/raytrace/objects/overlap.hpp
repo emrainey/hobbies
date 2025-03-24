@@ -25,12 +25,12 @@ public:
 
     virtual ~overlap() = default;
 
-    // ┌────────────────┐
-    // │raytrace::object│
-    // └────────────────┘
+    // ┌─────────────────────────┐
+    // │raytrace::objects::object│
+    // └─────────────────────────┘
     hits collisions_along(ray const& object_ray) const override;
     image::point map(point const& object_surface_point) const override;
-    void print(char const str[]) const override;
+    void print(std::ostream& os, char const str[]) const override;
     bool is_surface_point(point const& world_point) const override;
     precision get_object_extent(void) const override;
     bool is_along_infinite_extent(ray const& world_ray) const override;

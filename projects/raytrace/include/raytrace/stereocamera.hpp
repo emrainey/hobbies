@@ -23,11 +23,8 @@ public:
                   Layout layout = Layout::LeftRight);
     ~stereo_camera() = default;
 
-    /// @copydoc camera::move_to
     void move_to(point const& look_from, point const& look_at);
-
-    /// @copydoc basal::printable::print
-    void print(char const[]) const override;
+    void print(std::ostream&, char const[]) const override;
 
     /// @brief Returns a pointer to the first camera
     iterator begin(void) noexcept {
@@ -53,6 +50,8 @@ public:
 
     /// Returns the merged image of the two cameras based on the Layout
     image merge_images(void) const noexcept;
+
+    friend std::ostream& operator<<(std::ostream& os, stereo_camera const& cam);
 
 protected:
     precision m_separation;             //!< The unit-less separation between the two cameras.

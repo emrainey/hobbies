@@ -21,16 +21,10 @@ ray beam::incident(point const& world_point, size_t sample_index __attribute__((
     return ray(world_point, -m_distance * m_world_source);
 }
 
-void beam::print(char const str[]) const {
-    std::cout << str << " beam @" << this << " from: " << m_world_source << ", distance: " << m_distance << " "
-              << m_color << std::endl;
+void beam::print(std::ostream& os, char const str[]) const {
+    os << str << " beam @" << this << " from: " << m_world_source << ", distance: " << m_distance << " " << m_color
+       << std::endl;
 }
 
 }  // namespace lights
-
-std::ostream& operator<<(std::ostream& os, lights::beam const& l) {
-    os << " beam " << l.incident(geometry::R3::origin, 0) << " " << l.color_at(geometry::R3::origin);
-    return os;
-}
-
 }  // namespace raytrace

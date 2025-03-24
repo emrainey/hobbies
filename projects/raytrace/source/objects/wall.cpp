@@ -11,8 +11,9 @@ using namespace geometry;
 using namespace geometry::operators;
 
 wall::wall(point const& C, vector const& N, precision thickness)
-    : object{C, 2, false}  // a wall is not a closed surface
-                           // the "wall space" has the center at the origin and the walls are just offset from origin
+    : object{C, 2, Type::Wall, false}
+    // a wall is not a closed surface
+    // the "wall space" has the center at the origin and the walls are just offset from origin
     , m_front_{R3::origin + (N.normalized() * thickness / 2.0_p), N.normalized()}
     , m_back_{R3::origin + ((-N.normalized()) * thickness / 2.0_p), -N.normalized()} {
 }
@@ -94,9 +95,10 @@ precision wall::get_object_extent(void) const {
     return basal::pos_inf;
 }
 
-void wall::print(char const str[]) const {
-    m_front_.print(str);
-    m_back_.print(str);
+void wall::print(std::ostream& os, char const str[]) const {
+    os << "Wall of two planes: " << std::endl;
+    m_front_.print(os, str);
+    m_back_.print(os, str);
 }
 
 bool wall::is_outside(point const& world_point) const {

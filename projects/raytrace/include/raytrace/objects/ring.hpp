@@ -13,10 +13,11 @@ public:
     ring(point const& C, vector const& N, precision inner, precision outer);
     virtual ~ring() = default;
 
-    /// @copydoc raytrace::object::collisions_along
+    // ┌─────────────────────────┐
+    // │raytrace::objects::object│
+    // └─────────────────────────┘
     hits collisions_along(ray const& object_ray) const override;
-    /// @copydoc basal::printable::print
-    void print(char const str[]) const override;
+    void print(std::ostream& os, char const str[]) const override;
     bool is_surface_point(point const& world_point) const override;
     precision get_object_extent(void) const override;
 

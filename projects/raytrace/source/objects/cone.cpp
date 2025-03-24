@@ -6,7 +6,7 @@ namespace raytrace {
 namespace objects {
 // FIXME delete or modify!
 cone::cone(point const& C, iso::radians angle)
-    : object{C, 2, true}  // 2 collisions, closed (infinite)
+    : object{C, 2, Type::Cone, true}  // 2 collisions, closed (infinite)
     , m_bottom_radius{0.0_p}
     , m_height{std::numeric_limits<precision>::infinity()}  // infinite
     , m_angle{angle} {
@@ -15,7 +15,7 @@ cone::cone(point const& C, iso::radians angle)
 }
 
 cone::cone(point const& C, precision bottom_radius, precision height)
-    : object{C, 2, false}  // 2 collisions, not closed
+    : object{C, 2, Type::Cone, false}  // 2 collisions, not closed
     , m_bottom_radius{bottom_radius}
     , m_height{height}
     , m_angle{std::atan2(bottom_radius, height)} {
@@ -124,14 +124,13 @@ image::point cone::map(point const& object_surface_point) const {
     return image::point(u, v);
 }
 
-void cone::print(char const str[]) const {
-    std::cout << str << " cone @" << this << " " << position() << " Height" << m_height << " Radius:" << m_bottom_radius
-              << " Angle:" << m_angle.value << std::endl;
+void cone::print(std::ostream& os, char const str[]) const {
+    os << " cone @" << this << " " << str << " " << position() << " Height" << m_height << " Radius:" << m_bottom_radius
+       << " Angle:" << m_angle.value << std::endl;
 }
 
 precision cone::get_object_extent(void) const {
     return sqrt((m_height * m_height) + (m_bottom_radius * m_bottom_radius));
 }
-
 }  // namespace objects
 }  // namespace raytrace

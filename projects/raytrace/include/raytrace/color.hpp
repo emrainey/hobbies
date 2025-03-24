@@ -308,10 +308,7 @@ inline color operator*(precision a, color const& x) {
 color operator*(color const& a, color const& b);
 }  // namespace operators
 
-inline std::ostream& operator<<(std::ostream& os, color const& c) {
-    os << "color(" << c.red() << ", " << c.green() << ", " << c.blue() << ")";
-    return os;
-}
+std::ostream& operator<<(std::ostream& os, color const& c);
 
 /// Compares two colors within the epsilon
 bool operator==(color const& a, color const& b);

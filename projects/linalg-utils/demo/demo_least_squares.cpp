@@ -146,7 +146,7 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
     // std::vector<precision> smallset{{6,5,7,10}};
     matrix beta(2, 1);
     least_squares(dataset, beta, domain);
-    beta.print("beta");
+    beta.print(std::cout, "beta");
     plot("data", dataset, beta, domain);
 
     return 0;

@@ -11,25 +11,21 @@ using namespace linalg::operators;
 overlap::overlap(object const& A, object const& B, overlap::type type)
     // FIXME the max collisions are off !
     : object{A.position(), (A.max_collisions() + B.max_collisions()) / (type == overlap::type::inclusive ? 2 : 1),
-             A.is_closed_surface() and B.is_closed_surface()}
+             Type::Overlap, A.has_finite_volume() and B.has_finite_volume()}
     , m_A{A}
     , m_B{B}
     , m_type{type}
     , m_closed_two_hit_surfaces_{basal::is_even(m_A.max_collisions()) and basal::is_even(m_B.max_collisions())
-                                 and m_A.is_closed_surface() and m_B.is_closed_surface()}
+                                 and m_A.has_finite_volume() and m_B.has_finite_volume()}
     , m_open_two_hit_surfaces_{basal::is_even(m_A.max_collisions()) and basal::is_even(m_B.max_collisions())
-                               and not m_A.is_closed_surface() and not m_B.is_closed_surface()}
+                               and not m_A.has_finite_volume() and not m_B.has_finite_volume()}
     , m_open_one_hit_surfaces_{basal::is_odd(m_A.max_collisions()) and basal::is_odd(m_B.max_collisions())
-                               and not m_A.is_closed_surface() and not m_B.is_closed_surface()} {
+                               and not m_A.has_finite_volume() and not m_B.has_finite_volume()} {
     if (m_type != overlap::type::subtractive) {
         // only subtractive objects have their positions as the original objects, otherwise the overlap object is at the
         // centroid of the two
         position(centroid(A.position(), B.position()));
     }
-    // basal::exception::throw_if(m_A.max_collisions() != 2, __FILE__, __LINE__, "First item must have a max of %"
-    // PRIu32 " collisions", 2u);
-    // basal::exception::throw_if((m_B.max_collisions() != 2, __FILE__, __LINE__, "Second
-    // item must have a max of %" PRIu32 " collisions", 2u);
     basal::exception::throw_unless(m_closed_two_hit_surfaces_ or m_open_one_hit_surfaces_ or m_open_two_hit_surfaces_,
                                    __FILE__, __LINE__, "Must be one of these %lu types", 3);
 }
@@ -316,9 +312,10 @@ image::point overlap::map(point const& object_surface_point __attribute__((unuse
     return uv;
 }
 
-void overlap::print(char const str[]) const {
-    m_A.print(str);
-    m_B.print(str);
+void overlap::print(std::ostream& os, char const str[]) const {
+    os << str << " Overlap of two objects: " << std::endl;
+    m_A.print(os, str);
+    m_B.print(os, str);
 }
 
 precision overlap::get_object_extent(void) const {

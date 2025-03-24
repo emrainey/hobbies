@@ -67,9 +67,7 @@ public:
         for (auto& s : spheres) {
             delete s;
         }
-        for (auto& s : mats) {
-            delete s;
-        }
+        // mats were not allocated
         for (auto& s : specks) {
             delete s;
         }

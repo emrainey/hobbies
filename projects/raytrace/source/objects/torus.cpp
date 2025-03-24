@@ -10,11 +10,9 @@ using namespace geometry;
 using namespace geometry::operators;
 
 torus::torus(point const& C, precision ring_radius, precision tube_radius)
-    : object{C, 4, true}  // up to 4 collisions, closed surface
+    : object{C, 4, Type::Torus, true}  // up to 4 collisions, closed surface
     , m_ring_radius{ring_radius}
     , m_tube_radius{tube_radius} {
-    basal::exception::throw_if(tube_radius > ring_radius, __FILE__, __LINE__,
-                               "Self-intersecting torus, tube must be smaller than ring radius");
 }
 
 vector torus::normal_(point const& object_surface_point) const {
@@ -153,9 +151,9 @@ image::point torus::map(point const& object_surface_point) const {
     return image::point(u, v);
 }
 
-void torus::print(char const str[]) const {
-    std::cout << str << " torus @" << this << " " << position() << " Inner Radius" << m_tube_radius
-              << " Ring Radius:" << m_ring_radius << std::endl;
+void torus::print(std::ostream& os, char const name[]) const {
+    os << "Torus @ " << this << " " << name << " at " << position() << " with inner radius " << m_tube_radius
+       << " and ring radius " << m_ring_radius << std::endl;
 }
 
 precision torus::get_object_extent(void) const {

@@ -35,15 +35,9 @@ ray spot::incident(point const& world_point, size_t sample_index __attribute__((
     return ray(world_point, position() - world_point);
 }
 
-void spot::print(char const str[]) const {
-    std::cout << str << " spot @" << this << " pointing: " << m_direction << ", " << m_color << std::endl;
+void spot::print(std::ostream& os, char const str[]) const {
+    os << " spot @" << this << " " << str << " pointing: " << m_direction << ", " << m_color << std::endl;
 }
 
 }  // namespace lights
-
-std::ostream& operator<<(std::ostream& os, lights::spot const& l) {
-    os << " spot " << l.incident(geometry::R3::origin, 0) << " " << l.color_at(geometry::R3::origin);
-    return os;
-}
-
 }  // namespace raytrace

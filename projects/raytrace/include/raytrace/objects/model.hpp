@@ -19,7 +19,7 @@ public:
 
     /// @brief Prints the model information.
     /// @param name The name to be printed.
-    void print(char const name[]) const override;
+    void print(std::ostream& os, char const name[]) const override;
 
     /// @brief Overloaded stream insertion operator for the Model class.
     /// @param os The output stream.

@@ -4,7 +4,7 @@ namespace raytrace {
 namespace objects {
 
 Model::Model()
-    : object{R3::origin, SIZE_T_MAX, false}
+    : object{R3::origin, SIZE_T_MAX, Type::Model, true}
     , points_{}
     , normals_{}
     , texels_{}
@@ -13,14 +13,9 @@ Model::Model()
     , loaded_{false} {
 }
 
-void Model::print(char const name[]) const {
-    printf("Model %s has %zu points, %zu normals, %zu triangles\n", name, points_.size(), normals_.size(),
-           faces_.size());
-}
-
-std::ostream& Model::operator<<(std::ostream& os) const {
-    return os << "Model has " << points_.size() << " points, " << normals_.size() << " normals, " << texels_.size()
-              << " texels, " << faces_.size() << " faces";
+void Model::print(std::ostream& os, char const name[]) const {
+    os << "Model " << name << " has " << points_.size() << " points, " << normals_.size() << " normals, "
+       << texels_.size() << " texels, " << faces_.size() << " faces\n";
 }
 
 bool Model::is_surface_point(raytrace::point const& world_point) const {
@@ -189,7 +184,7 @@ void Model::LoadFromFile(char const* const filename) {
         }
         // adjust each face position now to be relative to the center
         for (auto& face : faces_) {
-            face.print("Face");
+            face.print(std::cout, "Face");
             auto _old = face.position();
             auto _new = (_old - computed_centroid);
             if constexpr (debug::model) {

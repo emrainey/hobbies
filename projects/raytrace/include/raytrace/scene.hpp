@@ -93,8 +93,10 @@ public:
     /// Removes all objects and lights from a scene
     void clear();
 
-    /// @copydoc basal::printable::print
-    void print(char const str[]) const override;
+    // basal::printable
+    void print(std::ostream& os, char const str[]) const override;
+
+    friend std::ostream& operator<<(std::ostream& os, scene const& sc);
 
     /// Returns the number of objects in the scene
     size_t number_of_objects(void) const;

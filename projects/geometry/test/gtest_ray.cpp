@@ -44,9 +44,9 @@ TEST(RayTests, Overloads) {
 
     R3::vector v2{{-1, -1, -1}};
     // ray = ray + vector (move the point of the ray)
-    a.print("a");
+    a.print(std::cout, "a");
     R3::ray b = a + v2;
-    b.print("b");
+    b.print(std::cout, "b");
     ASSERT_POINT_EQ(R3::origin, b.location());
     ASSERT_VECTOR_EQ(R3::basis::Z, b.direction());
 
@@ -55,7 +55,7 @@ TEST(RayTests, Overloads) {
     matrix R = rotation(R3::basis::X, rad);
     // ray = matrix * ray.vector (rotates the ray)
     R3::ray c = R * a;
-    c.print("Rotated Ray");
+    c.print(std::cout, "Rotated Ray");
     ASSERT_POINT_EQ(p, c.location());
     R3::vector nz = -R3::basis::Z;
     ASSERT_VECTOR_EQ(nz, c.direction());

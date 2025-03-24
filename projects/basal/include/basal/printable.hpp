@@ -17,11 +17,11 @@ namespace basal {
 class printable {
 public:
     /// Character Array printing mechanism
-    virtual void print(char const[]) const = 0;
+    virtual void print(std::ostream& os, char const[]) const = 0;
 
     /// String printing mechanism.
-    inline void print(std::string str) const {
-        print(str.c_str());
+    inline void print(std::ostream& os, std::string str) const {
+        print(os, str.c_str());
     }
 
 protected:

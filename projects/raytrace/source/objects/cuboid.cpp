@@ -8,7 +8,7 @@ vector const cuboid::m_normals[6] = {
 };
 
 cuboid::cuboid(point const& center, precision xhw, precision yhw, precision zhw)
-    : object{center, 2, true}  // max 2 collisions, closed surface
+    : object{center, 2, Type::Cuboid, true}  // max 2 collisions, closed surface
     , x_half_width{m_half_widths[0]}
     , y_half_width{m_half_widths[1]}
     , z_half_width{m_half_widths[2]}
@@ -28,7 +28,7 @@ cuboid::cuboid(point const& center, precision xhw, precision yhw, precision zhw)
 }
 
 cuboid::cuboid(point&& center, precision xhw, precision yhw, precision zhw)
-    : object{std::move(center), 2, true}  // 2 collisions, closed surface
+    : object{std::move(center), 2, Type::Cuboid, true}  // 2 collisions, closed surface
     , x_half_width{m_half_widths[0]}
     , y_half_width{m_half_widths[1]}
     , z_half_width{m_half_widths[2]}
@@ -179,8 +179,9 @@ image::point cuboid::map(point const& object_surface_point) const {
     return image::point(u, v);
 }
 
-void cuboid::print(char const name[]) const {
-    std::cout << name << " " << *this << std::endl;
+void cuboid::print(std::ostream& os, char const name[]) const {
+    os << " Cube " << this << " " << name << " " << position() << ", Half-Widths {" << x_half_width << ","
+       << y_half_width << "," << z_half_width << "}" << std::endl;
 }
 
 precision cuboid::get_object_extent(void) const {
@@ -188,11 +189,5 @@ precision cuboid::get_object_extent(void) const {
 }
 
 }  // namespace objects
-
-std::ostream& operator<<(std::ostream& os, objects::cuboid const& c) {
-    os << " Cube " << c.position() << ", Half-Widths {" << c.x_half_width << "," << c.y_half_width << ","
-       << c.z_half_width << "}";
-    return os;
-}
 
 }  // namespace raytrace

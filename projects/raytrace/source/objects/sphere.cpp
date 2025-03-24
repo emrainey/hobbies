@@ -13,7 +13,7 @@ using namespace geometry::operators;
 
 sphere::sphere(point const& c, precision r)
     : geometry::R3::sphere(r)
-    , object(c, 2, true)  // up to 2 collisions, closed surface
+    , object(c, 2, Type::Sphere, true)  // up to 2 collisions, closed surface
 {
 }
 
@@ -63,8 +63,8 @@ image::point sphere::map(point const& object_surface_point) const {
     return uv;
 }
 
-void sphere::print(char const str[]) const {
-    std::cout << str << " Sphere @" << this << " " << position() << " Radius " << radius << std::endl;
+void sphere::print(std::ostream& os, char const str[]) const {
+    os << str << " Sphere @" << this << " " << position() << " Radius " << radius << std::endl;
 }
 
 precision sphere::get_object_extent(void) const {

@@ -71,8 +71,8 @@ void point<DIMS>::zero(void) {
 }
 
 template <size_t DIMS>
-void point<DIMS>::print(char const name[]) const {
-    std::cout << name << " " << *this << std::endl;
+void point<DIMS>::print(std::ostream& os, char const name[]) const {
+    os << name << " " << *this << std::endl;
 }
 
 template <size_t DIMS>

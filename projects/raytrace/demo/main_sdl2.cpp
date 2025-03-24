@@ -102,11 +102,11 @@ int main(int argc, char *argv[]) {
             raytrace::stereo_camera stereo_view(height, width, iso::degrees(params.fov), params.separation,
                                                 raytrace::stereo_camera::Layout::LeftRight);
             stereo_view.move_to(world.looking_from(), world.looking_at());
-            stereo_view.print("Stereo View");
+            stereo_view.print(std::cout, "Stereo View");
             scene.set_background_mapper(std::bind(&raytrace::world::background, &world, std::placeholders::_1));
             world.add_to(scene);
             if (verbose) {
-                scene.print(world.window_name().c_str());
+                scene.print(std::cout, world.window_name().c_str());
             }
 
             size_t view_offset = 0u;
@@ -138,7 +138,7 @@ int main(int argc, char *argv[]) {
                                 stdout,
                                 "\r[ %0.3lf %%] rays cast: %zu dots: %zu cross: %zu 2r: %zu 3r: %zu 4r: %zu "
                                 "intersects: %zu (%zu/%zu/%zu) bounced: %zu "
-                                "transmitted: %zu missed: %zu %s ",
+                                "transmitted: %zu missed: %zu bounds: %zu %s",
                                 done ? 100.0_p : percentage, raytrace::statistics::get().cast_rays_from_camera,
                                 geometry::statistics::get().dot_operations, geometry::statistics::get().cross_products,
                                 linalg::statistics::get().quadratic_roots, linalg::statistics::get().cubic_roots,
@@ -148,6 +148,7 @@ int main(int argc, char *argv[]) {
                                 raytrace::statistics::get().intersections_with_points,
                                 raytrace::statistics::get().intersections_with_line,
                                 raytrace::statistics::get().bounced_rays, raytrace::statistics::get().transmitted_rays,
+                                raytrace::statistics::get().intersections_with_bounds,
                                 raytrace::statistics::get().missed_rays, done ? "\r\n" : "");
                             // if (done) return;
                         }

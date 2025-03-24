@@ -321,7 +321,7 @@ public:
     matrix basis() const noexcept(false);
 
     /// Print the matrix to stdout
-    void print(char const[]) const override;
+    void print(std::ostream &, char const[]) const override;
 
     /// Save the values of this matrix to a file.
     bool to_file(std::string path) const;

@@ -7,6 +7,13 @@
 #include "linalg/gtest_helper.hpp"
 #include "raytrace/gtest_helper.hpp"
 
+TEST(CylinderTest, Type) {
+    using namespace raytrace;
+    using namespace raytrace::objects;
+    cylinder cyl1{R3::origin, 1.0_p, 1.0_p};
+    ASSERT_EQ(cyl1.get_type(), Type::Cylinder);
+}
+
 TEST(CylinderTest, RayIntersection) {
     using namespace raytrace;
     using namespace raytrace::objects;

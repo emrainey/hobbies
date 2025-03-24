@@ -698,26 +698,19 @@ matrix& matrix::operator-=(matrix const& a) {
     return for_each(iter);
 }
 
-void matrix::print(char const name[]) const {
-    fprintf(stdout, "%p = %s[%" PRIz "][%" PRIz "] = {\n", (void*)memory, name, rows, cols);
+void matrix::print(std::ostream& os, char const name[]) const {
+    os << name << " matrix = {\n";
     for (size_t r = 0; r < rows; r++) {
-        fprintf(stdout, "\t{");
+        os << "\t{";
         for (size_t c = 0; c < cols; c++) {
-            fprintf(stdout, "%0.3lf%s", array[r][c], (c == (cols - 1) ? "}," : ", "));
+            os << array[r][c] << (c == (cols - 1) ? "}," : ", ");
         }
-        fprintf(stdout, "%s", (r == (rows - 1) ? "\n};\n" : "\n"));
+        os << (r == (rows - 1) ? "\n};\n" : "\n");
     }
 }
 
 std::ostream& operator<<(std::ostream& os, matrix const& m) {
-    os << "matrix = " << std::endl;
-    for (size_t r = 0; r < m.rows; r++) {
-        os << "\t{";
-        for (size_t c = 0; c < m.cols; c++) {
-            os << m[r][c] << (c == (m.cols - 1) ? "}," : ", ");
-        }
-        os << (r == (m.rows - 1) ? "\n};\n" : "\n");
-    }
+    m.print(os, "");
     return os;
 }
 

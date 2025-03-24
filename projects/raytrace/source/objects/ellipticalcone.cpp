@@ -10,6 +10,9 @@ ellipticalcone::ellipticalcone(point const& center, precision a, precision b) : 
                                      {0.0_p, 1.0_p / (b * b), 0.0_p, 0.0_p},
                                      {0.0_p, 0.0_p, -1.0_p, 0.0_p},
                                      {0.0_p, 0.0_p, 0.0_p, -1.0_p}}};
+    m_type = Type::EllipticalCone;
+    m_max_collisions = 2;           // up to 2 collisions
+    m_has_infinite_extent = false;  // not a closed surface
 }
 
 }  // namespace objects

@@ -9,6 +9,14 @@
 #include "linalg/gtest_helper.hpp"
 #include "raytrace/gtest_helper.hpp"
 
+TEST(WallTest, Type) {
+    using namespace raytrace;
+    using namespace raytrace::objects;
+
+    raytrace::objects::wall w0{R3::origin, R3::basis::Z, 2.0_p};
+    ASSERT_EQ(w0.get_type(), raytrace::objects::Type::Wall);
+}
+
 TEST(WallTest, Position) {
     using namespace raytrace;
     using namespace raytrace::objects;

@@ -16,15 +16,9 @@ ray speck::incident(point const& world_point, size_t sample_index __attribute__(
     return ray(world_point, position() - world_point);
 }
 
-void speck::print(char const str[]) const {
-    std::cout << str << " speck @" << this << " " << position() << ", " << m_color << std::endl;
+void speck::print(std::ostream& os, char const str[]) const {
+    os << "speck @" << this << " " << str << " " << position() << ", " << m_color << std::endl;
 }
 
 }  // namespace lights
-
-std::ostream& operator<<(std::ostream& os, lights::speck const& l) {
-    os << " speck " << l.position() << ", " << l.color_at(l.position());
-    return os;
-}
-
 }  // namespace raytrace

@@ -35,16 +35,16 @@ public:
     virtual ~camera() = default;
 
     // Overload Entity Position Set to allow updating internal values
-    /// @copydoc entity_::position(point const&)
     void position(point const& p) override final;
 
     // shouldn't have to overload this but since we overload the setter,
     // it's going to get confused
-    /// @copydoc entity_::position
     point const& position() const override final;
 
-    /// @copydoc basal::printable::print
-    void print(char const[]) const override final;
+    void print(std::ostream&, char const[]) const override final;
+
+    /// @brief Outputs the camera properties to the given stream
+    friend std::ostream& operator<<(std::ostream& os, camera const& cam);
 
     /// Sets the at() location (will update other properties as needed)
     void at(point const& a);
@@ -106,4 +106,5 @@ protected:
     linalg::matrix
         m_camera_to_object_rotation;  ///< Rotates the Camera Coordinate frame into the Object Coordinate frame.
 };
+
 }  // namespace raytrace

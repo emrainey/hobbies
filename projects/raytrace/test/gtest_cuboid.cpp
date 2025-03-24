@@ -9,6 +9,13 @@
 #include "linalg/gtest_helper.hpp"
 #include "raytrace/gtest_helper.hpp"
 
+TEST(CuboidTest, Type) {
+    using namespace raytrace;
+    using namespace raytrace::objects;
+    cuboid c0{R3::origin, 1.0_p, 1.0_p, 1.0_p};
+    ASSERT_EQ(c0.get_type(), Type::Cuboid);
+}
+
 TEST(CuboidTest, Normals) {
     using namespace raytrace;
     using namespace raytrace::objects;

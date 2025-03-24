@@ -9,6 +9,14 @@
 #include "linalg/gtest_helper.hpp"
 #include "raytrace/gtest_helper.hpp"
 
+TEST(PlaneTest, Type) {
+    using namespace raytrace;
+    using namespace raytrace::objects;
+
+    raytrace::objects::plane PL{R3::origin, R3::basis::Z};
+    ASSERT_EQ(PL.get_type(), raytrace::objects::Type::Plane);
+}
+
 TEST(PlaneTest, Position) {
     using namespace raytrace;
     using namespace raytrace::objects;

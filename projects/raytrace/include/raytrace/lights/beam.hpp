@@ -14,11 +14,8 @@ public:
     beam(raytrace::vector&& v, raytrace::color const& C, precision intensity);
     virtual ~beam() = default;
 
-    /// @copydoc raytrace::light::incident()
     ray incident(point const& world_point, size_t sample_index) const override;
-
-    /// @copydoc basal::printable::print()
-    void print(char const str[]) const override;
+    void print(std::ostream& os, char const str[]) const override;
 
 protected:
     /// The direction which the light is coming from
@@ -28,8 +25,4 @@ protected:
 };
 
 }  // namespace lights
-
-/// Helper to print specks of light
-std::ostream& operator<<(std::ostream& os, lights::beam const& l);
-
 }  // namespace raytrace

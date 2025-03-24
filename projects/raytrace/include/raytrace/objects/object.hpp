@@ -13,12 +13,41 @@ namespace raytrace {
 /// The namespace to contain all (spatial) objects
 namespace objects {
 
-/// A flag to control if origin collisions are counted
-constexpr bool can_ray_origin_be_collision = true;
-
 using namespace linalg;
 using namespace geometry;
 using namespace raytrace::mediums;
+
+/// An enumeration of the various types of objects in the raytracer.
+/// @note Used for debugging. The values are not guaranteed to be repeated across builds.
+enum class Type : int {
+    None = 0,
+    Cone,
+    Cuboid,
+    Cylinder,
+    Ellipsoid,
+    EllipticalCone,
+    EllipticalCylinder,
+    Face,
+    Hyperboloid,
+    Model,
+    Overlap,
+    Paraboloid,
+    Plane,
+    Pyramid,
+    Quadratic,
+    Ring,
+    Sphere,
+    Square,
+    Torus,
+    Triangle,
+    Wall,
+};
+
+/// Indicates which sort of 3d topology type the
+enum class ExtentType : int {
+    Finite = 0,  ///< The surface is finite in all dimensions (e.g., cuboid, sphere)
+    Infinite,    ///< The surface is infinite in one or more dimensions or extents
+};
 
 /// A template for wrapping the concept of an object, which can have a surface and material properties.
 template <size_t DIMS>
@@ -28,56 +57,65 @@ class object_
 public:
     object_()
         : entity_<DIMS>()
+        , m_type{Type::None}  // default to none
         , m_max_collisions{0}
-        , m_closed_surface{false}
+        , m_has_infinite_extent{false}
         , m_medium(&mediums::dull)
         , m_surface_scale{1.0_p, 1.0_p} {
     }
 
-    object_(point const& center, size_t collisions, bool closed = false)
+    object_(point const& center, size_t collisions, Type type, bool closed = false)
         : entity_<DIMS>(center)
+        , m_type{type}
         , m_max_collisions{collisions}
-        , m_closed_surface{collisions > 1 ? closed : false}
+        , m_has_infinite_extent{collisions > 1 ? closed : false}
         , m_medium{&mediums::dull}
         , m_surface_scale{1.0_p, 1.0_p} {
     }
 
-    object_(point&& center, size_t collisions, bool closed = false)
+    object_(point&& center, size_t collisions, Type type, bool closed = false)
         : entity_<DIMS>(std::move(center))
+        , m_type{type}
         , m_max_collisions{collisions}
-        , m_closed_surface{collisions > 1 ? closed : false}
+        , m_has_infinite_extent{collisions > 1 ? closed : false}
         , m_medium{&mediums::dull} {
     }
 
     /// Copy Constructor for the object. This is allowed as the medium is constant!
     object_(object_ const& that)
         : entity_<DIMS>(that)
+        , m_type{that.m_type}
         , m_max_collisions{that.m_max_collisions}
-        , m_closed_surface{that.m_closed_surface}
+        , m_has_infinite_extent{that.m_has_infinite_extent}
         , m_medium(that.m_medium) {
     }
 
     /// Move Constructor for the object. This is allowed as the medium is constant!
     object_(object_&& that)
         : entity_<DIMS>(that)
+        , m_type{that.m_type}  // can't move the type
         , m_max_collisions{that.m_max_collisions}
-        , m_closed_surface{that.m_closed_surface}
+        , m_has_infinite_extent{that.m_has_infinite_extent}
         , m_medium(that.m_medium) {
+        that.m_type = Type::None;            // clear the type from the moved object
+        that.m_max_collisions = 0;           // clear the collisions from the moved object
+        that.m_has_infinite_extent = false;  // clear the closed surface from the moved object
+        that.m_medium = nullptr;             // clear the medium from the moved object
     }
 
     /// Copy Assignment for the object. This is allowed as the medium is constant!
     object_& operator=(object_ const& that) {
         entity_<DIMS>::operator=(that);
-        // m_max_collisions = that.m_max_collisions; // can't reassign
-        // m_closed_surface = that.m_closed_surface; // can't reassign
+        m_max_collisions = that.m_max_collisions;
+        m_has_infinite_extent = that.m_has_infinite_extent;
         m_medium = that.m_medium;
         return *this;
     }
 
     object_& operator=(object_&& that) {
         entity_<DIMS>::operator=(that);
-        // m_max_collisions = that.m_max_collisions;
-        // m_closed_surface = that.m_closed_surface;
+        m_max_collisions = that.m_max_collisions;
+        m_has_infinite_extent = that.m_has_infinite_extent;
         m_medium = that.m_medium;  // copy is sufficient as the medium is constant
         that.m_medium = nullptr;   // clear the medium from the moved object
         return *this;
@@ -291,9 +329,8 @@ public:
     }
 
     /// Return true if the object is a closed surface.
-    /// Within the raytracer a closed surface can never show the "inside surface" */
-    virtual inline bool is_closed_surface() const {
-        return m_closed_surface;
+    virtual inline bool has_finite_volume() const {
+        return m_has_infinite_extent;
     }
 
     /// @brief Used to determine if an open surface and ray could ever possibly intersect.
@@ -314,12 +351,7 @@ public:
         raytrace::vector const& N = normal(world_point);
         raytrace::point const& P = entity_<DIMS>::position();
         raytrace::vector V = world_point - P;
-        // P.print("center");
-        // world_point.print("world_point");
-        // V.print("projected_vector");
-        // N.print("world_normal");
         precision d = dot(N, V);
-        // printf("d=%lf\r\n", d);
         return (d > 0.0);  // if the dot of the Normal on the point from center
     }
 
@@ -355,6 +387,19 @@ public:
         m_surface_scale.v = v;
     }
 
+    /// Each object subclass must overload this and return the unique type they are. This is purely used for debugging.
+    Type get_type() const {
+        return m_type;
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, object_ const& obj) {
+        obj.print(os, "object");
+        os << "object_{type=" << static_cast<int>(obj.m_type) << ", max_collisions=" << obj.m_max_collisions
+           << ", closed_surface=" << obj.m_has_infinite_extent << ", medium=" << (obj.m_medium ? "true" : "false")
+           << ", surface_scale={" << obj.m_surface_scale.u << ", " << obj.m_surface_scale.v << "}}";
+        return os;
+    }
+
 protected:
     /// @brief Computes the normal to the surface given an object space point which is presumed to be the collision
     /// point, thus on the surface.
@@ -362,10 +407,12 @@ protected:
     /// @return
     virtual vector normal_(point const& object_surface_point) const = 0;
 
+    /// the type of object, used for debugging and determining the type of in debugging windows when viewing the object
+    Type m_type;
     /// The maximum number of collisions with the surface of this object
-    size_t const m_max_collisions;
+    size_t m_max_collisions;
     /// Some objects may return more than 1 collisions but are not closed surfaces
-    bool const m_closed_surface;
+    bool m_has_infinite_extent;
     /// The pointer to the medium to use
     raytrace::mediums::medium const* m_medium;
     /// The std::bind or used to reference the instance of the mapping function

@@ -41,5 +41,14 @@ precision light::intensity_at(point const& world_point) const {
     }
 }
 
+std::ostream& operator<<(std::ostream& os, light const& l) {
+    l.print(os, "Light");
+    os << "Light " << l.position() << " with color " << l.m_color << " and intensity " << l.m_intensity
+       << " with falloff "
+       << (l.m_falloff == Falloff::None ? "None" : (l.m_falloff == Falloff::Linear ? "Linear" : "InverseSquare"))
+       << std::endl;
+    return os;
+}
+
 }  // namespace lights
 }  // namespace raytrace

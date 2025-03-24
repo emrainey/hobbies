@@ -163,5 +163,11 @@ bool Node::add_object(objects::object const* object) {
     return (added > 0U);
 }
 
+std::ostream& operator<<(std::ostream& os, Node const& node) {
+    os << "Node: " << node.bounds_ << " has_subnodes: " << node.has_subnodes_ << " objects: " << node.objects_.size()
+       << " nodes: " << node.nodes_.size();
+    return os;
+}
+
 }  // namespace tree
 }  // namespace raytrace

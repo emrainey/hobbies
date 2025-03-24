@@ -19,10 +19,13 @@ public:
     triangle(point const& A, point const& B, point const& C);
     virtual ~triangle() = default;
 
+    // ┌─────────────────────────┐
+    // │raytrace::objects::object│
+    // └─────────────────────────┘
     hits collisions_along(ray const& object_ray) const override;
-    void print(char const str[]) const override;
     bool is_surface_point(point const& world_point) const override;
     precision get_object_extent(void) const override;
+    void print(std::ostream& os, char const str[]) const override;
 
     /// Determines if a point on the plane is contained within the array of three points
     bool is_contained(point const& object_point) const;

@@ -7,6 +7,7 @@ face::face(point const& A, point const& B, point const& C)
     : triangle(A, B, C)
     , m_texture_coords{image::point{1, 0}, image::point{0, 0}, image::point{0, 1}}
     , m_normals{m_normal, m_normal, m_normal} {
+    m_type = Type::Face;
 }
 
 face::face(point const& A, point const& B, point const& C, image::point const& a, image::point const& b,
@@ -17,19 +18,15 @@ face::face(point const& A, point const& B, point const& C, image::point const& a
 face::face(point const& A, point const& B, point const& C, image::point const& a, image::point const& b,
            image::point const& c, vector const& na, vector const& nb, vector const& nc)
     : triangle(A, B, C), m_texture_coords{a, b, c}, m_normals{na, nb, nc} {
-    if constexpr (debug::triangle) {
-        std::cout << "Face created with normals: " << na << " " << nb << " " << nc << std::endl;
-    }
-    std::cout << "Face center is " << position() << std::endl;
 }
 
 hits face::collisions_along(ray const& object_ray) const {
     return triangle::collisions_along(object_ray);
 }
 
-void face::print(char const str[]) const {
-    std::cout << str << " Face @" << this << " " << position() << " Normal " << unormal() << " A=" << m_points[0]
-              << " B=" << m_points[1] << " C=" << m_points[2] << std::endl;
+void face::print(std::ostream& os, char const str[]) const {
+    os << str << " Face @" << this << " " << position() << " Normal " << unormal() << " A=" << m_points[0]
+       << " B=" << m_points[1] << " C=" << m_points[2] << std::endl;
 }
 
 bool face::is_surface_point(point const& world_point) const {

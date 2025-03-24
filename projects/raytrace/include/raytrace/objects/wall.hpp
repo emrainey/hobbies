@@ -14,22 +14,16 @@ public:
     wall(point const& center, vector const& normal, precision thickness);
     virtual ~wall() = default;
 
-    /// @copydoc raytrace::object::intersect
-    // intersection intersect(ray const& world_ray) const override;
-    /// @copydoc raytrace::object::collisions_along
+    // ┌─────────────────────────┐
+    // │raytrace::objects::object│
+    // └─────────────────────────┘
     hits collisions_along(ray const& object_ray) const override;
-    /// @copydoc raytrace::object::map
     image::point map(point const& object_surface_point) const override;
-    /// @copydoc basal::printable::print
-    void print(char const str[]) const override;
-    /// @copydoc raytrace::object::is_surface_point
     bool is_surface_point(point const& world_point) const override;
-    /// @copydoc raytrace::object::get_object_extent
     precision get_object_extent(void) const override;
-    /// @copydoc raytrace::object::is_outside
     bool is_outside(point const& world_point) const override;
-    /// @copydoc raytrace::object::is_along_infinite_extent
     bool is_along_infinite_extent(ray const& world_ray) const override;
+    void print(std::ostream& os, char const str[]) const override;
 
 protected:
     vector normal_(point const& object_surface_point) const override;

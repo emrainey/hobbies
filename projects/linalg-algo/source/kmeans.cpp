@@ -35,7 +35,7 @@ void kmeans::initial(InitialMethod method) {
         for (size_t c = 0; c < m_centroids.size(); c++) {
             size_t r = rand() % m_points.size();
             m_centroids[c] = m_points[r];
-            m_centroids[c].print("Initial Centroid:");
+            m_centroids[c].print(std::cout, "Initial Centroid:");
         }
     }
 }
@@ -47,7 +47,7 @@ precision kmeans::iteration(IterationMethod method) {
     auto euclidean = [](R2::point const& A, R2::point const& B) -> precision { return (A - B).quadrance(); };
 
     for (auto& cnt : m_centroids) {
-        cnt.print("Centroid:");
+        cnt.print(std::cout, "Centroid:");
     }
 
     // create a vector of metrics per centroid
@@ -100,7 +100,7 @@ precision kmeans::iteration(IterationMethod method) {
         if (counts[c] > 0) {
             R2::point center(sums[c].x / counts[c], sums[c].y / counts[c]);
             precision err = sqrt(euclidean(m_centroids[c], center));
-            center.print("Computed Center:");
+            center.print(std::cout, "Computed Center:");
             printf("Center[%zu] = %lf, %lf (error = %lf)\n", c, center.x, center.y, err);
             error += err;
             m_centroids[c] = center;

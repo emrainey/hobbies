@@ -14,14 +14,14 @@ public:
     pyramid(point const& base, precision height);
     virtual ~pyramid() = default;
 
-    /// @copydoc raytrace::object::collision_along
+    // ┌─────────────────────────┐
+    // │raytrace::objects::object│
+    // └─────────────────────────┘
     hits collisions_along(ray const& object_ray) const override;
-    /// @copydoc raytrace::object::map
     image::point map(point const& object_surface_point) const override;
-    /// @copydoc basal::printable::print
-    void print(char const str[]) const override;
     bool is_surface_point(point const& world_point) const override;
     precision get_object_extent(void) const override;
+    void print(std::ostream& os, char const str[]) const override;
 
 protected:
     vector normal_(point const& object_surface_point) const override;

@@ -243,4 +243,9 @@ color wavelength_to_color(iso::meters lambda) noexcept(false) {
     return color(l, m, s);
 }
 
+std::ostream& operator<<(std::ostream& os, color const& c) {
+    os << "color(" << c.red() << ", " << c.green() << ", " << c.blue() << ")";
+    return os;
+}
+
 }  // namespace raytrace

@@ -65,8 +65,8 @@ public:
         return distance_along(t);
     }
 
-    void print(char const str[]) const override {
-        std::cout << str << " " << *this << std::endl;
+    void print(std::ostream& os, char const str[]) const override {
+        os << str << " ray{" << location() << "," << direction() << "}" << std::endl;
     }
 
 protected:
@@ -76,7 +76,7 @@ protected:
 
 template <size_t DIMS>
 std::ostream& operator<<(std::ostream& os, ray_<DIMS> const& ray) {
-    os << "ray(" << ray.location() << "," << ray.direction() << ")";
+    ray.print(os, "");
     return os;
 }
 

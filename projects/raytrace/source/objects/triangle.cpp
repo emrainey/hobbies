@@ -14,6 +14,8 @@ triangle::triangle(R3::point const& A, R3::point const& B, R3::point const& C)
     : plane{R3::origin, R3::cross(A - B, C - B).normalized()}, m_points{} {
     // this defines the center of the given points which will be the translated center to the triangle
     point center = centroid(A, B, C);
+    m_type = Type::Triangle;
+    m_has_infinite_extent = true;  // a triangle is a bounded planar surface
     if constexpr (debug::triangle) {
         std::cout << "Triangle Center: " << center << " from A=" << A << " B=" << B << " C=" << C << std::endl;
     }
@@ -96,14 +98,9 @@ bool triangle::is_surface_point(point const& world_point) const {
     return basal::nearly_zero(dot(unormal(), T)) and is_contained(world_point);
 }
 
-void triangle::print(char const str[]) const {
-    std::cout << str << " " << *this << std::endl;
-}
-
-std::ostream& operator<<(std::ostream& os, triangle const& tri) {
-    os << "Triangle " << tri.points()[0] << "," << tri.points()[1] << "," << tri.points()[2] << " with centroid of "
-       << tri.position() << std::endl;
-    return os;
+void triangle::print(std::ostream& os, char const name[]) const {
+    os << "Triangle " << this << " " << name << " " << points()[0] << "," << points()[1] << "," << points()[2]
+       << " with centroid of " << position() << std::endl;
 }
 
 const std::array<point, raytrace::dimensions>& triangle::points() const {

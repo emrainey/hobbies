@@ -328,8 +328,8 @@ TEST(IntersectionTest, SphereInside) {
     ASSERT_EQ(IntersectionType::Points, get_type(iss1l3));
     point R = as_points(iss1l3)[0];
     point Q = as_points(iss1l3)[1];
-    R.print("R");
-    Q.print("Q");
+    R.print(std::cout, "R");
+    Q.print(std::cout, "Q");
     ASSERT_TRUE(s1.on_surface(R));
     ASSERT_TRUE(s1.on_surface(Q));
 }

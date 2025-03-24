@@ -78,7 +78,7 @@ public:
     void zero();
 
     /// @copydoc basal::printable::print
-    void print(char const name[]) const override;
+    void print(std::ostream&, char const[]) const override;
 };
 
 template <size_t DIMS>

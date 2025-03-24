@@ -248,7 +248,7 @@ int main(int argc, char* argv[]) {
     scene.set_background_mapper(std::bind(&raytrace::world::background, &world, std::placeholders::_1));
     world.add_to(scene);
     if (verbose) {
-        scene.print(world.window_name().c_str());
+        scene.print(std::cout, world.window_name().c_str());
     }
 
     do {

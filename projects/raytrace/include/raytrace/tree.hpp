@@ -82,6 +82,8 @@ public:
     /// Returns the number of instances of the object that are in this node tree.
     size_t count_of(objects::object const* object) const;
 
+    friend std::ostream& operator<<(std::ostream& os, Node const& node);
+
 protected:
     /// The bounding area of the node
     Bounds bounds_;

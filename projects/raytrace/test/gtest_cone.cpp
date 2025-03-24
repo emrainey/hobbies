@@ -8,6 +8,15 @@
 #include "linalg/gtest_helper.hpp"
 #include "raytrace/gtest_helper.hpp"
 
+TEST(ConeTest, Type) {
+    using namespace raytrace;
+    using namespace raytrace::objects;
+
+    raytrace::point C{0, 0, 0};
+    cone cone0(C, 1.0_p, 1.0_p);
+    ASSERT_EQ(cone0.get_type(), Type::Cone);
+}
+
 TEST(ConeTest, RayIntersection) {
     using namespace raytrace;
     using namespace raytrace::objects;

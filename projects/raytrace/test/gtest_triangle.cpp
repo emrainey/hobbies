@@ -16,6 +16,7 @@ TEST(TriangleTest, Basic) {
     raytrace::point B{1.0_p, 1.0_p, 0.0_p};
     raytrace::point C{-1.0_p, 1.0_p, 0.0_p};
     raytrace::objects::triangle shape{A, B, C};
+    ASSERT_EQ(shape.get_type(), raytrace::objects::Type::Triangle);
     ASSERT_POINT_EQ(raytrace::point(0.0_p / 3.0_p, 2.0_p / 3.0_p, 0.0_p / 3.0_p), shape.position());
     ASSERT_TRUE(shape.is_contained(raytrace::point{0.0_p, 0.25_p, 0.0_p}));
     auto displacement = raytrace::point{1, 1, 0} - raytrace::point{0, 2.0_p / 3.0_p, 0};

@@ -91,7 +91,7 @@ public:
     /// Returns a const reference to the coefficients
     coefficients_t const& coefficient() const;
 
-    virtual void print(char const name[]) const;
+    virtual void print(std::ostream&, char const name[]) const;
 
     bool operator==(plane const& other) const;
     bool operator!=(plane const& other) const;

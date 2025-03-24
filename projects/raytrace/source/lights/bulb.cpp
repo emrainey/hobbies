@@ -29,15 +29,10 @@ ray bulb::incident(point const& world_point, size_t sample_index) const {
     return ray(world_point, shadow + perturb);
 }
 
-void bulb::print(char const str[]) const {
-    std::cout << str << " bulb:" << m_samples << " @" << this << " " << position() << ", " << m_color << std::endl;
+void bulb::print(std::ostream& os, char const str[]) const {
+    os << " bulb @ " << this << " " << str << " " << m_samples << " @" << this << " " << position() << ", " << m_color
+       << std::endl;
 }
 
 }  // namespace lights
-
-std::ostream& operator<<(std::ostream& os, lights::bulb const& l) {
-    os << " bulb:" << l.number_of_samples() << " " << l.position() << ", " << l.color_at(l.position());
-    return os;
-}
-
 }  // namespace raytrace

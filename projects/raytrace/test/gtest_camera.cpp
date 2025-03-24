@@ -73,7 +73,7 @@ TEST_F(CameraTest, AttributesTest) {
     ASSERT_POINT_EQ(look_from, m_camera.get()->position());
     ASSERT_POINT_EQ(look_at, m_camera.get()->at());
 
-    camera_forward.print("Estimated Camera Forward");
+    camera_forward.print(std::cout, "Estimated Camera Forward");
     ASSERT_RAY_EQ(look_from, camera_forward, m_camera.get()->forward());
     ASSERT_RAY_EQ(look_from, camera_left, m_camera.get()->left());
     ASSERT_RAY_EQ(look_from, camera_up, m_camera.get()->up());
@@ -84,7 +84,7 @@ TEST_F(CameraTest, CastingRays) {
     // we're going to construct a camera view which is very easy to precision check
     // but not one that most situations would use.
     // by having a 2x2 image at 1 pixel scale, the math should be easy to work out by hand
-    m_camera.get()->print("Default");
+    m_camera.get()->print(std::cout, "Default");
 
     try {
         iso::degrees rs[] = {iso::degrees(0.0_p), iso::degrees(0.0_p), iso::degrees(0.0_p)};

@@ -20,23 +20,17 @@ public:
 
     virtual ~quadratic() = default;
 
-    /// @copydoc raytrace::object::intersect
-    // geometry::intersection intersect(ray const& world_ray) const override;
-    /// @copydoc raytrace::object::collisions_along
+    // ┌─────────────────────────┐
+    // │raytrace::objects::object│
+    // └─────────────────────────┘
     hits collisions_along(ray const& object_ray) const override;
-    /// @copydoc raytrace::object::map
     image::point map(point const& object_surface_point) const override;
-    /// @copydoc basal::printable::print
-    void print(char const str[]) const override;
+    void print(std::ostream& os, char const str[]) const override;
     bool is_surface_point(point const& world_point) const override;
     precision get_object_extent(void) const override;
 
 protected:
     vector normal_(point const& object_surface_point) const override;
-
-    /// Print in stream for quadratic
-    friend std::ostream& operator<<(std::ostream& os, quadratic const& c);
-
     /// Subclass constructor
     quadratic(point const& center);
     // The Coefficient Matrix form of Q from Graphic Gems Vol 3 for Quadratic Surfaces.

@@ -133,23 +133,28 @@ void camera::move_to(point const& look_from, point const& look_at) {
     // t should be zero, as it is the position of the world ray and line
     bool principal_found_at_look_at = world_line.solve(look_at, t);
     if constexpr (debug::camera) {
-        print(">>> Camera State at the end of move_to()\r\n");
+        print(std::cout, ">>> Camera State at the end of move_to()");
         std::cout << "Look at " << look_at << " is at t=" << t << " Found?=" << principal_found_at_look_at << std::endl;
         std::cout << "######### END OF MOVE ######### " << std::endl;
         basal::exception::throw_unless(principal_found_at_look_at, __FILE__, __LINE__);
     }
 }
 
-void camera::print(char const str[]) const {
-    printf("%s", str);
-    m_intrinsics.print("Camera Intrinsics");
-    m_world_position.print("Camera Look From");
-    m_world_look_at.print("Camera Look at");
-    m_world_look.print("Camera Forward");
-    m_world_left.print("Camera Left");
-    m_world_up.print("Camera Up");
-    m_camera_to_object_rotation.print("Camera to Object Rotation");
-    m_rotation.print("Object to World Rotation");
+void camera::print(std::ostream& os, char const str[]) const {
+    os << str << "Camera " << std::endl;
+    m_intrinsics.print(os, "Camera Intrinsics");
+    m_world_position.print(os, "Camera Look From");
+    m_world_look_at.print(os, "Camera Look at");
+    m_world_look.print(os, "Camera Forward");
+    m_world_left.print(os, "Camera Left");
+    m_world_up.print(os, "Camera Up");
+    m_camera_to_object_rotation.print(os, "Camera to Object Rotation");
+    m_rotation.print(os, "Object to World Rotation");
+}
+
+std::ostream& operator<<(std::ostream& os, camera const& cam) {
+    cam.print(os, "");
+    return os;
 }
 
 ray camera::cast(image::point const& image_point) const {

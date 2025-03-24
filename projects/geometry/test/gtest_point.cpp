@@ -203,7 +203,7 @@ TEST(PointTest, VectorToPoint) {
     R3::vector v1{{1, 2, 3}};
     R3::point p1{as_point(v1)};  // CopyConstruct
     point<3> p2{{1, 2, 3}};
-    p1.print("p1");
+    p1.print(std::cout, "p1");
     ASSERT_POINT_EQ(p2, p1);
     p1 = as_point(v1);  // CopyAssign
     ASSERT_POINT_EQ(p2, p1);
@@ -222,10 +222,10 @@ TEST(PointTest, Scaling) {
 TEST(PointTest, MatrixMult) {
     matrix m1{matrix::ones(3, 3)};
     point<3> p1{{1, 2, 3}};
-    p1.print("p1");
+    p1.print(std::cout, "p1");
     point<3> p2{{0, 0, 0}};
     p2 = m1 * p1;
-    p2.print("p2");
+    p2.print(std::cout, "p2");
     point<3> p3{{6, 6, 6}};
     ASSERT_POINT_EQ(p3, p2);
 }

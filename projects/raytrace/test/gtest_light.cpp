@@ -65,7 +65,7 @@ TEST(LightTest, DISABLED_TriColorSpots) {
     scene.add_light(&blu_light);
     scene.add_object(&floor);
     scene.add_object(&shape);
-    scene.print("TriColor");
+    scene.print(std::cout, "TriColor");
     scene.render(view, "tricolor_spots.ppm", 1, 1, std::nullopt, true);
 }
 
@@ -79,6 +79,6 @@ TEST(LightTest, DISABLED_BulbTest) {
     scene.add_light(&light);
     scene.add_object(&floor);
     scene.add_object(&shape);
-    scene.print("BulbTest");
+    scene.print(std::cout, "BulbTest");
     scene.render(view, "bulb_and_sphere.ppm", 1, 1, std::nullopt, true);
 }

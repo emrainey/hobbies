@@ -20,15 +20,13 @@ public:
 
     virtual ~cuboid() = default;
 
-    /// @copydoc raytrace::object::intersect
-    // geometry::intersection intersect(ray const& world_ray) const override;
-    /// @copydoc raytrace::object::collision_along
+    // ┌─────────────────────────┐
+    // │raytrace::objects::object│
+    // └─────────────────────────┘
     hits collisions_along(ray const& object_ray) const override;
-    /// @copydoc raytrace::object::map
     image::point map(point const& object_surface_point) const override;
-    /// @copydoc basal::printable::print
-    void print(char const str[]) const override;
     precision get_object_extent(void) const override;
+    void print(std::ostream& os, char const str[]) const override;
 
     precision const& x_half_width;
     precision const& y_half_width;
@@ -45,8 +43,4 @@ protected:
 };
 
 }  // namespace objects
-
-/// Print in stream for cuboid
-std::ostream& operator<<(std::ostream& os, objects::cuboid const& c);
-
 }  // namespace raytrace

@@ -8,6 +8,14 @@
 #include "linalg/gtest_helper.hpp"
 #include "raytrace/gtest_helper.hpp"
 
+TEST(TorusTest, Type) {
+    using namespace raytrace;
+    using namespace raytrace::objects;
+
+    torus T{R3::origin, 1.0_p, 2.0_p};
+    ASSERT_EQ(T.get_type(), Type::Torus);
+}
+
 TEST(TorusTest, RayIntersection) {
     using namespace raytrace;
     using namespace raytrace::objects;

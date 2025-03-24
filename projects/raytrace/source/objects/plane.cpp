@@ -9,9 +9,7 @@ using namespace linalg::operators;
 using namespace geometry;
 using namespace geometry::operators;
 
-plane::plane(point const& C, vector const& N) : geometry::plane{C, N}, object{C, 1} {
-    // C.print("plane");
-    // N.print("plane");
+plane::plane(point const& C, vector const& N) : geometry::plane{C, N}, object{C, 1, Type::Plane, false} {
 }
 
 vector plane::normal_(point const& object_space_point __attribute__((unused))) const {
@@ -74,8 +72,8 @@ bool plane::is_along_infinite_extent(ray const& world_ray) const {
     return basal::nearly_zero(proj);
 }
 
-void plane::print(char const str[]) const {
-    std::cout << str << " Plane @" << this << " " << position() << " Normal " << unormal() << std::endl;
+void plane::print(std::ostream& os, char const str[]) const {
+    os << str << " Plane @" << this << " " << position() << " Normal " << unormal() << std::endl;
 }
 
 }  // namespace objects

@@ -12,6 +12,9 @@ using namespace geometry::operators;
 
 ring::ring(point const& C, vector const& N, precision inner, precision outer)
     : raytrace::objects::plane(C, N), m_inner_radius2(inner * inner), m_outer_radius2(outer * outer) {
+    m_type = Type::Ring;
+    basal::exception::throw_unless(m_inner_radius2 < m_outer_radius2, __FILE__, __LINE__,
+                                   "Inner radius must be less than outer radius");
 }
 
 hits ring::collisions_along(ray const& object_ray) const {
@@ -48,9 +51,9 @@ bool ring::is_surface_point(point const& world_point) const {
     return m_inner_radius2 <= dd and dd <= m_outer_radius2;
 }
 
-void ring::print(char const str[]) const {
-    std::cout << str << " ring @" << this << " " << object_<3>::position() << " " << m_normal
-              << " Radii (Squared):" << m_inner_radius2 << ", " << m_outer_radius2 << std::endl;
+void ring::print(std::ostream& os, char const str[]) const {
+    os << str << " ring @" << this << " " << object_<3>::position() << " " << m_normal
+       << " Radii (Squared):" << m_inner_radius2 << ", " << m_outer_radius2 << std::endl;
 }
 
 precision ring::get_object_extent(void) const {

@@ -51,6 +51,9 @@ static constexpr bool check_on_surface = geometry::check_on_surface;
 /// Determine the number of objects in the scene to switch from brute force to a bounding box search
 static constexpr size_t brute_force_to_bounding_box{10U};
 
+/// A flag to control if origin collisions are counted
+static constexpr bool can_ray_origin_be_collision{true};
+
 namespace gamma {
 /// Control if the full correction or the fast correction is used
 static constexpr bool use_full = true;

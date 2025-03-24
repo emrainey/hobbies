@@ -13,7 +13,7 @@ using namespace linalg::operators;
 using namespace geometry;
 using namespace geometry::operators;
 
-pyramid::pyramid(point const& base, precision height) : object(base, 2), m_height{height} {
+pyramid::pyramid(point const& base, precision height) : object(base, 2, Type::Pyramid, false), m_height{height} {
 }
 
 vector pyramid::normal_(point const& object_surface_point) const {
@@ -101,8 +101,8 @@ image::point pyramid::map(point const& object_surface_point __attribute__((unuse
     return image::point(0, 0);  // no mapping for now
 }
 
-void pyramid::print(char const str[]) const {
-    std::cout << str << " Pyramid @" << this << " " << position() << " Height " << m_height << std::endl;
+void pyramid::print(std::ostream& os, char const str[]) const {
+    os << str << " Pyramid @" << this << " " << position() << " Height " << m_height << std::endl;
 }
 
 precision pyramid::get_object_extent(void) const {

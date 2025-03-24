@@ -7,13 +7,13 @@ namespace objects {
 using namespace linalg::operators;
 
 cylinder::cylinder(point const& C, precision half_height, precision radius)
-    : object{C, 2, false}  // 2 collisions, not closed
+    : object{C, 2, Type::Cylinder, false}  // 2 collisions, not closed
     , m_half_height{half_height}
     , m_radius{radius} {
 }
 
 cylinder::cylinder(point const& base, point const& apex, precision radius)
-    : object{base, 2, false}  // 2 collisions, not closed
+    : object{base, 2, Type::Cylinder, false}  // 2 collisions, not closed
     , m_half_height{0.0_p}
     , m_radius{radius} {
     R3::vector axis = apex - base;
@@ -86,9 +86,9 @@ image::point cylinder::map(point const& object_surface_point) const {
     return image::point(u, v);
 }
 
-void cylinder::print(char const str[]) const {
-    std::cout << str << " cylinder @" << this << " " << position() << " 1/2H" << m_half_height << " Radius:" << m_radius
-              << std::endl;
+void cylinder::print(std::ostream& os, char const str[]) const {
+    os << "cylinder @" << this << " " << str << " " << position() << " 1/2H" << m_half_height << " Radius:" << m_radius
+       << std::endl;
 }
 
 precision cylinder::get_object_extent(void) const {
@@ -96,4 +96,5 @@ precision cylinder::get_object_extent(void) const {
 }
 
 }  // namespace objects
+
 }  // namespace raytrace

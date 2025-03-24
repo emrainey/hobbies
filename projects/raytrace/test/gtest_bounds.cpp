@@ -19,17 +19,36 @@ TEST(BoundsTest, Contained) {
 }
 
 TEST(BoundsTest, Intersects) {
-    auto bounds = raytrace::Bounds{raytrace::point(0, 0, 0), raytrace::point(1, 1, 1)};
-    auto r = raytrace::ray{raytrace::point(-1, -1, -1), raytrace::vector{1, 1, 1}};
+    auto bounds = raytrace::Bounds{raytrace::point(-1, -1, -1), raytrace::point(1, 1, 1)};
+    auto r = raytrace::ray{raytrace::point(-2, -2, -2), raytrace::vector{1, 1, 1}};
     EXPECT_TRUE(bounds.intersects(r));
+    // intersect a ray on each face of the bounds
+    auto r1 = raytrace::ray{raytrace::point(-2, 0, 0), raytrace::vector{1, 0, 0}};  // min x
+    EXPECT_TRUE(bounds.intersects(r1));
+    auto r2 = raytrace::ray{raytrace::point(2, 0, 0), raytrace::vector{-1, 0, 0}};  // max x
+    EXPECT_TRUE(bounds.intersects(r2));
+    auto r3 = raytrace::ray{raytrace::point(0, -2, 0), raytrace::vector{0, 1, 0}};  // min y
+    EXPECT_TRUE(bounds.intersects(r3));
+    auto r4 = raytrace::ray{raytrace::point(0, 2, 0), raytrace::vector{0, -1, 0}};  // max y
+    EXPECT_TRUE(bounds.intersects(r4));
+    auto r5 = raytrace::ray{raytrace::point(0, 0, -2), raytrace::vector{0, 0, 1}};  // min z
+    EXPECT_TRUE(bounds.intersects(r5));
+    auto r6 = raytrace::ray{raytrace::point(0, 0, 2), raytrace::vector{0, 0, -1}};  // max z
+    EXPECT_TRUE(bounds.intersects(r6));
 }
 
 TEST(BoundsTest, NoIntersect) {
     auto bounds = raytrace::Bounds{raytrace::point(0, 0, 0), raytrace::point(1, 1, 1)};
     auto r1 = raytrace::ray{raytrace::point(1.5_p, 1.5_p, 1.5_p), raytrace::vector{1, 1, 1}};
     EXPECT_FALSE(bounds.intersects(r1));
-    auto r2 = raytrace::ray{raytrace::point(-1.5_p, 0, -1.5_p), raytrace::vector{-1, 0, -1}};
+    auto r2 = raytrace::ray{raytrace::point(-1.5_p, 0.0_p, -1.5_p), raytrace::vector{-1, 0, -1}};
     EXPECT_FALSE(bounds.intersects(r2));
+    auto r3 = raytrace::ray{raytrace::point(1.5_p, -0.5, 0.5_p), raytrace::vector{0, 1, 0}};
+    EXPECT_FALSE(bounds.intersects(r3));
+    auto r4 = raytrace::ray{raytrace::point(1.5_p, 0.5_p, 0.5_p), raytrace::vector{0, -1, 0}};
+    EXPECT_FALSE(bounds.intersects(r4));
+    auto r5 = raytrace::ray{raytrace::point(0.5_p, 1.5_p, 0.5_p), raytrace::vector{0, 0, 1}};
+    EXPECT_FALSE(bounds.intersects(r5));
 }
 
 TEST(BoundsTest, Inside) {
@@ -104,6 +123,7 @@ TEST(BoundsTest, Infinite) {
     EXPECT_TRUE(bounds.is_infinite());
     auto b = raytrace::Bounds{raytrace::point(0.5_p, 0.5_p, 0.5_p), raytrace::point(1.5_p, 1.5_p, 1.5_p)};
     bounds.grow(b);
+    // once infinite, you can't become finite again
     EXPECT_TRUE(bounds.is_infinite());
     auto middle = bounds.center();
     EXPECT_POINT_EQ(raytrace::point(0.0_p, 0.0_p, 0.0_p), middle);

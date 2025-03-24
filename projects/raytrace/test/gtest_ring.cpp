@@ -9,6 +9,14 @@
 #include "linalg/gtest_helper.hpp"
 #include "raytrace/gtest_helper.hpp"
 
+TEST(RingTest, Type) {
+    using namespace raytrace;
+    using namespace raytrace::objects;
+
+    ring R{R3::origin, R3::basis::Z, 1.0_p, 2.0_p};
+    ASSERT_EQ(R.get_type(), Type::Ring);
+}
+
 TEST(RingTest, RayIntersectionAtOrigin) {
     using namespace raytrace;
     using namespace raytrace::objects;

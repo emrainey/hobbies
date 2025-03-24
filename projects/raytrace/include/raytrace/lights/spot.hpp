@@ -14,14 +14,9 @@ public:
     spot(raytrace::ray&& r, raytrace::color const& C, precision intensity, iso::degrees const& incoming_angle);
     virtual ~spot() = default;
 
-    /// @copydoc raytrace::light::intensity_at()
     precision intensity_at(point const& world_point) const override;
-
-    /// @copydoc raytrace::light::incident()
     ray incident(point const& world_point, size_t sample_index) const override;
-
-    /// @copydoc basal::printable::print
-    void print(char const str[]) const override;
+    void print(std::ostream& os, char const str[]) const override;
 
 protected:
     /// The direction which the light is facing from the location
@@ -31,8 +26,4 @@ protected:
 };
 
 }  // namespace lights
-
-/// Helper to print specks of light
-std::ostream& operator<<(std::ostream& os, lights::spot const& l);
-
 }  // namespace raytrace

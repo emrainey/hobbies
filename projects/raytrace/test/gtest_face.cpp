@@ -14,7 +14,8 @@ TEST(FaceTest, Basics) {
     raytrace::point C{0, 1, 0};
     raytrace::point D{0.5_p, 0.5_p, 0};
     raytrace::objects::face f{A, B, C};
-    f.print("Face");
+    EXPECT_EQ(f.get_type(), raytrace::objects::Type::Face);
+    f.print(std::cout, "Face");
     EXPECT_EQ(f.points().size(), 3u);
     EXPECT_POINT_EQ(raytrace::point(1.0_p / 3.0_p, 1.0_p / 3.0_p, 0.0_p / 3.0_p), f.position());
     raytrace::vector n = f.normal(D);
@@ -33,7 +34,7 @@ TEST(FaceTest, Texture) {
     raytrace::point C{-2, 3, 0};
     raytrace::point D{1.0_p, 2.0_p, 0};
     raytrace::objects::face f{A, B, C, image::point{1, 0}, image::point{0, 0}, image::point{0, 1}};
-    f.print("Face");
+    f.print(std::cout, "Face");
     EXPECT_EQ(f.points().size(), 3u);
     raytrace::vector n = f.normal(D);
     EXPECT_VECTOR_EQ(R3::basis::Z, f.normal(D));
@@ -94,7 +95,7 @@ TEST(FaceTest, IntersectAfterMove) {
         auto hit = shape.intersect(r);
         EXPECT_EQ(geometry::IntersectionType::None, get_type(hit.intersect));
     }
-    shape.print("Face");
+    shape.print(std::cout, "Face");
     {
         raytrace::ray r{raytrace::point{1.4_p, 1.4_p, 2.0_p}, -R3::basis::Z};
         auto hit = shape.intersect(r);

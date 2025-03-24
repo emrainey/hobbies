@@ -22,18 +22,18 @@ scene::~scene() {
 void scene::add_object(objects::object const* obj) {
     m_objects.push_back(obj);
     // compute the bounding box for the scene
-    auto bounds = obj->get_world_bounds();
+    auto object_bounds = obj->get_world_bounds();
     if constexpr (debug::scene) {
-        obj->print("Object for Bounds");
-        std::cout << " Min: " << bounds.min << " Max: " << bounds.max << std::endl;
+        obj->print(std::cout, "Object for Bounds");
+        std::cout << object_bounds << std::endl;
     }
-    if (bounds.is_infinite()) {
+    if (object_bounds.is_infinite()) {
         m_infinite_objects.push_back(obj);
     } else {
         if (m_bounds.is_infinite()) {
-            m_bounds = bounds;  // first object sets the bounds
+            m_bounds = object_bounds;  // first object sets the bounds
         } else {
-            m_bounds.grow(bounds);
+            m_bounds.grow(object_bounds);
         }
         if constexpr (debug::scene) {
             std::cout << "Growing Bounds to: " << m_bounds.min << " Max: " << m_bounds.max << std::endl;
@@ -403,7 +403,7 @@ void scene::render(camera& view, std::string filename, size_t number_of_samples,
                    std::optional<image::rendered_line> row_notifier, uint8_t aaa_mask_threshold, bool filter_capture) {
     bool adaptive_antialiasing = aaa_mask_threshold != raytrace::image::AAA_MASK_DISABLED;
     if constexpr (debug::camera) {
-        view.print("Camera Info:\n");
+        view.print(std::cout, "Camera Info:\n");
     }
 
     // create the tree here as it can't be done in the add_object method correctly
@@ -453,14 +453,23 @@ void scene::render(camera& view, std::string filename, size_t number_of_samples,
     view.capture.save(filename);
 }
 
-void scene::print(char const str[]) const {
-    std::cout << str << std::endl;
+void scene::print(std::ostream& os, char const str[]) const {
+    os << str << std::endl;
     for (auto obj : m_objects) {
-        obj->print(str);
+        obj->print(os, str);
     }
     for (auto lite : m_lights) {
-        lite->print(str);
+        lite->print(os, str);
     }
+}
+
+std::ostream& operator<<(std::ostream& os, scene const& sc) {
+    os << "Scene: " << std::endl;
+    os << "  Objects: " << sc.number_of_objects() << std::endl;
+    os << "  Lights: " << sc.number_of_lights() << std::endl;
+    os << "  Bounds: " << sc.m_bounds << std::endl;
+    os << "  Media: " << (sc.m_media ? "Some" : "none") << std::endl;
+    return os;
 }
 
 void scene::set_background_mapper(background_mapper mapper) {

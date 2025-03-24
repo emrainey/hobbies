@@ -176,7 +176,7 @@ int main(int argc, char* argv[]) {
         scene.add_object(&ground);
         scene.add_light(&sunlight);
 
-        scene.print("Scene");
+        std::cout << "Scene: " << scene << std::endl;
         if (should_render) {
             render_image.setTo(cv::Scalar(128, 128, 128));
             cv::imshow(windowName, render_image);

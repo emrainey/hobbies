@@ -118,8 +118,6 @@ bool Bounds::is_infinite() const {
 }
 
 void Bounds::grow(Bounds const& b) {
-    basal::exception::throw_if(b.is_infinite(), __FILE__, __LINE__, "Cannot grow to infinite bounds");
-    basal::exception::throw_if(is_infinite(), __FILE__, __LINE__, "Cannot grow to an already infinite bounds");
     min.x = std::min(min.x, b.min.x);
     min.y = std::min(min.y, b.min.y);
     min.z = std::min(min.z, b.min.z);

@@ -12,6 +12,8 @@ using namespace geometry::operators;
 
 square::square(point const& C, vector const& N, precision hh, precision hw)
     : raytrace::objects::plane(C, N), m_points{} {
+    m_type = Type::Square;
+    m_has_infinite_extent = true;  // a square is a bounded planar surface
     m_points[0] = raytrace::point{-hw, -hh, 0};
     m_points[1] = raytrace::point{+hw, +hh, 0};
 }
@@ -43,8 +45,9 @@ bool square::is_surface_point(point const& world_point) const {
     return linalg::within(m_points[0].x, x, m_points[1].x) and linalg::within(m_points[0].y, y, m_points[1].y);
 }
 
-void square::print(char const str[]) const {
-    std::cout << str << " square @" << this << " " << object_<3>::position() << " " << m_normal << std::endl;
+void square::print(std::ostream& os, char const name[]) const {
+    os << "square @ " << this << " " << name << " " << position() << " " << m_normal << " from " << m_points[0]
+       << " to " << m_points[1] << std::endl;
 }
 
 image::point square::map(point const& object_surface_point) const {

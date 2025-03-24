@@ -200,12 +200,12 @@ public:
         return c;
     }
 
-    inline void print(char const name[]) const {
-        printf("%s: vector_(", name);
+    inline void print(std::ostream& os, char const name[]) const {
+        os << name << " vector_{";
         for (size_t i = 0; i < dimensions; i++) {
-            printf("%lf%s", data[i], (i == dimensions - 1) ? "" : ", ");
+            os << data[i] << ((i == dimensions - 1) ? "" : ", ");
         }
-        printf(");\r\n");
+        os << "}";
     }
 
     /// Returns the dot product of two vectors. Reference parameter form

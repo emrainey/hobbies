@@ -117,7 +117,7 @@ int main(int argc, char* argv[]) {
                    float(hits + misses) / i);
             fflush(stdout);
 
-            out.values.T().print("output");
+            out.values.T().print(std::cout, "output");
         }
         return 0;
     } catch (basal::exception& e) {

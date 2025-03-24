@@ -12,12 +12,9 @@ public:
     transparent(precision eta, precision fade, color const& diffuse);
     virtual ~transparent() = default;
 
-    /// @copydoc medium::radiosity
     void radiosity(raytrace::point const& volumetric_point, precision refractive_index,
                    iso::radians const& incident_angle, iso::radians const& transmitted_angle, precision& emitted,
                    precision& reflected, precision& transmitted) const override;
-
-    /// @copydoc medium::absorbance
     color absorbance(precision distance, color const& given_color) const override;
 
 protected:

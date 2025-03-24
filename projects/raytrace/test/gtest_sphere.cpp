@@ -12,6 +12,11 @@
 
 using namespace raytrace;
 
+TEST(SphereTest, Type) {
+    raytrace::objects::sphere s0{R3::origin, 1.0_p};
+    ASSERT_EQ(s0.get_type(), raytrace::objects::Type::Sphere);
+}
+
 TEST(SphereTest, NormalReflection) {
     raytrace::point C{1, 1, 1};
     raytrace::objects::sphere s0{C, 1.0_p};

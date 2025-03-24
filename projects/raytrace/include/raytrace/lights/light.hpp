@@ -65,6 +65,12 @@ public:
         return m_samples;
     }
 
+    /// @brief The base class stream operator
+    /// @param os The output stream to write to
+    /// @param l The light reference
+    /// @return
+    friend std::ostream& operator<<(std::ostream& os, light const& l);
+
 protected:
     /// The color of the light source
     color m_color;

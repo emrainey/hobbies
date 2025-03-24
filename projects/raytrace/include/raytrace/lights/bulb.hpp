@@ -14,11 +14,8 @@ public:
     bulb(point&& P, precision radius, raytrace::color const& C, precision intensity, size_t samples);
     virtual ~bulb() = default;
 
-    /// @copydoc raytrace::light::incident()
     ray incident(point const& world_point, size_t sample_index) const override;
-
-    /// @copydoc basal::printable::print
-    void print(char const str[]) const override;
+    void print(std::ostream& os, char const str[]) const override;
 
 protected:
     /// The radius of the bulb
@@ -26,8 +23,4 @@ protected:
 };
 
 }  // namespace lights
-
-/// Helper to print bulbs of light
-std::ostream& operator<<(std::ostream& os, lights::bulb const& l);
-
 }  // namespace raytrace

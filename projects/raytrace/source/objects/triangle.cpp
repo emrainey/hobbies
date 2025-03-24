@@ -15,7 +15,7 @@ triangle::triangle(R3::point const& A, R3::point const& B, R3::point const& C)
     // this defines the center of the given points which will be the translated center to the triangle
     point center = centroid(A, B, C);
     m_type = Type::Triangle;
-    m_has_infinite_extent = true;  // a triangle is a bounded planar surface
+    m_has_definite_volume = false;  // a triangle is a bounded planar surface
     if constexpr (debug::triangle) {
         std::cout << "Triangle Center: " << center << " from A=" << A << " B=" << B << " C=" << C << std::endl;
     }

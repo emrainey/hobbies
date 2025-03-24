@@ -13,7 +13,7 @@ using namespace geometry::operators;
 square::square(point const& C, vector const& N, precision hh, precision hw)
     : raytrace::objects::plane(C, N), m_points{} {
     m_type = Type::Square;
-    m_has_infinite_extent = true;  // a square is a bounded planar surface
+    m_has_definite_volume = false;  // a square is a bounded planar surface
     m_points[0] = raytrace::point{-hw, -hh, 0};
     m_points[1] = raytrace::point{+hw, +hh, 0};
 }

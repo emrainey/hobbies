@@ -12,7 +12,7 @@ hyperboloid::hyperboloid(point const& center, precision a, precision b, precisio
                                      {0.0_p, 0.0_p, 0.0_p, -1.0_p}}};
     m_type = Type::Hyperboloid;
     m_max_collisions = 2;           // up to 2 collisions
-    m_has_infinite_extent = false;  // not a closed surface
+    m_has_definite_volume = false;  // not a closed surface
 }
 
 }  // namespace objects

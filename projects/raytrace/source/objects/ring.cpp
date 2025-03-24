@@ -13,6 +13,7 @@ using namespace geometry::operators;
 ring::ring(point const& C, vector const& N, precision inner, precision outer)
     : raytrace::objects::plane(C, N), m_inner_radius2(inner * inner), m_outer_radius2(outer * outer) {
     m_type = Type::Ring;
+    m_has_definite_volume = false;  // a ring is a bounded planar surface
     basal::exception::throw_unless(m_inner_radius2 < m_outer_radius2, __FILE__, __LINE__,
                                    "Inner radius must be less than outer radius");
 }

@@ -228,7 +228,7 @@ TEST_F(RenderTest, DISABLED_Torus) {
 
 TEST_F(RenderTest, DISABLED_QuadraticCylinder) {
     ellipticalcylinder shape(look_at, 5.0_p, 5.0_p);
-    ASSERT_TRUE(shape.has_finite_volume());
+    ASSERT_TRUE(shape.has_definite_volume());
     shape.material(&plastic);
     add_object(&shape);
     render_all("ellipticalcylinder");
@@ -236,7 +236,7 @@ TEST_F(RenderTest, DISABLED_QuadraticCylinder) {
 
 TEST_F(RenderTest, DISABLED_QuadraticCone) {
     ellipticalcone shape(look_at, 0.3_p, 0.3_p);
-    ASSERT_TRUE(shape.has_finite_volume());
+    ASSERT_TRUE(shape.has_definite_volume());
     shape.material(&plastic);
     add_object(&shape);
     render_all("ellipticalcone");
@@ -244,7 +244,7 @@ TEST_F(RenderTest, DISABLED_QuadraticCone) {
 
 TEST_F(RenderTest, DISABLED_QuadraticEllipsoid) {
     ellipsoid shape(look_at, 10.0_p, 8.0_p, 6.0_p);
-    ASSERT_TRUE(shape.has_finite_volume());
+    ASSERT_TRUE(shape.has_definite_volume());
     shape.material(&plastic);
     add_object(&shape);
     render_all("ellipsoid");
@@ -252,7 +252,7 @@ TEST_F(RenderTest, DISABLED_QuadraticEllipsoid) {
 
 TEST_F(RenderTest, DISABLED_QuadraticParaboloid) {
     paraboloid shape(look_at, 0.5_p, 0.5_p, 1.0_p);
-    ASSERT_TRUE(shape.has_finite_volume());
+    ASSERT_TRUE(shape.has_definite_volume());
     shape.material(&plastic);
     add_object(&shape);
     render_all("paraboloid");
@@ -260,7 +260,7 @@ TEST_F(RenderTest, DISABLED_QuadraticParaboloid) {
 
 TEST_F(RenderTest, DISABLED_QuadraticHyperboloid) {
     hyperboloid shape(look_at, 3.0_p, 3.0_p, 3.0_p);
-    ASSERT_TRUE(shape.has_finite_volume());
+    ASSERT_TRUE(shape.has_definite_volume());
     shape.material(&plastic);
     add_object(&shape);
     render_all("hyperboloid");

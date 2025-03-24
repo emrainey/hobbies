@@ -59,7 +59,7 @@ public:
         : entity_<DIMS>()
         , m_type{Type::None}  // default to none
         , m_max_collisions{0}
-        , m_has_infinite_extent{false}
+        , m_has_definite_volume{false}
         , m_medium(&mediums::dull)
         , m_surface_scale{1.0_p, 1.0_p} {
     }
@@ -68,7 +68,7 @@ public:
         : entity_<DIMS>(center)
         , m_type{type}
         , m_max_collisions{collisions}
-        , m_has_infinite_extent{collisions > 1 ? closed : false}
+        , m_has_definite_volume{collisions > 1 ? closed : false}
         , m_medium{&mediums::dull}
         , m_surface_scale{1.0_p, 1.0_p} {
     }
@@ -77,7 +77,7 @@ public:
         : entity_<DIMS>(std::move(center))
         , m_type{type}
         , m_max_collisions{collisions}
-        , m_has_infinite_extent{collisions > 1 ? closed : false}
+        , m_has_definite_volume{collisions > 1 ? closed : false}
         , m_medium{&mediums::dull} {
     }
 
@@ -86,7 +86,7 @@ public:
         : entity_<DIMS>(that)
         , m_type{that.m_type}
         , m_max_collisions{that.m_max_collisions}
-        , m_has_infinite_extent{that.m_has_infinite_extent}
+        , m_has_definite_volume{that.m_has_definite_volume}
         , m_medium(that.m_medium) {
     }
 
@@ -95,11 +95,11 @@ public:
         : entity_<DIMS>(that)
         , m_type{that.m_type}  // can't move the type
         , m_max_collisions{that.m_max_collisions}
-        , m_has_infinite_extent{that.m_has_infinite_extent}
+        , m_has_definite_volume{that.m_has_definite_volume}
         , m_medium(that.m_medium) {
         that.m_type = Type::None;            // clear the type from the moved object
         that.m_max_collisions = 0;           // clear the collisions from the moved object
-        that.m_has_infinite_extent = false;  // clear the closed surface from the moved object
+        that.m_has_definite_volume = false;  // clear the closed surface from the moved object
         that.m_medium = nullptr;             // clear the medium from the moved object
     }
 
@@ -107,7 +107,7 @@ public:
     object_& operator=(object_ const& that) {
         entity_<DIMS>::operator=(that);
         m_max_collisions = that.m_max_collisions;
-        m_has_infinite_extent = that.m_has_infinite_extent;
+        m_has_definite_volume = that.m_has_definite_volume;
         m_medium = that.m_medium;
         return *this;
     }
@@ -115,7 +115,7 @@ public:
     object_& operator=(object_&& that) {
         entity_<DIMS>::operator=(that);
         m_max_collisions = that.m_max_collisions;
-        m_has_infinite_extent = that.m_has_infinite_extent;
+        m_has_definite_volume = that.m_has_definite_volume;
         m_medium = that.m_medium;  // copy is sufficient as the medium is constant
         that.m_medium = nullptr;   // clear the medium from the moved object
         return *this;
@@ -328,9 +328,10 @@ public:
         return m_max_collisions;
     }
 
-    /// Return true if the object is a closed surface.
-    virtual inline bool has_finite_volume() const {
-        return m_has_infinite_extent;
+    /// @return true if the object is a definite volume (e.g., sphere, cuboid, etc.) and false if it is an open surface
+    /// like a plane
+    virtual inline bool has_definite_volume() const {
+        return m_has_definite_volume;
     }
 
     /// @brief Used to determine if an open surface and ray could ever possibly intersect.
@@ -395,7 +396,7 @@ public:
     friend std::ostream& operator<<(std::ostream& os, object_ const& obj) {
         obj.print(os, "object");
         os << "object_{type=" << static_cast<int>(obj.m_type) << ", max_collisions=" << obj.m_max_collisions
-           << ", closed_surface=" << obj.m_has_infinite_extent << ", medium=" << (obj.m_medium ? "true" : "false")
+           << ", definite volume=" << obj.m_has_definite_volume << ", medium=" << (obj.m_medium ? "true" : "false")
            << ", surface_scale={" << obj.m_surface_scale.u << ", " << obj.m_surface_scale.v << "}}";
         return os;
     }
@@ -411,8 +412,9 @@ protected:
     Type m_type;
     /// The maximum number of collisions with the surface of this object
     size_t m_max_collisions;
-    /// Some objects may return more than 1 collisions but are not closed surfaces
-    bool m_has_infinite_extent;
+    /// Some objects may return more than 1 collisions but do not enclose a definite volume like a sphere. A plane for
+    /// example does not enclose a definite volume.
+    bool m_has_definite_volume;
     /// The pointer to the medium to use
     raytrace::mediums::medium const* m_medium;
     /// The std::bind or used to reference the instance of the mapping function

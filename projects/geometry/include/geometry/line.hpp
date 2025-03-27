@@ -1,7 +1,8 @@
 #pragma once
 /// @file
 /// Definitions for the line object.
-/// @copyright Copyright 2019 (C) Erik Rainey.clude <array>
+/// @copyright Copyright 2019 (C) Erik Rainey
+#include <array>
 #include <functional>
 #include <initializer_list>
 #include <utility>

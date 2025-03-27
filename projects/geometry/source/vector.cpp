@@ -18,6 +18,23 @@ vector cross(vector const& a, vector const& b) noexcept(false) {
     return vector{{x, y, z}};
 }
 
+vector nearly_orthogonal(vector const& a) noexcept(false) {
+    basal::exception::throw_if(a == R3::null, __FILE__, __LINE__, "Can't find a nearly orthogonal vector to null");
+    size_t idx{0U};
+    precision value = a[0];
+    if (std::abs(a[1]) < value) {
+        idx = 1U;
+        value = a[1];
+    }
+    if (std::abs(a[2]) < value) {
+        idx = 2U;
+        value = a[2];
+    }
+    vector v{R3::null};
+    v[idx] = 1.0_p;  // set the smallest value to 1.0
+    return v;
+}
+
 bool parallel(vector const& a, vector const& b) {
     return (R3::null == cross(a, b));
 }

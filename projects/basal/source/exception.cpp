@@ -100,7 +100,7 @@ void exception::throw_if(bool condition, char const loc[], std::size_t line, cha
         va_start(list, fmt);
         vsnprintf(buffer, sizeof(buffer), fmt, list);
         va_end(list);
-        fprintf(stdout, "%s", buffer);
+        fprintf(stdout, "%s\r\n", buffer);
         throw basal::exception(buffer, loc, line);
     }
 }

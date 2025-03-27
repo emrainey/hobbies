@@ -1,5 +1,9 @@
 #pragma once
 
+/// @file
+/// The basal library's IEEE754 floating point types and utilities
+/// @copyright Copyright (c) 2019-2025 Erik Rainey
+
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -9,6 +13,7 @@
 #include <functional>
 #include <initializer_list>
 #include <iostream>
+#include <iomanip>
 #include <memory>
 #include <random>
 #include <sstream>

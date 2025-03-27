@@ -244,7 +244,9 @@
 			"execution": "cpp",
 			"stack": "cpp",
 			"__memory": "cpp",
-			"text_encoding": "cpp"
+			"text_encoding": "cpp",
+			"core": "cpp",
+			"sparsecore": "cpp"
 		},
 		"cmake.format.spaceAfterCommandName": true,
 		"cmake.format.spaceInParentheses": true,

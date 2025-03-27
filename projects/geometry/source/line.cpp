@@ -63,7 +63,7 @@ R3::point line::solve(precision t) const {
     return position() + (t * direction());
 }
 
-bool line::solve(point const& P, precision& t) const {
+bool line::solve(R3::point const& P, precision& t) const {
     using namespace geometry::operators;
     // This no longer requires R3 lines.
     // Example:

@@ -329,3 +329,12 @@ TEST(VectorTest, Angles) {
     iso::radians A4 = angle(R3::basis::Z, a);
     ASSERT_PRECISION_EQ(iso::pi / 4, A4.value);
 }
+
+TEST(VectorTest, NearlyOrthogonal) {
+    R3::vector a{{1, 2, 3}};
+    R3::vector b = R3::nearly_orthogonal(a.normalized());
+    R3::vector c = R3::cross(a, b);
+    ASSERT_PRECISION_EQ(1.0_p, b.magnitude());
+    ASSERT_FALSE(R3::parallel(a, b));
+    ASSERT_TRUE(orthogonal(a, c));
+}

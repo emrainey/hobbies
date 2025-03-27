@@ -10,6 +10,7 @@ add_library(hobbies-geometry
     ${CMAKE_CURRENT_SOURCE_DIR}/source/ray.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/sphere.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/vector.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/axes.cpp
 )
 target_link_libraries(hobbies-geometry
     PUBLIC
@@ -78,6 +79,7 @@ if (Threads_FOUND AND GTest_FOUND)
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_ray.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_sphere.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_vector.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_axes.cpp
     )
     target_include_directories(gtest_geometry SYSTEM PUBLIC ${GTEST_INCLUDE_DIRS})
     target_link_libraries(gtest_geometry PRIVATE hobbies-geometry enabled-debugging GTest::gtest GTest::gmock GTest::gtest_main Threads::Threads)

@@ -167,7 +167,7 @@ public:
     /// Normalizes the vector, destructive
     vector_& normalize() noexcept(false) {
         precision m = magnitude();
-        basal::exception::throw_if(basal::nearly_zero(m), __FILE__, __LINE__, "Magnitude is zero, can't normalize");
+        basal::exception::throw_if(basal::is_exactly_zero(m), __FILE__, __LINE__, "Magnitude is zero, can't normalize");
         return operator/=(m);
     }
 
@@ -401,6 +401,10 @@ static vector const Z{{0.0_p, 0.0_p, 1.0_p}};
 
 /// Returns a new vector which is the cross Product of A and B vectors (i.e. A cross B). Copy parameter form.
 vector cross(vector const& a, vector const& b) noexcept(false);
+
+/// Finds a vector which is nearly orgthogonal to the input vector.
+/// @note This is useful for building a set of axes or basis
+vector nearly_orthogonal(vector const& a) noexcept(false);
 
 /// Tests if two vectors are parallel
 bool parallel(vector const& a, vector const& b);

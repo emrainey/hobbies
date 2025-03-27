@@ -111,29 +111,29 @@
         },
         {
             "name": "native-llvm-19",
-            "displayName": "Homebrew LLVM 19.1.6",
-            "description": "Homebrew LLVM 19.1.6",
+            "displayName": "Homebrew LLVM 19.1.7_1",
+            "description": "Homebrew LLVM 19.1.7_1",
             "inherits": [
                 "native-llvm",
                 "Homebrew",
                 "debug"
             ],
             "environment": {
-                "PATH": "$env{HOMEBREW_ROOT}/Cellar/llvm/19.1.6/bin/:$env{HOMEBREW_PATH}:$penv{PATH}"
+                "PATH": "$env{HOMEBREW_ROOT}/Cellar/llvm/19.1.7_1/bin/:$env{HOMEBREW_PATH}:$penv{PATH}"
             },
             "cacheVariables": {}
         },
         {
             "name": "native-llvm-19-profiled",
-            "displayName": "Homebrew LLVM 19.1.6 w/ Profiling",
-            "description": "Homebrew LLVM 19.1.6 w/ Profiling",
+            "displayName": "Homebrew LLVM 19.1.7_1 w/ Profiling",
+            "description": "Homebrew LLVM 19.1.7_1 w/ Profiling",
             "inherits": [
                 "native-llvm",
                 "Homebrew",
                 "profiling"
             ],
             "environment": {
-                "PATH": "$env{HOMEBREW_ROOT}/Cellar/llvm/19.1.6/bin/:$env{HOMEBREW_PATH}:$penv{PATH}"
+                "PATH": "$env{HOMEBREW_ROOT}/Cellar/llvm/19.1.7_1/bin/:$env{HOMEBREW_PATH}:$penv{PATH}"
             },
             "cacheVariables": {}
         }
@@ -205,8 +205,8 @@
     "workflowPresets": [
         {
             "name": "unit-tests",
-            "description": "Homebrew LLVM 19.1.6",
-            "displayName": "Homebrew LLVM 19.1.6",
+            "description": "Homebrew LLVM 19.1.7_1",
+            "displayName": "Homebrew LLVM 19.1.7_1",
             "steps": [
                 {
                     "type": "configure",
@@ -224,8 +224,8 @@
         },
         {
             "name": "profiling-run",
-            "description": "Homebrew LLVM 19.1.6 with Profiling",
-            "displayName": "Homebrew LLVM 19.1.6 with Profiling",
+            "description": "Homebrew LLVM 19.1.7_1 with Profiling",
+            "displayName": "Homebrew LLVM 19.1.7_1 with Profiling",
             "steps": [
                 {
                     "type": "configure",

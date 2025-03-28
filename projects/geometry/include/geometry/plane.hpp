@@ -20,18 +20,15 @@ typedef struct coefficients_t {
     precision c;
     /// Fourth coefficient
     precision d;
-    /// Solves the value of x
+    /// Solves the value of the x intercept
     /// \returns precision
-    ///
-    precision x(void);
-    /// Solves the value of y
+    precision x(void) const;
+    /// Solves the value of the y intercept
     /// \returns precision
-    ///
-    precision y(void);
-    /// Solves the value of z
+    precision y(void) const;
+    /// Solves the value of the z intercept
     /// \returns precision
-    ///
-    precision z(void);
+    precision z(void) const;
 } coefficients_t;
 
 /// A N-dimensional plane
@@ -87,6 +84,9 @@ public:
 
     /// Returns the unnormalized normal
     R3::vector unormal() const;
+
+    /// Returns the center point of the plane
+    R3::point center() const;
 
     /// Returns a const reference to the coefficients
     coefficients_t const& coefficient() const;

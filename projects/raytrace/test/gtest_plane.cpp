@@ -17,6 +17,18 @@ TEST(PlaneTest, Type) {
     ASSERT_EQ(PL.get_type(), raytrace::objects::Type::Plane);
 }
 
+TEST(PlaneTest, AxesConstructor) {
+    using namespace raytrace;
+    using namespace raytrace::objects;
+
+    R3::axes a{R3::point{0, 0, 0}, R3::basis::X, R3::basis::Y, R3::basis::Z};
+    raytrace::objects::plane PL{a};
+    ASSERT_EQ(PL.get_type(), raytrace::objects::Type::Plane);
+    ASSERT_POINT_EQ(R3::origin, PL.position());
+    ASSERT_VECTOR_EQ(R3::basis::Z, PL.unormal());
+    ASSERT_POINT_EQ(PL.center(), PL.position());
+}
+
 TEST(PlaneTest, Position) {
     using namespace raytrace;
     using namespace raytrace::objects;
@@ -54,6 +66,7 @@ TEST(PlaneTest, Intersections) {
     raytrace::point A{-1, -1, -1};  // in the plane
     ray r2{C, R3::basis::Z};
     ray r3{C, -R3::basis::Z};
+    ASSERT_POINT_EQ(PL.center(), PL.position());
 
     geometry::intersection ir0PL = PL.intersect(r0).intersect;
     ASSERT_EQ(geometry::IntersectionType::None, get_type(ir0PL));
@@ -82,6 +95,9 @@ TEST(PlaneTest, SandwichRays) {
 
     raytrace::point p0{10, 0, 10};
     raytrace::point p1{10, 0, -10};
+
+    ASSERT_POINT_EQ(P0.center(), P0.position());
+    ASSERT_POINT_EQ(P1.center(), P1.position());
 
     geometry::intersection ir0P0 = P0.intersect(r0).intersect;
     ASSERT_EQ(geometry::IntersectionType::Point, get_type(ir0P0));

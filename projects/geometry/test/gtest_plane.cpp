@@ -11,6 +11,47 @@ using namespace linalg::operators;
 using namespace geometry;
 using namespace geometry::operators;
 
+TEST(PlaneTest, BasicsPlaneEquation) {
+    plane P{2.0_p, -1.0_p, 1.0_p, -5.0_p};  // 2x - y + z - 5 = 0
+    ASSERT_EQ(P.coefficient().a, 2.0_p);
+    ASSERT_EQ(P.coefficient().b, -1.0_p);
+    ASSERT_EQ(P.coefficient().c, 1.0_p);
+    ASSERT_EQ(P.coefficient().d, -5.0_p);
+    ASSERT_EQ(P.coefficient().x(), 2.5_p);             // x intercept
+    ASSERT_EQ(P.coefficient().y(), -5.0_p);            // y intercept
+    ASSERT_EQ(P.coefficient().z(), 5.0_p);             // z intercept
+    ASSERT_TRUE(P.contains(R3::point{2.5_p, 0, 0}));   // x intercept
+    ASSERT_TRUE(P.contains(R3::point{0, -5.0_p, 0}));  // y intercept
+    ASSERT_TRUE(P.contains(R3::point{0, 0, 5.0_p}));   // z intercept
+    ASSERT_FALSE(P.contains(R3::point{0, 0, 0}));      // origin
+    // find the normal
+    R3::vector N = P.unormal();
+    ASSERT_VECTOR_EQ(N, R3::vector({2, -1, 1}));
+    // find the center
+    R3::point C = P.center();
+    ASSERT_POINT_EQ(C, R3::point(5.0_p / 3, -5.0_p / 6, 5.0_p / 6));  // center of the plane
+}
+
+TEST(PlaneTest, BasicsPlane) {
+    R3::vector N{{2, -1, 1}};
+    R3::point C{0, 0, 5};
+    plane P{N, C};
+    ASSERT_TRUE(P.contains(C));  // point on the plane
+    ASSERT_EQ(P.coefficient().a, 2.0_p);
+    ASSERT_EQ(P.coefficient().b, -1.0_p);
+    ASSERT_EQ(P.coefficient().c, 1.0_p);
+    ASSERT_EQ(P.coefficient().d, -5.0_p);              // 2x - y + z - 5 = 0
+    ASSERT_EQ(P.coefficient().x(), 2.5_p);             // x intercept
+    ASSERT_EQ(P.coefficient().y(), -5.0_p);            // y intercept
+    ASSERT_EQ(P.coefficient().z(), 5.0_p);             // z intercept
+    ASSERT_TRUE(P.contains(R3::point{2.5_p, 0, 0}));   // x intercept
+    ASSERT_TRUE(P.contains(R3::point{0, -5.0_p, 0}));  // y intercept
+    ASSERT_TRUE(P.contains(R3::point{0, 0, 5.0_p}));   // z intercept
+    ASSERT_FALSE(P.contains(R3::point{0, 0, 0}));      // origin
+    ASSERT_VECTOR_EQ(N, P.unormal());
+    ASSERT_POINT_EQ(C, P.center());
+}
+
 TEST(PlaneTest, ConstructorsAndAssigns) {
     R3::vector n{{1, 1, 1}};
     R3::point p{5, 0, 0};

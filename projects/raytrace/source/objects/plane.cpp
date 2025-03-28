@@ -9,7 +9,33 @@ using namespace linalg::operators;
 using namespace geometry;
 using namespace geometry::operators;
 
-plane::plane(point const& C, vector const& N) : geometry::plane{C, N}, object{C, 1, Type::Plane, false} {
+plane::plane(point const& C, vector const& N)
+    : geometry::plane{C, N}
+    , object{C, 1, Type::Plane, false}
+    , m_basis{} {  // default to the X axis as the plane's orientation
+
+    // the basis is not set here since we were provided the normal. we need to figure out how to construct a basis from
+    // just the normal and potentially either X or Y through
+
+    // only if the N is the X axis, then we'll need to do something else, but if it isn't then we can cross N x X to get
+    // the Y axis then cross Y x N to get the real x axis then we're done
+    if (N == geometry::R3::basis::X) {
+        // fallback case
+        // if the normal is the X axis, then know exactly how we need to be oriented.
+        m_basis = axes{C, -geometry::R3::basis::Z, geometry::R3::basis::Y, geometry::R3::basis::X};  // set the basis
+    } else if (N == -geometry::R3::basis::X) {
+        // fallback case
+        // if the normal is the -X axis, then know exactly how we need to be oriented.
+        m_basis = axes{C, geometry::R3::basis::Z, geometry::R3::basis::Y, -geometry::R3::basis::X};  // set the basis
+    } else {
+        vector Y = cross(N, geometry::R3::basis::X).normalized();
+        vector X = cross(Y, N);
+        m_basis = axes{C, X, Y, N};  // set the basis
+    }
+}
+
+plane::plane(axes const& axes)
+    : geometry::plane{axes.origin(), axes.applicate()}, object{axes.origin(), 1, Type::Plane, false}, m_basis{axes} {
 }
 
 vector plane::normal_(point const& object_space_point __attribute__((unused))) const {
@@ -29,7 +55,7 @@ hits plane::collisions_along(ray const& object_ray) const {
     if (not basal::nearly_zero(proj)) {  // they collide *somewhere*
         point const& P = object_ray.location();
         // get the vector of the center to the ray initial
-        vector const C = geometry::R3::origin - P;
+        vector const C = R3::origin - P;
         // t is the ratio of the projection of the arbitrary center vector divided by the projection ray
         precision const t = dot(C, N) / proj;
         // D is the point on the line t distance along

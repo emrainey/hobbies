@@ -11,6 +11,7 @@ class square : public plane {
 public:
     /// Constructs a square from two half width/heights and a normal
     square(point const& C, raytrace::vector const& N, precision half_height, precision half_width);
+    square(R3::axes const& A, precision half_height, precision half_width);
     virtual ~square() = default;
 
     // ┌─────────────────────────┐
@@ -23,6 +24,7 @@ public:
     void print(std::ostream& os, char const str[]) const override;
 
 private:
+    /// these points assume a 2D mapping in the plane itself.
     std::array<raytrace::point, 2> m_points;
 };
 }  // namespace objects

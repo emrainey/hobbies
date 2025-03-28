@@ -29,8 +29,8 @@ public:
     R2::vector const& abscissa(R2::vector const&);
     R2::vector const& ordinate(R2::vector const&);
     bool is_basis() const;
-    matrix forward() const;
-    matrix backwards() const;
+    matrix from_basis() const;
+    matrix to_basis() const;
 
 protected:
     R2::point origin_{0.0_p, 0.0_p};
@@ -56,8 +56,8 @@ public:
     R3::vector const& ordinate(R3::vector const&);
     R3::vector const& applicate(R3::vector const&);
     bool is_basis() const;
-    matrix forward() const;
-    matrix backwards() const;
+    matrix from_basis() const;
+    matrix to_basis() const;
 
 protected:
     R3::point origin_{0.0_p, 0.0_p, 0.0_p};

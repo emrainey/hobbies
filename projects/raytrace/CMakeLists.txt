@@ -195,6 +195,7 @@ if (Threads_FOUND AND GTest_FOUND)
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_ring.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_scene.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_sphere.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_square.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_stereocamera.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_surface.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_torus.cpp

@@ -19,17 +19,17 @@ class MirrorWorld : public world {
 public:
     MirrorWorld()
         : light_subsamples{20}
-        , look_from{-285, -705, 200}
-        , look_at{0, 50, 200}
-        , light0{raytrace::point{0, 0, 100}, 1, colors::white, 1E11, light_subsamples}
-        , speck0{raytrace::point{0, 0, 100}, colors::white, 1E5}
-        , checkerboard_grid{0.1_p,         colors::blue, colors::yellow, colors::red,  colors::magenta,
+        , look_from{0, -50, 10}
+        , look_at{0, 5, 10}
+        , light0{raytrace::point{0, 0, 10}, 1, colors::white, 1E11, light_subsamples}
+        , speck0{raytrace::point{0, 0, 10}, colors::white, 1E5}
+        , checkerboard_grid{1.5_p,         colors::blue, colors::yellow, colors::red,  colors::magenta,
                             colors::green, colors::cyan, colors::black,  colors::white}
-        , floor{R3::origin, raytrace::vector{0, -1, 2}.normalized(), 100, 100}
-        , ceiling{raytrace::point(0, 0, 200), raytrace::vector{0, -1, -2}.normalized(), 100, 100}
-        , left{raytrace::point(-100, 0, 100), raytrace::vector{2, -1, 0}.normalized(), 100, 100}
-        , right{raytrace::point(100, 0, 100), raytrace::vector{-2, -1, 0}.normalized(), 100, 100}
-        , back{raytrace::point(0, 50, 100), raytrace::vector{0, -1, 0}.normalized(), 100, 100} {
+        , floor{R3::origin, raytrace::vector{0, -1, 4}.normalized(), 10, 10}
+        , ceiling{raytrace::point(0, 0, 10), raytrace::vector{0, -1, -4}.normalized(), 10, 10}
+        , left{raytrace::point(-10, 0, 10), raytrace::vector{4, -1, 0}.normalized(), 10, 10}
+        , right{raytrace::point(10, 0, 10), raytrace::vector{-4, -1, 0}.normalized(), 10, 10}
+        , back{raytrace::point(0, 5, 10), -R3::basis::Y, 10, 10} {
         // assign surfaces and materials
         floor.material(&metals::silver);
         ceiling.material(&metals::silver);
@@ -76,8 +76,11 @@ public:
 
     raytrace::animation::anchors get_anchors() const override {
         raytrace::animation::anchors anchors;
-        anchors.push_back(animation::Anchor{animation::Attributes{look_from, look_at, 55.0_deg},
-                                            animation::Attributes{raytrace::point(0, 0, 50), look_at, 23.0_deg},
+        anchors.push_back(animation::Anchor{animation::Attributes{look_from, look_at, 75.0_deg},
+                                            animation::Attributes{raytrace::point(150, -200, 100), look_at, 75.0_deg},
+                                            animation::Mappers{}, iso::seconds{2.0_p}});
+        anchors.push_back(animation::Anchor{anchors.back().limit,  // take last limit as start
+                                            animation::Attributes{raytrace::point(-150, -200, 100), look_at, 75.0_deg},
                                             animation::Mappers{}, iso::seconds{2.0_p}});
         return anchors;
     }

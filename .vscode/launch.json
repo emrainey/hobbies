@@ -17,6 +17,7 @@
                 "world_glass",
                 "world_lenses",
                 "world_mats",
+                "world_mirrors",
                 "world_monochrome",
                 "world_monochrome2",
                 "world_monochrome3",
@@ -175,7 +176,7 @@
                 "-a",
                 "128",
                 "-b",
-                "5"
+                "9",
             ],
             "cwd": "${workspaceFolder}/testing",
             "env": {
@@ -192,13 +193,13 @@
                 "-m",
                 "${input:world_module}",
                 "-d",
-                "XGA",
+                "QCIF",
                 // "-a",
                 // "128",
                 "-b",
-                "9",
+                "1",
                 "-r",
-                "4",
+                "2",
                 "-s",
                 "0.0"
             ],

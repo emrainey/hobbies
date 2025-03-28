@@ -8,13 +8,13 @@ namespace geometry {
 
 using namespace geometry::operators;
 
-precision coefficients_t::x() {
+precision coefficients_t::x() const {
     return -d / a;
 }
-precision coefficients_t::y() {
+precision coefficients_t::y() const {
     return -d / b;
 }
-precision coefficients_t::z() {
+precision coefficients_t::z() const {
     return -d / c;
 }
 
@@ -37,17 +37,21 @@ plane::plane(std::vector<precision> const& list) : plane(list[0], list[1], list[
 }
 
 plane::plane(precision a, precision b, precision c, precision d) : m_normal{{a, b, c}}, m_center_point{} {
-    // before we normalize, we solve for the point
-    // normal line through the origin
-    R3::line l{m_normal, geometry::R3::origin};
     eq.a = a;
     eq.b = b;
     eq.c = c;
     eq.d = d;
-    // find the length of the segment of the normal line through the origin to the plane.
-    precision tn = -d / dot(m_normal, m_normal);
-    // the plane point is that length on normal line.
-    m_center_point = l.solve(tn);
+    if (basal::is_exactly_zero(d)) {
+        m_center_point = R3::origin;
+    } else {
+        // before we normalize, we solve for the point
+        // normal line through the origin
+        R3::line l{m_normal, geometry::R3::origin};
+        // find the length of the segment of the normal line through the origin to the plane.
+        precision tn = -d / dot(m_normal, m_normal);
+        // the plane point is that length on normal line.
+        m_center_point = l.solve(tn);
+    }
     // the plane's t
     m_magnitude = m_normal.norm();
     m_normal.normalize();
@@ -99,6 +103,10 @@ plane& plane::operator=(plane&& other) {
 
 R3::vector plane::unormal() const {
     return R3::vector{{eq.a, eq.b, eq.c}};
+}
+
+R3::point plane::center() const {
+    return m_center_point;
 }
 
 precision plane::distance(R3::point const& a) const {

@@ -42,7 +42,10 @@ bool sphere::on_surface(R3::point const& object_point) const {
 R3::vector sphere::normal_at(R3::point const& object_point) const {
     R3::vector n = object_point - R3::origin;
     if constexpr (geometry::check_on_surface) {
-        if (not basal::nearly_equals(n.norm(), radius)) {
+        precision r = n.norm();
+        if (not basal::nearly_equals(r, radius)) {
+            std::cerr << "Warning: sphere::normal_at() called with point not on surface: " << object_point
+                      << " radius=" << std::setprecision(20) << radius << " r=" << r << std::endl;
             // not on the sphere.
             return R3::null;
         }

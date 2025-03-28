@@ -20,9 +20,9 @@
     {                                                                                         \
         EXPECT_EQ(pa, pb);                                                                    \
         ASSERT_EQ(pa.dimensions, pb.dimensions);                                              \
-        for (size_t i = 0; i < pa.dimensions; i++) {                                          \
-            ASSERT_NEAR(pa[i], pb[i], basal::epsilon)                                         \
-                << "at [" << i << "]"                                                         \
+        for (size_t _i = 0; _i < pa.dimensions; _i++) {                                       \
+            ASSERT_NEAR(pa[_i], pb[_i], basal::epsilon)                                       \
+                << "at [" << _i << "]"                                                        \
                 << " from " << #pa << " " << pa << " from " << #pb << " " << pb << std::endl; \
         }                                                                                     \
     }
@@ -31,9 +31,9 @@
     {                                                                                         \
         EXPECT_EQ(va, vb);                                                                    \
         ASSERT_EQ(va.dimensions, vb.dimensions);                                              \
-        for (size_t i = 0; i < vb.dimensions; i++) {                                          \
-            ASSERT_NEAR(va[i], vb[i], basal::epsilon)                                         \
-                << "at [" << i << "]"                                                         \
+        for (size_t _i = 0; _i < vb.dimensions; _i++) {                                       \
+            ASSERT_NEAR(va[_i], vb[_i], basal::epsilon)                                       \
+                << "at [" << _i << "]"                                                        \
                 << " from " << #va << " " << va << " from " << #vb << " " << vb << std::endl; \
         }                                                                                     \
     }

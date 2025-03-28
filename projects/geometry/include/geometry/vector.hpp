@@ -180,7 +180,14 @@ public:
 
     /// Returns a negative copy of the vector_
     vector_ operator!() const {
-        vector_ v{*this};
+        vector_ v{*this};  // copy
+        v *= -1.0_p;
+        return v;
+    }
+
+    /// Returns a negative copy of the vector_
+    vector_ operator-() const {
+        vector_ v{*this};  // copy
         v *= -1.0_p;
         return v;
     }

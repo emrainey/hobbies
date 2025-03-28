@@ -40,16 +40,16 @@ R2::vector const& axes::ordinate(R2::vector const& ordinate) {
 }
 
 bool axes::is_basis() const {
-    return forward().determinant() > 0.0_p;  // check if the determinant is positive
+    return from_basis().determinant() > 0.0_p;  // check if the determinant is positive
 }
 
-matrix axes::forward() const {
+matrix axes::from_basis() const {
     // create a 2x2 transform, without translation
     return matrix{{{abscissa()[0], ordinate()[0]}, {abscissa()[1], ordinate()[1]}}};
 }
 
-matrix axes::backwards() const {
-    return forward().inverse();
+matrix axes::to_basis() const {
+    return from_basis().inverse();
 }
 
 }  // namespace R2
@@ -95,10 +95,10 @@ R3::vector const& axes::applicate(R3::vector const& applicate) {
 }
 
 bool axes::is_basis() const {
-    return forward().determinant() > 0.0_p;  // check if the determinant is positive
+    return from_basis().determinant() > 0.0_p;  // check if the determinant is positive
 }
 
-matrix axes::forward() const {
+matrix axes::from_basis() const {
     matrix m{3, 3};
     // create a 3x3 transform, without translation
     return matrix{{{abscissa()[0], ordinate()[0], applicate()[0]},
@@ -106,8 +106,8 @@ matrix axes::forward() const {
                    {abscissa()[2], ordinate()[2], applicate()[2]}}};
 }
 
-matrix axes::backwards() const {
-    return forward().inverse();
+matrix axes::to_basis() const {
+    return from_basis().inverse();
 }
 
 }  // namespace R3

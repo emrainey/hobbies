@@ -22,13 +22,13 @@ public:
         , look_from{0, -50, 10}
         , look_at{0, 5, 10}
         , light0{raytrace::point{0, 0, 10}, 1, colors::white, 1E11, light_subsamples}
-        , speck0{raytrace::point{0, 0, 10}, colors::white, 1E5}
-        , checkerboard_grid{1.5_p,         colors::blue, colors::yellow, colors::red,  colors::magenta,
+        , speck0{raytrace::point{0, 0, 10}, colors::white, 1E2}
+        , checkerboard_grid{0.25_p,        colors::blue, colors::yellow, colors::red,  colors::magenta,
                             colors::green, colors::cyan, colors::black,  colors::white}
-        , floor{R3::origin, raytrace::vector{0, -1, 4}.normalized(), 10, 10}
-        , ceiling{raytrace::point(0, 0, 10), raytrace::vector{0, -1, -4}.normalized(), 10, 10}
-        , left{raytrace::point(-10, 0, 10), raytrace::vector{4, -1, 0}.normalized(), 10, 10}
-        , right{raytrace::point(10, 0, 10), raytrace::vector{-4, -1, 0}.normalized(), 10, 10}
+        , floor{R3::origin, raytrace::vector{0, -1, 4}.normalized(), 20, 20}
+        , ceiling{raytrace::point(0, 0, 20), raytrace::vector{0, -1, -4}.normalized(), 20, 20}
+        , left{raytrace::point(-10, 0, 10), raytrace::vector{4, -1, 0}.normalized(), 20, 20}
+        , right{raytrace::point(10, 0, 10), raytrace::vector{-4, -1, 0}.normalized(), 20, 20}
         , back{raytrace::point(0, 5, 10), -R3::basis::Y, 10, 10} {
         // assign surfaces and materials
         floor.material(&metals::silver);

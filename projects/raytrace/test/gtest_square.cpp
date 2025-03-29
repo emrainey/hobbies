@@ -117,6 +117,33 @@ TEST(SquareTest, Intersection2) {
     }
 }
 
+TEST(SquareTest, Intersection3) {
+    using namespace raytrace;
+    using namespace raytrace::objects;
+
+    raytrace::objects::square SQ{raytrace::point{0, 0, 10}, -R3::basis::Z, 10, 10};
+    ASSERT_POINT_EQ(SQ.center(), SQ.position());
+
+    {
+        raytrace::ray r0{raytrace::point{0, 0, 5}, R3::basis::Z};
+        raytrace::objects::hit h0 = SQ.intersect(r0);
+        ASSERT_EQ(geometry::IntersectionType::Point, get_type(h0.intersect));
+        ASSERT_POINT_EQ(raytrace::point(0, 0, 10), as_point(h0.intersect));
+        ASSERT_VECTOR_EQ(negation(R3::basis::Z), h0.normal);
+        ASSERT_PRECISION_EQ(5.0_p, h0.distance);
+        ASSERT_EQ(&SQ, h0.object);  // check that the hit object is the square
+    }
+    {
+        raytrace::ray r0{raytrace::point{-1, 0, 6}, vector{{1, 0, 1}}.normalized()};
+        raytrace::objects::hit h0 = SQ.intersect(r0);
+        ASSERT_EQ(geometry::IntersectionType::Point, get_type(h0.intersect));
+        ASSERT_POINT_EQ(raytrace::point(3, 0, 10), as_point(h0.intersect));
+        ASSERT_VECTOR_EQ(negation(R3::basis::Z), h0.normal);
+        ASSERT_PRECISION_EQ(4.0_p * basal::sqrt_2, h0.distance);
+        ASSERT_EQ(&SQ, h0.object);  // check that the hit object is the square
+    }
+}
+
 TEST(SquareTest, SandwichRays) {
     using namespace raytrace;
     using namespace raytrace::objects;

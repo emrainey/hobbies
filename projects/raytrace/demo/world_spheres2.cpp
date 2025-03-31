@@ -53,7 +53,7 @@ public:
         spheres.push_back(new raytrace::objects::sphere(center, 4.5_p));
         subspheres(spheres, center, 6, 0.4_p, number_of_spheres);
         materials(mats, spheres.size());
-        for (size_t s = 0; s < number_of_spheres; s++) {
+        for (size_t s = 0; s < spheres.size(); s++) {
             spheres[s]->material(mats[s]);
         }
         // specks.push_back(new lights::speck(raytrace::point{80, 120, 80}, colors::white,

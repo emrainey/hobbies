@@ -140,6 +140,8 @@ int main(int argc, char* argv[]) {
     State state = State::MENU;
     std::time_t start_time;
     std::chrono::duration<precision> diff;
+    std::chrono::time_point start = std::chrono::steady_clock::now();
+    char time_string[256];
 
     basal::options::config opts[] = {
         {"-d", "--dims", std::string("QVGA"), "Use text video format like VGA or 2K"},
@@ -191,6 +193,7 @@ int main(int argc, char* argv[]) {
 #endif
     std::fill(completed.begin(), completed.end(), false);
     bool running = true;
+
     auto progress_bar = [&]() -> void {
         while (running) {
             size_t count = 0;
@@ -204,15 +207,18 @@ int main(int argc, char* argv[]) {
                 size_t h = console.get_height() - 2;  // account for border
                 console.print(h - 1, 2, " >> PROGRESS [ %0.3lf %%]", done ? 100.0_p : percentage);
                 console.progress(h, percentage);
+                diff = std::chrono::steady_clock::now() - start;
+                console.print(6, 2, "START TIME: %s, RENDERING TIME: %0.3lf secs", time_string, diff.count());
 
                 console.print(9, 2, "GEOMETRY");
                 console.print(10, 2, "  DOT: %zu", geometry::statistics::get().dot_operations);
                 console.print(11, 2, "CROSS: %zu", geometry::statistics::get().cross_products);
-                console.print(12, 2, "LINALG:");
-                console.print(13, 2, "  MULT: %zu", linalg::statistics::get().matrix_multiply);
-                console.print(14, 2, "  QUAD: %zu", linalg::statistics::get().quadratic_roots);
-                console.print(15, 2, " CUBIC: %zu", linalg::statistics::get().cubic_roots);
-                console.print(16, 2, " QUART: %zu", linalg::statistics::get().quartic_roots);
+                console.print(12, 2, " NORM: %zu", geometry::statistics::get().magnitudes);
+                console.print(13, 2, "LINALG:");
+                console.print(14, 2, "  MULT: %zu", linalg::statistics::get().matrix_multiply);
+                console.print(15, 2, "  QUAD: %zu", linalg::statistics::get().quadratic_roots);
+                console.print(16, 2, " CUBIC: %zu", linalg::statistics::get().cubic_roots);
+                console.print(17, 2, " QUART: %zu", linalg::statistics::get().quartic_roots);
                 size_t w = console.get_width() / 2;
                 console.print(9, w, "RAYS");
                 console.print(10, w, "  CAST: %zu", raytrace::statistics::get().cast_rays_from_camera);
@@ -226,6 +232,7 @@ int main(int argc, char* argv[]) {
                 console.print(18, w, "ABSORB: %zu", raytrace::statistics::get().absorbed_rays);
                 console.print(19, w, "MISSED: %zu", raytrace::statistics::get().missed_rays);
                 console.print(20, w, "INSIDE: %zu", raytrace::statistics::get().inside_out_intersections);
+                console.print(21, w, "BOUNDS: %zu", raytrace::statistics::get().intersections_with_bounds);
                 console.refresh();
             }
             // sleep for a bit
@@ -293,9 +300,8 @@ int main(int argc, char* argv[]) {
                     // show function menu instead?
                     break;
                 case 'r': {
-                    auto start = std::chrono::steady_clock::now();
+                    std::chrono::time_point start = std::chrono::steady_clock::now();
                     start_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-                    char time_string[256];
                     std::strftime(time_string, dimof(time_string), "%A %c", std::localtime(&start_time));
                     console.print(6, 2, "START TIME: %s, RENDERING TIME: ??? secs", time_string);
                     std::thread bar_thread(progress_bar);  // thread starts

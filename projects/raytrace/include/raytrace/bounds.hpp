@@ -22,7 +22,9 @@ struct Bounds {
     point center() const;
 
     /// Determines if a point is within the bounds
-    bool contained(point const& p) const;
+    inline bool contained(point const& p) const {
+        return contained_within_aabb(p, min, max);
+    }
 
     /// Determines if a ray intersects the bounds
     /// @param r The ray to check for intersection

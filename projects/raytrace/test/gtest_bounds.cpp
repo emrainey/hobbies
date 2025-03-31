@@ -128,3 +128,24 @@ TEST(BoundsTest, Infinite) {
     auto middle = bounds.center();
     EXPECT_POINT_EQ(raytrace::point(0.0_p, 0.0_p, 0.0_p), middle);
 }
+
+TEST(BoundsTest, EveryAngle) {
+    auto bounds = raytrace::Bounds{raytrace::point(-1, -1, -1), raytrace::point(1, 1, 1)};
+    precision const limit = 6'000'000.0_p;
+    precision const radius = 10.0_p;
+    for (precision i = 0.0_p; i < limit; i += 1.0_p) {
+        // use the golden ratio mapper to find a point on the unit sphere then make it a vector from the unit center
+        raytrace::point P = raytrace::mapping::golden_ratio_mapper(i, limit);
+        // move P out from the origin by radius
+        raytrace::vector dir = (P - raytrace::point{0, 0, 0});
+        // scale the vector by the radius
+        dir *= radius;
+        P = P + dir;  // move the point out from the origin by radius
+        // create a vector from the point to the origin (pointing inward)
+        raytrace::vector V = (geometry::R3::origin - P).normalized();
+        // create a ray from the two parts
+        raytrace::ray R = raytrace::ray{P, V};
+        // check if the ray insects with the bounds
+        ASSERT_TRUE(bounds.intersects(R)) << "Ray: " << R << " Bounds: " << bounds;
+    }
+}

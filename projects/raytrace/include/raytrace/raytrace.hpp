@@ -16,6 +16,8 @@
 #include "raytrace/scene.hpp"
 #include "raytrace/types.hpp"
 
+#include "raytrace/mapping.hpp"
+
 // Lights
 #include "raytrace/lights/beam.hpp"
 #include "raytrace/lights/bulb.hpp"

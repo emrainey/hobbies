@@ -20,14 +20,22 @@ public:
     }
 
     void TearDown() {
-        diff = std::chrono::steady_clock::now() - start;
-        rate = (precision(number_of_ops) / (diff.count() / 1E9)) / 1E6;
-        std::cout << activity << " rate:" << rate << " per sec, Period: " << diff.count() << " nsec" << std::endl;
+        limit = std::chrono::steady_clock::now();
+        // std::cout << "Started at " << start.time_since_epoch().count() << std::endl;
+        // std::cout << "Ended at " << limit.time_since_epoch().count() << std::endl;
+        // std::cout << "Den = " << std::chrono::time_point<std::chrono::steady_clock>::duration::period::den <<
+        // std::endl;
+        diff = limit - start;  // FIXME for some reason this returns a fraction of seconds instead a integer number of
+                               // nanoseconds
+        // std::cout << "Took " << diff.count() << " seconds" << std::endl;
+        rate = precision(number_of_ops) / diff.count();
+        std::cout << activity << " rate:" << rate << " per sec, Period: " << diff.count() << " sec" << std::endl;
     }
 
 protected:
     static constexpr size_t number_of_ops = 10'000;
     std::chrono::time_point<std::chrono::steady_clock> start;
+    std::chrono::time_point<std::chrono::steady_clock> limit;
     std::chrono::duration<precision> diff;
     precision rate;
     std::string activity;
@@ -155,5 +163,20 @@ TEST_F(PerfCounter, IntersectionsQuadratic) {
     for (size_t count = 0; count < number_of_ops; count++) {
         geometry::intersection hit = obj.intersect(r).intersect;
         ASSERT_EQ(geometry::IntersectionType::Point, get_type(hit));
+    }
+}
+
+TEST_F(PerfCounter, IntersectionsBounds) {
+    raytrace::point m0 = raytrace::point{0.0_p, 0.0_p, 0.0_p};
+    raytrace::point m1 = raytrace::point{3.0_p, 5.0_p, 5.0_p};
+    raytrace::Bounds bnds(m0, m1);
+    activity = std::string("bounds intersections");
+    precision x = basal::rand_range(4.0_p, 7.0_p);
+    precision y = basal::rand_range(2.0_p, 4.0_p);
+    precision z = basal::rand_range(2.0_p, 4.0_p);
+
+    for (size_t count = 0; count < number_of_ops; count++) {
+        raytrace::ray r{raytrace::point{x, y, z}, -R3::basis::X};
+        ASSERT_TRUE(bnds.intersects(r));
     }
 }

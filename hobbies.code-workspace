@@ -246,7 +246,11 @@
 			"__memory": "cpp",
 			"text_encoding": "cpp",
 			"core": "cpp",
-			"sparsecore": "cpp"
+			"sparsecore": "cpp",
+			"cassert": "cpp",
+			"cerrno": "cpp",
+			"cfloat": "cpp",
+			"climits": "cpp"
 		},
 		"cmake.format.spaceAfterCommandName": true,
 		"cmake.format.spaceInParentheses": true,

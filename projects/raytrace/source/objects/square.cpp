@@ -37,8 +37,7 @@ hits square::collisions_along(ray const& object_ray) const {
     if (not basal::nearly_zero(proj)) {
         point const& P = object_ray.location();
         // get the vector of the center to the ray initial
-        vector const C = R3::origin - P;  // FIXME this seems to work in unit test but create a mess in pictures.
-        // vector const C = position() - P; // FIXME this seems to work in practice but is "off"
+        vector const C = R3::origin - P;
         // t is the ratio of the projection of the arbitrary center vector divided by the projection ray
         precision const t = dot(C, N) / proj;
         point D = object_ray.distance_along(t);

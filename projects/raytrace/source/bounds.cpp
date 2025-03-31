@@ -34,21 +34,17 @@ point Bounds::center() const {
     }
 }
 
-bool Bounds::contained(point const& p) const {
-    return (min.x <= p.x and p.x < max.x and min.y <= p.y and p.y < max.y and min.z <= p.z and p.z < max.z);
-}
-
 bool Bounds::intersects(ray const& r) const {
-    precision const& x = r.location().x;
-    precision const& y = r.location().y;
-    precision const& z = r.location().z;
+    precision const x = r.location().x;
+    precision const y = r.location().y;
+    precision const z = r.location().z;
     if (contained(r.location())) {
         raytrace::statistics::get().intersections_with_bounds++;
         return true;
     }
-    precision const& i = r.direction()[0];
-    precision const& j = r.direction()[1];
-    precision const& k = r.direction()[2];
+    precision const i = r.direction()[0];
+    precision const j = r.direction()[1];
+    precision const k = r.direction()[2];
     if (not basal::is_exactly_zero(i)) {
         precision t_min = (min.x - x) / i;
         if (basal::is_greater_than_or_equal_to_zero(t_min)) {

@@ -260,32 +260,37 @@ endif()
 
 function(profile_target ARG_DEMO_TARGET ARG_WORLD_TARGET)
     # PROFILING
-    set(_RAWPROF ${CMAKE_CURRENT_BINARY_DIR}/${ARG_DEMO_TARGET}-${ARG_WORLD_TARGET}.profraw)
-    set(_PROFILE ${CMAKE_CURRENT_BINARY_DIR}/${ARG_DEMO_TARGET}-${ARG_WORLD_TARGET}.prof)
-    set(_PDF ${CMAKE_CURRENT_BINARY_DIR}/${ARG_DEMO_TARGET}-${ARG_WORLD_TARGET}-perf.pdf)
+    set(_TESTING ${CMAKE_SOURCE_DIR}/testing)
+    set(_RAWPROF ${ARG_DEMO_TARGET}-${ARG_WORLD_TARGET}.profraw)
+    set(DYLD_INSERT_LIBRARIES /opt/homebrew/Cellar/gperftools/2.16/lib/libprofiler.dylib)
+    set(_PDF  ${ARG_DEMO_TARGET}-${ARG_WORLD_TARGET}-perf.pdf)
+    # add_custom_target(raytrace-pprof-${ARG_DEMO_TARGET}-${ARG_WORLD_TARGET}
+    #     DEPENDS ${ARG_DEMO_TARGET} ${ARG_WORLD_TARGET}
+    #     COMMENT "Profiling Raytracing with pprof using ${ARG_WORLD_TARGET} and settings"
+    #     WORKING_DIRECTORY ${_TESTING}
+    #     COMMAND touch ${_RAWPROF}
+    #     COMMAND rm ${_RAWPROF}
+    #     COMMAND touch ${_PDF}
+    #     COMMAND rm ${_PDF}
+    #     # LLVM profiling is assumed
+    #     COMMAND PATH=${CMAKE_CURRENT_BINARY_DIR}:$ENV{PATH} DYLD_LIBRARY_PATH=${DYLD_INSERT_LIBRARIES}:${CMAKE_CURRENT_BINARY_DIR} CPUPROFILE_FREQUENCY=1000 LLVM_PROFILE_FILE=${_RAWPROF} ${ARG_DEMO_TARGET} -m ${ARG_WORLD_TARGET}
+    #     COMMAND pprof --pdf ${ARG_DEMO_TARGET} ${_RAWPROF} > ${_PDF}
+    #     # ^ this has to be last to work
+    #     BYPRODUCTS ${_RAWPROF} ${_PDF}
+    # )
     set(_TXT_MANGLED ${CMAKE_CURRENT_BINARY_DIR}/${ARG_DEMO_TARGET}-${ARG_WORLD_TARGET}-profiling-mangled.txt)
     set(_TXT ${CMAKE_CURRENT_BINARY_DIR}/${ARG_DEMO_TARGET}-${ARG_WORLD_TARGET}-profiling.txt)
-    set(DYLD_INSERT_LIBRARIES /opt/homebrew/Cellar/gperftools/2.15/lib/libprofiler.dylib)
     set(CLT /Library/Developer/CommandLineTools/usr/bin/)
-    add_custom_target(raytrace-pprof-${ARG_DEMO_TARGET}-${ARG_WORLD_TARGET}
-        DEPENDS ${ARG_DEMO_TARGET} ${ARG_WORLD_TARGET}
-        COMMAND DYLD_LIBRARY_PATH=${DYLD_INSERT_LIBRARIES}:${CMAKE_CURRENT_BINARY_DIR} CPUPROFILE_FREQUENCY=1000 ${CMAKE_CURRENT_BINARY_DIR}/${ARG_DEMO_TARGET} -m ${ARG_WORLD_TARGET}
-        COMMAND pprof --pdf ${CMAKE_CURRENT_BINARY_DIR}/${ARG_DEMO_TARGET} ${_PROFILE} > ${_PDF}
-        # ^ this has to be last to work
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/testing
-        COMMENT "Profiling Raytracing with pprof using ${ARG_WORLD_TARGET} and settings"
-        BYPRODUCTS ${_PROFILE} ${_PDF}
-    )
     add_custom_target(raytrace-llvmprof-${ARG_DEMO_TARGET}-${ARG_WORLD_TARGET}
         DEPENDS ${ARG_DEMO_TARGET} ${ARG_WORLD_TARGET}
+        COMMENT "Profiling via llvm-profdata Raytracing with ${ARG_WORLD_TARGET} and settings"
+        WORKING_DIRECTORY ${_TESTING}
         COMMAND touch ${_RAWPROF}
         COMMAND rm ${_RAWPROF}
         COMMAND DYLD_LIBRARY_PATH=${DYLD_INSERT_LIBRARIES}:${CMAKE_CURRENT_BINARY_DIR} LLVM_PROFILE_FILE=${_RAWPROF} ${CMAKE_CURRENT_BINARY_DIR}/${ARG_DEMO_TARGET} -m ${ARG_WORLD_TARGET}
         COMMAND ${CLT}/llvm-profdata show --detailed-summary --topn=100 --output=${_TXT_MANGLED} ${_RAWPROF}
         COMMAND cat ${_TXT_MANGLED} | c++filt -n  > ${_TXT}
         # ^ this has to be last to work
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/testing
-        COMMENT "Profiling via llvm-profdata Raytracing with ${ARG_WORLD_TARGET} and settings"
         BYPRODUCTS ${_TXT_MANGLED} ${_TXT} ${_RAWPROF}
     )
 endfunction()

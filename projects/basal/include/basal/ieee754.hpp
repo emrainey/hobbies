@@ -110,7 +110,7 @@ inline bool equivalent(precision const a, precision const b) {
     return not(a > b) and not(a < b);
 }
 
-/// Returns a random value between -1.0 and 1.0
+/// Returns a random value between min and max
 inline precision rand_range(precision min_v, precision max_v) {
     std::random_device rd;
     std::mt19937 gen(rd());

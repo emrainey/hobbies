@@ -26,19 +26,16 @@ constexpr static size_t dimensions = 3;
 
 /// Collects the statistics from the geometry library
 struct statistics {
-public:
     /// The number of dot products
-    size_t dot_operations;
+    size_t dot_operations{0U};
     /// The number of cross products
-    size_t cross_products;
+    size_t cross_products{0U};
+    /// The number of magnitudes of a vector
+    size_t magnitudes{0U};
 
     static statistics& get() {
         static statistics s;
         return s;
-    }
-
-protected:
-    constexpr statistics() : dot_operations{0}, cross_products{0} {
     }
 };
 }  // namespace geometry

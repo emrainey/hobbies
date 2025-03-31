@@ -107,9 +107,16 @@ public:
         return true;
     }
 
-    /// @return The sqrt(quadrance()). Euclidean length of vector.
+    /// @return The Euclidean length of vector.
     virtual precision magnitude() const {
-        return sqrt(quadrance());
+        statistics::get().magnitudes++;
+        if constexpr (DIM == 2) {
+            return hypot(data[0], data[1]);
+        } else if constexpr (DIM == 3) {
+            return hypot(data[0], data[1], data[2]);
+        } else {
+            return sqrt(quadrance());
+        }
     }
 
     /// Another name for the magnitude of the vector

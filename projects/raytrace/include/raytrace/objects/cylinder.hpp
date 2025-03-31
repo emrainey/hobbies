@@ -11,6 +11,8 @@ namespace objects {
 /// A cylinder with an outward facing normal
 class cylinder : public object {
 public:
+    /// Constructs a cylinder which is up and down in Z and infinite in height.
+    cylinder(point const& C, precision radius);
     /// Constructs a cylinder which is up and down in Z.
     /// The point C is in the center of the cylinder between the top and bottom.
     cylinder(point const& C, precision half_height, precision radius);

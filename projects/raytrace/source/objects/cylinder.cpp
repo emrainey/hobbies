@@ -6,10 +6,18 @@ namespace raytrace {
 namespace objects {
 using namespace linalg::operators;
 
+cylinder::cylinder(point const& C, precision radius)
+    : object{C, 2, Type::Cylinder, false}  // 2 collisions, not closed
+    , m_half_height{0.0_p}
+    , m_radius{radius} {
+    // "infinite" cylinder
+}
+
 cylinder::cylinder(point const& C, precision half_height, precision radius)
     : object{C, 2, Type::Cylinder, false}  // 2 collisions, not closed
     , m_half_height{half_height}
     , m_radius{radius} {
+    basal::exception::throw_if(basal::nearly_zero(m_half_height), __FILE__, __LINE__, "Half-height can't be zero");
 }
 
 cylinder::cylinder(point const& base, point const& apex, precision radius)
@@ -19,6 +27,7 @@ cylinder::cylinder(point const& base, point const& apex, precision radius)
     R3::vector axis = apex - base;
     R3::vector semi = axis.normalized();
     m_half_height = axis.magnitude() / 2;
+    basal::exception::throw_if(basal::nearly_zero(m_half_height), __FILE__, __LINE__, "Half-height can't be zero");
     // reassign position
     position(base + (m_half_height * semi));
     // find the spherical mapping to this semi point
@@ -49,13 +58,23 @@ hits cylinder::collisions_along(ray const& object_ray) const {
     precision t1 = std::get<1>(roots);
     if (not basal::is_nan(t0)) {
         point R = object_ray.distance_along(t0);
-        if (linalg::within(-m_half_height, R.z, m_half_height)) {
+        if (not basal::is_exactly_zero(m_half_height)) {
+            if (linalg::within(-m_half_height, R.z, m_half_height)) {
+                ts.emplace_back(intersection{R}, t0, normal_(R), this);
+            }
+        } else {
+            // infinite cylinder
             ts.emplace_back(intersection{R}, t0, normal_(R), this);
         }
     }
     if (not basal::is_nan(t1)) {
         point Q = object_ray.distance_along(t1);
-        if (linalg::within(-m_half_height, Q.z, m_half_height)) {
+        if (not basal::is_exactly_zero(m_half_height)) {
+            if (linalg::within(-m_half_height, Q.z, m_half_height)) {
+                ts.emplace_back(intersection{Q}, t1, normal_(Q), this);
+            }
+        } else {
+            // infinite cylinder
             ts.emplace_back(intersection{Q}, t1, normal_(Q), this);
         }
     }
@@ -67,15 +86,20 @@ bool cylinder::is_surface_point(point const& world_point) const {
     precision x = object_point.x;
     precision y = object_point.y;
     precision z = object_point.z;
-    return basal::nearly_equals(m_radius * m_radius, (x * x) + (y * y))
-           and linalg::within(-m_half_height, z, m_half_height);
+    if (basal::is_exactly_zero(m_half_height)) {
+        return basal::nearly_equals(m_radius * m_radius, (x * x) + (y * y));
+    } else {
+        return basal::nearly_equals(m_radius * m_radius, (x * x) + (y * y))
+               and linalg::within(-m_half_height, z, m_half_height);
+    }
 }
 
 image::point cylinder::map(point const& object_surface_point) const {
     geometry::point_<2> cartesian(object_surface_point[0], object_surface_point[1]);
     geometry::point_<2> polar = geometry::cartesian_to_polar(cartesian);
+    precision h = basal::is_exactly_zero(m_half_height) ? 1.0_p : m_half_height;
     // some range of z based in the half_height we want -h2 to map to zero and +h2 to 1.0
-    precision u = (object_surface_point[2] / (-2.0_p * m_half_height)) + 0.5_p;
+    precision u = (object_surface_point[2] / (-2.0_p * h)) + 0.5_p;
     // theta goes from +pi to -pi we want to map -pi to 1.0_p and + pi to zero
     precision v = 0.0_p;
     if (basal::is_greater_than_or_equal_to_zero(polar.y)) {
@@ -92,7 +116,11 @@ void cylinder::print(std::ostream& os, char const str[]) const {
 }
 
 precision cylinder::get_object_extent(void) const {
-    return sqrt((m_half_height * m_half_height) + (m_radius * m_radius));
+    if (basal::is_exactly_zero(m_half_height)) {
+        return basal::pos_inf;
+    } else {
+        return sqrt((m_half_height * m_half_height) + (m_radius * m_radius));
+    }
 }
 
 }  // namespace objects

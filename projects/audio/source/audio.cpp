@@ -2,6 +2,10 @@
 
 namespace audio {
 
+precision tone(iso::hertz frequency, iso::seconds offset) {
+    return 0.5_p * std::sin(iso::tau * frequency.value * offset.value);
+}
+
 namespace wav {
 struct chunk {
     char id[4];     ///< The four character code for the chunk.
@@ -16,7 +20,7 @@ struct fmt {
     chunk fmt = {{'f', 'm', 't', ' '}, sizeof(fmt) - sizeof(chunk)};
     uint16_t format{1U};  // 1 = PCM, 3 = Float
     uint16_t const channels{CHANNELS};
-    uint32_t sample_rate{44'100U};
+    uint32_t sample_rate{static_cast<uint32_t>(specification::cd_sample_rate)};
     uint32_t bytes_per_sec{0U};
     uint16_t const bytes_per_block{CHANNELS * sizeof(SAMPLE_TYPE)};
     uint16_t const bits_per_sample{sizeof(SAMPLE_TYPE) * 8U};

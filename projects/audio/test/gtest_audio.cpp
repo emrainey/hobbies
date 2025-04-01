@@ -12,6 +12,7 @@ TEST(AudioTest, Empty) {
 
 TEST(AudioTest, WhenSavingMonoPCM) {
     basal::precision sample_rate = 44'100.0_p;
+
     basal::precision increment = 1.0_p / sample_rate;
     basal::precision period = 3.0_p;
     size_t number_of_samples = static_cast<size_t>(period * sample_rate);
@@ -24,17 +25,18 @@ TEST(AudioTest, WhenSavingMonoPCM) {
 }
 
 TEST(AudioTest, WhenSavingStereoPCM) {
-    basal::precision sample_rate = 44'100.0_p;
+    basal::precision sample_rate = audio::specification::cd_sample_rate;
     basal::precision increment = 1.0_p / sample_rate;
     basal::precision period = 3.0_p;
     size_t number_of_samples = static_cast<size_t>(period * sample_rate);
     audio::StereoPCM seq{sample_rate, number_of_samples};
     seq.for_each([](size_t channel, size_t index, basal::precision offset) -> audio::StereoPCM::sample {
         basal::precision v;
+        iso::seconds t{offset};
         if (channel == 0) {
-            v = (0.5_p * sin(2.0_p * M_PI * 440.0_p * offset));  // "A" 440.00Hz
+            v = audio::tone(audio::notes::a4, t);
         } else if (channel == 1) {
-            v = (0.5_p * sin(2.0_p * M_PI * 523.25_p * offset));  // "C" 523.25Hz
+            v = audio::tone(audio::notes::c4, t);
         } else {
             v = 0.0_p;
         }

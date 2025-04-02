@@ -2,9 +2,21 @@
 
 namespace audio {
 
-precision tone(iso::hertz frequency, iso::seconds offset) {
+precision waveform(iso::hertz frequency, iso::seconds offset) {
     return 0.5_p * std::sin(iso::tau * frequency.value * offset.value);
 }
+
+namespace equal_temperament {
+
+iso::hertz ToFrequency(Tone note, int octave) {
+    int position = ToPianoKey(note, octave);
+    iso::hertz frequency{440.0_p};
+    precision scaling = std::pow(twelveth_root_of_2, (position - ToPianoKey(Tone::A, 4)));
+    frequency *= scaling;
+    return frequency;
+}
+
+}  // namespace equal_temperament
 
 namespace wav {
 struct chunk {
@@ -113,6 +125,59 @@ bool Sequence<int16_t, 2>::save(std::string filename) const {
         }
     }
     return false;
+}
+
+iso::seconds SecondsPerBeat(Tempo tempo) {
+    // 60 BPM is 1 second per beat
+    return iso::seconds{60.0_p / static_cast<precision>(tempo)};
+}
+
+iso::seconds SecondsPerDuration(Tempo tempo, Signature signature, Duration length) {
+    // 60 BPM @ 3/4 time is 1 second per quarter note, 2 seconds per half note, 3 seconds per dotted half note
+    // 60 BPM @ 4/4 time is also 1 second per quarter note, 2 seconds per half note, 4 seconds per whole note
+    precision ratio = static_cast<precision>(basal::to_underlying(signature.value))
+                      / static_cast<precision>(basal::to_underlying(length));
+    auto spb = SecondsPerBeat(tempo);
+    spb *= ratio;
+    return spb;
+}
+
+std::vector<basal::precision> envelope(std::vector<basal::precision> const& input) {
+    std::vector<basal::precision> output;
+    output.reserve(input.size());
+    for (size_t i = 0; i < input.size(); ++i) {
+        precision fract = static_cast<precision>(i) / static_cast<precision>(input.size());
+        output.push_back(input[i] * (0.5_p + 0.5_p * std::cos(iso::tau * fract + iso::pi)));
+    }
+    return output;
+}
+
+template <>
+MonoPCM Mixer<MonoPCM>::even(MonoPCM const& a, MonoPCM const& b) {
+    // mix the two sequences together
+    size_t const count = std::min(a.count(), b.count());
+    MonoPCM result{a.sample_rate(), count};
+    result.for_each([&](size_t c, size_t i, precision) -> MonoPCM::sample {
+        int32_t va = a(c, i);
+        int32_t vb = b(c, i);
+        int16_t v = static_cast<int16_t>((va + vb) / 2);
+        return v;
+    });
+    return result;
+}
+
+template <>
+StereoPCM Mixer<StereoPCM>::even(StereoPCM const& a, StereoPCM const& b) {
+    // mix the two sequences together
+    size_t const count = std::min(a.count(), b.count());
+    StereoPCM result{a.sample_rate(), count};
+    result.for_each([&](size_t c, size_t i, precision) -> StereoPCM::sample {
+        int32_t va = a(c, i);
+        int32_t vb = b(c, i);
+        int16_t v = static_cast<int16_t>((va + vb) / 2);
+        return v;
+    });
+    return result;
 }
 
 }  // namespace audio

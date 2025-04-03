@@ -147,9 +147,62 @@ std::vector<basal::precision> envelope(std::vector<basal::precision> const& inpu
     output.reserve(input.size());
     for (size_t i = 0; i < input.size(); ++i) {
         precision fract = static_cast<precision>(i) / static_cast<precision>(input.size());
-        output.push_back(input[i] * (0.5_p + 0.5_p * std::cos(iso::tau * fract + iso::pi)));
+        output.push_back(input[i] * envelope(fract));
     }
     return output;
+}
+
+basal::precision envelope(basal::precision ratio) {
+    basal::exception::throw_unless(ratio >= 0.0_p && ratio <= 1.0_p, __FILE__, __LINE__,
+                                   "Ratio must be between 0 and 1");
+    return (0.5_p + 0.5_p * std::cos(iso::tau * ratio + iso::pi));
+}
+
+namespace out {
+basal::precision fade(basal::precision ratio) {
+    basal::exception::throw_unless(ratio >= 0.0_p && ratio <= 1.0_p, __FILE__, __LINE__,
+                                   "Ratio must be between 0 and 1");
+    return (1.0_p - ratio);
+}
+
+basal::precision hill(basal::precision ratio) {
+    basal::exception::throw_unless(ratio >= 0.0_p && ratio <= 1.0_p, __FILE__, __LINE__,
+                                   "Ratio must be between 0 and 1");
+    return (1.0_p - exp(5.0_p * (ratio - 1.0_p)));
+}
+
+basal::precision cliff(basal::precision ratio) {
+    basal::exception::throw_unless(ratio >= 0.0_p && ratio <= 1.0_p, __FILE__, __LINE__,
+                                   "Ratio must be between 0 and 1");
+    return exp(-ratio * 5.7_p);
+}
+
+basal::precision ramp(basal::precision ratio) {
+    basal::exception::throw_unless(ratio >= 0.0_p && ratio <= 1.0_p, __FILE__, __LINE__,
+                                   "Ratio must be between 0 and 1");
+    return (1.0_p - sqrt(ratio));
+}
+}  // namespace out
+
+namespace in {
+
+basal::precision fade(basal::precision ratio) {
+    basal::exception::throw_unless(ratio >= 0.0_p && ratio <= 1.0_p, __FILE__, __LINE__,
+                                   "Ratio must be between 0 and 1");
+    return ratio;
+}
+
+basal::precision ramp(basal::precision ratio) {
+    basal::exception::throw_unless(ratio >= 0.0_p && ratio <= 1.0_p, __FILE__, __LINE__,
+                                   "Ratio must be between 0 and 1");
+    return sqrt(ratio);
+}
+}  // namespace in
+
+basal::precision pop(basal::precision ratio) {
+    basal::exception::throw_unless(ratio >= 0.0_p && ratio <= 1.0_p, __FILE__, __LINE__,
+                                   "Ratio must be between 0 and 1");
+    return 2.0_p * (std::pow(ratio, ratio / 12.0_p) - std::pow(ratio, sqrt(ratio)));
 }
 
 template <>

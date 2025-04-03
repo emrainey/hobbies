@@ -90,6 +90,11 @@ iso::seconds SecondsPerDuration(Tempo tempo, Signature signature, Duration beat)
 /// @brief The twelveth root of 2, used for equal temperament
 static constexpr precision twelveth_root_of_2 = 1.059463094359295_p;  ///< 2^(1/12)
 
+/// @brief Converts a tone and octave to a piano key
+/// @param tone The tone name
+/// @param octave The octave number
+/// @return The piano key number
+/// @see https://en.wikipedia.org/wiki/Piano_key_frequencies
 constexpr int ToPianoKey(Tone tone, int octave) {
     return basal::to_underlying(tone) + (12 * (octave - 1));
 }
@@ -221,6 +226,26 @@ public:
         return sample_rate_;
     }
 
+    /// Joins samples to the sequence in a vector of samples
+    /// @param channel The channel to add the samples to
+    /// @param samples The samples to add
+    /// @param index the index to add the samples at
+    /// @note This will overwrite the samples in the sequence or append data at the end
+    void join(Sequence const& other) {
+        basal::exception::throw_if(other.sample_rate() != sample_rate(), __FILE__, __LINE__,
+                                   "Sample rates must be the same");
+        for (size_t i = 0; i < channels; ++i) {
+            // copy the samples from the other sequence (this is automatically resize)
+            samples_[i].insert(samples_[i].end(), other.samples_[i].begin(), other.samples_[i].end());
+        }
+    }
+
+    /// Joins samples to the sequence in a vector of samples
+    Sequence& operator+=(Sequence const& other) {
+        join(other);
+        return (*this);
+    }
+
 protected:
     /// The sample rate of the sequence
     basal::precision sample_rate_;
@@ -249,13 +274,38 @@ std::vector<basal::precision> envelope(std::vector<basal::precision> const& inpu
 /// @note This is a simple sine wave generator
 basal::precision waveform(iso::hertz frequency, iso::seconds offset);
 
+/// @brief Creates a cosine envelope for the given ratio
+/// @param ratio A value between 0.0 to 1.0. Users can use any fraction value they want.
+/// @return A value between 0.0 to 1.0
+basal::precision envelope(basal::precision ratio);
+
+/// @brief Creates a nice attack with a decay
+basal::precision pop(basal::precision ratio);
+
+namespace in {
+/// @brief Creates a linear fade in from the given ratio
+/// @param ratio A value between 0.0 to 1.0. Users can use any fraction value they want.
+/// @return A value between 0.0 to 1.0
+basal::precision fade(basal::precision ratio);
+basal::precision ramp(basal::precision ratio);
+}  // namespace in
+
+namespace out {
+/// @brief Creates a linear fade out from the given ratio
+/// @param ratio A value between 0.0 to 1.0. Users can use any fraction value they want.
+/// @return A value between 0.0 to 1.0
+basal::precision fade(basal::precision ratio);
+basal::precision hill(basal::precision ratio);
+basal::precision cliff(basal::precision ratio);
+basal::precision ramp(basal::precision ratio);
+}  // namespace out
 template <typename SEQUENCE_TYPE>
 class Mixer {
 public:
     using sample = typename SEQUENCE_TYPE::sample;
     using SequenceType = SEQUENCE_TYPE;
 
-    /// Mixes two sequences together
+    /// Mixes two sequences together using an average of the two sequences
     /// @param a The first sequence
     /// @param b The second sequence
     /// @return The mixed sequence in even parts

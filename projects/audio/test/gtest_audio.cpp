@@ -237,3 +237,133 @@ TEST(AudioTest, SecondsPerDuration) {
     ASSERT_PRECISION_EQ(4.0_p, SecondsPerDuration(60, 4 / audio::Duration::Quarter, audio::Duration::Whole).value)
         << "60 BPM @ 4/4 time is 4 seconds per whole note";
 }
+
+TEST(AudioTest, Swizzle8Order) {
+    size_t const N = 8U;
+    std::complex<basal::precision> input[N] = {{0.0_p, 0.0_p}, {1.0_p, 1.0_p}, {2.0_p, 2.0_p}, {3.0_p, 3.0_p},
+                                               {4.0_p, 4.0_p}, {5.0_p, 5.0_p}, {6.0_p, 6.0_p}, {7.0_p, 7.0_p}};
+    swizzle(input, N);
+    ASSERT_EQ(input[0], std::complex<basal::precision>(0.0_p, 0.0_p));
+    ASSERT_EQ(input[1], std::complex<basal::precision>(4.0_p, 4.0_p));
+    ASSERT_EQ(input[2], std::complex<basal::precision>(2.0_p, 2.0_p));
+    ASSERT_EQ(input[3], std::complex<basal::precision>(6.0_p, 6.0_p));
+    ASSERT_EQ(input[4], std::complex<basal::precision>(1.0_p, 1.0_p));
+    ASSERT_EQ(input[5], std::complex<basal::precision>(5.0_p, 5.0_p));
+    ASSERT_EQ(input[6], std::complex<basal::precision>(3.0_p, 3.0_p));
+    ASSERT_EQ(input[7], std::complex<basal::precision>(7.0_p, 7.0_p));
+}
+
+TEST(AudioTest, Swizzle16Order) {
+    size_t const N = 16U;
+    std::complex<basal::precision> input[N]
+        = {{0.0_p, 0.0_p},   {1.0_p, 1.0_p},   {2.0_p, 2.0_p},   {3.0_p, 3.0_p},  {4.0_p, 4.0_p},   {5.0_p, 5.0_p},
+           {6.0_p, 6.0_p},   {7.0_p, 7.0_p},   {8.0_p, 8.0_p},   {9.0_p, 9.0_p},  {10.0_p, 10.0_p}, {11.0_p, 11.0_p},
+           {12.0_p, 12.0_p}, {13.0_p, 13.0_p}, {14.0_p, 14.0_p}, {15.0_p, 15.0_p}};
+    swizzle(input, N);
+    ASSERT_EQ(input[0], std::complex<basal::precision>(0.0_p, 0.0_p));
+    ASSERT_EQ(input[1], std::complex<basal::precision>(8.0_p, 8.0_p));
+    ASSERT_EQ(input[2], std::complex<basal::precision>(4.0_p, 4.0_p));
+    ASSERT_EQ(input[3], std::complex<basal::precision>(12.0_p, 12.0_p));
+    ASSERT_EQ(input[4], std::complex<basal::precision>(2.0_p, 2.0_p));
+    ASSERT_EQ(input[5], std::complex<basal::precision>(10.0_p, 10.0_p));
+    ASSERT_EQ(input[6], std::complex<basal::precision>(6.0_p, 6.0_p));
+    ASSERT_EQ(input[7], std::complex<basal::precision>(14.0_p, 14.0_p));
+    ASSERT_EQ(input[8], std::complex<basal::precision>(1.0_p, 1.0_p));
+    ASSERT_EQ(input[9], std::complex<basal::precision>(9.0_p, 9.0_p));
+    ASSERT_EQ(input[10], std::complex<basal::precision>(5.0_p, 5.0_p));
+    ASSERT_EQ(input[11], std::complex<basal::precision>(13.0_p, 13.0_p));
+    ASSERT_EQ(input[12], std::complex<basal::precision>(3.0_p, 3.0_p));
+    ASSERT_EQ(input[13], std::complex<basal::precision>(11.0_p, 11.0_p));
+    ASSERT_EQ(input[14], std::complex<basal::precision>(7.0_p, 7.0_p));
+    ASSERT_EQ(input[15], std::complex<basal::precision>(15.0_p, 15.0_p));
+}
+
+/// @see https://jackschaedler.github.io/circles-sines-signals/fft.html
+TEST(AudioTest, Simple4FFT) {
+    size_t const N = 4U;
+    // 0,1,0,-1
+    std::vector<std::complex<basal::precision>> input
+        = {{0.0_p, 0.0_p}, {1.0_p, 0.0_p}, {0.0_p, 0.0_p}, {-1.0_p, 0.0_p}};
+    fft(input);
+    ASSERT_COMPLEX_NEAR(input[0], std::complex<basal::precision>(0.0_p, 0.0_p));
+    ASSERT_COMPLEX_NEAR(input[1], std::complex<basal::precision>(0.0_p, -2.0_p));
+    ASSERT_COMPLEX_NEAR(input[2], std::complex<basal::precision>(0.0_p, 0.0_p));
+    ASSERT_COMPLEX_NEAR(input[3], std::complex<basal::precision>(0.0_p, +2.0_p));
+    ifft(input);
+    ASSERT_COMPLEX_NEAR(input[0], std::complex<basal::precision>(0.0_p, 0.0_p));
+    ASSERT_COMPLEX_NEAR(input[1], std::complex<basal::precision>(1.0_p, 0.0_p));
+    ASSERT_COMPLEX_NEAR(input[2], std::complex<basal::precision>(0.0_p, 0.0_p));
+    ASSERT_COMPLEX_NEAR(input[3], std::complex<basal::precision>(-1.0_p, 0.0_p));
+}
+
+/// @see https://jackschaedler.github.io/circles-sines-signals/fft.html
+TEST(AudioTest, Simple8FFT) {
+    size_t const N = 8U;
+    // 0, 0.707, 1, 0.707, 0, -0.707, -1, -0.707
+    std::vector<std::complex<basal::precision>> input
+        = {{0.0_p, 0.0_p}, {0.707_p, 0.0_p},  {1.0_p, 0.0_p},  {0.707_p, 0.0_p},
+           {0.0_p, 0.0_p}, {-0.707_p, 0.0_p}, {-1.0_p, 0.0_p}, {-0.707_p, 0.0_p}};
+    fft(input);
+    ASSERT_COMPLEX_NEAR(input[0], std::complex<basal::precision>(0.0_p, 0.0_p));
+    ASSERT_COMPLEX_NEAR(input[1], std::complex<basal::precision>(0.0_p, -3.99970_p));
+    ASSERT_COMPLEX_NEAR(input[2], std::complex<basal::precision>(0.0_p, 0.0_p));
+    ASSERT_COMPLEX_NEAR(input[3], std::complex<basal::precision>(0.0_p, 0.0003_p));
+    ASSERT_COMPLEX_NEAR(input[4], std::complex<basal::precision>(0.0_p, 0.0_p));
+    ASSERT_COMPLEX_NEAR(input[5], std::complex<basal::precision>(0.0_p, -0.0003_p));
+    ASSERT_COMPLEX_NEAR(input[6], std::complex<basal::precision>(0.0_p, 0.0_p));
+    ASSERT_COMPLEX_NEAR(input[7], std::complex<basal::precision>(0.0_p, 3.99970_p));
+    ifft(input);
+    ASSERT_COMPLEX_NEAR(input[0], std::complex<basal::precision>(0.0_p, 0.0_p));
+    ASSERT_COMPLEX_NEAR(input[1], std::complex<basal::precision>(0.707_p, 0.0_p));
+    ASSERT_COMPLEX_NEAR(input[2], std::complex<basal::precision>(1.0_p, 0.0_p));
+    ASSERT_COMPLEX_NEAR(input[3], std::complex<basal::precision>(0.707_p, 0.0_p));
+    ASSERT_COMPLEX_NEAR(input[4], std::complex<basal::precision>(0.0_p, 0.0_p));
+    ASSERT_COMPLEX_NEAR(input[5], std::complex<basal::precision>(-0.707_p, 0.0_p));
+    ASSERT_COMPLEX_NEAR(input[6], std::complex<basal::precision>(-1.0_p, 0.0_p));
+    ASSERT_COMPLEX_NEAR(input[7], std::complex<basal::precision>(-0.707_p, 0.0_p));
+}
+
+TEST(AudioTest, DISABLED_WhenComputingFFTonA440) {
+    basal::precision sample_rate = audio::specification::cd_sample_rate;
+    basal::precision period = 1.0_p;
+    size_t number_of_samples = static_cast<size_t>(period * sample_rate);
+    audio::MonoPCM seq{sample_rate, number_of_samples};
+    seq.for_each([period](size_t, size_t, basal::precision offset) -> audio::MonoPCM::sample {
+        precision ratio = offset / period;
+        iso::seconds t{offset};
+        basal::precision v = audio::waveform(ToFrequency(audio::Tone::A, 4), t);
+        return std::round(v * INT16_MAX);
+    });
+
+    size_t const N = 1024U;
+    std::vector<std::complex<precision>> data;
+    data.resize(N);
+    seq.for_each([&](size_t channel, size_t index, basal::precision offset, audio::MonoPCM::sample sample) -> void {
+        precision s = static_cast<precision>(sample) / static_cast<precision>(INT16_MAX);
+        if (index < N) {
+            data[index] = std::complex{s, 0.0_p};
+        }
+    });
+    ASSERT_EQ(N, data.size());
+    fft(data);
+    std::cout << "FFT Result:" << std::endl;
+    for (size_t i = 0; i < data.size(); ++i) {
+        std::cout << "Index: " << i << " Value: " << data[i] << std::endl;
+    }
+    std::vector<precision> power_density;
+    for (size_t i = 0; i < data.size(); ++i) {
+        // Compute the power density
+        precision re = data[i].real();
+        precision im = data[i].imag();
+        precision v = 20.0_p * log10(sqrt(re * re + im * im));
+        power_density.push_back(v);
+    }
+    std::cout << "Power Density Result:" << std::endl;
+    for (size_t i = 0; i < power_density.size(); ++i) {
+        std::cout << "Index: " << i << " Value: " << power_density[i] << std::endl;
+    }
+    for (size_t i = 0; i < data.size(); ++i) {
+        ASSERT_LE(data[i].real(), 1.0_p) << "Index is " << i;
+        ASSERT_LE(data[i].imag(), 1.0_p) << "Index is " << i;
+    }
+}

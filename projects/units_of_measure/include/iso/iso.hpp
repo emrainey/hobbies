@@ -3,6 +3,7 @@
 /// @copyright Copyright (c) 2022
 #pragma once
 #include <cmath>
+#include <complex>
 #include <cstdint>
 #include <iostream>
 

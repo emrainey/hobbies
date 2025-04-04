@@ -233,4 +233,76 @@ StereoPCM Mixer<StereoPCM>::even(StereoPCM const& a, StereoPCM const& b) {
     return result;
 }
 
+void swizzle(std::complex<precision> input[], size_t N) {
+    basal::exception::throw_unless(N > 1U and N % 2 == 0, __FILE__, __LINE__,
+                                   "Input size %zu must be greater than 1 and even\r\n", N);
+    if (N == 2) {
+        // do nothing
+        return;
+    } else if (N == 4) {
+        std::swap(input[1], input[2]);  // only swap 1 & 2
+        return;
+    } else {
+        // move even indexes to the front and odd indexes to the back, inplace, then recurse on the front and back
+        std::vector<std::complex<precision>> output(N);
+        for (size_t i = 0; i < N; i++) {
+            if (i % 2 == 0) {
+                output[i / 2] = input[i];
+            } else {
+                output[(N / 2) + (i / 2)] = input[i];
+            }
+        }
+        // copy the output back to the input
+        for (size_t i = 0; i < N; i++) {
+            input[i] = output[i];
+        }
+        // recurse on the front and back
+        swizzle(&input[0 / 2], N / 2);
+        swizzle(&input[N / 2], N / 2);
+    }
+}
+
+static void xfft(std::vector<std::complex<precision>>& data, precision angle_sign) {
+    /// made with some help from Copilot and @see https://cp-algorithms.com/algebra/fft.html
+    /// but with a reversed sign on the angle (that matches Octave's FFT)
+
+    // if the input size is 1, return the input
+    size_t const N = data.size();
+    if (N == 1U) {
+        return;
+    }
+    swizzle(data.data(), N);  // swizzle the input
+    for (size_t len = 2U; len <= N; len <<= 1) {
+        // the unit angle to process
+        iso::radians const angle{(angle_sign * iso::tau) / static_cast<precision>(len)};
+        std::complex<precision> w_len{std::cos(angle.value), std::sin(angle.value)};
+        for (size_t j = 0U; j < N; j += len) {
+            // the complex number to use for the FFT
+            std::complex<precision> w{1.0_p};
+            for (size_t i = 0; i < (len / 2U); i++) {
+                std::complex<precision> u = data[j + i];
+                std::complex<precision> v = w * data[j + i + (len / 2U)];
+                data[j + i] = u + v;               // combine the two complex numbers
+                data[j + i + (len / 2U)] = u - v;  // subtract the two complex numbers
+                w *= w_len;                        // rotate the complex number
+            }
+        }
+    }
+    // I found that in testing against Octave's FFT that the output sign of the complex component was inverted
+    // so I reversed the sign of the angle and only normalize the other operation. This resolved the problem.
+    if (angle_sign > 0.0_p) {
+        for (size_t i = 0U; i < N; i++) {
+            data[i] /= static_cast<precision>(N);  // normalize the output
+        }
+    }
+}
+
+void ifft(std::vector<std::complex<precision>>& data) {
+    return xfft(data, 1.0_p);
+}
+
+void fft(std::vector<std::complex<precision>>& data) {
+    return xfft(data, -1.0_p);
+}
+
 }  // namespace audio

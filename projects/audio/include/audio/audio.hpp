@@ -312,4 +312,18 @@ public:
     static SequenceType even(SequenceType const& a, SequenceType const& b);
 };
 
+/// @brief Swizzles the input signal and sorts the even and odd samples into the front and back
+/// @param input
+void swizzle(std::complex<precision> input[], size_t N);
+
+/// @brief Computes the FFT of the input signal
+/// @param input
+/// @return The FFT of the input signal
+void fft(std::vector<std::complex<precision>>& data);
+
+/// @brief Computes the inverse FFT of the input signal
+/// @param input
+/// @return The inverse FFT of the input signal
+void ifft(std::vector<std::complex<precision>>& data);
+
 }  // namespace audio

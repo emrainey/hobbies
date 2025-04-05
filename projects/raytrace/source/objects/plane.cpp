@@ -74,10 +74,11 @@ bool plane::is_surface_point(point const& world_point) const {
 }
 
 image::point plane::map(point const& object_surface_point) const {
+    matrix const& M = m_basis.to_basis();
     // the pattern will map around the point in a polar fashion
-    geometry::R2::point cartesian(object_surface_point[0], object_surface_point[1]);
-    geometry::R2::point polar_space = geometry::cartesian_to_polar(cartesian);
-    // v must be between 0 and 1, no negatives (the zero angle line is -X though!)
+    geometry::R3::point basis_point = M * object_surface_point;
+    geometry::R2::point uv_point{basis_point.x, basis_point.y};
+    geometry::R2::point polar_space = geometry::cartesian_to_polar(uv_point);
     return image::point(polar_space[0] / m_surface_scale.u,
                         ((polar_space[1] + iso::pi) / iso::tau) / m_surface_scale.v);
 }

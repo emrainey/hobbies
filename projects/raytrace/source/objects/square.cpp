@@ -61,7 +61,7 @@ bool square::is_surface_point(point const& world_point) const {
     // now convert the world point to an object point
     // and check if it's within the 2D points
     point object_point = reverse_transform(world_point);
-    matrix const M = m_basis.to_basis();
+    matrix const& M = m_basis.to_basis();
     point plane_point = M * object_point;
     return linalg::within_inclusive(m_points[0].x, plane_point.x, m_points[1].x)
            and linalg::within_inclusive(m_points[0].y, plane_point.y, m_points[1].y);
@@ -74,7 +74,7 @@ void square::print(std::ostream& os, char const name[]) const {
 
 image::point square::map(point const& object_surface_point) const {
     // use the m_basis to map the object_surface_point to the UV space
-    matrix const M = m_basis.to_basis();
+    matrix const& M = m_basis.to_basis();
     R3::point uv_point = M * object_surface_point;
     // scale the UV point to the surface scale
     // ensure the UV point is within the range of 0 to 1

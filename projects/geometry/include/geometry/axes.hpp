@@ -29,13 +29,15 @@ public:
     R2::vector const& abscissa(R2::vector const&);
     R2::vector const& ordinate(R2::vector const&);
     bool is_basis() const;
-    matrix from_basis() const;
-    matrix to_basis() const;
+    matrix const& from_basis() const;
+    matrix const& to_basis() const;
 
 protected:
     R2::point origin_{0.0_p, 0.0_p};
     R2::vector abscissa_{R2::basis::X};
     R2::vector ordinate_{R2::basis::Y};
+    matrix transform_;
+    matrix inverse_transform_;
 };
 }  // namespace R2
 
@@ -56,14 +58,16 @@ public:
     R3::vector const& ordinate(R3::vector const&);
     R3::vector const& applicate(R3::vector const&);
     bool is_basis() const;
-    matrix from_basis() const;
-    matrix to_basis() const;
+    matrix const& from_basis() const;
+    matrix const& to_basis() const;
 
 protected:
     R3::point origin_{0.0_p, 0.0_p, 0.0_p};
     R3::vector abscissa_{R3::basis::X};
     R3::vector ordinate_{R3::basis::Y};
     R3::vector applicate_{R3::basis::Z};
+    matrix transform_;
+    matrix inverse_transform_;
 };
 }  // namespace R3
 

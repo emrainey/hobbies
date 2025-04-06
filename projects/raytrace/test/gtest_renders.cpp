@@ -198,8 +198,8 @@ TEST_F(RenderTest, DISABLED_Triangle) {
     R3::point A{10, 0, 10};
     R3::point B{0, 0, 13};
     R3::point C{0, 10, 10};
-    raytrace::objects::triangle shape1(A, B, C);
-    raytrace::objects::triangle shape2(C, B, A);
+    raytrace::objects::triangle shape1({A, B, C});
+    raytrace::objects::triangle shape2({C, B, A});
     shape1.material(&rubber);
     shape2.material(&rubber);
     add_object(&shape1);

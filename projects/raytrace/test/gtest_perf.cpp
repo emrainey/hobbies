@@ -73,8 +73,8 @@ TEST_F(PerfCounter, IntersectionsRing) {
 
 TEST_F(PerfCounter, IntersectionsTriangle) {
     raytrace::ray r{raytrace::point{0, 0, 2}, -R3::basis::Z};
-    raytrace::objects::triangle obj(raytrace::point{-1, 1, 0}, raytrace::point{+1, 0, 0}, raytrace::point{-1, -1, 0});
-    activity = std::string("triangle intersections");
+    raytrace::objects::triangle obj({raytrace::point{-1, 1, 0}, raytrace::point{+1, 0, 0}, raytrace::point{-1, -1, 0}});
+    activity = std::string("polygon intersections");
     for (size_t count = 0; count < number_of_ops; count++) {
         geometry::intersection hit = obj.intersect(r).intersect;
         ASSERT_EQ(geometry::IntersectionType::Point, get_type(hit));

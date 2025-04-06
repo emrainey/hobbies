@@ -16,7 +16,27 @@ inline precision dot(R3::point const& b, R3::vector const& a) {
 }
 
 /// Finds the centroid of a set of points
+/// @note The points are not required to be in the same plane
 R3::point centroid(std::vector<R3::point> const& points);
+
+/// Finds the centroid of a set of points
+/// @param points The points to find the centroid of
+/// @return The centroid of the points
+/// @note The points are not required to be in the same plane
+template <size_t N>
+R3::point centroid(std::array<R3::point, N> const& points) {
+    R3::point D;
+    for (size_t j = 0; j < points.size(); j++) {
+        auto& p = points[j];
+        for (size_t i = 0; i < D.dimensions; i++) {
+            D[i] += p[i];
+        }
+    }
+    for (size_t i = 0; i < D.dimensions; i++) {
+        D[i] /= static_cast<precision>(points.size());
+    }
+    return D;
+}
 
 /// Finds the centroid of 3 points.
 R3::point centroid(R3::point const& A, R3::point const& B, R3::point const& C);

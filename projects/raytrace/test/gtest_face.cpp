@@ -71,7 +71,7 @@ TEST(FaceTest, Intersect) {
     raytrace::point C{0, 1, 0};
     raytrace::objects::face shape{A, B, C};
 
-    // the triangle's position is at the centeroid of the points
+    // the polygon's position is at the centeroid of the points
     EXPECT_POINT_EQ(raytrace::point(1.0_p / 3.0_p, 1.0_p / 3.0_p, 0.0_p / 3.0_p), shape.position());
 
     raytrace::ray r{raytrace::point{0.4_p, 0.4_p, 1.0_p}, -R3::basis::Z};

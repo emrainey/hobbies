@@ -4,7 +4,7 @@ namespace raytrace {
 namespace objects {
 
 face::face(point const& A, point const& B, point const& C)
-    : triangle(A, B, C)
+    : polygon({A, B, C})
     , m_texture_coords{image::point{1, 0}, image::point{0, 0}, image::point{0, 1}}
     , m_normals{m_normal, m_normal, m_normal} {
     m_type = Type::Face;
@@ -12,16 +12,16 @@ face::face(point const& A, point const& B, point const& C)
 
 face::face(point const& A, point const& B, point const& C, image::point const& a, image::point const& b,
            image::point const& c)
-    : triangle(A, B, C), m_texture_coords{a, b, c}, m_normals{m_normal, m_normal, m_normal} {
+    : polygon({A, B, C}), m_texture_coords{a, b, c}, m_normals{m_normal, m_normal, m_normal} {
 }
 
 face::face(point const& A, point const& B, point const& C, image::point const& a, image::point const& b,
            image::point const& c, vector const& na, vector const& nb, vector const& nc)
-    : triangle(A, B, C), m_texture_coords{a, b, c}, m_normals{na, nb, nc} {
+    : polygon({A, B, C}), m_texture_coords{a, b, c}, m_normals{na, nb, nc} {
 }
 
 hits face::collisions_along(ray const& object_ray) const {
-    return triangle::collisions_along(object_ray);
+    return polygon::collisions_along(object_ray);
 }
 
 void face::print(std::ostream& os, char const str[]) const {
@@ -30,11 +30,11 @@ void face::print(std::ostream& os, char const str[]) const {
 }
 
 bool face::is_surface_point(point const& world_point) const {
-    return triangle::is_surface_point(world_point);
+    return polygon::is_surface_point(world_point);
 }
 
 precision face::get_object_extent(void) const {
-    return triangle::get_object_extent();
+    return polygon::get_object_extent();
 }
 
 vector face::normal_(point const&) const {

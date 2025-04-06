@@ -22,8 +22,8 @@ static constexpr bool camera{false};
 static constexpr bool scene{false};
 /// Enables debug for the objparser calls
 static constexpr bool objparser{false};
-/// Enables debug for the triangle
-static constexpr bool triangle{false};
+/// Enables debug for the polygon
+static constexpr bool polygon{false};
 /// Enables debug for the model loader
 static constexpr bool model{false};
 }  // namespace debug
@@ -53,6 +53,9 @@ static constexpr size_t brute_force_to_bounding_box{10U};
 
 /// A flag to control if origin collisions are counted
 static constexpr bool can_ray_origin_be_collision{true};
+
+/// A flag to control is polygon collisions should use the triple product or not.
+static constexpr bool use_triple = true;
 
 namespace gamma {
 /// Control if the full correction or the fast correction is used

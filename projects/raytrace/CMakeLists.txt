@@ -60,7 +60,7 @@ add_library(hobbies-raytrace
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/sphere.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/square.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/torus.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/triangle.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/polygon.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/wall.cpp
 )
 target_link_libraries(hobbies-raytrace
@@ -200,7 +200,7 @@ if (Threads_FOUND AND GTest_FOUND)
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_surface.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_torus.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_tree.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_triangle.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_polygon.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_objparser.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_wall.cpp
     )

@@ -33,13 +33,13 @@ enum class Type : int {
     Overlap,
     Paraboloid,
     Plane,
+    Polygon,
     Pyramid,
     Quadratic,
     Ring,
     Sphere,
     Square,
     Torus,
-    Triangle,
     Wall,
 };
 

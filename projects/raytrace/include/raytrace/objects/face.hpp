@@ -1,7 +1,7 @@
 #pragma once
 
 #include <array>
-#include <raytrace/objects/triangle.hpp>
+#include <raytrace/objects/polygon.hpp>
 
 namespace raytrace {
 namespace objects {

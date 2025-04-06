@@ -4,7 +4,7 @@
 
 namespace raytrace {
 namespace objects {
-// FIXME delete or modify!
+
 cone::cone(point const& C, iso::radians angle)
     : object{C, 2, Type::Cone, true}  // 2 collisions, closed (infinite)
     , m_bottom_radius{0.0_p}

@@ -93,7 +93,7 @@ void Model::addFace(uint32_t a, uint32_t b, uint32_t c) {
     bool points_ok = ia < points_.size() and ib < points_.size() and ic < points_.size();
     if (points_ok) {
         if constexpr (debug::model) {
-            printf("Model: Adding triangle %u %u %u\n", a, b, c);
+            printf("Model: Adding polygon %u %u %u\n", a, b, c);
         }
         // swap the order of points so that the normal is facing the right way
         faces_.emplace_back(points_[ic], points_[ib], points_[ia]);
@@ -115,7 +115,7 @@ void Model::addFace(uint32_t a, uint32_t ta, uint32_t b, uint32_t tb, uint32_t c
     bool texels_ok = ita < texels_.size() and itb < texels_.size() and itc < texels_.size();
     if (points_ok and texels_ok) {
         if constexpr (debug::model) {
-            printf("Model: Adding triangle (%u %u %u), (%u %u %u)\n", a, b, c, ta, tb, tc);
+            printf("Model: Adding polygon (%u %u %u), (%u %u %u)\n", a, b, c, ta, tb, tc);
         }
         // swap the order of points so that the normal is facing the right way
         faces_.emplace_back(points_[ic], points_[ib], points_[ia], texels_[ita], texels_[itb], texels_[itc]);
@@ -142,7 +142,7 @@ void Model::addFace(uint32_t v1, uint32_t t1, uint32_t n1, uint32_t v2, uint32_t
     bool normals_ok = in1 < normals_.size() and in2 < normals_.size() and in3 < normals_.size();
     if (points_ok and normals_ok and texels_ok) {
         if constexpr (debug::model) {
-            printf("Model: Adding triangle (%u, %u, %u), (%u, %u, %u), (%u, %u, %u)\n", v1, v2, v3, t1, t2, t3, n1, n2,
+            printf("Model: Adding polygon (%u, %u, %u), (%u, %u, %u), (%u, %u, %u)\n", v1, v2, v3, t1, t2, t3, n1, n2,
                    n3);
         }
         // swap the order of points so that the normal is facing the right way

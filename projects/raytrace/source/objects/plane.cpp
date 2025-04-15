@@ -9,44 +9,27 @@ using namespace linalg::operators;
 using namespace geometry;
 using namespace geometry::operators;
 
-plane::plane(point const& C, vector const& N)
-    : geometry::plane{C, N}
-    , object{C, 1, Type::Plane, false}
-    , m_basis{} {  // default to the X axis as the plane's orientation
-
-    // the basis is not set here since we were provided the normal. we need to figure out how to construct a basis from
-    // just the normal and potentially either X or Y through
-
-    // only if the N is the X axis, then we'll need to do something else, but if it isn't then we can cross N x X to get
-    // the Y axis then cross Y x N to get the real x axis then we're done
-    if (N == geometry::R3::basis::X) {
-        // fallback case
-        // if the normal is the X axis, then know exactly how we need to be oriented.
-        m_basis = axes{C, -geometry::R3::basis::Z, geometry::R3::basis::Y, geometry::R3::basis::X};  // set the basis
-    } else if (N == -geometry::R3::basis::X) {
-        // fallback case
-        // if the normal is the -X axis, then know exactly how we need to be oriented.
-        m_basis = axes{C, geometry::R3::basis::Z, geometry::R3::basis::Y, -geometry::R3::basis::X};  // set the basis
-    } else {
-        vector Y = cross(N, geometry::R3::basis::X).normalized();
-        vector X = cross(Y, N);
-        m_basis = axes{C, X, Y, N};  // set the basis
-    }
+plane::plane() : object{R3::origin, 1, Type::Plane, false} {
+    m_rotation = R3::identity;
+    m_inv_rotation = R3::identity;
+    compute_transforms();
 }
 
-plane::plane(axes const& axes)
-    : geometry::plane{axes.origin(), axes.applicate()}, object{axes.origin(), 1, Type::Plane, false}, m_basis{axes} {
+plane::plane(point const& C, matrix const& rotation) : object{C, 1, Type::Plane, false} {
+    m_rotation = rotation;
+    m_inv_rotation = rotation.inverse();
+    compute_transforms();
 }
 
-vector plane::normal_(point const& object_space_point __attribute__((unused))) const {
-    return geometry::plane::unormal().normalize();
+vector plane::normal_(point const&) const {
+    return R3::basis::Z;
 }
 
 hits plane::collisions_along(ray const& object_ray) const {
     hits ts;
     // is the ray parallel to the plane?
     // @note in object space, the center point is at the origin
-    vector const& N = unormal().normalized();
+    vector const& N = normal_(R3::origin);
     vector const& V = object_ray.direction();
     precision const proj = dot(V, N);
     // if so the projection is not zero they collide *somewhere*
@@ -66,19 +49,18 @@ hits plane::collisions_along(ray const& object_ray) const {
 }
 
 bool plane::is_surface_point(point const& world_point) const {
-    vector T = world_point - position();
-    if (T == R3::null) {
+    vector world_delta = world_point - position();
+    if (world_delta == R3::null) {
         return true;
     }
-    return basal::nearly_zero(dot(unormal().normalized(), T));
+    // @note in object space, the center point is at the origin
+    return geometry::orthogonal(world_delta, normal_(R3::origin));
 }
 
 image::point plane::map(point const& object_surface_point) const {
-    matrix const& M = m_basis.to_basis();
-    // the pattern will map around the point in a polar fashion
-    geometry::R3::point basis_point = M * object_surface_point;
-    geometry::R2::point uv_point{basis_point.x, basis_point.y};
-    geometry::R2::point polar_space = geometry::cartesian_to_polar(uv_point);
+    // in object space the origin is the center and the normal is +Z.
+    image::point uv_point{object_surface_point.x, object_surface_point.y};
+    image::point polar_space = geometry::cartesian_to_polar(uv_point);
     return image::point(polar_space[0] / m_surface_scale.u,
                         ((polar_space[1] + iso::pi) / iso::tau) / m_surface_scale.v);
 }
@@ -91,7 +73,7 @@ bool plane::is_along_infinite_extent(ray const& world_ray) const {
     // is the ray parallel to the plane?
     auto object_ray = reverse_transform(world_ray);
     // @note in object space, the center point is at the origin
-    vector const& N = unormal().normalized();
+    vector const& N = normal_(R3::origin);
     vector const& V = object_ray.direction();
     // projection of normal on ray direction
     precision const proj = dot(V, N);
@@ -100,7 +82,7 @@ bool plane::is_along_infinite_extent(ray const& world_ray) const {
 }
 
 void plane::print(std::ostream& os, char const str[]) const {
-    os << str << " Plane @" << this << " " << position() << " Normal " << unormal() << std::endl;
+    os << str << " Plane @" << this << " " << position() << " rotation: " << m_rotation << std::endl;
 }
 
 }  // namespace objects

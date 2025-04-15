@@ -174,6 +174,16 @@ TEST(VectorTest, StaticsAndNegation) {
     ASSERT_PRECISION_EQ(-1.0_p, (-R3::basis::Z)[2]);
 }
 
+TEST(VectorTest, NegationConstants) {
+    // when referencing the basis vectors, the compiler may optimize so be sure to put the negation in ()
+    ASSERT_EQ(3, (-R3::basis::X).dimensions);
+    ASSERT_EQ(3, (-R3::basis::Y).dimensions);
+    ASSERT_EQ(3, (-R3::basis::Z).dimensions);
+    ASSERT_VECTOR_EQ(R3::vector({-1.0_p, 0.0_p, 0.0_p}), (-R3::basis::X));
+    ASSERT_VECTOR_EQ(R3::vector({0.0_p, -1.0_p, 0.0_p}), (-R3::basis::Y));
+    ASSERT_VECTOR_EQ(R3::vector({0.0_p, 0.0_p, -1.0_p}), (-R3::basis::Z));
+}
+
 TEST(VectorTest, AxisCross) {
     using namespace R3;
     vector xy{cross(basis::X, basis::Y)};  // Copy Construct

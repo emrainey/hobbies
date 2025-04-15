@@ -13,7 +13,7 @@ TEST(RingTest, Type) {
     using namespace raytrace;
     using namespace raytrace::objects;
 
-    ring R{R3::origin, R3::basis::Z, 1.0_p, 2.0_p};
+    ring R{1.0_p, 2.0_p};
     ASSERT_EQ(R.get_type(), Type::Ring);
 }
 
@@ -23,7 +23,7 @@ TEST(RingTest, RayIntersectionAtOrigin) {
 
     raytrace::point C{0, 0, 0};
     vector N{{0, 0, 1}};
-    ring R{C, N, 0.1_p, 10.0_p};
+    ring R{0.1_p, 10.0_p};
 
     ray r0{raytrace::point{0.5_p, 0.5_p, 1}, vector{{0, 0, -1}}};
 
@@ -55,7 +55,7 @@ TEST(RingTest, RayIntersectionAwayFromOrigin) {
 
     raytrace::point C{60, -50, 42};
     vector N{R3::basis::X};
-    ring R{C, N, 4.0_p, 10.0_p};
+    ring R{C, R3::pitch(0.25), 4.0_p, 10.0_p};
     ASSERT_POINT_EQ(C, R.position());
     ASSERT_VECTOR_EQ(N, R.normal(C));
 

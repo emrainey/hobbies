@@ -23,9 +23,11 @@ static constexpr bool scene{false};
 /// Enables debug for the objparser calls
 static constexpr bool objparser{false};
 /// Enables debug for the polygon
-static constexpr bool polygon{false};
+static constexpr bool polygon{true};
 /// Enables debug for the model loader
 static constexpr bool model{false};
+/// Enables debug for bounding object creation
+static constexpr bool bounds{false};
 }  // namespace debug
 
 /// Enforces range checking on some calls

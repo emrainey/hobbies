@@ -233,3 +233,114 @@ TEST(Mappers, LerpFunctors) {
         }
     }
 }
+
+TEST(Rotations, Identity) {
+    ASSERT_MATRIX_EQ(R3::identity, R3::roll(0.0));
+    ASSERT_MATRIX_EQ(R3::identity, R3::pitch(0.0));
+    ASSERT_MATRIX_EQ(R3::identity, R3::yaw(0.0));
+    ASSERT_MATRIX_EQ(R3::identity, R3::roll(1.0));
+    ASSERT_MATRIX_EQ(R3::identity, R3::pitch(1.0));
+    ASSERT_MATRIX_EQ(R3::identity, R3::yaw(1.0));
+}
+
+TEST(Rotations, Rolls) {
+    {
+        R3::vector v = R3::basis::Z;
+        matrix M = R3::roll(0.25);
+        R3::vector a = M * v;
+        ASSERT_VECTOR_EQ(R3::vector({0, -1, 0}), a);
+    }
+    {
+        R3::vector v = R3::basis::Y;
+        matrix M = R3::roll(0.25);
+        R3::vector a = M * v;
+        ASSERT_VECTOR_EQ(R3::vector({0, 0, 1}), a);
+    }
+    {
+        R3::vector v = R3::basis::X;
+        matrix M = R3::roll(0.25);
+        R3::vector a = M * v;
+        ASSERT_VECTOR_EQ(R3::vector({1, 0, 0}), a);
+    }
+    {
+        R3::vector v = R3::basis::Z;
+        matrix M = R3::roll(0.125);
+        R3::vector a = M * v;
+        ASSERT_VECTOR_EQ(R3::vector({0, -basal::inv_sqrt_2, basal::inv_sqrt_2}), a);
+    }
+}
+
+TEST(Rotations, Pitch) {
+    {
+        R3::vector v = R3::basis::Z;
+        matrix M = R3::pitch(0.25);
+        R3::vector a = M * v;
+        ASSERT_VECTOR_EQ(R3::vector({1, 0, 0}), a);
+    }
+    {
+        R3::vector v = R3::basis::Y;
+        matrix M = R3::pitch(0.25);
+        R3::vector a = M * v;
+        ASSERT_VECTOR_EQ(R3::vector({0, 1, 0}), a);
+    }
+    {
+        R3::vector v = R3::basis::X;
+        matrix M = R3::pitch(0.25);
+        R3::vector a = M * v;
+        ASSERT_VECTOR_EQ(R3::vector({0, 0, -1}), a);
+    }
+    {
+        R3::vector v = R3::basis::Z;
+        matrix M = R3::pitch(0.125);
+        R3::vector a = M * v;
+        ASSERT_VECTOR_EQ(R3::vector({basal::inv_sqrt_2, 0, basal::inv_sqrt_2}), a);
+    }
+}
+
+TEST(Rotations, Yaw) {
+    {
+        R3::vector v = R3::basis::Z;
+        matrix M = R3::yaw(0.25);
+        R3::vector a = M * v;
+        ASSERT_VECTOR_EQ(R3::vector({0, 0, 1}), a);
+    }
+    {
+        R3::vector v = R3::basis::Y;
+        matrix M = R3::yaw(0.25);
+        R3::vector a = M * v;
+        ASSERT_VECTOR_EQ(R3::vector({-1, 0, 0}), a);
+    }
+    {
+        R3::vector v = R3::basis::X;
+        matrix M = R3::yaw(0.25);
+        R3::vector a = M * v;
+        ASSERT_VECTOR_EQ(R3::vector({0, 1, 0}), a);
+    }
+    {
+        R3::vector v = R3::basis::X;
+        matrix M = R3::yaw(0.125);
+        R3::vector a = M * v;
+        ASSERT_VECTOR_EQ(R3::vector({basal::inv_sqrt_2, basal::inv_sqrt_2, 0}), a);
+    }
+}
+
+TEST(Rotations, Compounds) {
+    using namespace iso::operators;
+    // we want to achieve a |1,1,1| vector from a X basis vector
+    // the vector makes an angle of 45 degrees with the x axis
+    // and an angle of 45 degrees with the y axis
+    // but the angle from the XY plane
+    R3::vector f({basal::inv_sqrt_3, basal::inv_sqrt_3, basal::inv_sqrt_3});
+    iso::radians alpha = angle(R3::basis::X, f);
+    iso::radians beta = angle(R3::basis::Y, f);
+    iso::radians gamma = angle(R3::basis::Z, f);
+    iso::radians rise = iso::radians(iso::pi / 2) - gamma;
+    std::cout << "Turns -> palpha: " << alpha.value / iso::tau << " beta: " << beta.value / iso::tau
+              << " gamma: " << gamma.value / iso::tau << " rise: " << rise.value / iso::tau << std::endl;
+    R3::vector v = R3::basis::X;
+    matrix M = rotation(iso::radians{iso::pi / 4}, iso::radians{-rise}, iso::radians{0});
+    //--------------------
+    R3::vector a = M * v;
+    //--------------------
+    ASSERT_VECTOR_EQ(f, a);
+}

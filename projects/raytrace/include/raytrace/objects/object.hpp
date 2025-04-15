@@ -365,16 +365,19 @@ public:
     Bounds get_world_bounds(void) const {
         // finds the object's maximum radial distance from the object origin
         auto r = get_object_extent();
-        basal::exception::throw_if(std::isnan(r), __FILE__, __LINE__, "Got a %lf from an extent\r\n", r);
+        basal::exception::throw_if(std::isnan(r) or r < 0.0_p, __FILE__, __LINE__, "Got a %lf from an extent\r\n", r);
         if (std::isinf(r)) {
             return Bounds{};  // infinite bounds
         }
-        // constructs a local trivial structure
-        return Bounds{
-            entity_<DIMS>::forward_transform(raytrace::point{-r, -r, -r}),  // min
-            // FIXME add an epsilon to the max to avoid floating point errors as the max is exclusive!
-            entity_<DIMS>::forward_transform(raytrace::point{r, r, r})  // max (exclusive)
-        };
+        // the bounding box should not take into account the rotation of the object, this will cause max < min.
+        auto p0 = raytrace::point{-r, -r, -r} + (entity_<DIMS>::position() - R3::origin);
+        auto p1 = raytrace::point{r, r, r} + (entity_<DIMS>::position() - R3::origin);
+        if constexpr (debug::bounds) {
+            std::cout << "Object position " << entity_<3>::position() << " extent: " << r << " p0 " << p0 << " p1 "
+                      << p1 << std::endl;
+        }
+        // constructs a local with min (inclusive) and max (exclusive)
+        return Bounds{p0, p1};
     }
 
     /// Returns the maximum radial distance from the object origin on the surface of the object.

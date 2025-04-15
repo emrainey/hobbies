@@ -16,7 +16,7 @@ public:
         : look_from{0, 50, 20}
         , look_at{0, 0, 10}
         , sun_rays{raytrace::vector{-20, 0, -21}, colors::white, lights::intensities::full}
-        , floor{R3::origin, R3::basis::Z, 100.0_p, 100.0_p}
+        , floor{200.0_p}
         , cb0{0.125_p, colors::black, colors::white}
         , s0{raytrace::point{5.0_p, 0, 5}, 5.0_p}
         , s1{raytrace::point{-5.0_p, 0, 5}, 5.0_p}

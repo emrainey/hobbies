@@ -21,7 +21,7 @@ public:
         , look_at{0, 0, 2.0_p}
         , glass_ball{raytrace::point{0, 0, 5.0_p}, 5.0_p}  //, glass_cube(raytrace::point{0, 10, 2}, 2, 2, 2}
         , toy_ball{raytrace::point{-20, -20, 2.0_p}, 2.0_p}
-        , floor{R3::origin, R3::basis::Z, 100, 100}
+        , floor{200.0_p}
         , ikea_checkers{0.1_p,         colors::blue, colors::yellow, colors::red,  colors::magenta,
                         colors::green, colors::cyan, colors::black,  colors::white}
         , schott_glass{mediums::refractive_index::glass, 0.04_p, colors::red}

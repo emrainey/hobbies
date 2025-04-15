@@ -29,7 +29,7 @@ public:
         // overlap space will be centered 1/2 way between origin and the cutout2
         // cutout2 from base. the center will now be at 0, 0, -7.5_p due to centroid calculation
         , final_base{base, cutout2, raytrace::objects::overlap::type::inclusive}
-        , ground{R3::origin, R3::basis::Z}
+        , ground{}
         , sunlight{raytrace::vector{-2, 2, -1}, colors::white, lights::intensities::bright}
         , prick{raytrace::point{0, 0, 3}, colors::white, lights::intensities::bright} {
         // the final base should sit on the ground

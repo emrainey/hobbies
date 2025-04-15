@@ -25,11 +25,11 @@ public:
                      mediums::roughness::tight)
         , marble0{0.128283_p, 0.2_p, 32.0_p, colors::black, colors::yellow}
         , glass{mediums::refractive_index::glass, 0.02_p, colors::gray}
-        , wall0{raytrace::point{0, 80, 80}, -R3::basis::Y}  // left
-        , wall1{raytrace::point{0, -80, 80}, R3::basis::Y}  // right
-        , wall2{raytrace::point{80, 0, 80}, -R3::basis::X}  // back
-        , wall3{R3::origin, R3::basis::Z}                   // floor
-        , wall4{raytrace::point{0, 0, 160}, -R3::basis::Z}  // ceiling
+        , wall0{raytrace::point{0, 80, 80}, R3::roll(iso::radians{iso::pi / 2})}    // left
+        , wall1{raytrace::point{0, -80, 80}, R3::roll(iso::radians{-iso::pi / 2})}  // right
+        , wall2{raytrace::point{80, 0, 80}, R3::pitch(iso::radians{-iso::pi / 2})}  // back
+        , wall3{}                                                                   // floor
+        , wall4{raytrace::point{0, 0, 160}, R3::pitch(iso::radians{iso::pi})}       // ceiling
         , box{raytrace::point{0, -30, 60}, 20, 20, 60}
         , ball{raytrace::point{0, 30, 30}, 30}
         , top_light{raytrace::point{0, 0, 150}, colors::white, 1E4} {

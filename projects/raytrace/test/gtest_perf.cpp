@@ -43,7 +43,7 @@ protected:
 
 TEST_F(PerfCounter, IntersectionsPlane) {
     raytrace::ray r{raytrace::point{0, 0, 2}, -R3::basis::Z};
-    raytrace::objects::plane obj(R3::origin, R3::basis::Z);
+    raytrace::objects::plane obj;
     activity = std::string("plane intersections");
     for (size_t count = 0; count < number_of_ops; count++) {
         geometry::intersection hit = obj.intersect(r).intersect;
@@ -53,7 +53,7 @@ TEST_F(PerfCounter, IntersectionsPlane) {
 
 TEST_F(PerfCounter, IntersectionsSquare) {
     raytrace::ray r{raytrace::point{0.98_p, 0.98_p, 2}, -R3::basis::Z};
-    raytrace::objects::square obj(R3::origin, R3::basis::Z, 1.0_p, 1.0_p);
+    raytrace::objects::square obj(2.0_p);
     activity = std::string("square intersections");
     for (size_t count = 0; count < number_of_ops; count++) {
         geometry::intersection hit = obj.intersect(r).intersect;
@@ -63,7 +63,7 @@ TEST_F(PerfCounter, IntersectionsSquare) {
 
 TEST_F(PerfCounter, IntersectionsRing) {
     raytrace::ray r{raytrace::point{1.5_p, 0, 2}, -R3::basis::Z};
-    raytrace::objects::ring obj(R3::origin, R3::basis::Z, 1.0_p, 2.0_p);
+    raytrace::objects::ring obj(1.0_p, 2.0_p);
     activity = std::string("ring intersections");
     for (size_t count = 0; count < number_of_ops; count++) {
         geometry::intersection hit = obj.intersect(r).intersect;

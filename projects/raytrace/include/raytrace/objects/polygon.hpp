@@ -7,10 +7,9 @@
 
 namespace raytrace {
 namespace objects {
-/// A three point polygon which uses the convex "inner" rules to find the intersection
-/// and not the plane intersection rules
+/// A three point polygon which uses the plane intersection rules then the convex "inner" rules to find the intersection
 template <size_t N>
-class polygon : public plane {
+class polygon : public object {
 public:
     /// Constructs a polygon from some number of points (where N >=3)
     /// The second point is considered the middle point for computation of the normal.
@@ -25,6 +24,7 @@ public:
     /// of the given points. All the points will be adjusted so that the center is at the R3::origin and the
     /// entire polygon has been translated by the centroid
     polygon(std::array<R3::point, N> const& points);
+    /// Destructors
     virtual ~polygon() = default;
 
     // ┌─────────────────────────┐
@@ -34,15 +34,17 @@ public:
     bool is_surface_point(point const& world_point) const override;
     precision get_object_extent(void) const override;
     void print(std::ostream& os, char const str[]) const override;
+    image::point map(point const& object_surface_point) const override;
 
     /// Determines if a point on the plane is contained within the array of three points
     bool is_contained(point const& object_point) const;
 
-    /// Returns a read-only reference to an array of 3 points
+    /// Returns a read-only reference to an array of N points
     const std::array<R3::point, N>& points() const;
 
 protected:
     std::array<R3::point, N> m_points;
+    R3::vector normal_(point const& object_surface_point) const override;
     /// The squared maximum radius from object center.
     precision m_radius2;
 };
@@ -64,9 +66,5 @@ std::array<raytrace::point, N> make_polygon_points(precision radius, R3::point c
 }
 
 }  // namespace objects
-
-/// Returns the plane in which the three points are co-planar
-template <size_t N>
-geometry::plane as_plane(objects::polygon<N> const& poly);
 
 }  // namespace raytrace

@@ -16,7 +16,7 @@ public:
         : look_from{0, 25, 10}
         , look_at{0, 0, 10}
         , sun_rays{raytrace::vector{-20, 0, -21}, colors::white, lights::intensities::dim}
-        , floor{R3::origin, R3::basis::Z, 100.0_p, 100.0_p}
+        , floor{200.0_p}
         , pyramid{look_at, 0}
         , orb{raytrace::point{0, 0, 12}, 2.0_p}
         , halo{raytrace::point{0, 0, 14}, 2.25_p, 0.125_p} {

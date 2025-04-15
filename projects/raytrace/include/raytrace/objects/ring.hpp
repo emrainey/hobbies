@@ -9,8 +9,21 @@ namespace objects {
 /// A plane bounded by an inner and outer radius
 class ring : public raytrace::objects::plane {
 public:
+    /// Constructs a ring at the default location
+    /// The ring is idealized as the XY plane with the normal as +Z.
+    /// @param inner The inner radius of the ring in object space
+    /// @param outer The outer radius of the ring in object space
+    ring(precision inner, precision outer);
+
     /// Constructs a ring
-    ring(point const& C, vector const& N, precision inner, precision outer);
+    /// The ring is idealized as the XY plane with the normal as +Z.
+    /// @param C The center of the ring in world space
+    /// @param R The rotation matrix of the ring in world space
+    /// @param inner The inner radius of the ring in object space
+    /// @param outer The outer radius of the ring in object space
+    ring(point const& C, matrix const& R, precision inner, precision outer);
+
+    /// Destructor
     virtual ~ring() = default;
 
     // ┌─────────────────────────┐
@@ -26,7 +39,4 @@ private:
     precision m_outer_radius2;  ///< Squared Outer Radius
 };
 }  // namespace objects
-/// Returns the plane in which the three points we co-planar
-geometry::plane as_plane(objects::ring const& tri);
-
 }  // namespace raytrace

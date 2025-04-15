@@ -308,9 +308,9 @@ public:
     }
 
     friend vector_ negation(vector_ const& a) {
-        vector_ b{a};
-        b *= -1.0_p;
-        return b;
+        vector_ b{a};  // copy
+        b *= -1.0_p;   // scale
+        return b;      // return
     }
 };
 

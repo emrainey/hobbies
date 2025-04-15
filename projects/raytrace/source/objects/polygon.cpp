@@ -11,46 +11,41 @@ using namespace geometry;
 using namespace geometry::operators;
 
 template <size_t N>
-polygon<N>::polygon(std::initializer_list<R3::point> points) : plane{R3::origin, R3::basis::Z}, m_points{} {
+polygon<N>::polygon(std::initializer_list<R3::point> points)
+    : object{R3::origin, 1, Type::Polygon, false}, m_points{}, m_radius2{std::numeric_limits<precision>::min()} {
     std::vector<R3::point> point_vector{points};
     basal::exception::throw_unless(N == point_vector.size(), __FILE__, __LINE__,
                                    "The number of points must be equal to the number of points in the polygon");
-    m_normal = R3::cross(point_vector[0] - point_vector[1], point_vector[2] - point_vector[1]).normalized();
-    eq.a = m_normal[0];
-    eq.b = m_normal[1];
-    eq.c = m_normal[2];
     // this defines the center of the given points which will be the translated center to the polygon
     point center = centroid(points);
-    m_type = Type::Polygon;
-    m_has_definite_volume = false;  // a polygon is a bounded planar surface
     if constexpr (debug::polygon) {
         std::cout << "Polygon Center: " << center << std::endl;
     }
     // now relocate all the points so that the center is translated to where ever the points were defined as but each
-    // point is not relative to the center
+    // point is now relative to the center
     vector delta = center - R3::origin;
-    // adjust all the given points so that they are relative to the R3::origin
-    m_points[0] = point_vector[0] - delta;
-    m_points[1] = point_vector[1] - delta;
-    m_points[2] = point_vector[2] - delta;
-    if constexpr (debug::polygon) {
-        std::cout << "\tMoved points to A=" << m_points[0] << " B=" << m_points[1] << " C=" << m_points[2] << std::endl;
+    // adjust all the given points so that they are relative to the center so that they are effectively relative to the
+    // R3::origin afterwards
+    for (size_t i = 0; i < N; ++i) {
+        m_points[i] = point_vector[i] - delta;
+        if constexpr (debug::polygon) {
+            std::cout << "\tMoved [" << i << "] " << point_vector[i] << " -> " << m_points[i] << std::endl;
+        }
+        auto r = (m_points[i] - R3::origin).quadrance();
+        if (m_radius2 < r) {
+            m_radius2 = r;
+        }
     }
     // now the relocated center is moved
     position(center);
     if constexpr (debug::polygon) {
         std::cout << "\tMoved center to " << position() << std::endl;
     }
-    // now find the farthest point from the origin of the polygon
-    precision a = (m_points[0] - R3::origin).quadrance();
-    precision b = (m_points[1] - R3::origin).quadrance();
-    precision c = (m_points[2] - R3::origin).quadrance();
-    m_radius2 = std::max(a, std::max(b, c));
 }
 
 template <size_t N>
 polygon<N>::polygon(std::array<R3::point, N> const& points)
-    : plane{R3::origin, R3::cross(points[0] - points[1], points[2] - points[1]).normalized()}, m_points{points} {
+    : object{R3::origin, 1, Type::Polygon, false}, m_points{points} {
     // this defines the center of the given points which will be the translated center to the polygon
     point center = centroid(points);
     m_type = Type::Polygon;
@@ -62,22 +57,27 @@ polygon<N>::polygon(std::array<R3::point, N> const& points)
     // point is not relative to the center
     vector delta = center - R3::origin;
     // adjust all the given points so that they are relative to the R3::origin
-    m_points[0] -= delta;
-    m_points[1] -= delta;
-    m_points[2] -= delta;
-    if constexpr (debug::polygon) {
-        std::cout << "\tMoved points to A=" << m_points[0] << " B=" << m_points[1] << " C=" << m_points[2] << std::endl;
+    for (size_t i = 0; i < N; ++i) {
+        m_points[i] = points[i] - delta;
+        if constexpr (debug::polygon) {
+            std::cout << "\tMoved [" << i << "] " << points[i] << " -> " << m_points[i] << std::endl;
+        }
+        auto r = (m_points[i] - R3::origin).quadrance();
+        if (m_radius2 < r) {
+            m_radius2 = r;
+        }
     }
     // now the relocated center is moved
     position(center);
     if constexpr (debug::polygon) {
         std::cout << "\tMoved center to " << position() << std::endl;
     }
-    // now find the farthest point from the origin of the polygon
-    precision a = (m_points[0] - R3::origin).quadrance();
-    precision b = (m_points[1] - R3::origin).quadrance();
-    precision c = (m_points[2] - R3::origin).quadrance();
-    m_radius2 = std::max(a, std::max(b, c));
+}
+
+template <size_t N>
+R3::vector polygon<N>::normal_(point const&) const {
+    // cross the first 3 points to get the normal
+    return R3::cross(m_points[0] - m_points[1], m_points[2] - m_points[1]).normalized();
 }
 
 template <size_t N>
@@ -90,7 +90,7 @@ bool polygon<N>::is_contained(point const& object_point) const {
         for (size_t i = 0; i < N; ++i) {
             auto edge = m_points[(i + 1) % N] - m_points[i];
             auto test = object_point - m_points[i];
-            proj[i] = R3::triple(m_normal, test, edge);
+            proj[i] = R3::triple(normal_(R3::origin), test, edge);
         }
         // now, we must find any proj that are negative to determine if the point is outside the polygon
         for (size_t i = 0; i < N; ++i) {
@@ -106,25 +106,63 @@ bool polygon<N>::is_contained(point const& object_point) const {
 
 template <size_t N>
 hits polygon<N>::collisions_along(ray const& object_ray) const {
-    auto collisions = plane::collisions_along(object_ray);
-    hits hits;
-    for (auto& h : collisions) {
-        if (is_contained(as_point(h.intersect))) {  // this is in object space still
+    hits ts;
+    // is the ray parallel to the plane?
+    // @note in object space, the center point is at the origin
+    vector const n = normal_(R3::origin);  // the normal is the same for all points
+    vector const& V = object_ray.direction();
+    precision const proj = dot(V, n);
+    // if so the projection is not zero they collide *somewhere*
+    // could be positive or negative t. Don't check for proj < 0.0_p since we may be
+    // concerned with colliding with the back-side of walls
+    if (not basal::nearly_zero(proj)) {  // they collide *somewhere*
+        point const& P = object_ray.location();
+        // get the vector of the center to the ray initial
+        vector const C = R3::origin - P;
+        // t is the ratio of the projection of the arbitrary center vector divided by the projection ray
+        precision const t = dot(C, n) / proj;
+        // D is the point on the line t distance along
+        point D = object_ray.distance_along(t);
+        if (is_contained(D)) {  // this is in object space still
             // now we determine if the polygon normal is "facing" the ray or not
-            precision projected_length = dot(h.normal, object_ray.direction());
+            precision projected_length = dot(n, object_ray.direction());
             if (projected_length < 0.0_p) {
-                hits.push_back(h);
+                ts.emplace_back(intersection{D}, t, n, this);
             }
         }
     }
-    return hits;
+    return ts;
+}
+
+template <size_t N>
+image::point polygon<N>::map(point const& object_surface_point) const {
+    // in object space the origin is the center and the normal is computed from the first 3 points
+    // the polygon could have *any* orientation!
+    vector w = object_surface_point - R3::origin;
+    if (w == R3::null) {
+        return image::point{0, 0};
+    }
+    // the first 3 points form a basis (possibly not orthagonal) in 2D.
+    vector i = m_points[0] - m_points[1];
+    vector j = m_points[2] - m_points[1];
+    vector k = cross(i, j);
+    R3::axes a{position(), i, j, k};
+    R3::point b = a.to_basis() * object_surface_point;
+    R2::point uv{b.x, b.y};
+    return uv;
 }
 
 template <size_t N>
 bool polygon<N>::is_surface_point(point const& world_point) const {
     point object_point = reverse_transform(world_point);
-    vector T = world_point - position();
-    return basal::nearly_zero(dot(unormal(), T)) and is_contained(world_point);
+    vector world_delta = world_point - position();
+    if (world_delta == R3::null) {
+        return true;
+    }
+    vector const& n = normal_(R3::origin);  // all the same normals
+    vector const& V = world_delta;
+    precision const proj = dot(V, n);
+    return basal::nearly_zero(proj) and is_contained(object_point);
 }
 
 template <size_t N>
@@ -151,17 +189,5 @@ template class polygon<6U>;
 template class polygon<8U>;
 
 }  // namespace objects
-
-template <size_t N>
-geometry::plane as_plane(objects::polygon<N> const& poly) {
-    return poly;  // now a polygon is a special plane
-}
-
-// EXPLICIT INSTANTIATIONS
-template geometry::plane as_plane<3>(objects::polygon<3> const& poly);
-template geometry::plane as_plane<4>(objects::polygon<4> const& poly);
-template geometry::plane as_plane<5>(objects::polygon<5> const& poly);
-template geometry::plane as_plane<6>(objects::polygon<6> const& poly);
-template geometry::plane as_plane<8>(objects::polygon<8> const& poly);
 
 }  // namespace raytrace

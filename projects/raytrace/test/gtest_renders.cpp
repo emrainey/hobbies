@@ -31,7 +31,7 @@ public:
         , beam_of_light{raytrace::vector{-20, 0, -21}, colors::white, lights::intensities::full}
         , inner_light{raytrace::point{0, 0, 10}, colors::white, lights::intensities::moderate}
         , look_at{0, 0, 10}
-        , plane0{R3::point{0, 0, 0}, R3::basis::Z}
+        , plane0{}
         , scenes{} {
     }
 
@@ -146,9 +146,9 @@ TEST_F(RenderTest, DISABLED_Cube) {
 }
 
 TEST_F(RenderTest, DISABLED_WallBox) {
-    raytrace::objects::wall px(look_at, R3::basis::X, 10);
-    raytrace::objects::wall py(look_at, R3::basis::Y, 10);
-    raytrace::objects::wall pz(look_at, R3::basis::Z, 10);
+    raytrace::objects::wall px(look_at, R3::pitch(0.25), 10);
+    raytrace::objects::wall py(look_at, R3::roll(-0.25), 10);
+    raytrace::objects::wall pz(look_at, R3::identity, 10);
     px.material(&plastic);
     py.material(&plastic);
     pz.material(&plastic);
@@ -162,7 +162,7 @@ TEST_F(RenderTest, DISABLED_Cylinder) {
     R3::point c0{0, 0, 10};
     R3::point c1{0, 0, 20};
     raytrace::objects::cylinder shape(c0, 10, 10);
-    raytrace::objects::ring cap(c1, R3::basis::Z, 0, 10);
+    raytrace::objects::ring cap(c1, R3::identity, 0, 10);
     // shape.material(&checkers);
     shape.material(&rubber);
     // cap.material(&checkers);
@@ -181,10 +181,10 @@ TEST_F(RenderTest, DISABLED_Cone) {
 }
 
 TEST_F(RenderTest, DISABLED_Ring) {
-    R3::vector up{{1, 1, 3}};
-    raytrace::objects::ring shape1(look_at, up, 5, 10);
-    raytrace::objects::ring shape2(look_at, -up, 5, 10);
-    checkers2.mapper(std::bind(&raytrace::objects::ring::map, &shape1, std::placeholders::_1));
+    auto M = R3::yaw(0.125) * R3::pitch(-0.125) * R3::roll(0.125);
+    raytrace::objects::ring shape1(look_at, M, 5, 10);
+    raytrace::objects::ring shape2(look_at, M.inverse(), 5, 10);
+    checkers2.mapper(std::bind(&raytrace::objects::ring::map, &shape2, std::placeholders::_1));
     shape1.material(&checkers2);
     shape2.material(&checkers2);
     // shape1.material(&rubber);
@@ -208,8 +208,8 @@ TEST_F(RenderTest, DISABLED_Triangle) {
 }
 
 TEST_F(RenderTest, DISABLED_Square) {
-    square shape1(look_at, R3::basis::Z, 16, 16);
-    square shape2(look_at, -R3::basis::Z, 16, 16);
+    square shape1(look_at, R3::identity, 32);
+    square shape2(look_at, R3::roll(0.5), 32);
     checkers2.mapper(std::bind(&raytrace::objects::square::map, &shape1, std::placeholders::_1));
     shape1.material(&checkers2);
     shape2.material(&checkers2);
@@ -228,7 +228,7 @@ TEST_F(RenderTest, DISABLED_Torus) {
 
 TEST_F(RenderTest, DISABLED_QuadraticCylinder) {
     ellipticalcylinder shape(look_at, 5.0_p, 5.0_p);
-    ASSERT_TRUE(shape.has_definite_volume());
+    ASSERT_FALSE(shape.has_definite_volume());
     shape.material(&plastic);
     add_object(&shape);
     render_all("ellipticalcylinder");
@@ -236,7 +236,7 @@ TEST_F(RenderTest, DISABLED_QuadraticCylinder) {
 
 TEST_F(RenderTest, DISABLED_QuadraticCone) {
     ellipticalcone shape(look_at, 0.3_p, 0.3_p);
-    ASSERT_TRUE(shape.has_definite_volume());
+    ASSERT_FALSE(shape.has_definite_volume());
     shape.material(&plastic);
     add_object(&shape);
     render_all("ellipticalcone");
@@ -252,7 +252,7 @@ TEST_F(RenderTest, DISABLED_QuadraticEllipsoid) {
 
 TEST_F(RenderTest, DISABLED_QuadraticParaboloid) {
     paraboloid shape(look_at, 0.5_p, 0.5_p, 1.0_p);
-    ASSERT_TRUE(shape.has_definite_volume());
+    ASSERT_FALSE(shape.has_definite_volume());
     shape.material(&plastic);
     add_object(&shape);
     render_all("paraboloid");
@@ -260,7 +260,7 @@ TEST_F(RenderTest, DISABLED_QuadraticParaboloid) {
 
 TEST_F(RenderTest, DISABLED_QuadraticHyperboloid) {
     hyperboloid shape(look_at, 3.0_p, 3.0_p, 3.0_p);
-    ASSERT_TRUE(shape.has_definite_volume());
+    ASSERT_FALSE(shape.has_definite_volume());
     shape.material(&plastic);
     add_object(&shape);
     render_all("hyperboloid");
@@ -328,12 +328,16 @@ TEST_F(RenderTest, DISABLED_SphereBunchOfSpecks) {
     raytrace::objects::sphere shape(look_at, 5);
     shape.material(&checkers2);
     add_object(&shape);
-    // create a 20x20 grid of specks above the sphere
+    int const count = 5U;  // should be odd to get the best effect
+    // create a CountxCount grid of specks above the sphere
+    int const half = count / 2;
     std::vector<raytrace::lights::speck *> specks;
-    for (size_t i = 0; i < 20; i++) {
-        for (size_t j = 0; j < 20; j++) {
-            raytrace::point pnt((i * 20.0_p) - 200.0_p, (j * 20.0_p) - 200.0_p, 2000.0_p);
-            specks.push_back(new raytrace::lights::speck(pnt, colors::white, 1E3));
+    for (int i = -half; i <= half; i++) {
+        for (int j = -half; j <= half; j++) {
+            precision x = static_cast<precision>(i) * 2.0_p;
+            precision y = static_cast<precision>(j) * 2.0_p;
+            raytrace::point pnt(x, y, 20.0_p);
+            specks.push_back(new raytrace::lights::speck(pnt, colors::white, lights::intensities::full));
             add_light(specks.back());
         }
     }

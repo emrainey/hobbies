@@ -10,10 +10,12 @@ using namespace linalg::operators;
 using namespace geometry;
 using namespace geometry::operators;
 
-ring::ring(point const& C, vector const& N, precision inner, precision outer)
-    : raytrace::objects::plane(C, N), m_inner_radius2(inner * inner), m_outer_radius2(outer * outer) {
+ring::ring(precision inner, precision outer) : ring(R3::origin, R3::identity, inner, outer) {
+}
+
+ring::ring(point const& C, matrix const& R, precision inner, precision outer)
+    : raytrace::objects::plane(C, R), m_inner_radius2(inner * inner), m_outer_radius2(outer * outer) {
     m_type = Type::Ring;
-    m_has_definite_volume = false;  // a ring is a bounded planar surface
     basal::exception::throw_unless(m_inner_radius2 < m_outer_radius2, __FILE__, __LINE__,
                                    "Inner radius must be less than outer radius");
 }
@@ -21,7 +23,7 @@ ring::ring(point const& C, vector const& N, precision inner, precision outer)
 hits ring::collisions_along(ray const& object_ray) const {
     hits ts;
     // is the ray parallel to the plane?
-    vector const& N = unormal().normalized();
+    vector const& N = normal_(R3::origin);  // same as plane()
     vector const& V = object_ray.direction();
     precision const proj = dot(V, N);                     // if so the projection is zero
     if (not basal::nearly_zero(proj) and proj < 0.0_p) {  // they collide *somewhere*
@@ -53,8 +55,8 @@ bool ring::is_surface_point(point const& world_point) const {
 }
 
 void ring::print(std::ostream& os, char const str[]) const {
-    os << str << " ring @" << this << " " << object_<3>::position() << " " << m_normal
-       << " Radii (Squared):" << m_inner_radius2 << ", " << m_outer_radius2 << std::endl;
+    os << str << " ring @" << this << " " << object_<3>::position() << " Radii (Squared):" << m_inner_radius2 << ", "
+       << m_outer_radius2 << std::endl;
 }
 
 precision ring::get_object_extent(void) const {

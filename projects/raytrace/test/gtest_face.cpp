@@ -18,7 +18,6 @@ TEST(FaceTest, Basics) {
     f.print(std::cout, "Face");
     EXPECT_EQ(f.points().size(), 3u);
     EXPECT_POINT_EQ(raytrace::point(1.0_p / 3.0_p, 1.0_p / 3.0_p, 0.0_p / 3.0_p), f.position());
-    raytrace::vector n = f.normal(D);
     EXPECT_VECTOR_EQ(R3::basis::Z, f.normal(D));
     image::point p = f.map(R3::origin);
     EXPECT_PRECISION_EQ(p[0], 1.0_p / 3.0_p);
@@ -36,7 +35,6 @@ TEST(FaceTest, Texture) {
     raytrace::objects::face f{A, B, C, image::point{1, 0}, image::point{0, 0}, image::point{0, 1}};
     f.print(std::cout, "Face");
     EXPECT_EQ(f.points().size(), 3u);
-    raytrace::vector n = f.normal(D);
     EXPECT_VECTOR_EQ(R3::basis::Z, f.normal(D));
     image::point p = f.map(D);
     // FIXME uv mapping needs to be verified, but this is not helpful

@@ -27,11 +27,11 @@ public:
         , s0{raytrace::point{0, 0, 5}, 5}
         , s1{raytrace::point{0, 0, 15}, 5}
         , s2{raytrace::point{0, 0, 25}, 5}
-        , wall0{raytrace::point{0, 10, 0}, -R3::basis::Y}   // left
-        , wall1{raytrace::point{0, -10, 0}, R3::basis::Y}   // right
-        , wall2{raytrace::point{-10, 0, 0}, R3::basis::X}   // back
-        , wall3{R3::origin, R3::basis::Z}                   // floor
-        , wall4{raytrace::point{0, 0, 160}, -R3::basis::Z}  // ceiling
+        , wall0{raytrace::point{0, 10, 0}, R3::roll(iso::radians{iso::pi / 2})}    // left
+        , wall1{raytrace::point{0, -10, 0}, R3::roll(iso::radians{-iso::pi / 2})}  // right
+        , wall2{raytrace::point{-10, 0, 0}, R3::pitch(iso::radians{iso::pi / 2})}  // back
+        , wall3{}                                                                  // floor
+        , wall4{raytrace::point{0, 0, 160}, R3::pitch(iso::radians{iso::pi})}      // ceiling
     {
         // assign surfaces and materials
         s0.material(&mediums::metals::silver);

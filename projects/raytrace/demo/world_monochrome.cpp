@@ -24,7 +24,7 @@ public:
         , plain_white{colors::white, mediums::ambient::none, colors::white, mediums::smoothness::none, roughness::tight}
         , checkerboard_grid{0.1_p,         colors::blue, colors::yellow, colors::red,  colors::magenta,
                             colors::green, colors::cyan, colors::black,  colors::white}
-        , floor{R3::origin, R3::basis::Z, 100, 100}
+        , floor{200.0_p}
         , light0{raytrace::point{-5, 0, 10}, 1, colors::white, 10, light_subsamples}
         , light1{raytrace::point{-4, 0, 10}, 1, colors::white, 10, light_subsamples}
         , light2{raytrace::point{-3, 0, 10}, 1, colors::white, 10, light_subsamples}
@@ -44,7 +44,7 @@ public:
         //, cylinder_box{raytrace::point{-2, 3, 2}, 1, 1, 2}
         //, cyl{infinite_cylinder, cylinder_box, overlap::type::inclusive}
         , cyl{raytrace::point{-2, 3, 2}, 2, 1}  // cylinder
-        , cap{raytrace::point{-2, 3, 4}, R3::basis::Z, 0, 1}
+        , cap{raytrace::point{-2, 3, 4}, R3::identity, 0, 1}
         , t0{raytrace::point{3, 7, 0.5_p}, 1.4_p, 0.5_p}
         , cb0{raytrace::point{7, -2, 1}, 1, 1, 1} {
         // assign surfaces and materials

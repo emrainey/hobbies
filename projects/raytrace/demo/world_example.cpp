@@ -21,7 +21,7 @@ public:
         : world{}
         , look_from{-50, -50, 50}
         , look_at{0, 0, 0}
-        , tilt{{-0.2_p, +0.2_p, 1.0_p}}  // define some surfaces
+        , tilt{rotation(iso::radians(0), iso::radians(0), iso::radians(iso::pi / 5))}
         , plain_yellow{colors::yellow, mediums::ambient::none, colors::yellow, mediums::smoothness::small,
                        mediums::roughness::tight}
         , plain_blue{colors::white, mediums::ambient::none, colors::blue, mediums::smoothness::small,
@@ -42,14 +42,14 @@ public:
         , checker_ball{raytrace::point{0, 30, checker_ball_radius}, checker_ball_radius}
         , checker_ball_ring0{checker_ball.position(), tilt, checker_ball_ring_radius_inner,
                              checker_ball_ring_radius_outer}
-        , checker_ball_ring1{checker_ball.position(), -tilt, checker_ball_ring_radius_inner,
+        , checker_ball_ring1{checker_ball.position(), tilt * -1, checker_ball_ring_radius_inner,
                              checker_ball_ring_radius_outer}
         , cyl_position{-30, 00, 10}
         , top{cyl_position + R3::vector{{0, 0, 10}}}
-        , cap{top, R3::basis::Z, 0, 10}
+        , cap{top, R3::identity, 0, 10}
         , column{cyl_position, 10, 10}
         , polka_dot_cube{raytrace::point{30, 0, 7.5_p}, 7.5_p, 7.5_p, 7.5_p}
-        , ground{R3::origin, R3::basis::Z}
+        , ground{}
         , cone_position{0, 0, 10}
         , inner_cone{cone_position, iso::radians(iso::pi / 12)}
         , bounding_cone{cone_position, 10, 10, 10}
@@ -150,7 +150,7 @@ public:
 protected:
     raytrace::point look_from;
     raytrace::point look_at;
-    vector tilt;
+    matrix tilt;
     // define some surfaces
     plain plain_yellow;
     plain plain_blue;

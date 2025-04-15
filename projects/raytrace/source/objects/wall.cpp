@@ -10,23 +10,30 @@ using namespace linalg::operators;
 using namespace geometry;
 using namespace geometry::operators;
 
-wall::wall(point const& C, vector const& N, precision thickness)
+wall::wall(precision thickness) : wall(R3::origin, R3::identity, thickness) {
+}
+
+wall::wall(point const& C, matrix const& R, precision thickness)
     : object{C, 2, Type::Wall, false}
-    // a wall is not a closed surface
+    // a wall is not a "closed" surface
     // the "wall space" has the center at the origin and the walls are just offset from origin
-    , m_front_{R3::origin + (N.normalized() * thickness / 2.0_p), N.normalized()}
-    , m_back_{R3::origin + ((-N.normalized()) * thickness / 2.0_p), -N.normalized()} {
+    // each wall is just the thickness of the wall divided by 2 away from the center in Z
+    // an extra rotation is applied  to the back wall to get the correct normal
+    , m_front_{R3::origin + (R3::basis::Z * (thickness / 2.0_p)), R3::identity}
+    , m_back_{R3::origin - (R3::basis::Z * (thickness / 2.0_p)), R3::roll(0.5)} {
+    m_rotation = R;
+    m_inv_rotation = R.inverse();
+    compute_transforms();
 }
 
 vector wall::normal_(point const& wall_point) const {
     using namespace geometry::operators;
-    vector const& Nf = m_front_.unormal();
-    vector const& Nb = m_back_.unormal();
-    // if (geometry::operators::operator==(wall_point,m_front_.position())) {
+    // wall space is NOT world space, it's been transformed!
+    vector const& Nf = m_front_.normal(wall_point);
+    vector const& Nb = m_back_.normal(wall_point);
     if (wall_point == m_front_.position()) {
         return Nf;
     }
-    // if (geometry::operators::operator==(wall_point, m_back_.position())) {
     if (wall_point == m_back_.position()) {
         return Nb;
     }
@@ -40,22 +47,9 @@ vector wall::normal_(point const& wall_point) const {
     } else if (basal::nearly_zero(projection_to_back_plane)) {
         return Nb;  // already forward transformed
     }
-    // std::abort();
     // either between or nearly so
     return geometry::R3::null;
 }
-
-// intersection wall::intersect(ray const& world_ray) const {
-//     auto object_ray = reverse_transform(world_ray);
-//     hits ts = collisions_along(object_ray); // either 0 or two
-//     if (ts.size() == 2 and ts[0] >= (0 - basal::epsilon) and ts[1] >= (0 - basal::epsilon)) {
-//         size_t index = (ts[0] < ts[1]) ? 0 : 1u;
-//         auto object_point = object_ray.distance_along(ts[index]);
-//         auto world_point = forward_transform(object_point);
-//         return intersection(world_point);
-//     }
-//     return intersection();
-// }
 
 hits wall::collisions_along(ray const& wall_ray) const {
     auto plane_rayA = m_front_.reverse_transform(wall_ray);

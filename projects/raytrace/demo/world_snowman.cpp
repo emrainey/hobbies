@@ -53,19 +53,22 @@ public:
         , carrot(colors::orange, mediums::ambient::dim, colors::orange, mediums::smoothness::none,
                  mediums::roughness::tight)
         , plum{colors::plum, mediums::ambient::none, colors::plum, mediums::smoothness::none, mediums::roughness::loose}
-        , ground{raytrace::point{0, 0, 0}, R3::basis::Z}
+        , ground{raytrace::point{0, 0, 0}, R3::identity}
         , sn_btm{raytrace::point{0, 0, 2}, 2.5_p}
         , sn_mid{raytrace::point{0, 0, 5}, 2}
         , sn_top{raytrace::point{0, 0, 7.5_p}, 1.5_p}
         , left_eye{raytrace::point{-0.5_p, 1.1_p, 8}, 0.3_p}
         , right_eye{raytrace::point{0.5_p, 1.1_p, 8}, 0.3_p}
         , nose{raytrace::point{0.0_p, 1.3_p, 7.5_p}, 0.3_p, 1.5_p}
-        , hat_btm{raytrace::point{0, 0, 8.8_p}, R3::vector{{0.0_p, -0.2_p, -1.0_p}}, 0.0_p, 1.5_p}
+        , hat_btm{raytrace::point{0, 0, 8.8_p}, R3::roll(angle(R3::basis::Z, R3::vector{{0.0_p, -0.2_p, -1.0_p}})),
+                  0.0_p, 1.5_p}
         , hat_core{raytrace::point{0.0_p, 0.05_p, 9.05_p}, raytrace::point{0.0_p, 0.4_p, 10.8_p}, 1.0_p}
         , hat_brim{raytrace::point{0.0_p, 0.0_p, 8.8_p}, raytrace::point{0.0_p, 0.05_p, 9.05_p}, 1.5_p}
-        , hat_rim{raytrace::point{0, 0.05_p, 9.05_p}, R3::vector{{0.0_p, 0.2_p, 1.0_p}}, 0.0_p, 1.5_p}
+        , hat_rim{raytrace::point{0, 0.05_p, 9.05_p}, R3::roll(angle(R3::basis::Z, R3::vector{{0.0_p, 0.2_p, 1.0_p}})),
+                  0.0_p, 1.5_p}
         , hat_ribbon{raytrace::point{0, 0.05_p, 9.05_p}, raytrace::point{0, 0.1_p, 9.3_p}, 1.1_p}
-        , hat_top{raytrace::point{0, 0.4_p, 10.8_p}, R3::vector{{0.0_p, 0.2_p, 1.0_p}}, 0.0_p, 1.0_p}
+        , hat_top{raytrace::point{0, 0.4_p, 10.8_p}, R3::roll(angle(R3::basis::Z, R3::vector{{0.0_p, 0.2_p, 1.0_p}})),
+                  0.0_p, 1.0_p}
         , left_arm{raytrace::point{1, 0, 6.5_p}, raytrace::point{4, 0, 5}, 0.2_p}
         , right_arm{raytrace::point{-1, 0, 6.5_p}, raytrace::point{-4, 0, 5}, 0.2_p}
         , left_elbow{raytrace::point{4, 0, 5}, 0.2_p}

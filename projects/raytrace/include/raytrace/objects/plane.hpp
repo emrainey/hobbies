@@ -8,18 +8,17 @@
 namespace raytrace {
 namespace objects {
 /// Constructs a 1 sided infinite plane
-class plane
-    : public geometry::plane
-    , public object {
+class plane : public object {
 public:
-    /// Constructs a plane from a point and a normal
-    plane(point const& point, vector const& normal);
-    /// Constructs a plane from a point and a normal (z_unit) and a x_unit vector which defines the plane's orientation
-    /// in space
-    /// @param axes The basis for the the plane. The normal will be pulled from the Z (applicate) vector. The origin
-    /// will be pulled from the axis origin.
-    plane(axes const& axes);
+    /// Constructs a plane with the default orientation
+    /// The plane is idealized as the XY plane with the normal as +Z.
+    plane();
 
+    /// Constructs a plane from a point (translation) and a rotation matrix
+    /// The plane is idealized as the XY plane with the normal as +Z.
+    plane(point const& point, matrix const& rotation);
+
+    /// Destructor
     virtual ~plane() = default;
 
     // ┌─────────────────────────┐
@@ -33,7 +32,6 @@ public:
     bool is_along_infinite_extent(ray const& ray) const override;
 
 protected:
-    R3::axes m_basis;  ///< The unit axes of the plane in world coordinates
     vector normal_(point const& object_surface_point) const override;
 };
 }  // namespace objects

@@ -25,11 +25,12 @@ public:
         , speck0{raytrace::point{0, 0, 10}, colors::white, 1E2}
         , checkerboard_grid{0.25_p,        colors::blue, colors::yellow, colors::red,  colors::magenta,
                             colors::green, colors::cyan, colors::black,  colors::white}
-        , floor{R3::origin, raytrace::vector{0, -1, 4}.normalized(), 20, 20}
-        , ceiling{raytrace::point(0, 0, 20), raytrace::vector{0, -1, -4}.normalized(), 20, 20}
-        , left{raytrace::point(-10, 0, 10), raytrace::vector{4, -1, 0}.normalized(), 20, 20}
-        , right{raytrace::point(10, 0, 10), raytrace::vector{-4, -1, 0}.normalized(), 20, 20}
-        , back{raytrace::point(0, 5, 10), -R3::basis::Y, 10, 10} {
+        , a{tan(0.25) / iso::tau}
+        , floor{R3::origin, R3::roll(a), 40}
+        , ceiling{raytrace::point(0, 0, 20), R3::roll(0.5 - a), 40}
+        , left{raytrace::point(-10, 0, 10), R3::yaw(-a) * R3::pitch(0.25), 40}
+        , right{raytrace::point(10, 0, 10), R3::yaw(a) * R3::pitch(-0.25), 40}
+        , back{raytrace::point(0, 5, 10), R3::roll(0.25), 20} {
         // assign surfaces and materials
         floor.material(&metals::silver);
         ceiling.material(&metals::silver);
@@ -92,6 +93,7 @@ protected:
     raytrace::lights::bulb light0;
     raytrace::lights::speck speck0;
     mediums::checkerboard checkerboard_grid;
+    precision a;
     raytrace::objects::square floor;
     raytrace::objects::square ceiling;
     raytrace::objects::square left;

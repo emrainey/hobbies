@@ -10,8 +10,13 @@ namespace objects {
 /// A pair of opposing planes with a thickness
 class wall : public object {
 public:
-    /// Constructs a sphere at a point of a given radius.
-    wall(point const& center, vector const& normal, precision thickness);
+    /// Constructs a wall (a pair of planes facing opposite directions) at the default location of a given thickness.
+    wall(precision thickness);
+
+    /// Constructs a wall (a pair of planes facing opposite directions) at given location and orientation of a given
+    /// thickness.
+    wall(point const& center, matrix const& rotation, precision thickness);
+    /// Destructor
     virtual ~wall() = default;
 
     // ┌─────────────────────────┐

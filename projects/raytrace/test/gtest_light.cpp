@@ -49,7 +49,7 @@ TEST(LightTest, BeamLightColor) {
 
 TEST(LightTest, DISABLED_TriColorSpots) {
     raytrace::objects::sphere shape(raytrace::point{0, 0, 3}, 3);
-    raytrace::objects::plane floor(raytrace::point{0, 0, 0}, R3::basis::Z);
+    raytrace::objects::plane floor;
     raytrace::point p0{10, 0, 50};
     raytrace::matrix rot120 = rotation(R3::basis::Z, iso::radians(2 * iso::pi / 3));
     raytrace::point p1 = rot120 * p0;
@@ -71,8 +71,8 @@ TEST(LightTest, DISABLED_TriColorSpots) {
 
 TEST(LightTest, DISABLED_BulbTest) {
     raytrace::objects::sphere shape(raytrace::point{0, 0, 3}, 3);
-    raytrace::objects::plane floor(raytrace::point{0, 0, 0}, R3::basis::Z);
-    raytrace::lights::bulb light(raytrace::point{0, 0, 9}, 0.2_p, colors::white, lights::intensities::blinding, 100);
+    raytrace::objects::plane floor;
+    raytrace::lights::bulb light(raytrace::point{0, 0, 9}, 0.2_p, colors::white, lights::intensities::intense, 16);
     raytrace::scene scene;
     raytrace::camera view(480, 640, iso::degrees(55));
     view.move_to(raytrace::point{30, 30, 30}, raytrace::point{29, 29, 29});

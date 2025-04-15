@@ -9,9 +9,14 @@ namespace objects {
 /// A square limit on a plane
 class square : public plane {
 public:
-    /// Constructs a square from two half width/heights and a normal
-    square(point const& C, raytrace::vector const& N, precision half_height, precision half_width);
-    square(R3::axes const& A, precision half_height, precision half_width);
+    /// Constructs a square in the default orientation
+    /// Since it is a square, the sides will be the same.
+    square(precision side);
+
+    /// Constructs a square from a point, a rotation and the length of a side
+    /// Since it is a square, the sides will be the same.
+    square(point const& C, matrix const& rotation, precision side);
+
     virtual ~square() = default;
 
     // ┌─────────────────────────┐
@@ -24,8 +29,8 @@ public:
     void print(std::ostream& os, char const str[]) const override;
 
 private:
-    /// these points assume a 2D mapping in the plane itself.
-    std::array<raytrace::point, 2> m_points;
+    image::point min_;
+    image::point max_;
 };
 }  // namespace objects
 /// Returns the plane in which the three points we co-planar

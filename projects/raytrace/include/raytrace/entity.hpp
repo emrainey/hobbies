@@ -117,10 +117,7 @@ public:
     /// This is the roll, pitch, yaw order.
     /// @warning This may result in a non-unique rotation!
     void rotation(iso::radians xr, iso::radians yr, iso::radians zr) {
-        matrix Rx = geometry::rotation(R3::basis::X, xr);
-        matrix Ry = geometry::rotation(R3::basis::Y, yr);
-        matrix Rz = geometry::rotation(R3::basis::Z, zr);
-        m_rotation = (Rz * Ry) * Rx;
+        m_rotation = geometry::rotation(zr, yr, xr);
         // this is used to rotate vectors back into object space.
         m_inv_rotation = m_rotation.inverse();
         compute_transforms();
@@ -134,7 +131,8 @@ public:
         iso::convert(x_r, x);
         iso::convert(y_r, y);
         iso::convert(z_r, z);
-        rotation(x_r, y_r, z_r);
+        // "this" is used so we are clear that we are not calling the geometry::rotation
+        this->rotation(x_r, y_r, z_r);
     }
 
     /// Finds the point in world space given the object point

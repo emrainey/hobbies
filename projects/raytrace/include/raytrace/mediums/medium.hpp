@@ -111,10 +111,13 @@ protected:
     precision m_transmissivity;
     /// This material's refractive index
     precision m_refractive_index;
-    /// Electrical Permissivity
+
+    // Electrical Permissivity
     // precision m_permissivity;
-    /// Magnetic Permeability
+
+    // Magnetic Permeability
     // precision m_permeability;
+
     /// The mapping reduction function (if supplied) maps R3 to R2 for "surface mapping"
     mapping::reducer m_reducing_map;
 };

@@ -18,7 +18,8 @@ TEST(TriangleTest, Basic) {
     raytrace::objects::triangle shape{{A, B, C}};
     ASSERT_EQ(shape.get_type(), raytrace::objects::Type::Polygon);
     ASSERT_POINT_EQ(raytrace::point(0.0_p / 3.0_p, 2.0_p / 3.0_p, 0.0_p / 3.0_p), shape.position());
-    ASSERT_TRUE(shape.is_contained(raytrace::point{0.0_p, 0.25_p, 0.0_p}));
+    ASSERT_TRUE(shape.is_contained(raytrace::point{0.0_p, 0.25_p, 0.0_p}))
+        << "Point must be in _object space_, not world space";
     auto displacement = raytrace::point{1, 1, 0} - raytrace::point{0, 2.0_p / 3.0_p, 0};
     ASSERT_PRECISION_EQ(displacement.magnitude(), shape.get_object_extent());
     ASSERT_POINT_EQ(R3::basis::Z, shape.normal(raytrace::point{0.0_p, 0.25_p, 0.0_p}));
@@ -29,12 +30,10 @@ TEST(TriangleTest, PlaneParallelTriangle) {
     raytrace::point B{1.0_p, 1.0_p, 0.0_p};
     raytrace::point C{-1.0_p, 1.0_p, 0.0_p};
     raytrace::objects::triangle D{A, B, C};
-    geometry::plane E = as_plane(D);
-    vector F{{0.0_p, 0.0_p, 1.0_p}};  // +Z
-    vector G = E.unormal();
+    vector G = D.normal(R3::origin);
 
     using namespace linalg::operators;
-    ASSERT_TRUE(G || F);
+    ASSERT_TRUE(G || R3::basis::Z);
 }
 
 TEST(TriangleTest, RayIntersection) {

@@ -74,6 +74,16 @@ R3::point spherical_to_cartesian(R3::point const& spherical_point);
 /// @param in theta The amount in radians (following the right hand rule) to rotate around the axis
 linalg::matrix rotation(R3::vector const& axis, iso::radians const theta);
 
+/// @brief Creates a rotation matrix in Tait-Bryan Angles for an intrinsic rotation.
+/// @param yaw The rotation in radians around the Z axis
+/// @param pitch The rotation in radians around the Y axis
+/// @param roll The rotation in radians around the X axis
+/// @return The rotation matrix
+/// @note The order of the rotations is yaw, pitch, roll
+/// @see https://eecs.qmul.ac.uk/~gslabaugh/publications/euler.pdf
+/// @see https://en.wikipedia.org/wiki/Rotation_matrix
+matrix rotation(iso::radians const& yaw, iso::radians const& pitch, iso::radians const& roll);
+
 /// Joins the matricies horizontally, mxn and mxk to make a mx(n+k) matrix
 template <size_t DIMS>
 matrix rowjoin(matrix& a, vector_<DIMS>& b) noexcept(false) {
@@ -166,6 +176,31 @@ using interpolator = std::function<point(point const&, point const&, mapper, pre
 
 namespace R3 {
 using interpolator = std::function<point(point const&, point const&, mapper, precision)>;
+matrix const identity = matrix::identity(3, 3);
+inline matrix roll(iso::radians rad) {
+    return rotation(R3::basis::X, rad);
+}
+inline matrix roll(precision turns) {
+    iso::turns t{turns};
+    iso::radians r = iso::convert(t);
+    return roll(r);
+}
+inline matrix pitch(iso::radians rad) {
+    return rotation(R3::basis::Y, rad);
+}
+inline matrix pitch(precision turns) {
+    iso::turns t{turns};
+    iso::radians r = iso::convert(t);
+    return pitch(r);
+}
+inline matrix yaw(iso::radians rad) {
+    return rotation(R3::basis::Z, rad);
+}
+inline matrix yaw(precision turns) {
+    iso::turns t{turns};
+    iso::radians r = iso::convert(t);
+    return yaw(iso::radians{turns * iso::tau});
+}
 }  // namespace R3
 
 namespace R4 {

@@ -6,13 +6,15 @@ namespace objects {
 face::face(point const& A, point const& B, point const& C)
     : polygon({A, B, C})
     , m_texture_coords{image::point{1, 0}, image::point{0, 0}, image::point{0, 1}}
-    , m_normals{m_normal, m_normal, m_normal} {
+    , m_normals{polygon<3>::normal_(R3::origin), polygon<3>::normal_(R3::origin), polygon<3>::normal_(R3::origin)} {
     m_type = Type::Face;
 }
 
 face::face(point const& A, point const& B, point const& C, image::point const& a, image::point const& b,
            image::point const& c)
-    : polygon({A, B, C}), m_texture_coords{a, b, c}, m_normals{m_normal, m_normal, m_normal} {
+    : polygon({A, B, C})
+    , m_texture_coords{a, b, c}
+    , m_normals{polygon<3>::normal_(A), polygon<3>::normal_(B), polygon<3>::normal_(C)} {
 }
 
 face::face(point const& A, point const& B, point const& C, image::point const& a, image::point const& b,
@@ -25,8 +27,8 @@ hits face::collisions_along(ray const& object_ray) const {
 }
 
 void face::print(std::ostream& os, char const str[]) const {
-    os << str << " Face @" << this << " " << position() << " Normal " << unormal() << " A=" << m_points[0]
-       << " B=" << m_points[1] << " C=" << m_points[2] << std::endl;
+    os << str << " Face @" << this << " " << position() << " A=" << m_points[0] << " B=" << m_points[1]
+       << " C=" << m_points[2] << " normal " << normal_(m_points[0]) << std::endl;
 }
 
 bool face::is_surface_point(point const& world_point) const {

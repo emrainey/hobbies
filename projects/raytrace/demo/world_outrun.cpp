@@ -66,7 +66,7 @@ public:
         , sun_center{raytrace::point{0, -3000, 200}}
         , sun_rays{raytrace::vector{0, 200, -200}, colors::white, lights::intensities::radiant}
         , grid{10.0_p, outrun::neon_pink, colors::black}
-        , floor{R3::origin, R3::basis::Z, 1000.0_p, 1000.0_p}
+        , floor{2000.0_p}
         , sun_surface{}
         , sun{sun_center, 600.0_p}
         , s0{raytrace::point{0, 0, 5.0_p}, 5.0_p}

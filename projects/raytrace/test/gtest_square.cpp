@@ -13,20 +13,8 @@ TEST(SquareTest, Type) {
     using namespace raytrace;
     using namespace raytrace::objects;
 
-    raytrace::objects::square SQ{R3::origin, R3::basis::Z, 10, 10};
+    raytrace::objects::square SQ{20};
     ASSERT_EQ(SQ.get_type(), raytrace::objects::Type::Square);
-}
-
-TEST(SquareTest, AxesConstructor) {
-    using namespace raytrace;
-    using namespace raytrace::objects;
-
-    R3::axes a{R3::point{0, 0, 0}, R3::basis::X, R3::basis::Y, R3::basis::Z};
-    raytrace::objects::square SQ{a, 10, 10};
-    ASSERT_EQ(SQ.get_type(), raytrace::objects::Type::Square);
-    ASSERT_POINT_EQ(R3::origin, SQ.position());
-    ASSERT_VECTOR_EQ(R3::basis::Z, SQ.unormal());
-    ASSERT_POINT_EQ(SQ.center(), SQ.position());
 }
 
 TEST(SquareTest, Position) {
@@ -34,7 +22,7 @@ TEST(SquareTest, Position) {
     using namespace raytrace::objects;
 
     raytrace::point C{14, -18, -1};
-    raytrace::objects::square SQ{C, R3::basis::Z, 10, 10};
+    raytrace::objects::square SQ{C, R3::identity, 20};
 
     ASSERT_POINT_EQ(C, SQ.position());
     raytrace::point D{-3, -3, 19};
@@ -48,7 +36,7 @@ TEST(SquareTest, OnSurface) {
     using namespace raytrace::objects;
 
     raytrace::point C{0, 0, -1};
-    raytrace::objects::square SQ{C, R3::basis::Z, 10, 10};
+    raytrace::objects::square SQ{C, R3::identity, 20};
     ASSERT_TRUE(SQ.is_surface_point(raytrace::point{0, 0, -1}));
     ASSERT_TRUE(SQ.is_surface_point(raytrace::point{1, 1, -1}));
     ASSERT_FALSE(SQ.is_surface_point(raytrace::point{0, 0, 1}));
@@ -60,14 +48,13 @@ TEST(SquareTest, Intersections) {
     using namespace raytrace::objects;
 
     raytrace::point C{0, 0, -1};
-    raytrace::objects::square SQ{C, R3::basis::Z, 10, 10};
+    raytrace::objects::square SQ{C, R3::identity, 20};
 
     raytrace::ray r0{raytrace::point{1, 1, 1}, vector{{1, 1, 1}}.normalized()};
     raytrace::ray r1{raytrace::point{1, 1, 1}, vector{{-1, -1, -1}}.normalized()};
     raytrace::point A{-1, -1, -1};  // in the plane?
     ray r2{C, R3::basis::Z};
     ray r3{C, -R3::basis::Z};
-    ASSERT_POINT_EQ(SQ.center(), SQ.position());
 
     geometry::intersection ir0PL = SQ.intersect(r0).intersect;
     ASSERT_EQ(geometry::IntersectionType::None, get_type(ir0PL));
@@ -94,8 +81,7 @@ TEST(SquareTest, Intersection2) {
     using namespace raytrace;
     using namespace raytrace::objects;
 
-    raytrace::objects::square SQ{raytrace::point{0, 5, 5}, -R3::basis::Y, 10, 10};
-    ASSERT_POINT_EQ(SQ.center(), SQ.position());
+    raytrace::objects::square SQ{raytrace::point{0, 5, 5}, R3::roll(0.25), 20};
 
     {
         raytrace::ray r0{raytrace::point{0, 0, 5}, vector{{0, 1, 0}}.normalized()};
@@ -121,8 +107,7 @@ TEST(SquareTest, Intersection3) {
     using namespace raytrace;
     using namespace raytrace::objects;
 
-    raytrace::objects::square SQ{raytrace::point{0, 0, 10}, -R3::basis::Z, 10, 10};
-    ASSERT_POINT_EQ(SQ.center(), SQ.position());
+    raytrace::objects::square SQ{raytrace::point{0, 0, 10}, R3::pitch(-0.5), 20};
 
     {
         raytrace::ray r0{raytrace::point{0, 0, 5}, R3::basis::Z};
@@ -148,16 +133,13 @@ TEST(SquareTest, SandwichRays) {
     using namespace raytrace;
     using namespace raytrace::objects;
 
-    raytrace::objects::square SQ0{raytrace::point{0, 0, 10}, vector{{0, 0, -1}}, 10, 10};
-    raytrace::objects::square SQ1{raytrace::point{0, 0, -10}, vector{{0, 0, 1}}, 10, 10};
+    raytrace::objects::square SQ0{raytrace::point{0, 0, 10}, R3::pitch(-0.5), 20};
+    raytrace::objects::square SQ1{raytrace::point{0, 0, -10}, R3::identity, 20};
     ray r0{raytrace::point{0, 0, 0}, vector{{1, 0, 1}}.normalized()};
     ray r1{raytrace::point{0, 0, 0}, vector{{1, 0, -1}}.normalized()};
 
     raytrace::point p0{10, 0, 10};
     raytrace::point p1{10, 0, -10};
-
-    ASSERT_POINT_EQ(SQ0.center(), SQ0.position());
-    ASSERT_POINT_EQ(SQ1.center(), SQ1.position());
 
     geometry::intersection ir0P0 = SQ0.intersect(r0).intersect;
     ASSERT_EQ(geometry::IntersectionType::Point, get_type(ir0P0));
@@ -178,13 +160,12 @@ TEST(SquareTest, ScaleRotateTranslate) {
     using namespace raytrace;
     using namespace raytrace::objects;
     raytrace::point C{7, 7, 7};
-    raytrace::objects::square SQ{C, geometry::R3::basis::X, 10, 10};
-    ASSERT_POINT_EQ(SQ.center(), SQ.position());
-    SQ.rotation(iso::degrees{0.0_p}, iso::degrees{0.0_p}, iso::degrees{180.0_p});
-    vector const& should_be_negative_X = SQ.normal(C);
+
+    raytrace::objects::square SQ{C, R3::pitch(-0.25), 20.0_p};
     vector const negative_X = -geometry::R3::basis::X;
     ASSERT_EQ(negative_X.dimensions, 3ul);
-    ASSERT_VECTOR_EQ(negative_X, should_be_negative_X);
+    raytrace::vector N = SQ.normal(C);
+    ASSERT_VECTOR_EQ(negative_X, N);
     {
         raytrace::ray const world_ray{geometry::R3::origin, geometry::R3::basis::X};
         auto inter = SQ.intersect(world_ray).intersect;
@@ -202,7 +183,7 @@ TEST(SquareTest, ScaleRotateTranslate) {
 TEST(SquareTest, Mapping) {
     using namespace raytrace;
     using namespace raytrace::objects;
-    raytrace::objects::square SQ{R3::origin, R3::basis::Z, 10, 10};
+    raytrace::objects::square SQ{20.0_p};
     SQ.set_surface_scale(1.0_p, 1.0_p);
     precision r = 1.0_p;
     {
@@ -231,123 +212,6 @@ TEST(SquareTest, Mapping) {
     }
     {
         raytrace::point const p{0, -r, 0};
-        image::point const uv = SQ.map(p);
-        image::point const tmp{0.0_p, -r};
-        EXPECT_POINT_EQ(uv, tmp);
-    }
-}
-
-// Squares use cartesian coordinates for mapping
-TEST(SquareTest, MappingPosX) {
-    using namespace raytrace;
-    using namespace raytrace::objects;
-    raytrace::objects::square SQ{R3::origin, R3::basis::X, 10, 10};
-    SQ.set_surface_scale(1.0_p, 1.0_p);
-    precision r = 1.0_p;
-    {
-        raytrace::point const p{0, 0, 0};
-        image::point const uv = SQ.map(p);
-        image::point const tmp{0.0_p, 0.0_p};
-        EXPECT_POINT_EQ(uv, tmp);
-    }
-    {
-        raytrace::point const p{0, 0, -r};
-        image::point const uv = SQ.map(p);
-        image::point const tmp{r, 0.0_p};
-        EXPECT_POINT_EQ(uv, tmp);
-    }
-    {
-        raytrace::point const p{0, r, 0};
-        image::point const uv = SQ.map(p);
-        image::point const tmp{0.0_p, r};
-        EXPECT_POINT_EQ(uv, tmp);
-    }
-    {
-        raytrace::point const p{0, 0, r};
-        image::point const uv = SQ.map(p);
-        image::point const tmp{-r, 0.0_p};
-        EXPECT_POINT_EQ(uv, tmp);
-    }
-    {
-        raytrace::point const p{0, -r, 0};
-        image::point const uv = SQ.map(p);
-        image::point const tmp{0.0_p, -r};
-        EXPECT_POINT_EQ(uv, tmp);
-    }
-}
-
-// Squares use cartesian coordinates for mapping
-TEST(SquareTest, MappingNegX) {
-    using namespace raytrace;
-    using namespace raytrace::objects;
-    raytrace::objects::square SQ{R3::origin, -R3::basis::X, 10, 10};
-    SQ.set_surface_scale(1.0_p, 1.0_p);
-    precision r = 1.0_p;
-    {
-        raytrace::point const p{0, 0, 0};
-        image::point const uv = SQ.map(p);
-        image::point const tmp{0.0_p, 0.0_p};
-        EXPECT_POINT_EQ(uv, tmp);
-    }
-    {
-        raytrace::point const p{0, 0, r};
-        image::point const uv = SQ.map(p);
-        image::point const tmp{r, 0.0_p};
-        EXPECT_POINT_EQ(uv, tmp);
-    }
-    {
-        raytrace::point const p{0, r, 0};
-        image::point const uv = SQ.map(p);
-        image::point const tmp{0.0_p, r};
-        EXPECT_POINT_EQ(uv, tmp);
-    }
-    {
-        raytrace::point const p{0, 0, -r};
-        image::point const uv = SQ.map(p);
-        image::point const tmp{-r, 0.0_p};
-        EXPECT_POINT_EQ(uv, tmp);
-    }
-    {
-        raytrace::point const p{0, -r, 0};
-        image::point const uv = SQ.map(p);
-        image::point const tmp{0.0_p, -r};
-        EXPECT_POINT_EQ(uv, tmp);
-    }
-}
-
-// Squares use cartesian coordinates for mapping
-TEST(SquareTest, MappingNegY) {
-    using namespace raytrace;
-    using namespace raytrace::objects;
-    raytrace::objects::square SQ{R3::origin, -R3::basis::Y, 10, 10};
-    SQ.set_surface_scale(1.0_p, 1.0_p);
-    precision r = 1.0_p;
-    {
-        raytrace::point const p{0, 0, 0};
-        image::point const uv = SQ.map(p);
-        image::point const tmp{0.0_p, 0.0_p};
-        EXPECT_POINT_EQ(uv, tmp);
-    }
-    {
-        raytrace::point const p{r, 0, 0};
-        image::point const uv = SQ.map(p);
-        image::point const tmp{r, 0.0_p};
-        EXPECT_POINT_EQ(uv, tmp);
-    }
-    {
-        raytrace::point const p{0, 0, r};
-        image::point const uv = SQ.map(p);
-        image::point const tmp{0.0_p, r};
-        EXPECT_POINT_EQ(uv, tmp);
-    }
-    {
-        raytrace::point const p{-r, 0, 0};
-        image::point const uv = SQ.map(p);
-        image::point const tmp{-r, 0.0_p};
-        EXPECT_POINT_EQ(uv, tmp);
-    }
-    {
-        raytrace::point const p{0, 0, -r};
         image::point const uv = SQ.map(p);
         image::point const tmp{0.0_p, -r};
         EXPECT_POINT_EQ(uv, tmp);

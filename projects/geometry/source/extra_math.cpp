@@ -96,18 +96,46 @@ R3::point spherical_to_cartesian(R3::point const& spherical_point) {
 }
 
 linalg::matrix rotation(R3::vector const& axis, iso::radians const theta) {
-    precision a = axis[0];
-    precision b = axis[1];
-    precision c = axis[2];
-    precision o = 1.0_p;
-    precision cos_t = std::sin(theta.value + iso::pi / 2.0_p);
+    // @see https://en.wikipedia.org/wiki/Rotation_matrix
+    precision i = axis[0];
+    precision j = axis[1];
+    precision k = axis[2];
+    precision const o = 1.0_p;
+    precision cos_t = std::cos(theta.value);
     precision sin_t = std::sin(theta.value);
     precision one_cos_t = o - cos_t;
-    linalg::matrix r{
-        {{(a * a * one_cos_t) + (o * cos_t), (a * b * one_cos_t) - (c * sin_t), (a * c * one_cos_t) + (b * sin_t)},
-         {(a * b * one_cos_t) + (c * sin_t), (b * b * one_cos_t) + (o * cos_t), (b * c * one_cos_t) - (a * sin_t)},
-         {(a * c * one_cos_t) - (b * sin_t), (b * c * one_cos_t) + (a * sin_t), (c * c * one_cos_t) + (o * cos_t)}}};
-    return r;
+    precision a = (i * i * one_cos_t) + (o * cos_t);
+    precision b = (i * j * one_cos_t) - (k * sin_t);
+    precision c = (i * k * one_cos_t) + (j * sin_t);
+
+    precision d = (i * j * one_cos_t) + (k * sin_t);
+    precision e = (j * j * one_cos_t) + (o * cos_t);
+    precision f = (j * k * one_cos_t) - (i * sin_t);
+
+    precision g = (i * k * one_cos_t) - (j * sin_t);
+    precision h = (j * k * one_cos_t) + (i * sin_t);
+    precision m = (k * k * one_cos_t) + (o * cos_t);
+    return linalg::matrix{{{a, b, c}, {d, e, f}, {g, h, m}}};
+}
+
+linalg::matrix rotation(iso::radians const& yaw, iso::radians const& pitch, iso::radians const& roll) {
+    // @see https://en.wikipedia.org/wiki/Rotation_matrix
+    precision cos_yaw = std::cos(yaw.value);
+    precision sin_yaw = std::sin(yaw.value);
+    precision cos_pitch = std::cos(pitch.value);
+    precision sin_pitch = std::sin(pitch.value);
+    precision cos_roll = std::cos(roll.value);
+    precision sin_roll = std::sin(roll.value);
+    precision a = cos_yaw * cos_pitch;
+    precision b = (cos_yaw * sin_pitch * sin_roll) - (sin_yaw * cos_roll);
+    precision c = (cos_yaw * sin_pitch * cos_roll) + (sin_yaw * sin_roll);
+    precision d = sin_yaw * cos_pitch;
+    precision e = (sin_yaw * sin_pitch * sin_roll) + (cos_yaw * cos_roll);
+    precision f = (sin_yaw * sin_pitch * cos_roll) - (cos_yaw * sin_roll);
+    precision g = -sin_pitch;
+    precision h = cos_pitch * sin_roll;
+    precision i = cos_pitch * cos_roll;
+    return linalg::matrix{{{a, b, c}, {d, e, f}, {g, h, i}}};
 }
 
 bool contained_within_aabb(R3::point const& P, R3::point const& min, R3::point const& max) {

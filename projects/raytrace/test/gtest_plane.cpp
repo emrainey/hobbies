@@ -13,20 +13,8 @@ TEST(PlaneTest, Type) {
     using namespace raytrace;
     using namespace raytrace::objects;
 
-    raytrace::objects::plane PL{R3::origin, R3::basis::Z};
+    raytrace::objects::plane PL{};
     ASSERT_EQ(PL.get_type(), raytrace::objects::Type::Plane);
-}
-
-TEST(PlaneTest, AxesConstructor) {
-    using namespace raytrace;
-    using namespace raytrace::objects;
-
-    R3::axes a{R3::point{0, 0, 0}, R3::basis::X, R3::basis::Y, R3::basis::Z};
-    raytrace::objects::plane PL{a};
-    ASSERT_EQ(PL.get_type(), raytrace::objects::Type::Plane);
-    ASSERT_POINT_EQ(R3::origin, PL.position());
-    ASSERT_VECTOR_EQ(R3::basis::Z, PL.unormal());
-    ASSERT_POINT_EQ(PL.center(), PL.position());
 }
 
 TEST(PlaneTest, Position) {
@@ -34,7 +22,7 @@ TEST(PlaneTest, Position) {
     using namespace raytrace::objects;
 
     raytrace::point C{14, -18, -1};
-    raytrace::objects::plane PL{C, R3::basis::Z};
+    raytrace::objects::plane PL{C, R3::identity};
 
     ASSERT_POINT_EQ(C, PL.position());
     raytrace::point D{-3, -3, 19};
@@ -48,7 +36,7 @@ TEST(PlaneTest, OnSurface) {
     using namespace raytrace::objects;
 
     raytrace::point C{0, 0, -1};
-    raytrace::objects::plane PL{C, R3::basis::Z};
+    raytrace::objects::plane PL{C, R3::identity};
     ASSERT_TRUE(PL.is_surface_point(raytrace::point{0, 0, -1}));
     ASSERT_TRUE(PL.is_surface_point(raytrace::point{1, 1, -1}));
     ASSERT_FALSE(PL.is_surface_point(raytrace::point{0, 0, 1}));
@@ -59,14 +47,13 @@ TEST(PlaneTest, Intersections) {
     using namespace raytrace::objects;
 
     raytrace::point C{0, 0, -1};
-    raytrace::objects::plane PL{C, R3::basis::Z};
+    raytrace::objects::plane PL{C, R3::identity};
 
     raytrace::ray r0{raytrace::point{1, 1, 1}, vector{{1, 1, 1}}.normalized()};
     raytrace::ray r1{raytrace::point{1, 1, 1}, vector{{-1, -1, -1}}.normalized()};
     raytrace::point A{-1, -1, -1};  // in the plane
     ray r2{C, R3::basis::Z};
     ray r3{C, -R3::basis::Z};
-    ASSERT_POINT_EQ(PL.center(), PL.position());
 
     geometry::intersection ir0PL = PL.intersect(r0).intersect;
     ASSERT_EQ(geometry::IntersectionType::None, get_type(ir0PL));
@@ -88,16 +75,13 @@ TEST(PlaneTest, SandwichRays) {
     using namespace raytrace;
     using namespace raytrace::objects;
 
-    raytrace::objects::plane P0{raytrace::point{0, 0, 10}, vector{{0, 0, -1}}};
-    raytrace::objects::plane P1{raytrace::point{0, 0, -10}, vector{{0, 0, 1}}};
+    raytrace::objects::plane P0{raytrace::point{0, 0, 10}, R3::roll(0.5)};
+    raytrace::objects::plane P1{raytrace::point{0, 0, -10}, R3::identity};
     ray r0{raytrace::point{0, 0, 0}, vector{{1, 0, 1}}.normalized()};
     ray r1{raytrace::point{0, 0, 0}, vector{{1, 0, -1}}.normalized()};
 
     raytrace::point p0{10, 0, 10};
     raytrace::point p1{10, 0, -10};
-
-    ASSERT_POINT_EQ(P0.center(), P0.position());
-    ASSERT_POINT_EQ(P1.center(), P1.position());
 
     geometry::intersection ir0P0 = P0.intersect(r0).intersect;
     ASSERT_EQ(geometry::IntersectionType::Point, get_type(ir0P0));
@@ -118,12 +102,8 @@ TEST(PlaneTest, ScaleRotateTranslate) {
     using namespace raytrace;
     using namespace raytrace::objects;
     raytrace::point C{7, 7, 7};
-    raytrace::objects::plane P0{C, geometry::R3::basis::X};
-    P0.rotation(iso::degrees{0.0_p}, iso::degrees{0.0_p}, iso::degrees{180.0_p});
-    vector const& should_be_negative_X = P0.normal(C);
-    vector const negative_X = -geometry::R3::basis::X;
-    ASSERT_EQ(negative_X.dimensions, 3ul);
-    ASSERT_VECTOR_EQ(negative_X, should_be_negative_X);
+    raytrace::objects::plane P0{C, R3::pitch(0.25)};
+    ASSERT_VECTOR_EQ(R3::basis::X, P0.normal(C));
     {
         raytrace::ray const world_ray{geometry::R3::origin, geometry::R3::basis::X};
         auto inter = P0.intersect(world_ray).intersect;
@@ -140,7 +120,7 @@ TEST(PlaneTest, ScaleRotateTranslate) {
 TEST(PlaneTest, Mapping) {
     using namespace raytrace;
     using namespace raytrace::objects;
-    raytrace::objects::plane P0{R3::origin, R3::basis::Z};
+    raytrace::objects::plane P0;
     P0.set_surface_scale(1.0_p, 1.0_p);
     precision r = 1.0_p;
     {

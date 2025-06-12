@@ -19,56 +19,27 @@ class MonochromeWorld : public world {
 public:
     MonochromeWorld()
         : light_subsamples{20}
-        , look_from{5, -20, 20}
+        , look_from{5, -14, 1}
         , look_at{0, 0, 0}
         , plain_white{colors::white, mediums::ambient::none, colors::white, mediums::smoothness::none, roughness::tight}
-        , checkerboard_grid{0.1_p,         colors::blue, colors::yellow, colors::red,  colors::magenta,
-                            colors::green, colors::cyan, colors::black,  colors::white}
-        , floor{200}
-        , light0{raytrace::point{-5, 0, 10}, 1, colors::white, 10, light_subsamples}
-        , light1{raytrace::point{-4, 0, 10}, 1, colors::white, 10, light_subsamples}
-        , light2{raytrace::point{-3, 0, 10}, 1, colors::white, 10, light_subsamples}
-        , light3{raytrace::point{-2, 0, 10}, 1, colors::white, 10, light_subsamples}
-        , light4{raytrace::point{-1, 0, 10}, 1, colors::white, 10, light_subsamples}
-        , light5{raytrace::point{0, 0, 10}, 1, colors::white, 10, light_subsamples}
-        , light6{raytrace::point{1, 0, 10}, 1, colors::white, 10, light_subsamples}
-        , light7{raytrace::point{2, 0, 10}, 1, colors::white, 10, light_subsamples}
-        , light8{raytrace::point{3, 0, 10}, 1, colors::white, 10, light_subsamples}
-        , light9{raytrace::point{4, 0, 10}, 1, colors::white, 10, light_subsamples}
-        , light10{raytrace::point{5, 0, 10}, 1, colors::white, 10, light_subsamples}
-        // , s1{raytrace::point{4, 2, 1}, 1}
-        , s1{raytrace::point{4, 2, 1}, 1, 1, 1}  // ellipsoid
-        , s2{raytrace::point{-4, -2, 2}, 2}
-        , s3{raytrace::point{1, -5, 3}, 3}
-        , c1{raytrace::point{6, 3, 0}, 1, 4}  // cone
-        // , infinite_cylinder{raytrace::point{-2, 3, 2}, 1, 1}  // infinite cylinder
-        // , cylinder_caps{raytrace::point{-2, 3, 2}, R3::basis::Z, 2}  // infinite wall
-        // , cyl{infinite_cylinder, cylinder_caps, overlap::type::inclusive}
-        , cyl{raytrace::point{-2, 3, 2}, 2, 1}  // cylinder
-        , cap{raytrace::point{-2, 3, 4}, R3::identity, 0, 1}
-        , w0{raytrace::point{8, -3, 0}, R3::pitch(iso::radians{iso::pi / 2}), 2}
-        , w1{raytrace::point{8, -3, 0}, R3::roll(iso::radians{-iso::pi / 2}), 2}
-        , column{w0, w1, overlap::type::inclusive}
-        , t0{raytrace::point{3, 7, 0.5_p}, 1.4_p, 0.5_p}
-        , cb0{raytrace::point{7, -2, 1}, 1, 1, 1} {
-        // assign surfaces and materials
-        floor.material(&plain_white);
+        , checkerboard_grid{2.0_p, colors::black, colors::white}
+        , floor{30}
+        , beam1{-R3::basis::Z, colors::white, 0.75_p}
+        , s1{R3::point{1.0_p, -2.0_p, 3.0_p}, 2.0_p, 1.0_p, 2.0_p}
+        , s2{R3::point{-2.0_p, -5.0_p, 2.5_p}, 1.3_p}
+        , s3{R3::point{-4.0_p, 4.0_p, 9.0_p}, 2.0_p, 3.3_p, 8.7_p}
+        , s4{R3::point{8.0_p, 5.0_p, 8.0_p}, 7.5_p}
+        , s5{R3::point{0.0_p, 0.0_p, 1.0_p}, 0.5_p}
+        , s6{R3::point{4.0_p, -2.0, 0.0_p}, 1.0_p, 2.0_p} {  // assign surfaces and materials
         checkerboard_grid.mapper(std::bind(&objects::square::map, &floor, std::placeholders::_1));
-        // floor.material(&checkerboard_grid);
+        floor.material(&checkerboard_grid);
         s1.material(&mediums::metals::stainless);
         s2.material(&mediums::metals::stainless);
         s3.material(&mediums::metals::stainless);
-        c1.material(&mediums::metals::stainless);
-        // infinite_cylinder.material(&mediums::metals::stainless);
-        // cylinder_caps.material(&mediums::metals::stainless);
-        cyl.material(&mediums::metals::stainless);
-        cap.material(&mediums::metals::stainless);
-        t0.material(&mediums::metals::stainless);
-        w0.material(&mediums::metals::stainless);
-        w1.material(&mediums::metals::stainless);
-        column.material(&mediums::metals::stainless);
-        cb0.material(&mediums::metals::stainless);
-        cb0.rotation(iso::degrees{0}, iso::degrees{0}, iso::degrees{15});
+        s4.material(&mediums::metals::stainless);
+        s5.material(&mediums::metals::stainless);
+        s6.material(&mediums::metals::stainless);
+        s1.rotation(iso::radians{0}, iso::radians{0}, iso::radians{-iso::pi / 4});
     }
 
     raytrace::point& looking_from() override {
@@ -91,40 +62,30 @@ public:
         // this creates a gradient from top to bottom
         iso::radians A = angle(R3::basis::Z, world_ray.direction());
         precision B = A.value / iso::pi;
-        return color(0.8_p * B, 0.8_p * B, 0.8_p * B);
+        return color(0.2_p * B, 0.2_p * B, 0.2_p * B);
     }
 
     void add_to(scene& scene) override {
         // add lights to the scene
-        // scene.add_light(&light0);
-        // scene.add_light(&light1);
-        // scene.add_light(&light2);
-        // scene.add_light(&light3);
-        scene.add_light(&light4);
-        scene.add_light(&light5);
-        scene.add_light(&light6);
-        // scene.add_light(&light7);
-        // scene.add_light(&light8);
-        // scene.add_light(&light9);
-        // scene.add_light(&light10);
+        scene.add_light(&beam1);
         // add the objects to the scene.
         scene.add_object(&floor);
         scene.add_object(&s1);
-        // scene.add_object(&s2);
-        // scene.add_object(&s3);
-        // scene.add_object(&c1);
-        // scene.add_object(&cyl);
-        // scene.add_object(&cap);
-        scene.add_object(&column);
-        scene.add_object(&t0);
-        scene.add_object(&cb0);
+        scene.add_object(&s2);
+        scene.add_object(&s3);
+        scene.add_object(&s4);
+        scene.add_object(&s5);
+        scene.add_object(&s6);
     }
 
     raytrace::animation::anchors get_anchors() const override {
         raytrace::animation::anchors anchors;
-        anchors.push_back(animation::Anchor{animation::Attributes{look_from, look_at, 55.0_deg},
-                                            animation::Attributes{look_from, look_at, 55.0_deg}, animation::Mappers{},
-                                            iso::seconds{1.0_p}});
+        anchors.push_back(animation::Anchor{animation::Attributes{look_from, look_at, 37.0_deg},
+                                            animation::Attributes{R3::point{-5, -14, 1}, look_at, 37.0_deg},
+                                            animation::Mappers{}, iso::seconds{3.0_p}});
+        anchors.push_back(animation::Anchor{anchors.back().limit,  // previous limit is this start
+                                            animation::Attributes{raytrace::point{-10, 10, 1}, look_at, 37.0_deg},
+                                            animation::Mappers{}, iso::seconds{3.0_p}});
         return anchors;
     }
 
@@ -133,34 +94,15 @@ protected:
     raytrace::point look_from;
     raytrace::point look_at;
     mediums::plain plain_white;
-    mediums::checkerboard checkerboard_grid;
+    mediums::grid checkerboard_grid;
     raytrace::objects::square floor;
-    raytrace::lights::bulb light0;
-    raytrace::lights::bulb light1;
-    raytrace::lights::bulb light2;
-    raytrace::lights::bulb light3;
-    raytrace::lights::bulb light4;
-    raytrace::lights::bulb light5;
-    raytrace::lights::bulb light6;
-    raytrace::lights::bulb light7;
-    raytrace::lights::bulb light8;
-    raytrace::lights::bulb light9;
-    raytrace::lights::bulb light10;
-    // raytrace::objects::sphere s1;
+    raytrace::lights::beam beam1;
     raytrace::objects::ellipsoid s1;
     raytrace::objects::sphere s2;
-    raytrace::objects::sphere s3;
-    raytrace::objects::cone c1;
-    // raytrace::objects::ellipticalcylinder infinite_cylinder;
-    // raytrace::objects::wall cylinder_caps;
-    // raytrace::objects::overlap cyl;
-    raytrace::objects::cylinder cyl;
-    raytrace::objects::ring cap;
-    raytrace::objects::wall w0;
-    raytrace::objects::wall w1;
-    raytrace::objects::overlap column;
-    raytrace::objects::torus t0;
-    raytrace::objects::cuboid cb0;
+    raytrace::objects::ellipsoid s3;
+    raytrace::objects::sphere s4;
+    raytrace::objects::sphere s5;
+    raytrace::objects::ellipticalcylinder s6;
 };
 
 // declare a single instance and return the reference to it

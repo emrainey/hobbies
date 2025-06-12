@@ -110,30 +110,30 @@
             }
         },
         {
-            "name": "native-llvm-19",
-            "displayName": "Homebrew LLVM 19.1.7_1",
-            "description": "Homebrew LLVM 19.1.7_1",
+            "name": "native-llvm-20",
+            "displayName": "Homebrew LLVM",
+            "description": "Homebrew LLVM",
             "inherits": [
                 "native-llvm",
                 "Homebrew",
                 "debug"
             ],
             "environment": {
-                "PATH": "$env{HOMEBREW_ROOT}/Cellar/llvm/19.1.7_1/bin/:$env{HOMEBREW_PATH}:$penv{PATH}"
+                "PATH": "$env{HOMEBREW_ROOT}/Cellar/llvm/20.1.6/bin/:$env{HOMEBREW_PATH}:$penv{PATH}"
             },
             "cacheVariables": {}
         },
         {
-            "name": "native-llvm-19-profiled",
-            "displayName": "Homebrew LLVM 19.1.7_1 w/ Profiling",
-            "description": "Homebrew LLVM 19.1.7_1 w/ Profiling",
+            "name": "native-llvm-20-profiled",
+            "displayName": "Homebrew LLVM w/ Profiling",
+            "description": "Homebrew LLVM w/ Profiling",
             "inherits": [
                 "native-llvm",
                 "Homebrew",
                 "profiling"
             ],
             "environment": {
-                "PATH": "$env{HOMEBREW_ROOT}/Cellar/llvm/19.1.7_1/bin/:$env{HOMEBREW_PATH}:$penv{PATH}"
+                "PATH": "$env{HOMEBREW_ROOT}/Cellar/llvm/20.1.6/bin/:$env{HOMEBREW_PATH}:$penv{PATH}"
             },
             "cacheVariables": {}
         }
@@ -160,14 +160,14 @@
             "configurePreset": "native-gcc-14"
         },
         {
-            "name": "build-with-native-llvm-19",
+            "name": "build-with-native-llvm-20",
             "inherits": "build-common",
-            "configurePreset": "native-llvm-19"
+            "configurePreset": "native-llvm-20"
         },
         {
-            "name": "build-with-native-llvm-19-profiled",
+            "name": "build-with-native-llvm-20-profiled",
             "inherits": "build-common",
-            "configurePreset": "native-llvm-19-profiled"
+            "configurePreset": "native-llvm-20-profiled"
         }
     ],
     "testPresets": [
@@ -194,12 +194,12 @@
         {
             "name": "run-tests-llvm-19",
             "inherits": "test-common",
-            "configurePreset": "native-llvm-19"
+            "configurePreset": "native-llvm-20"
         },
         {
             "name": "run-tests-llvm-19-profiled",
             "inherits": "test-common",
-            "configurePreset": "native-llvm-19-profiled"
+            "configurePreset": "native-llvm-20-profiled"
         }
     ],
     "workflowPresets": [
@@ -210,11 +210,11 @@
             "steps": [
                 {
                     "type": "configure",
-                    "name": "native-llvm-19"
+                    "name": "native-llvm-20"
                 },
                 {
                     "type": "build",
-                    "name": "build-with-native-llvm-19"
+                    "name": "build-with-native-llvm-20"
                 },
                 {
                     "type": "test",
@@ -229,11 +229,11 @@
             "steps": [
                 {
                     "type": "configure",
-                    "name": "native-llvm-19-profiled"
+                    "name": "native-llvm-20-profiled"
                 },
                 {
                     "type": "build",
-                    "name": "build-with-native-llvm-19-profiled"
+                    "name": "build-with-native-llvm-20-profiled"
                 },
                 {
                     "type": "test",

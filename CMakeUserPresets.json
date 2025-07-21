@@ -71,7 +71,8 @@
                 "debug"
             ],
             "environment": {
-                "PATH": "$env{HOMEBREW_ROOT}/Cellar/llvm/20.1.8/bin/:$env{HOMEBREW_PATH}:$penv{PATH}"
+                "LLVM_PATH": "$env{HOMEBREW_ROOT}/Cellar/llvm/20.1.8/bin",
+                "PATH": "$env{LLVM_PATH}:$env{HOMEBREW_PATH}:$penv{PATH}"
             },
             "cacheVariables": {}
         },
@@ -85,7 +86,8 @@
                 "profiling"
             ],
             "environment": {
-                "PATH": "$env{HOMEBREW_ROOT}/Cellar/llvm/20.1.8/bin/:$env{HOMEBREW_PATH}:$penv{PATH}"
+                "LLVM_PATH": "$env{HOMEBREW_ROOT}/Cellar/llvm/20.1.8/bin",
+                "PATH": "$env{LLVM_PATH}:$env{HOMEBREW_PATH}:$penv{PATH}"
             },
             "cacheVariables": {}
         }

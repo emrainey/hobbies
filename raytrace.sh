@@ -1,4 +1,4 @@
-_PATH=`pwd`/build/native-llvm-19/projects/raytrace
+_PATH=`pwd`/build/homebrew-llvm/projects/raytrace
 export DYLD_LIBRARY_PATH=${_PATH}:`pwd`/install/lib
 CLT=/Library/Developer/CommandLineTools/usr/bin/
 touch testing/default.profraw

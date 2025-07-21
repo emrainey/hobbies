@@ -52,15 +52,7 @@ hits sphere::collisions_along(ray const& object_ray) const {
 }
 
 image::point sphere::map(point const& object_surface_point) const {
-    // in object space in a sphere, it's a unit sphere.
-    // get the polar coordinates
-    point pol = geometry::R3::sphere::cart_to_polar(object_surface_point);
-    precision u = pol[1] / iso::tau;  // 0-theta-2pi
-    u = (u < 0 ? 1.0_p + u : u);
-    precision v = pol[2] / iso::pi;  // 0-phi-pi
-    image::point uv{u, v};
-    // std::cout << "R3: " << object_surface_point << " => R2: " << uv;
-    return uv;
+    return mapping::spherical(object_surface_point);
 }
 
 void sphere::print(std::ostream& os, char const str[]) const {

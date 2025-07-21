@@ -6,9 +6,9 @@ namespace raytrace {
 
 namespace mapping {
 
-geometry::R2::point spherical(geometry::R3::point const& s) {
-    basal::exception::throw_if(s == geometry::R3::origin, __FILE__, __LINE__, "Can't map the origin to a sphere");
-    geometry::R3::vector q = s - geometry::R3::origin;
+geometry::R2::point spherical(geometry::R3::point const& pnt) {
+    basal::exception::throw_if(pnt == geometry::R3::origin, __FILE__, __LINE__, "Can't map the origin to a sphere");
+    geometry::R3::vector q = pnt - geometry::R3::origin;
     geometry::R3::point p = geometry::R3::origin + q.normalized();
     precision u = (std::atan2(p.y, p.x) + iso::pi) / iso::tau;  // 0-theta-2pi
     u = (u < 0.0_p ? 1.0_p + u : u);
@@ -16,22 +16,22 @@ geometry::R2::point spherical(geometry::R3::point const& s) {
     return geometry::R2::point(u, v);
 }
 
-geometry::R2::point spherical(geometry::R3::vector const& q) {
-    basal::exception::throw_if(q == geometry::R3::null, __FILE__, __LINE__, "Can't map the origin to a sphere");
-    geometry::R3::point p = geometry::R3::origin + q.normalized();
+geometry::R2::point spherical(geometry::R3::vector const& vec) {
+    basal::exception::throw_if(vec == geometry::R3::null, __FILE__, __LINE__, "Can't map the origin to a sphere");
+    geometry::R3::point p = geometry::R3::origin + vec.normalized();
     precision u = (std::atan2(p.y, p.x) + iso::pi) / iso::tau;  // 0-theta-2pi
     u = (u < 0.0_p ? 1.0_p + u : u);
     precision v = std::acos(p.z) / iso::pi;  // 0-phi-pi
     return geometry::R2::point(u, v);
 }
 
-geometry::R2::point cylindrical(precision scale, geometry::R3::point const& p) {
-    geometry::R2::point cartesian(p.x, p.y);
+geometry::R2::point cylindrical(precision scale, geometry::R3::point const& pnt) {
+    geometry::R2::point cartesian(pnt.x, pnt.y);
     basal::exception::throw_if(cartesian == geometry::R2::origin, __FILE__, __LINE__,
                                "Can't map the origin to a cylinder");
     geometry::R2::point polar = geometry::cartesian_to_polar(cartesian);
     // some range of z based in the half_height we want -h2 to map to zero and +h2 to 1.0
-    precision u = (p.z / (-2.0_p * scale)) + 0.5_p;
+    precision u = (pnt.z / (-2.0_p * scale)) + 0.5_p;
     // theta goes from +pi to -pi we want to map -pi to 1.0_p and + pi to zero
     precision v = 0.0_p;
     if (basal::is_greater_than_or_equal_to_zero(polar.y)) {
@@ -42,15 +42,19 @@ geometry::R2::point cylindrical(precision scale, geometry::R3::point const& p) {
     return geometry::R2::point(u, v);
 }
 
-geometry::R2::point toroidal(precision r1, geometry::R3::point const& world_point) {
+geometry::R2::point toroidal(precision r1, geometry::R3::point const& pnt) {
     using namespace geometry;
     // create a toriodal mapping from a given inner radius and a point in 3 space
     // construct the projected vector from the origin to the point in 3d
-    precision x = world_point.x;
-    precision y = world_point.y;
+
+    // (Torus) texture mapping a torus is hard but not impossible. define the mapping as a set of 2 angles,
+    // one around the Z axis and another around the edge of the ring at that position.
+    // The mapping has a "seem" along the inner edge of the torus, closest to the origin and at -X
+    precision x = pnt.x;
+    precision y = pnt.y;
     basal::exception::throw_if(basal::nearly_zero(x) and basal::nearly_zero(y), __FILE__, __LINE__,
                                "Can't map the origin to a torus");
-    precision z = world_point.z;
+    precision z = pnt.z;
     // angle around "Z"
     precision theta = std::atan2(y, x);
     precision r_xy = std::sqrt((x * x) + (y * y));
@@ -64,7 +68,7 @@ geometry::R2::point toroidal(precision r1, geometry::R3::point const& world_poin
 }
 
 geometry::R2::point planar_polar(raytrace::vector const& N, raytrace::vector const& X, raytrace::point const& C,
-                                 geometry::R3::point const& world_point) {
+                                 geometry::R3::point const& pnt) {
     using namespace geometry;
     using namespace iso::operators;
     basal::exception::throw_unless(basal::nearly_zero(dot(X, C)), __FILE__, __LINE__,
@@ -72,11 +76,11 @@ geometry::R2::point planar_polar(raytrace::vector const& N, raytrace::vector con
     // create a planar polar mapping given a Normal ray and the "X" unit point
     plane pl0{C, N};
     // find the vector from the center to the point
-    R3::vector v = world_point - C;
+    R3::vector v = pnt - C;
     // find the distance from the plane to the world point
-    precision d = pl0.distance(world_point);
+    precision d = pl0.distance(pnt);
     // find the point on the plane
-    R3::point P = world_point - (N * d);
+    R3::point P = pnt - (N * d);
     // find the in plane vector from X to P
     R3::vector Pr = P - C;
     // find the magnitude of the vector

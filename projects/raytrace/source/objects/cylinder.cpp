@@ -95,19 +95,8 @@ bool cylinder::is_surface_point(point const& world_point) const {
 }
 
 image::point cylinder::map(point const& object_surface_point) const {
-    geometry::point_<2> cartesian(object_surface_point[0], object_surface_point[1]);
-    geometry::point_<2> polar = geometry::cartesian_to_polar(cartesian);
     precision h = basal::is_exactly_zero(m_half_height) ? 1.0_p : m_half_height;
-    // some range of z based in the half_height we want -h2 to map to zero and +h2 to 1.0
-    precision u = (object_surface_point[2] / (-2.0_p * h)) + 0.5_p;
-    // theta goes from +pi to -pi we want to map -pi to 1.0_p and + pi to zero
-    precision v = 0.0_p;
-    if (basal::is_greater_than_or_equal_to_zero(polar.y)) {
-        v = 0.5_p - (polar.y / (+2.0_p * iso::pi));
-    } else {
-        v = 0.5_p + (polar.y / (-2.0_p * iso::pi));
-    }
-    return image::point(u, v);
+    return mapping::cylindrical(h, object_surface_point);
 }
 
 void cylinder::print(std::ostream& os, char const str[]) const {

@@ -37,15 +37,15 @@ TEST(SphereTest, Mapping) {
 
     raytrace::point surface_points[] = {
         raytrace::point{1, 0, 0},
-        raytrace::point{-1, 0, 0},
         raytrace::point{0, 1, 0},
+        raytrace::point{-1, 0, 0},
         raytrace::point{0, -1, 0},
     };
     size_t const dimof_sp = dimof(surface_points);
     image::point uv_points_truth[] = {
         image::point(0.0_p, 0.5_p),
-        image::point(0.5_p, 0.5_p),
         image::point(0.25_p, 0.5_p),
+        image::point(0.5_p, 0.5_p),
         image::point(0.75_p, 0.5_p),
     };
     size_t const dimof_uv = dimof(uv_points_truth);
@@ -53,7 +53,10 @@ TEST(SphereTest, Mapping) {
     static_assert(dimof_sp == dimof_uv, "Must be equal");
     for (size_t i = 0; i < dimof_uv; i++) {
         image::point uv_map = s0.map(surface_points[i]);
-        ASSERT_IMAGE_POINT_EQ(uv_points_truth[i], uv_map);
+        printf("UV Map for Surface Point %zu: (%f, %f)\n", i, uv_map.x, uv_map.y);
+        printf("Expected UV Map: (%f, %f)\n", uv_points_truth[i].x,
+                uv_points_truth[i].y);
+        EXPECT_IMAGE_POINT_EQ(uv_points_truth[i], uv_map);
     }
 }
 

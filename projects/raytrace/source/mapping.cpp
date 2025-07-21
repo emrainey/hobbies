@@ -10,15 +10,15 @@ geometry::R2::point spherical(geometry::R3::point const& pnt) {
     basal::exception::throw_if(pnt == geometry::R3::origin, __FILE__, __LINE__, "Can't map the origin to a sphere");
     geometry::R3::vector q = pnt - geometry::R3::origin;
     geometry::R3::point p = geometry::R3::origin + q.normalized();
-    precision u = (std::atan2(p.y, p.x) + iso::pi) / iso::tau;  // 0-theta-2pi
+    precision u = std::atan2(p.y, p.x) / iso::tau;  // 0-theta-2pi
     u = (u < 0.0_p ? 1.0_p + u : u);
     precision v = std::acos(p.z) / iso::pi;  // 0-phi-pi
     return geometry::R2::point(u, v);
 }
 
-geometry::R2::point spherical(geometry::R3::vector const& vec) {
-    basal::exception::throw_if(vec == geometry::R3::null, __FILE__, __LINE__, "Can't map the origin to a sphere");
-    geometry::R3::point p = geometry::R3::origin + vec.normalized();
+geometry::R2::point spherical(geometry::R3::vector const& q) {
+    basal::exception::throw_if(q == geometry::R3::null, __FILE__, __LINE__, "Can't map the origin to a sphere");
+    geometry::R3::point p = geometry::R3::origin + q.normalized();
     precision u = (std::atan2(p.y, p.x) + iso::pi) / iso::tau;  // 0-theta-2pi
     u = (u < 0.0_p ? 1.0_p + u : u);
     precision v = std::acos(p.z) / iso::pi;  // 0-phi-pi

@@ -23,3 +23,9 @@
         ASSERT_PRECISION_EQ(simple.x, (compound).x); \
         ASSERT_PRECISION_EQ(simple.y, (compound).y); \
     }
+
+#define EXPECT_IMAGE_POINT_EQ(simple, compound)      \
+    {                                                \
+        EXPECT_PRECISION_EQ(simple.x, (compound).x); \
+        EXPECT_PRECISION_EQ(simple.y, (compound).y); \
+    }

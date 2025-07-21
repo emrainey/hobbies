@@ -1,8 +1,5 @@
 #pragma once
 
-#include <cmath>
-#include <cstdint>
-
 #include "raytrace/types.hpp"
 
 namespace raytrace {
@@ -24,7 +21,7 @@ geometry::R2::point spherical(geometry::R3::vector const& q);
 /// @note Use std::bind(scale, _1) to fix a certain scale height when creating a mapper
 geometry::R2::point cylindrical(precision scale, geometry::R3::point const& p);
 
-/// Maps on to an ideal toroidal shape of a given radius. The toriod is surrounding the Z axis.
+/// Maps on to an ideal toroidal shape of a given radius. The toroid is surrounding the Z axis.
 /// @param r1 The given inner radius of the toroid
 /// @param p The point in 3 space to map
 /// @return The surface point in 2 space (phi, theta)

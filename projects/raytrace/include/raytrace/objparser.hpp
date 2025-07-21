@@ -18,7 +18,7 @@ public:
     virtual void addVertex(float x, float y, float z) = 0;
     /// @brief Adds a Normal  to the Observer
     virtual void addNormal(float x, float y, float z) = 0;
-    /// @brief Adds a Texutre Coordinate to the Observer
+    /// @brief Adds a Texture Coordinate to the Observer
     virtual void addTexture(float u, float v) = 0;
     /// @brief Adds a Triangular Face to the Observer given the indices of the vertexes.
     /// @note Texture coords don't work here and Normal don't work here.

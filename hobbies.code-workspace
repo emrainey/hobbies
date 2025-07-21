@@ -14,7 +14,8 @@
 			"shd101wyy.markdown-preview-enhanced",
 			"davidanson.vscode-markdownlint",
 			"gruntfuggly.todo-tree",
-			"xaver.clang-format"
+			"xaver.clang-format",
+			"llvm-vs-code-extensions.vscode-clangd"
 		],
 	},
 	"settings": {
@@ -24,6 +25,8 @@
 		"cmake.allowCommentsInPresetsFile": true,
 		"cmake.ctest.allowParallelJobs": true,
 		"cmake.ctest.parallelJobs": 2,
+		"cmake.format.spaceAfterCommandName": true,
+		"cmake.format.spaceInParentheses": true,
 		"cmakeExplorer.cmakeIntegration": false,
 		"clang.completion.enable": true,
 		"clang-format.executable": "clang-format",
@@ -252,8 +255,9 @@
 			"cfloat": "cpp",
 			"climits": "cpp"
 		},
-		"cmake.format.spaceAfterCommandName": true,
-		"cmake.format.spaceInParentheses": true,
+		"C_Cpp.codeAnalysis.runAutomatically": true,
+		"C_Cpp.codeAnalysis.clangTidy.path": "/opt/homebrew/Cellar/llvm/20.1.8/bin/clang-tidy",
+		"clangd.path": "/opt/homebrew/Cellar/llvm/20.1.8/bin/clangd",
 	},
 	"tasks": {
 		"version": "2.0.0",

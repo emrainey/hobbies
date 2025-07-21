@@ -44,7 +44,7 @@ geometry::R2::point cylindrical(precision scale, geometry::R3::point const& pnt)
 
 geometry::R2::point toroidal(precision r1, geometry::R3::point const& pnt) {
     using namespace geometry;
-    // create a toriodal mapping from a given inner radius and a point in 3 space
+    // create a toroidal mapping from a given inner radius and a point in 3 space
     // construct the projected vector from the origin to the point in 3d
 
     // (Torus) texture mapping a torus is hard but not impossible. define the mapping as a set of 2 angles,

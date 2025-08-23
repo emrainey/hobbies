@@ -593,16 +593,26 @@ TEST(MatrixTest, DISABLED_SVD) {
     /// <li>Wikipedia</li>
     /// </ul>
     /// @see try https://medium.com/intuition/singular-value-decomposition-svd-working-example-c2b6135673b5
+    /// @see https://www.d.umn.edu/~mhampton/m4326svd_example.pdf
     using namespace linalg;
     using namespace linalg::operators;
 
     matrix A{{{3, 2, 2}, {2, 3, -2}}};
     matrix AAT = A * A.T();
-    matrix ATA = A.T() * A;
+    matrix B{{{17, 8}, {8, 17}}};
+    ASSERT_MATRIX_EQ(AAT, B);
     matrix e1 = AAT.eigenvalues();
+    matrix eg{{{25},{9}}};
+    ASSERT_MATRIX_EQ(e1, eg);
+
+    matrix ATA = A.T() * A;
+    matrix C{{{13, 12, 2}, {12, 13, -2}, {2, -2, 8}}};
+    ASSERT_MATRIX_EQ(ATA, C);
+    matrix I25 = matrix::identity(3, 3) * 25.0;
+    matrix ATA_I25 = ATA - I25;
+    matrix D{{{-12, 12, 2}, {12, -12, -2}, {2, -2, -17}}};
+    ASSERT_MATRIX_EQ(ATA_I25, D);
     matrix e2 = ATA.eigenvalues();
-    // FIXME (Gtest) SVD tests are incomplete. Put in actual data so it can be verified.
-    SUCCEED();
 }
 
 TEST(MatrixTest, PLU) {

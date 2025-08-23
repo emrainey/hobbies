@@ -2,6 +2,8 @@
 /// @author "Erik Rainey" (erik.rainey@gmail.com)
 /// @copyright Copyright (c) 2007-2020 Erik Rainey
 
+#include <iostream>
+
 #include "linalg/matrix.hpp"
 
 #include "linalg/solvers.hpp"
@@ -538,7 +540,7 @@ bool matrix::eigenvalue(precision lambda) const {
 
 matrix matrix::eigenvalues() const noexcept(false) {
     basal::exception::throw_unless(rows == cols, g_filename, __LINE__, "Must be a square matrix");
-    if (rows == 2) {
+    if (rows == 2 or rows == 3) {
         // solve the determinant
         // (a - L)*(d - L) - b*c = 0
         // a*d - d*L - a*L +L*L - b*c = 0

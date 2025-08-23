@@ -9,18 +9,6 @@ find_package(Threads)
 find_package(GTest)
 find_package(Doxygen)
 
-# === Options ===
-option(USE_XMMT "Use XMMT for SIMD" ON)
-
-# Use XMMT if we're building for x86_64
-if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
-set(USE_XMMT ON)
-message(STATUS "Enabling XMMT")
-else()
-set(USE_XMMT OFF)
-message(STATUS "Disabling XMMT")
-endif()
-
 # === Targets ===
 add_library(hobbies-noise
     ${CMAKE_CURRENT_SOURCE_DIR}/source/noise.cpp

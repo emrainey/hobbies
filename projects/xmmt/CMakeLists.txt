@@ -23,18 +23,16 @@ target_include_directories(hobbies-xmmt INTERFACE
 target_link_libraries(hobbies-xmmt INTERFACE hobbies-basal native-optimized)
 
 # === Googletests ===
-if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
-    if (Threads_FOUND AND GTest_FOUND)
-        add_executable(gtest_xmmt
-            ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_xmmt.cpp
-            ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_xmat.cpp
-            ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_pixel.cpp
-            ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_point.cpp
-            ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_vector.cpp
-        )
-        target_link_libraries(gtest_xmmt PRIVATE hobbies-xmmt enabled-debugging GTest::gtest GTest::gtest_main Threads::Threads)
-        add_test(NAME gtest_xmmt COMMAND gtest_xmmt)
-    endif()
+if (USE_XMMT AND BUILD_UNIT_TESTS AND Threads_FOUND AND GTest_FOUND)
+    add_executable(gtest_xmmt
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_xmmt.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_xmat.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_pixel.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_point.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_vector.cpp
+    )
+    target_link_libraries(gtest_xmmt PRIVATE hobbies-xmmt enabled-debugging GTest::gtest GTest::gtest_main Threads::Threads)
+    add_test(NAME gtest_xmmt COMMAND gtest_xmmt)
 endif()
 
 # === Doxygen ===

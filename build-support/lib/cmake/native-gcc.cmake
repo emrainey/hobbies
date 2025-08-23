@@ -31,7 +31,7 @@ endif()
 if (NOT TARGET native-optimized)
 # Optimizes your objects for native builds (on the build side only)
 add_library(native-optimized INTERFACE)
-target_compile_options(native-optimized INTERFACE -mcpu=apple-m3)
+target_compile_options(native-optimized INTERFACE -mtune=native -march=native)
 endif()
 
 function(coverage_target TARGET)

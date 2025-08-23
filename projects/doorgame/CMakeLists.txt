@@ -1,6 +1,12 @@
+# === Project ===
 cmake_minimum_required(VERSION 3.31.0)
 project(doorgame LANGUAGES CXX VERSION 0.1.0)  # This must match the conanfile.py!
 
+# === Dependencies ===
+find_package(Curses)
+find_package(Doxygen)
+
+# === Targets ===
 add_library(hobbies-doorgame
     ${CMAKE_CURRENT_SOURCE_DIR}/source/animate.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/actions.cpp
@@ -24,6 +30,7 @@ target_link_libraries(hobbies-doorgame
     PRIVATE
         enabled-debugging
         $<$<BOOL:${USE_PROFILING}>:enabled-profiling>
+        $<$<BOOL:${USE_COVERAGE}>:enabled-coverage>
         enabled-warnings
         native-optimized
 )
@@ -42,43 +49,14 @@ set_target_properties(hobbies-doorgame PROPERTIES
     POSITION_INDEPENDENT_CODE ON
 )
 
-#####################
-# EXPORTS
-#####################
-
-# # Declare installs and exports
-# install(TARGETS hobbies-doorgame EXPORT DoorGameTargets
-#     LIBRARY DESTINATION lib
-#     ARCHIVE DESTINATION lib
-#     RUNTIME DESTINATION bin
-#     INCLUDES DESTINATION include
-# )
-# install(EXPORT DoorGameTargets
-#     FILE ${PROJECT_NAME}-Targets.cmake
-#     NAMESPACE DoorGame::
-#     DESTINATION share/cmake/${PROJECT_NAME}
-# )
-# install(DIRECTORY include/${PROJECT_NAME}
-#     DESTINATION include
-#     PATTERN "*.hpp"
-#     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
-# )
-# install(FILES "cmake/Finddoorgame.cmake" "cmake/${PROJECT_NAME}-config.cmake"
-#     DESTINATION share/cmake/${PROJECT_NAME}
-# )
-################
-# DEMOS
-################
-
-find_package(Curses REQUIRED)
+# === Demos ===
+if (Curses_FOUND)
 add_executable(demo_doorgame ${CMAKE_CURRENT_SOURCE_DIR}/demo/main.cpp)
 target_link_libraries(demo_doorgame PUBLIC hobbies-doorgame  ${CURSES_LIBRARIES})
 target_compile_definitions(demo_doorgame PUBLIC ${CURSES_CFLAGS})
+endif(Curses_FOUND)
 
-#####################
-# Build Documentation
-#####################
-find_package(Doxygen)
+# === Doxygen ===
 if (Doxygen_FOUND)
     set(DOXYGEN_GENERATE_HTML YES)
     set(DOXYGEN_GENERATE_MAN NO)

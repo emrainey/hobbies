@@ -1,7 +1,11 @@
+# === Project ===
 cmake_minimum_required(VERSION 3.31.0)
 project(vision LANGUAGES CXX VERSION 0.1.0)  # This must match the conanfile.py!
 
-find_package(OpenCV REQUIRED)
+# === Dependencies ===
+find_package(OpenCV)
+
+# === Options ===
 option(USE_XMMT "Use XMMT for SIMD" ON)
 
 # Use XMMT if we're building for x86_64
@@ -10,9 +14,10 @@ set(USE_XMMT ON)
 message(STATUS "Enabling XMMT")
 else()
 set(USE_XMMT OFF)
-message(WARNING "Disabling XMMT")
+message(STATUS "Disabling XMMT")
 endif()
 
+# === Targets ===
 # add_library(hobbies-vision
 #     ${CMAKE_CURRENT_SOURCE_DIR}/source/vision.cpp
 # )
@@ -20,7 +25,7 @@ endif()
 #     PUBLIC
 #         hobbies-fourcc
 #         hobbies-geometry
-#         hobbies-xmmt
+#         $<$<BOOL:${USE_XMMT}>:hobbies-xmmt>
 #     PRIVATE
 #         enabled-warnings
 #         enabled-debugging
@@ -45,34 +50,8 @@ endif()
 #     POSITION_INDEPENDENT_CODE ON
 # )
 
-#####################
-# EXPORTS
-#####################
-
-# Declare installs and exports
-# install(TARGETS hobbies-vision EXPORT NoiseTargets
-#     LIBRARY DESTINATION lib
-#     ARCHIVE DESTINATION lib
-#     RUNTIME DESTINATION bin
-#     INCLUDES DESTINATION include
-# )
-# install(EXPORT NoiseTargets
-#     FILE ${PROJECT_NAME}-Targets.cmake
-#     NAMESPACE Noise::
-#     DESTINATION share/cmake/${PROJECT_NAME}
-# )
-# install(DIRECTORY include/${PROJECT_NAME}
-#     DESTINATION include
-#     PATTERN "*.hpp"
-#     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
-# )
-# install(FILES "cmake/Find${PROJECT_NAME}.cmake" "cmake/${PROJECT_NAME}-config.cmake"
-#     DESTINATION share/cmake/${PROJECT_NAME}
-# )
-################
-# DEMOS
-################
-
+# === Demos ===
+if (OpenCV_FOUND)
 add_executable(demo_artsy ${CMAKE_CURRENT_SOURCE_DIR}/demo/main_artsy.cpp)
 target_link_libraries(demo_artsy
     PUBLIC
@@ -98,9 +77,7 @@ target_link_libraries(demo_evm
         native-optimized
 )
 
-#####################
-# Googletests
-#####################
+# === Googletests ===
 # set(THREADS_PREFER_PTHREAD_FLAG ON)
 # find_package(Threads)
 # find_package(GTest)
@@ -112,9 +89,7 @@ target_link_libraries(demo_evm
 #     add_test(NAME gtest_vision COMMAND gtest_vision)
 # endif()
 
-#####################
-# Build Documentation
-#####################
+# === Doxygen ===
 # find_package(Doxygen)
 # if (Doxygen_FOUND)
 #     set(DOXYGEN_GENERATE_HTML YES)
@@ -123,3 +98,5 @@ target_link_libraries(demo_evm
 #         ${CMAKE_CURRENT_SOURCE_DIR}/include/vision
 #         COMMENT "Noise Doxygen")
 # endif()
+
+endif(OpenCV_FOUND)

@@ -1,6 +1,17 @@
+# === Project ===
 cmake_minimum_required(VERSION 3.31.0)
 project(units_of_measure LANGUAGES CXX VERSION 0.7.0)  # This must match the conanfile.py!
 
+# === Dependencies ===
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads)
+find_package(GTest)
+find_package(Doxygen
+#    REQUIRED dot
+#    OPTIONAL_COMPONENTS mscgen dia
+)
+
+# === Targets ===
 add_library(hobbies-uom
     # IEC
     "source/iec/prefix.cpp"
@@ -52,50 +63,18 @@ set_target_properties(hobbies-uom PROPERTIES
     POSITION_INDEPENDENT_CODE ON
 )
 
-# Declare installs and exports
-# install(TARGETS hobbies-uom EXPORT UnitsOfMeasureTargets
-#     LIBRARY DESTINATION lib
-#     ARCHIVE DESTINATION lib
-#     RUNTIME DESTINATION bin
-#     INCLUDES DESTINATION include
-# )
-# install(EXPORT UnitsOfMeasureTargets
-#     FILE ${PROJECT_NAME}-Targets.cmake
-#     NAMESPACE UnitsOfMeasure::
-#     DESTINATION share/cmake/${PROJECT_NAME}
-# )
-# install(DIRECTORY include/iec include/iso include/si
-#     DESTINATION include
-#     PATTERN "*.hpp"
-#     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
-# )
-# install(FILES "cmake/Find${PROJECT_NAME}.cmake" "cmake/${PROJECT_NAME}-config.cmake"
-#     DESTINATION share/cmake/${PROJECT_NAME}
-# )
-#####################################################
-# Unit Testing
-#####################################################
-set(THREADS_PREFER_PTHREAD_FLAG ON)
-find_package(Threads)
-find_package(GTest)
+# === Unit Testing ===
 if (Threads_FOUND AND GTest_FOUND)
     add_executable(gtest_iso ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_iso.cpp)
-    target_include_directories(gtest_iso PUBLIC ${GTEST_INCLUDE_DIRS} ${GTest_INCLUDE_DIRS})
-    target_link_libraries(gtest_iso PRIVATE hobbies-uom ${GTEST_BOTH_LIBRARIES} ${GTest_LIBS} Threads::Threads)
+    # target_include_directories(gtest_iso PUBLIC ${GTEST_INCLUDE_DIRS} ${GTest_INCLUDE_DIRS})
+    target_link_libraries(gtest_iso PRIVATE hobbies-uom GTest::gtest GTest::gtest_main Threads::Threads)
     add_test(NAME gtest_iso COMMAND gtest_iso)
 endif()
 
-#####################################################
-# Documentation
-#####################################################
-find_package(Doxygen
-#    REQUIRED dot
-#    OPTIONAL_COMPONENTS mscgen dia
-)
+# === Doxygen ===
 if (Doxygen_FOUND)
     set(DOXYGEN_GENERATE_HTML YES)
     set(DOXYGEN_GENERATE_MAN NO)
-
     doxygen_add_docs(hobbies-uom-docs
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         COMMENT "Units of Measure Doxygen")

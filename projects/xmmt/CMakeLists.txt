@@ -1,6 +1,16 @@
+# === Project ===
 cmake_minimum_required(VERSION 3.31.0)
 project(xmmt LANGUAGES CXX VERSION 0.7.0)  # This must match the conanfile.py!
 
+# === Dependencies ===
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads)
+find_package(GTest)
+find_package(Doxygen)
+
+# === Options ===
+
+# === Targets ===
 add_library(hobbies-xmmt INTERFACE)
 target_include_directories(hobbies-xmmt INTERFACE
     # Generated Tree
@@ -12,38 +22,8 @@ target_include_directories(hobbies-xmmt INTERFACE
 )
 target_link_libraries(hobbies-xmmt INTERFACE hobbies-basal native-optimized)
 
-#####################
-# EXPORTS
-#####################
-
-# # Declare installs and exports
-# install(TARGETS hobbies-xmmt EXPORT XmmtTargets
-#     LIBRARY DESTINATION lib
-#     ARCHIVE DESTINATION lib
-#     RUNTIME DESTINATION bin
-#     INCLUDES DESTINATION include
-# )
-# install(EXPORT XmmtTargets
-#     FILE ${PROJECT_NAME}-Targets.cmake
-#     NAMESPACE Xmmt::
-#     DESTINATION share/cmake/${PROJECT_NAME}
-# )
-# install(DIRECTORY include/
-#     DESTINATION include
-#     PATTERN "*.hpp"
-#     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
-# )
-# install(FILES "cmake/Find${PROJECT_NAME}.cmake" "cmake/${PROJECT_NAME}-config.cmake"
-#     DESTINATION share/cmake/${PROJECT_NAME}
-# )
-#####################
-# Googletests
-#####################
-
+# === Googletests ===
 if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
-    set(THREADS_PREFER_PTHREAD_FLAG ON)
-    find_package(Threads)
-    find_package(GTest)
     if (Threads_FOUND AND GTest_FOUND)
         add_executable(gtest_xmmt
             ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_xmmt.cpp
@@ -52,17 +32,12 @@ if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
             ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_point.cpp
             ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_vector.cpp
         )
-        target_include_directories(gtest_xmmt SYSTEM PUBLIC ${GTEST_INCLUDE_DIRS})
-        target_link_libraries(gtest_xmmt PRIVATE ${GTEST_BOTH_LIBRARIES} hobbies-xmmt enabled-debugging Threads::Threads)
+        target_link_libraries(gtest_xmmt PRIVATE hobbies-xmmt enabled-debugging GTest::gtest GTest::gtest_main Threads::Threads)
         add_test(NAME gtest_xmmt COMMAND gtest_xmmt)
     endif()
 endif()
 
-#####################
-# Build Documentation
-#####################
-
-find_package(Doxygen)
+# === Doxygen ===
 if (Doxygen_FOUND)
     set(DOXYGEN_GENERATE_HTML YES)
     set(DOXYGEN_GENERATE_MAN NO)

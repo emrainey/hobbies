@@ -1,6 +1,14 @@
+# === Project ===
 cmake_minimum_required(VERSION 3.31.0)
 project(htm LANGUAGES CXX VERSION 0.1.0)  # This must match the conanfile.py!
 
+# === Dependencies ===
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads)
+find_package(GTest)
+find_package(Doxygen)
+
+# === Targets ===
 add_library(hobbies-htm
     ${CMAKE_CURRENT_SOURCE_DIR}/source/encoders.cpp
 )
@@ -28,41 +36,12 @@ set_target_properties(hobbies-htm PROPERTIES
     SOVERSION ${PROJECT_VERSION_MAJOR}
     POSITION_INDEPENDENT_CODE ON
 )
-#####################
-# EXPORTS
-#####################
 
-# # Declare installs and exports
-# install(TARGETS hobbies-htm EXPORT HTMTargets
-#     LIBRARY DESTINATION lib
-#     ARCHIVE DESTINATION lib
-#     RUNTIME DESTINATION bin
-#     INCLUDES DESTINATION include
-# )
-# install(EXPORT HTMTargets
-#     FILE ${PROJECT_NAME}-Targets.cmake
-#     NAMESPACE HTM::
-#     DESTINATION share/cmake/${PROJECT_NAME}
-# )
-# install(DIRECTORY include/${PROJECT_NAME}
-#     DESTINATION include
-#     PATTERN "*.hpp"
-#     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
-# )
-# install(FILES "cmake/Find${PROJECT_NAME}.cmake" "cmake/${PROJECT_NAME}-config.cmake"
-#     DESTINATION share/cmake/${PROJECT_NAME}
-# )
-################
-# DEMOS
-################
-
+# === Demos ===
 add_executable(demo_sparse_word ${CMAKE_CURRENT_SOURCE_DIR}/demo/sparse_word.cpp)
 target_link_libraries(demo_sparse_word hobbies-htm)
 
-# Unit Tests
-set(THREADS_PREFER_PTHREAD_FLAG ON)
-find_package(Threads)
-find_package(GTest)
+# === Unit Tests ===
 if (Threads_FOUND AND GTest_FOUND)
     add_executable(gtest_htm
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_words.cpp
@@ -71,10 +50,7 @@ if (Threads_FOUND AND GTest_FOUND)
     add_test(NAME gtest_htm COMMAND gtest_htm)
 endif()
 
-#####################
-# Build Documentation
-#####################
-find_package(Doxygen)
+# === Doxygen ===
 if (Doxygen_FOUND)
     set(DOXYGEN_GENERATE_HTML YES)
     set(DOXYGEN_GENERATE_MAN NO)

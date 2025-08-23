@@ -1,14 +1,30 @@
+# === Project ===
 cmake_minimum_required(VERSION 3.31.0)
 project(raytrace LANGUAGES CXX VERSION 0.7.0)  # This must match the conanfile.py!
 
-find_package(OpenMP)
+# === Dependencies ===
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(OpenMP QUIET) # this could fail, but we have a backup
+find_package(OpenCV)
+find_package(Threads)
+find_package(Curses)
+find_package(SDL2)
+find_package(GTest)
+find_package(Doxygen)
+
+# === Targets ===
 if (NOT OpenMP_FOUND)
-    # Homebrew's libomp is not in the default search path
-    add_library(OpenMP::OpenMP_CXX INTERFACE IMPORTED)
-    target_compile_options(OpenMP::OpenMP_CXX INTERFACE $<IF:$<COMPILE_LANG_AND_ID:CXX,AppleClang>,,-fopenmp>)
-    target_link_libraries(OpenMP::OpenMP_CXX INTERFACE omp)
-    target_link_directories(OpenMP::OpenMP_CXX INTERFACE /opt/homebrew/opt/libomp/lib/)
-    target_include_directories(OpenMP::OpenMP_CXX INTERFACE /opt/homebrew/opt/libomp/include/)
+    if (EXISTS $ENV{HOMEBREW_ROOT}/opt/libomp)
+        set(OpenMP_ROOT $ENV{HOMEBREW_ROOT}/opt/libomp)
+        # Homebrew's libomp is not in the default search path
+        add_library(OpenMP::OpenMP_CXX INTERFACE IMPORTED)
+        target_compile_options(OpenMP::OpenMP_CXX INTERFACE $<IF:$<COMPILE_LANG_AND_ID:CXX,AppleClang>,,-fopenmp>)
+        target_link_libraries(OpenMP::OpenMP_CXX INTERFACE omp)
+        target_link_directories(OpenMP::OpenMP_CXX INTERFACE ${OpenMP_ROOT}/lib/)
+        target_include_directories(OpenMP::OpenMP_CXX INTERFACE ${OpenMP_ROOT}/include/)
+        set(OpenMP_FOUND TRUE)
+        message(STATUS "Found OpenMP: ${OpenMP_ROOT}")
+    endif()
 endif()
 
 add_library(hobbies-raytrace
@@ -69,8 +85,8 @@ target_link_libraries(hobbies-raytrace
         hobbies-fourcc
         hobbies-noise
         hobbies-geometry
-        hobbies-xmmt
-        OpenMP::OpenMP_CXX
+        $<$<BOOL:${USE_XMMT}>:hobbies-xmmt>
+        $<$<BOOL:${OpenMP_FOUND}>:OpenMP::OpenMP_CXX>
     PRIVATE
         enabled-warnings
         enabled-debugging
@@ -93,12 +109,8 @@ set_target_properties(hobbies-raytrace PROPERTIES
     POSITION_INDEPENDENT_CODE ON
 )
 
-################
-# DEMOS
-################
-
-find_package(OpenCV)
-if (OpenCV_FOUND)
+# === Demos ===
+if (OpenCV_FOUND AND Threads_FOUND)
 add_executable(demo_sphere_surfaces
     ${CMAKE_CURRENT_SOURCE_DIR}/demo/main_sphere_surfaces.cpp
 )
@@ -120,30 +132,24 @@ add_executable(demo_functions
 target_link_libraries(demo_functions PRIVATE ${OpenCV_LIBS} hobbies-raytrace hobbies-linalg-utils Threads::Threads)
 endif()
 
-find_package(Threads)
-find_package(Curses)
 if (Threads_FOUND AND CURSES_FOUND)
     add_executable(demo_curses
         ${CMAKE_CURRENT_SOURCE_DIR}/demo/main_console.cpp
     )
-    target_include_directories(demo_curses PRIVATE ${CURSES_INCLUDE_DIRS})
+    # target_include_directories(demo_curses PRIVATE ${CURSES_INCLUDE_DIRS})
     target_link_libraries(demo_curses PRIVATE hobbies-raytrace ${CURSES_LIBRARIES} Threads::Threads)
     target_compile_options(demo_curses PRIVATE ${CURSES_CFLAGS})
 endif()
 
-find_package(Threads)
-find_package(SDL2)
-if (SDL2_FOUND)
+if (SDL2_FOUND AND Threads_FOUND)
     add_executable(demo_sdl2
         ${CMAKE_CURRENT_SOURCE_DIR}/demo/main_sdl2.cpp
     )
-    target_include_directories(demo_sdl2 PRIVATE ${SDL2_INCLUDE_DIRS})
+    # target_include_directories(demo_sdl2 PRIVATE ${SDL2_INCLUDE_DIRS})
     target_link_libraries(demo_sdl2 PRIVATE hobbies-raytrace ${SDL2_LIBRARIES} Threads::Threads)
 endif()
 
-#################################
-# WORLDS
-#################################
+# === Worlds ===
 list(APPEND DEMOS world_art1)
 list(APPEND DEMOS world_cornell)
 list(APPEND DEMOS world_desktoy)
@@ -165,13 +171,7 @@ foreach(demo IN LISTS DEMOS)
     add_test(NAME test-${demo} COMMAND demo_sdl2 -m ${demo} -d QVGA -a 128 -s 0.125)
 endforeach()
 
-#####################
-# Googletests
-#####################
-
-set(THREADS_PREFER_PTHREAD_FLAG ON)
-find_package(Threads)
-find_package(GTest)
+# === Googletests ===
 if (Threads_FOUND AND GTest_FOUND)
     add_executable(gtest_raytrace
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_animator.cpp
@@ -219,11 +219,7 @@ if (Threads_FOUND AND GTest_FOUND)
     coverage_target(gtest_raytrace)
 endif()
 
-#####################
-# Build Documentation
-#####################
-
-find_package(Doxygen)
+# === Doxygen ===
 if (Doxygen_FOUND)
     set(DOXYGEN_GENERATE_HTML YES)
     set(DOXYGEN_GENERATE_MAN NO)
@@ -232,37 +228,12 @@ if (Doxygen_FOUND)
         COMMENT "Raytracing Doxygen")
 endif()
 
-
-#####################
-# EXPORTS
-#####################
-
-# Declare installs and exports
-# install(TARGETS hobbies-raytrace EXPORT RaytraceTargets
-#     LIBRARY DESTINATION lib
-#     ARCHIVE DESTINATION lib
-#     RUNTIME DESTINATION bin
-#     INCLUDES DESTINATION include
-# )
-# install(EXPORT RaytraceTargets
-#     FILE ${PROJECT_NAME}-Targets.cmake
-#     NAMESPACE Raytrace::
-#     DESTINATION share/cmake/${PROJECT_NAME}
-# )
-# install(DIRECTORY include/${PROJECT_NAME}
-#     DESTINATION include
-#     PATTERN "*.hpp"
-#     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
-# )
-# install(FILES "cmake/Find${PROJECT_NAME}.cmake" "cmake/${PROJECT_NAME}-config.cmake"
-#     DESTINATION share/cmake/${PROJECT_NAME}
-# )
-
+# === Profiling Helpers ===
 function(profile_target ARG_DEMO_TARGET ARG_WORLD_TARGET)
     # PROFILING
     set(_TESTING ${CMAKE_SOURCE_DIR}/testing)
     set(_RAWPROF ${ARG_DEMO_TARGET}-${ARG_WORLD_TARGET}.profraw)
-    set(DYLD_INSERT_LIBRARIES /opt/homebrew/Cellar/gperftools/2.16/lib/libprofiler.dylib)
+    set(DYLD_INSERT_LIBRARIES $ENV{HOMEBREW_ROOT}/Cellar/gperftools/2.16/lib/libprofiler.dylib)
     set(_PDF  ${ARG_DEMO_TARGET}-${ARG_WORLD_TARGET}-perf.pdf)
     # add_custom_target(raytrace-pprof-${ARG_DEMO_TARGET}-${ARG_WORLD_TARGET}
     #     DEPENDS ${ARG_DEMO_TARGET} ${ARG_WORLD_TARGET}

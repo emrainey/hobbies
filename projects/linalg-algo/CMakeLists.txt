@@ -1,8 +1,11 @@
+# === Project ===
 cmake_minimum_required(VERSION 3.31.0)
 project(linalg-algo LANGUAGES CXX VERSION 0.7.0)  # This must match the conanfile.py!
 
-find_package(OpenCV REQUIRED)
-if (OpenCV_FOUND)
+# === Dependencies ===
+find_package(OpenCV)
+
+# === Targets ===
 add_library(hobbies-linalg-algo
     ${CMAKE_CURRENT_SOURCE_DIR}/source/kmeans.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/dkf.cpp
@@ -25,43 +28,14 @@ set_target_properties(hobbies-linalg-algo PROPERTIES
     SOVERSION ${PROJECT_VERSION_MAJOR}
     POSITION_INDEPENDENT_CODE ON
 )
-#####################
-# EXPORTS
-#####################
 
-# Declare installs and exports
-# install(TARGETS hobbies-linalg-algo EXPORT LinalgAlgoTargets
-#     LIBRARY DESTINATION lib
-#     ARCHIVE DESTINATION lib
-#     RUNTIME DESTINATION bin
-#     INCLUDES DESTINATION include
-# )
-# install(EXPORT LinalgAlgoTargets
-#     FILE ${PROJECT_NAME}-Targets.cmake
-#     NAMESPACE LinalgAlgo::
-#     DESTINATION share/cmake/${PROJECT_NAME}
-# )
-# install(DIRECTORY include/linalg
-#     DESTINATION include
-#     PATTERN "*.hpp"
-#     PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
-# )
-# install(FILES "cmake/Find${PROJECT_NAME}.cmake" "cmake/${PROJECT_NAME}-config.cmake"
-#     DESTINATION share/cmake/${PROJECT_NAME}
-# )
-
-#####################
-# Demos
-#####################
-
+# === Demos ===
+if (OpenCV_FOUND)
 add_executable(demo_kmeans ${CMAKE_CURRENT_SOURCE_DIR}/demo/demo_kmeans.cpp)
-target_include_directories(demo_kmeans PRIVATE ${OpenCV_INCLUDE_DIRS})
-target_link_libraries(demo_kmeans hobbies-linalg-algo)
+target_link_libraries(demo_kmeans hobbies-linalg-algo ${OpenCV_LIBS})
+endif()
 
-#####################
-# Build Documentation
-#####################
-
+# === Doxygen ===
 find_package(Doxygen)
 if (Doxygen_FOUND)
     set(DOXYGEN_GENERATE_HTML YES)
@@ -70,5 +44,3 @@ if (Doxygen_FOUND)
         ${CMAKE_CURRENT_SOURCE_DIR}/include/linalg
         COMMENT "Linalg + Algo Doxygen")
 endif()
-
-endif() # OpenCV

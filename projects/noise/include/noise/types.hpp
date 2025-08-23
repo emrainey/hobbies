@@ -2,7 +2,9 @@
 
 #include <geometry/geometry.hpp>
 #include <linalg/linalg.hpp>
+#if defined(USE_XMMT)
 #include <xmmt/xmmt.hpp>
+#endif
 
 namespace noise {
 using precision = linalg::precision;

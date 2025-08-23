@@ -39,7 +39,7 @@ set_target_properties(hobbies-audio PROPERTIES
 )
 
 # === Googletests ===
-if (Threads_FOUND AND GTest_FOUND)
+if (BUILD_UNIT_TESTS AND Threads_FOUND AND GTest_FOUND)
     add_executable(gtest_audio
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_audio.cpp
     )

@@ -42,7 +42,7 @@ add_executable(demo_sparse_word ${CMAKE_CURRENT_SOURCE_DIR}/demo/sparse_word.cpp
 target_link_libraries(demo_sparse_word hobbies-htm)
 
 # === Unit Tests ===
-if (Threads_FOUND AND GTest_FOUND)
+if (BUILD_UNIT_TESTS AND Threads_FOUND AND GTest_FOUND)
     add_executable(gtest_htm
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_words.cpp
     )

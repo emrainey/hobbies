@@ -49,7 +49,7 @@ set_target_properties(hobbies-geometry PROPERTIES
 )
 
 # === Googletests ===
-if (Threads_FOUND AND GTest_FOUND)
+if (BUILD_UNIT_TESTS AND Threads_FOUND AND GTest_FOUND)
     add_executable(gtest_geometry
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_point.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_extra.cpp

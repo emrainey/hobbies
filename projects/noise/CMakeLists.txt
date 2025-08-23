@@ -68,7 +68,7 @@ target_link_libraries(demo_fbm_tuner ${OpenCV_LIBS} hobbies-noise hobbies-linalg
 endif(OpenCV_FOUND)
 
 # === Googletests ===
-if (Threads_FOUND AND GTest_FOUND)
+if (BUILD_UNIT_TESTS AND Threads_FOUND AND GTest_FOUND)
     add_executable(gtest_noise
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_noise.cpp
     )

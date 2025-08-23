@@ -3,7 +3,11 @@ cmake_minimum_required(VERSION 3.31.0)
 project(vision LANGUAGES CXX VERSION 0.1.0)  # This must match the conanfile.py!
 
 # === Dependencies ===
+# set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(OpenCV)
+# find_package(Threads)
+# find_package(GTest)
+# find_package(Doxygen)
 
 # === Options ===
 option(USE_XMMT "Use XMMT for SIMD" ON)
@@ -78,10 +82,7 @@ target_link_libraries(demo_evm
 )
 
 # === Googletests ===
-# set(THREADS_PREFER_PTHREAD_FLAG ON)
-# find_package(Threads)
-# find_package(GTest)
-# if (Threads_FOUND AND GTest_FOUND)
+# if (BUILD_UNIT_TESTS AND Threads_FOUND AND GTest_FOUND)
 #     add_executable(gtest_vision
 #         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_vision.cpp
 #     )
@@ -90,7 +91,6 @@ target_link_libraries(demo_evm
 # endif()
 
 # === Doxygen ===
-# find_package(Doxygen)
 # if (Doxygen_FOUND)
 #     set(DOXYGEN_GENERATE_HTML YES)
 #     set(DOXYGEN_GENERATE_MAN NO)

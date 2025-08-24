@@ -15,7 +15,7 @@ set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
 if (NOT TARGET enabled-warnings)
 add_library(enabled-warnings INTERFACE)
 target_compile_options(enabled-warnings INTERFACE
-    $<BUILD_INTERFACE:-Wall -Wextra -Werror -pedantic -Wconversion -Wdouble-promotion -Wfloat-equal>
+    $<BUILD_INTERFACE:-Wall -Wextra -Werror -pedantic -Wconversion -Wdouble-promotion -Wfloat-equal -Wno-nested-anon-types>
 )
 endif()
 

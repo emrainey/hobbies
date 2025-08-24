@@ -625,7 +625,7 @@ precision matrix::minor(size_t nrow, size_t ncol) const {
 }
 
 precision matrix::cofactor(size_t nrow, size_t ncol) const {
-    return minor(nrow, ncol) * pow(-1.0_p, (nrow + 1) + (ncol + 1));
+    return minor(nrow, ncol) * pow(-1.0_p, static_cast<double>((nrow + 1) + (ncol + 1)));
 }
 
 matrix matrix::minors() const {

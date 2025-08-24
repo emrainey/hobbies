@@ -86,13 +86,16 @@ public:
         if constexpr (pack_type::number_of_elements == 2) {
             __m128d tmp = _mm_setr_pd(a, a);
             pack_type::data = _mm_mul_pd(pack_type::data, tmp);
+            static_cast<void>(tmp);
         } else {
             if constexpr (std::is_same_v<element_type, float>) {
                 __m128 tmp = _mm_setr_ps(a, a, a, a);
                 pack_type::data = _mm_mul_ps(pack_type::data, tmp);
+                static_cast<void>(tmp);
             } else {
                 __m256d tmp = _mm256_setr_pd(a, a, a, a);
                 pack_type::data = _mm256_mul_pd(pack_type::data, tmp);
+                static_cast<void>(tmp);
             }
         }
         return (*this);
@@ -101,14 +104,11 @@ public:
     /// Scales each value
     inline vector_& operator/=(element_type a) {
         if constexpr (pack_type::number_of_elements == 2) {
-            __m128d tmp = _mm_setr_pd(a, a);
             pack_type::data = _mm_div_pd(pack_type::data, a.data);
         } else {
             if constexpr (std::is_same_v<element_type, float>) {
-                __m128 tmp = _mm_setr_ps(a, a, a, a);
                 pack_type::data = _mm_div_ps(pack_type::data, a.data);
             } else {
-                __m256d tmp = _mm256_setr_pd(a, a, a, a);
                 pack_type::data = _mm256_div_pd(pack_type::data, a.data);
             }
         }

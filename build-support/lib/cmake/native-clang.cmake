@@ -9,7 +9,7 @@ find_program(CMAKE_CXX_COMPILER NAME clang++ REQUIRED)
 if (NOT TARGET enabled-warnings)
 add_library(enabled-warnings INTERFACE)
 target_compile_options(enabled-warnings INTERFACE
-    $<BUILD_INTERFACE:-Wall -Wextra -Werror -pedantic -Wconversion -Wdouble-promotion -Wfloat-equal>
+    $<BUILD_INTERFACE:-Wall -Wextra -Werror -pedantic -Wconversion -Wdouble-promotion -Wfloat-equal -Wno-nested-anon-types>
 )
 endif()
 

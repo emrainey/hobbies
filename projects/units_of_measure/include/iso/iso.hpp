@@ -140,10 +140,10 @@ bool operator==(joules const& J, torque const& T);
 /// A method of computing PI at compile time
 constexpr long double compute_pi(size_t digits) {
     using namespace basal::literals;
-    long double pi = 0.0_p;
-    for (long double i = 0.0_p; i < static_cast<double>(digits); i += 1.0_p) {
-        long double denum = 1.0_p;
-        for (long double j = i; j > 0; j -= 1.0_p) {
+    double pi = 0.0_p;
+    for (double i = 0.0_p; i < static_cast<double>(digits); i += 1.0_p) {
+        double denum = 1.0_p;
+        for (double j = i; j > 0; j -= 1.0_p) {
             denum *= 16.0_p;
         }
         pi += ((4.0_p / (8.0_p * i + 1.0_p)) - (2.0_p / (8.0_p * i + 4.0_p)) - (1.0_p / (8.0_p * i + 5.0_p))

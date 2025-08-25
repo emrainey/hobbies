@@ -55,7 +55,7 @@ public:
         , bounding_cone{cone_position, 10, 10, 10}
         , overlapped_cone{inner_cone, bounding_cone, overlap::type::inclusive}
         , torus1{raytrace::point{0, 0, 10}, 7, 2}
-        , pyramid{raytrace::point{0, -30, 10}, 10}
+        , pyramid1{raytrace::point{0, -30, 10}, 10}
         , white_light{raytrace::point{20, 20, 20}, colors::white, lights::intensities::full}
         , sunlight{raytrace::vector{0, 1, -1}, colors::white, lights::intensities::full} {
         // assign materials in the body of the constructor!
@@ -88,7 +88,7 @@ public:
         grey_checkers.mapper(std::bind(&raytrace::objects::torus::map, &torus1, std::placeholders::_1));
         torus1.material(&grey_checkers);
 
-        pyramid.material(&plain_cyan);
+        pyramid1.material(&plain_cyan);
 
         // assign any rotation or translations
 
@@ -130,7 +130,7 @@ public:
         scene.add_object(&checker_ball_ring0);
         scene.add_object(&checker_ball_ring1);
         scene.add_object(&torus1);
-        scene.add_object(&pyramid);
+        scene.add_object(&pyramid1);
         // add lights to the scene
         scene.add_light(&sunlight);
         scene.add_light(&white_light);
@@ -189,7 +189,7 @@ protected:
     overlap overlapped_cone;
 
     torus torus1;
-    pyramid pyramid;
+    pyramid pyramid1;
 
     // create some lights
     speck white_light;

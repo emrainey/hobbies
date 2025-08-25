@@ -1,5 +1,7 @@
 #pragma once
 
+#include <chrono>
+
 #include <basal/basal.hpp>
 #include <basal/ieee754.hpp>
 #include <iso/iso.hpp>

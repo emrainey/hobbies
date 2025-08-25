@@ -17,10 +17,10 @@ public:
         , look_at{0, 0, 10}
         , sun_rays{raytrace::vector{-20, 0, -21}, colors::white, lights::intensities::dim}
         , floor{200.0_p}
-        , pyramid{look_at, 0}
+        , pyramid1{look_at, 0}
         , orb{raytrace::point{0, 0, 12}, 2.0_p}
         , halo{raytrace::point{0, 0, 14}, 2.25_p, 0.125_p} {
-        pyramid.material(&mediums::metals::stainless);
+        pyramid1.material(&mediums::metals::stainless);
         orb.material(&mediums::metals::stainless);
         floor.material(&mediums::metals::stainless);
         halo.material(&mediums::metals::copper);
@@ -56,7 +56,7 @@ public:
         // scene.add_light(&inner_light);
         scene.add_light(&sun_rays);
         scene.add_object(&floor);
-        scene.add_object(&pyramid);
+        scene.add_object(&pyramid1);
         scene.add_object(&orb);
         scene.add_object(&halo);
         scene.add_media(&mediums::earth_atmosphere);
@@ -85,7 +85,7 @@ protected:
     lights::beam sun_rays;
     raytrace::point center;
     raytrace::objects::square floor;
-    raytrace::objects::pyramid pyramid;
+    raytrace::objects::pyramid pyramid1;
     raytrace::objects::sphere orb;
     // raytrace::objects::cone    orb_cut;
     // raytrace::objects::cuboid  column;

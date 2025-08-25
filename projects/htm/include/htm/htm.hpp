@@ -55,7 +55,7 @@ struct connection {
 /// The structure that connects neurons in a one-way directed graph
 struct synapse {
     precision strength;     ///< Contains the strength of the connection or permanence
-    connection connection;  ///< Contains the information about how the synapse is connected.
+    connection connections;  ///< Contains the information about how the synapse is connected.
     precision threshold;    ///< Contains the threshold of the connection
     /// Contains the weight of the connection (1.0 if strength > threshold, else 0.0)
     precision weight() const {
@@ -172,13 +172,13 @@ public:
                         synapse& syn = grid[j][i].neurons[n][s];
                         syn.strength = basal::rand_range(0.0_p, 1.0_p);
 
-                        syn.connection.source.x = rand() % grid.size();
-                        syn.connection.source.y = rand() % grid[j].size();
-                        syn.connection.source.z = rand() % grid[j][i].neurons.size();
+                        syn.connections.source.x = rand() % grid.size();
+                        syn.connections.source.y = rand() % grid[j].size();
+                        syn.connections.source.z = rand() % grid[j][i].neurons.size();
 
-                        syn.connection.target.x = rand() % grid.size();
-                        syn.connection.target.y = rand() % grid[j].size();
-                        syn.connection.target.z = rand() % grid[j][i].neurons.size();
+                        syn.connections.target.x = rand() % grid.size();
+                        syn.connections.target.y = rand() % grid[j].size();
+                        syn.connections.target.z = rand() % grid[j][i].neurons.size();
                     }
                 }
             }

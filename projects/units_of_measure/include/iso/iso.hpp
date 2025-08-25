@@ -138,7 +138,7 @@ bool operator==(joules const& J, torque const& T);
 }  // namespace operators
 
 /// A method of computing PI at compile time
-constexpr long double compute_pi(size_t digits) {
+constexpr double compute_pi(size_t digits) {
     using namespace basal::literals;
     double pi = 0.0_p;
     for (double i = 0.0_p; i < static_cast<double>(digits); i += 1.0_p) {

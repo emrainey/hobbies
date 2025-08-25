@@ -248,7 +248,7 @@ struct half {
         return single.native;
     }
 
-    void from(float f) {
+    constexpr void from(float f) {
         single single;
         single.native = f;
         // zero centered exponent

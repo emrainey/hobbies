@@ -112,8 +112,10 @@ public:
         statistics::get().magnitudes++;
         if constexpr (DIM == 2) {
             return hypot(data[0], data[1]);
+#if defined(__clang__)
         } else if constexpr (DIM == 3) {
             return hypot(data[0], data[1], data[2]);
+#endif
         } else {
             return sqrt(quadrance());
         }

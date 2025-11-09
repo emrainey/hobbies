@@ -2,8 +2,12 @@ message("======== CALLED FROM ${CMAKE_CURRENT_LIST_FILE} from ${CMAKE_PARENT_LIS
 set(CMAKE_SYSTEM_NAME ${CMAKE_HOST_SYSTEM_NAME})
 set(CMAKE_SYSTEM_PROCESSOR ${CMAKE_HOST_SYSTEM_PROCESSOR})
 
-message(NOTICE "Turn off poor features")
-add_compile_options(-Wno-deprecated-register -Wno-maybe-uninitialized)
+find_program(CMAKE_C_COMPILER NAME gcc REQUIRED)
+find_program(CMAKE_CXX_COMPILER NAME g++ REQUIRED)
+find_program(CMAKE_LD NAME ld REQUIRED)
+
+# message(NOTICE "Turn off poor features")
+# add_compile_options(-Wno-deprecated-register -Wno-maybe-uninitialized)
 
 if (NOT TARGET enabled-warnings)
 add_library(enabled-warnings INTERFACE)
@@ -31,7 +35,7 @@ endif()
 if (NOT TARGET native-optimized)
 # Optimizes your objects for native builds (on the build side only)
 add_library(native-optimized INTERFACE)
-target_compile_options(native-optimized INTERFACE -mtune=native -march=native)
+target_compile_options(native-optimized INTERFACE -mcpu=apple-m3) # -mtune=native -march=native)
 endif()
 
 function(coverage_target TARGET)

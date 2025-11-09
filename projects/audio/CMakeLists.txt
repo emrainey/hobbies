@@ -43,7 +43,7 @@ if (BUILD_UNIT_TESTS AND Threads_FOUND AND GTest_FOUND)
     add_executable(gtest_audio
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_audio.cpp
     )
-    target_link_libraries(gtest_audio PRIVATE hobbies-audio enabled-debugging GTest::gtest GTest::gtest_main Threads::Threads)
+    target_link_libraries(gtest_audio PRIVATE hobbies-audio enabled-debugging GTest::gtest GTest::gmock GTest::gtest_main Threads::Threads)
     add_test(NAME gtest_audio COMMAND gtest_audio)
 endif()
 

@@ -60,7 +60,7 @@ if (BUILD_UNIT_TESTS AND Threads_FOUND AND GTest_FOUND)
     add_executable(gtest_noise
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_noise.cpp
     )
-    target_link_libraries(gtest_noise PRIVATE hobbies-noise hobbies-fourcc enabled-debugging GTest::gtest GTest::gtest_main Threads::Threads)
+    target_link_libraries(gtest_noise PRIVATE hobbies-noise hobbies-fourcc enabled-debugging GTest::gtest GTest::gmock GTest::gtest_main Threads::Threads)
     add_test(NAME gtest_noise COMMAND gtest_noise)
 endif()
 

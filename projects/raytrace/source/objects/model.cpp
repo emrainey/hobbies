@@ -4,7 +4,7 @@ namespace raytrace {
 namespace objects {
 
 Model::Model()
-    : object{R3::origin, SIZE_T_MAX, Type::Model, true}
+    : object{R3::origin, SIZE_MAX, Type::Model, true}
     , points_{}
     , normals_{}
     , texels_{}

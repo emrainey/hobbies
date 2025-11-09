@@ -4,11 +4,13 @@ project(linalg-algo LANGUAGES CXX VERSION 0.7.0)  # This must match the conanfil
 
 # === Dependencies ===
 find_package(OpenCV)
+find_package(GTest)
 
 # === Targets ===
 add_library(hobbies-linalg-algo
     ${CMAKE_CURRENT_SOURCE_DIR}/source/kmeans.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/dkf.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/softmax.cpp
 )
 target_link_libraries(hobbies-linalg-algo PUBLIC
     hobbies-geometry
@@ -33,6 +35,15 @@ set_target_properties(hobbies-linalg-algo PROPERTIES
 if (OpenCV_FOUND)
 add_executable(demo_kmeans ${CMAKE_CURRENT_SOURCE_DIR}/demo/demo_kmeans.cpp)
 target_link_libraries(demo_kmeans hobbies-linalg-algo ${OpenCV_LIBS})
+endif()
+
+# === Googletests ===
+if (BUILD_UNIT_TESTS AND GTest_FOUND)
+    add_executable(gtest_softmax
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_softmax.cpp
+    )
+    target_link_libraries(gtest_softmax PRIVATE hobbies-linalg-algo GTest::gtest GTest::gmock GTest::gtest_main)
+    add_test(NAME gtest_softmax COMMAND gtest_softmax)
 endif()
 
 # === Doxygen ===

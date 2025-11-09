@@ -67,7 +67,7 @@ set_target_properties(hobbies-uom PROPERTIES
 if (BUILD_UNIT_TESTS AND Threads_FOUND AND GTest_FOUND)
     add_executable(gtest_iso ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_iso.cpp)
     # target_include_directories(gtest_iso PUBLIC ${GTEST_INCLUDE_DIRS} ${GTest_INCLUDE_DIRS})
-    target_link_libraries(gtest_iso PRIVATE hobbies-uom GTest::gtest GTest::gtest_main Threads::Threads)
+    target_link_libraries(gtest_iso PRIVATE hobbies-uom GTest::gtest GTest::gmock GTest::gtest_main Threads::Threads)
     add_test(NAME gtest_iso COMMAND gtest_iso)
 endif()
 

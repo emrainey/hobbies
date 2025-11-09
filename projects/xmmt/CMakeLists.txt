@@ -31,7 +31,7 @@ if (USE_XMMT AND BUILD_UNIT_TESTS AND Threads_FOUND AND GTest_FOUND)
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_point.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_vector.cpp
     )
-    target_link_libraries(gtest_xmmt PRIVATE hobbies-xmmt enabled-debugging GTest::gtest GTest::gtest_main Threads::Threads)
+    target_link_libraries(gtest_xmmt PRIVATE hobbies-xmmt enabled-debugging GTest::gtest GTest::gmock GTest::gtest_main Threads::Threads)
     add_test(NAME gtest_xmmt COMMAND gtest_xmmt)
 endif()
 

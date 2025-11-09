@@ -73,7 +73,7 @@ void network::forward() {
 
 void network::backward(precision alpha, precision gamma) {
     basal::exception::throw_unless(layers.size() > 2, __FILE__, __LINE__);
-    for (size_t index = layers.size() - 1U; index >= 0; index--) {
+    for (size_t index = layers.size() - 1U; true ; index--) {
         layer& _layer = (*layers[index]);
         if (_layer.isa(layer::type::input)) {
             _layer.backward();

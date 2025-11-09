@@ -12,7 +12,7 @@ linalg::matrix convert(::cv::Mat& img) {
         } else if (img.type() == CV_16UC1) {
             v = precision(img.at<uint16_t>(y, x)) / 65535.0_p;
         } else if (img.type() == CV_32SC1) {
-            v = precision(img.at<uint32_t>(y, x)) / precision(std::numeric_limits<int32_t>::max());
+            v = precision(img.at<int32_t>(y, x)) / precision(std::numeric_limits<int32_t>::max());
         } else {  // if (img.type() == CV_8UC3) { // BGR usually
             assert(false);
         }

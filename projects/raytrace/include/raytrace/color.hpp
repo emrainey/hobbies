@@ -92,16 +92,16 @@ public:
     // Destructor
     ~color() = default;
 
-    constexpr precision const volatile& red() const volatile {
+    constexpr precision const& red() const {
         return channels[0];
     }
-    constexpr precision const volatile& green() const volatile {
+    constexpr precision const& green() const {
         return channels[1];
     }
-    constexpr precision const volatile& blue() const volatile {
+    constexpr precision const& blue() const {
         return channels[2];
     }
-    constexpr precision const volatile& intensity() const volatile {
+    constexpr precision const& intensity() const {
         return channels[3];
     }
 

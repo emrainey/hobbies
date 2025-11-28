@@ -11,7 +11,7 @@ def test_color_components() -> None:
 def test_color_components() -> None:
     from pyhobbies.raytrace import color
     c = color(0.75, 0.5, 0.25)
-    c.scale(0.5)
+    c.scale(0.5, False) # clamp?
     assert c.red() == 0.375
     assert c.green() == 0.25
     assert c.blue() == 0.125

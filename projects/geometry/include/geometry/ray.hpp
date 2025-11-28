@@ -50,7 +50,7 @@ public:
         return m_location;
     }
 
-    /// Returns a readonly refernce to the direction
+    /// Returns a readonly reference to the direction
     vector const& direction() const {
         return m_direction;
     }

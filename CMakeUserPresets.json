@@ -47,13 +47,12 @@
         {
             "name": "native-clang-mac",
             "inherits": [
-                "native-clang",
-                "Homebrew"
+                "native-clang"
             ],
             "displayName": "Native Clang Toolchain",
-            "description": "Uses the default clang in your path",
+            "description": "Uses the default clang in your path first, then falls back to Homebrew",
             "environment": {
-                "PATH": "$env{HOMEBREW_PATH}:$penv{PATH}"
+                "PATH": "$penv{PATH}:$env{HOMEBREW_PATH}"
             },
             "cacheVariables": {
                 "CMAKE_C_COMPILER": "clang",
@@ -64,30 +63,28 @@
         {
             "name": "homebrew-llvm",
             "displayName": "Homebrew LLVM",
-            "description": "Homebrew LLVM",
+            "description": "Homebrew LLVM Toolchain which is currently linked in /opt/homebrew/bin",
             "inherits": [
                 "native-llvm",
                 "Homebrew",
                 "debug"
             ],
             "environment": {
-                "LLVM_PATH": "$env{HOMEBREW_ROOT}/Cellar/llvm@20/20.1.8/bin",
-                "PATH": "$env{LLVM_PATH}:$env{HOMEBREW_PATH}:$penv{PATH}"
+                "PATH": "$env{HOMEBREW_PATH}:$penv{PATH}"
             },
             "cacheVariables": {}
         },
         {
             "name": "homebrew-llvm-profiled",
             "displayName": "Homebrew LLVM w/ Profiling",
-            "description": "Homebrew LLVM w/ Profiling",
+            "description": "Homebrew LLVM w/ Profiling Toolchain which is currently linked in /opt/homebrew/bin",
             "inherits": [
                 "native-llvm",
                 "Homebrew",
                 "profiling"
             ],
             "environment": {
-                "LLVM_PATH": "$env{HOMEBREW_ROOT}/Cellar/llvm@20/20.1.8/bin",
-                "PATH": "$env{LLVM_PATH}:$env{HOMEBREW_PATH}:$penv{PATH}"
+                "PATH": "$env{HOMEBREW_PATH}:$penv{PATH}"
             },
             "cacheVariables": {}
         }

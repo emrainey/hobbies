@@ -7,6 +7,7 @@ find_package(OpenCV)
 find_package(Threads)
 find_package(GTest)
 find_package(Doxygen)
+find_package(OpenMP)
 
 # === Targets ===
 if (OpenCV_FOUND)
@@ -26,6 +27,7 @@ target_link_libraries(hobbies-neuralnet
         hobbies-linalg
         hobbies-linalg-utils
         ${OpenCV_LIBS}
+        $<$<BOOL:${OpenMP_CXX_FOUND}>:OpenMP::OpenMP_CXX>
     PRIVATE
         enabled-warnings
         enabled-debugging

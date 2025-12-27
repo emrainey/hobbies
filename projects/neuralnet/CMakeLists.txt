@@ -4,6 +4,8 @@ project(neuralnet LANGUAGES CXX VERSION 0.7.0)  # This must match the conanfile.
 
 # === Dependencies ===
 find_package(OpenCV)
+find_package(Threads)
+find_package(GTest)
 find_package(Doxygen)
 
 # === Targets ===
@@ -52,6 +54,15 @@ target_link_libraries(demo_neuralnet hobbies-neuralnet ${OpenCV_LIBS})
 
 add_executable(neuralnet ${CMAKE_CURRENT_SOURCE_DIR}/source/neuralnet.cpp)
 target_link_libraries(neuralnet hobbies-neuralnet ${OpenCV_LIBS})
+
+# === Googletests ===
+if (BUILD_UNIT_TESTS AND Threads_FOUND AND GTest_FOUND)
+    add_executable(gtest_neuralnet
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/gtest_neuralnet.cpp
+    )
+    target_link_libraries(gtest_neuralnet PRIVATE hobbies-neuralnet enabled-debugging GTest::gtest GTest::gmock GTest::gtest_main Threads::Threads)
+    add_test(NAME gtest_neuralnet COMMAND gtest_neuralnet)
+endif()
 
 # === Doxygen ===
 if (Doxygen_FOUND)

@@ -9,8 +9,8 @@ using namespace linalg;
 
 /// The learning rate of the network
 namespace local {
-constexpr precision alpha = -0.25_p;
-constexpr precision gamma = -0.9_p;
+constexpr precision alpha = 0.3_p;
+constexpr precision gamma = 0.9_p;
 }  // namespace local
 
 int main(int argc, char* argv[]) {
@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
                                      {"-ti", "--train-images", training_images.c_str(), "Training Data Images"},
                                      {"-dl", "--data-labels", data_labels.c_str(), "Data Labels"},
                                      {"-di", "--data-images", data_images.c_str(), "Data Images"},
-                                     {"-c", "--count", int(600u), "Number of repetitions"},
+                                     {"-c", "--count", int(6000u), "Number of repetitions"},
                                      {"-m", "--minibatch", int(50u), "Number of items in a minibatch"},
                                      {"-r", "--reset", false, "Forces a reset between each minibatch"}};
     try {
@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
 
         // call the list constructor
         nn::network net(node_counts);
-        net.set(nn::activation_type::Tanh);
+        net.set(nn::activation_type::Sigmoid);
 
         // Create some handles
         nn::input& in = net.as_input(0);
@@ -77,12 +77,12 @@ int main(int argc, char* argv[]) {
                 uint8_t answer = learning.get_label(idx);
                 in.encode(learning, idx);
                 net.forward();
-                out.learn_label(answer, 0.0_p, 1.0_p);
+                out.learn_label(answer, 0.1_p, 0.9_p);
                 net.backward(local::alpha, local::gamma);
                 if (idx > 0 and (idx % minibatch) == 0) {
-                    net.visualize(std::chrono::milliseconds(1));
                     net.update();
                     printf("RMS: %0.5lf\n", out.rms_value);
+                    net.visualize(std::chrono::milliseconds(1));
                     if (reset) {
                         net.reset();
                     }
@@ -108,16 +108,31 @@ int main(int argc, char* argv[]) {
 
             precision value = 0.0_p;
             size_t idx = out.infer_label(value);
-            if (idx == testdata.get_label(i)) {
+            uint8_t expected = testdata.get_label(i);
+            if (idx == expected) {
                 hits++;
             } else {
                 misses++;
             }
-            printf("Complete! %zu => %lf (hits=%u, misses=%u total=%u rate:%lf)\n", idx, value, hits, misses, i,
-                   float(hits + misses) / i);
+            printf("Complete! predicted=%zu (%.3f) expected=%u (hits=%u, misses=%u total=%u accuracy:%.2f%%)\n",
+                   idx, value, expected, hits, misses, hits + misses,
+                   100.0f * float(hits) / float(hits + misses));
             fflush(stdout);
 
-            out.values.T().print(std::cout, "output");
+            // Only show detailed output for misclassifications
+            if (idx != expected) {
+                out.values.T().print(std::cout, "output (MISS)");
+            }
+            std::chrono::milliseconds delay(1);
+            int ms = static_cast<int>(delay.count());
+            int key = cv::waitKey(ms);
+            switch ((key & 0xFF)) {
+                case 'q':
+                    exit(0);
+                    break;
+                case ' ':
+                    break;
+            }
         }
         return 0;
     } catch (basal::exception& e) {

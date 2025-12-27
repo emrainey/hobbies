@@ -62,9 +62,14 @@ public:
     linalg::matrix zeta;     ///< The weighted inputs plus biases.
     linalg::matrix rms;      ///< The root mean square of the errors (after update)
     size_t count;
-    linalg::matrix last_delta;     ///< The previous delta matrix
-    linalg::matrix last_bias;      ///< The previous bias matrix
-    linalg::matrix delta_weights;  ///< This holds the instantaneous change in weights
-    linalg::matrix delta_biases;   ///< This holds the instantaneous change in biases
+    precision current_alpha; ///< Current learning rate
+    precision current_gamma; ///< Current momentum coefficient
+    linalg::matrix last_weight_update; ///< The previous weight update for momentum
+    linalg::matrix last_bias_update;   ///< The previous bias update for momentum
+    linalg::matrix delta_weights;  ///< This holds the accumulated weight gradients
+    linalg::matrix delta_biases;   ///< This holds the accumulated bias gradients
+    // Visualization tracking
+    linalg::matrix applied_weight_update; ///< Last applied weight update (for visualization)
+    linalg::matrix applied_bias_update;   ///< Last applied bias update (for visualization)
 };
 }  // namespace nn

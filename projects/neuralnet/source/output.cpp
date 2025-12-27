@@ -14,7 +14,7 @@ output::~output() {
 }
 
 size_t output::infer_label(precision& out) {
-    precision tmp = 0.0_p;
+    precision tmp = -std::numeric_limits<precision>::infinity();
     size_t index = 0;
     values.for_each([&](size_t y, size_t x, precision const& v) {
         (void)x;
@@ -47,7 +47,7 @@ void output::learn_label(size_t index, precision min, precision max) {
     beta = desired - values;
     rms += linalg::hadamard(beta, beta);
     error += linalg::hadamard(beta, beta);
-    delta = linalg::hadamard(values - desired, activation_derivative(zeta));
+    delta = linalg::hadamard(desired - values, activation_derivative(zeta));
 }
 
 void output::learn_label(linalg::matrix const& desired) {
@@ -55,7 +55,7 @@ void output::learn_label(linalg::matrix const& desired) {
     beta = desired - values;
     rms += linalg::hadamard(beta, beta);
     error += linalg::hadamard(beta, beta);
-    delta = linalg::hadamard(values - desired, activation_derivative(zeta));
+    delta = linalg::hadamard(desired - values, activation_derivative(zeta));
 }
 
 void output::learn_label(linalg::matrix&& desired) {
@@ -63,7 +63,7 @@ void output::learn_label(linalg::matrix&& desired) {
     beta = desired - values;
     rms += linalg::hadamard(beta, beta);
     error += linalg::hadamard(beta, beta);
-    delta = linalg::hadamard(values - desired, activation_derivative(zeta));
+    delta = linalg::hadamard(desired - values, activation_derivative(zeta));
 }
 
 }  // namespace nn

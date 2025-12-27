@@ -53,13 +53,12 @@ int main(int argc __attribute__((unused)), char* argv[] __attribute__((unused)))
         linalg::matrix labelsetT = labelset.transpose();
         // train
         size_t const reps = 60000;
-        nn::precision alpha = -0.25_p;
-        nn::precision gamma = -0.9_p;
+        nn::precision alpha = 0.25_p;
+        nn::precision gamma = 0.9_p;
         nn::precision last_rms = std::numeric_limits<nn::precision>::infinity();
         for (size_t r = 0; r < reps; r++) {
             net.reset();
             for (size_t idx = 0; idx < labelsetT.cols; idx++) {
-                // for (size_t idx = 7; idx < 8; idx++) {
                 //  set the values from the row of the data set
                 in.values = datasetT.col(idx);
                 net.forward();
@@ -69,11 +68,10 @@ int main(int argc __attribute__((unused)), char* argv[] __attribute__((unused)))
             }
             // now apply the learning
             net.update();
-            // net.visualize();
             //  make sure the number makes sense
             assert(not basal::is_nan(out.rms_value));
             if (out.rms_value > last_rms) {
-                // printf("RMS is not improving!!!\n");
+                printf("RMS is not improving!!!\n");
                 // alpha += 0.001_p;
             } else if (basal::nearly_equals(out.rms_value, last_rms)) {
                 // alpha -= 0.001_p;
@@ -82,6 +80,8 @@ int main(int argc __attribute__((unused)), char* argv[] __attribute__((unused)))
             last_rms = out.rms_value;
             if ((r % (reps / 10)) == 0) {
                 printf("Iteration %zu RMS=%lf\n", r, out.rms_value);
+                // Show visualization every iteration to see learning progress
+                net.visualize(std::chrono::milliseconds(1));  // 1ms delay between frames
             }
             if (out.rms_value < 0.0005_p) {
                 printf("Took %zu iterations to get to success rate of %lf\n", r, out.rms_value);
@@ -89,7 +89,6 @@ int main(int argc __attribute__((unused)), char* argv[] __attribute__((unused)))
             }
         }
         for (size_t idx = 0; idx < labelsetT.cols; idx++) {
-            // for (size_t idx = 7; idx < 8; idx++) {
             //  set the values from the row of the data set
             in.values = datasetT.col(idx);
             net.forward();

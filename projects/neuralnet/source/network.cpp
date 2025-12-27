@@ -256,11 +256,11 @@ void network::visualize(std::chrono::milliseconds delay) {
                 // weights are already square-ish
                 images[lidx].push_back(linalg::each_row_square_tiled(in.weights, CV_8UC3, 4));
                 names[lidx].push_back("W");
-                images[lidx].push_back(linalg::each_row_square_tiled(in.delta_weights, CV_8UC3, 4));
+                images[lidx].push_back(linalg::each_row_square_tiled(in.applied_weight_update, CV_8UC3, 4));
                 names[lidx].push_back("dW");
                 images[lidx].push_back(linalg::convert(in.biases, CV_8UC3));
                 names[lidx].push_back("b");
-                images[lidx].push_back(linalg::convert(in.delta_biases, CV_8UC3));
+                images[lidx].push_back(linalg::convert(in.applied_bias_update, CV_8UC3));
                 names[lidx].push_back("db");
                 images[lidx].push_back(linalg::convert(in.zeta, CV_8UC3));
                 names[lidx].push_back("z");
@@ -339,7 +339,7 @@ void network::visualize(std::chrono::milliseconds delay) {
                     cv::Point dw = hf + cv::Point(0, 20);
                     nn::inner& in = as_inner(l);
                     print(img, hf, "W=%0.3lf", in.weights[n][n_1]);
-                    print(img, dw, "dw=%0.3lf", in.delta_weights[n][n_1]);
+                    print(img, dw, "dw=%0.3lf", in.applied_weight_update[n][n_1]);
                 }
             }
         }

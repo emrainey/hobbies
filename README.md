@@ -6,9 +6,14 @@ A place to collect and share all my hobby projects.
 
 * `build` - where the build temporaries are collected
 * `install` - where the build outputs are collected
+* `docs` - documentation for the various projects
+* `data` - sample data files used by the projects (training data, etc)
+* `build-support` - CMake modules and scripts to support the build process.
 * `projects` - The set of projects
+  * `audio` - a simple audio synthesis and processing library
   * `basal` - a core library of utility objects and interfaces.
   * `doorgame` - a simple Text Adventure game
+  * `ecs` - an Entity Component System implementation for a simple gravity simulation
   * `fourcc` - a small image library
   * `geometry` - the 2D/3D geometry objects
   * `htm` - the start of a hierarchical temporal memory system.

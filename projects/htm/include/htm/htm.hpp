@@ -54,9 +54,9 @@ struct connection {
 
 /// The structure that connects neurons in a one-way directed graph
 struct synapse {
-    precision strength;     ///< Contains the strength of the connection or permanence
+    precision strength;      ///< Contains the strength of the connection or permanence
     connection connections;  ///< Contains the information about how the synapse is connected.
-    precision threshold;    ///< Contains the threshold of the connection
+    precision threshold;     ///< Contains the threshold of the connection
     /// Contains the weight of the connection (1.0 if strength > threshold, else 0.0)
     precision weight() const {
         return (strength > threshold) ? 1.0_p : 0.0_p;

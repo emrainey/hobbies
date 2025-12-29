@@ -104,4 +104,3 @@ iso::radians operator""_rad(char const a[]) {
 }
 }  // namespace literals
 }  // namespace iso
-

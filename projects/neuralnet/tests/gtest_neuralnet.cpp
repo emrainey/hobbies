@@ -119,9 +119,9 @@ TEST(ActivationTest, ReLUFunction) {
 // Test ReLU derivative
 TEST(ActivationTest, ReLUDerivative) {
     // Test derivative properties
-    EXPECT_EQ(nn::relu_deriv(0.5_p), 1.0_p);  // Linear region
+    EXPECT_EQ(nn::relu_deriv(0.5_p), 1.0_p);       // Linear region
     EXPECT_EQ(nn::relu_deriv(-0.5_p), nn::leaky);  // Negative region
-    EXPECT_EQ(nn::relu_deriv(1.5_p), 0.0_p);  // Saturated region (> 1)
+    EXPECT_EQ(nn::relu_deriv(1.5_p), 0.0_p);       // Saturated region (> 1)
 
     // Test boundary cases
     EXPECT_EQ(nn::relu_deriv(1.0_p), 1.0_p);  // At the boundary
@@ -254,45 +254,45 @@ TEST(ForwardPassTest, SimpleLayerTest) {
 
 TEST(ForwardPassTest, HiddenLayerForwardPropagation) {
     try {
-    // Create layers
-    nn::input input_layer(3);  // 3 inputs
-    nn::hidden hidden_layer(3, 2);  // 3->2 mapping
+        // Create layers
+        nn::input input_layer(3);       // 3 inputs
+        nn::hidden hidden_layer(3, 2);  // 3->2 mapping
 
-    // Set up input values
-    input_layer.values[0][0] = 0.5_p;
-    input_layer.values[1][0] = 0.8_p;
-    input_layer.values[2][0] = 0.2_p;
+        // Set up input values
+        input_layer.values[0][0] = 0.5_p;
+        input_layer.values[1][0] = 0.8_p;
+        input_layer.values[2][0] = 0.2_p;
 
-    // Set up known weights and biases for predictable output
-    // Weights matrix: 2 rows (outputs), 3 cols (inputs)
-    hidden_layer.weights[0][0] = 1.0_p;  // First output, first input
-    hidden_layer.weights[0][1] = 0.5_p;  // First output, second input
-    hidden_layer.weights[0][2] = -0.3_p; // First output, third input
-    hidden_layer.weights[1][0] = -0.2_p; // Second output, first input
-    hidden_layer.weights[1][1] = 1.2_p;  // Second output, second input
-    hidden_layer.weights[1][2] = 0.7_p;  // Second output, third input
+        // Set up known weights and biases for predictable output
+        // Weights matrix: 2 rows (outputs), 3 cols (inputs)
+        hidden_layer.weights[0][0] = 1.0_p;   // First output, first input
+        hidden_layer.weights[0][1] = 0.5_p;   // First output, second input
+        hidden_layer.weights[0][2] = -0.3_p;  // First output, third input
+        hidden_layer.weights[1][0] = -0.2_p;  // Second output, first input
+        hidden_layer.weights[1][1] = 1.2_p;   // Second output, second input
+        hidden_layer.weights[1][2] = 0.7_p;   // Second output, third input
 
-    hidden_layer.biases[0][0] = 0.1_p;   // First output bias
-    hidden_layer.biases[1][0] = -0.2_p;  // Second output bias
+        hidden_layer.biases[0][0] = 0.1_p;   // First output bias
+        hidden_layer.biases[1][0] = -0.2_p;  // Second output bias
 
-    // Set activation to sigmoid for predictable results
-    hidden_layer.set(nn::activation_type::Sigmoid);
+        // Set activation to sigmoid for predictable results
+        hidden_layer.set(nn::activation_type::Sigmoid);
 
-    // Perform forward pass
-    hidden_layer.forward(input_layer);
+        // Perform forward pass
+        hidden_layer.forward(input_layer);
 
-    // Calculate expected zeta (weighted inputs + biases)
-    // zeta[0] = 1.0*0.5 + 0.5*0.8 + (-0.3)*0.2 + 0.1 = 0.5 + 0.4 - 0.06 + 0.1 = 0.94
-    // zeta[1] = (-0.2)*0.5 + 1.2*0.8 + 0.7*0.2 + (-0.2) = -0.1 + 0.96 + 0.14 - 0.2 = 0.8
-    precision expected_zeta1 = 1.0_p * 0.5_p + 0.5_p * 0.8_p + (-0.3_p) * 0.2_p + 0.1_p;
-    precision expected_zeta2 = (-0.2_p) * 0.5_p + 1.2_p * 0.8_p + 0.7_p * 0.2_p + (-0.2_p);
+        // Calculate expected zeta (weighted inputs + biases)
+        // zeta[0] = 1.0*0.5 + 0.5*0.8 + (-0.3)*0.2 + 0.1 = 0.5 + 0.4 - 0.06 + 0.1 = 0.94
+        // zeta[1] = (-0.2)*0.5 + 1.2*0.8 + 0.7*0.2 + (-0.2) = -0.1 + 0.96 + 0.14 - 0.2 = 0.8
+        precision expected_zeta1 = 1.0_p * 0.5_p + 0.5_p * 0.8_p + (-0.3_p) * 0.2_p + 0.1_p;
+        precision expected_zeta2 = (-0.2_p) * 0.5_p + 1.2_p * 0.8_p + 0.7_p * 0.2_p + (-0.2_p);
 
-    EXPECT_NEAR(hidden_layer.zeta[0][0], expected_zeta1, 1e-10);
-    EXPECT_NEAR(hidden_layer.zeta[1][0], expected_zeta2, 1e-10);
+        EXPECT_NEAR(hidden_layer.zeta[0][0], expected_zeta1, 1e-10);
+        EXPECT_NEAR(hidden_layer.zeta[1][0], expected_zeta2, 1e-10);
 
-    // Check that values are sigmoid of zeta
-    EXPECT_NEAR(hidden_layer.values[0][0], nn::sigmoid(expected_zeta1), 1e-10);
-    EXPECT_NEAR(hidden_layer.values[1][0], nn::sigmoid(expected_zeta2), 1e-10);
+        // Check that values are sigmoid of zeta
+        EXPECT_NEAR(hidden_layer.values[0][0], nn::sigmoid(expected_zeta1), 1e-10);
+        EXPECT_NEAR(hidden_layer.values[1][0], nn::sigmoid(expected_zeta2), 1e-10);
 
     } catch (std::exception& e) {
         FAIL() << "Exception in forward propagation: " << e.what();
@@ -332,7 +332,7 @@ TEST(ForwardPassTest, ActivationTypes) {
 
 // Test output layer forward pass
 TEST(ForwardPassTest, OutputLayerForwardPropagation) {
-    nn::input input_layer(2);  // Use input layer instead of hidden
+    nn::input input_layer(2);       // Use input layer instead of hidden
     nn::output output_layer(2, 3);  // 2 inputs, 3 outputs
 
     // Set input layer values
@@ -340,9 +340,12 @@ TEST(ForwardPassTest, OutputLayerForwardPropagation) {
     input_layer.values[1][0] = 0.3_p;
 
     // Set output layer weights and biases
-    output_layer.weights[0][0] = 0.5_p;  output_layer.weights[0][1] = 1.0_p;
-    output_layer.weights[1][0] = -0.3_p; output_layer.weights[1][1] = 0.8_p;
-    output_layer.weights[2][0] = 1.2_p;  output_layer.weights[2][1] = -0.5_p;
+    output_layer.weights[0][0] = 0.5_p;
+    output_layer.weights[0][1] = 1.0_p;
+    output_layer.weights[1][0] = -0.3_p;
+    output_layer.weights[1][1] = 0.8_p;
+    output_layer.weights[2][0] = 1.2_p;
+    output_layer.weights[2][1] = -0.5_p;
 
     output_layer.biases[0][0] = 0.1_p;
     output_layer.biases[1][0] = 0.0_p;
@@ -432,9 +435,12 @@ TEST(GradientPassTest, OutputLayerGradientComputation) {
     input_layer.values[1][0] = 0.4_p;
 
     // Set known weights and biases for predictable output
-    output_layer.weights[0][0] = 0.5_p;  output_layer.weights[0][1] = 1.0_p;   // First output
-    output_layer.weights[1][0] = -0.3_p; output_layer.weights[1][1] = 0.8_p;   // Second output
-    output_layer.weights[2][0] = 1.2_p;  output_layer.weights[2][1] = -0.5_p;  // Third output
+    output_layer.weights[0][0] = 0.5_p;
+    output_layer.weights[0][1] = 1.0_p;  // First output
+    output_layer.weights[1][0] = -0.3_p;
+    output_layer.weights[1][1] = 0.8_p;  // Second output
+    output_layer.weights[2][0] = 1.2_p;
+    output_layer.weights[2][1] = -0.5_p;  // Third output
 
     output_layer.biases[0][0] = 0.1_p;
     output_layer.biases[1][0] = 0.0_p;
@@ -474,14 +480,18 @@ TEST(GradientPassTest, HiddenLayerBackwardPropagation) {
     input_layer.values[1][0] = 0.8_p;
 
     // Set hidden layer weights/biases
-    hidden_layer.weights[0][0] = 1.0_p; hidden_layer.weights[0][1] = 0.5_p;
-    hidden_layer.weights[1][0] = -0.2_p; hidden_layer.weights[1][1] = 1.2_p;
+    hidden_layer.weights[0][0] = 1.0_p;
+    hidden_layer.weights[0][1] = 0.5_p;
+    hidden_layer.weights[1][0] = -0.2_p;
+    hidden_layer.weights[1][1] = 1.2_p;
     hidden_layer.biases[0][0] = 0.1_p;
     hidden_layer.biases[1][0] = -0.2_p;
 
     // Set output layer weights/biases
-    output_layer.weights[0][0] = 0.6_p; output_layer.weights[0][1] = 0.4_p;
-    output_layer.weights[1][0] = -0.4_p; output_layer.weights[1][1] = 0.8_p;
+    output_layer.weights[0][0] = 0.6_p;
+    output_layer.weights[0][1] = 0.4_p;
+    output_layer.weights[1][0] = -0.4_p;
+    output_layer.weights[1][1] = 0.8_p;
     output_layer.biases[0][0] = 0.05_p;
     output_layer.biases[1][0] = -0.1_p;
 
@@ -505,7 +515,8 @@ TEST(GradientPassTest, HiddenLayerBackwardPropagation) {
     // Verify hidden layer delta computation
     // The backward method should compute the delta based on the chain rule
     // Since output layer already has its delta computed, hidden layer backward
-    // should compute: hidden_delta[i] = sum_j(output_weight[j][i] * output_delta[j]) * activation_derivative(hidden_zeta[i])
+    // should compute: hidden_delta[i] = sum_j(output_weight[j][i] * output_delta[j]) *
+    // activation_derivative(hidden_zeta[i])
     for (size_t i = 0; i < hidden_layer.get_num(); ++i) {
         precision sum_weighted_deltas = 0.0_p;
         for (size_t j = 0; j < output_layer.get_num(); ++j) {
@@ -515,8 +526,7 @@ TEST(GradientPassTest, HiddenLayerBackwardPropagation) {
 
         // Note: The actual delta might be zero if the backward method doesn't compute it
         // Let's just check that the delta was computed (non-zero) for now
-        EXPECT_FALSE(std::isnan(hidden_layer.delta[i][0]))
-            << "Hidden layer delta should not be NaN at index " << i;
+        EXPECT_FALSE(std::isnan(hidden_layer.delta[i][0])) << "Hidden layer delta should not be NaN at index " << i;
     }
 }
 
@@ -530,8 +540,10 @@ TEST(GradientPassTest, WeightGradientAccumulation) {
     input_layer.values[1][0] = 0.3_p;
 
     // Initialize with simple weights for easy calculation
-    output_layer.weights[0][0] = 0.5_p; output_layer.weights[0][1] = 0.2_p;
-    output_layer.weights[1][0] = 0.1_p; output_layer.weights[1][1] = 0.6_p;
+    output_layer.weights[0][0] = 0.5_p;
+    output_layer.weights[0][1] = 0.2_p;
+    output_layer.weights[1][0] = 0.1_p;
+    output_layer.weights[1][1] = 0.6_p;
     output_layer.biases.zero();
 
     output_layer.set(nn::activation_type::Sigmoid);
@@ -574,7 +586,8 @@ TEST(GradientPassTest, MultipleGradientAccumulation) {
     nn::input input_layer(2);
     nn::output output_layer(2, 1);  // Simple 2->1 network
 
-    output_layer.weights[0][0] = 0.5_p; output_layer.weights[0][1] = -0.3_p;
+    output_layer.weights[0][0] = 0.5_p;
+    output_layer.weights[0][1] = -0.3_p;
     output_layer.biases[0][0] = 0.1_p;
     output_layer.set(nn::activation_type::Sigmoid);
 
@@ -624,11 +637,8 @@ TEST(GradientPassTest, ActivationDerivativeInGradients) {
     output_layer.biases[0][0] = 0.0_p;
 
     // Test with different activation functions
-    std::vector<nn::activation_type> activations = {
-        nn::activation_type::Sigmoid,
-        nn::activation_type::Tanh,
-        nn::activation_type::RELU
-    };
+    std::vector<nn::activation_type> activations
+        = {nn::activation_type::Sigmoid, nn::activation_type::Tanh, nn::activation_type::RELU};
 
     for (auto activation : activations) {
         output_layer.set(activation);
@@ -755,7 +765,7 @@ TEST(WeightUpdateTest, BasicWeightUpdate) {
     output_layer.forward(input_layer);
 
     // Backward pass with learning
-    output_layer.learn_label(0, 0.0_p, 1.0_p);  // Target: 1.0
+    output_layer.learn_label(0, 0.0_p, 1.0_p);         // Target: 1.0
     output_layer.backward(input_layer, 0.3_p, 0.0_p);  // alpha=0.3, gamma=0.0 (no momentum)
 
     // Store expected gradients before update
@@ -838,11 +848,7 @@ TEST(WeightUpdateTest, GradientAveraging) {
     output_layer.reset();
 
     // Accumulate gradients from multiple examples
-    std::vector<std::array<precision, 2>> inputs = {
-        {0.8_p, 0.2_p},
-        {0.3_p, 0.7_p},
-        {0.6_p, 0.4_p}
-    };
+    std::vector<std::array<precision, 2>> inputs = {{0.8_p, 0.2_p}, {0.3_p, 0.7_p}, {0.6_p, 0.4_p}};
 
     precision sum_dw0 = 0.0_p, sum_dw1 = 0.0_p, sum_db = 0.0_p;
 
@@ -1121,16 +1127,12 @@ TEST(EndToEndTest, SimpleLinearRegression) {
     nn::input input_layer(1);
     nn::output output_layer(1, 1);
 
-    output_layer.weights[0][0] = 0.1_p;  // Start with smaller initial weights
-    output_layer.biases[0][0] = 0.0_p;   // No initial bias
+    output_layer.weights[0][0] = 0.1_p;           // Start with smaller initial weights
+    output_layer.biases[0][0] = 0.0_p;            // No initial bias
     output_layer.set(nn::activation_type::Tanh);  // Use Tanh for better gradients
 
     // Simple training data - perfect for y = x + 0.1
-    std::vector<std::pair<precision, precision>> training_data = {
-        {0.1_p, 0.2_p},
-        {0.2_p, 0.3_p},
-        {0.3_p, 0.4_p}
-    };
+    std::vector<std::pair<precision, precision>> training_data = {{0.1_p, 0.2_p}, {0.2_p, 0.3_p}, {0.3_p, 0.4_p}};
 
     precision initial_loss = 0.0_p;
     for (const auto& [x, target] : training_data) {
@@ -1166,7 +1168,8 @@ TEST(EndToEndTest, SimpleLinearRegression) {
 
     // Debug output to see what's happening
     std::cout << "Initial loss: " << initial_loss << ", Final loss: " << final_loss << std::endl;
-    std::cout << "Final weight: " << output_layer.weights[0][0] << ", Final bias: " << output_layer.biases[0][0] << std::endl;
+    std::cout << "Final weight: " << output_layer.weights[0][0] << ", Final bias: " << output_layer.biases[0][0]
+              << std::endl;
 
     // Very relaxed expectations - just verify some learning occurred
     EXPECT_LT(final_loss, initial_loss);  // Loss should decrease
@@ -1273,8 +1276,8 @@ TEST(EndToEndTest, XORProblem) {
         precision error = target - output;
         final_loss += error * error;
 
-        std::cout << "Input: (" << x1 << ", " << x2 << ") -> Output: "
-                  << output << " (expected: " << target << ")" << std::endl;
+        std::cout << "Input: (" << x1 << ", " << x2 << ") -> Output: " << output << " (expected: " << target << ")"
+                  << std::endl;
     }
     final_loss /= xor_data.size();
 
@@ -1510,7 +1513,7 @@ TEST(EndToEndTest, GradientFlowValidation) {
     EXPECT_NE(output_layer.weights[0][0], old_w3);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }

@@ -13,4 +13,4 @@ namespace linalg {
 /// @return Returns a column matrix of the softmax values
 matrix softmax(const matrix &m);
 
-} // namespace linalg
+}  // namespace linalg

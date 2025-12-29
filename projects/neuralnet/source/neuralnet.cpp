@@ -15,17 +15,18 @@ int main(int argc, char* argv[]) {
     std::string data_labels("t10k-labels-idx1-ubyte");
     std::string data_images("t10k-images-idx3-ubyte");
 
-    basal::options::config opts[] = {{"-tl", "--train-labels", training_labels, "Training Data Labels"},
-                                     {"-ti", "--train-images", training_images, "Training Data Images"},
-                                     {"-dl", "--data-labels", data_labels, "Data Labels"},
-                                     {"-di", "--data-images", data_images, "Data Images"},
-                                     {"-c", "--count", int(10), "Number of epochs (repetitions through dataset)"},
-                                     {"-m", "--minibatch", int(50u), "Number of items in a minibatch"},
-                                     {"-a", "--alpha", precision(0.00390625_p), "Learning rate (power of 2: 1/256)"},
-                                     {"-g", "--gamma", precision(0.0625_p), "Momentum factor (power of 2: 1/16)"},
-                                     {"-r", "--reset", false, "Forces a reset between each minibatch"},
-                                     {"-v", "--visualize", false, "Enables visualization of the network during training"},
-                                     {"-t", "--test-limit", int(1000), "Limit number of test samples for quick evaluation"}};
+    basal::options::config opts[]
+        = {{"-tl", "--train-labels", training_labels, "Training Data Labels"},
+           {"-ti", "--train-images", training_images, "Training Data Images"},
+           {"-dl", "--data-labels", data_labels, "Data Labels"},
+           {"-di", "--data-images", data_images, "Data Images"},
+           {"-c", "--count", int(10), "Number of epochs (repetitions through dataset)"},
+           {"-m", "--minibatch", int(50u), "Number of items in a minibatch"},
+           {"-a", "--alpha", precision(0.00390625_p), "Learning rate (power of 2: 1/256)"},
+           {"-g", "--gamma", precision(0.0625_p), "Momentum factor (power of 2: 1/16)"},
+           {"-r", "--reset", false, "Forces a reset between each minibatch"},
+           {"-v", "--visualize", false, "Enables visualization of the network during training"},
+           {"-t", "--test-limit", int(1000), "Limit number of test samples for quick evaluation"}};
     try {
         constexpr uint32_t const num = nn::mnist::inputs;
         char path[256] = {0};
@@ -128,9 +129,8 @@ int main(int argc, char* argv[]) {
             } else {
                 misses++;
             }
-            printf("Complete! predicted=%zu (%.3f) expected=%u (hits=%u, misses=%u total=%u accuracy:%.2f%%)\n",
-                   idx, value, expected, hits, misses, hits + misses,
-                   100.0f * float(hits) / float(hits + misses));
+            printf("Complete! predicted=%zu (%.3f) expected=%u (hits=%u, misses=%u total=%u accuracy:%.2f%%)\n", idx,
+                   value, expected, hits, misses, hits + misses, 100.0f * float(hits) / float(hits + misses));
             fflush(stdout);
 
             // Only show detailed output for misclassifications

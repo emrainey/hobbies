@@ -17,11 +17,11 @@ matrix softmax(const matrix &m) {
     matrix out(m.rows, 1);
     precision sum_exp = 0.0;
     for (size_t i = 0; i < m.rows; ++i) {
-        out[i][0] = std::exp(m[i][0]); // the bots seem to want to make this a difference
+        out[i][0] = std::exp(m[i][0]);  // the bots seem to want to make this a difference
         sum_exp += out[i][0];
     }
     out /= sum_exp;
     return out;
 }
 
-} // namespace linalg
+}  // namespace linalg

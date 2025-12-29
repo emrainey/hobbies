@@ -602,7 +602,7 @@ TEST(MatrixTest, DISABLED_SVD) {
     matrix B{{{17, 8}, {8, 17}}};
     ASSERT_MATRIX_EQ(AAT, B);
     matrix e1 = AAT.eigenvalues();
-    matrix eg{{{25},{9}}};
+    matrix eg{{{25}, {9}}};
     ASSERT_MATRIX_EQ(e1, eg);
 
     matrix ATA = A.T() * A;

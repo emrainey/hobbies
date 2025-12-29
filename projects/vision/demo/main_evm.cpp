@@ -13,7 +13,7 @@ void bgrToYiq(const cv::Mat& bgr, cv::Mat& yiq) {
 
     // Convert to float for calculations
     cv::Mat bgr_float;
-    bgr.convertTo(bgr_float, CV_32FC3, 1.0/255.0);
+    bgr.convertTo(bgr_float, CV_32FC3, 1.0 / 255.0);
 
     // Initialize output
     yiq = cv::Mat::zeros(bgr.size(), CV_32FC3);
@@ -70,7 +70,7 @@ void yiqToBgr(const cv::Mat& yiq, cv::Mat& bgr) {
             g = cv::saturate_cast<float>(g);
             b = cv::saturate_cast<float>(b);
 
-            bgr_float.at<cv::Vec3f>(y, x) = cv::Vec3f(b, g, r); // BGR order
+            bgr_float.at<cv::Vec3f>(y, x) = cv::Vec3f(b, g, r);  // BGR order
         }
     }
 
@@ -86,12 +86,11 @@ void yiqToBgr(const cv::Mat& yiq, cv::Mat& bgr) {
 /// @see https://hbenbel.github.io/blog/evm/
 /// @see https://people.csail.mit.edu/mrub/papers/vidmag.pdf
 
-
 constexpr static bool verbose = false;
 constexpr static bool display = false;
 
 // Global variables for slider control
-static int amplification_factor = 11;  // Default amplification (range 0-200)
+static int amplification_factor = 11;     // Default amplification (range 0-200)
 static int chrominance_attenuation = 10;  // Default chrominance attenuation (range 1-100, represents 0.01-1.0)
 
 // Slider callback (required but can be empty)
@@ -112,12 +111,7 @@ public:
     GaussianPyramid() = delete;
     GaussianPyramid(const GaussianPyramid&) = delete;
     GaussianPyramid& operator=(const GaussianPyramid&) = delete;
-    GaussianPyramid(size_t levels)
-        : levels_{levels}
-        , down_{levels_}
-        , up_{levels_ - 1}
-        , diff_{levels_ - 1}
-        , image_{} {
+    GaussianPyramid(size_t levels) : levels_{levels}, down_{levels_}, up_{levels_ - 1}, diff_{levels_ - 1}, image_{} {
     }
 
     void build(const cv::Mat& image) {
@@ -141,11 +135,11 @@ public:
         for (size_t i = down_.size() - 1; i > 0; i--) {
             cv::pyrUp(down_[i], up_[i - 1], down_[i - 1].size());
             if constexpr (verbose) {
-                std::cout << "Level " << i << " Size: " << up_[i-1].size() << std::endl;
+                std::cout << "Level " << i << " Size: " << up_[i - 1].size() << std::endl;
             }
             cv::subtract(down_[i - 1], up_[i - 1], diff_[i - 1]);
             if constexpr (verbose) {
-                std::cout << "Level " << i << " Size: " << diff_[i-1].size() << std::endl;
+                std::cout << "Level " << i << " Size: " << diff_[i - 1].size() << std::endl;
             }
         }
     }
@@ -176,7 +170,8 @@ public:
         : low_(low), high_(high), fps_(framerate), size_{size} {
         // No longer creating spatial mask - we do temporal filtering per-pixel
         if constexpr (verbose) {
-            std::cout << "Temporal filter: " << low_.value << "-" << high_.value << " Hz @ " << fps_.value << " fps" << std::endl;
+            std::cout << "Temporal filter: " << low_.value << "-" << high_.value << " Hz @ " << fps_.value << " fps"
+                      << std::endl;
         }
     }
 
@@ -198,7 +193,6 @@ public:
         // For each pixel position, extract its temporal signal and filter it
         for (int y = 0; y < frames[0].rows; y++) {
             for (int x = 0; x < frames[0].cols; x++) {
-
                 // Extract temporal signal for this pixel across all frames
                 std::vector<float> temporal_signal(frames.size());
                 for (size_t t = 0; t < frames.size(); t++) {
@@ -210,7 +204,7 @@ public:
                 int n = static_cast<int>(temporal_signal.size());
                 cv::Mat temporal_planes[] = {
                     cv::Mat(temporal_signal).clone(),  // Real part
-                    cv::Mat::zeros(n, 1, CV_32F)  // Imaginary part
+                    cv::Mat::zeros(n, 1, CV_32F)       // Imaginary part
                 };
                 cv::merge(temporal_planes, 2, temporal_complex);
 
@@ -241,7 +235,8 @@ public:
 
     void show() {
         if constexpr (verbose) {
-            std::cout << "Temporal Bandpass Filter: " << low_.value << "-" << high_.value << " Hz @ " << fps_.value << " fps" << std::endl;
+            std::cout << "Temporal Bandpass Filter: " << low_.value << "-" << high_.value << " Hz @ " << fps_.value
+                      << " fps" << std::endl;
             std::cout << "Processing frame size: " << size_ << std::endl;
         }
         // No spatial mask to show - temporal filtering is done per-pixel
@@ -260,7 +255,8 @@ private:
         int high_bin = static_cast<int>(high_.value / freq_resolution);
 
         if constexpr (verbose && false) {  // Reduce verbosity
-            std::cout << "Freq resolution: " << freq_resolution << " Hz, Low bin: " << low_bin << ", High bin: " << high_bin << std::endl;
+            std::cout << "Freq resolution: " << freq_resolution << " Hz, Low bin: " << low_bin
+                      << ", High bin: " << high_bin << std::endl;
         }
 
         // Apply ideal bandpass filter: set frequencies outside [low_bin, high_bin] to zero
@@ -303,13 +299,15 @@ int main(int, char*[]) {
     cv::resize(image, image_resized, cv::Size(), 0.5, 0.5, cv::INTER_LINEAR);
     image = image_resized;  // Use resized image
 
-    std::cout << "Original Camera Size: " << image_resized.size() << " -> Processing Size: " << image.size() << " Type: " << image.type() << std::endl;
+    std::cout << "Original Camera Size: " << image_resized.size() << " -> Processing Size: " << image.size()
+              << " Type: " << image.type() << std::endl;
     TemporalBandpassFilter filter(iso::hertz{0.4_p}, iso::hertz{3.0_p}, iso::hertz{30.0_p}, image.size());
 
     // Create control window with sliders
     cv::namedWindow("EVM Result", cv::WINDOW_AUTOSIZE);
     cv::createTrackbar("Amplification Factor", "EVM Result", &amplification_factor, 200, onAmplificationChange);
-    cv::createTrackbar("Chrominance Atten x100", "EVM Result", &chrominance_attenuation, 100, onChrominanceAttenuationChange);
+    cv::createTrackbar("Chrominance Atten x100", "EVM Result", &chrominance_attenuation, 100,
+                       onChrominanceAttenuationChange);
 
     // Create main output window
     cv::namedWindow("EVM Result", cv::WINDOW_AUTOSIZE);
@@ -365,7 +363,8 @@ int main(int, char*[]) {
 
             // Get current slider values
             double alpha = static_cast<double>(amplification_factor) / 10.0;  // Convert 0-200 to 0-20.0 range
-            double attenuation = static_cast<double>(chrominance_attenuation) / 100.0;  // Convert 1-100 to 0.01-1.0 range
+            double attenuation
+                = static_cast<double>(chrominance_attenuation) / 100.0;  // Convert 1-100 to 0.01-1.0 range
 
             if constexpr (verbose) {
                 std::cout << "Amplification: " << alpha << ", Chrominance attenuation: " << attenuation << std::endl;
@@ -373,8 +372,8 @@ int main(int, char*[]) {
 
             // EVM Reconstruction: Amplify and add back to original
             // Use the CURRENT frame's Y channel, not the oldest one for proper temporal alignment
-            cv::Mat current_y = channels[0];  // Current Y channel (luminance)
-            cv::Mat filtered_y = filtered[0]; // Temporally filtered Y channel (from oldest frame)
+            cv::Mat current_y = channels[0];   // Current Y channel (luminance)
+            cv::Mat filtered_y = filtered[0];  // Temporally filtered Y channel (from oldest frame)
 
             // Split original YIQ for reconstruction
             cv::Mat channels[3];

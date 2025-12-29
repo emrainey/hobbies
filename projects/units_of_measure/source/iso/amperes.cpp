@@ -104,4 +104,3 @@ iso::amperes operator""_A(char const a[]) {
 }
 }  // namespace literals
 }  // namespace iso
-

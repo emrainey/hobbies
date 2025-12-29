@@ -16,7 +16,7 @@ namespace iso {
 
 /// A structure used to hold the postfix for amperes
 struct suffix_type_A {
-    constexpr static char const *suffix = "A";
+    constexpr static char const* suffix = "A";
 };
 
 ///
@@ -72,27 +72,27 @@ public:
 };
 
 namespace operators {
-    /// Addition operator
-    amperes operator+(amperes const& A, amperes const& B);
-    /// Subtraction operator
-    amperes operator-(amperes const& A, amperes const& B);
-    /// Left Scaling Operator
-    amperes operator*(amperes const& A, precision factor);
-    /// Right Scaling Operator
-    amperes operator*(precision factor, amperes const& A);
-    /// Inverse Scaling Operator
-    amperes operator/(amperes const& A, precision factor);
-    /// Scale factor
-    precision operator/(amperes const& A, amperes const& B);
-}
+/// Addition operator
+amperes operator+(amperes const& A, amperes const& B);
+/// Subtraction operator
+amperes operator-(amperes const& A, amperes const& B);
+/// Left Scaling Operator
+amperes operator*(amperes const& A, precision factor);
+/// Right Scaling Operator
+amperes operator*(precision factor, amperes const& A);
+/// Inverse Scaling Operator
+amperes operator/(amperes const& A, precision factor);
+/// Scale factor
+precision operator/(amperes const& A, amperes const& B);
+}  // namespace operators
 
 namespace literals {
-    /// Literal Double, Quote Operator
-    amperes operator""_A(long double value);
-    /// Literal Int, Quote Operator
-    amperes operator""_A(unsigned long long value);
-    /// Literal String, Quote Operator
-    iso::amperes operator""_A(char const a[]);
-}
+/// Literal Double, Quote Operator
+amperes operator""_A(long double value);
+/// Literal Int, Quote Operator
+amperes operator""_A(unsigned long long value);
+/// Literal String, Quote Operator
+iso::amperes operator""_A(char const a[]);
+}  // namespace literals
 
-}
+}  // namespace iso

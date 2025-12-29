@@ -16,7 +16,7 @@ namespace iso {
 
 /// A structure used to hold the postfix for ohms
 struct suffix_type_Ohm {
-    constexpr static char const *suffix = "Ohm";
+    constexpr static char const* suffix = "Ohm";
 };
 
 ///
@@ -72,27 +72,27 @@ public:
 };
 
 namespace operators {
-    /// Addition operator
-    ohms operator+(ohms const& A, ohms const& B);
-    /// Subtraction operator
-    ohms operator-(ohms const& A, ohms const& B);
-    /// Left Scaling Operator
-    ohms operator*(ohms const& A, precision factor);
-    /// Right Scaling Operator
-    ohms operator*(precision factor, ohms const& A);
-    /// Inverse Scaling Operator
-    ohms operator/(ohms const& A, precision factor);
-    /// Scale factor
-    precision operator/(ohms const& A, ohms const& B);
-}
+/// Addition operator
+ohms operator+(ohms const& A, ohms const& B);
+/// Subtraction operator
+ohms operator-(ohms const& A, ohms const& B);
+/// Left Scaling Operator
+ohms operator*(ohms const& A, precision factor);
+/// Right Scaling Operator
+ohms operator*(precision factor, ohms const& A);
+/// Inverse Scaling Operator
+ohms operator/(ohms const& A, precision factor);
+/// Scale factor
+precision operator/(ohms const& A, ohms const& B);
+}  // namespace operators
 
 namespace literals {
-    /// Literal Double, Quote Operator
-    ohms operator""_Ohm(long double value);
-    /// Literal Int, Quote Operator
-    ohms operator""_Ohm(unsigned long long value);
-    /// Literal String, Quote Operator
-    iso::ohms operator""_Ohm(char const a[]);
-}
+/// Literal Double, Quote Operator
+ohms operator""_Ohm(long double value);
+/// Literal Int, Quote Operator
+ohms operator""_Ohm(unsigned long long value);
+/// Literal String, Quote Operator
+iso::ohms operator""_Ohm(char const a[]);
+}  // namespace literals
 
-}
+}  // namespace iso

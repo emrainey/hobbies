@@ -17,6 +17,10 @@ To Configure the CMake Build and then call tests directly, use:
 * `cmake --preset homebrew-llvm` - to configure the build with the Homebrew LLVM toolchain.
 * `cmake --build --preset build-with-homebrew-llvm` - to build the project.
 
+Before finishing any work run clang-format over all the C++.
+
+* `find projects -type f -iname '*.cpp' -o -iname '*.hpp' | xargs clang-format --style=file -i`
+
 ## Project Structure
 
 * `docs/` - Documentation related to the projects.

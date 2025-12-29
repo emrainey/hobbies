@@ -43,12 +43,12 @@ matrix sigmoid(matrix&& mat) {
 
 matrix sigmoid(matrix const& mat) {
     matrix m{mat.rows, mat.cols};
-    
-    // Use OpenMP for larger matrices to amortize thread overhead
-    #ifdef _OPENMP
+
+// Use OpenMP for larger matrices to amortize thread overhead
+#ifdef _OPENMP
     const size_t total_elements = mat.rows * mat.cols;
     if (total_elements >= 1000) {
-        #pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(2)
         for (size_t y = 0; y < mat.rows; ++y) {
             for (size_t x = 0; x < mat.cols; ++x) {
                 m[y][x] = sigmoid(mat[y][x]);
@@ -56,8 +56,8 @@ matrix sigmoid(matrix const& mat) {
         }
         return m;
     }
-    #endif
-    
+#endif
+
     // Fallback to serial for smaller matrices
     return m.for_each([&](size_t y, size_t x, precision& v) { v = sigmoid(mat[y][x]); });
 }
@@ -68,12 +68,12 @@ matrix sigmoid_deriv(matrix&& mat) {
 
 matrix sigmoid_deriv(matrix const& mat) {
     matrix m{mat.rows, mat.cols};
-    
-    // Use OpenMP for larger matrices to amortize thread overhead
-    #ifdef _OPENMP
+
+// Use OpenMP for larger matrices to amortize thread overhead
+#ifdef _OPENMP
     const size_t total_elements = mat.rows * mat.cols;
     if (total_elements >= 1000) {
-        #pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(2)
         for (size_t y = 0; y < mat.rows; ++y) {
             for (size_t x = 0; x < mat.cols; ++x) {
                 m[y][x] = sigmoid_deriv(mat[y][x]);
@@ -81,8 +81,8 @@ matrix sigmoid_deriv(matrix const& mat) {
         }
         return m;
     }
-    #endif
-    
+#endif
+
     // Fallback to serial for smaller matrices
     return m.for_each([&](size_t y, size_t x, precision& v) { v = sigmoid_deriv(mat[y][x]); });
 }
@@ -93,12 +93,12 @@ matrix tanh_(matrix&& mat) {
 
 matrix tanh_(matrix const& mat) {
     matrix m{mat.rows, mat.cols};
-    
-    // Use OpenMP for larger matrices to amortize thread overhead
-    #ifdef _OPENMP
+
+// Use OpenMP for larger matrices to amortize thread overhead
+#ifdef _OPENMP
     const size_t total_elements = mat.rows * mat.cols;
     if (total_elements >= 1000) {
-        #pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(2)
         for (size_t y = 0; y < mat.rows; ++y) {
             for (size_t x = 0; x < mat.cols; ++x) {
                 m[y][x] = tanh_(mat[y][x]);
@@ -106,8 +106,8 @@ matrix tanh_(matrix const& mat) {
         }
         return m;
     }
-    #endif
-    
+#endif
+
     // Fallback to serial for smaller matrices
     return m.for_each([&](size_t y, size_t x, precision& v) { v = tanh_(mat[y][x]); });
 }
@@ -118,12 +118,12 @@ matrix tanh_deriv(matrix&& mat) {
 
 matrix tanh_deriv(matrix const& mat) {
     matrix m{mat.rows, mat.cols};
-    
-    // Use OpenMP for larger matrices to amortize thread overhead
-    #ifdef _OPENMP
+
+// Use OpenMP for larger matrices to amortize thread overhead
+#ifdef _OPENMP
     const size_t total_elements = mat.rows * mat.cols;
     if (total_elements >= 1000) {
-        #pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(2)
         for (size_t y = 0; y < mat.rows; ++y) {
             for (size_t x = 0; x < mat.cols; ++x) {
                 m[y][x] = tanh_deriv(mat[y][x]);
@@ -131,8 +131,8 @@ matrix tanh_deriv(matrix const& mat) {
         }
         return m;
     }
-    #endif
-    
+#endif
+
     // Fallback to serial for smaller matrices
     return m.for_each([&](size_t y, size_t x, precision& v) { v = tanh_deriv(mat[y][x]); });
 }
@@ -143,12 +143,12 @@ matrix relu(matrix&& mat) {
 
 matrix relu(matrix const& mat) {
     matrix m{mat.rows, mat.cols};
-    
-    // Use OpenMP for larger matrices to amortize thread overhead
-    #ifdef _OPENMP
+
+// Use OpenMP for larger matrices to amortize thread overhead
+#ifdef _OPENMP
     const size_t total_elements = mat.rows * mat.cols;
     if (total_elements >= 1000) {
-        #pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(2)
         for (size_t y = 0; y < mat.rows; ++y) {
             for (size_t x = 0; x < mat.cols; ++x) {
                 m[y][x] = relu(mat[y][x]);
@@ -156,8 +156,8 @@ matrix relu(matrix const& mat) {
         }
         return m;
     }
-    #endif
-    
+#endif
+
     // Fallback to serial for smaller matrices
     return m.for_each([&](size_t y, size_t x, precision& v) { v = relu(mat[y][x]); });
 }
@@ -168,12 +168,12 @@ matrix relu_deriv(matrix&& mat) {
 
 matrix relu_deriv(matrix const& mat) {
     matrix m{mat.rows, mat.cols};
-    
-    // Use OpenMP for larger matrices to amortize thread overhead
-    #ifdef _OPENMP
+
+// Use OpenMP for larger matrices to amortize thread overhead
+#ifdef _OPENMP
     const size_t total_elements = mat.rows * mat.cols;
     if (total_elements >= 1000) {
-        #pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(2)
         for (size_t y = 0; y < mat.rows; ++y) {
             for (size_t x = 0; x < mat.cols; ++x) {
                 m[y][x] = relu_deriv(mat[y][x]);
@@ -181,8 +181,8 @@ matrix relu_deriv(matrix const& mat) {
         }
         return m;
     }
-    #endif
-    
+#endif
+
     // Fallback to serial for smaller matrices
     return m.for_each([&](size_t y, size_t x, precision& v) { v = relu_deriv(mat[y][x]); });
 }

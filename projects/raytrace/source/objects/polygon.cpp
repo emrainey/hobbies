@@ -94,7 +94,7 @@ bool polygon<N>::is_contained(point const& object_point) const {
         }
         // now, we must find any proj that are negative to determine if the point is outside the polygon
         for (size_t i = 0; i < N; ++i) {
-            if (proj[i] < 0.0_p) {  // FIXME potentially use a basal:: function?
+            if (proj[i] < 0.0_p) {
                 return false;
             }
         }

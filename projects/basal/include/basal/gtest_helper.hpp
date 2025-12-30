@@ -1,5 +1,4 @@
-#ifndef BASAL_GTEST_HELPER_HPP_
-#define BASAL_GTEST_HELPER_HPP_
+#pragma once
 
 #include <gtest/gtest.h>
 #include <basal/ieee754.hpp>
@@ -37,4 +36,4 @@
         EXPECT_NEAR(a.real(), b.real(), 0.000125_p); \
         EXPECT_NEAR(a.imag(), b.imag(), 0.000125_p); \
     }
-#endif  // BASAL_GTEST_HELPER_HPP_
+

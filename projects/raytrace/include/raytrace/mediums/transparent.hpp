@@ -1,4 +1,5 @@
 #pragma once
+
 #include "raytrace/mediums/dielectric.hpp"
 
 namespace raytrace {

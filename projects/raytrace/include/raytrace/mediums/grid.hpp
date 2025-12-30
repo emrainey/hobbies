@@ -1,4 +1,5 @@
 #pragma once
+
 #include "raytrace/mediums/opaque.hpp"
 
 namespace raytrace {

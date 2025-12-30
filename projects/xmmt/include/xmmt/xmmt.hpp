@@ -1,5 +1,4 @@
-#ifndef XMMT_XMMT_HPP_
-#define XMMT_XMMT_HPP_
+#pragma once
 
 #if defined(__x86_64__)
 
@@ -33,5 +32,3 @@ vector_<pack_type, dimensions> operator-(point_<pack_type, dimensions> const& a,
 }  // namespace intel
 
 #endif  // defined(__x86_64__)
-
-#endif  // XMMT_XMMT_HPP_INCLUDED

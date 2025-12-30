@@ -1,3 +1,5 @@
+#pragma once
+
 #include <geometry/geometry.hpp>
 
 #include "raytrace/types.hpp"

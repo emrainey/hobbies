@@ -1,3 +1,5 @@
+#pragma once
+
 #include "raytrace/objects/object.hpp"
 
 namespace raytrace {

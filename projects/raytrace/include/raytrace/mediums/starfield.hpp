@@ -1,3 +1,5 @@
+ #pragma once
+
 #include "raytrace/types.hpp"
 #include "raytrace/color.hpp"
 

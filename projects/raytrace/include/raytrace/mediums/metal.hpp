@@ -1,4 +1,5 @@
 #pragma once
+
 #include "raytrace/mediums/conductor.hpp"
 
 namespace raytrace {

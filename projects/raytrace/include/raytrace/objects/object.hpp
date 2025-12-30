@@ -359,7 +359,7 @@ public:
     /// Given a world point verify that the point is on the surface of the object.
     virtual bool is_surface_point(raytrace::point const& world_point __attribute__((unused))) const {
         return false;  // override to correct
-    };
+    }
 
     /// Computes the Axis Aligned Bounding Box in World Coordinates for this object.
     Bounds get_world_bounds(void) const {

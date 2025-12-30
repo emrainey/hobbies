@@ -1,5 +1,4 @@
-#ifndef XMMT_PRAGMAS_HPP
-#define XMMT_PRAGMAS_HPP
+#pragma once
 
 // Requires __SSE2__ and __AVX__ in the least for intel intrinsics
 
@@ -45,5 +44,3 @@
 #else
 #pragma message("SSE Disabled")
 #endif
-
-#endif  // XMMT_PRAGMAS_HPP

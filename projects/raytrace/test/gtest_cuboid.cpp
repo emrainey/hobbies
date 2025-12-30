@@ -184,3 +184,32 @@ TEST(CuboidTest, IntersectionsOnSurface) {
     EXPECT_EQ(geometry::IntersectionType::Point, get_type(irF1c0));
     ASSERT_POINT_EQ(F, as_point(irF1c0));
 }
+
+TEST(CuboidTest, IsSurfacePoint) {
+    using namespace raytrace;
+    using namespace raytrace::objects;
+
+    raytrace::point center(0, 0, 0);
+    precision w = 2.0_p;
+    cuboid c0{center, w, w, w};
+    raytrace::point A{w, 0, 0};
+    raytrace::point B{-w, 0, 0};
+    raytrace::point C{0, w, 0};
+    raytrace::point D{0, -w, 0};
+    raytrace::point E{0, 0, w};
+    raytrace::point F{0, 0, -w};
+    raytrace::point G{w + 0.1_p, 0, 0};
+    raytrace::point H{0, -w - 0.1_p, 0};
+    raytrace::point I{0, 0, w + 0.1_p};
+    raytrace::point J{0.0_p, 0.0_p, 0.0_p};
+    EXPECT_TRUE(c0.is_surface_point(A));
+    EXPECT_TRUE(c0.is_surface_point(B));
+    EXPECT_TRUE(c0.is_surface_point(C));
+    EXPECT_TRUE(c0.is_surface_point(D));
+    EXPECT_TRUE(c0.is_surface_point(E));
+    EXPECT_TRUE(c0.is_surface_point(F));
+    EXPECT_FALSE(c0.is_surface_point(G));
+    EXPECT_FALSE(c0.is_surface_point(H));
+    EXPECT_FALSE(c0.is_surface_point(I));
+    EXPECT_FALSE(c0.is_surface_point(J));
+}

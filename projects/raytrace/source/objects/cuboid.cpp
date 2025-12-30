@@ -179,6 +179,19 @@ image::point cuboid::map(point const& object_surface_point) const {
     return image::point(u, v);
 }
 
+bool cuboid::is_surface_point(point const& world_point) const {
+    // follow max(|x|/x_half_width, |y|/y_half_width, |z|/z_half_width) == 1.0_p
+    point object_point = reverse_transform(world_point);
+    precision x = object_point.x;
+    precision y = object_point.y;
+    precision z = object_point.z;
+    precision nx = std::abs(x) / x_half_width;
+    precision ny = std::abs(y) / y_half_width;
+    precision nz = std::abs(z) / z_half_width;
+    precision const maxn = std::max({nx, ny, nz});
+    return basal::nearly_equals(maxn, 1.0_p);
+}
+
 void cuboid::print(std::ostream& os, char const name[]) const {
     os << " Cube " << this << " " << name << " " << position() << ", Half-Widths {" << x_half_width << ","
        << y_half_width << "," << z_half_width << "}" << std::endl;

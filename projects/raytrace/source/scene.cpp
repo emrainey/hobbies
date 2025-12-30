@@ -379,9 +379,8 @@ color scene::trace(ray const& world_ray, mediums::medium const& media, size_t re
             // this ray was transmitted through the new medium
             statistics::get().transmitted_rays++;
             // get the colors from the transmitted light
-            transmitted_color = trace(world_refraction, medium, reflection_depth - 1, recursive_contribution);
-            // FIXME figure out how to diminish the recursive contribution by the dropoff in the media? maybe check
-            // it above?
+            // diminish the recursive contribution by the transparency (similar to smoothness for reflections)
+            transmitted_color = trace(world_refraction, medium, reflection_depth - 1, recursive_contribution * transparency);
         }
         // blend that reflected color with the transmitted color
         surface_color = interpolate(transmitted_color, reflected_color, transparency);

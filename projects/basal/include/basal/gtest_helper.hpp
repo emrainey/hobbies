@@ -36,4 +36,3 @@
         EXPECT_NEAR(a.real(), b.real(), 0.000125_p); \
         EXPECT_NEAR(a.imag(), b.imag(), 0.000125_p); \
     }
-

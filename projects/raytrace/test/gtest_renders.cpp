@@ -295,23 +295,27 @@ TEST_F(RenderTest, DISABLED_AdditiveOverlap) {
 }
 
 TEST_F(RenderTest, DISABLED_SubtractiveOverlapCubes) {
-    constexpr bool debug = false;
     raytrace::objects::cuboid outer_box(R3::point(0, 0, 10), 10, 10, 10);
     raytrace::objects::cuboid inner_box(R3::point(0, 0, 10), 30, 5, 5);
     inner_box.rotation(iso::degrees(0), iso::degrees(-45), iso::degrees(0));
     raytrace::objects::overlap shape(outer_box, inner_box, overlap::type::subtractive);
-    if constexpr (not debug) {
-        // FIXME there are a lot of single hit returns from cuboids so it's hard to reason about
-        shape.material(&steel);
-        add_object(&shape);
-        add_light(&inner_light);  // FIXME this is producing weird speckles on the floor
-    } else {
-        outer_box.material(&steel);
-        inner_box.material(&steel);
-        add_object(&outer_box);
-        add_object(&inner_box);
-    }
+    outer_box.material(&steel);
+    inner_box.material(&steel);
+    shape.material(&steel);
+    add_object(&shape);
+    add_light(&inner_light);
     render_all("subtractive_cubes");
+}
+
+TEST_F(RenderTest, DISABLED_SubtractiveOverlapCubes2) {
+    raytrace::objects::cuboid larger_box(R3::point(0, 0, 10), 10, 10, 10);
+    raytrace::objects::cuboid smaller_box(R3::point(10, 10, 20), 5, 5, 5);
+    smaller_box.rotation(iso::degrees(0), iso::degrees(0), iso::degrees(45));
+    raytrace::objects::overlap shape(larger_box, smaller_box, overlap::type::subtractive);
+    larger_box.material(&steel);
+    smaller_box.material(&steel);
+    add_object(&shape);
+    render_all("subtractive_corner_cubes");
 }
 
 TEST_F(RenderTest, DISABLED_SphereSpotLight) {

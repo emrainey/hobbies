@@ -11,7 +11,6 @@
 #include "iso/amperes.hpp"
 #include "iso/compound.hpp"
 #include "iso/degrees.hpp"
-#include "iso/feet.hpp"
 #include "iso/grams.hpp"
 #include "iso/hertz.hpp"
 #include "iso/joules.hpp"
@@ -28,19 +27,12 @@
 
 namespace iso {
 
-// feet <=> meters
-feet convert(meters& A);
-meters convert(feet& B);
 // radians <=> turns
 radians convert(turns& A);
 turns convert(radians& A);
 // seconds <=> cycles
 hertz convert(seconds& A);
 seconds convert(hertz& B);
-
-// slightly different conversions interface
-void convert(feet& f, meters const& m);
-void convert(meters& m, feet const& f);
 
 // Theres many different combinations of turns, radians, degrees
 void convert(radians& r, turns const& t);
@@ -103,9 +95,6 @@ speed operator/(distance const& num, time&& denom);
 
 /// Creates a speed from a distance over time
 speed operator/(distance&& num, time const& denom);
-
-/// Alternative constructor
-rate<feet, seconds> operator/(feet const& num, seconds const& denom);
 
 /// Creates an acceleration from speed per time
 acceleration operator/(speed const& num, time const& denom);

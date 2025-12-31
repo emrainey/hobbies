@@ -6,16 +6,6 @@ namespace iso {
 using namespace iso::operators;
 using namespace basal::literals;
 
-// feet <=> meters
-feet convert(meters& A) {
-    feet::type c = 3.28084_p;
-    return feet{A.value * c};
-}
-meters convert(feet& B) {
-    feet::type c = 0.3048000097536_p;  // a double value I think?
-    return meters{static_cast<precision>(B.value * c)};
-}
-
 // radians <=> turns
 radians convert(turns& A) {
     return radians{A.value * tau};
@@ -32,16 +22,6 @@ hertz convert(seconds& A) {
 seconds convert(hertz& B) {
     constexpr precision const C = 1.0_p;
     return seconds{C / B.value};
-}
-
-void convert(feet& f, meters const& m) {
-    constexpr precision const C = 3.28084_p;
-    f = feet(m.value * C);
-}
-
-void convert(meters& m, feet const& f) {
-    constexpr precision const C = 0.3048000097536_p;  // a double value I think?
-    m = meters(static_cast<precision>(f.value * C));
 }
 
 void convert(radians& r, turns const& t) {

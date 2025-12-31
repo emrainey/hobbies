@@ -30,24 +30,6 @@ TEST(IsoTest, RadiansToDegrees) {
     ASSERT_PRECISION_EQ(C, dtheta.value);
 }
 
-TEST(IsoTest, FeetMeters) {
-    using namespace iso;
-    using namespace iso::literals;
-    using namespace iso::operators;
-
-    meters A;
-    A = 7.42_m;        // operator"" into copy assign
-    meters X{8.42_m};  // operator"" into copy constructor
-    feet B = convert(A);
-    ASSERT_PRECISION_EQ(7.42_p, A.value);
-    ASSERT_PRECISION_EQ(8.42_p, X.value);
-    ASSERT_NEAR(24.34383_p, B.value, 1E-3);  // within a milli-foot
-    ASSERT_PRECISION_EQ(390, B.sixteenths);
-    B = 12.0_ft;
-    A = convert(B);
-    EXPECT_FLOAT_EQ(3.6576_p, A.value);
-}
-
 TEST(IsoTest, Scaling) {
     using namespace iso;
     using namespace iso::literals;

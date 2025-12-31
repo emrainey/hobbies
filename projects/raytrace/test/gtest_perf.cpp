@@ -21,13 +21,8 @@ public:
 
     void TearDown() {
         limit = std::chrono::steady_clock::now();
-        // std::cout << "Started at " << start.time_since_epoch().count() << std::endl;
-        // std::cout << "Ended at " << limit.time_since_epoch().count() << std::endl;
-        // std::cout << "Den = " << std::chrono::time_point<std::chrono::steady_clock>::duration::period::den <<
-        // std::endl;
-        diff = limit - start;  // FIXME for some reason this returns a fraction of seconds instead a integer number of
-                               // nanoseconds
-        // std::cout << "Took " << diff.count() << " seconds" << std::endl;
+        diff = limit - start;
+        std::cout << "Took " << diff.count() << " seconds" << std::endl;
         rate = precision(number_of_ops) / diff.count();
         std::cout << activity << " rate:" << rate << " per sec, Period: " << diff.count() << " sec" << std::endl;
     }

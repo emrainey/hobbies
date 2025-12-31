@@ -59,11 +59,6 @@ speed operator/(distance&& num, time const& denom) {
     return speed{num, denom};
 }
 
-// const copy of an alternative speed
-rate<feet, seconds> operator/(feet const& num, seconds const& denom) {
-    return rate<feet, seconds>(num, denom);
-}
-
 acceleration operator/(speed&& num, time&& denom) {
     return acceleration{num, denom};
 }

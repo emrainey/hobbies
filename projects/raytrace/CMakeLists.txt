@@ -65,6 +65,7 @@ add_library(hobbies-raytrace
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/ellipticalcone.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/ellipticalcylinder.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/face.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/group.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/hyperboloid.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/model.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/overlap.cpp
@@ -183,6 +184,7 @@ if (BUILD_UNIT_TESTS AND Threads_FOUND AND GTest_FOUND)
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_cylinder.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_entity.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_face.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_group.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_image.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_laws.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_lens.cpp

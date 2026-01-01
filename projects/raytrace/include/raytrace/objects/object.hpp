@@ -438,5 +438,8 @@ using hit = object::hit;
 /// A set of hits (from the object type)
 using hits = object::hits;
 
+/// A list of object pointers (can't name it objects as that's the namespace)
+using object_list = std::vector<object*>;
+
 }  // namespace objects
 }  // namespace raytrace

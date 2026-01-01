@@ -19,7 +19,6 @@ TEST(MappingTest, GoldenRatio) {
         precision D = R.magnitude();
         ASSERT_FLOAT_EQ(1.0_p, D) << i << "/" << count << " Point is " << points[i];
     }
-    // FIXME add more assumptions here about the spread of the golden ratio points across the sphere.
 }
 
 TEST(MappingTest, PlanarPolar) {

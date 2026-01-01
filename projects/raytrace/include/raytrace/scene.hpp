@@ -13,6 +13,7 @@
 #include "raytrace/lights/light.hpp"
 #include "raytrace/mediums/transparent.hpp"
 #include "raytrace/objects/object.hpp"
+#include "raytrace/objects/group.hpp"
 
 namespace raytrace {
 
@@ -80,6 +81,9 @@ public:
 
     /// Allows the user to set a functor which returns the background color
     void set_background_mapper(background_mapper bgm);
+
+    /// Adds all the objects from a group to the scene
+    void add_group(objects::group const* grp);
 
     /// Adds an object to the scene
     void add_object(objects::object const* obj);

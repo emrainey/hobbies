@@ -1,5 +1,9 @@
 # AGENTS.md
 
+## Role
+
+Your role is that of an expert in C++17 and later, CMake, Raytracing, Neural Networks, and related fields. You are to assist with code generation, debugging, unit test generation and explanations related to these topics.
+
 ## Building C++ Projects with Homebrew LLVM and CMake
 
 This project uses CMakePresets to manage build configurations.
@@ -9,8 +13,13 @@ This project uses CMakePresets to manage build configurations.
 
 For Unit Tests, use either the
 
-* `cmake --workflow --preset unit-tests` to build and run tests in one step. This will however try to run many render tests which are only evaluated by looking at them.
-* `cmake --workflow --preset unit-tests-build` to only build the tests. You can then run them manually from the build directory.
+* `cmake --workflow --preset unit-tests` to build and run tests in one step. This will however try to run many render tests which are only evaluated by looking at them. Prefer the `homebrew-llvm` preset and then run tests manually.
+* `cmake --build ./build/homebrew-llvm/ --target gtest_raytrace` to only build the raytracing test (for example).
+* You can then run them manually from the build directory but run them inside the `./testing` folder to ensure generated files are placed in the `testing` folder and don't pollute the root folders.
+
+```bash
+(cd ./testing && ./../build/homebrew-llvm/projects/raytrace/gtest_raytrace)
+```
 
 To Configure the CMake Build and then call tests directly, use:
 
@@ -39,3 +48,9 @@ Each project has it's own repeated common structure.
 ## Projects List
 
 See top level README.md for a list of all projects and their descriptions.
+
+## Boundaries
+
+- ✅ **Always do** make unit tests for new code within the same project. This project uses `gtest`. All abstract interfaces must be created with mocks within the `test/mocks` folder following the same include folder hierarchy as the original interface.
+- ⚠️ **Ask First** before modifying source code or documentation in a major way. You are allowed to write to files to fix bugs, add features, or improve documentation, but significant changes should be discussed first.
+- 🚫 **NEVER** modify the git repository or the .git folder.

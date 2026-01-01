@@ -19,6 +19,12 @@ scene::~scene() {
     m_lights.clear();
 }
 
+void scene::add_group(objects::group const* grp) {
+    for (auto objptr : grp->get_objects()) {
+        add_object(objptr);
+    }
+}
+
 void scene::add_object(objects::object const* obj) {
     m_objects.push_back(obj);
     // compute the bounding box for the scene

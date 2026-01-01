@@ -8,23 +8,23 @@
 
 #include <raytrace/raytrace.hpp>
 #include <raytrace/mediums/starfield.hpp>
+#include <raytrace/objects/group.hpp>
 
-#include "group.hpp"
 #include "world.hpp"
 
 using namespace raytrace;
 using namespace iso::literals;
 
-class Tree : public group {
+class Tree : public objects::group {
 public:
     Tree(raytrace::point const& base)
-        : group{}
+        : group{base}
         , leaves{colors::forest_green, 0.0_p, colors::forest_green, 0.01_p, 100}
         , bark{colors::brown, 0.0_p, colors::brown, 0.01_p, 100}
         , body{raytrace::point{0.0_p, 0.0_p, 3.0_p}, 3, 6}
         , trunk{raytrace::point{0, 0, 2.5_p}, 2.5_p, 0.8_p} {
-        m_objects.push_back(&body);
-        m_objects.push_back(&trunk);
+        add_object(&body);
+        add_object(&trunk);
         body.material(&leaves);
         trunk.material(&bark);
         auto by = base - R3::origin;
@@ -176,18 +176,18 @@ public:
             scene.add_light(s);
         }
         scene.add_light(&moonlight);
-        tree01.add_to_scene(scene);
-        tree02.add_to_scene(scene);
-        tree03.add_to_scene(scene);
-        tree04.add_to_scene(scene);
-        tree05.add_to_scene(scene);
-        tree06.add_to_scene(scene);
-        tree07.add_to_scene(scene);
-        tree08.add_to_scene(scene);
-        tree09.add_to_scene(scene);
-        tree10.add_to_scene(scene);
-        tree11.add_to_scene(scene);
-        tree12.add_to_scene(scene);
+        scene.add_group(&tree01);
+        scene.add_group(&tree02);
+        scene.add_group(&tree03);
+        scene.add_group(&tree04);
+        scene.add_group(&tree05);
+        scene.add_group(&tree06);
+        scene.add_group(&tree07);
+        scene.add_group(&tree08);
+        scene.add_group(&tree09);
+        scene.add_group(&tree10);
+        scene.add_group(&tree11);
+        scene.add_group(&tree12);
     }
 
     raytrace::animation::anchors get_anchors() const override {

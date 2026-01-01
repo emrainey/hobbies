@@ -116,7 +116,7 @@ public:
     /// Sets the rotation matrix by specifying the rotation around the x, then y then z axis.
     /// This is the roll, pitch, yaw order.
     /// @warning This may result in a non-unique rotation!
-    void rotation(iso::radians xr, iso::radians yr, iso::radians zr) {
+    virtual void rotation(iso::radians xr, iso::radians yr, iso::radians zr) {
         m_rotation = geometry::rotation(zr, yr, xr);
         // this is used to rotate vectors back into object space.
         m_inv_rotation = m_rotation.inverse();
@@ -175,7 +175,7 @@ public:
     }
 
     /// Updates the scaling values
-    void scale(precision x, precision y, precision z) {
+    virtual void scale(precision x, precision y, precision z) {
         m_scaling[0] = x;
         m_scaling[1] = y;
         m_scaling[2] = z;

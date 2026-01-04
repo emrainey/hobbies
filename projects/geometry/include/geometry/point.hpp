@@ -95,7 +95,7 @@ bool operator==(point<DIMS> const& a, point<DIMS> const& b);
 
 /// Inequality Operator
 template <size_t DIMS>
-bool operator!=(point<DIMS> const& a, point<DIMS> const& b) noexcept(false);
+bool operator!=(point<DIMS> const& a, point<DIMS> const& b);
 
 template <size_t DIMS>
 bool operator<(point<DIMS> const& a, point<DIMS> const& b) noexcept(false);

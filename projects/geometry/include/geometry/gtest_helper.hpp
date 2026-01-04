@@ -9,11 +9,25 @@
 
 #include "basal/gtest_helper.hpp"
 
+using namespace geometry::operators;
+
 #define ASSERT_XYZ_EQ(ax, ay, az, obj)   \
     {                                    \
         ASSERT_PRECISION_EQ(ax, obj[0]); \
         ASSERT_PRECISION_EQ(ay, obj[1]); \
         ASSERT_PRECISION_EQ(az, obj[2]); \
+    }
+
+#define ASSERT_XYZ_NE(ax, ay, az, obj)   \
+    {                                    \
+        if (not basal::nearly_equals(ax, obj[0]) or \
+            not basal::nearly_equals(ay, obj[1]) or \
+            not basal::nearly_equals(az, obj[2])) { \
+            SUCCEED();                   \
+        } else {                         \
+            FAIL() << "Expected not equal to (" << ax << ", " << ay << ", " << az << ") but got (" \
+                   << obj[0] << ", " << obj[1] << ", " << obj[2] << ")"; \
+        }                                \
     }
 
 #define ASSERT_POINT_EQ(pa, pb)                                                               \
@@ -27,6 +41,12 @@
         }                                                                                     \
     }
 
+#define ASSERT_POINT_NE(pa, pb)                  \
+    {                                            \
+        EXPECT_FALSE(operator!=<3ul>(pa, pb));   \
+        ASSERT_EQ(pa.dimensions, pb.dimensions); \
+    }
+
 #define ASSERT_VECTOR_EQ(va, vb)                                                              \
     {                                                                                         \
         EXPECT_EQ(va, vb);                                                                    \
@@ -38,6 +58,12 @@
         }                                                                                     \
     }
 
+#define ASSERT_VECTOR_NE(va, vb)                 \
+    {                                            \
+        EXPECT_NE(va, vb);                       \
+        ASSERT_EQ(va.dimensions, vb.dimensions); \
+    }
+
 #define ASSERT_RAY3_EQ(px, py, pz, vx, vy, vz, r) _assert_ray3_eq(px, py, pz, vx, vy, vz, #r, r)
 
 inline void _assert_ray3_eq(geometry::precision px, geometry::precision py, geometry::precision pz,
@@ -47,10 +73,25 @@ inline void _assert_ray3_eq(geometry::precision px, geometry::precision py, geom
     ASSERT_XYZ_EQ(vx, vy, vz, r.direction());
 }
 
+#define ASSERT_RAY3_NE(px, py, pz, vx, vy, vz, r) _assert_ray3_ne(px, py, pz, vx, vy, vz, #r, r)
+
+inline void _assert_ray3_ne(geometry::precision px, geometry::precision py, geometry::precision pz,
+                            geometry::precision vx, geometry::precision vy, geometry::precision vz,
+                            char const* name __attribute__((unused)), geometry::ray_<3> const& r) {
+    ASSERT_XYZ_NE(px, py, pz, r.location());
+    ASSERT_XYZ_NE(vx, vy, vz, r.direction());
+}
+
 #define ASSERT_RAY_EQ(pnt, vec, ray)            \
     {                                           \
         ASSERT_POINT_EQ(pnt, ray.location());   \
         ASSERT_VECTOR_EQ(vec, ray.direction()); \
+    }
+
+#define ASSERT_RAY_NE(pnt, vec, ray)            \
+    {                                           \
+        ASSERT_POINT_NE(pnt, ray.location());   \
+        ASSERT_VECTOR_NE(vec, ray.direction()); \
     }
 
 #define EXPECT_XYZ_EQ(ax, ay, az, obj)   \

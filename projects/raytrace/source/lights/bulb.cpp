@@ -34,5 +34,19 @@ void bulb::print(std::ostream& os, char const str[]) const {
        << std::endl;
 }
 
+ray bulb::emit() {
+    // the limit to the number of directions we can emit from
+    static const size_t limit = 1024u;
+    static std::random_device rd;
+    static std::mt19937 generator{rd()};
+    static std::uniform_int_distribution<> distribution(0, limit - 1);
+    size_t s = static_cast<size_t>(distribution(generator));
+    // Emit a ray in a random direction
+    point pnt = raytrace::mapping::golden_ratio_mapper(s, limit);
+    vector dir = (pnt - R3::origin);  // these don't need to be normalized since they are from a unit sphere.
+    statistics::get().emitted_rays++;
+    return ray(position(), dir);
+}
+
 }  // namespace lights
 }  // namespace raytrace

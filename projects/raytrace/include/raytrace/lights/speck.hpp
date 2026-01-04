@@ -15,6 +15,7 @@ public:
 
     ray incident(point const& world_point, size_t sample_index) const override;
     void print(std::ostream& os, char const str[]) const override;
+    ray emit() override;
 };
 
 }  // namespace lights

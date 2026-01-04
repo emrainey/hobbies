@@ -1,9 +1,10 @@
 #include <gtest/gtest.h>
 
 #include <raytrace/raytrace.hpp>
-
 #include "raytrace/gtest_helper.hpp"
 
+using namespace geometry;
+using namespace geometry::operators;
 using namespace raytrace;
 using namespace raytrace::colors;
 using namespace raytrace::operators;
@@ -81,4 +82,59 @@ TEST(LightTest, DISABLED_BulbTest) {
     scene.add_object(&shape);
     scene.print(std::cout, "BulbTest");
     scene.render(view, "bulb_and_sphere.ppm", 1, 1, std::nullopt, true);
+}
+
+TEST(LightTest, EmittedSpeckLight) {
+    raytrace::point source(0.0_p, 0.0_p, 0.0_p);
+    lights::speck light0(source, colors::white, 1.0_p);
+
+    const size_t num_samples = 1000u;
+    size_t hits_origin = 0u;
+    for (size_t i = 0u; i < num_samples; ++i) {
+        ray emitted = light0.emit();
+        // Check if the emitted ray is going away from the origin
+        vector dir = emitted.direction().normalized();
+        ASSERT_PRECISION_EQ(1.0_p, emitted.direction().magnitude());  // Should be normalized
+        ASSERT_VECTOR_NE(R3::null, dir);             // Should not be null
+        ASSERT_POINT_EQ(source, emitted.location());
+    }
+}
+
+TEST(LightTest, EmittedBulbLight) {
+    raytrace::point source(0.0_p, 0.0_p, 0.0_p);
+    lights::bulb light0(source, 0.2_p, colors::white, 1.0_p, 16);
+
+    const size_t num_samples = 1000u;
+    size_t hits_origin = 0u;
+    for (size_t i = 0u; i < num_samples; ++i) {
+        ray emitted = light0.emit();
+        // Check if the emitted ray is going away from the origin
+        vector dir = emitted.direction().normalized();
+        ASSERT_PRECISION_EQ(1.0_p, emitted.direction().magnitude());  // Should be normalized
+        ASSERT_VECTOR_NE(R3::null, dir);             // Should not be null
+        ASSERT_POINT_EQ(source, emitted.location());
+    }
+}
+
+TEST(LightTest, EmittedSpotLight) {
+    raytrace::point source(0.0_p, 0.0_p, 0.0_p);
+    lights::spot light0(raytrace::ray(source, R3::basis::Z), colors::white, 1.0_p, iso::degrees(25));
+
+    const size_t num_samples = 1000u;
+    size_t hits_origin = 0u;
+    for (size_t i = 0u; i < num_samples; ++i) {
+        ray emitted = light0.emit();
+        // ensure the source is correct
+        ASSERT_POINT_EQ(source, emitted.location());
+
+        // ensure the angle is within the cone
+        iso::radians angle_rad = angle(emitted.direction(), R3::basis::Z);
+        iso::degrees angle_deg;
+        // printf("Emitted ray direction: %lf, %lf, %lf\n",
+        //         emitted.direction()[0],
+        //         emitted.direction()[1],
+        //         emitted.direction()[2]);
+        iso::convert(angle_deg, angle_rad);
+        ASSERT_LE(angle_deg, iso::degrees(25));
+    }
 }

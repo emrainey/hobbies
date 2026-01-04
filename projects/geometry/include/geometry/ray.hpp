@@ -118,25 +118,25 @@ namespace operators {
 /// Equality Operator
 template <size_t DIMS>
 inline bool operator==(ray_<DIMS> const& a, ray_<DIMS> const& b) {
-    return equality(a, b);
+    return equality<DIMS>(a, b);
 }
 
 /// Inequality operator
 template <size_t DIMS>
 inline bool operator!=(ray_<DIMS> const& a, ray_<DIMS> const& b) {
-    return inequality(a, b);
+    return inequality<DIMS>(a, b);
 }
 
 /// Multiply Operator
 template <size_t DIMS>
 inline ray_<DIMS> operator*(linalg::matrix const& m, ray_<DIMS> const& r) {
-    return multiply(m, r);
+    return multiply<DIMS>(m, r);
 }
 
 /// Addition Operator. Add the vector to the point, does change the direction of the ray
 template <size_t DIMS>
 inline ray_<DIMS> operator+(ray_<DIMS> const& r, const vector_<DIMS>& v) {
-    return addition(r, v);
+    return addition<DIMS>(r, v);
 }
 }  // namespace operators
 

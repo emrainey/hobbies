@@ -54,6 +54,8 @@ public:
     size_t point_in_shadow{0u};
     /// The count of rays absorbed into a media
     size_t absorbed_rays{0u};  // FIXME this will not be an accurate count until the per-frequency method is done.
+    /// The number of rays emitted from light sources
+    size_t emitted_rays{0u};
 
     static statistics& get() {
         static statistics s;

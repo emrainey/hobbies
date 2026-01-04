@@ -213,8 +213,8 @@ TEST_F(GroupTest, CombinedTransformations) {
 
     // Verify transformation occurred
     point const final_pos = sphere1->position();
-    bool position_changed =
-        (final_pos.x != original_pos.x) || (final_pos.y != original_pos.y) || (final_pos.z != original_pos.z);
+    bool position_changed
+        = (final_pos.x != original_pos.x) || (final_pos.y != original_pos.y) || (final_pos.z != original_pos.z);
     EXPECT_TRUE(position_changed) << "Expected sphere to move from original position";
 }
 

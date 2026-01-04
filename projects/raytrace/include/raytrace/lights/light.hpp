@@ -41,6 +41,7 @@ public:
     /// @param intensity The unbounded (non-unit) intensity value of the light
     /// @param number_of_samples The number of samples to request to be averaged in order to get a good sampling of the
     /// light.
+    /// @param falloff The type of falloff to use in intensity calculations
     ///
     light(raytrace::point const& P, raytrace::color const& C, precision intensity, size_t number_of_samples,
           Falloff falloff);
@@ -70,6 +71,11 @@ public:
     /// @param l The light reference
     /// @return
     friend std::ostream& operator<<(std::ostream& os, light const& l);
+
+    /// @brief Emit a ray from the light source. Each subtype will
+    /// emit rays according to its own methodology.
+    /// @return A ray emitted from the light source.
+    virtual ray emit() = 0;
 
 protected:
     /// The color of the light source

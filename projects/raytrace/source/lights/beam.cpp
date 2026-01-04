@@ -26,5 +26,11 @@ void beam::print(std::ostream& os, char const str[]) const {
        << std::endl;
 }
 
+ray beam::emit() {
+    // beams don't know the camera frustrum so we just emit in the same direction as a the beam
+    statistics::get().emitted_rays++;
+    return ray(R3::origin, m_world_source);
+}
+
 }  // namespace lights
 }  // namespace raytrace

@@ -110,8 +110,13 @@ bool operator==(point<DIMS> const& a, point<DIMS> const& b) {
 }
 
 template <size_t DIMS>
-point<DIMS> operator*(linalg::matrix const& a, point<DIMS> const& b) noexcept(false) {
-    basal::exception::throw_unless(a.rows == b.dimensions, __FILE__, __LINE__, "");
+bool operator!=(point<DIMS> const& a, point<DIMS> const& b) {
+    return not operator==(a, b);
+}
+
+template <size_t DIMS>
+point<DIMS> operator*(linalg::matrix const& a, point<DIMS> const& b) {
+    // basal::exception::throw_unless(a.rows == b.dimensions, __FILE__, __LINE__, "");
     point<DIMS> c;
     for (size_t y = 0; y < a.rows; y++) {
         for (size_t x = 0; x < a.cols; x++) {
@@ -121,25 +126,7 @@ point<DIMS> operator*(linalg::matrix const& a, point<DIMS> const& b) noexcept(fa
     return c;
 }
 
-template <size_t DIMS>
-bool operator!=(point<DIMS> const& a, point<DIMS> const& b) noexcept(false) {
-    return (not operator==(a, b));
-}
-
-template <size_t DIMS>
-bool operator==(point<DIMS>& a, point<DIMS>& b) noexcept(false) {
-    basal::exception::throw_unless(a.dimensions == b.dimensions, __FILE__, __LINE__);
-    bool equal = true;
-    for (size_t n = 0; n < a.dimensions; n++) {
-        if (a[n] != b[n]) {
-            equal = false;
-            break;
-        }
-    }
-    return equal;
-}
-
-}  // namespace operators
+} // namespace operators
 
 template <size_t DIMS>
 point<DIMS> multiply(point<DIMS> const& a, precision s) noexcept(false) {
@@ -180,10 +167,10 @@ point<DIMS> divide(point<DIMS> const& a, point<DIMS> const& b) noexcept(false) {
 }  // namespace pairwise
 
 // Explicit Instantiations for 2D
-template class point<2>;
+template class point<2ul>;
 template bool operators::operator== <2ul>(point<2ul> const&, point<2ul> const&);
 template bool operators::operator!= <2ul>(point<2ul> const&, point<2ul> const&);
-template point<2ul> operators::operator* <2ul>(linalg::matrix const&, point<2ul> const&) noexcept(false);
+template point<2ul> operators::operator* <2ul>(linalg::matrix const&, point<2ul> const&);
 template point<2ul> multiply<2ul>(point<2ul> const&, double);
 template point<2ul> multiply<2ul>(double, point<2ul> const&);
 template point<2ul> pairwise::divide<2ul>(point<2ul> const&, point<2ul> const&);
@@ -191,10 +178,10 @@ template point<2ul> pairwise::multiply<2ul>(point<2ul> const&, point<2ul> const&
 template std::ostream& operator<< <2ul>(std::ostream&, point<2ul> const&);
 
 // Explicit Instantiations for 3D
-template class point<3>;
+template class point<3ul>;
 template bool operators::operator== <3ul>(point<3ul> const&, point<3ul> const&);
 template bool operators::operator!= <3ul>(point<3ul> const&, point<3ul> const&);
-template point<3ul> operators::operator* <3ul>(linalg::matrix const&, point<3ul> const&) noexcept(false);
+template point<3ul> operators::operator* <3ul>(linalg::matrix const&, point<3ul> const&);
 template point<3ul> multiply<3ul>(point<3ul> const&, double);
 template point<3ul> multiply<3ul>(double, point<3ul> const&);
 template point<3ul> pairwise::divide<3ul>(point<3ul> const&, point<3ul> const&);
@@ -205,7 +192,7 @@ template std::ostream& operator<< <3ul>(std::ostream&, point<3ul> const&);
 template class point<4ul>;
 template bool operators::operator== <4ul>(point<4ul> const&, point<4ul> const&);
 template bool operators::operator!= <4ul>(point<4ul> const&, point<4ul> const&);
-template point<4ul> operators::operator* <4ul>(linalg::matrix const&, point<4ul> const&) noexcept(false);
+template point<4ul> operators::operator* <4ul>(linalg::matrix const&, point<4ul> const&);
 template point<4ul> multiply<4ul>(point<4ul> const&, double);
 template point<4ul> multiply<4ul>(double, point<4ul> const&);
 template point<4ul> pairwise::divide<4ul>(point<4ul> const&, point<4ul> const&);

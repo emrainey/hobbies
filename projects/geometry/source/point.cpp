@@ -126,7 +126,7 @@ point<DIMS> operator*(linalg::matrix const& a, point<DIMS> const& b) {
     return c;
 }
 
-} // namespace operators
+}  // namespace operators
 
 template <size_t DIMS>
 point<DIMS> multiply(point<DIMS> const& a, precision s) noexcept(false) {

@@ -95,7 +95,7 @@ TEST(LightTest, EmittedSpeckLight) {
         // Check if the emitted ray is going away from the origin
         vector dir = emitted.direction().normalized();
         ASSERT_PRECISION_EQ(1.0_p, emitted.direction().magnitude());  // Should be normalized
-        ASSERT_VECTOR_NE(R3::null, dir);             // Should not be null
+        ASSERT_VECTOR_NE(R3::null, dir);                              // Should not be null
         ASSERT_POINT_EQ(source, emitted.location());
     }
 }
@@ -111,7 +111,7 @@ TEST(LightTest, EmittedBulbLight) {
         // Check if the emitted ray is going away from the origin
         vector dir = emitted.direction().normalized();
         ASSERT_PRECISION_EQ(1.0_p, emitted.direction().magnitude());  // Should be normalized
-        ASSERT_VECTOR_NE(R3::null, dir);             // Should not be null
+        ASSERT_VECTOR_NE(R3::null, dir);                              // Should not be null
         ASSERT_POINT_EQ(source, emitted.location());
     }
 }

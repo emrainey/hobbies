@@ -18,16 +18,15 @@ using namespace geometry::operators;
         ASSERT_PRECISION_EQ(az, obj[2]); \
     }
 
-#define ASSERT_XYZ_NE(ax, ay, az, obj)   \
-    {                                    \
-        if (not basal::nearly_equals(ax, obj[0]) or \
-            not basal::nearly_equals(ay, obj[1]) or \
-            not basal::nearly_equals(az, obj[2])) { \
-            SUCCEED();                   \
-        } else {                         \
-            FAIL() << "Expected not equal to (" << ax << ", " << ay << ", " << az << ") but got (" \
-                   << obj[0] << ", " << obj[1] << ", " << obj[2] << ")"; \
-        }                                \
+#define ASSERT_XYZ_NE(ax, ay, az, obj)                                                                               \
+    {                                                                                                                \
+        if (not basal::nearly_equals(ax, obj[0]) or not basal::nearly_equals(ay, obj[1])                             \
+            or not basal::nearly_equals(az, obj[2])) {                                                               \
+            SUCCEED();                                                                                               \
+        } else {                                                                                                     \
+            FAIL() << "Expected not equal to (" << ax << ", " << ay << ", " << az << ") but got (" << obj[0] << ", " \
+                   << obj[1] << ", " << obj[2] << ")";                                                               \
+        }                                                                                                            \
     }
 
 #define ASSERT_POINT_EQ(pa, pb)                                                               \
@@ -43,7 +42,7 @@ using namespace geometry::operators;
 
 #define ASSERT_POINT_NE(pa, pb)                  \
     {                                            \
-        EXPECT_FALSE(operator!=<3ul>(pa, pb));   \
+        EXPECT_FALSE(operator!= <3ul>(pa, pb));  \
         ASSERT_EQ(pa.dimensions, pb.dimensions); \
     }
 

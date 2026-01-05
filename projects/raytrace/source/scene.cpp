@@ -175,24 +175,20 @@ objects::hit scene::nearest_object(ray const& world_ray, objects::hits const& hi
     return closest_hit;
 }
 
-color scene::emissive_light(precision emissivity, mediums::medium const& medium, raytrace::point const& object_surface_point) const {
+color scene::emissive_light(precision emissivity, mediums::medium const& medium,
+                            raytrace::point const& object_surface_point) const {
     using namespace raytrace::operators;
     // the medium is emitting light (a color) which we'll scale by the emissivity
     raytrace::color glow = medium.emissive(object_surface_point);
     return glow * emissivity;
 }
 
-color scene::reflected_light(precision reflectivity,
-                          mediums::medium const& medium,
-                          mediums::medium const& media,
-                          point const& world_surface_point,
-                          point const& object_surface_point,
-                          vector const& world_surface_normal,
-                          ray const& world_reflection,
-                          size_t reflection_depth,
-                          precision recursive_contribution) {
+color scene::reflected_light(precision reflectivity, mediums::medium const& medium, mediums::medium const& media,
+                             point const& world_surface_point, point const& object_surface_point,
+                             vector const& world_surface_normal, ray const& world_reflection, size_t reflection_depth,
+                             precision recursive_contribution) {
     using namespace raytrace::operators;
-    color reflected_color; // defaults to black
+    color reflected_color;  // defaults to black
     // on the very last depth call we still have to return the surface color, just no more casts
     if (reflectivity > 0.0_p) {
         // find the *reflected* medium color from all lights (without blocked paths)
@@ -253,7 +249,7 @@ color scene::reflected_light(precision reflectivity,
                     precision incident_scaling = dot(normalized_light_direction, world_surface_normal);
                     if constexpr (enforce_contracts) {
                         basal::exception::throw_unless(within_inclusive(-1.0_p, incident_scaling, 1.0_p), __FILE__,
-                                                        __LINE__, "Must be within bounds");
+                                                       __LINE__, "Must be within bounds");
                     }
                     color incident_light
                         = (incident_scaling > 0.0_p) ? incident_scaling * raw_light_color : colors::black;
@@ -261,7 +257,7 @@ color scene::reflected_light(precision reflectivity,
                     precision specular_scaling = dot(normalized_light_direction, world_reflection.direction());
                     if constexpr (enforce_contracts) {
                         basal::exception::throw_unless(within_inclusive(-1.0_p, specular_scaling, 1.0_p), __FILE__,
-                                                        __LINE__, "Must be within bounds");
+                                                       __LINE__, "Must be within bounds");
                     }
                     color specular_light = medium.specular(object_surface_point, specular_scaling, raw_light_color);
                     // blend the light color and the surface color together
@@ -327,11 +323,8 @@ color scene::reflected_light(precision reflectivity,
     return reflected_color;
 }
 
-color scene::transmitted_light(precision transparency,
-                               mediums::medium const& medium,
-                               ray const& world_refraction,
-                               size_t reflection_depth,
-                               precision recursive_contribution) {
+color scene::transmitted_light(precision transparency, mediums::medium const& medium, ray const& world_refraction,
+                               size_t reflection_depth, precision recursive_contribution) {
     if (reflection_depth > 0 and transparency > 0.0_p and not world_refraction.direction().is_zero()) {
         // this ray was transmitted through the new medium
         statistics::get().transmitted_rays++;
@@ -409,18 +402,17 @@ color scene::trace(ray const& world_ray, mediums::medium const& media, size_t re
         // get the light scalar components, emission, reflection and refraction given the environment
         /// @internal (diffraction, phosphorescence and fluorescence are not computed, yet)
         medium.radiosity(object_surface_point, media.refractive_index(object_surface_point), incident_angle,
-                         transmitted_angle,
-                         // outputs
-                         emissivity, reflectivity, transparency);
+                         transmitted_angle, emissivity, reflectivity, transparency);
 
         // ======================================================
         emitted_color = emissive_light(emissivity, medium, object_surface_point);
         // ======================================================
-        reflected_color = reflected_light(reflectivity, medium, media, world_surface_point, object_surface_point,
-                                          world_surface_normal, world_reflection, reflection_depth,
-                                          recursive_contribution);
+        reflected_color
+            = reflected_light(reflectivity, medium, media, world_surface_point, object_surface_point,
+                              world_surface_normal, world_reflection, reflection_depth, recursive_contribution);
         // ======================================================
-        transmitted_color = transmitted_light(transparency, medium, world_refraction, reflection_depth, recursive_contribution);
+        transmitted_color
+            = transmitted_light(transparency, medium, world_refraction, reflection_depth, recursive_contribution);
         // ======================================================
         // blend that reflected color with the transmitted color
         surface_color = interpolate(transmitted_color, reflected_color, transparency);

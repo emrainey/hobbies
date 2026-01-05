@@ -63,6 +63,22 @@ public:
     color trace(ray const& world_ray, mediums::medium const& media, size_t depth = 1,
                 precision recursive_contribution = 1.0_p);
 
+    /// The direct light from a single source of a single sample on a world point
+    /// @param scene_light The light source in the scene
+    /// @param medium The medium being lit
+    /// @param world_surface_point The point on the surface in world coordinates
+    /// @param object_surface_point The point on the object's surface in object coordinates
+    /// @param world_surface_normal The normal vector on the surface at the point in world coordinates
+    /// @param world_reflection The reflection ray in world coordinates
+    /// @param sample_index The index of the sample for the light source
+    /// @param reflection_depth The current recursive depth of reflections.
+    /// @param recursive_contribution The amount of contribution from this level of recursion to the top level color.
+    /// @return The color resulting from the direct light at the point
+    color direct_light(lights::light const& scene_light, mediums::medium const& medium,
+                       point const& world_surface_point, point const& object_surface_point,
+                       vector const& world_surface_normal, ray const& world_reflection, size_t sample_index,
+                       size_t reflection_depth, precision recursive_contribution);
+
     /// Computes the color from the emissive light at the point in the scene
     /// @param emissivity The emissivity of the medium at the point (0.0_p = non-emissive, 1.0_p = fully emissive)
     /// @param medium The medium being emitted from

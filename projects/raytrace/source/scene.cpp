@@ -183,6 +183,85 @@ color scene::emissive_light(precision emissivity, mediums::medium const& medium,
     return glow * emissivity;
 }
 
+color scene::direct_light(lights::light const& scene_light, mediums::medium const& medium,
+                          point const& world_surface_point, point const& object_surface_point,
+                          vector const& world_surface_normal, ray const& world_reflection, size_t sample_index,
+                          size_t reflection_depth, precision recursive_contribution) {
+    using namespace raytrace::operators;
+    color direct_color;  // defaults to black
+    statistics::get().sampled_rays++;
+    // get the ray to the light source (full magnitude)
+    ray ray_to_light = scene_light.incident(world_surface_point, sample_index);
+    // just the vector to the light from P
+    vector const& light_direction = ray_to_light.direction();
+    // normalized light vector
+    vector normalized_light_direction = light_direction.normalized();
+    // construct a world ray from that point and normalized vector
+    ray world_ray(world_surface_point, normalized_light_direction);
+    // is the light blocked by anything?
+    objects::hits blockers = find_intersections(world_ray);
+    // find the nearest object in the light path, which may include P (at/near zero)
+    // if the current object is blocking the light.
+    objects::hit blocker = nearest_object(world_ray, blockers);
+    // is this point in a shadow of this light?
+    // either there's no intersection to the light, or
+    // there is one but it's farther away than the light itself.
+    bool no_intersection = (get_type(blocker.intersect) == IntersectionType::None);
+    bool point_farther_than_light = false;
+    bool object_is_transparent = false;
+    bool object_is_emissive = false;
+    if (get_type(blocker.intersect) == IntersectionType::Point) {
+        point_farther_than_light = (blocker.distance > light_direction.norm());
+        if (blocker.object != nullptr) {
+            auto other_world_point = as_point(blocker.intersect);
+            // FIXME is a refractive object so it must be transparent?
+            // object_is_transparent =
+            // (nearest.objptr->material().refractive_index(other_world_point) > 0.0_p);
+            // object_is_emissive = (nearest.objptr->material().emissive(other_world_point) > 0.0_p);
+        }
+    }
+    bool not_in_shadow = (no_intersection or point_farther_than_light or object_is_transparent or object_is_emissive);
+    if (not_in_shadow) {
+        statistics::get().color_sampled_rays++;
+        // get the light color at this distance
+        color raw_light_color = scene_light.color_at(world_surface_point);
+        // the scaling at this point due to this light source's
+        // relationship with the normal of the medium this will be
+        // some fractional component from -1.0_p to 1.0_p since both input vectors are normalized.
+        precision incident_scaling = dot(normalized_light_direction, world_surface_normal);
+        if constexpr (enforce_contracts) {
+            basal::exception::throw_unless(within_inclusive(-1.0_p, incident_scaling, 1.0_p), __FILE__, __LINE__,
+                                           "Must be within bounds");
+        }
+        color incident_light = (incident_scaling > 0.0_p) ? incident_scaling * raw_light_color : colors::black;
+        color diffuse_light = medium.diffuse(object_surface_point);
+        precision specular_scaling = dot(normalized_light_direction, world_reflection.direction());
+        if constexpr (enforce_contracts) {
+            basal::exception::throw_unless(within_inclusive(-1.0_p, specular_scaling, 1.0_p), __FILE__, __LINE__,
+                                           "Must be within bounds");
+        }
+        color specular_light = medium.specular(object_surface_point, specular_scaling, raw_light_color);
+        // blend the light color and the surface color together
+        direct_color = (diffuse_light * incident_light);
+        // don't use color + color as that "blends", use accumulate for specular light.
+        direct_color += specular_light;
+        // now add the transmitted light if the object was transparent
+        // FIXME this is incorrect as we're only considering if the object is inline with the light,
+        // not if it's out of line!
+        if (object_is_transparent) {
+            // // convenience reference
+            // raytrace::objects::object const& obj = *nearest.object;
+            // // convenience reference
+            // raytrace::mediums::medium const& mat = obj.material();
+            // trace another ray through the object
+            direct_color += trace(world_ray, medium, reflection_depth - 1, recursive_contribution);
+        }
+    } else {
+        statistics::get().point_in_shadow++;
+    }
+    return direct_color;
+}
+
 color scene::reflected_light(precision reflectivity, mediums::medium const& medium, mediums::medium const& media,
                              point const& world_surface_point, point const& object_surface_point,
                              vector const& world_surface_normal, ray const& world_reflection, size_t reflection_depth,
@@ -206,81 +285,12 @@ color scene::reflected_light(precision reflectivity, mediums::medium const& medi
                 scene_light.number_of_samples());  // should initialize to all black
             // for each sample, get the color
             for (size_t sample_index = 0; sample_index < scene_light.number_of_samples(); sample_index++) {
-                statistics::get().sampled_rays++;
-                // get the ray to the light source (full magnitude)
-                ray ray_to_light = scene_light.incident(world_surface_point, sample_index);
-                // just the vector to the light from P
-                vector const& light_direction = ray_to_light.direction();
-                // normalized light vector
-                vector normalized_light_direction = light_direction.normalized();
-                // construct a world ray from that point and normalized vector
-                ray world_ray(world_surface_point, normalized_light_direction);
-                // is the light blocked by anything?
-                objects::hits blockers = find_intersections(world_ray);
-                // find the nearest object in the light path, which may include P (at/near zero)
-                // if the current object is blocking the light.
-                objects::hit blocker = nearest_object(world_ray, blockers);
-                // is this point in a shadow of this light?
-                // either there's no intersection to the light, or
-                // there is one but it's farther away than the light itself.
-                bool no_intersection = (get_type(blocker.intersect) == IntersectionType::None);
-                bool point_farther_than_light = false;
-                bool object_is_transparent = false;
-                bool object_is_emissive = false;
-                if (get_type(blocker.intersect) == IntersectionType::Point) {
-                    point_farther_than_light = (blocker.distance > light_direction.norm());
-                    if (blocker.object != nullptr) {
-                        auto other_world_point = as_point(blocker.intersect);
-                        // FIXME is a refractive object so it must be transparent?
-                        // object_is_transparent =
-                        // (nearest.objptr->material().refractive_index(other_world_point) > 0.0_p);
-                        // object_is_emissive = (nearest.objptr->material().emissive(other_world_point) > 0.0_p);
-                    }
-                }
-                bool not_in_shadow
-                    = (no_intersection or point_farther_than_light or object_is_transparent or object_is_emissive);
-                if (not_in_shadow) {
-                    statistics::get().color_sampled_rays++;
-                    // get the light color at this distance
-                    color raw_light_color = scene_light.color_at(world_surface_point);
-                    // the scaling at this point due to this light source's
-                    // relationship with the normal of the medium this will be
-                    // some fractional component from -1.0_p to 1.0_p since both input vectors are normalized.
-                    precision incident_scaling = dot(normalized_light_direction, world_surface_normal);
-                    if constexpr (enforce_contracts) {
-                        basal::exception::throw_unless(within_inclusive(-1.0_p, incident_scaling, 1.0_p), __FILE__,
-                                                       __LINE__, "Must be within bounds");
-                    }
-                    color incident_light
-                        = (incident_scaling > 0.0_p) ? incident_scaling * raw_light_color : colors::black;
-                    color diffuse_light = medium.diffuse(object_surface_point);
-                    precision specular_scaling = dot(normalized_light_direction, world_reflection.direction());
-                    if constexpr (enforce_contracts) {
-                        basal::exception::throw_unless(within_inclusive(-1.0_p, specular_scaling, 1.0_p), __FILE__,
-                                                       __LINE__, "Must be within bounds");
-                    }
-                    color specular_light = medium.specular(object_surface_point, specular_scaling, raw_light_color);
-                    // blend the light color and the surface color together
-                    surface_color_samples[sample_index] = (diffuse_light * incident_light);
-                    // don't use color + color as that "blends", use accumulate for specular light.
-                    surface_color_samples[sample_index] += specular_light;
-                    // now add the transmitted light if the object was transparent
-                    // FIXME this is incorrect as we're only considering if the object is inline with the light,
-                    // not if it's out of line!
-                    if (object_is_transparent) {
-                        // // convenience reference
-                        // raytrace::objects::object const& obj = *nearest.object;
-                        // // convenience reference
-                        // raytrace::mediums::medium const& mat = obj.material();
-                        // trace another ray through the object
-                        surface_color_samples[sample_index]
-                            += trace(world_ray, medium, reflection_depth - 1, recursive_contribution);
-                    }
-                } else {
-                    statistics::get().point_in_shadow++;
-                }
+                surface_color_samples[sample_index]
+                    = direct_light(scene_light, medium, world_surface_point, object_surface_point, world_surface_normal,
+                                   world_reflection, sample_index, reflection_depth, recursive_contribution);
             }
             // blend or accumulate? all the surface samples from this light (could be all black)
+            // FIXME which of these look better? Blending or accumulating?
             // color surface_color = color::accumulate_samples(surface_color_samples);
             color surface_color = color::blend_samples(surface_color_samples);
             surface_colors.push_back(surface_color);

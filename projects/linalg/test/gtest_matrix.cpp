@@ -585,7 +585,7 @@ TEST(MatrixTest, Triangular) {
     ASSERT_TRUE(E.T().inverse().upper_triangular());
 }
 
-TEST(MatrixTest, DISABLED_SVD) {
+TEST(MatrixTest, SVD) {
     /// @internal This uses data from:
     /// <ul>
     /// <li>Elementary Linear Algebra by Howard Anton and Chris Rorres, aka. ELA</li>

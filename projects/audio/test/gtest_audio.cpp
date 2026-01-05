@@ -323,6 +323,7 @@ TEST(AudioTest, Simple8FFT) {
     ASSERT_COMPLEX_NEAR(input[7], std::complex<basal::precision>(-0.707_p, 0.0_p));
 }
 
+/// @todo Enable this test!
 TEST(AudioTest, DISABLED_WhenComputingFFTonA440) {
     basal::precision sample_rate = audio::specification::cd_sample_rate;
     basal::precision period = 1.0_p;

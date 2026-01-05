@@ -73,6 +73,7 @@ TEST(ImageTest, DISABLED_SubsamplerTest) {
     EXPECT_EQ(156u, dark_grey.b);
     int i = 0;
     std::array<color, 3> samples = {colors::red, colors::green, colors::blue};
+    /// FIXME the lambda so that it will produce the same answers deterministically
     // this will fail if you don't block the multiple render threads from competing to
     // increment i. If it's single threaded it will pass.
     auto lock = std::mutex{};

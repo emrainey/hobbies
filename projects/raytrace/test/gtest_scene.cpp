@@ -7,6 +7,7 @@
 #include "geometry/gtest_helper.hpp"
 #include "linalg/gtest_helper.hpp"
 #include "raytrace/gtest_helper.hpp"
+#include "raytrace/raytrace.hpp"
 
 TEST(SceneTest, ObjectIntersections) {
     using namespace raytrace;
@@ -84,4 +85,135 @@ TEST(SceneTest, LowResSpheres) {
     scene.add_object(&s2);
     scene.add_light(&sunlight);
     scene.render(view, "low_res_sphere.ppm");
+}
+
+namespace raytrace::mediums {
+class glowy : public raytrace::mediums::medium {
+public:
+    glowy(raytrace::color const& ambient, raytrace::color const& emissive) : medium() {
+        m_ambient = ambient;
+        m_emissive_color = emissive;
+    }
+    raytrace::color emissive(raytrace::point const& volumetric_point __attribute__((unused))) const override {
+        return m_emissive_color;
+    }
+protected:
+    raytrace::color m_emissive_color;
+};
+}
+
+TEST(SceneTest, GlowingMaterialEmitsLight) {
+    using namespace raytrace;
+    using namespace raytrace::objects;
+    using namespace raytrace::mediums;
+
+    // Create a sphere with emissive/glowing material
+    raytrace::objects::sphere glowing_sphere{raytrace::point{0, 0, 0}, 1.0_p};
+
+    // Create an emissive material (assuming there's an emissive material type)
+    // This test assumes there's a way to create glowing/emissive materials
+    auto emissive_material = raytrace::mediums::glowy{raytrace::colors::white, raytrace::colors::yellow};
+    glowing_sphere.material(&emissive_material);
+
+    // Create scene
+    raytrace::scene test_scene;
+    test_scene.add_object(&glowing_sphere);
+
+    // Create a ray that intersects the glowing sphere
+    raytrace::ray test_ray{raytrace::point{0, 0, 5}, raytrace::vector{0, 0, -1}};
+
+    // Find intersection with the glowing object
+    raytrace::objects::hits intersections = test_scene.find_intersections(test_ray);
+    ASSERT_GT(intersections.size(), 0);
+
+    // Get the nearest intersection
+    objects::hit nearest = test_scene.nearest_object(test_ray, intersections);
+
+    // Get the emitted light color from the intersection point
+    raytrace::color emitted_light = test_scene.emissive_light(0.75_p, emissive_material, raytrace::as_point(nearest.intersect));
+
+    std::cout << "Emitted Light Color: " << emitted_light << std::endl;
+
+    // Verify that light is actually emitted (non-black color)
+    ASSERT_PRECISION_EQ(emitted_light.red(), 0.75_p);
+    ASSERT_PRECISION_EQ(emitted_light.green(), 0.75_p);
+    ASSERT_PRECISION_EQ(emitted_light.blue(), 0.0_p);
+}
+
+TEST(SceneTest, NonEmissiveMaterialDoesNotEmitLight) {
+    using namespace raytrace;
+    using namespace raytrace::objects;
+    using namespace raytrace::mediums;
+
+    // Create a sphere with non-emissive material
+    raytrace::objects::sphere non_glowing_sphere{raytrace::point{0, 0, 0}, 1.0_p};
+    non_glowing_sphere.material(&mediums::dull);
+
+    // Create scene
+    raytrace::scene test_scene;
+    test_scene.add_object(&non_glowing_sphere);
+
+    // Create a ray that intersects the sphere
+    raytrace::ray test_ray{raytrace::point{0, 0, 5}, raytrace::vector{0, 0, -1}};
+
+    // Find intersection
+    raytrace::objects::hits intersections = test_scene.find_intersections(test_ray);
+    ASSERT_GT(intersections.size(), 0);
+
+    // Get the nearest intersection
+    raytrace::objects::hit nearest = test_scene.nearest_object(test_ray, intersections);
+
+    // Get the emitted light (should be black/none)
+    raytrace::color emitted_light = test_scene.emissive_light(0.75_p, mediums::metals::stainless, as_point(nearest.intersect));
+
+    // Verify that no light is emitted (black color)
+    ASSERT_PRECISION_EQ(0.0_p, emitted_light.red());
+    ASSERT_PRECISION_EQ(0.0_p, emitted_light.green());
+    ASSERT_PRECISION_EQ(0.0_p, emitted_light.blue());
+}
+
+TEST(SceneTest, MultipleEmissiveObjectsContributeLight) {
+    using namespace raytrace;
+    using namespace raytrace::objects;
+    using namespace raytrace::mediums;
+
+    // Create multiple glowing spheres with different colors
+    raytrace::objects::sphere red_glowing{raytrace::point{-2, 0, 0}, 0.5_p};
+    raytrace::objects::sphere blue_glowing{raytrace::point{2, 0, 0}, 0.5_p};
+
+    auto red_emissive = raytrace::mediums::glowy{raytrace::colors::red, raytrace::colors::red};
+    auto blue_emissive = raytrace::mediums::glowy{raytrace::colors::blue, raytrace::colors::blue};
+    red_glowing.material(&red_emissive);
+    blue_glowing.material(&blue_emissive);
+
+    // Create scene
+    raytrace::scene test_scene;
+    test_scene.add_object(&red_glowing);
+    test_scene.add_object(&blue_glowing);
+
+    // Test ray towards red sphere
+    raytrace::ray red_ray{raytrace::point{-2, 0, 5}, raytrace::vector{0, 0, -1}};
+    raytrace::objects::hits red_intersections = test_scene.find_intersections(red_ray);
+    ASSERT_GT(red_intersections.size(), 0);
+
+    raytrace::objects::hit red_nearest = test_scene.nearest_object(red_ray, red_intersections);
+    raytrace::color red_emitted = test_scene.emissive_light(0.625_p, red_emissive, raytrace::as_point(red_nearest.intersect));
+
+    // Verify red light emission
+    ASSERT_PRECISION_EQ(0.625_p, red_emitted.red());
+    ASSERT_PRECISION_EQ(0.0_p, red_emitted.green());
+    ASSERT_PRECISION_EQ(0.0_p, red_emitted.blue());
+
+    // Test ray towards blue sphere
+    raytrace::ray blue_ray{raytrace::point{2, 0, 5}, raytrace::vector{0, 0, -1}};
+    raytrace::objects::hits blue_intersections = test_scene.find_intersections(blue_ray);
+    ASSERT_GT(blue_intersections.size(), 0);
+
+    raytrace::objects::hit blue_nearest = test_scene.nearest_object(blue_ray, blue_intersections);
+    raytrace::color blue_emitted = test_scene.emissive_light(0.625_p, blue_emissive, raytrace::as_point(blue_nearest.intersect));
+
+    // Verify blue light emission
+    ASSERT_PRECISION_EQ(0.0_p, blue_emitted.red());
+    ASSERT_PRECISION_EQ(0.0_p, blue_emitted.green());
+    ASSERT_PRECISION_EQ(0.625_p, blue_emitted.blue());
 }

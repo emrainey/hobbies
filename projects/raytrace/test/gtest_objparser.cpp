@@ -233,6 +233,7 @@ TEST(ObjParser, DISABLED_CubeModelAsObject) {
     {
         raytrace::ray r0{raytrace::point{10.5_p, 8.0_p, 10.5_p}, R3::basis::Y};
         auto hit = model.intersect(r0);
+        // FIXME these are failing, probably due to assuming world or object space
         EXPECT_EQ(geometry::IntersectionType::Point, get_type(hit.intersect));
         EXPECT_POINT_EQ(raytrace::point(10.5_p, 9.0_p, 10.5_p), as_point(hit.intersect));
         EXPECT_VECTOR_EQ(raytrace::vector({0, -1, 0}), hit.normal);

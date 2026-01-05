@@ -54,9 +54,11 @@ precision medium::smoothness(raytrace::point const& volumetric_point __attribute
 void medium::radiosity(raytrace::point const& volumetric_point __attribute__((unused)),
                        precision refractive_index __attribute__((unused)),
                        iso::radians const& incident_angle __attribute__((unused)),
-                       iso::radians const& transmitted_angle __attribute__((unused)), precision& emitted,
-                       precision& reflected, precision& transmitted) const {
-    emitted = 0;  //@FIXME when adding luminescence, do it here.
+                       iso::radians const& transmitted_angle __attribute__((unused)),
+                       precision& emitted,
+                       precision& reflected,
+                       precision& transmitted) const {
+    emitted = 0;  // FIXME when adding luminescence, do it here.
     reflected = m_reflectivity;
     transmitted = 1.0_p - m_reflectivity;
 }

@@ -11,9 +11,8 @@ sparse_word<N> scalar(size_t value, size_t W) {
     static_assert(N > 0, "Number of bits must be positive");
     assert(W & 1);  //  "Width should be an odd number!");
     sparse_word<N> o;
-
-    // @TODO must be able to assert that value is less than N too! Otherwise these will
-    // not be able to encode!
+    // Must be able to assert that value is less than N too!
+    // Otherwise these will not be able to encode!
     assert(value < N);
 
     // in the case where W == 1, and N is the total range, it's just a bit set.

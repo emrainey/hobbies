@@ -63,6 +63,50 @@ public:
     color trace(ray const& world_ray, mediums::medium const& media, size_t depth = 1,
                 precision recursive_contribution = 1.0_p);
 
+    /// Computes the color from the emissive light at the point in the scene
+    /// @param emissivity The emissivity of the medium at the point (0.0_p = non-emissive, 1.0_p = fully emissive)
+    /// @param medium The medium being emitted from
+    /// @param object_surface_point The point on the object's surface in world coordinates
+    /// @return The color resulting from the emissive light at the point
+    color emissive_light(precision emissivity, mediums::medium const& medium, raytrace::point const& object_surface_point) const;
+
+    /// Computes the reflected light color from the medium at the point in the scene
+    /// @param reflectivity The reflectivity of the medium at the point (0.0_p = non-reflective, 1.0_p = fully reflective)
+    /// @param medium The medium being reflected from
+    /// @param media The current medium the ray is in
+    /// @param world_surface_point The point on the object's surface in world coordinates
+    /// @param object_surface_point The point on the object's surface in object coordinates
+    /// @param world_surface_normal The normal vector on the surface at the point in world coordinates
+    /// @param world_reflection The reflection ray in world coordinates
+    /// @param reflection_depth The current recursive depth of reflections.
+    /// @param recursive_contribution The amount of contribution from this level of recursion to the top level color.
+    ///                               When it falls below a global limit, the reflection will not be considered.
+    ///                               @see adaptive_reflection_threshold
+    color reflected_light(precision reflectivity,
+                          mediums::medium const& medium,
+                          mediums::medium const& media,
+                          point const& world_surface_point,
+                          point const& object_surface_point,
+                          vector const& world_surface_normal,
+                          ray const& world_reflection,
+                          size_t reflection_depth,
+                          precision recursive_contribution = 1.0_p);
+
+    /// Computes the transmitted light color through the medium at the point in the scene
+    /// @param transparency The transparency of the medium at the point (0.0_p = opaque, 1.0_p = fully transparent)
+    /// @param medium The medium being transmitted through
+    /// @param world_refraction The refraction ray in world coordinates
+    /// @param reflection_depth The current recursive depth of reflections.
+    /// @param recursive_contribution The amount of contribution from this level of recursion to the top level color.
+    ///                               When it falls below a global limit, the transmission will not be considered.
+    ///                               @see adaptive_reflection_threshold
+    /// @return The color resulting from the transmitted light through the medium
+    color transmitted_light(precision transparency,
+                            mediums::medium const& medium,
+                            ray const& world_refraction,
+                            size_t reflection_depth,
+                            precision recursive_contribution = 1.0_p);
+
     ///
     /// Computes the scene and saves the camera image to a file
     /// @param views The camera view to render to from.

@@ -16,14 +16,14 @@ namespace linalg {
 std::tuple<precision, precision> quadratic_roots(precision a, precision b, precision c);
 
 ///
-/// @todo Solves for cubic roots of a cubic formula:
+/// Solves for cubic roots of a cubic formula:
 /// Given: a*x^3+b*x^2+c*x+d=0, solves for x. A NaN in the tuple is a complex solution.
 /// @see https://www.youtube.com/watch?v=N-KXStupwsc
 /// @return Returns real solutions only. Solutions which would be complex are left as NaN. Solutions are left-packed.
 ///
 std::tuple<precision, precision, precision> cubic_roots(precision a, precision b, precision c, precision d);
 
-/// @todo Solves for quartic roots of a quartic formula:
+/// Solves for quartic roots of a quartic formula:
 /// Given: a*x^4+b*x^3+c*x^2+d*x^1+e=0, solves for x. A NaN in the tuple is a complex solution.
 std::tuple<precision, precision, precision, precision> quartic_roots(precision a, precision b, precision c, precision d,
                                                                      precision e);

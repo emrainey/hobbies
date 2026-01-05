@@ -81,7 +81,10 @@
 			"XXX",
 			"[ ]",
 			"[x]",
-			"FUTURE"
+			"FUTURE",
+			"@TODO",
+			"@FIXME",
+			"@FUTURE"
 		],
 		"todo-tree.filtering.useBuiltInExcludes": "file and search excludes",
 		"testExplorer.showOnRun": true,

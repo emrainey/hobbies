@@ -102,7 +102,7 @@ bool wall::is_outside(point const& world_point) const {
 
 bool wall::is_along_infinite_extent(ray const& world_ray) const {
     auto wall_ray = reverse_transform(world_ray);
-    // @TODO Not sure about the logic here
+    // FIXME Not sure about the logic here
     return m_front_.is_along_infinite_extent(wall_ray) or m_back_.is_along_infinite_extent(wall_ray);
 }
 

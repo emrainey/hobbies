@@ -56,6 +56,7 @@ using triangle = polygon<3U>;
 /// @param center The center of the polygon
 template <size_t N>
 std::array<raytrace::point, N> make_polygon_points(precision radius, R3::point const& center) {
+    static_assert(N >= 3, "A polygon must have at least three sides.");
     std::array<raytrace::point, N> points;
     R3::vector const offset = center - R3::origin;
     for (size_t i = 0; i < N; ++i) {

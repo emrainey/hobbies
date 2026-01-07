@@ -41,6 +41,9 @@ public:
     /// The list of the objects in the group
     object_list const& get_objects() const;
 
+    /// Make all the mediums the same
+    void material(mediums::medium const* m);
+
 protected:
     /// The list of objects in the group
     object_list m_objects;

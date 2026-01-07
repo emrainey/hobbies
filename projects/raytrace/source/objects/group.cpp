@@ -97,5 +97,11 @@ object_list const& group::get_objects() const {
     return m_objects;
 }
 
+void group::material(mediums::medium const* m) {
+    for (auto& obj : m_objects) {
+        obj->material(m);
+    }
+}
+
 }  // namespace objects
 }  // namespace raytrace

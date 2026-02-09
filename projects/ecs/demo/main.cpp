@@ -2,6 +2,7 @@
 // -lsdl && ./ecs
 #include <cstdint>
 #include <cstddef>
+#include <array>
 #include <memory>
 #include <limits>
 #include <thread>
@@ -10,8 +11,15 @@
 #include <stdexcept>
 #include <iomanip>
 #include <random>
+#include <bitset>
 
+#if defined(__APPLE__)
+// Homebrew/CMake doesn't include the normal include root, it prepends SDL2 on the -I path
+// -isystem /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2
 #include <SDL.h>
+#else
+#include <SDL2/SDL.h>
+#endif
 
 /// These will be used as bits in a bitfield for a compact representation
 /// of the runtime type association for a Entity

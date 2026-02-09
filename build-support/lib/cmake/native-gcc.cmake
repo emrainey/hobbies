@@ -6,6 +6,11 @@ find_program(CMAKE_C_COMPILER NAME gcc REQUIRED)
 find_program(CMAKE_CXX_COMPILER NAME g++ REQUIRED)
 find_program(CMAKE_LD NAME ld REQUIRED)
 
+if (APPLE AND CMAKE_CXX_COMPILER MATCHES "/opt/homebrew/")
+message(WARNING "Homebrew GCC detected on macOS; this toolchain is not supported due to libc++/libstdc++ ABI mismatches and missing profiling runtime objects.")
+message(FATAL_ERROR "Please use the Homebrew LLVM/Clang toolchain preset on macOS.")
+endif()
+
 # message(NOTICE "Turn off poor features")
 # add_compile_options(-Wno-deprecated-register -Wno-maybe-uninitialized)
 
@@ -23,8 +28,11 @@ endif()
 
 if (NOT TARGET enabled-profiling)
 add_library(enabled-profiling INTERFACE)
-target_link_options(enabled-profiling INTERFACE -pg)
-target_compile_options(enabled-profiling INTERFACE -pg)
+target_link_options(enabled-profiling INTERFACE $<$<PLATFORM_ID:Linux>:-pg>)
+target_compile_options(enabled-profiling INTERFACE
+    $<$<PLATFORM_ID:Linux>:-pg>
+    $<$<PLATFORM_ID:Darwin>:-fno-omit-frame-pointer>
+)
 endif()
 
 if (NOT TARGET enabled-coverage)
@@ -35,7 +43,11 @@ endif()
 if (NOT TARGET native-optimized)
 # Optimizes your objects for native builds (on the build side only)
 add_library(native-optimized INTERFACE)
-target_compile_options(native-optimized INTERFACE -mcpu=apple-m3) # -mtune=native -march=native)
+target_compile_options(native-optimized INTERFACE
+    -mtune=native
+    $<$<PLATFORM_ID:Darwin>:-mcpu=native>
+    $<$<PLATFORM_ID:Linux>:-march=native> # does not work on GCC-15 Homebrew for some reason?
+)
 endif()
 
 function(coverage_target TARGET)

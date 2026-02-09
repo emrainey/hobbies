@@ -40,14 +40,15 @@
                 "PATH": "$env{HOMEBREW_PATH}:$penv{PATH}"
             },
             "cacheVariables": {
-                "CMAKE_C_COMPILER": "gcc-15",
-                "CMAKE_CXX_COMPILER": "g++-15"
+                "CMAKE_C_COMPILER": "$env{HOMEBREW_ROOT}/bin/gcc-15",
+                "CMAKE_CXX_COMPILER": "$env{HOMEBREW_ROOT}/bin/g++-15"
             }
         },
         {
             "name": "native-clang-mac",
             "inherits": [
-                "native-clang"
+                "native-clang",
+                "Homebrew"
             ],
             "displayName": "Native Clang Toolchain",
             "description": "Uses the default clang in your path first, then falls back to Homebrew",

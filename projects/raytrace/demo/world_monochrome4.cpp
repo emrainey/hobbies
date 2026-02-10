@@ -18,9 +18,8 @@ using namespace iso::literals;
 class MonochromeWorld : public world {
 public:
     MonochromeWorld()
-        : light_subsamples{5}
-        , look_from{40, 9, 37}
-        , look_at{0, 0, 15}
+        : world{raytrace::point{40, 9, 37}, raytrace::point{0, 0, 15}, "Monochrome World 4", "world_monochrome_4.tga"}
+        , light_subsamples{5}
         , light0{raytrace::point{-5, 0, 40}, 1, colors::white, 10, light_subsamples}
         , light1{raytrace::point{5, 0, 40}, 1, colors::white, 10, light_subsamples}
         , beam0{-R3::basis::Z, colors::white, 10E11}
@@ -44,21 +43,7 @@ public:
         wall4.material(&mediums::metals::copper);
     }
 
-    raytrace::point& looking_from() override {
-        return look_from;
-    }
-
-    raytrace::point& looking_at() override {
-        return look_at;
-    }
-
-    std::string window_name() const override {
-        return std::string("Monochrome World 4");
-    }
-
-    std::string output_filename() const override {
-        return std::string("world_monochrome_4.tga");
-    }
+    ~MonochromeWorld() = default;
 
     raytrace::color background(raytrace::ray const& world_ray) const override {
         // this creates a gradient from top to bottom
@@ -84,16 +69,14 @@ public:
 
     raytrace::animation::anchors get_anchors() const override {
         raytrace::animation::anchors anchors;
-        anchors.push_back(animation::Anchor{animation::Attributes{look_from, look_at, 55.0_deg},
-                                            animation::Attributes{look_from, look_at, 55.0_deg}, animation::Mappers{},
+        anchors.push_back(animation::Anchor{animation::Attributes{looking_from(), looking_at(), 55.0_deg},
+                                            animation::Attributes{looking_from(), looking_at(), 55.0_deg}, animation::Mappers{},
                                             iso::seconds{1.0_p}});
         return anchors;
     }
 
 protected:
     size_t light_subsamples;
-    raytrace::point look_from;
-    raytrace::point look_at;
     // lights
     raytrace::lights::bulb light0;
     raytrace::lights::bulb light1;

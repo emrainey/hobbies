@@ -9,7 +9,7 @@
 
 namespace geometry {
 /// Determines if points are on surfaces, thus having a normal
-static constexpr bool check_on_surface{true};
+static constexpr bool check_on_surface{false};
 }  // namespace geometry
 
 // clang-format off

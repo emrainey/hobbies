@@ -10,11 +10,10 @@ using namespace raytrace::operators;
 using namespace iso::literals;
 
 // Good results at values of depth=8, subsamples=16, 1024x768, fov=23
-class PIleWorld : public world {
+class SphereStackWorld : public world {
 public:
-    PIleWorld()
-        : look_from{0, 50, 20}
-        , look_at{0, 0, 10}
+    SphereStackWorld()
+        : world{raytrace::point{0, 50, 20}, raytrace::point{0, 0, 10}, "A pile of spheres World", "world_spheres4.tga"}
         , sun_rays{raytrace::vector{-20, 0, -21}, colors::white, lights::intensities::full}
         , floor{200.0_p}
         , cb0{0.125_p, colors::black, colors::white}
@@ -38,23 +37,7 @@ public:
         s3.material(&mediums::metals::chrome);
     }
 
-    ~PIleWorld() = default;
-
-    raytrace::point& looking_from() override {
-        return look_from;
-    }
-
-    raytrace::point& looking_at() override {
-        return look_at;
-    }
-
-    std::string window_name() const override {
-        return std::string("A pile of spheres World");
-    }
-
-    std::string output_filename() const override {
-        return std::string("world_spheres4.tga");
-    }
+    ~SphereStackWorld() = default;
 
     raytrace::color background(raytrace::ray const& world_ray) const override {
         // this creates a gradient from top to bottom
@@ -110,6 +93,6 @@ protected:
 
 // declare a single instance and return the reference to it
 world* get_world() {
-    static PIleWorld my_world;
+    static SphereStackWorld my_world;
     return &my_world;
 }

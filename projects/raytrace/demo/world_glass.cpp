@@ -16,9 +16,7 @@ using namespace iso::literals;
 class GlassWorld : public world {
 public:
     GlassWorld()
-        : world{}
-        , look_from{20, 20, 5}
-        , look_at{0, 0, 2.0_p}
+        : world{raytrace::point{20, 20, 5}, raytrace::point{0, 0, 2.0_p}, "Glass Orb on Checkerboard", "world_glass.tga"}
         , glass_ball{raytrace::point{0, 0, 5.0_p}, 5.0_p}  //, glass_cube(raytrace::point{0, 10, 2}, 2, 2, 2}
         , toy_ball{raytrace::point{-20, -20, 2.0_p}, 2.0_p}
         , floor{200.0_p}
@@ -39,26 +37,6 @@ public:
 
     ~GlassWorld() = default;
 
-    raytrace::point& looking_from() override {
-        return look_from;
-    }
-
-    raytrace::point& looking_at() override {
-        return look_at;
-    }
-
-    std::string window_name() const override {
-        return std::string("Raytracing Example 2");
-    }
-
-    std::string output_filename() const override {
-        return std::string("world_example2.tga");
-    }
-
-    raytrace::color background(raytrace::ray const&) const override {
-        return colors::black;
-    }
-
     void add_to(scene& scene) override {
         scene.add_object(&glass_ball);
         // scene.add_object(&glass_cube);
@@ -70,18 +48,16 @@ public:
 
     raytrace::animation::anchors get_anchors() const override {
         raytrace::animation::anchors anchors;
-        anchors.push_back(animation::Anchor{animation::Attributes{look_from, look_at, 55.0_deg},
-                                            animation::Attributes{raytrace::point{30, 0, 5}, look_at, 40.0_deg},
+        anchors.push_back(animation::Anchor{animation::Attributes{looking_from(), looking_at(), 55.0_deg},
+                                            animation::Attributes{raytrace::point{30, 0, 5}, looking_at(), 40.0_deg},
                                             animation::Mappers{}, iso::seconds{5.0_p}});
         anchors.push_back(animation::Anchor{anchors.back().limit,  // previous limit is this start
-                                            animation::Attributes{raytrace::point{20, 20, 15}, look_at, 23.0_deg},
+                                            animation::Attributes{raytrace::point{20, 20, 15}, looking_at(), 23.0_deg},
                                             animation::Mappers{}, iso::seconds{5.0_p}});
         return anchors;
     }
 
 protected:
-    raytrace::point look_from;
-    raytrace::point look_at;
     objects::sphere glass_ball;
     // objects::cuboid glass_cube;
     objects::sphere toy_ball;

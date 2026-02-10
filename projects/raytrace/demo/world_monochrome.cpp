@@ -18,9 +18,8 @@ using namespace iso::literals;
 class MonochromeWorld : public world {
 public:
     MonochromeWorld()
-        : light_subsamples{20}
-        , look_from{5, -20, 20}
-        , look_at{0, 0, 0}
+        : world{raytrace::point{5, -20, 20}, raytrace::point{0, 0, 0}, "Monochrome World", "world_monochrome.tga"}
+        , light_subsamples{20}
         , plain_white{colors::white, mediums::ambient::none, colors::white, mediums::smoothness::none, roughness::tight}
         , checkerboard_grid{0.1_p,         colors::blue, colors::yellow, colors::red,  colors::magenta,
                             colors::green, colors::cyan, colors::black,  colors::white}
@@ -62,21 +61,7 @@ public:
         cb0.rotation(iso::degrees{0}, iso::degrees{0}, iso::degrees{15});
     }
 
-    raytrace::point& looking_from() override {
-        return look_from;
-    }
-
-    raytrace::point& looking_at() override {
-        return look_at;
-    }
-
-    std::string window_name() const override {
-        return std::string("Monochrome World");
-    }
-
-    std::string output_filename() const override {
-        return std::string("world_monochrome.tga");
-    }
+    ~MonochromeWorld() = default;
 
     raytrace::color background(raytrace::ray const& world_ray) const override {
         // this creates a gradient from top to bottom
@@ -112,16 +97,14 @@ public:
 
     raytrace::animation::anchors get_anchors() const override {
         raytrace::animation::anchors anchors;
-        anchors.push_back(animation::Anchor{animation::Attributes{look_from, look_at, 55.0_deg},
-                                            animation::Attributes{look_from, look_at, 55.0_deg}, animation::Mappers{},
+        anchors.push_back(animation::Anchor{animation::Attributes{looking_from(), looking_at(), 55.0_deg},
+                                            animation::Attributes{looking_from(), looking_at(), 55.0_deg}, animation::Mappers{},
                                             iso::seconds{1.0_p}});
         return anchors;
     }
 
 protected:
     size_t light_subsamples;
-    raytrace::point look_from;
-    raytrace::point look_at;
     mediums::plain plain_white;
     mediums::checkerboard checkerboard_grid;
     raytrace::objects::square floor;

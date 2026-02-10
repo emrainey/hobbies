@@ -15,8 +15,7 @@ using namespace iso::literals;
 class cornell_box : public world {
 public:
     cornell_box()
-        : look_from{-220, 0, 80}
-        , look_at{0, 0, 80}
+        : world(raytrace::point{-220, 0, 80}, raytrace::point{0, 0, 80}, "Cornell Box -ish", "world_cornell.tga")
         , plain_white(colors::white, mediums::ambient::none, colors::white, mediums::smoothness::none,
                       mediums::roughness::tight)
         , plain_red(colors::red, mediums::ambient::none, colors::red, mediums::smoothness::none,
@@ -45,25 +44,7 @@ public:
         ball.material(&mediums::metals::stainless);
     }
 
-    raytrace::point& looking_from() override {
-        return look_from;
-    }
-
-    raytrace::point& looking_at() override {
-        return look_at;
-    }
-
-    std::string window_name() const override {
-        return std::string("Cornell Box -ish");
-    }
-
-    std::string output_filename() const override {
-        return std::string("world_cornell.tga");
-    }
-
-    color background(raytrace::ray const&) const override {
-        return colors::black;
-    }
+    ~cornell_box() = default;
 
     void add_to(scene& scene) override {
         // add the objects to the scene.
@@ -79,15 +60,13 @@ public:
 
     raytrace::animation::anchors get_anchors() const override {
         raytrace::animation::anchors anchors;
-        anchors.push_back(animation::Anchor{animation::Attributes{look_from, look_at, 55.0_deg},
-                                            animation::Attributes{look_from, look_at, 55.0_deg}, animation::Mappers{},
+        anchors.push_back(animation::Anchor{animation::Attributes{looking_from(), looking_at(), 55.0_deg},
+                                            animation::Attributes{looking_from(), looking_at(), 55.0_deg}, animation::Mappers{},
                                             iso::seconds{1.0_p}});
         return anchors;
     }
 
 protected:
-    raytrace::point look_from;
-    raytrace::point look_at;
     mediums::plain plain_white;
     mediums::plain plain_red;
     mediums::plain plain_blue;

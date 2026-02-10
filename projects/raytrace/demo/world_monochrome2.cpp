@@ -18,9 +18,8 @@ using namespace iso::literals;
 class MonochromeWorld : public world {
 public:
     MonochromeWorld()
-        : light_subsamples{20}
-        , look_from{5, -14, 1}
-        , look_at{0, 0, 0}
+        : world{raytrace::point{5, -14, 1}, raytrace::point{0, 0, 0}, "Monochrome World 2", "world_monochrome_2.tga"}
+        , light_subsamples{20}
         , plain_white{colors::white, mediums::ambient::none, colors::white, mediums::smoothness::none, roughness::tight}
         , checkerboard_grid{2.0_p, colors::black, colors::white}
         , floor{30}
@@ -42,21 +41,7 @@ public:
         s1.rotation(iso::radians{0}, iso::radians{0}, iso::radians{-iso::pi / 4});
     }
 
-    raytrace::point& looking_from() override {
-        return look_from;
-    }
-
-    raytrace::point& looking_at() override {
-        return look_at;
-    }
-
-    std::string window_name() const override {
-        return std::string("Monochrome World 2");
-    }
-
-    std::string output_filename() const override {
-        return std::string("world_monochrome_2.tga");
-    }
+    ~MonochromeWorld() = default;
 
     raytrace::color background(raytrace::ray const& world_ray) const override {
         // this creates a gradient from top to bottom
@@ -80,19 +65,17 @@ public:
 
     raytrace::animation::anchors get_anchors() const override {
         raytrace::animation::anchors anchors;
-        anchors.push_back(animation::Anchor{animation::Attributes{look_from, look_at, 37.0_deg},
-                                            animation::Attributes{R3::point{-5, -14, 1}, look_at, 37.0_deg},
+        anchors.push_back(animation::Anchor{animation::Attributes{looking_from(), looking_at(), 37.0_deg},
+                                            animation::Attributes{R3::point{-5, -14, 1}, looking_at(), 37.0_deg},
                                             animation::Mappers{}, iso::seconds{3.0_p}});
         anchors.push_back(animation::Anchor{anchors.back().limit,  // previous limit is this start
-                                            animation::Attributes{raytrace::point{-10, 10, 1}, look_at, 37.0_deg},
+                                            animation::Attributes{raytrace::point{-10, 10, 1}, looking_at(), 37.0_deg},
                                             animation::Mappers{}, iso::seconds{3.0_p}});
         return anchors;
     }
 
 protected:
     size_t light_subsamples;
-    raytrace::point look_from;
-    raytrace::point look_at;
     mediums::plain plain_white;
     mediums::grid checkerboard_grid;
     raytrace::objects::square floor;

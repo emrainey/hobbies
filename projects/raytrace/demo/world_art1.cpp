@@ -13,11 +13,10 @@ using namespace iso::literals;
 class ArtWorld : public world {
 public:
     ArtWorld()
-        : look_from{0, 25, 10}
-        , look_at{0, 0, 10}
+        : world(raytrace::point{0, 25, 10}, raytrace::point{0, 0, 10}, "Art1 World", "world_art1.tga")
         , sun_rays{raytrace::vector{-20, 0, -21}, colors::white, lights::intensities::dim}
         , floor{200.0_p}
-        , pyramid1{look_at, 0}
+        , pyramid1{looking_at(), 0}
         , orb{raytrace::point{0, 0, 12}, 2.0_p}
         , halo{raytrace::point{0, 0, 14}, 2.25_p, 0.125_p} {
         pyramid1.material(&mediums::metals::stainless);
@@ -27,22 +26,6 @@ public:
     }
 
     ~ArtWorld() = default;
-
-    raytrace::point& looking_from() override {
-        return look_from;
-    }
-
-    raytrace::point& looking_at() override {
-        return look_at;
-    }
-
-    std::string window_name() const override {
-        return std::string("Art1 World");
-    }
-
-    std::string output_filename() const override {
-        return std::string("world_art1.tga");
-    }
 
     raytrace::color background(raytrace::ray const& world_ray) const override {
         // this creates a gradient from top to bottom
@@ -65,23 +48,21 @@ public:
     raytrace::animation::anchors get_anchors() const override {
         raytrace::animation::anchors anchors;
         anchors.push_back(
-            animation::Anchor{animation::Attributes{look_from, look_at, iso::degrees{23.0_p}},
-                              animation::Attributes{raytrace::point{25, 0, 10}, look_at, iso::degrees{55.0_p}},
+            animation::Anchor{animation::Attributes{looking_from(), looking_at(), iso::degrees{23.0_p}},
+                              animation::Attributes{raytrace::point{25, 0, 10}, looking_at(), iso::degrees{55.0_p}},
                               animation::Mappers{}, iso::seconds{5.0_p}});
         anchors.push_back(
             animation::Anchor{anchors.back().limit,  // previous limit is this start
-                              animation::Attributes{raytrace::point{0, -25, 10}, look_at, iso::degrees{80.0_p}},
+                              animation::Attributes{raytrace::point{0, -25, 10}, looking_at(), iso::degrees{80.0_p}},
                               animation::Mappers{}, iso::seconds{5.0_p}});
         anchors.push_back(
             animation::Anchor{anchors.back().limit,  // previous limit is this start
-                              animation::Attributes{raytrace::point{-25, 0, 10}, look_at, iso::degrees{55.0_p}},
+                              animation::Attributes{raytrace::point{-25, 0, 10}, looking_at(), iso::degrees{55.0_p}},
                               animation::Mappers{}, iso::seconds{5.0_p}});
         return anchors;
     }
 
 protected:
-    raytrace::point look_from;
-    raytrace::point look_at;
     lights::beam sun_rays;
     raytrace::point center;
     raytrace::objects::square floor;

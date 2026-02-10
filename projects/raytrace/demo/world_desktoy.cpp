@@ -17,9 +17,7 @@ using namespace iso::literals;
 class DeskToyWorld : public world {
 public:
     DeskToyWorld()
-        : world{}
-        , look_from{20, 20, 20}
-        , look_at{0, 0, 0}
+        : world{raytrace::point{20, 20, 20}, raytrace::point{0, 0, 0}, "DeskToy", "world_desktoy.tga"}
         , block{R3::origin, 8, 8, 2}           // center of the overlap
         , cutout{raytrace::point{0, 0, 4}, 4}  // overlap space centered at R3::origin
                                                // cutout from block, centered on block by definition
@@ -43,24 +41,7 @@ public:
         final_base.material(&mediums::metals::stainless);
     }
 
-    ~DeskToyWorld() {
-    }
-
-    raytrace::point& looking_from() override {
-        return look_from;
-    }
-
-    raytrace::point& looking_at() override {
-        return look_at;
-    }
-
-    std::string window_name() const override {
-        return std::string("DeskToy");
-    }
-
-    std::string output_filename() const override {
-        return std::string("world_desktoy.tga");
-    }
+    ~DeskToyWorld() = default;
 
     raytrace::color background(raytrace::ray const& world_ray) const override {
         iso::radians A = angle(R3::basis::Z, world_ray.direction());
@@ -80,18 +61,16 @@ public:
 
     raytrace::animation::anchors get_anchors() const override {
         raytrace::animation::anchors anchors;
-        anchors.push_back(animation::Anchor{animation::Attributes{look_from, look_at, 55.0_deg},
-                                            animation::Attributes{raytrace::point{20, 0, 20}, look_at, 55.0_deg},
+        anchors.push_back(animation::Anchor{animation::Attributes{looking_from(), looking_at(), 55.0_deg},
+                                            animation::Attributes{raytrace::point{20, 0, 20}, looking_at(), 55.0_deg},
                                             animation::Mappers{}, iso::seconds{4.0_p}});
         anchors.push_back(animation::Anchor{anchors.back().limit,
-                                            animation::Attributes{raytrace::point{0, 20, 20}, look_at, 55.0_deg},
+                                            animation::Attributes{raytrace::point{0, 20, 20}, looking_at(), 55.0_deg},
                                             animation::Mappers{}, iso::seconds{4.0_p}});
         return anchors;
     }
 
 protected:
-    raytrace::point look_from;
-    raytrace::point look_at;
     raytrace::objects::cuboid block;
     raytrace::objects::sphere cutout;
     raytrace::objects::overlap base;

@@ -18,9 +18,8 @@ using namespace iso::literals;
 class MirrorWorld : public world {
 public:
     MirrorWorld()
-        : light_subsamples{20}
-        , look_from{0, -50, 10}
-        , look_at{0, 5, 10}
+        : world{raytrace::point{0, -50, 10}, raytrace::point{0, 5, 10}, "Mirror Scene", "world_mirrors.tga"}
+        , light_subsamples{20}
         , light0{raytrace::point{0, 0, 10}, 1, colors::white, 1E11, light_subsamples}
         , speck0{raytrace::point{0, 0, 10}, colors::white, 1E2}
         , checkerboard_grid{0.25_p,        colors::blue, colors::yellow, colors::red,  colors::magenta,
@@ -40,21 +39,7 @@ public:
         back.material(&checkerboard_grid);
     }
 
-    raytrace::point& looking_from() override {
-        return look_from;
-    }
-
-    raytrace::point& looking_at() override {
-        return look_at;
-    }
-
-    std::string window_name() const override {
-        return std::string("Mirror Scene");
-    }
-
-    std::string output_filename() const override {
-        return std::string("world_mirrors.tga");
-    }
+    ~MirrorWorld() = default;
 
     raytrace::color background(raytrace::ray const& world_ray) const override {
         // this creates a gradient from top to bottom
@@ -77,19 +62,17 @@ public:
 
     raytrace::animation::anchors get_anchors() const override {
         raytrace::animation::anchors anchors;
-        anchors.push_back(animation::Anchor{animation::Attributes{look_from, look_at, 75.0_deg},
-                                            animation::Attributes{raytrace::point(15, -20, 10), look_at, 75.0_deg},
+        anchors.push_back(animation::Anchor{animation::Attributes{looking_from(), looking_at(), 75.0_deg},
+                                            animation::Attributes{raytrace::point(15, -20, 10), looking_at(), 75.0_deg},
                                             animation::Mappers{}, iso::seconds{2.0_p}});
         anchors.push_back(animation::Anchor{anchors.back().limit,  // take last limit as start
-                                            animation::Attributes{raytrace::point(-15, -20, 10), look_at, 75.0_deg},
+                                            animation::Attributes{raytrace::point(-15, -20, 10), looking_at(), 75.0_deg},
                                             animation::Mappers{}, iso::seconds{2.0_p}});
         return anchors;
     }
 
 protected:
     size_t light_subsamples;
-    raytrace::point look_from;
-    raytrace::point look_at;
     raytrace::lights::bulb light0;
     raytrace::lights::speck speck0;
     mediums::checkerboard checkerboard_grid;

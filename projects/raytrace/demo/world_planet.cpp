@@ -14,8 +14,7 @@ using namespace iso::literals;
 class PlanetWorld : public world {
 public:
     PlanetWorld()
-        : look_from{0, 50, 10}
-        , look_at{8, 0, 0}
+        : world{raytrace::point{0, 50, 10}, raytrace::point{8, 0, 0}, "Planet World", "world_planet.tga"}
         , sun_rays{raytrace::vector{-20, 0, -21}, colors::white, lights::intensities::bright / 2}
         , inner_light{raytrace::point{0, 0, 80}, colors::white, lights::intensities::blinding}
         , center{0, 0, 0}
@@ -39,22 +38,6 @@ public:
 
     ~PlanetWorld() = default;
 
-    raytrace::point& looking_from() override {
-        return look_from;
-    }
-
-    raytrace::point& looking_at() override {
-        return look_at;
-    }
-
-    std::string window_name() const override {
-        return std::string("Planet World");
-    }
-
-    std::string output_filename() const override {
-        return std::string("world_planet.tga");
-    }
-
     raytrace::color background(raytrace::ray const& world_ray) const override {
         // starfield background
         return starfield(world_ray.direction());
@@ -74,15 +57,13 @@ public:
 
     raytrace::animation::anchors get_anchors() const override {
         raytrace::animation::anchors anchors;
-        anchors.push_back(animation::Anchor{animation::Attributes{look_from, look_at, 55.0_deg},
-                                            animation::Attributes{look_from, look_at, 55.0_deg}, animation::Mappers{},
+        anchors.push_back(animation::Anchor{animation::Attributes{looking_from(), looking_at(), 55.0_deg},
+                                            animation::Attributes{looking_from(), looking_at(), 55.0_deg}, animation::Mappers{},
                                             iso::seconds{1.0_p}});
         return anchors;
     }
 
 protected:
-    raytrace::point look_from;
-    raytrace::point look_at;
     lights::beam sun_rays;
     lights::speck inner_light;
     raytrace::point center;

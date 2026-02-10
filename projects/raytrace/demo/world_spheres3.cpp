@@ -1,7 +1,7 @@
 ///
 /// @file
 /// @author Erik Rainey (erik.rainey@gmail.com)
-/// @brief Renders a raytraced image of a bunch of spheres in a halo around a central sphere.
+/// @brief Renders a raytraced image of a grid of spheres with different materials
 /// @date 2021-01-02
 /// @copyright Copyright (c) 2021
 ///
@@ -19,9 +19,7 @@ using mat = const mediums::metal;
 class Spheres3x3World : public world {
 public:
     Spheres3x3World()
-        : world{}
-        , look_from{0, -30, 60}
-        , look_at{0, 0, 0}
+        : world{raytrace::point{0, -30, 60}, raytrace::point{0, 0, 0}, "Spheres in 3x3 Grid", "world_spheres3.tga"}
         , sunlight{raytrace::vector{1, 8, -8}, colors::white, lights::intensities::full}
         , dull{colors::white, 0.1_p, colors::red, mediums::smoothness::small, mediums::roughness::loose}
         , s1x1{raytrace::point{-15, 15, 5}, 5}
@@ -40,7 +38,7 @@ public:
         , s3x2{raytrace::point{0, -15, 5}, 5}
         , ikea_voxelboard{0.5_p, colors::yellow, colors::blue}
         , s3x3{raytrace::point{15, -15, 5}, 5} {
-        raytrace::point center = look_at;
+        raytrace::point center = looking_at();
         s1x1.material(&dull);
         happy.mapper(std::bind(&raytrace::objects::sphere::map, &s1x2, std::placeholders::_1));
         s1x2.material(&happy);
@@ -60,22 +58,6 @@ public:
     }
 
     ~Spheres3x3World() = default;
-
-    raytrace::point& looking_from() override {
-        return look_from;
-    }
-
-    raytrace::point& looking_at() override {
-        return look_at;
-    }
-
-    std::string window_name() const override {
-        return std::string("Spheres 2");
-    }
-
-    std::string output_filename() const override {
-        return std::string("world_spheres2.tga");
-    }
 
     raytrace::color background(raytrace::ray const& world_ray) const override {
         iso::radians A = angle(R3::basis::Z, world_ray.direction());
@@ -98,18 +80,14 @@ public:
 
     raytrace::animation::anchors get_anchors() const override {
         raytrace::animation::anchors anchors;
-        anchors.push_back(animation::Anchor{animation::Attributes{look_from, look_at, 55.0_deg},
-                                            animation::Attributes{look_from, look_at, 55.0_deg}, animation::Mappers{},
+        anchors.push_back(animation::Anchor{animation::Attributes{looking_from(), looking_at(), 55.0_deg},
+                                            animation::Attributes{looking_from(), looking_at(), 55.0_deg}, animation::Mappers{},
                                             iso::seconds{1.0_p}});
         return anchors;
     }
 
 protected:
-    raytrace::point look_from;
-    raytrace::point look_at;
-
     lights::beam sunlight;
-
     mediums::plain dull;
     objects::sphere s1x1;
     mediums::happy_face happy;

@@ -43,9 +43,7 @@ protected:
 class SnowmanWorld : public world {
 public:
     SnowmanWorld()
-        : world{}
-        , look_from{-20, 14, 5.5_p}
-        , look_at{0, 0, 5.5_p}
+        : world{raytrace::point{-20, 14, 5.5_p}, raytrace::point{0, 0, 5.5_p}, "Snowman World", "world_snowman.tga"}
         , snow(colors::white, mediums::ambient::dim, colors::white, mediums::smoothness::none,
                mediums::roughness::tight)
         , red_eyes(colors::red, mediums::ambient::glowy, colors::red, mediums::smoothness::none,
@@ -129,22 +127,6 @@ public:
         }
     }
 
-    raytrace::point& looking_from() override {
-        return look_from;
-    }
-
-    raytrace::point& looking_at() override {
-        return look_at;
-    }
-
-    std::string window_name() const override {
-        return std::string("Snowman");
-    }
-
-    std::string output_filename() const override {
-        return std::string("world_snowman.tga");
-    }
-
     raytrace::color background(raytrace::ray const& world_ray) const override {
         return starfield(world_ray.direction());
     }
@@ -192,18 +174,16 @@ public:
 
     raytrace::animation::anchors get_anchors() const override {
         raytrace::animation::anchors anchors;
-        anchors.push_back(animation::Anchor{animation::Attributes{look_from, look_at, 35.0_deg},
-                                            animation::Attributes{raytrace::point{20, 14, 5.5_p}, look_at, 35.0_deg},
+        anchors.push_back(animation::Anchor{animation::Attributes{looking_from(), looking_at(), 35.0_deg},
+                                            animation::Attributes{raytrace::point{20, 14, 5.5_p}, looking_at(), 35.0_deg},
                                             animation::Mappers{}, iso::seconds{5.0_p}});
         anchors.push_back(animation::Anchor{anchors.back().limit,  // previous limit is this start
-                                            animation::Attributes{look_from, look_at, 35.0_deg}, animation::Mappers{},
+                                            animation::Attributes{looking_from(), looking_at(), 35.0_deg}, animation::Mappers{},
                                             iso::seconds{5.0_p}});
         return anchors;
     }
 
 protected:
-    raytrace::point look_from;
-    raytrace::point look_at;
     raytrace::mediums::plain snow;
     raytrace::mediums::plain red_eyes;
     raytrace::mediums::plain carrot;

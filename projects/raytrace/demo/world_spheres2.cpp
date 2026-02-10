@@ -41,15 +41,13 @@ void materials(std::vector<mat*>& mats, size_t limits) {
 class Spheres2World : public world {
 public:
     Spheres2World()
-        : world{}
-        , look_from{20, 0, 20}
-        , look_at{0, 0, 0}
+        : world{raytrace::point{20, 0, 20}, raytrace::point{0, 0, 0}, "Spheres 2", "world_spheres2.tga"}
         , number_of_spheres{128}
         , spheres{}
         , mats{}
         , sunlight{raytrace::vector{-2, 2, -1}, colors::white, lights::intensities::bright}
         , specks{} {
-        raytrace::point center = look_at;
+        raytrace::point center = looking_at();
         spheres.push_back(new raytrace::objects::sphere(center, 4.5_p));
         subspheres(spheres, center, 6, 0.4_p, number_of_spheres);
         materials(mats, spheres.size());
@@ -73,22 +71,6 @@ public:
         }
     }
 
-    raytrace::point& looking_from() override {
-        return look_from;
-    }
-
-    raytrace::point& looking_at() override {
-        return look_at;
-    }
-
-    std::string window_name() const override {
-        return std::string("Spheres 2");
-    }
-
-    std::string output_filename() const override {
-        return std::string("world_spheres2.tga");
-    }
-
     raytrace::color background(raytrace::ray const& world_ray) const override {
         iso::radians A = angle(R3::basis::Z, world_ray.direction());
         precision B = A.value / iso::pi;
@@ -108,15 +90,13 @@ public:
 
     raytrace::animation::anchors get_anchors() const override {
         raytrace::animation::anchors anchors;
-        anchors.push_back(animation::Anchor{animation::Attributes{look_from, look_at, 55.0_deg},
-                                            animation::Attributes{look_from, look_at, 55.0_deg}, animation::Mappers{},
+        anchors.push_back(animation::Anchor{animation::Attributes{looking_from(), looking_at(), 55.0_deg},
+                                            animation::Attributes{looking_from(), looking_at(), 55.0_deg}, animation::Mappers{},
                                             iso::seconds{1.0_p}});
         return anchors;
     }
 
 protected:
-    raytrace::point look_from;
-    raytrace::point look_at;
     size_t number_of_spheres;
     std::vector<raytrace::objects::sphere*> spheres;
     std::vector<mat*> mats;

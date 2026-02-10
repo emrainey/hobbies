@@ -18,9 +18,7 @@ using namespace iso::literals;
 class ExampleWorld : public world {
 public:
     ExampleWorld()
-        : world{}
-        , look_from{-50, -50, 50}
-        , look_at{0, 0, 0}
+        : world{raytrace::point{-50, -50, 50}, raytrace::point{0, 0, 0}, "Example World", "world_example.tga"}
         , tilt{rotation(iso::radians(0), iso::radians(0), iso::radians(iso::pi / 5))}
         , plain_yellow{colors::yellow, mediums::ambient::none, colors::yellow, mediums::smoothness::small,
                        mediums::roughness::tight}
@@ -98,26 +96,6 @@ public:
 
     ~ExampleWorld() = default;
 
-    raytrace::point& looking_from() override {
-        return look_from;
-    }
-
-    raytrace::point& looking_at() override {
-        return look_at;
-    }
-
-    std::string window_name() const override {
-        return std::string("Raytracing Example");
-    }
-
-    std::string output_filename() const override {
-        return std::string("world_example.tga");
-    }
-
-    raytrace::color background(raytrace::ray const&) const override {
-        return colors::black;
-    }
-
     void add_to(scene& scene) override {
         // add the objects to the scene.
         scene.add_object(&ground);
@@ -138,18 +116,16 @@ public:
 
     raytrace::animation::anchors get_anchors() const override {
         raytrace::animation::anchors anchors;
-        anchors.push_back(animation::Anchor{animation::Attributes{look_from, look_at, 55.0_deg},
-                                            animation::Attributes{raytrace::point{-50, 50, 30}, look_at, 23.0_deg},
+        anchors.push_back(animation::Anchor{animation::Attributes{looking_from(), looking_at(), 55.0_deg},
+                                            animation::Attributes{raytrace::point{-50, 50, 30}, looking_at(), 23.0_deg},
                                             animation::Mappers{}, iso::seconds{10.0_p}});
         anchors.push_back(animation::Anchor{anchors.back().limit,  // previous limit is this start
-                                            animation::Attributes{raytrace::point{50, -50, 30}, look_at, 23.0_deg},
+                                            animation::Attributes{raytrace::point{50, -50, 30}, looking_at(), 23.0_deg},
                                             animation::Mappers{}, iso::seconds{10.0_p}});
         return anchors;
     }
 
 protected:
-    raytrace::point look_from;
-    raytrace::point look_at;
     matrix tilt;
     // define some surfaces
     plain plain_yellow;

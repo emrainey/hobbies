@@ -20,9 +20,7 @@ static_assert(number_of_spheres_per_side % 2 == 1, "number_of_spheres_per_side m
 class MaterialWorld : public world {
 public:
     MaterialWorld()
-        : world{}
-        , look_from{0, -20, 80}
-        , look_at{0, 0, 0}
+        : world{raytrace::point{0, -20, 80}, raytrace::point{0, 0, 0}, "Plain Materials Smooth vs Rough", "world_mats.tga"}
         , number_of_spheres{number_of_spheres_per_side * number_of_spheres_per_side}
         , brightness{lights::intensities::moderate}
         , spheres{}
@@ -72,22 +70,6 @@ public:
         }
     }
 
-    raytrace::point& looking_from() override {
-        return look_from;
-    }
-
-    raytrace::point& looking_at() override {
-        return look_at;
-    }
-
-    std::string window_name() const override {
-        return std::string("Plain Materials Smooth vs Rough");
-    }
-
-    std::string output_filename() const override {
-        return std::string("world_plain_materials.tga");
-    }
-
     raytrace::color background(raytrace::ray const& world_ray) const override {
         iso::radians A = angle(R3::basis::Z, world_ray.direction());
         precision B = A.value / iso::pi;
@@ -107,15 +89,13 @@ public:
 
     raytrace::animation::anchors get_anchors() const override {
         raytrace::animation::anchors anchors;
-        anchors.push_back(animation::Anchor{animation::Attributes{look_from, look_at, iso::degrees{55.0_p}},
-                                            animation::Attributes{look_from, look_at, iso::degrees{55.0_p}},
-                                            animation::Mappers{}, iso::seconds{1.0_p}});
+        anchors.push_back(animation::Anchor{animation::Attributes{looking_from(), looking_at(), iso::degrees{55.0_p}},
+                                animation::Attributes{looking_from(), looking_at(), iso::degrees{55.0_p}},
+                                animation::Mappers{}, iso::seconds{1.0_p}});
         return anchors;
     }
 
 protected:
-    raytrace::point look_from;
-    raytrace::point look_at;
     size_t number_of_spheres;
     precision brightness;
     std::vector<raytrace::objects::sphere*> spheres;

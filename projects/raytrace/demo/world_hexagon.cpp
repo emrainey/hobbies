@@ -135,9 +135,7 @@ protected:
 class HexagonalWorld : public world {
 public:
     HexagonalWorld()
-        : world{}
-        , look_from{0.0_p, -10.0_p, 15.0_p}
-        , look_at{0.0_p, 0.0_p, 4.0_p}
+        : world{raytrace::point{0.0_p, -10.0_p, 15.0_p}, raytrace::point{0.0_p, 0.0_p, 4.0_p}, "Hexagonal World", "world_hexagon.tga"}
         , specks{}
         , hexagons{} {
         raytrace::point center = R3::origin;
@@ -165,26 +163,6 @@ public:
         }
     }
 
-    raytrace::point& looking_from() override {
-        return look_from;
-    }
-
-    raytrace::point& looking_at() override {
-        return look_at;
-    }
-
-    std::string window_name() const override {
-        return std::string("hexagonal world");
-    }
-
-    std::string output_filename() const override {
-        return std::string("world_hexagon.tga");
-    }
-
-    raytrace::color background(raytrace::ray const&) const override {
-        return colors::black;
-    }
-
     void add_to(scene& scene) override {
         // add the objects to the scene.
         for (auto& s : specks) {
@@ -197,15 +175,13 @@ public:
 
     raytrace::animation::anchors get_anchors() const override {
         raytrace::animation::anchors anchors;
-        anchors.push_back(animation::Anchor{animation::Attributes{look_from, look_at, 55.0_deg},
-                                            animation::Attributes{look_from, look_at, 55.0_deg}, animation::Mappers{},
+        anchors.push_back(animation::Anchor{animation::Attributes{looking_from(), looking_at(), 55.0_deg},
+                                            animation::Attributes{looking_from(), looking_at(), 55.0_deg}, animation::Mappers{},
                                             iso::seconds{1.0_p}});
         return anchors;
     }
 
 protected:
-    raytrace::point look_from;
-    raytrace::point look_at;
     std::vector<raytrace::lights::speck*> specks;
     std::vector<HexaTile*> hexagons;
 };

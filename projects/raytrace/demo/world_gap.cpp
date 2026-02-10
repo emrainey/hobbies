@@ -18,9 +18,7 @@ using namespace iso::literals;
 class GapWallWorld : public world {
 public:
     GapWallWorld()
-        : world{}  // , look_from{0, -100, 0}
-        , look_from{-30, -50, 100}
-        , look_at{0, 0, 0}
+        : world{raytrace::point{-30, -50, 100}, raytrace::point{0, 0, 0}, "Raytracing Wall Gap w/ Sphere", "world_gap.tga"}
         , wall1{R3::origin, R3::roll(iso::radians{-iso::pi / 2}), 20.0_p}
         , subgap{R3::origin, R3::pitch(iso::radians{iso::pi / 2}), 30.0_p}
         , gap{wall1, subgap, raytrace::objects::overlap::type::subtractive}
@@ -35,22 +33,6 @@ public:
     }
 
     ~GapWallWorld() = default;
-
-    raytrace::point& looking_from() override {
-        return look_from;
-    }
-
-    raytrace::point& looking_at() override {
-        return look_at;
-    }
-
-    std::string window_name() const override {
-        return std::string("Raytracing Wall Gap w/ Sphere");
-    }
-
-    std::string output_filename() const override {
-        return std::string("world_gap.tga");
-    }
 
     raytrace::color background(raytrace::ray const& world_ray) const override {
         iso::radians A = angle(R3::basis::Z, world_ray.direction());
@@ -69,15 +51,13 @@ public:
 
     raytrace::animation::anchors get_anchors() const override {
         raytrace::animation::anchors anchors;
-        anchors.push_back(animation::Anchor{animation::Attributes{look_from, look_at, 55.0_deg},
-                                            animation::Attributes{look_from, look_at, 55.0_deg}, animation::Mappers{},
+        anchors.push_back(animation::Anchor{animation::Attributes{looking_from(), looking_at(), 55.0_deg},
+                                            animation::Attributes{looking_from(), looking_at(), 55.0_deg}, animation::Mappers{},
                                             iso::seconds{1.0_p}});
         return anchors;
     }
 
 protected:
-    raytrace::point look_from;
-    raytrace::point look_at;
     raytrace::objects::wall wall1;
     raytrace::objects::wall subgap;
     raytrace::objects::overlap gap;

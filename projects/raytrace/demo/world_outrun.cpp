@@ -61,8 +61,7 @@ public:
 class OutrunWorld : public world {
 public:
     OutrunWorld()
-        : look_from{0, 50, 10}
-        , look_at{0, 0, 10}
+        : world{raytrace::point{0, 50, 10}, raytrace::point{0, 0, 10}, "Outrun World", "world_outrun.tga"}
         , sun_center{raytrace::point{0, -3000, 200}}
         , sun_rays{raytrace::vector{0, 200, -200}, colors::white, lights::intensities::radiant}
         , grid{10.0_p, outrun::neon_pink, colors::black}
@@ -81,22 +80,6 @@ public:
     }
 
     ~OutrunWorld() = default;
-
-    raytrace::point& looking_from() override {
-        return look_from;
-    }
-
-    raytrace::point& looking_at() override {
-        return look_at;
-    }
-
-    std::string window_name() const override {
-        return std::string("Outrun World");
-    }
-
-    std::string output_filename() const override {
-        return std::string("world_outrun.tga");
-    }
 
     raytrace::color background(raytrace::ray const& world_ray) const override {
         // this creates a gradient from top to bottom
@@ -119,15 +102,13 @@ public:
 
     raytrace::animation::anchors get_anchors() const override {
         raytrace::animation::anchors anchors;
-        anchors.push_back(animation::Anchor{animation::Attributes{look_from, look_at, iso::degrees{55.0_p}},
-                                            animation::Attributes{look_from, look_at, iso::degrees{55.0_p}},
+        anchors.push_back(animation::Anchor{animation::Attributes{looking_from(), looking_at(), iso::degrees{55.0_p}},
+                                            animation::Attributes{looking_from(), looking_at(), iso::degrees{55.0_p}},
                                             animation::Mappers{}, iso::seconds{1.0_p}});
         return anchors;
     }
 
 protected:
-    raytrace::point look_from;
-    raytrace::point look_at;
     raytrace::point sun_center;
     lights::beam sun_rays;
     raytrace::point center;

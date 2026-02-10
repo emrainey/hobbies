@@ -34,10 +34,7 @@ void subspheres(std::vector<raytrace::objects::sphere*>& spheres, raytrace::poin
 class SpheresWorld : public world {
 public:
     SpheresWorld()
-        : world{}  //, look_from(-50, 50, 20)
-                   //, look_at(0, 0, 0)
-        , look_from{-10.0_p, 6.66_p, 20.0_p}
-        , look_at{3.0_p, 0.0_p, 6.0_p}
+        : world{raytrace::point{-10.0_p, 6.66_p, 20.0_p}, raytrace::point{3.0_p, 0.0_p, 6.0_p}, "Spheres World", "world_spheres.tga"}
         , custom_grey{0.75_p, 0.75_p, 0.75_p}
         , custom_metal{custom_grey, raytrace::mediums::smoothness::mirror, raytrace::mediums::roughness::medium}
         , spheres{}
@@ -76,26 +73,6 @@ public:
         }
     }
 
-    raytrace::point& looking_from() override {
-        return look_from;
-    }
-
-    raytrace::point& looking_at() override {
-        return look_at;
-    }
-
-    std::string window_name() const override {
-        return std::string("Spheres");
-    }
-
-    std::string output_filename() const override {
-        return std::string("world_spheres.tga");
-    }
-
-    raytrace::color background(raytrace::ray const&) const override {
-        return colors::black;
-    }
-
     void add_to(scene& scene) override {
         // add the objects to the scene.
         for (auto& s : spheres) {
@@ -111,15 +88,13 @@ public:
 
     raytrace::animation::anchors get_anchors() const override {
         raytrace::animation::anchors anchors;
-        anchors.push_back(animation::Anchor{animation::Attributes{look_from, look_at, 55.0_deg},
-                                            animation::Attributes{look_from, look_at, 55.0_deg}, animation::Mappers{},
+        anchors.push_back(animation::Anchor{animation::Attributes{looking_from(), looking_at(), 55.0_deg},
+                                            animation::Attributes{looking_from(), looking_at(), 55.0_deg}, animation::Mappers{},
                                             iso::seconds{1.0_p}});
         return anchors;
     }
 
 protected:
-    raytrace::point look_from;
-    raytrace::point look_at;
     raytrace::color custom_grey;
     raytrace::mediums::metal custom_metal;
     std::vector<raytrace::objects::sphere*> spheres;

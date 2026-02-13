@@ -3,22 +3,18 @@
 /// Definitions for the vector_ object.
 /// @copyright Copyright 2020 (C) Erik Rainey.
 
+#include <cmath>
 #include <cstdio>
+#include <initializer_list>
 
 #include "geometry/types.hpp"
-
-// #if defined(__x86_64__)
-// #include <emmintrin.h>
-// #include <immintrin.h>
-// #endif
-
-#include <initializer_list>
 
 using namespace basal::literals;
 
 namespace geometry {
 
 /// A N-dimensional vector_ object
+/// @tparam DIM The number of dimensions, must be between 2 and 4 (inclusive)
 template <size_t DIM>
 class vector_ {
 public:
@@ -28,7 +24,7 @@ public:
     constexpr static size_t const dimensions = DIM;
 
 protected:
-    // the data type array (prealigned for optimizations)
+    // the data type array (prealigned for optimizations with SIMD instructions)
     alignas(16) precision data[dimensions];
 
 public:
@@ -111,13 +107,12 @@ public:
     virtual precision magnitude() const {
         statistics::get().magnitudes++;
         if constexpr (DIM == 2) {
-            return hypot(data[0], data[1]);
-#if defined(__clang__)
+            return std::hypot(data[0], data[1]);
         } else if constexpr (DIM == 3) {
-            return hypot(data[0], data[1], data[2]);
-#endif
+            // this should be supported in C++17 compliant compilers
+            return std::hypot(data[0], data[1], data[2]);
         } else {
-            return sqrt(quadrance());
+            return std::sqrt(quadrance());
         }
     }
 

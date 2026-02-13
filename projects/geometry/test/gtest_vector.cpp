@@ -138,6 +138,88 @@ TEST(VectorTest, TemplateConstructors) {
     // ASSERT_THROW(R2::vector v1{{1.0_p, 2.0_p, 3.0_p}}, basal::exception); // the compiler may catch this
 }
 
+TEST(VectorTest, NamedAccessors2D) {
+    R2::vector v2{{1.0_p, 2.0_p}};
+
+    // Test read access
+    ASSERT_PRECISION_EQ(1.0_p, v2.x());
+    ASSERT_PRECISION_EQ(2.0_p, v2.y());
+
+    // Test write access
+    v2.x() = 10.0_p;
+    v2.y() = 20.0_p;
+    ASSERT_PRECISION_EQ(10.0_p, v2.x());
+    ASSERT_PRECISION_EQ(20.0_p, v2.y());
+    ASSERT_PRECISION_EQ(10.0_p, v2[0]);
+    ASSERT_PRECISION_EQ(20.0_p, v2[1]);
+
+    // Test const access
+    R2::vector const v2_const{{3.0_p, 4.0_p}};
+    ASSERT_PRECISION_EQ(3.0_p, v2_const.x());
+    ASSERT_PRECISION_EQ(4.0_p, v2_const.y());
+
+    // Note: v2.z() and v2.w() should not compile for 2D vectors due to SFINAE
+}
+
+TEST(VectorTest, NamedAccessors3D) {
+    R3::vector v3{{1.0_p, 2.0_p, 3.0_p}};
+
+    // Test read access
+    ASSERT_PRECISION_EQ(1.0_p, v3.x());
+    ASSERT_PRECISION_EQ(2.0_p, v3.y());
+    ASSERT_PRECISION_EQ(3.0_p, v3.z());
+
+    // Test write access
+    v3.x() = 10.0_p;
+    v3.y() = 20.0_p;
+    v3.z() = 30.0_p;
+    ASSERT_PRECISION_EQ(10.0_p, v3.x());
+    ASSERT_PRECISION_EQ(20.0_p, v3.y());
+    ASSERT_PRECISION_EQ(30.0_p, v3.z());
+    ASSERT_PRECISION_EQ(10.0_p, v3[0]);
+    ASSERT_PRECISION_EQ(20.0_p, v3[1]);
+    ASSERT_PRECISION_EQ(30.0_p, v3[2]);
+
+    // Test const access
+    R3::vector const v3_const{{4.0_p, 5.0_p, 6.0_p}};
+    ASSERT_PRECISION_EQ(4.0_p, v3_const.x());
+    ASSERT_PRECISION_EQ(5.0_p, v3_const.y());
+    ASSERT_PRECISION_EQ(6.0_p, v3_const.z());
+
+    // Note: v3.w() should not compile for 3D vectors due to SFINAE
+}
+
+TEST(VectorTest, NamedAccessors4D) {
+    R4::vector v4{{1.0_p, 2.0_p, 3.0_p, 4.0_p}};
+
+    // Test read access
+    ASSERT_PRECISION_EQ(1.0_p, v4.x());
+    ASSERT_PRECISION_EQ(2.0_p, v4.y());
+    ASSERT_PRECISION_EQ(3.0_p, v4.z());
+    ASSERT_PRECISION_EQ(4.0_p, v4.w());
+
+    // Test write access
+    v4.x() = 10.0_p;
+    v4.y() = 20.0_p;
+    v4.z() = 30.0_p;
+    v4.w() = 40.0_p;
+    ASSERT_PRECISION_EQ(10.0_p, v4.x());
+    ASSERT_PRECISION_EQ(20.0_p, v4.y());
+    ASSERT_PRECISION_EQ(30.0_p, v4.z());
+    ASSERT_PRECISION_EQ(40.0_p, v4.w());
+    ASSERT_PRECISION_EQ(10.0_p, v4[0]);
+    ASSERT_PRECISION_EQ(20.0_p, v4[1]);
+    ASSERT_PRECISION_EQ(30.0_p, v4[2]);
+    ASSERT_PRECISION_EQ(40.0_p, v4[3]);
+
+    // Test const access
+    R4::vector const v4_const{{5.0_p, 6.0_p, 7.0_p, 8.0_p}};
+    ASSERT_PRECISION_EQ(5.0_p, v4_const.x());
+    ASSERT_PRECISION_EQ(6.0_p, v4_const.y());
+    ASSERT_PRECISION_EQ(7.0_p, v4_const.z());
+    ASSERT_PRECISION_EQ(8.0_p, v4_const.w());
+}
+
 TEST(VectorTest, StaticsAndNegation) {
     ASSERT_EQ(3, R3::basis::X.dimensions);
     ASSERT_EQ(3, R3::basis::Y.dimensions);

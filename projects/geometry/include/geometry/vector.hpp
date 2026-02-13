@@ -93,6 +93,50 @@ public:
         return data[idx];
     }
 
+    /// Named accessor for x component (always available for DIM >= 2)
+    constexpr precision& x() noexcept {
+        return data[0];
+    }
+
+    /// Named accessor for x component (const)
+    constexpr precision const& x() const noexcept {
+        return data[0];
+    }
+
+    /// Named accessor for y component (always available for DIM >= 2)
+    constexpr precision& y() noexcept {
+        return data[1];
+    }
+
+    /// Named accessor for y component (const)
+    constexpr precision const& y() const noexcept {
+        return data[1];
+    }
+
+    /// Named accessor for z component (only available for DIM >= 3)
+    template <size_t D = DIM, typename = std::enable_if_t<D >= 3>>
+    constexpr precision& z() noexcept {
+        return data[2];
+    }
+
+    /// Named accessor for z component (const, only available for DIM >= 3)
+    template <size_t D = DIM, typename = std::enable_if_t<D >= 3>>
+    constexpr precision const& z() const noexcept {
+        return data[2];
+    }
+
+    /// Named accessor for w component (only available for DIM >= 4)
+    template <size_t D = DIM, typename = std::enable_if_t<D >= 4>>
+    constexpr precision& w() noexcept {
+        return data[3];
+    }
+
+    /// Named accessor for w component (const, only available for DIM >= 4)
+    template <size_t D = DIM, typename = std::enable_if_t<D >= 4>>
+    constexpr precision const& w() const noexcept {
+        return data[3];
+    }
+
     /// Determines if the vector's components are all zero
     inline bool is_zero(void) const {
         for (size_t i = 0; i < dimensions; i++) {

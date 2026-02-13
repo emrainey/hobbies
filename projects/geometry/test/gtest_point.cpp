@@ -66,8 +66,8 @@ TEST(PointTest, InitializerListConstructor) {
 TEST(PointTest, CopyConstructorToWrapper) {
     {
         R2::point p1{{1, 2}};  // list initializer
-        R2::point p2{p1};     // copy constructor from base
-        R2::point p3{p2};     // copy constructor from wrapper
+        R2::point p2{p1};      // copy constructor from base
+        R2::point p3{p2};      // copy constructor from wrapper
 
         ASSERT_PRECISION_EQ(2, p2.dimensions);
         ASSERT_PRECISION_EQ(1, p3.x());
@@ -75,8 +75,8 @@ TEST(PointTest, CopyConstructorToWrapper) {
     }
     {
         R3::point p1{{1, 2, 3}};  // list initializer
-        R3::point p2{p1};        // copy constructor from base
-        R3::point p3{p2};        // copy constructor from wrapper
+        R3::point p2{p1};         // copy constructor from base
+        R3::point p3{p2};         // copy constructor from wrapper
 
         ASSERT_PRECISION_EQ(3, p3.dimensions);
         ASSERT_PRECISION_EQ(1, p3.x());
@@ -85,8 +85,8 @@ TEST(PointTest, CopyConstructorToWrapper) {
     }
     {
         R4::point p1{{1, 2, 3, 4}};  // list initializer
-        R4::point p2{p1};           // copy constructor from base
-        R4::point p3{p2};           // copy constructor from wrapper
+        R4::point p2{p1};            // copy constructor from base
+        R4::point p3{p2};            // copy constructor from wrapper
 
         ASSERT_PRECISION_EQ(4, p3.dimensions);
         ASSERT_PRECISION_EQ(1, p3.x());
@@ -99,7 +99,7 @@ TEST(PointTest, CopyConstructorToWrapper) {
 TEST(PointTest, Assignments) {
     R3::point p1{{1, 2, 3}};
     R3::point p2;  // default constructor
-    p2 = p1;      // copy
+    p2 = p1;       // copy
     ASSERT_PRECISION_EQ(p1[0], p2[0]);
     ASSERT_PRECISION_EQ(p1[1], p2[1]);
     ASSERT_PRECISION_EQ(p1[2], p2[2]);

@@ -14,17 +14,26 @@ namespace geometry {
 /// A N-dimensional point in space
 template <size_t DIMS>
 class point_ : public basal::printable {
-protected:
-    /// The storage of the data
-    precision m_data[DIMS];
-
 public:
-    /// The dimensionality of the point
+public:
+    static_assert(2 <= DIMS and DIMS <= 4, "Must have between (inclusive) 2 and 4 dimensions");
+
+    /// The dimensionality of the vector
     constexpr static size_t const dimensions{DIMS};
 
+    /// Determines if the point should be sorted by distance
+    /// Used in @ref operator< for sorting in std::set and std::map
     constexpr static bool use_distance_sort{false};
+
+    /// Determines if the point should be sorted lexically (by x, then y, then z, then w)
+    /// Used in @ref operator< for sorting in std::set and std::map
     constexpr static bool use_lexical_sort{true};
 
+protected:
+    // the data type array (prealigned for optimizations with SIMD instructions)
+    alignas(16) precision data_[dimensions];
+
+public:
     /// Default
     point_();
 
@@ -87,49 +96,49 @@ public:
     /// Named accessor for x component (always available for DIMS >= 2)
     constexpr precision& x() noexcept {
         static_assert(DIMS >= 2, "x() requires at least 2 dimensions");
-        return m_data[0];
+        return data_[0];
     }
 
     /// Named accessor for x component (const)
     constexpr precision const& x() const noexcept {
         static_assert(DIMS >= 2, "x() requires at least 2 dimensions");
-        return m_data[0];
+        return data_[0];
     }
 
     /// Named accessor for y component (always available for DIMS >= 2)
     constexpr precision& y() noexcept {
         static_assert(DIMS >= 2, "y() requires at least 2 dimensions");
-        return m_data[1];
+        return data_[1];
     }
 
     /// Named accessor for y component (const)
     constexpr precision const& y() const noexcept {
         static_assert(DIMS >= 2, "y() requires at least 2 dimensions");
-        return m_data[1];
+        return data_[1];
     }
 
     /// Named accessor for z component (only available for DIMS >= 3)
     template <size_t D = DIMS, typename = std::enable_if_t<D >= 3>>
     constexpr precision& z() noexcept {
-        return m_data[2];
+        return data_[2];
     }
 
     /// Named accessor for z component (const, only available for DIMS >= 3)
     template <size_t D = DIMS, typename = std::enable_if_t<D >= 3>>
     constexpr precision const& z() const noexcept {
-        return m_data[2];
+        return data_[2];
     }
 
     /// Named accessor for w component (only available for DIMS >= 4)
     template <size_t D = DIMS, typename = std::enable_if_t<D >= 4>>
     constexpr precision& w() noexcept {
-        return m_data[3];
+        return data_[3];
     }
 
     /// Named accessor for w component (const, only available for DIMS >= 4)
     template <size_t D = DIMS, typename = std::enable_if_t<D >= 4>>
     constexpr precision const& w() const noexcept {
-        return m_data[3];
+        return data_[3];
     }
 
     /// Clears the point_ to zero values
@@ -212,7 +221,6 @@ inline point_<DIMS> operator/(point_<DIMS> const& a, point_<DIMS> const& b) noex
 }  // namespace operators
 }  // namespace pairwise
 
-
 template <size_t DIMS>
 std::ostream& operator<<(std::ostream& os, point_<DIMS> const& p);
 
@@ -220,7 +228,7 @@ std::ostream& operator<<(std::ostream& os, point_<DIMS> const& p);
 template <size_t DIM>
 point_<DIM> as_point(vector_<DIM> const& v);
 
-using geometry::operators::operator<; // This has to be promoted to allow usage in std::set and std::map
+using geometry::operators::operator<;  // This has to be promoted to allow usage in std::set and std::map
 
 namespace R2 {
 using point = point_<2>;

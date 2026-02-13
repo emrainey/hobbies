@@ -14,7 +14,7 @@ point_<DIMS>::point_() {
 template <size_t DIMS>
 point_<DIMS>::point_(precision const a[], size_t len) noexcept(false) {
     for (size_t i = 0; i < dimensions and i < len; i++) {
-        m_data[i] = a[i];
+        data_[i] = a[i];
     }
 }
 
@@ -22,33 +22,33 @@ point_<DIMS>::point_(precision const a[], size_t len) noexcept(false) {
 template <size_t DIMS>
 point_<DIMS>::point_(precision const (&list)[DIMS]) noexcept(false) {
     for (size_t i = 0; i < DIMS; i++) {
-        m_data[i] = list[i];
+        data_[i] = list[i];
     }
 }
 
 /// Copy Constructor
 template <size_t DIMS>
 point_<DIMS>::point_(point_<DIMS> const& other) : point_{} {
-    memcpy(m_data, other.m_data, sizeof(precision) * dimensions);
+    memcpy(data_, other.data_, sizeof(precision) * dimensions);
 }
 
 /// Move Constructor
 template <size_t DIMS>
-point_<DIMS>::point_(point_<DIMS>&& other) : m_data{} {
-    memcpy(m_data, other.m_data, sizeof(precision) * dimensions);
+point_<DIMS>::point_(point_<DIMS>&& other) : data_{} {
+    memcpy(data_, other.data_, sizeof(precision) * dimensions);
 }
 
 /// Copy Assignment
 template <size_t DIMS>
 point_<DIMS>& point_<DIMS>::operator=(point_<DIMS> const& other) {
-    memcpy(m_data, other.m_data, sizeof(precision) * dimensions);
+    memcpy(data_, other.data_, sizeof(precision) * dimensions);
     return (*this);
 }
 
 /// Move Assignment
 template <size_t DIMS>
 point_<DIMS>& point_<DIMS>::operator=(point_<DIMS>&& other) {
-    std::copy_n(other.m_data, other.dimensions, m_data);
+    std::copy_n(other.data_, other.dimensions, data_);
     return (*this);
 }
 
@@ -56,63 +56,63 @@ point_<DIMS>& point_<DIMS>::operator=(point_<DIMS>&& other) {
 template <size_t DIMS>
 template <size_t D, typename>
 point_<DIMS>::point_(precision a, precision b) : point_{} {
-    m_data[0] = a;
-    m_data[1] = b;
+    data_[0] = a;
+    data_[1] = b;
 }
 
 /// Constructor with 3 parameters (enabled for DIMS == 3)
 template <size_t DIMS>
 template <size_t D, typename>
 point_<DIMS>::point_(precision a, precision b, precision c) : point_{} {
-    m_data[0] = a;
-    m_data[1] = b;
-    m_data[2] = c;
+    data_[0] = a;
+    data_[1] = b;
+    data_[2] = c;
 }
 
 /// Constructor with 4 parameters (enabled for DIMS == 4)
 template <size_t DIMS>
 template <size_t D, typename>
 point_<DIMS>::point_(precision a, precision b, precision c, precision d) : point_{} {
-    m_data[0] = a;
-    m_data[1] = b;
-    m_data[2] = c;
-    m_data[3] = d;
+    data_[0] = a;
+    data_[1] = b;
+    data_[2] = c;
+    data_[3] = d;
 }
 
 /// Homogenizing constructor from 2D to 3D with z=1
 template <size_t DIMS>
 template <size_t D, typename>
 point_<DIMS>::point_(point_<2> const& p) : point_{} {
-    m_data[0] = p.x();
-    m_data[1] = p.y();
-    m_data[2] = 1.0_p;
+    data_[0] = p.x();
+    data_[1] = p.y();
+    data_[2] = 1.0_p;
 }
 
 /// Homogenizing constructor from 3D to 4D with w=1
 template <size_t DIMS>
 template <size_t D, typename>
 point_<DIMS>::point_(point_<3> const& p) : point_{} {
-    m_data[0] = p.x();
-    m_data[1] = p.y();
-    m_data[2] = p.z();
-    m_data[3] = 1.0_p;
+    data_[0] = p.x();
+    data_[1] = p.y();
+    data_[2] = p.z();
+    data_[3] = 1.0_p;
 }
 
 /// Indexer
 template <size_t DIMS>
 precision& point_<DIMS>::operator[](size_t i) {
-    return m_data[i];
+    return data_[i];
 }
 
 template <size_t DIMS>
 precision point_<DIMS>::operator[](size_t i) const {
-    return m_data[i];
+    return data_[i];
 }
 
 template <size_t DIMS>
 void point_<DIMS>::zero(void) {
     for (size_t r = 0; r < dimensions; r++) {
-        m_data[r] = 0.0_p;
+        data_[r] = 0.0_p;
     }
 }
 
@@ -134,7 +134,7 @@ std::ostream& operator<<(std::ostream& os, point_<DIMS> const& p) {
 template <size_t DIMS>
 point_<DIMS>& point_<DIMS>::operator*=(precision s) {
     for (size_t i = 0; i < dimensions; i++) {
-        m_data[i] *= s;
+        data_[i] *= s;
     }
     return (*this);
 }
@@ -142,7 +142,7 @@ point_<DIMS>& point_<DIMS>::operator*=(precision s) {
 template <size_t DIMS>
 point_<DIMS>& point_<DIMS>::operator+=(vector_<DIMS> const& a) noexcept(false) {
     for (size_t i = 0; i < DIMS; i++) {
-        m_data[i] += a[i];
+        data_[i] += a[i];
     };
     return (*this);
 }
@@ -150,7 +150,7 @@ point_<DIMS>& point_<DIMS>::operator+=(vector_<DIMS> const& a) noexcept(false) {
 template <size_t DIMS>
 point_<DIMS>& point_<DIMS>::operator-=(vector_<DIMS> const& a) noexcept(false) {
     for (size_t i = 0; i < DIMS; i++) {
-        m_data[i] -= a[i];
+        data_[i] -= a[i];
     };
     return (*this);
 }
@@ -243,7 +243,6 @@ point_<DIMS> operator-(point_<DIMS> const& a, const vector_<DIMS>& b) noexcept(f
     c -= b;
     return c;
 }
-
 
 }  // namespace operators
 

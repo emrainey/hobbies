@@ -155,7 +155,7 @@ TEST(MappingTests, CartesianToPolarTest) {
         std::make_tuple(geometry::R2::point(0.0, 1.0), geometry::R2::point(1.0, iso::pi / 2)),
         std::make_tuple(geometry::R2::point(-1.0, 0.0), geometry::R2::point(1.0, iso::pi)),
         std::make_tuple(geometry::R2::point(0.0, -1.0), geometry::R2::point(1.0, -iso::pi / 2)),
-};
+    };
     for (auto& params : combos) {
         geometry::R2::point cartesian = std::get<0>(params);
         geometry::R2::point polar = std::get<1>(params);

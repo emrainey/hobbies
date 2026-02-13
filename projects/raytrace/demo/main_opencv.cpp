@@ -16,6 +16,7 @@
 #include "world.hpp"
 
 using namespace std::placeholders;
+using namespace geometry::operators;
 
 struct Parameters {
     std::string dim_name;

@@ -23,6 +23,7 @@
 
 using namespace std::placeholders;
 using namespace basal::literals;
+using namespace geometry::operators;
 
 struct Parameters {
     std::string dim_name;

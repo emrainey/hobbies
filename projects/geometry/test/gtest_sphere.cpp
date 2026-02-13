@@ -24,11 +24,11 @@ TEST(SphereTest, ConstructorsAndAssigns) {
 
 TEST(SphereTest, Contains) {
     R3::sphere s1{5};
-    point inside{{1, 1, 1}};
+    R3::point inside{{1, 1, 1}};
     ASSERT_TRUE(s1.contains(inside));
-    point outside{{10, 70, 400}};
+    R3::point outside{{10, 70, 400}};
     ASSERT_FALSE(s1.contains(outside));
-    point surface{{5, 0, 0}};
+    R3::point surface{{5, 0, 0}};
     ASSERT_TRUE(s1.contains(surface));
     ASSERT_FALSE(s1.on_surface(inside));
     ASSERT_FALSE(s1.on_surface(outside));
@@ -52,24 +52,24 @@ TEST(SphereTest, Normals) {
 TEST(SphereTest, CartesianToPolar) {
     precision radius = 1.0_p;
     R3::sphere s0{radius};
-    point sp_x = R3::origin + R3::basis::X;
-    point sp_y = R3::origin + R3::basis::Y;
-    point sp_z = R3::origin + R3::basis::Z;
-    point sp__x = R3::origin - R3::basis::X;
+    R3::point sp_x = R3::origin + R3::basis::X;
+    R3::point sp_y = R3::origin + R3::basis::Y;
+    R3::point sp_z = R3::origin + R3::basis::Z;
+    R3::point sp__x = R3::origin - R3::basis::X;
 
-    point p0 = s0.cart_to_polar(sp_x);
-    point p0_{{radius, 0, iso::pi / 2}};
+    R3::point p0 = s0.cart_to_polar(sp_x);
+    R3::point p0_{{radius, 0, iso::pi / 2}};
     ASSERT_POINT_EQ(p0_, p0);
 
-    point p1 = s0.cart_to_polar(sp_y);
-    point p1_{{radius, iso::tau / 4, iso::pi / 2}};
+    R3::point p1 = s0.cart_to_polar(sp_y);
+    R3::point p1_{{radius, iso::tau / 4, iso::pi / 2}};
     ASSERT_POINT_EQ(p1_, p1);
 
-    point p2 = s0.cart_to_polar(sp_z);
-    point p2_{{radius, 0, 0}};
+    R3::point p2 = s0.cart_to_polar(sp_z);
+    R3::point p2_{{radius, 0, 0}};
     ASSERT_POINT_EQ(p2_, p2);
 
-    point p3 = s0.cart_to_polar(sp__x);
-    point p3_{{radius, iso::tau / 2, iso::pi / 2}};
+    R3::point p3 = s0.cart_to_polar(sp__x);
+    R3::point p3_{{radius, iso::tau / 2, iso::pi / 2}};
     ASSERT_POINT_EQ(p3_, p3);
 }

@@ -31,7 +31,7 @@ typedef struct coefficients_t {
     precision z(void) const;
 } coefficients_t;
 
-/// A N-dimensional plane
+/// A 3-dimensional plane
 class plane : public basal::printable {
 protected:
     /// Normal of the plane in normalized form for hessians representations

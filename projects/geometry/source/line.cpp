@@ -8,6 +8,8 @@ namespace geometry {
 
 namespace R3 {
 
+using namespace geometry::operators;
+
 line::line(R3::vector const& ov, R3::point const& op) : m_udir{ov}, m_zero{op} {
     basal::exception::throw_if(m_udir.is_zero(), __FILE__, __LINE__, "Vector can not be zero length");
 }

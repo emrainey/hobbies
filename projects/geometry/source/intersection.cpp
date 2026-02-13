@@ -135,7 +135,7 @@ intersection intersects(R3::line const& l, plane const& P) {
             // e.g. a = 14, b = 27
             tn = 0.0_p - (da / dd);
         }
-        point c = l.solve(tn);
+        R3::point c = l.solve(tn);
         // basal::exception::throw_unless(P.contains(c), __FILE__, __LINE__);
         return intersection(c);
     }

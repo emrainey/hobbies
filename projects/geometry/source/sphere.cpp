@@ -44,8 +44,12 @@ R3::vector sphere::normal_at(R3::point const& object_point) const {
     if constexpr (geometry::check_on_surface) {
         precision r = n.norm();
         if (not basal::nearly_equals(r, radius)) {
-            std::cerr << "Warning: sphere::normal_at() called with point not on surface: " << object_point
-                      << " radius=" << std::setprecision(20) << radius << " r=" << r << std::endl;
+            // TODO this is a warning because the normal can be computed even if the point is not on the surface, but it
+            // will be wrong.
+            if constexpr (geometry::surface_check_debug) {
+                std::cerr << "Warning: sphere::normal_at() called with point not on surface: " << object_point
+                          << " radius=" << std::setprecision(20) << radius << " r=" << r << std::endl;
+            }
             // not on the sphere.
             return R3::null;
         }

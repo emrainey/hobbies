@@ -9,6 +9,7 @@
 #include "raytrace/gtest_helper.hpp"
 
 using namespace raytrace;
+using namespace geometry::operators;
 
 TEST(TreeTest, IndexOf) {
     Bounds bounds{raytrace::point{-70, -42, -99}, raytrace::point{55, 147, 22}};
@@ -177,15 +178,16 @@ static void subspheres(std::vector<raytrace::objects::sphere*>& spheres, raytrac
 
 TEST(TreeTest, AddSubSpheres) {
     using namespace geometry::operators;
+    using geometry::operators::operator<;
     size_t depth = 2;                                          // how many levels of spheres to create
     size_t count = 1 + 26U + basal::exponentiate(26U, depth);  // 1 root + 26^depth sub-spheres
     precision radius = 10.0_p;                                 // radius of the root sphere
-    Bounds bounds{raytrace::point{-1, -1, -1}, raytrace::point{1, 1, 1}};
+    Bounds bounds{raytrace::point{-1.0_p, -1.0_p, -1.0_p}, raytrace::point{1.0_p, 1.0_p, 1.0_p}};
 
     std::vector<raytrace::objects::sphere*> spheres;
     spheres.push_back(new raytrace::objects::sphere(R3::origin, radius));  // add the root sphere
     subspheres(spheres, R3::origin, radius, depth);                        // create a bunch of spheres
-    // assert that each sphere is in a unqiue location
+    // assert that each sphere is in a unique location
     std::set<raytrace::point> unique_positions;
     size_t index = 0U;
     for (auto const* obj : spheres) {

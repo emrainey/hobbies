@@ -5,7 +5,7 @@ namespace objects {
 
 face::face(point const& A, point const& B, point const& C)
     : polygon({A, B, C})
-    , m_texture_coords{image::point{1, 0}, image::point{0, 0}, image::point{0, 1}}
+    , m_texture_coords{image::point{1.0_p, 0.0_p}, image::point{0.0_p, 0.0_p}, image::point{0.0_p, 1.0_p}}
     , m_normals{polygon<3>::normal_(R3::origin), polygon<3>::normal_(R3::origin), polygon<3>::normal_(R3::origin)} {
     m_type = Type::Face;
 }

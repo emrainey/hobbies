@@ -11,13 +11,13 @@ Node::Node(Bounds const& bounds) : bounds_(bounds), has_subnodes_{false}, object
 size_t Node::IndexOf(raytrace::point const& point) const {
     size_t index = 0;
     raytrace::point const& middle = bounds_.center();
-    if (point.x > middle.x) {
+    if (point.x() > middle.x()) {
         index |= 4;
     }
-    if (point.y > middle.y) {
+    if (point.y() > middle.y()) {
         index |= 2;
     }
-    if (point.z > middle.z) {
+    if (point.z() > middle.z()) {
         index |= 1;
     }
     return index;

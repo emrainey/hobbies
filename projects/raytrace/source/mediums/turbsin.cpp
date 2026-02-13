@@ -26,13 +26,13 @@ color turbsin::diffuse(raytrace::point const& volumetric_point) const {
     if (m_reducing_map) {
         image::point pnt = m_reducing_map(volumetric_point);
         // the reduced map may be normal space (0 - 1) and may need some stretching to look good
-        pnt.x *= m_2dscale;
-        pnt.y *= m_2dscale;
+        pnt.x() *= m_2dscale;
+        pnt.y() *= m_2dscale;
         precision alpha = noise::turbulentsin(pnt, m_xs, m_ys, m_power, m_size, m_scale, m_pad);
         return interpolate(m_light, m_dark, alpha);
     } else {
         // FIXME implement a real volumetric turbulentsin noise function.
-        image::point pnt(volumetric_point.x, volumetric_point.y);
+        image::point pnt(volumetric_point.x(), volumetric_point.y());
         precision alpha = noise::turbulentsin(pnt, m_xs, m_ys, m_power, m_size, m_scale, m_pad);
         return interpolate(m_light, m_dark, alpha);
     }

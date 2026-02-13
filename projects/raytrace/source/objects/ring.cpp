@@ -48,8 +48,8 @@ hits ring::collisions_along(ray const& object_ray) const {
 
 bool ring::is_surface_point(point const& world_point) const {
     point object_point = reverse_transform(world_point);
-    precision x = object_point.x;
-    precision y = object_point.y;
+    precision x = object_point.x();
+    precision y = object_point.y();
     precision dd = x * x + y * y;
     return m_inner_radius2 <= dd and dd <= m_outer_radius2;
 }

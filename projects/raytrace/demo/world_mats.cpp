@@ -20,7 +20,8 @@ static_assert(number_of_spheres_per_side % 2 == 1, "number_of_spheres_per_side m
 class MaterialWorld : public world {
 public:
     MaterialWorld()
-        : world{raytrace::point{0, -20, 80}, raytrace::point{0, 0, 0}, "Plain Materials Smooth vs Rough", "world_mats.tga"}
+        : world{raytrace::point{0, -20, 80}, raytrace::point{0, 0, 0}, "Plain Materials Smooth vs Rough",
+                "world_mats.tga"}
         , number_of_spheres{number_of_spheres_per_side * number_of_spheres_per_side}
         , brightness{lights::intensities::moderate}
         , spheres{}
@@ -90,8 +91,8 @@ public:
     raytrace::animation::anchors get_anchors() const override {
         raytrace::animation::anchors anchors;
         anchors.push_back(animation::Anchor{animation::Attributes{looking_from(), looking_at(), iso::degrees{55.0_p}},
-                                animation::Attributes{looking_from(), looking_at(), iso::degrees{55.0_p}},
-                                animation::Mappers{}, iso::seconds{1.0_p}});
+                                            animation::Attributes{looking_from(), looking_at(), iso::degrees{55.0_p}},
+                                            animation::Mappers{}, iso::seconds{1.0_p}});
         return anchors;
     }
 

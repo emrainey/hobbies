@@ -174,12 +174,13 @@ public:
 
     raytrace::animation::anchors get_anchors() const override {
         raytrace::animation::anchors anchors;
-        anchors.push_back(animation::Anchor{animation::Attributes{looking_from(), looking_at(), 35.0_deg},
-                                            animation::Attributes{raytrace::point{20, 14, 5.5_p}, looking_at(), 35.0_deg},
-                                            animation::Mappers{}, iso::seconds{5.0_p}});
+        anchors.push_back(
+            animation::Anchor{animation::Attributes{looking_from(), looking_at(), 35.0_deg},
+                              animation::Attributes{raytrace::point{20, 14, 5.5_p}, looking_at(), 35.0_deg},
+                              animation::Mappers{}, iso::seconds{5.0_p}});
         anchors.push_back(animation::Anchor{anchors.back().limit,  // previous limit is this start
-                                            animation::Attributes{looking_from(), looking_at(), 35.0_deg}, animation::Mappers{},
-                                            iso::seconds{5.0_p}});
+                                            animation::Attributes{looking_from(), looking_at(), 35.0_deg},
+                                            animation::Mappers{}, iso::seconds{5.0_p}});
         return anchors;
     }
 

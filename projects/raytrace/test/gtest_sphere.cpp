@@ -53,8 +53,8 @@ TEST(SphereTest, Mapping) {
     static_assert(dimof_sp == dimof_uv, "Must be equal");
     for (size_t i = 0; i < dimof_uv; i++) {
         image::point uv_map = s0.map(surface_points[i]);
-        printf("UV Map for Surface Point %zu: (%f, %f)\n", i, uv_map.x, uv_map.y);
-        printf("Expected UV Map: (%f, %f)\n", uv_points_truth[i].x, uv_points_truth[i].y);
+        printf("UV Map for Surface Point %zu: (%f, %f)\n", i, uv_map.x(), uv_map.y());
+        printf("Expected UV Map: (%f, %f)\n", uv_points_truth[i].x(), uv_points_truth[i].y());
         EXPECT_IMAGE_POINT_EQ(uv_points_truth[i], uv_map);
     }
 }

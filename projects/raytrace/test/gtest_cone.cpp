@@ -90,24 +90,24 @@ TEST(ConeTest, Mapping) {
     raytrace::point p0{1, 0, 0};
     image::point uv0(0.5_p, 0.5_p);
     image::point tmp0 = cyl1.map(p0);
-    ASSERT_NEAR(uv0.x, tmp0.x, basal::epsilon);
-    ASSERT_NEAR(uv0.y, tmp0.y, basal::epsilon);
+    ASSERT_NEAR(uv0.x(), tmp0.x(), basal::epsilon);
+    ASSERT_NEAR(uv0.y(), tmp0.y(), basal::epsilon);
 
     raytrace::point p1{-1, 0, h2};
     image::point uv1(0.0_p, 0.0_p);
     image::point tmp1 = cyl1.map(p1);
-    ASSERT_NEAR(uv1.x, tmp1.x, basal::epsilon);
-    ASSERT_NEAR(uv1.y, tmp1.y, basal::epsilon);
+    ASSERT_NEAR(uv1.x(), tmp1.x(), basal::epsilon);
+    ASSERT_NEAR(uv1.y(), tmp1.y(), basal::epsilon);
 
     raytrace::point p2{-1, 0, -h2};
     image::point uv2(1.0_p, 0.0_p);
     image::point tmp2 = cyl1.map(p2);
-    ASSERT_NEAR(uv2.x, tmp2.x, basal::epsilon);
-    ASSERT_NEAR(uv2.y, tmp2.y, basal::epsilon);
+    ASSERT_NEAR(uv2.x(), tmp2.x(), basal::epsilon);
+    ASSERT_NEAR(uv2.y(), tmp2.y(), basal::epsilon);
 
     raytrace::point p3{0, -1, -h2};
     image::point uv3(1.0_p, 0.75_p);
     image::point tmp3 = cyl1.map(p3);
-    ASSERT_NEAR(uv3.x, tmp3.x, basal::epsilon);
-    ASSERT_NEAR(uv3.y, tmp3.y, basal::epsilon);
+    ASSERT_NEAR(uv3.x(), tmp3.x(), basal::epsilon);
+    ASSERT_NEAR(uv3.y(), tmp3.y(), basal::epsilon);
 }

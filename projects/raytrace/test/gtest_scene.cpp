@@ -97,10 +97,11 @@ public:
     raytrace::color emissive(raytrace::point const& volumetric_point __attribute__((unused))) const override {
         return m_emissive_color;
     }
+
 protected:
     raytrace::color m_emissive_color;
 };
-}
+}  // namespace raytrace::mediums
 
 TEST(SceneTest, GlowingMaterialEmitsLight) {
     using namespace raytrace;
@@ -130,7 +131,8 @@ TEST(SceneTest, GlowingMaterialEmitsLight) {
     objects::hit nearest = test_scene.nearest_object(test_ray, intersections);
 
     // Get the emitted light color from the intersection point
-    raytrace::color emitted_light = test_scene.emissive_light(0.75_p, emissive_material, raytrace::as_point(nearest.intersect));
+    raytrace::color emitted_light
+        = test_scene.emissive_light(0.75_p, emissive_material, raytrace::as_point(nearest.intersect));
 
     std::cout << "Emitted Light Color: " << emitted_light << std::endl;
 
@@ -164,7 +166,8 @@ TEST(SceneTest, NonEmissiveMaterialDoesNotEmitLight) {
     raytrace::objects::hit nearest = test_scene.nearest_object(test_ray, intersections);
 
     // Get the emitted light (should be black/none)
-    raytrace::color emitted_light = test_scene.emissive_light(0.75_p, mediums::metals::stainless, as_point(nearest.intersect));
+    raytrace::color emitted_light
+        = test_scene.emissive_light(0.75_p, mediums::metals::stainless, as_point(nearest.intersect));
 
     // Verify that no light is emitted (black color)
     ASSERT_PRECISION_EQ(0.0_p, emitted_light.red());
@@ -197,7 +200,8 @@ TEST(SceneTest, MultipleEmissiveObjectsContributeLight) {
     ASSERT_GT(red_intersections.size(), 0);
 
     raytrace::objects::hit red_nearest = test_scene.nearest_object(red_ray, red_intersections);
-    raytrace::color red_emitted = test_scene.emissive_light(0.625_p, red_emissive, raytrace::as_point(red_nearest.intersect));
+    raytrace::color red_emitted
+        = test_scene.emissive_light(0.625_p, red_emissive, raytrace::as_point(red_nearest.intersect));
 
     // Verify red light emission
     ASSERT_PRECISION_EQ(0.625_p, red_emitted.red());
@@ -210,7 +214,8 @@ TEST(SceneTest, MultipleEmissiveObjectsContributeLight) {
     ASSERT_GT(blue_intersections.size(), 0);
 
     raytrace::objects::hit blue_nearest = test_scene.nearest_object(blue_ray, blue_intersections);
-    raytrace::color blue_emitted = test_scene.emissive_light(0.625_p, blue_emissive, raytrace::as_point(blue_nearest.intersect));
+    raytrace::color blue_emitted
+        = test_scene.emissive_light(0.625_p, blue_emissive, raytrace::as_point(blue_nearest.intersect));
 
     // Verify blue light emission
     ASSERT_PRECISION_EQ(0.0_p, blue_emitted.red());

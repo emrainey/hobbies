@@ -16,7 +16,8 @@ using namespace iso::literals;
 class GlassWorld : public world {
 public:
     GlassWorld()
-        : world{raytrace::point{20, 20, 5}, raytrace::point{0, 0, 2.0_p}, "Glass Orb on Checkerboard", "world_glass.tga"}
+        : world{raytrace::point{20, 20, 5}, raytrace::point{0, 0, 2.0_p}, "Glass Orb on Checkerboard",
+                "world_glass.tga"}
         , glass_ball{raytrace::point{0, 0, 5.0_p}, 5.0_p}  //, glass_cube(raytrace::point{0, 10, 2}, 2, 2, 2}
         , toy_ball{raytrace::point{-20, -20, 2.0_p}, 2.0_p}
         , floor{200.0_p}

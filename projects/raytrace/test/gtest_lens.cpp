@@ -55,7 +55,7 @@ TEST(LensTest, Raycast) {
         auto hit = convex_lens.intersect(r);
         EXPECT_EQ(IntersectionType::Point, get_type(hit.intersect));
         // EXPECT_POINT_EQ(raytrace::point(-2, 0, 7), as_point(hit.intersect));
-        EXPECT_LT(-info.bulge, as_point(hit.intersect).x);
+        EXPECT_LT(-info.bulge, as_point(hit.intersect).x());
         EXPECT_LT(-1.0_p, hit.normal[0]);
         EXPECT_LT(0.0_p, hit.normal[2]);
 

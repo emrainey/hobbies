@@ -20,7 +20,7 @@ color perlin::diffuse(raytrace::point const& volumetric_point) const {
         return interpolate(m_dark, m_light, alpha);
     } else {
         // FIXME implement a real volumetric perlin noise function.
-        image::point pnt(volumetric_point.x, volumetric_point.y);
+        image::point pnt(volumetric_point.x(), volumetric_point.y());
         precision alpha = noise::perlin(pnt, m_scale, m_seed, m_gain);
         return interpolate(m_dark, m_light, alpha);
     }

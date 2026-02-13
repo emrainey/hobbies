@@ -17,8 +17,8 @@ pyramid::pyramid(point const& base, precision height) : object(base, 2, Type::Py
 }
 
 vector pyramid::normal_(point const& object_surface_point) const {
-    bool positive_x = (object_surface_point.x > 0.0_p);
-    bool positive_y = (object_surface_point.y > 0.0_p);
+    bool positive_x = (object_surface_point.x() > 0.0_p);
+    bool positive_y = (object_surface_point.y() > 0.0_p);
     precision x = positive_x ? basal::inv_sqrt_3 : -basal::inv_sqrt_3;
     precision y = positive_y ? basal::inv_sqrt_3 : -basal::inv_sqrt_3;
     precision z = basal::inv_sqrt_3;
@@ -33,9 +33,9 @@ inline bool is_positive(precision p, precision d, precision t) {
 hits pyramid::collisions_along(ray const& object_ray) const {
     hits ts;
     precision h = m_height;
-    precision px = object_ray.location().x;
-    precision py = object_ray.location().y;
-    precision pz = object_ray.location().z;
+    precision px = object_ray.location().x();
+    precision py = object_ray.location().y();
+    precision pz = object_ray.location().z();
     precision dx = object_ray.direction()[0];
     precision dy = object_ray.direction()[1];
     precision dz = object_ray.direction()[2];
@@ -91,9 +91,9 @@ hits pyramid::collisions_along(ray const& object_ray) const {
 bool pyramid::is_surface_point(point const& world_point) const {
     // follow z = h - |x| - |y|
     point object_point = reverse_transform(world_point);
-    precision x = object_point.x;
-    precision y = object_point.y;
-    precision z = object_point.z;
+    precision x = object_point.x();
+    precision y = object_point.y();
+    precision z = object_point.z();
     return basal::nearly_equals(z, m_height - std::abs(x) - std::abs(y));
 }
 

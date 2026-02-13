@@ -28,18 +28,18 @@ TEST(StereoCameraTest, CodedImageLeftRight) {
     first.capture.generate_each([&](image::point const& img_point) -> color {
         ray const world_ray = first.cast(img_point);
         raytrace::point const wrp = world_ray.location();  // just copy
-        if (wrp.y > 0) {
-            if (wrp.z > 0) {
+        if (wrp.y() > 0) {
+            if (wrp.z() > 0) {
                 return colors::green;
-            } else if (wrp.z < 0) {
+            } else if (wrp.z() < 0) {
                 return colors::red;
             } else {
                 return colors::pink;
             }
-        } else if (wrp.y < 0) {
-            if (wrp.z > 0) {
+        } else if (wrp.y() < 0) {
+            if (wrp.z() > 0) {
                 return colors::blue;
-            } else if (wrp.z < 0) {
+            } else if (wrp.z() < 0) {
                 return colors::black;
             } else {
                 return colors::pink;
@@ -52,18 +52,18 @@ TEST(StereoCameraTest, CodedImageLeftRight) {
     second.capture.generate_each([&](image::point const& img_point) -> color {
         ray const world_ray = second.cast(img_point);
         raytrace::point const wrp = world_ray.location();  // just copy
-        if (wrp.y > 0) {
-            if (wrp.z > 0) {
+        if (wrp.y() > 0) {
+            if (wrp.z() > 0) {
                 return colors::cyan;
-            } else if (wrp.z < 0) {
+            } else if (wrp.z() < 0) {
                 return colors::magenta;
             } else {
                 return colors::pink;
             }
-        } else if (wrp.y < 0) {
-            if (wrp.z > 0) {
+        } else if (wrp.y() < 0) {
+            if (wrp.z() > 0) {
                 return colors::yellow;
-            } else if (wrp.z < 0) {
+            } else if (wrp.z() < 0) {
                 return colors::white;
             } else {
                 return colors::pink;
@@ -93,18 +93,18 @@ TEST(StereoCameraTest, CodedImageTopBottom) {
     first.capture.generate_each([&](image::point const& img_point) -> color {
         ray const world_ray = first.cast(img_point);
         raytrace::point const wrp = world_ray.location();  // just copy
-        if (wrp.y > 0) {
-            if (wrp.z > 0) {
+        if (wrp.y() > 0) {
+            if (wrp.z() > 0) {
                 return colors::green;
-            } else if (wrp.z < 0) {
+            } else if (wrp.z() < 0) {
                 return colors::red;
             } else {
                 return colors::black;
             }
-        } else if (wrp.y < 0) {
-            if (wrp.z > 0) {
+        } else if (wrp.y() < 0) {
+            if (wrp.z() > 0) {
                 return colors::blue;
-            } else if (wrp.z < 0) {
+            } else if (wrp.z() < 0) {
                 return colors::black;
             } else {
                 return colors::black;
@@ -117,18 +117,18 @@ TEST(StereoCameraTest, CodedImageTopBottom) {
     second.capture.generate_each([&](image::point const& img_point) -> color {
         ray const world_ray = second.cast(img_point);
         raytrace::point const wrp = world_ray.location();  // just copy
-        if (wrp.y > 0) {
-            if (wrp.z > 0) {
+        if (wrp.y() > 0) {
+            if (wrp.z() > 0) {
                 return colors::cyan;
-            } else if (wrp.z < 0) {
+            } else if (wrp.z() < 0) {
                 return colors::magenta;
             } else {
                 return colors::black;
             }
-        } else if (wrp.y < 0) {
-            if (wrp.z > 0) {
+        } else if (wrp.y() < 0) {
+            if (wrp.z() > 0) {
                 return colors::yellow;
-            } else if (wrp.z < 0) {
+            } else if (wrp.z() < 0) {
                 return colors::white;
             } else {
                 return colors::black;

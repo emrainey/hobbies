@@ -50,15 +50,15 @@ TEST(NoiseTest, Interpolate) {
 TEST(NoiseTest, FloorTest) {
     noise::point f1{1.7_p, 2.4_p};
     noise::point f2 = noise::floor(f1);
-    ASSERT_PRECISION_EQ(1.0_p, f2.x);
-    ASSERT_PRECISION_EQ(2.0_p, f2.y);
+    ASSERT_PRECISION_EQ(1.0_p, f2.x());
+    ASSERT_PRECISION_EQ(2.0_p, f2.y());
 }
 
 TEST(NoiseTest, FractTest) {
     noise::point f1{1.7_p, 2.4_p};
     noise::point f3 = noise::fract(f1);
-    ASSERT_PRECISION_EQ(0.7_p, f3.x);
-    ASSERT_PRECISION_EQ(0.4_p, f3.y);
+    ASSERT_PRECISION_EQ(0.7_p, f3.x());
+    ASSERT_PRECISION_EQ(0.4_p, f3.y());
 }
 
 TEST(NoiseTest, SeedGenerator) {

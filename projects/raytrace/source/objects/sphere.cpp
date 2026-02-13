@@ -28,9 +28,9 @@ vector sphere::normal_(point const& object_surface_point) const {
 
 hits sphere::collisions_along(ray const& object_ray) const {
     hits ts;
-    precision px = object_ray.location().x;
-    precision py = object_ray.location().y;
-    precision pz = object_ray.location().z;
+    precision px = object_ray.location().x();
+    precision py = object_ray.location().y();
+    precision pz = object_ray.location().z();
     precision dx = object_ray.direction()[0];
     precision dy = object_ray.direction()[1];
     precision dz = object_ray.direction()[2];

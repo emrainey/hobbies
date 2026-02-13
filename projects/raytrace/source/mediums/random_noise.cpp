@@ -14,7 +14,7 @@ random_noise::random_noise() : opaque{} {
 
 color random_noise::diffuse(raytrace::point const& volumetric_point) const {
     palette pal;
-    image::point p{volumetric_point.x, volumetric_point.y};
+    image::point p{volumetric_point.x(), volumetric_point.y()};
     return functions::pseudo_random_noise(p, pal);
 }
 

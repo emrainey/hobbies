@@ -33,24 +33,22 @@ class HexaTile {
 public:
     HexaTile(raytrace::point const& P, precision height, raytrace::mediums::medium const* medium)
         : m_height{height}
-        , A{-basal::cos_pi_3 + P.x, basal::sin_pi_3 + P.y, height + P.z}
-        , G{-basal::cos_pi_3 + P.x, basal::sin_pi_3 + P.y, 0.0_p + P.z}
-        , B{basal::cos_pi_3 + P.x, basal::sin_pi_3 + P.y, height + P.z}
-        , H{basal::cos_pi_3 + P.x, basal::sin_pi_3 + P.y, 0.0_p + P.z}
-        , C{1.0_p + P.x, 0.0_p + P.y, height + P.z}
-        , I{1.0_p + P.x, 0.0_p + P.y, 0.0_p + P.z}
-        , D{-1.0_p + P.x, 0.0_p + P.y, height + P.z}
-        , J{-1.0_p + P.x, 0.0_p + P.y, 0.0_p + P.z}
-        , E{-basal::cos_pi_3 + P.x, -basal::sin_pi_3 + P.y, height + P.z}
-        , K{-basal::cos_pi_3 + P.x, -basal::sin_pi_3 + P.y, 0.0_p + P.z}
-        , F{basal::cos_pi_3 + P.x, -basal::sin_pi_3 + P.y, height + P.z}
-        , L{basal::cos_pi_3 + P.x, -basal::sin_pi_3 + P.y, 0.0_p + P.z}
-        //--- TOP
+        , A{-basal::cos_pi_3 + P.x(), basal::sin_pi_3 + P.y(), height + P.z()}
+        , G{-basal::cos_pi_3 + P.x(), basal::sin_pi_3 + P.y(), 0.0_p + P.z()}
+        , B{basal::cos_pi_3 + P.x(), basal::sin_pi_3 + P.y(), height + P.z()}
+        , H{basal::cos_pi_3 + P.x(), basal::sin_pi_3 + P.y(), 0.0_p + P.z()}
+        , C{1.0_p + P.x(), 0.0_p + P.y(), height + P.z()}
+        , I{1.0_p + P.x(), 0.0_p + P.y(), 0.0_p + P.z()}
+        , D{-1.0_p + P.x(), 0.0_p + P.y(), height + P.z()}
+        , J{-1.0_p + P.x(), 0.0_p + P.y(), 0.0_p + P.z()}
+        , E{-basal::cos_pi_3 + P.x(), -basal::sin_pi_3 + P.y(), height + P.z()}
+        , K{-basal::cos_pi_3 + P.x(), -basal::sin_pi_3 + P.y(), 0.0_p + P.z()}
+        , F{basal::cos_pi_3 + P.x(), -basal::sin_pi_3 + P.y(), height + P.z()}
+        , L{basal::cos_pi_3 + P.x(), -basal::sin_pi_3 + P.y(), 0.0_p + P.z()}  //--- TOP
         , ABC{A, B, C}
         , ACD{A, C, D}
         , DCF{D, C, F}
-        , DFE{D, F, E}
-        //--- SIDES
+        , DFE{D, F, E}  //--- SIDES
         , BAG{B, A, G}
         , GHB{G, H, B}
         , DAJ{D, A, J}
@@ -62,14 +60,12 @@ public:
         , FCI{F, C, I}
         , ILF{I, L, F}
         , CBH{C, B, H}
-        , HIC{H, I, C}
-        //--- BOTTOM
+        , HIC{H, I, C}  //--- BOTTOM
         , GJH{G, J, H}
         , HJI{H, J, I}
         , IJK{I, J, K}
         , KLI{K, L, I}
-        , group{P}
-    {
+        , group{P} {
         group.add_object(&ABC);
         group.add_object(&ACD);
         group.add_object(&DCF);
@@ -98,7 +94,7 @@ public:
     }
 
 protected:
-    precision m_height; ///< height of the column.
+    precision m_height;  ///< height of the column.
     raytrace::point A, G;
     raytrace::point B, H;
     raytrace::point C, I;
@@ -135,18 +131,26 @@ protected:
 class HexagonalWorld : public world {
 public:
     HexagonalWorld()
-        : world{raytrace::point{0.0_p, -10.0_p, 15.0_p}, raytrace::point{0.0_p, 0.0_p, 4.0_p}, "Hexagonal World", "world_hexagon.tga"}
+        : world{raytrace::point{0.0_p, -10.0_p, 15.0_p}, raytrace::point{0.0_p, 0.0_p, 4.0_p}, "Hexagonal World",
+                "world_hexagon.tga"}
         , specks{}
         , hexagons{} {
         raytrace::point center = R3::origin;
         // there are 6 hexagons in the first ring around the center
-        hexagons.push_back(new HexaTile{raytrace::point{0.0_p, 0.0_p, 0.0_p}, 3.5_p, &raytrace::mediums::metals::bronze});
-        hexagons.push_back(new HexaTile{raytrace::point{1.5_p, basal::sin_pi_3, 0.0_p}, 3.9_p, &raytrace::mediums::metals::bronze});
-        hexagons.push_back(new HexaTile{raytrace::point{0.0_p, 2.0_p * basal::sin_pi_3, 0.0_p}, 4.1_p, &raytrace::mediums::metals::bronze});
-        hexagons.push_back(new HexaTile{raytrace::point{-1.5_p, basal::sin_pi_3, 0.0_p}, 4.3_p, &raytrace::mediums::metals::bronze});
-        hexagons.push_back(new HexaTile{raytrace::point{-1.5_p, -basal::sin_pi_3, 0.0_p}, 4.0_p, &raytrace::mediums::metals::bronze});
-        hexagons.push_back(new HexaTile{raytrace::point{0.0_p, -2.0_p * basal::sin_pi_3, 0.0_p}, 4.2_p, &raytrace::mediums::metals::bronze});
-        hexagons.push_back(new HexaTile{raytrace::point{1.5_p, -basal::sin_pi_3, 0.0_p}, 3.7_p, &raytrace::mediums::metals::bronze});
+        hexagons.push_back(
+            new HexaTile{raytrace::point{0.0_p, 0.0_p, 0.0_p}, 3.5_p, &raytrace::mediums::metals::bronze});
+        hexagons.push_back(
+            new HexaTile{raytrace::point{1.5_p, basal::sin_pi_3, 0.0_p}, 3.9_p, &raytrace::mediums::metals::bronze});
+        hexagons.push_back(new HexaTile{raytrace::point{0.0_p, 2.0_p * basal::sin_pi_3, 0.0_p}, 4.1_p,
+                                        &raytrace::mediums::metals::bronze});
+        hexagons.push_back(
+            new HexaTile{raytrace::point{-1.5_p, basal::sin_pi_3, 0.0_p}, 4.3_p, &raytrace::mediums::metals::bronze});
+        hexagons.push_back(
+            new HexaTile{raytrace::point{-1.5_p, -basal::sin_pi_3, 0.0_p}, 4.0_p, &raytrace::mediums::metals::bronze});
+        hexagons.push_back(new HexaTile{raytrace::point{0.0_p, -2.0_p * basal::sin_pi_3, 0.0_p}, 4.2_p,
+                                        &raytrace::mediums::metals::bronze});
+        hexagons.push_back(
+            new HexaTile{raytrace::point{1.5_p, -basal::sin_pi_3, 0.0_p}, 3.7_p, &raytrace::mediums::metals::bronze});
 
         specks.push_back(new lights::speck(raytrace::point{+6, +6, 9}, colors::white, lights::intensities::intense));
         specks.push_back(new lights::speck(raytrace::point{-6, +6, 9}, colors::white, lights::intensities::intense));
@@ -176,8 +180,8 @@ public:
     raytrace::animation::anchors get_anchors() const override {
         raytrace::animation::anchors anchors;
         anchors.push_back(animation::Anchor{animation::Attributes{looking_from(), looking_at(), 55.0_deg},
-                                            animation::Attributes{looking_from(), looking_at(), 55.0_deg}, animation::Mappers{},
-                                            iso::seconds{1.0_p}});
+                                            animation::Attributes{looking_from(), looking_at(), 55.0_deg},
+                                            animation::Mappers{}, iso::seconds{1.0_p}});
         return anchors;
     }
 

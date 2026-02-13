@@ -148,7 +148,7 @@ image::point polygon<N>::map(point const& object_surface_point) const {
     vector k = cross(i, j);
     R3::axes a{position(), i, j, k};
     R3::point b = a.to_basis() * object_surface_point;
-    R2::point uv{b.x, b.y};
+    R2::point uv{b.x(), b.y()};
     return uv;
 }
 

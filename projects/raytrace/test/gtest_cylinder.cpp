@@ -134,36 +134,36 @@ TEST(CylinderTest, Mapping) {
                 raytrace::point p{r, 0, 0};
                 image::point uv(0.5_p, 0.5_p);
                 image::point tmp = cyl1.map(p);
-                ASSERT_NEAR(uv.x, tmp.x, basal::epsilon);
-                ASSERT_NEAR(uv.y, tmp.y, basal::epsilon);
+                ASSERT_NEAR(uv.x(), tmp.x(), basal::epsilon);
+                ASSERT_NEAR(uv.y(), tmp.y(), basal::epsilon);
             }
             {
                 raytrace::point p{-r, 0, h2};
                 image::point uv(0.0_p, 0.0_p);
                 image::point tmp = cyl1.map(p);
-                ASSERT_NEAR(uv.x, tmp.x, basal::epsilon);
-                ASSERT_NEAR(uv.y, tmp.y, basal::epsilon);
+                ASSERT_NEAR(uv.x(), tmp.x(), basal::epsilon);
+                ASSERT_NEAR(uv.y(), tmp.y(), basal::epsilon);
             }
             {
                 raytrace::point p{-r, 0, -h2};
                 image::point uv(1.0_p, 0.0_p);
                 image::point tmp = cyl1.map(p);
-                ASSERT_NEAR(uv.x, tmp.x, basal::epsilon);
-                ASSERT_NEAR(uv.y, tmp.y, basal::epsilon);
+                ASSERT_NEAR(uv.x(), tmp.x(), basal::epsilon);
+                ASSERT_NEAR(uv.y(), tmp.y(), basal::epsilon);
             }
             {
                 raytrace::point p{0, r, -h2};
                 image::point uv(1.0_p, 0.25_p);
                 image::point tmp = cyl1.map(p);
-                ASSERT_NEAR(uv.x, tmp.x, basal::epsilon);
-                ASSERT_NEAR(uv.y, tmp.y, basal::epsilon);
+                ASSERT_NEAR(uv.x(), tmp.x(), basal::epsilon);
+                ASSERT_NEAR(uv.y(), tmp.y(), basal::epsilon);
             }
             {
                 raytrace::point p{0, -r, -h2};
                 image::point uv(1.0_p, 0.75_p);
                 image::point tmp = cyl1.map(p);
-                ASSERT_NEAR(uv.x, tmp.x, basal::epsilon);
-                ASSERT_NEAR(uv.y, tmp.y, basal::epsilon);
+                ASSERT_NEAR(uv.x(), tmp.x(), basal::epsilon);
+                ASSERT_NEAR(uv.y(), tmp.y(), basal::epsilon);
             }
         }
     }

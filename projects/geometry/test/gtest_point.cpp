@@ -31,19 +31,19 @@ TEST(PointTest, ParameterInitializer) {
     R4::point r4p{1, 2, 3, 4};
 
     ASSERT_PRECISION_EQ(2, r2p.dimensions);
-    ASSERT_PRECISION_EQ(1, r2p.x);
-    ASSERT_PRECISION_EQ(2, r2p.y);
+    ASSERT_PRECISION_EQ(1, r2p.x());
+    ASSERT_PRECISION_EQ(2, r2p.y());
 
     ASSERT_PRECISION_EQ(3, r3p.dimensions);
-    ASSERT_PRECISION_EQ(1, r3p.x);
-    ASSERT_PRECISION_EQ(2, r3p.y);
-    ASSERT_PRECISION_EQ(3, r3p.z);
+    ASSERT_PRECISION_EQ(1, r3p.x());
+    ASSERT_PRECISION_EQ(2, r3p.y());
+    ASSERT_PRECISION_EQ(3, r3p.z());
 
     ASSERT_PRECISION_EQ(4, r4p.dimensions);
-    ASSERT_PRECISION_EQ(1, r4p.x);
-    ASSERT_PRECISION_EQ(2, r4p.y);
-    ASSERT_PRECISION_EQ(3, r4p.z);
-    ASSERT_PRECISION_EQ(4, r4p.w);
+    ASSERT_PRECISION_EQ(1, r4p.x());
+    ASSERT_PRECISION_EQ(2, r4p.y());
+    ASSERT_PRECISION_EQ(3, r4p.z());
+    ASSERT_PRECISION_EQ(4, r4p.w());
 }
 
 TEST(PointTest, PointerConstructor) {
@@ -70,8 +70,8 @@ TEST(PointTest, CopyConstructorToWrapper) {
         R2::point p3{p2};     // copy constructor from wrapper
 
         ASSERT_PRECISION_EQ(2, p2.dimensions);
-        ASSERT_PRECISION_EQ(1, p3.x);
-        ASSERT_PRECISION_EQ(2, p3.y);
+        ASSERT_PRECISION_EQ(1, p3.x());
+        ASSERT_PRECISION_EQ(2, p3.y());
     }
     {
         point<3> p1{{1, 2, 3}};  // list initializer
@@ -79,9 +79,9 @@ TEST(PointTest, CopyConstructorToWrapper) {
         R3::point p3{p2};        // copy constructor from wrapper
 
         ASSERT_PRECISION_EQ(3, p3.dimensions);
-        ASSERT_PRECISION_EQ(1, p3.x);
-        ASSERT_PRECISION_EQ(2, p3.y);
-        ASSERT_PRECISION_EQ(3, p3.z);
+        ASSERT_PRECISION_EQ(1, p3.x());
+        ASSERT_PRECISION_EQ(2, p3.y());
+        ASSERT_PRECISION_EQ(3, p3.z());
     }
     {
         point<4> p1{{1, 2, 3, 4}};  // list initializer
@@ -89,10 +89,10 @@ TEST(PointTest, CopyConstructorToWrapper) {
         R4::point p3{p2};           // copy constructor from wrapper
 
         ASSERT_PRECISION_EQ(4, p3.dimensions);
-        ASSERT_PRECISION_EQ(1, p3.x);
-        ASSERT_PRECISION_EQ(2, p3.y);
-        ASSERT_PRECISION_EQ(3, p3.z);
-        ASSERT_PRECISION_EQ(4, p3.w);
+        ASSERT_PRECISION_EQ(1, p3.x());
+        ASSERT_PRECISION_EQ(2, p3.y());
+        ASSERT_PRECISION_EQ(3, p3.z());
+        ASSERT_PRECISION_EQ(4, p3.w());
     }
 }
 
@@ -111,13 +111,13 @@ TEST(PointTest, Assignments) {
     R3::point p4{1, 2, 3};
     R3::point p5;
     p5 = p4;
-    ASSERT_PRECISION_EQ(p4.x, p5.x);
-    ASSERT_PRECISION_EQ(p4.y, p5.y);
-    ASSERT_PRECISION_EQ(p4.z, p5.z);
+    ASSERT_PRECISION_EQ(p4.x(), p5.x());
+    ASSERT_PRECISION_EQ(p4.y(), p5.y());
+    ASSERT_PRECISION_EQ(p4.z(), p5.z());
     R3::point p6{std::move(p5)};
-    ASSERT_PRECISION_EQ(p4.x, p6.x);
-    ASSERT_PRECISION_EQ(p4.y, p6.y);
-    ASSERT_PRECISION_EQ(p4.z, p6.z);
+    ASSERT_PRECISION_EQ(p4.x(), p6.x());
+    ASSERT_PRECISION_EQ(p4.y(), p6.y());
+    ASSERT_PRECISION_EQ(p4.z(), p6.z());
 }
 
 TEST(PointTest, ClassOperators) {
@@ -126,9 +126,9 @@ TEST(PointTest, ClassOperators) {
     R3::point p3{5, 7, 9};
 
     p1 += p2;
-    ASSERT_PRECISION_EQ(p3[0], p1.x);
-    ASSERT_PRECISION_EQ(p3[1], p1.y);
-    ASSERT_PRECISION_EQ(p3[2], p1.z);
+    ASSERT_PRECISION_EQ(p3[0], p1.x());
+    ASSERT_PRECISION_EQ(p3[1], p1.y());
+    ASSERT_PRECISION_EQ(p3[2], p1.z());
 
     p3 *= 2.0_p;
     ASSERT_PRECISION_EQ(10, p3[0]);
@@ -167,25 +167,25 @@ TEST(PointTest, Templates) {
     point<2> p1{{90, -39}};
     point_<2> p2{p1};
     point_<2> p3{p2};
-    ASSERT_PRECISION_EQ(p1[0], p2.x);
-    ASSERT_PRECISION_EQ(p1[1], p2.y);
-    ASSERT_PRECISION_EQ(p1[0], p3.x);
-    ASSERT_PRECISION_EQ(p1[1], p3.y);
+    ASSERT_PRECISION_EQ(p1[0], p2.x());
+    ASSERT_PRECISION_EQ(p1[1], p2.y());
+    ASSERT_PRECISION_EQ(p1[0], p3.x());
+    ASSERT_PRECISION_EQ(p1[1], p3.y());
 }
 
 TEST(PointTest, PointHomogenizing) {
     point_<2> u(2.3_p, 4.5_p);
     point_<3> v{u};  // homogenizing 2d->3d
-    ASSERT_PRECISION_EQ(2.3_p, v.x);
-    ASSERT_PRECISION_EQ(4.5_p, v.y);
-    ASSERT_PRECISION_EQ(1.0_p, v.z);
+    ASSERT_PRECISION_EQ(2.3_p, v.x());
+    ASSERT_PRECISION_EQ(4.5_p, v.y());
+    ASSERT_PRECISION_EQ(1.0_p, v.z());
 
     point_<3> p3{1, 2, 3};
     point_<4> p4{p3};  // homogenizing 3d->4d
-    ASSERT_PRECISION_EQ(1, p4.x);
-    ASSERT_PRECISION_EQ(2, p4.y);
-    ASSERT_PRECISION_EQ(3, p4.z);
-    ASSERT_PRECISION_EQ(1, p4.w);
+    ASSERT_PRECISION_EQ(1, p4.x());
+    ASSERT_PRECISION_EQ(2, p4.y());
+    ASSERT_PRECISION_EQ(3, p4.z());
+    ASSERT_PRECISION_EQ(1, p4.w());
 }
 
 TEST(PointTest, PointToVector) {

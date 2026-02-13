@@ -40,7 +40,7 @@ cylinder::cylinder(point const& base, point const& apex, precision radius)
 }
 
 vector cylinder::normal_(point const& object_surface_point) const {
-    point C{0, 0, object_surface_point.z};
+    point C{0, 0, object_surface_point.z()};
     return (object_surface_point - C).normalize();
 }
 
@@ -59,7 +59,7 @@ hits cylinder::collisions_along(ray const& object_ray) const {
     if (not basal::is_nan(t0)) {
         point R = object_ray.distance_along(t0);
         if (not basal::is_exactly_zero(m_half_height)) {
-            if (linalg::within(-m_half_height, R.z, m_half_height)) {
+            if (linalg::within(-m_half_height, R.z(), m_half_height)) {
                 ts.emplace_back(intersection{R}, t0, normal_(R), this);
             }
         } else {
@@ -70,7 +70,7 @@ hits cylinder::collisions_along(ray const& object_ray) const {
     if (not basal::is_nan(t1)) {
         point Q = object_ray.distance_along(t1);
         if (not basal::is_exactly_zero(m_half_height)) {
-            if (linalg::within(-m_half_height, Q.z, m_half_height)) {
+            if (linalg::within(-m_half_height, Q.z(), m_half_height)) {
                 ts.emplace_back(intersection{Q}, t1, normal_(Q), this);
             }
         } else {
@@ -83,9 +83,9 @@ hits cylinder::collisions_along(ray const& object_ray) const {
 
 bool cylinder::is_surface_point(point const& world_point) const {
     point object_point = reverse_transform(world_point);
-    precision x = object_point.x;
-    precision y = object_point.y;
-    precision z = object_point.z;
+    precision x = object_point.x();
+    precision y = object_point.y();
+    precision z = object_point.z();
     if (basal::is_exactly_zero(m_half_height)) {
         return basal::nearly_equals(m_radius * m_radius, (x * x) + (y * y));
     } else {

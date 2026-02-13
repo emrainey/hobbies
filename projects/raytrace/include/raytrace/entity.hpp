@@ -186,9 +186,9 @@ protected:
     /// Creates the transform matrix and it's inverse
     void compute_transforms() {
         matrix t = matrix::identity(DIMS + 1, DIMS + 1);
-        t[0][3] = m_world_position.x;
-        t[1][3] = m_world_position.y;
-        t[2][3] = m_world_position.z;
+        t[0][3] = m_world_position.x();
+        t[1][3] = m_world_position.y();
+        t[2][3] = m_world_position.z();
         matrix s = matrix::identity(DIMS + 1, DIMS + 1);
         s[0][0] = m_scaling[0];
         s[1][1] = m_scaling[1];

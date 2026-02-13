@@ -60,25 +60,25 @@ std::pair<R3::point, R3::point> closest_points_from_skew_lines(R3::line const& f
 }
 
 R2::point cartesian_to_polar(R2::point const& cartesian_point) {
-    precision x = cartesian_point.x;
-    precision y = cartesian_point.y;
+    precision x = cartesian_point.x();
+    precision y = cartesian_point.y();
     precision r = sqrt(x * x + y * y);
     precision theta = std::atan2(y, x);
     return R2::point(r, theta);
 }
 
 R2::point polar_to_cartesian(R2::point const& polar) {
-    precision r = polar.x;
-    precision theta = polar.y;
+    precision r = polar.x();
+    precision theta = polar.y();
     precision x = r * std::sin(theta);
     precision y = r * std::cos(theta);
     return R2::point(x, y);
 }
 
 R3::point cartesian_to_spherical(R3::point const& cartesian_point) {
-    precision x = cartesian_point.x;
-    precision y = cartesian_point.y;
-    precision z = cartesian_point.z;
+    precision x = cartesian_point.x();
+    precision y = cartesian_point.y();
+    precision z = cartesian_point.z();
     precision r = sqrt(x * x + y * y + z * z);
     precision theta = atan2(y, x);
     precision phi = atan2(sqrt(x * x + y * y), z);
@@ -86,9 +86,9 @@ R3::point cartesian_to_spherical(R3::point const& cartesian_point) {
 }
 
 R3::point spherical_to_cartesian(R3::point const& spherical_point) {
-    precision radius = spherical_point.x;
-    precision theta = spherical_point.y;
-    precision phi = spherical_point.z;
+    precision radius = spherical_point.x();
+    precision theta = spherical_point.y();
+    precision phi = spherical_point.z();
     precision x = radius * std::sin(phi) * std::cos(theta);
     precision y = radius * std::sin(phi) * std::sin(theta);
     precision z = radius * std::cos(phi);
@@ -139,9 +139,9 @@ linalg::matrix rotation(iso::radians const& yaw, iso::radians const& pitch, iso:
 }
 
 bool contained_within_aabb(R3::point const& P, R3::point const& min, R3::point const& max) {
-    return (min.x - basal::epsilon < P.x and P.x < max.x + basal::epsilon)
-           and (min.y - basal::epsilon < P.y and P.y < max.y + basal::epsilon)
-           and (min.z - basal::epsilon < P.z and P.z < max.z + basal::epsilon);
+    return (min.x() - basal::epsilon < P.x() and P.x() < max.x() + basal::epsilon)
+           and (min.y() - basal::epsilon < P.y() and P.y() < max.y() + basal::epsilon)
+           and (min.z() - basal::epsilon < P.z() and P.z() < max.z() + basal::epsilon);
 }
 
 }  // namespace geometry

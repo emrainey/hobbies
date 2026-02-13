@@ -74,6 +74,54 @@ public:
     /// Indexer for Const objects
     precision operator[](size_t i) const;
 
+    /// Named accessor for x component (always available for DIMS >= 2)
+    constexpr precision& x() noexcept {
+        static_assert(DIMS >= 2, "x() requires at least 2 dimensions");
+        return m_data[0];
+    }
+
+    /// Named accessor for x component (const)
+    constexpr precision const& x() const noexcept {
+        static_assert(DIMS >= 2, "x() requires at least 2 dimensions");
+        return m_data[0];
+    }
+
+    /// Named accessor for y component (always available for DIMS >= 2)
+    constexpr precision& y() noexcept {
+        static_assert(DIMS >= 2, "y() requires at least 2 dimensions");
+        return m_data[1];
+    }
+
+    /// Named accessor for y component (const)
+    constexpr precision const& y() const noexcept {
+        static_assert(DIMS >= 2, "y() requires at least 2 dimensions");
+        return m_data[1];
+    }
+
+    /// Named accessor for z component (only available for DIMS >= 3)
+    template <size_t D = DIMS, typename = std::enable_if_t<D >= 3>>
+    constexpr precision& z() noexcept {
+        return m_data[2];
+    }
+
+    /// Named accessor for z component (const, only available for DIMS >= 3)
+    template <size_t D = DIMS, typename = std::enable_if_t<D >= 3>>
+    constexpr precision const& z() const noexcept {
+        return m_data[2];
+    }
+
+    /// Named accessor for w component (only available for DIMS >= 4)
+    template <size_t D = DIMS, typename = std::enable_if_t<D >= 4>>
+    constexpr precision& w() noexcept {
+        return m_data[3];
+    }
+
+    /// Named accessor for w component (const, only available for DIMS >= 4)
+    template <size_t D = DIMS, typename = std::enable_if_t<D >= 4>>
+    constexpr precision const& w() const noexcept {
+        return m_data[3];
+    }
+
     /// Clears the point to zero values
     void zero();
 
@@ -141,86 +189,96 @@ inline point<DIMS> operator/(point<DIMS> const& a, point<DIMS> const& b) noexcep
 }  // namespace operators
 }  // namespace pairwise
 
+// Forward declarations for operators used by point_<N> specializations
+template <size_t DIMS>
+class point_;
+
+template <size_t DIMS>
+vector_<DIMS> operator+(point_<DIMS> const& a, point_<DIMS> const& b) noexcept(false);
+
+template <size_t DIMS>
+vector_<DIMS> operator-(point_<DIMS> const& a, point_<DIMS> const& b) noexcept(false);
+
+template <size_t DIMS>
+point_<DIMS> operator+(point_<DIMS> const& a, const vector_<DIMS>& b) noexcept(false);
+
+template <size_t DIMS>
+point_<DIMS> operator-(point_<DIMS> const& a, const vector_<DIMS>& b) noexcept(false);
+
 /// Generic template class wrapper
 template <size_t N>
 class point_ : public point<N> {
-    // No move constructor
-    point_(point_&&) = delete;
-    // No move assign
-    point_& operator=(point_&&) = delete;
-};
-
-/// Specific 2d point template wrapper to define easy access reference to \ref x and \ref y
-template <>
-class point_<2> : public point<2> {
 public:
-    precision& x;  ///< First dimensional reference
-    precision& y;  ///< Second dimensional reference
-    /// Custom empty constructor
-    point_() : point<2>{}, x(m_data[0]), y(m_data[1]) {
-    }
-    /// Base type Constructor
-    point_(point<2> const& p) : point_{} {
-        x = p[0];
-        y = p[1];
-    }
-    /// Copy Constructor
-    point_(point_ const& other) : point_{} {
-        x = other.x;
-        y = other.y;
+    static_assert(2 <= N && N <= 4, "point_ must have between 2 and 4 dimensions");
+
+    /// Default constructor
+    point_() : point<N>{} {
     }
 
-    /// Custom precision input constructor
-    explicit point_(precision a, precision b) : point_{} {
-        x = a;
-        y = b;
+    /// Base type Constructor
+    point_(point<N> const& p) : point<N>{p} {
     }
+
+    /// Copy Constructor
+    point_(point_ const& other) : point<N>{other} {
+    }
+
+    /// Move Constructor
+    point_(point_&& other) : point<N>{std::move(other)} {
+    }
+
     /// Assignment Operator
     point_& operator=(point_ const& other) {
-        x = other.x;
-        y = other.y;
+        point<N>::operator=(other);
         return (*this);
     }
 
-    /// Adding points creates a vector
-    friend vector_<2> operator+(point_ const& a, point_ const& b) noexcept(false) {
-        vector_<2> c;
-        for (size_t i = 0; i < c.dimensions; i++) {
-            c[i] = a[i] + b[i];
-        }
-        return c;
+    /// Move assignment
+    point_& operator=(point_&& other) {
+        point<N>::operator=(std::move(other));
+        return (*this);
+    }
+};
+
+/// Specialization for 2D points with custom constructor
+template <>
+class point_<2> : public point<2> {
+public:
+    /// Default constructor
+    point_() : point<2>{} {
     }
 
-    /// Subtracting points creates a vector
-    friend vector_<2> operator-(point_ const& a, point_ const& b) noexcept(false) {
-        vector_<2> c;
-        for (size_t i = 0; i < c.dimensions; i++) {
-            c[i] = a[i] - b[i];
-        }
-        return c;
+    /// Base type Constructor
+    point_(point<2> const& p) : point<2>{p} {
     }
 
-    /// Adding a vector to a point creates a new point
-    friend point_ operator+(point_ const& a, const vector_<2>& b) noexcept(false) {
-        point_ c{a};
-        c += b;
-        return point_{c};
+    /// Copy Constructor
+    point_(point_ const& other) : point<2>{other} {
     }
 
-    /// Equality Operator
-    // friend inline bool operator==(point_ const& a, point_ const& b) noexcept(false) {
-    //     return operators::operator==(a, b);
-    // }
+    /// Move Constructor
+    point_(point_&& other) : point<2>{std::move(other)} {
+    }
 
-    /// Inequality Operator
-    // friend inline bool operator!=(point_ const& a, point_ const& b) noexcept(false) {
-    //     return operators::operator!=(a, b);
-    // }
+    /// Custom precision input constructor
+    explicit point_(precision a, precision b) : point<2>{} {
+        x() = a;
+        y() = b;
+    }
+
+    /// Assignment Operator
+    point_& operator=(point_ const& other) {
+        point<2>::operator=(other);
+        return (*this);
+    }
+
+    /// Move assignment
+    point_& operator=(point_&& other) {
+        point<2>::operator=(std::move(other));
+        return (*this);
+    }
 
     /// Uses distance from origin to sort a pair of points.
-    /// @param a
-    /// @param b
-    /// @return
     bool operator<(point_<2> const& other) const noexcept(false) {
         if constexpr (point::use_distance_sort) {
             vector_<2> a0 = (*this) - point_<2>{};
@@ -228,105 +286,64 @@ public:
             return (a0.quadrance() < b0.quadrance());
         }
         if constexpr (point::use_lexical_sort) {
-            if (x < other.x) {
+            if (x() < other.x()) {
                 return true;
-            } else if (x > other.x) {
+            } else if (x() > other.x()) {
                 return false;
             }
-            return (y < other.y);
+            return (y() < other.y());
         }
-        return false;  // Default to false if neither sort is specified
+        return false;
     }
 };
 
-/// Specific 3d point template wrapper to define easy access reference to \ref x, \ref y and \ref z
+/// Specialization for 3D points with custom constructor and homogenizing constructor
 template <>
 class point_<3> : public point<3> {
 public:
-    precision& x;  ///< First dimensional reference
-    precision& y;  ///< Second dimensional reference
-    precision& z;  ///< Third dimensional reference
-    /// Custom empty constructor
-    point_() : point<3>{}, x(m_data[0]), y(m_data[1]), z(m_data[2]) {
+    /// Default constructor
+    point_() : point<3>{} {
     }
-    /// Custom Homogenizing Constructor
-    point_(point_<2> const& p) : point_{} {
-        x = p.x;
-        y = p.y;
-        z = 1.0_p;
+
+    /// Homogenizing Constructor from 2D
+    point_(point_<2> const& p) : point<3>{} {
+        x() = p.x();
+        y() = p.y();
+        z() = 1.0_p;
     }
+
     /// Base type Constructor
-    point_(point<3> const& p) : point_{} {
-        x = p[0];
-        y = p[1];
-        z = p[2];
+    point_(point<3> const& p) : point<3>{p} {
     }
+
     /// Copy Constructor
-    point_(point_ const& other) : point_{} {
-        x = other.x;
-        y = other.y;
-        z = other.z;
+    point_(point_ const& other) : point<3>{other} {
     }
+
+    /// Move Constructor
+    point_(point_&& other) : point<3>{std::move(other)} {
+    }
+
     /// Custom triple input constructor
-    explicit point_(precision a, precision b, precision c) : point_{} {
-        x = a;
-        y = b;
-        z = c;
+    explicit point_(precision a, precision b, precision c) : point<3>{} {
+        x() = a;
+        y() = b;
+        z() = c;
     }
-    /// Assignment from another template
+
+    /// Assignment Operator
     point_& operator=(point_ const& other) {
-        x = other.x;
-        y = other.y;
-        z = other.z;
+        point<3>::operator=(other);
         return (*this);
     }
 
-    /// Adding points creates a vector
-    friend vector_<3> operator+(point_ const& a, point_ const& b) noexcept(false) {
-        vector_<3> c;
-        for (size_t i = 0; i < c.dimensions; i++) {
-            c[i] = a[i] + b[i];
-        }
-        return c;
+    /// Move assignment
+    point_& operator=(point_&& other) {
+        point<3>::operator=(std::move(other));
+        return (*this);
     }
-
-    /// Subtracting points creates a vector
-    friend vector_<3> operator-(point_ const& a, point_ const& b) noexcept(false) {
-        vector_<3> c;
-        for (size_t i = 0; i < c.dimensions; i++) {
-            c[i] = a[i] - b[i];
-        }
-        return c;
-    }
-
-    /// Adding a vector to a point creates a new point
-    friend point_ operator+(point_ const& a, const vector_<3>& b) noexcept(false) {
-        point_ c{a};
-        c += b;
-        return point_{c};
-    }
-
-    /// Adding a vector to a point creates a new point
-    friend point_ operator-(point_ const& a, const vector_<3>& b) noexcept(false) {
-        point_ c{a};
-        c -= b;
-        return point_{c};
-    }
-
-    /// Equality Operator
-    // friend inline bool operator==(point_ const& a, point_ const& b) noexcept(false) {
-    //     return operators::operator==(a, b);
-    // }
-
-    /// Inequality Operator
-    // friend inline bool operator!=(point_ const& a, point_ const& b) noexcept(false) {
-    //     return operators::operator!=(a, b);
-    // }
 
     /// Uses distance from origin to sort a pair of points.
-    /// @param a
-    /// @param b
-    /// @return
     bool operator<(point_<3> const& other) const noexcept(false) {
         if constexpr (point::use_distance_sort) {
             vector_<3> a0 = (*this) - point_<3>{};
@@ -334,109 +351,71 @@ public:
             return (a0.quadrance() < b0.quadrance());
         }
         if constexpr (point::use_lexical_sort) {
-            if (x < other.x) {
+            if (x() < other.x()) {
                 return true;
-            } else if (x > other.x) {
+            } else if (x() > other.x()) {
                 return false;
             }
-            if (y < other.y) {
+            if (y() < other.y()) {
                 return true;
-            } else if (y > other.y) {
+            } else if (y() > other.y()) {
                 return false;
             }
-            return (z < other.z);
+            return (z() < other.z());
         }
-        return false;  // Default to false if neither sort is specified
+        return false;
     }
 };
 
-/// Specific 4d point template wrapper to define easy access reference to \ref x, \ref y \ref z and \ref w
+/// Specialization for 4D points with custom constructor and homogenizing constructor
 template <>
 class point_<4> : public point<4> {
 public:
-    precision& x;  ///< First dimensional reference
-    precision& y;  ///< Second dimensional reference
-    precision& z;  ///< Third dimensional reference
-    precision& w;  ///< Fourth dimensional reference
-    /// Custom empty constructor
-    point_() : point<4>{}, x(m_data[0]), y(m_data[1]), z(m_data[2]), w(m_data[3]) {
+    /// Default constructor
+    point_() : point<4>{} {
     }
-    /// Custom Homogenizing Constructor
-    point_(point_<3> const& p) : point_{} {
-        x = p.x;
-        y = p.y;
-        z = p.z;
-        w = 1.0_p;
+
+    /// Homogenizing Constructor from 3D
+    point_(point_<3> const& p) : point<4>{} {
+        x() = p.x();
+        y() = p.y();
+        z() = p.z();
+        w() = 1.0_p;
     }
+
     /// Base type Constructor
-    point_(point<4> const& p) : point_{} {
-        x = p[0];
-        y = p[1];
-        z = p[2];
-        w = p[3];
+    point_(point<4> const& p) : point<4>{p} {
     }
+
     /// Copy Constructor
-    point_(point_ const& other) : point_{} {
-        x = other.x;
-        y = other.y;
-        z = other.z;
-        w = other.w;
+    point_(point_ const& other) : point<4>{other} {
     }
+
+    /// Move Constructor
+    point_(point_&& other) : point<4>{std::move(other)} {
+    }
+
     /// Custom four input constructor
-    explicit point_(precision a, precision b, precision c, precision d) : point_{} {
-        x = a;
-        y = b;
-        z = c;
-        w = d;
+    explicit point_(precision a, precision b, precision c, precision d) : point<4>{} {
+        x() = a;
+        y() = b;
+        z() = c;
+        w() = d;
     }
-    /// Assignment from another template
+
+    /// Assignment Operator
     point_& operator=(point_ const& other) {
-        x = other.x;
-        y = other.y;
-        z = other.z;
-        w = other.w;
+        point<4>::operator=(other);
         return (*this);
     }
 
-    /// Adding points creates a vector
-    friend vector_<4> operator+(point_ const& a, point_ const& b) noexcept(false) {
-        vector_<4> c;
-        for (size_t i = 0; i < c.dimensions; i++) {
-            c[i] = a[i] + b[i];
-        }
-        return c;
+    /// Move assignment
+    point_& operator=(point_&& other) {
+        point<4>::operator=(std::move(other));
+        return (*this);
     }
-
-    /// Subtracting points creates a vector
-    friend vector_<4> operator-(point_ const& a, point_ const& b) noexcept(false) {
-        vector_<4> c;
-        for (size_t i = 0; i < c.dimensions; i++) {
-            c[i] = a[i] - b[i];
-        }
-        return c;
-    }
-
-    /// Adding a vector to a point creates a new point
-    friend point operator+(point_ const& a, const vector_<4>& b) noexcept(false) {
-        point c{a};
-        c += b;
-        return c;
-    }
-
-    /// Equality Operator
-    // friend inline bool operator==(point_ const& a, point_ const& b) noexcept(false) {
-    //     return operators::operator==(a, b);
-    // }
-
-    /// Inequality Operator
-    // friend inline bool operator!=(point_ const& a, point_ const& b) noexcept(false) {
-    //     return operators::operator!=(a, b);
-    // }
 
     /// Uses distance from origin to sort a pair of points.
-    /// @param a
-    /// @param b
-    /// @return
     bool operator<(point_<4> const& other) const noexcept(false) {
         if constexpr (point::use_distance_sort) {
             vector_<4> a0 = (*this) - point_<4>{};
@@ -444,26 +423,64 @@ public:
             return (a0.quadrance() < b0.quadrance());
         }
         if constexpr (point::use_lexical_sort) {
-            if (x < other.x) {
+            if (x() < other.x()) {
                 return true;
-            } else if (x > other.x) {
+            } else if (x() > other.x()) {
                 return false;
             }
-            if (y < other.y) {
+            if (y() < other.y()) {
                 return true;
-            } else if (y > other.y) {
+            } else if (y() > other.y()) {
                 return false;
             }
-            if (z < other.z) {
+            if (z() < other.z()) {
                 return true;
-            } else if (z > other.z) {
+            } else if (z() > other.z()) {
                 return false;
             }
-            return (w < other.w);
+            return (w() < other.w());
         }
-        return false;  // Default to false if neither sort is specified
+        return false;
     }
 };
+
+// Template friend operators (moved outside specializations)
+
+/// Adding points creates a vector
+template <size_t DIMS>
+vector_<DIMS> operator+(point_<DIMS> const& a, point_<DIMS> const& b) noexcept(false) {
+    vector_<DIMS> c;
+    for (size_t i = 0; i < c.dimensions; i++) {
+        c[i] = a[i] + b[i];
+    }
+    return c;
+}
+
+/// Subtracting points creates a vector
+template <size_t DIMS>
+vector_<DIMS> operator-(point_<DIMS> const& a, point_<DIMS> const& b) noexcept(false) {
+    vector_<DIMS> c;
+    for (size_t i = 0; i < c.dimensions; i++) {
+        c[i] = a[i] - b[i];
+    }
+    return c;
+}
+
+/// Adding a vector to a point creates a new point
+template <size_t DIMS>
+point_<DIMS> operator+(point_<DIMS> const& a, const vector_<DIMS>& b) noexcept(false) {
+    point_<DIMS> c{a};
+    c += b;
+    return c;
+}
+
+/// Subtracting a vector from a point creates a new point
+template <size_t DIMS>
+point_<DIMS> operator-(point_<DIMS> const& a, const vector_<DIMS>& b) noexcept(false) {
+    point_<DIMS> c{a};
+    c -= b;
+    return c;
+}
 
 template <size_t DIMS>
 std::ostream& operator<<(std::ostream& os, point<DIMS> const& p);

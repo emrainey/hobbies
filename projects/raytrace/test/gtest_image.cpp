@@ -89,9 +89,9 @@ TEST(ImageTest, DISABLED_SubsamplerTest) {
         image::point pnt(row_index, 0);
         fourcc::rgb8 pix = img4.at(pnt);
         EXPECT_TRUE(is_completed);
-        EXPECT_EQ(dark_grey.r, pix.r) << pix.r << " at " << pnt.x << ", " << pnt.y << std::endl;
-        EXPECT_EQ(dark_grey.g, pix.g) << pix.g << " at " << pnt.x << ", " << pnt.y << std::endl;
-        EXPECT_EQ(dark_grey.b, pix.b) << pix.b << " at " << pnt.x << ", " << pnt.y << std::endl;
+        EXPECT_EQ(dark_grey.r, pix.r) << pix.r << " at " << pnt.x() << ", " << pnt.y() << std::endl;
+        EXPECT_EQ(dark_grey.g, pix.g) << pix.g << " at " << pnt.x() << ", " << pnt.y() << std::endl;
+        EXPECT_EQ(dark_grey.b, pix.b) << pix.b << " at " << pnt.x() << ", " << pnt.y() << std::endl;
     };
     img4.generate_each(subsampler, samples.size(), renderer);
     img4.save("averaged_dark_grey.ppm");
@@ -106,10 +106,10 @@ TEST(ImageTest, SubsamplingChecker) {
     precision ratio = (image5.height / image6.height);
     image6.generate_each(
         [&](image::point const& p) -> color {
-            image::point n{static_cast<precision>(p.x * ratio), static_cast<precision>(p.y * ratio)};
-            precision fx = std::floor(p.x);
+            image::point n{static_cast<precision>(p.x() * ratio), static_cast<precision>(p.y() * ratio)};
+            precision fx = std::floor(p.x());
             bool ix = (static_cast<int>(fx) & 1);
-            precision fy = std::floor(p.y);
+            precision fy = std::floor(p.y());
             bool iy = (static_cast<int>(fy) & 1);
             if ((not ix and not iy) or (ix and iy)) {
                 image5.at(n) = colors::red.to_rgb8();

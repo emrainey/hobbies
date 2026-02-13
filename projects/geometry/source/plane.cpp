@@ -151,7 +151,7 @@ bool plane::contains(R3::point const& pt) const {
 
     if constexpr (use_equation_method) {
         // solve the equation with this point and it must be zero
-        value = pt.x * eq.a + pt.y * eq.b + pt.z * eq.c + eq.d;
+        value = pt.x() * eq.a + pt.y() * eq.b + pt.z() * eq.c + eq.d;
     } else {
         value = 1.0_p;
     }

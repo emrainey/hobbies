@@ -69,7 +69,7 @@ precision kmeans::iteration(IterationMethod method) {
 #if 0
         printf("Metrics: ");
         for (size_t m = 0; m < metrics.size(); m++) {
-            printf("%E,%E=>%E ", m_centroids[m].x, m_centroids[m].y, metrics[m]);
+            printf("%E,%E=>%E ", m_centroids[m].x(), m_centroids[m].y(), metrics[m]);
         }
         printf("\n");
 #endif
@@ -90,7 +90,7 @@ precision kmeans::iteration(IterationMethod method) {
         // move the sums points by the vector
         size_t cluster = m_cluster_assignment[p];
         if (cluster < m_centroids.size()) {
-            sums[cluster] += vector_<2>{{m_points[p].x, m_points[p].y}};
+            sums[cluster] += vector_<2>{{m_points[p].x(), m_points[p].y()}};
             counts[cluster]++;
         }
     }
@@ -98,10 +98,10 @@ precision kmeans::iteration(IterationMethod method) {
     for (size_t c = 0; c < m_centroids.size(); c++) {
         printf("Counts[%zu] = %zu\n", c, counts[c]);
         if (counts[c] > 0) {
-            R2::point center(sums[c].x / counts[c], sums[c].y / counts[c]);
+            R2::point center(sums[c].x() / counts[c], sums[c].y() / counts[c]);
             precision err = sqrt(euclidean(m_centroids[c], center));
             center.print(std::cout, "Computed Center:");
-            printf("Center[%zu] = %lf, %lf (error = %lf)\n", c, center.x, center.y, err);
+            printf("Center[%zu] = %lf, %lf (error = %lf)\n", c, center.x(), center.y(), err);
             error += err;
             m_centroids[c] = center;
         }

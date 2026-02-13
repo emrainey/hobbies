@@ -88,8 +88,8 @@ int main(int argc, char* argv[]) {
     raytrace::point coordinates_spherical = geometry::cartesian_to_spherical(coordinates_cart);
     // find the initial spherical coordinates
     precision radius = world_look.magnitude();
-    precision theta = coordinates_spherical.y;
-    precision phi = coordinates_spherical.z;
+    precision theta = coordinates_spherical.y();
+    precision phi = coordinates_spherical.z();
 
     auto [width, height] = fourcc::dimensions(params.dim_name);
     printf("%s => Width: %zu, Height: %zu\n", params.dim_name.c_str(), width, height);
@@ -269,27 +269,27 @@ int main(int argc, char* argv[]) {
                 should_show_help = true;
                 break;
             case '6':
-                world.looking_at().x += move_unit;
+                world.looking_at().x() += move_unit;
                 has_changed = true;
                 break;
             case '4':
-                world.looking_at().x -= move_unit;
+                world.looking_at().x() -= move_unit;
                 has_changed = true;
                 break;
             case '8':
-                world.looking_at().y += move_unit;
+                world.looking_at().y() += move_unit;
                 has_changed = true;
                 break;
             case '2':
-                world.looking_at().y -= move_unit;
+                world.looking_at().y() -= move_unit;
                 has_changed = true;
                 break;
             case '9':
-                world.looking_at().z += move_unit;
+                world.looking_at().z() += move_unit;
                 has_changed = true;
                 break;
             case '3':
-                world.looking_at().z -= move_unit;
+                world.looking_at().z() -= move_unit;
                 has_changed = true;
                 break;
         }

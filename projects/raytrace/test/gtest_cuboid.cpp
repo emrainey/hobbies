@@ -109,14 +109,14 @@ TEST(CuboidTest, IntersectionMassXY) {
     precision u = 1.0_p / 8.0_p;  // the testing step
 
     // in the XY plane
-    for (precision y = (-w + u + P.y); y < (w + P.y); y += u) {
-        for (precision x = (-w + u + P.x); x < (w + P.x); x += u) {
-            raytrace::point R{x, y, P.z + (2 * w)};
+    for (precision y = (-w + u + P.y()); y < (w + P.y()); y += u) {
+        for (precision x = (-w + u + P.x()); x < (w + P.x()); x += u) {
+            raytrace::point R{x, y, P.z() + (2 * w)};
             vector N{{0, 0, -1}};
             ray W{R, N};
             geometry::intersection I = c0.intersect(W).intersect;
             EXPECT_EQ(geometry::IntersectionType::Point, get_type(I)) << "At y=" << y << ", x=" << x << std::endl;
-            raytrace::point Q{x, y, P.z + w};
+            raytrace::point Q{x, y, P.z() + w};
             EXPECT_POINT_EQ(Q, as_point(I));
         }
     }

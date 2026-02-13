@@ -59,7 +59,7 @@ bool plane::is_surface_point(point const& world_point) const {
 
 image::point plane::map(point const& object_surface_point) const {
     // in object space the origin is the center and the normal is +Z.
-    image::point uv_point{object_surface_point.x, object_surface_point.y};
+    image::point uv_point{object_surface_point.x(), object_surface_point.y()};
     image::point polar_space = geometry::cartesian_to_polar(uv_point);
     return image::point(polar_space[0] / m_surface_scale.u,
                         ((polar_space[1] + iso::pi) / iso::tau) / m_surface_scale.v);

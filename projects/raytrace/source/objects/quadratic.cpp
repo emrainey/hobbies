@@ -21,9 +21,9 @@ quadratic::quadratic(point const& center, raytrace::matrix& C)
 
 vector quadratic::normal_(point const& object_surface_point) const {
     raytrace::matrix const& Q = m_coefficients;  // ease of reference
-    precision x = object_surface_point.x;
-    precision y = object_surface_point.y;
-    precision z = object_surface_point.z;
+    precision x = object_surface_point.x();
+    precision y = object_surface_point.y();
+    precision z = object_surface_point.z();
     precision Nx = 2.0_p * (Q.at(1, 1) * x + Q.at(1, 2) * y + Q.at(1, 3) * z + Q.at(1, 4));
     precision Ny = 2.0_p * (Q.at(2, 1) * x + Q.at(2, 2) * y + Q.at(2, 3) * z + Q.at(2, 4));
     precision Nz = 2.0_p * (Q.at(3, 1) * x + Q.at(3, 2) * y + Q.at(3, 3) * z + Q.at(3, 4));
@@ -34,9 +34,9 @@ vector quadratic::normal_(point const& object_surface_point) const {
 
 hits quadratic::collisions_along(ray const& object_ray) const {
     hits ts;
-    precision x = object_ray.location().x;
-    precision y = object_ray.location().y;
-    precision z = object_ray.location().z;
+    precision x = object_ray.location().x();
+    precision y = object_ray.location().y();
+    precision z = object_ray.location().z();
     precision i = object_ray.direction()[0];
     precision j = object_ray.direction()[1];
     precision k = object_ray.direction()[2];
@@ -73,9 +73,9 @@ hits quadratic::collisions_along(ray const& object_ray) const {
 
 bool quadratic::is_surface_point(point const& world_point) const {
     point object_point = reverse_transform(world_point);
-    precision x = object_point.x;
-    precision y = object_point.y;
-    precision z = object_point.z;
+    precision x = object_point.x();
+    precision y = object_point.y();
+    precision z = object_point.z();
     raytrace::matrix const& Q = m_coefficients;  // ease of reference
     precision a = Q(1, 1), b = Q(1, 2), c = Q(1, 3), d = Q(1, 4);
     precision e = Q(2, 2), f = Q(2, 3), g = Q(2, 4), h = Q(3, 3);

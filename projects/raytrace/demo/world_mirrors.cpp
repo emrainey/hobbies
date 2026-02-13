@@ -65,9 +65,10 @@ public:
         anchors.push_back(animation::Anchor{animation::Attributes{looking_from(), looking_at(), 75.0_deg},
                                             animation::Attributes{raytrace::point(15, -20, 10), looking_at(), 75.0_deg},
                                             animation::Mappers{}, iso::seconds{2.0_p}});
-        anchors.push_back(animation::Anchor{anchors.back().limit,  // take last limit as start
-                                            animation::Attributes{raytrace::point(-15, -20, 10), looking_at(), 75.0_deg},
-                                            animation::Mappers{}, iso::seconds{2.0_p}});
+        anchors.push_back(
+            animation::Anchor{anchors.back().limit,  // take last limit as start
+                              animation::Attributes{raytrace::point(-15, -20, 10), looking_at(), 75.0_deg},
+                              animation::Mappers{}, iso::seconds{2.0_p}});
         return anchors;
     }
 

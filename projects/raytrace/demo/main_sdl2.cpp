@@ -283,27 +283,27 @@ int main(int argc, char *argv[]) {
                         should_show_help = true;
                         break;
                     case SDLK_w:
-                        world.looking_from().y += move_unit;
+                        world.looking_from().y() += move_unit;
                         has_changed = true;
                         break;
                     case SDLK_s:
-                        world.looking_from().y -= move_unit;
+                        world.looking_from().y() -= move_unit;
                         has_changed = true;
                         break;
                     case SDLK_a:
-                        world.looking_from().x -= move_unit;
+                        world.looking_from().x() -= move_unit;
                         has_changed = true;
                         break;
                     case SDLK_d:
-                        world.looking_from().x += move_unit;
+                        world.looking_from().x() += move_unit;
                         has_changed = true;
                         break;
                     case SDLK_f:
-                        world.looking_from().z -= move_unit;
+                        world.looking_from().z() -= move_unit;
                         has_changed = true;
                         break;
                     case SDLK_r:
-                        world.looking_from().z += move_unit;
+                        world.looking_from().z() += move_unit;
                         has_changed = true;
                         break;
                     case SDLK_t:
@@ -315,27 +315,27 @@ int main(int argc, char *argv[]) {
                         has_changed = true;
                         break;
                     case SDLK_KP_8:
-                        world.looking_at().y += move_unit;
+                        world.looking_at().y() += move_unit;
                         has_changed = true;
                         break;
                     case SDLK_KP_2:
-                        world.looking_at().y -= move_unit;
+                        world.looking_at().y() -= move_unit;
                         has_changed = true;
                         break;
                     case SDLK_KP_4:
-                        world.looking_at().x -= move_unit;
+                        world.looking_at().x() -= move_unit;
                         has_changed = true;
                         break;
                     case SDLK_KP_6:
-                        world.looking_at().x += move_unit;
+                        world.looking_at().x() += move_unit;
                         has_changed = true;
                         break;
                     case SDLK_KP_9:
-                        world.looking_at().z += move_unit;
+                        world.looking_at().z() += move_unit;
                         has_changed = true;
                         break;
                     case SDLK_KP_3:
-                        world.looking_at().z -= move_unit;
+                        world.looking_at().z() -= move_unit;
                         has_changed = true;
                         break;
                     case SDLK_z:

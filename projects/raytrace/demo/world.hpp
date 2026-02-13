@@ -8,8 +8,10 @@ namespace raytrace {
 class world {
 public:
     /// Constructor
-    world(raytrace::point const& from, raytrace::point const& at, std::string const& window_name, std::string const& file_name)
-        : looking_from_(from), looking_at_(at), window_name_(window_name), file_name_(file_name) {}
+    world(raytrace::point const& from, raytrace::point const& at, std::string const& window_name,
+          std::string const& file_name)
+        : looking_from_(from), looking_at_(at), window_name_(window_name), file_name_(file_name) {
+    }
 
     /// Adds all the objects and lights to the scene.
     virtual void add_to(raytrace::scene& scene) = 0;
@@ -22,7 +24,15 @@ public:
         return looking_from_;
     }
 
+    inline raytrace::point& looking_from() {
+        return looking_from_;
+    }
+
     inline raytrace::point const& looking_at() const {
+        return looking_at_;
+    }
+
+    inline raytrace::point& looking_at() {
         return looking_at_;
     }
 

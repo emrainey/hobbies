@@ -50,22 +50,22 @@ cuboid::cuboid(point&& center, precision xhw, precision yhw, precision zhw)
 vector cuboid::normal_(point const& object_surface_point) const {
     vector object_normal = R3::null;
     // isolate which axis this is on and return the forward_transformed normal
-    if (basal::nearly_equals(object_surface_point.x, x_half_width)) {
+    if (basal::nearly_equals(object_surface_point.x(), x_half_width)) {
         // positive yz plane
         object_normal = m_normals[0];
-    } else if (basal::nearly_equals(object_surface_point.x, -x_half_width)) {
+    } else if (basal::nearly_equals(object_surface_point.x(), -x_half_width)) {
         // negative yz plane
         object_normal = m_normals[1];
-    } else if (basal::nearly_equals(object_surface_point.y, y_half_width)) {
+    } else if (basal::nearly_equals(object_surface_point.y(), y_half_width)) {
         // positive xz plane
         object_normal = m_normals[2];
-    } else if (basal::nearly_equals(object_surface_point.y, -y_half_width)) {
+    } else if (basal::nearly_equals(object_surface_point.y(), -y_half_width)) {
         // negative xz plane
         object_normal = m_normals[3];
-    } else if (basal::nearly_equals(object_surface_point.z, z_half_width)) {
+    } else if (basal::nearly_equals(object_surface_point.z(), z_half_width)) {
         // positive xy plane
         object_normal = m_normals[4];
-    } else if (basal::nearly_equals(object_surface_point.z, -z_half_width)) {
+    } else if (basal::nearly_equals(object_surface_point.z(), -z_half_width)) {
         // negative xy plane
         object_normal = m_normals[5];
     }
@@ -76,9 +76,9 @@ hits cuboid::collisions_along(ray const& object_ray) const {
     hits ts;
     // given the direction of the vector, only certain sides of the AABB are collide-able.
     // the sign of the vector component is the opposite of the side that may be collide-able.
-    precision const& x = object_ray.location().x;
-    precision const& y = object_ray.location().y;
-    precision const& z = object_ray.location().z;
+    precision const& x = object_ray.location().x();
+    precision const& y = object_ray.location().y();
+    precision const& z = object_ray.location().z();
     precision const& i = object_ray.direction()[0];
     precision const& j = object_ray.direction()[1];
     precision const& k = object_ray.direction()[2];
@@ -137,42 +137,42 @@ image::point cuboid::map(point const& object_surface_point) const {
     // isolate which axis this is on and return the forward_transformed normal
     precision u = 0.0_p, v = 0.0_p;
 
-    if (basal::nearly_equals(object_surface_point.x, x_half_width)) {
+    if (basal::nearly_equals(object_surface_point.x(), x_half_width)) {
         // positive yz plane
         // u = -y -> +y
-        u = ((object_surface_point.y / (2.0_p * y_half_width)) + 0.5_p);
+        u = ((object_surface_point.y() / (2.0_p * y_half_width)) + 0.5_p);
         // v = +z -> -z
-        v = -((object_surface_point.z / (2.0_p * z_half_width)) - 0.5_p);
-    } else if (basal::nearly_equals(object_surface_point.x, -x_half_width)) {
+        v = -((object_surface_point.z() / (2.0_p * z_half_width)) - 0.5_p);
+    } else if (basal::nearly_equals(object_surface_point.x(), -x_half_width)) {
         // negative yz plane
         // u = +y -> -y
-        u = -((object_surface_point.y / (2.0_p * y_half_width)) - 0.5_p);
+        u = -((object_surface_point.y() / (2.0_p * y_half_width)) - 0.5_p);
         // v = +z -> -z
-        v = -((object_surface_point.z / (2.0_p * z_half_width)) - 0.5_p);
-    } else if (basal::nearly_equals(object_surface_point.y, y_half_width)) {
+        v = -((object_surface_point.z() / (2.0_p * z_half_width)) - 0.5_p);
+    } else if (basal::nearly_equals(object_surface_point.y(), y_half_width)) {
         // positive xz plane
         // u = +x -> -x
-        u = -((object_surface_point.x / (2.0_p * x_half_width)) - 0.5_p);
+        u = -((object_surface_point.x() / (2.0_p * x_half_width)) - 0.5_p);
         // v = +z -> -z
-        v = -((object_surface_point.z / (2.0_p * z_half_width)) - 0.5_p);
-    } else if (basal::nearly_equals(object_surface_point.y, -y_half_width)) {
+        v = -((object_surface_point.z() / (2.0_p * z_half_width)) - 0.5_p);
+    } else if (basal::nearly_equals(object_surface_point.y(), -y_half_width)) {
         // negative xz plane
         // u = -x -> +x
-        u = ((object_surface_point.x / (2.0_p * x_half_width)) + 0.5_p);
+        u = ((object_surface_point.x() / (2.0_p * x_half_width)) + 0.5_p);
         // v = +z -> -z
-        v = -((object_surface_point.z / (2.0_p * z_half_width)) - 0.5_p);
-    } else if (basal::nearly_equals(object_surface_point.z, z_half_width)) {
+        v = -((object_surface_point.z() / (2.0_p * z_half_width)) - 0.5_p);
+    } else if (basal::nearly_equals(object_surface_point.z(), z_half_width)) {
         // positive xy plane
         // u = +x -> -x
-        u = -((object_surface_point.x / (2.0_p * x_half_width)) - 0.5_p);
+        u = -((object_surface_point.x() / (2.0_p * x_half_width)) - 0.5_p);
         // v = +y -> -y
-        v = -((object_surface_point.y / (2.0_p * y_half_width)) - 0.5_p);
-    } else if (basal::nearly_equals(object_surface_point.z, -z_half_width)) {
+        v = -((object_surface_point.y() / (2.0_p * y_half_width)) - 0.5_p);
+    } else if (basal::nearly_equals(object_surface_point.z(), -z_half_width)) {
         // negative xy plane
         // u = -x -> +x
-        u = ((object_surface_point.x / (2.0_p * x_half_width)) + 0.5_p);
+        u = ((object_surface_point.x() / (2.0_p * x_half_width)) + 0.5_p);
         // v = +y -> -y
-        v = -((object_surface_point.y / (2.0_p * y_half_width)) - 0.5_p);
+        v = -((object_surface_point.y() / (2.0_p * y_half_width)) - 0.5_p);
     }
 
     // if all the clauses miss, then it returns 0,0
@@ -182,9 +182,9 @@ image::point cuboid::map(point const& object_surface_point) const {
 bool cuboid::is_surface_point(point const& world_point) const {
     // follow max(|x|/x_half_width, |y|/y_half_width, |z|/z_half_width) == 1.0_p
     point object_point = reverse_transform(world_point);
-    precision x = object_point.x;
-    precision y = object_point.y;
-    precision z = object_point.z;
+    precision x = object_point.x();
+    precision y = object_point.y();
+    precision z = object_point.z();
     precision nx = std::abs(x) / x_half_width;
     precision ny = std::abs(y) / y_half_width;
     precision nz = std::abs(z) / z_half_width;

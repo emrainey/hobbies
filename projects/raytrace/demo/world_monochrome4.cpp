@@ -70,8 +70,8 @@ public:
     raytrace::animation::anchors get_anchors() const override {
         raytrace::animation::anchors anchors;
         anchors.push_back(animation::Anchor{animation::Attributes{looking_from(), looking_at(), 55.0_deg},
-                                            animation::Attributes{looking_from(), looking_at(), 55.0_deg}, animation::Mappers{},
-                                            iso::seconds{1.0_p}});
+                                            animation::Attributes{looking_from(), looking_at(), 55.0_deg},
+                                            animation::Mappers{}, iso::seconds{1.0_p}});
         return anchors;
     }
 

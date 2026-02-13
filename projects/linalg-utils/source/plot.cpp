@@ -16,14 +16,14 @@ void plot_points(std::string name, const std::vector<geometry::point_<2>> &data,
     precision x_min, y_min = x_min = std::numeric_limits<precision>::max();
     precision x_max, y_max = x_max = std::numeric_limits<precision>::min();
     for (auto &d : data) {
-        if (y_min > d.y)
-            y_min = d.y;
-        if (y_max < d.y)
-            y_max = d.y;
-        if (x_min > d.x)
-            x_min = d.x;
-        if (x_max < d.x)
-            x_max = d.x;
+        if (y_min > d.y())
+            y_min = d.y();
+        if (y_max < d.y())
+            y_max = d.y();
+        if (x_min > d.x())
+            x_min = d.x();
+        if (x_max < d.x())
+            x_max = d.x();
     }
     precision y_range = y_max - y_min;
     if constexpr (debug::plotting) {
@@ -76,8 +76,8 @@ void plot_points(std::string name, const std::vector<geometry::point_<2>> &data,
     cv::line(img, x_left, x_right, red, 2);
 
     for (size_t i = 0; i < data.size(); i++) {
-        int x = x0 + data[i].x;
-        int y = y0 + data[i].y;
+        int x = x0 + data[i].x();
+        int y = y0 + data[i].y();
         cv::Point pt{x, y};
         cv::circle(img, pt, 1, colors[indexes[i]], 1);
     }

@@ -62,8 +62,8 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
             func_image.generate_each([&](raytrace::image::point const &pnt) {
                 // create a UV vector which is centered in the middle of the image. This means
                 // the u, v, values are between -1 and 1
-                raytrace::image::point uv(2.0_p * ((pnt.x / func_image.width) - 0.5_p),
-                                          2.0_p * ((pnt.y / func_image.height) - 0.5_p));
+                raytrace::image::point uv(2.0_p * ((pnt.x() / func_image.width) - 0.5_p),
+                                          2.0_p * ((pnt.y() / func_image.height) - 0.5_p));
                 // std::cout << "UV: " << uv << " with mapping " << to_underlying(mapping_function_name) << std::endl;
                 switch (mapping_function_name) {
                     case Functions::Simple:

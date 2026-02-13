@@ -18,7 +18,8 @@ using namespace iso::literals;
 class GapWallWorld : public world {
 public:
     GapWallWorld()
-        : world{raytrace::point{-30, -50, 100}, raytrace::point{0, 0, 0}, "Raytracing Wall Gap w/ Sphere", "world_gap.tga"}
+        : world{raytrace::point{-30, -50, 100}, raytrace::point{0, 0, 0}, "Raytracing Wall Gap w/ Sphere",
+                "world_gap.tga"}
         , wall1{R3::origin, R3::roll(iso::radians{-iso::pi / 2}), 20.0_p}
         , subgap{R3::origin, R3::pitch(iso::radians{iso::pi / 2}), 30.0_p}
         , gap{wall1, subgap, raytrace::objects::overlap::type::subtractive}
@@ -52,8 +53,8 @@ public:
     raytrace::animation::anchors get_anchors() const override {
         raytrace::animation::anchors anchors;
         anchors.push_back(animation::Anchor{animation::Attributes{looking_from(), looking_at(), 55.0_deg},
-                                            animation::Attributes{looking_from(), looking_at(), 55.0_deg}, animation::Mappers{},
-                                            iso::seconds{1.0_p}});
+                                            animation::Attributes{looking_from(), looking_at(), 55.0_deg},
+                                            animation::Mappers{}, iso::seconds{1.0_p}});
         return anchors;
     }
 

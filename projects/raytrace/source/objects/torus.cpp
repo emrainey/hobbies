@@ -17,7 +17,7 @@ torus::torus(point const& C, precision ring_radius, precision tube_radius)
 
 vector torus::normal_(point const& object_surface_point) const {
     // project along the XY plane
-    vector ring_vector{{object_surface_point.x, object_surface_point.y, 0}};
+    vector ring_vector{{object_surface_point.x(), object_surface_point.y(), 0}};
     // normalize so we can then...
     ring_vector.normalize();
     // scale it to the ring
@@ -43,9 +43,9 @@ hits torus::collisions_along(ray const& object_ray) const {
         // first break down line components into x,y,z & i,j,k
         // also, I refined the equations from http://blog.marcinchwedczuk.pl/ray-tracing-torus (they had simplified
         // versions which I think were better than those I dervied)
-        precision x = object_ray.location().x;
-        precision y = object_ray.location().y;
-        precision z = object_ray.location().z;
+        precision x = object_ray.location().x();
+        precision y = object_ray.location().y();
+        precision z = object_ray.location().z();
         precision i = object_ray.direction()[0];
         precision j = object_ray.direction()[1];
         precision k = object_ray.direction()[2];
@@ -118,9 +118,9 @@ hits torus::collisions_along(ray const& object_ray) const {
 bool torus::is_surface_point(point const& world_point) const {
     // (sqrt(x*x + y*y) + R)^2 +z*z = r*r
     point object_point = reverse_transform(world_point);
-    precision x = object_point.x;
-    precision y = object_point.y;
-    precision z = object_point.z;
+    precision x = object_point.x();
+    precision y = object_point.y();
+    precision z = object_point.z();
     precision R = m_tube_radius;
     precision r = m_ring_radius;
     precision sqrt_xx_yy = std::sqrt((x * x) + (y * y));

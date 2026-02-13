@@ -30,7 +30,7 @@ cv::Scalar_<uint8_t> jet(precision v);
 
 /// Converts a point to another point type.
 inline cv::Point_<precision> convert(geometry::R2::point const& a) {
-    return cv::Point_<precision>(a.x, a.y);
+    return cv::Point_<precision>(a.x(), a.y());
 }
 
 }  // namespace linalg

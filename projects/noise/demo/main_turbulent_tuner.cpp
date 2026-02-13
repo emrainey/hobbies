@@ -46,7 +46,7 @@ void generate_noise_image(void) {
         noise::point pnt{(noise::precision)x, (noise::precision)y};
         noise::precision n = noise::turbulentsin(pnt, x_scale, y_scale, power, size, scale, map);
         if constexpr (noise::debug::turbulentsin) {
-            printf("x,y={%lf, %lf} = %lf\n", pnt.x, pnt.y, n);
+            printf("x,y={%lf, %lf} = %lf\n", pnt.x(), pnt.y(), n);
         }
         pixel.r = uint8_t(std::floor(n));
         pixel.g = uint8_t(std::floor(n));

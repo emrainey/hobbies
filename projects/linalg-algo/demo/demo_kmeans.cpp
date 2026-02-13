@@ -20,8 +20,8 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
     std::vector<point_<2>> points(6000);
     for (size_t i = 0; i < points.size(); i++) {
         int r = rand() % 4;
-        points[i].x = distribs[r](gen);
-        points[i].y = distribs[r + 1](gen);
+        points[i].x() = distribs[r](gen);
+        points[i].y() = distribs[r + 1](gen);
     }
     kmeans km{points};
     km.configure(4);

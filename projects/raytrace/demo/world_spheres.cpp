@@ -34,7 +34,8 @@ void subspheres(std::vector<raytrace::objects::sphere*>& spheres, raytrace::poin
 class SpheresWorld : public world {
 public:
     SpheresWorld()
-        : world{raytrace::point{-10.0_p, 6.66_p, 20.0_p}, raytrace::point{3.0_p, 0.0_p, 6.0_p}, "Spheres World", "world_spheres.tga"}
+        : world{raytrace::point{-10.0_p, 6.66_p, 20.0_p}, raytrace::point{3.0_p, 0.0_p, 6.0_p}, "Spheres World",
+                "world_spheres.tga"}
         , custom_grey{0.75_p, 0.75_p, 0.75_p}
         , custom_metal{custom_grey, raytrace::mediums::smoothness::mirror, raytrace::mediums::roughness::medium}
         , spheres{}
@@ -89,8 +90,8 @@ public:
     raytrace::animation::anchors get_anchors() const override {
         raytrace::animation::anchors anchors;
         anchors.push_back(animation::Anchor{animation::Attributes{looking_from(), looking_at(), 55.0_deg},
-                                            animation::Attributes{looking_from(), looking_at(), 55.0_deg}, animation::Mappers{},
-                                            iso::seconds{1.0_p}});
+                                            animation::Attributes{looking_from(), looking_at(), 55.0_deg},
+                                            animation::Mappers{}, iso::seconds{1.0_p}});
         return anchors;
     }
 

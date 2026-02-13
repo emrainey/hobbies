@@ -23,7 +23,7 @@ camera::camera(size_t image_height, size_t image_width, iso::degrees field_of_vi
     iso::radians rfov;
     iso::convert(rfov, m_field_of_view);
     precision f = (static_cast<precision>(image_width) / 2.0_p) / std::tan(rfov.value / 2.0_p);
-    m_world_look_at.x = f;
+    m_world_look_at.x() = f;
 
     // the rotation from camera (+Z forward, -Y up) to world frame (+Z up, +X forward)
     iso::radians phi(iso::pi / 2);
@@ -173,16 +173,16 @@ ray camera::cast(image::point const& image_point) const {
     // the image plane is in the x,y camera coordinates plane but at z=1
     // basically there has to be a assumed arrangement
     // of the camera point and the image plane.
-    geometry::point camera_point(m_intrinsics * hg_image_point);
+    raytrace::point camera_point(m_intrinsics * hg_image_point);
     if constexpr (debug::cast) {
         std::cout << "\tCamera Intrinsics " << m_intrinsics << std::endl;
         std::cout << "\tNew Camera Point " << camera_point << std::endl;
         std::cout << "\tCamera to Object Rotation " << m_camera_to_object_rotation << std::endl;
     }
     // now rotate and translate the camera point into the world point
-    geometry::point object_point = m_camera_to_object_rotation * camera_point;
+    raytrace::point object_point = m_camera_to_object_rotation * camera_point;
     // go from object point to world point
-    geometry::point world_point = forward_transform(object_point);
+    raytrace::point world_point = forward_transform(object_point);
     // now that we know where the world_point is for this image point,
     // find the vector from the camera origin (in world coord) to the world_point on the image plane
     vector world_direction = world_point - position();

@@ -18,14 +18,14 @@
         ASSERT_NEAR(simple.blue(), (compound).blue(), raytrace::color::equality_limit);   \
     }
 
-#define ASSERT_IMAGE_POINT_EQ(simple, compound)      \
-    {                                                \
-        ASSERT_PRECISION_EQ(simple.x, (compound).x); \
-        ASSERT_PRECISION_EQ(simple.y, (compound).y); \
+#define ASSERT_IMAGE_POINT_EQ(simple, compound)          \
+    {                                                    \
+        ASSERT_PRECISION_EQ(simple.x(), (compound).x()); \
+        ASSERT_PRECISION_EQ(simple.y(), (compound).y()); \
     }
 
-#define EXPECT_IMAGE_POINT_EQ(simple, compound)      \
-    {                                                \
-        EXPECT_PRECISION_EQ(simple.x, (compound).x); \
-        EXPECT_PRECISION_EQ(simple.y, (compound).y); \
+#define EXPECT_IMAGE_POINT_EQ(simple, compound)          \
+    {                                                    \
+        EXPECT_PRECISION_EQ(simple.x(), (compound).x()); \
+        EXPECT_PRECISION_EQ(simple.y(), (compound).y()); \
     }

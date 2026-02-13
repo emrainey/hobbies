@@ -123,9 +123,9 @@ precision perlin(point const& pnt, precision scale, vector const& seeds, precisi
         dot(flows[3], uv - corners[3]),
     };
     // now do an interpolation between the 4 weights using the normalized point as the alpha
-    precision top = noise::interpolate(weights[0], weights[1], fade(uv.x));
-    precision bot = noise::interpolate(weights[2], weights[3], fade(uv.x));
-    precision mid = noise::interpolate(top, bot, fade(uv.y));
+    precision top = noise::interpolate(weights[0], weights[1], fade(uv.x()));
+    precision bot = noise::interpolate(weights[2], weights[3], fade(uv.x()));
+    precision mid = noise::interpolate(top, bot, fade(uv.y()));
     return fade(map(mid, -1.0_p, 1.0_p, 0.0_p, 1.0_p));
 }
 
@@ -134,25 +134,25 @@ precision smooth(point const& pnt, pad const& map) {
     point frat = fract(pnt);
 
     // base value
-    size_t x1 = static_cast<size_t>(base.x) % map.dimensions;
-    size_t y1 = static_cast<size_t>(base.y) % map.dimensions;
+    size_t x1 = static_cast<size_t>(base.x()) % map.dimensions;
+    size_t y1 = static_cast<size_t>(base.y()) % map.dimensions;
 
     // neighbor values
-    size_t x2 = (static_cast<size_t>(base.x) + map.dimensions - 1) % map.dimensions;
-    size_t y2 = (static_cast<size_t>(base.y) + map.dimensions - 1) % map.dimensions;
+    size_t x2 = (static_cast<size_t>(base.x()) + map.dimensions - 1) % map.dimensions;
+    size_t y2 = (static_cast<size_t>(base.y()) + map.dimensions - 1) % map.dimensions;
 
     if constexpr (debug::smooth) {
-        printf("b={%lf,%lf} f={%lf,%lf} x1,y1={%zu,%zu} x2,y2={%zu,%zu}\n", base.x, base.y, frat.x, frat.y, x1, y1, x2,
-               y2);
+        printf("b={%lf,%lf} f={%lf,%lf} x1,y1={%zu,%zu} x2,y2={%zu,%zu}\n", base.x(), base.y(), frat.x(), frat.y(), x1,
+               y1, x2, y2);
         printf("noise: %lf, %lf, %lf, %lf\n", map.at(y1, x1), map.at(y1, x2), map.at(y2, x1), map.at(y2, x2));
     }
 
     // smooth the noise with bilinear interpolation
     precision value = 0.0_p;
-    value += frat.x * frat.y * map.at(y1, x1);
-    value += (1 - frat.x) * frat.y * map.at(y1, x2);
-    value += frat.x * (1 - frat.y) * map.at(y2, x1);
-    value += (1 - frat.x) * (1 - frat.y) * map.at(y2, x2);
+    value += frat.x() * frat.y() * map.at(y1, x1);
+    value += (1 - frat.x()) * frat.y() * map.at(y1, x2);
+    value += frat.x() * (1 - frat.y()) * map.at(y2, x1);
+    value += (1 - frat.x()) * (1 - frat.y()) * map.at(y2, x2);
     return value;
 }
 
@@ -162,7 +162,7 @@ precision turbulence(point const& pnt, precision size, precision scale, pad cons
         point pnt2{pnt};  // copy
         pnt2 *= 1.0_p / size;
         if constexpr (debug::turbulence) {
-            printf("pnt={%lf, %lf}, pnt2={%lf, %lf} scale=%lf\n", pnt.x, pnt.y, pnt2.x, pnt2.y, 1.0_p / size);
+            printf("pnt={%lf, %lf}, pnt2={%lf, %lf} scale=%lf\n", pnt.x(), pnt.y(), pnt2.x(), pnt2.y(), 1.0_p / size);
         }
         value += smooth(pnt2, map) * size;
         size /= 2.0_p;
@@ -173,11 +173,11 @@ precision turbulence(point const& pnt, precision size, precision scale, pad cons
 precision turbulentsin(point const& pnt, precision xs, precision ys, precision power, precision size, precision scale,
                        pad const& map) {
     if constexpr (debug::turbulentsin) {
-        printf("pnt={%lf, %lf} xs,ys={%lf, %lf}, power=%lf size=%lf, scale=%lf\n", pnt.x, pnt.y, xs, ys, power, size,
-               scale);
+        printf("pnt={%lf, %lf} xs,ys={%lf, %lf}, power=%lf size=%lf, scale=%lf\n", pnt.x(), pnt.y(), xs, ys, power,
+               size, scale);
     }
-    precision x = pnt.x * xs / map.dimensions;
-    precision y = pnt.y * ys / map.dimensions;
+    precision x = pnt.x() * xs / map.dimensions;
+    precision y = pnt.y() * ys / map.dimensions;
     precision xyValue = x + y + power * turbulence(pnt, size, scale, map) / scale;
     if constexpr (debug::turbulentsin) {
         printf("x=%lf, y=%lf, xyValue = %lf\n", x, y, xyValue);
@@ -212,8 +212,8 @@ static precision fractal_noise(point const& pnt, vector const& seed, precision r
 
     // some function?
     // 2x^3 - 3.0x^2
-    precision ux = uv.x * uv.x * (3.0_p - (2.0_p * uv.x));
-    precision uy = uv.y * uv.y * (3.0_p - (2.0_p * uv.y));
+    precision ux = uv.x() * uv.x() * (3.0_p - (2.0_p * uv.x()));
+    precision uy = uv.y() * uv.y() * (3.0_p - (2.0_p * uv.y()));
 
     return mix(a, b, ux) + ((c - a) * uy * (1.0_p - ux)) + ((d - b) * ux * uy);
 }

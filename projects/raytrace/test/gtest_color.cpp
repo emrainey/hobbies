@@ -155,7 +155,7 @@ TEST(ColorTest, LMSImage) {
     img.generate_each([&](image::point const& pnt) -> color {
         // x is 0 - 800
         // w should be in the range of 380 to 780
-        precision w = (pnt.x / 2) + 380;
+        precision w = (pnt.x() / 2) + 380;
         iso::meters lambda(w * pow(10, -9));
         return wavelength_to_color(lambda);
     });

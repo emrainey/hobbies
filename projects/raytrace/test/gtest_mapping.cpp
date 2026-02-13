@@ -28,8 +28,8 @@ TEST(MappingTest, PlanarPolar) {
         raytrace::point C{0, 0, 0};
         geometry::R3::point P{1, 1, 1};
         geometry::R2::point polar = raytrace::mapping::planar_polar(N, X, C, P);
-        ASSERT_PRECISION_EQ(sqrt(2.0_p), polar.x);
-        ASSERT_PRECISION_EQ(1.0_p / 8.0_p, polar.y);
+        ASSERT_PRECISION_EQ(sqrt(2.0_p), polar.x());
+        ASSERT_PRECISION_EQ(1.0_p / 8.0_p, polar.y());
     }
     {
         raytrace::vector N{0, 0, 1};
@@ -37,8 +37,8 @@ TEST(MappingTest, PlanarPolar) {
         raytrace::point C{0, 0, 0};
         geometry::R3::point P{-1, 1, 1};
         geometry::R2::point polar = raytrace::mapping::planar_polar(N, X, C, P);
-        ASSERT_PRECISION_EQ(sqrt(2.0_p), polar.x);
-        ASSERT_PRECISION_EQ(3.0_p / 8.0_p, polar.y);
+        ASSERT_PRECISION_EQ(sqrt(2.0_p), polar.x());
+        ASSERT_PRECISION_EQ(3.0_p / 8.0_p, polar.y());
     }
     {
         raytrace::vector N{0, 0, 1};
@@ -46,8 +46,8 @@ TEST(MappingTest, PlanarPolar) {
         raytrace::point C{0, 0, 0};
         geometry::R3::point P{-1, -1, 1};
         geometry::R2::point polar = raytrace::mapping::planar_polar(N, X, C, P);
-        ASSERT_PRECISION_EQ(sqrt(2.0_p), polar.x);
-        ASSERT_PRECISION_EQ(5.0_p / 8.0_p, polar.y);
+        ASSERT_PRECISION_EQ(sqrt(2.0_p), polar.x());
+        ASSERT_PRECISION_EQ(5.0_p / 8.0_p, polar.y());
     }
     {
         raytrace::vector N{0, 0, 1};
@@ -55,7 +55,7 @@ TEST(MappingTest, PlanarPolar) {
         raytrace::point C{0, 0, 0};
         geometry::R3::point P{1, -1, 1};
         geometry::R2::point polar = raytrace::mapping::planar_polar(N, X, C, P);
-        ASSERT_PRECISION_EQ(sqrt(2.0_p), polar.x);
-        ASSERT_PRECISION_EQ(7.0_p / 8.0_p, polar.y);
+        ASSERT_PRECISION_EQ(sqrt(2.0_p), polar.x());
+        ASSERT_PRECISION_EQ(7.0_p / 8.0_p, polar.y());
     }
 }

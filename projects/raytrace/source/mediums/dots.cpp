@@ -13,8 +13,8 @@ color dots::diffuse(raytrace::point const& volumetric_point) const {
     palette pal = {m_background, m_dot};
     if (m_reducing_map) {
         image::point texture_point = m_reducing_map(volumetric_point);
-        texture_point.x *= m_repeat;
-        texture_point.y *= m_repeat;
+        texture_point.x() *= m_repeat;
+        texture_point.y() *= m_repeat;
         return functions::dots(texture_point, pal);
     } else {
         return functions::dots(volumetric_point, pal);

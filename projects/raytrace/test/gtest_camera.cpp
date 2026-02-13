@@ -137,18 +137,18 @@ TEST(CameraTest2, CodedImage) {
     cam.capture.generate_each([&](image::point const& img_point) -> color {
         ray const world_ray = cam.cast(img_point);
         raytrace::point const wrp = world_ray.location();  // just copy
-        if (wrp.y > 0) {
-            if (wrp.z > 0) {
+        if (wrp.y() > 0) {
+            if (wrp.z() > 0) {
                 return colors::green;
-            } else if (wrp.z < 0) {
+            } else if (wrp.z() < 0) {
                 return colors::red;
             } else {
                 return colors::black;
             }
-        } else if (wrp.y < 0) {
-            if (wrp.z > 0) {
+        } else if (wrp.y() < 0) {
+            if (wrp.z() > 0) {
                 return colors::blue;
-            } else if (wrp.z < 0) {
+            } else if (wrp.z() < 0) {
                 return colors::yellow;
             } else {
                 return colors::black;

@@ -18,7 +18,8 @@ using namespace iso::literals;
 class MonochromeWorld : public world {
 public:
     MonochromeWorld()
-        : world{raytrace::point{15, -20, 0}, raytrace::point{20, 20, 15}, "Monochrome World 3", "world_monochrome_3.tga"}
+        : world{raytrace::point{15, -20, 0}, raytrace::point{20, 20, 15}, "Monochrome World 3",
+                "world_monochrome_3.tga"}
         , light_subsamples{5}
         , light0{raytrace::point{-5, 0, 40}, 1, colors::white, 10, light_subsamples}
         , light1{raytrace::point{5, 0, 40}, 1, colors::white, 10, light_subsamples}

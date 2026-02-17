@@ -23,15 +23,19 @@ static constexpr bool scene{false};
 /// Enables debug for the objparser calls
 static constexpr bool objparser{false};
 /// Enables debug for the polygon
-static constexpr bool polygon{true};
+static constexpr bool polygon{false};
 /// Enables debug for the model loader
 static constexpr bool model{false};
 /// Enables debug for bounding object creation
 static constexpr bool bounds{false};
+/// Enables debug for rendering
+static constexpr bool render{false};
+/// Enables debug for Node tree
+static constexpr bool tree{true};
 }  // namespace debug
 
 /// Enforces range checking on some calls
-static constexpr bool enforce_contracts{true};
+static constexpr bool enforce_contracts{false};
 
 /// Enables using true intensity for lights or a clamped intensity
 static constexpr bool use_true_intensity{true};

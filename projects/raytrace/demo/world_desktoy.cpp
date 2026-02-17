@@ -28,8 +28,8 @@ public:
         // cutout2 from base. the center will now be at 0, 0, -7.5_p due to centroid calculation
         , final_base{base, cutout2, raytrace::objects::overlap::type::inclusive}
         , ground{}
-        , sunlight{raytrace::vector{-2, 2, -1}, colors::white, lights::intensities::bright}
-        , prick{raytrace::point{0, 0, 3}, colors::white, lights::intensities::bright} {
+        , sunlight{raytrace::vector{-2, 2, -1}, colors::white, 4.0_p}
+        , prick{raytrace::point{0, 0, 3}, colors::white, 3.0_p} {
         // the final base should sit on the ground
         // base.position(raytrace::point{0, 0, 2});
         final_base.position(raytrace::point{0, 0, 2});

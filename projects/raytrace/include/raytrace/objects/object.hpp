@@ -287,7 +287,11 @@ public:
             if (basal::is_nan(collision.distance)) {
                 continue;
             }
-            basal::exception::throw_if(collision.normal == R3::null, __FILE__, __LINE__, "The normal can't be null");
+            if (collision.normal.is_zero()) {
+                std::cout << "Got a zero normal for collision " << collision << " on object " << this << std::endl;
+                continue;
+            }
+            // basal::exception::throw_if(collision.normal == R3::null, __FILE__, __LINE__, "The normal can't be null");
             if constexpr (can_ray_origin_be_collision) {
                 if (basal::nearly_zero(collision.distance)) {
                     vector const N = normal_(object_ray.location());

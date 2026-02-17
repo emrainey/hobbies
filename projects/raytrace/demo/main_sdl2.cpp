@@ -33,6 +33,8 @@ struct Parameters {
     std::string module;
     size_t mask_threshold;
     double separation;
+    bool filter;
+    bool tone_mapping;
 };
 
 int main(int argc, char *argv[]) {
@@ -53,7 +55,9 @@ int main(int argc, char *argv[]) {
                                      {"-m", "--module", std::string(""), "Module to load"},
                                      {"-a", "--aaa", (size_t)raytrace::image::AAA_MASK_DISABLED,
                                       "Adaptive Anti-Aliasing Threshold value (255 disables)"},
-                                     {"-s", "--separation", 0.0_p, "Stereo Camera view separation"}};
+                                     {"-s", "--separation", 0.0_p, "Stereo Camera view separation"},
+                                    {"-e", "--filter", false, "Whether to do a post-process filter on the capture before saving"},
+                                    {"-t", "--tone-mapping", false, "Whether to apply tone mapping to the final image"}};
 
     basal::options::process(dimof(opts), opts, argc, argv);
     basal::exit_unless(basal::options::find(opts, "--dims", params.dim_name), __FILE__, __LINE__,
@@ -71,6 +75,10 @@ int main(int argc, char *argv[]) {
                        "Must be get value");
     basal::exit_unless(basal::options::find(opts, "--separation", params.separation), __FILE__, __LINE__,
                        "Must be able to assign a double");
+    basal::exit_unless(basal::options::find(opts, "--filter", params.filter), __FILE__, __LINE__,
+                       "Must be able to assign a bool");
+    basal::exit_unless(basal::options::find(opts, "--tone-mapping", params.tone_mapping), __FILE__, __LINE__,
+                       "Must be able to assign a bool");
     basal::options::print(dimof(opts), opts);
 
     basal::module mod(params.module.c_str());
@@ -202,7 +210,7 @@ int main(int argc, char *argv[]) {
                 std::thread bar_thread(progress_bar);  // thread starts
                 try {
                     scene.render(view, world.output_filename(), params.subsamples, params.reflections, row_notifier,
-                                 params.mask_threshold);
+                                 params.mask_threshold, params.filter, params.tone_mapping);
                 } catch (basal::exception const &e) {
                     std::cout << "Caught basal::exception in scene.render()! " << std::endl;
                     std::cout << "What:" << e.what() << " Why:" << e.why() << " Where:" << e.where() << std::endl;

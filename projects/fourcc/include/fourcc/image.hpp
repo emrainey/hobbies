@@ -288,6 +288,9 @@ constexpr bool uses_rgb565(pixel_format fmt) {
 template <typename PIXEL_TYPE, pixel_format PIXEL_FORMAT>
 class image {
 public:
+    /// The image pixel type used in this image
+    using PixelType = PIXEL_TYPE;
+
     /// The number of channels in the pixel
     size_t const depth;
     /// The number of pixels per row
@@ -297,10 +300,10 @@ public:
     /// The number of planes per image
     size_t const planes;
     /// The format for the image
-    pixel_format const format;
+    constexpr static pixel_format const format{PIXEL_FORMAT};
 
     /// Default Constructor
-    image() : depth{1}, width{0}, height{0}, planes{1}, format{PIXEL_FORMAT}, data{} {
+    image() : depth{1}, width{0}, height{0}, planes{1}, data{} {
     }
 
     /// Sized and typed constructor
@@ -309,7 +312,6 @@ public:
         , width{w}
         , height{h}
         , planes{planes_in_format(PIXEL_FORMAT)}
-        , format{PIXEL_FORMAT}
         , data{planes} {
         for (auto& plane : data) {
             // each unit is a PIXEL_TYPE
@@ -323,7 +325,6 @@ public:
         , width{other.width}
         , height{other.height}
         , planes{planes_in_format(PIXEL_FORMAT)}
-        , format{PIXEL_FORMAT}
         , data{planes} {
         for (auto& plane : data) {
             // each unit is a PIXEL_TYPE

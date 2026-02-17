@@ -111,10 +111,15 @@ TEST(ImageTest, SubsamplingChecker) {
             bool ix = (static_cast<int>(fx) & 1);
             precision fy = std::floor(p.y());
             bool iy = (static_cast<int>(fy) & 1);
+            color c;
             if ((not ix and not iy) or (ix and iy)) {
-                image5.at(n) = colors::red.to_rgb8();
+                c = colors::red;
+                c.to_space(color::space::logarithmic);
+                image5.at(n) = c.to_rgb8();
             } else {
-                image5.at(n) = colors::blue.to_rgb8();
+                c = colors::blue;
+                c.to_space(color::space::logarithmic);
+                image5.at(n) = c.to_rgb8();
             }
             return colors::yellow;
         },

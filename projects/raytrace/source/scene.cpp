@@ -231,14 +231,14 @@ color scene::direct_light(lights::light const& scene_light, mediums::medium cons
         precision incident_scaling = dot(normalized_light_direction, world_surface_normal);
         if constexpr (enforce_contracts) {
             basal::exception::throw_unless(within_inclusive(-1.0_p, incident_scaling, 1.0_p), __FILE__, __LINE__,
-                                           "Must be within bounds");
+                                           "Incident Scaling must be within bounds");
         }
         color incident_light = (incident_scaling > 0.0_p) ? incident_scaling * raw_light_color : colors::black;
         color diffuse_light = medium.diffuse(object_surface_point);
         precision specular_scaling = dot(normalized_light_direction, world_reflection.direction());
         if constexpr (enforce_contracts) {
             basal::exception::throw_unless(within_inclusive(-1.0_p, specular_scaling, 1.0_p), __FILE__, __LINE__,
-                                           "Must be within bounds");
+                                           "Specular Scaling must be within bounds");
         }
         color specular_light = medium.specular(object_surface_point, specular_scaling, raw_light_color);
         // blend the light color and the surface color together
@@ -438,21 +438,38 @@ color scene::trace(ray const& world_ray, mediums::medium const& media, size_t re
 }
 
 void scene::render(camera& view, std::string filename, size_t number_of_samples, size_t reflection_depth,
-                   std::optional<image::rendered_line> row_notifier, uint8_t aaa_mask_threshold, bool filter_capture) {
+                   std::optional<image::rendered_line> row_notifier, uint8_t aaa_mask_threshold, bool filter_capture, bool tone_mapper) {
     bool adaptive_antialiasing = aaa_mask_threshold != raytrace::image::AAA_MASK_DISABLED;
     if constexpr (debug::camera) {
         view.print(std::cout, "Camera Info:\n");
     }
-
+    if constexpr (debug::tree) {
+        std::cout << "Number of Nodes: " << m_nodes.size() << std::endl;
+    }
     // create the tree here as it can't be done in the add_object method correctly
     if (m_nodes.size() == 0U) {
+        // creates a Node in the list with the given bounds
         m_nodes.emplace_back(m_bounds);
+        if constexpr (debug::tree) {
+            std::cout << "Bounds: " << m_bounds << std::endl;
+        }
         // insert everything from the objects list into the nodes if it is not in the infinite list.
+        size_t items{0UL};
         for (auto const* obj : m_objects) {
             if (std::find(m_infinite_objects.begin(), m_infinite_objects.end(), obj) == m_infinite_objects.end()) {
                 m_nodes.back().add_object(obj);
+                items++;
             }
         }
+        if constexpr (debug::tree) {
+            std::cout << "Added " << items << " items" << std::endl;
+            std::cout << "Nodes think there are " << m_nodes.back().all_object_count() << " items" << std::endl;
+        }
+    }
+
+    if constexpr (debug::render) {
+        std::cout << "Rendering with " << number_of_samples << " samples and reflection depth of " << reflection_depth
+                  << std::endl << std::flush;
     }
 
     auto tracer = [&](image::point const& pnt) -> color {
@@ -461,12 +478,15 @@ void scene::render(camera& view, std::string filename, size_t number_of_samples,
         ray world_ray = view.cast(pnt);
 
         // trace the ray out to the world, starting from a vacuum
-        return trace(world_ray, *m_media, reflection_depth);
+        color c = trace(world_ray, *m_media, reflection_depth);
+        // Ensure our color spaces are correct for the renderer (should be in linear space)
+        basal::exception::throw_unless(c.color_space() == color::space::linear, __FILE__, __LINE__, "Color should be in linear space");
+        return c;
     };
     // if we're doing adaptive anti-aliasing we only shoot 1 ray at first and then compute a contrast mask
     // later
     view.capture.generate_each(tracer, adaptive_antialiasing ? 1 : number_of_samples, row_notifier, &view.mask,
-                               image::AAA_MASK_DISABLED);
+                               image::AAA_MASK_DISABLED, tone_mapper);
     // if the threshold is not disabled, then compute the extra pixels based on the mask
     if (aaa_mask_threshold < image::AAA_MASK_DISABLED) {
         // reset all rendered lines

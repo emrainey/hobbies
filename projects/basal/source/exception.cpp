@@ -128,7 +128,7 @@ void exception::throw_unless(bool condition, char const loc[], std::size_t line,
         va_start(list, fmt);
         vsnprintf(buffer, sizeof(buffer), fmt, list);
         va_end(list);
-        fprintf(stdout, "%s", buffer);
+        fprintf(stdout, "%s:%zu %s", loc, line, buffer);
         char const *value = std::getenv("ABORT");
         if (value) {
             fprintf(stdout, "ABORT=%s\n", value);

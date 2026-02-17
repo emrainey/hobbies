@@ -46,7 +46,7 @@ TEST(ColorTest, Logarithmic) {
 }
 
 TEST(ColorTest, Scaling) {
-    color g = grey;
+    color g{0.5_p, 0.5_p, 0.5_p};
     g *= 2.0_p;  // scale 0.5_p to 1.0
     ASSERT_TRUE(g == white);
 }
@@ -58,6 +58,7 @@ TEST(ColorTest, RGBAComponents) {
     pix1.g = 255;
     pix1.b = 255;
     pix1.a = 255;
+    g.to_space(color::space::logarithmic);
     fourcc::rgba pix2 = g.to_rgba();
     ASSERT_TRUE(pix1.r == pix2.r);
     ASSERT_TRUE(pix1.g == pix2.g);
@@ -96,6 +97,7 @@ TEST(ColorTest, InterpolateGreyScale) {
         y |= 0;
         precision a = precision(x) / img4.width;
         color c = interpolate(colors::white, colors::black, a);
+        c.to_space(color::space::logarithmic);
         pixel = c.to_rgb8();
     });
     img4.save("interpolate_greyscale.ppm");
@@ -109,18 +111,20 @@ TEST(ColorTest, InterpolateCorners) {
         color c = interpolate(colors::red, colors::green, a);
         color d = interpolate(colors::blue, colors::white, b);
         color e = blend(c, d);
+        e.clamp();
+        e.to_space(color::space::logarithmic);
         pixel = e.to_rgb8();
     });
     img5.save("interpolate_corners.ppm");
 }
 
-TEST(ColorTest, LinearGreyscale) {
+TEST(ColorTest, DISABLED_LinearGreyscale) {
     fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8> img6(256, 256);
     img6.for_each([&](size_t y, size_t x, fourcc::rgb8& pixel) {
         y |= 0;
         precision v = precision(x) / img6.width;
         color c{v, v, v};  // starts linear
-        c.to_space(color::space::linear);
+        c.to_space(color::space::logarithmic); // it's no longer possible to write out a linear
         pixel = c.to_rgb8();
     });
     img6.save("linear_greyscale.ppm");
@@ -138,15 +142,27 @@ TEST(ColorTest, LogarithmicGreyscale) {
     img7.save("logarithmic_greyscale.ppm");
 }
 
-TEST(ColorTest, BlendingSamples) {
+TEST(ColorTest, BlendingSamplesBW) {
     std::vector<color> wb_samples = {colors::white, colors::black};
     color tmp = color::blend_samples(wb_samples);
-    ASSERT_COLOR_EQ(colors::grey, tmp);
+    ASSERT_COLOR_EQ(color(0.5_p, 0.5_p, 0.5_p), tmp);
 
-    precision g = 0.61250591370193386_p;
+    precision g = 0.21404114048223255_p;
+    tmp.clamp();
+    tmp.to_space(color::space::logarithmic);
+    color median_grey{g, g, g};
+    ASSERT_COLOR_EQ(median_grey, tmp);
+}
+
+TEST(ColorTest, BlendingSamplesRGB) {
     std::vector<color> rgb_samples = {colors::red, colors::green, colors::blue};
-    tmp = color::blend_samples(rgb_samples);
-    color dark_grey(g, g, g);
+    color tmp = color::blend_samples(rgb_samples);
+    ASSERT_COLOR_EQ(color(0.333333_p, 0.333333_p, 0.333333_p), tmp);
+
+    precision g = 0.090841711183407683_p; // nearly black
+    tmp.clamp();
+    tmp.to_space(color::space::logarithmic);
+    color dark_grey{g, g, g};
     ASSERT_COLOR_EQ(dark_grey, tmp);
 }
 

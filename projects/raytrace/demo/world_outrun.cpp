@@ -63,7 +63,7 @@ public:
     OutrunWorld()
         : world{raytrace::point{0, 50, 10}, raytrace::point{0, 0, 10}, "Outrun World", "world_outrun.tga"}
         , sun_center{raytrace::point{0, -3000, 200}}
-        , sun_rays{raytrace::vector{0, 200, -200}, colors::white, lights::intensities::radiant}
+        , sun_rays{raytrace::vector{0, 200, -200}, colors::white, 2 * lights::intensities::bright}
         , grid{10.0_p, outrun::neon_pink, colors::black}
         , floor{2000.0_p}
         , sun_surface{}

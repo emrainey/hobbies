@@ -65,18 +65,21 @@ using precision4 = intel::double4;
 /// @brief sRGB linear color space value
 class color {
 public:
+    /// The number of channels in the color (red, green, blue, intensity)
     constexpr static size_t NUM_CHANNELS = 4;
-    precision channels[NUM_CHANNELS];
 
     /// Indicates how the values are stored
     enum class space : int {
-        linear,
-        logarithmic,
-    } representation;
+        linear,         ///< Values add together linearly, no gamma correction
+        logarithmic,    ///< Values are stored in a logarithmic space, so they add together logarithmically (gamma corrected)
+    };
 
+    /// Simple Parameter Constructor
     constexpr explicit color() : color(0.0_p, 0.0_p, 0.0_p) {
     }
 
+    /// Full Parameter Constructor with Intensity.
+    /// @warning Intensity is currently not used.
     constexpr explicit color(precision _r, precision _g, precision _b, precision _i = 1.0_p)
         : channels{_r, _g, _b, _i}, representation{space::linear} {
     }
@@ -92,15 +95,19 @@ public:
     // Destructor
     ~color() = default;
 
+    /// Returns the RED channel of the color
     constexpr precision const& red() const {
         return channels[0];
     }
+    /// Returns the GREEN channel of the color
     constexpr precision const& green() const {
         return channels[1];
     }
+    /// Returns the BLUE channel of the color
     constexpr precision const& blue() const {
         return channels[2];
     }
+    /// Returns the INTENSITY channel of the color
     constexpr precision const& intensity() const {
         return channels[3];
     }
@@ -108,16 +115,22 @@ public:
     /// Converts the color from one space to another.
     void to_space(space desired);
 
+    /// Returns the current color space of the color.
+    space color_space() const {
+        return representation;
+    }
+
     /// Scaling operator
-    inline void scale(precision const a, bool with_clamp = true) {
+    inline void scale(precision const a) {
+        /// ensure linear space for scaling
+        to_space(space::linear);
         for (auto& c : channels) {
             c *= a;
         }
-        if (with_clamp) {
-            clamp();
-        }
     }
 
+    /// Restricts the color to the range 0.0_p to 1.0_p. This should ONLY be done right before
+    /// outputting the color to an image, and should not be done in the middle of calculations.
     inline void clamp() {
         for (auto& c : channels) {
             c = std::clamp(c, 0.0_p, 1.0_p);
@@ -126,14 +139,24 @@ public:
 
     /// Scale Wrapper
     inline color& operator*=(precision const a) {
-        scale(a, true);
+        scale(a);
         return (*this);
     }
 
+    /// Converts to RGBA format with 8 bits per channel in sRGB color space
     fourcc::rgba to_rgba() const;
+
+    /// Converts to ABGR format with 8 bits per channel in sRGB color space
     fourcc::abgr to_abgr() const;
+
+    /// Converts to RGB format with 8 bits per channel in sRGB color space
     fourcc::rgb8 to_rgb8() const;
+
+    /// Converts to BGR format with 8 bits per channel in sRGB color space
     fourcc::bgr8 to_bgr8() const;
+
+    /// Converts to RGBh format with 16 bits per channel in LINEAR color space
+    fourcc::rgbh to_rgbh() const;
 
     /// Allows a per channel operation
     void per_channel(std::function<precision(precision c)> iter);
@@ -163,7 +186,9 @@ public:
     /// Generates a random color.
     static color random();
 
-    // Don't add interfaces as color needs to be constexpr for colors below
+protected:
+    precision channels[NUM_CHANNELS];   ///< The color channels (red @ 0, green @ 1, blue @ 2, intensity @ 3)
+    space representation;               ///< The color space the channels are currently represented in (linear or logarithmic)
 };
 
 namespace colors {
@@ -320,5 +345,30 @@ bool operator==(color const& a, color const& b);
 /// @note This uses a simplified gaussian response for each LMS peak.
 ///
 color wavelength_to_color(iso::meters lambda) noexcept(false);
+
+/// Given a color map it to another color using some predefined mapping function.
+/// This is used for tone mapping and false color mapping.
+class ToneMapper {
+public:
+    /// The mapping function to use for the tone mapping. This is a function that takes in a color and outputs a color.
+    /// @param color The color to map to another color.
+    virtual color operator()(color const&) = 0;
+protected:
+    ~ToneMapper() = default;
+};
+
+/// A simple tone mapper that maps colors using the Reinhard Tone Mapping algorithm.
+class ReinhardToneMapper : public ToneMapper {
+public:
+    /// Maps a color to another color using the Reinhard Tone Mapping algorithm.
+    /// @param color The color to map to another color.
+    inline color operator()(color const& c) override {
+        // this is a simple implementation of the Reinhard Tone Mapping algorithm. It maps the color to a new color using the formula:
+        color d = c;
+        d += colors::white;  // add white to the color to brighten it up (linear)
+        // c' = c / (c + 1)
+        return color(c.red() / d.red(), c.green() / d.green(), c.blue() / d.blue());
+    }
+};
 
 }  // namespace raytrace

@@ -14,7 +14,7 @@ class SphereStackWorld : public world {
 public:
     SphereStackWorld()
         : world{raytrace::point{0, 50, 20}, raytrace::point{0, 0, 10}, "A pile of spheres World", "world_spheres4.tga"}
-        , sun_rays{raytrace::vector{-20, 0, -21}, colors::white, lights::intensities::full}
+        , sun_rays{raytrace::vector{-20, 0, -21}, colors::white, lights::intensities::full * 1.3}
         , floor{200.0_p}
         , cb0{0.125_p, colors::black, colors::white}
         , s0{raytrace::point{5.0_p, 0, 5}, 5.0_p}

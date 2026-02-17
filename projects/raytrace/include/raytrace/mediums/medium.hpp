@@ -153,6 +153,7 @@ namespace roughness {
 constexpr precision tight = 100.0_p;
 constexpr precision medium = 50.0_p;
 constexpr precision loose = 20.0_p;
+constexpr precision very_loose = 10.0_p;
 }  // namespace roughness
 
 }  // namespace mediums

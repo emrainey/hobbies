@@ -8,6 +8,7 @@ namespace raytrace {
 
 fourcc::rgba color::to_rgba() const {
     fourcc::rgba pixel;
+    basal::exception::throw_unless(representation == space::logarithmic, __FILE__, __LINE__, "Color should be in logarithmic space");
     pixel.r = static_cast<uint8_t>(std::round(red() * 255));
     pixel.g = static_cast<uint8_t>(std::round(green() * 255));
     pixel.b = static_cast<uint8_t>(std::round(blue() * 255));
@@ -17,6 +18,7 @@ fourcc::rgba color::to_rgba() const {
 
 fourcc::abgr color::to_abgr() const {
     fourcc::abgr pixel;
+    basal::exception::throw_unless(representation == space::logarithmic, __FILE__, __LINE__, "Color should be in logarithmic space");
     pixel.r = static_cast<uint8_t>(std::round(red() * 255));
     pixel.g = static_cast<uint8_t>(std::round(green() * 255));
     pixel.b = static_cast<uint8_t>(std::round(blue() * 255));
@@ -26,6 +28,7 @@ fourcc::abgr color::to_abgr() const {
 
 fourcc::rgb8 color::to_rgb8() const {
     fourcc::rgb8 pixel;
+    basal::exception::throw_unless(representation == space::logarithmic, __FILE__, __LINE__, "Color should be in logarithmic space");
     pixel.r = static_cast<uint8_t>(std::round(red() * 255));
     pixel.g = static_cast<uint8_t>(std::round(green() * 255));
     pixel.b = static_cast<uint8_t>(std::round(blue() * 255));
@@ -34,9 +37,19 @@ fourcc::rgb8 color::to_rgb8() const {
 
 fourcc::bgr8 color::to_bgr8() const {
     fourcc::bgr8 pixel;
+    basal::exception::throw_unless(representation == space::logarithmic, __FILE__, __LINE__, "Color should be in logarithmic space");
     pixel.r = static_cast<uint8_t>(std::round(red() * 255));
     pixel.g = static_cast<uint8_t>(std::round(green() * 255));
     pixel.b = static_cast<uint8_t>(std::round(blue() * 255));
+    return pixel;
+}
+
+fourcc::rgbh color::to_rgbh() const {
+    fourcc::rgbh pixel;
+    basal::exception::throw_unless(representation == space::linear, __FILE__, __LINE__, "Color should be in linear space");
+    pixel.r = static_cast<basal::half>(red());
+    pixel.g = static_cast<basal::half>(green());
+    pixel.b = static_cast<basal::half>(blue());
     return pixel;
 }
 
@@ -69,10 +82,10 @@ void color::per_channel(std::function<precision(precision c)> iter) {
 }
 
 color& color::operator+=(color const& other) {
+    basal::exception::throw_unless(representation == space::linear, __FILE__, __LINE__, "Color should be in linear space");
     for (size_t i = 0; i < NUM_CHANNELS; i++) {
         channels[i] += other.channels[i];
     }
-    clamp();
     return (*this);
 }
 
@@ -89,6 +102,8 @@ void color::to_space(space desired) {
         channels[2] = gamma::remove_correction(channels[2]);
         channels[3] = gamma::remove_correction(channels[3]);
         representation = space::logarithmic;
+    } else {
+        // do nothing, it's already in the right space
     }
 }
 
@@ -129,27 +144,24 @@ bool operator==(color const& a, color const& b) {
 }
 
 color color::blend_samples(std::vector<color> const& subsamples) {
-    color tmp;
-    tmp.to_space(color::space::logarithmic);
+    color output; // starts linear
     precision div = static_cast<precision>(subsamples.size());
     for (auto& sub : subsamples) {
-        color c = sub;
-        c.to_space(color::space::logarithmic);
-        c *= (1.0_p / div);
-        tmp += c;
+        color tmp = sub;
+        // scale
+        tmp *= (1.0_p / div);
+        // then accumulate
+        output += tmp;
     }
-    tmp.to_space(color::space::linear);
-    return tmp;
+    return output;
 }
 
 color color::accumulate_samples(std::vector<color> const& samples) {
-    color tmp;
-    // tmp.to_space(color::space::logarithmic);
+    color tmp; // starts in linear space
     for (auto& sample : samples) {
-        // sample.to_space(color::space::logarithmic);
+        assert(sample.representation == color::space::linear);
         tmp += sample;
     }
-    // tmp.to_space(color::space::linear);
     return tmp;
 }
 namespace jet {

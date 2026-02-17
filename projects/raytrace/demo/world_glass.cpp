@@ -26,8 +26,8 @@ public:
         , schott_glass{mediums::refractive_index::glass, 0.04_p, colors::red}
         , red_plastic{colors::white, mediums::ambient::dim, colors::red, mediums::smoothness::barely,
                       mediums::roughness::tight}
-        , back_light{raytrace::point{-10, -10, 12}, colors::white, lights::intensities::intense}
-        , front_light{raytrace::point{10, 10, 12}, colors::white, lights::intensities::intense} {
+        , back_light{raytrace::point{-10, -10, 12}, colors::white, 2 * lights::intensities::intense}
+        , front_light{raytrace::point{10, 10, 12}, colors::white, 2 * lights::intensities::intense} {
         ikea_checkers.mapper(std::bind(&objects::square::map, &floor, std::placeholders::_1));
         floor.material(&ikea_checkers);
         glass_ball.material(&schott_glass);

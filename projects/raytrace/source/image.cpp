@@ -93,7 +93,7 @@ public:
 };
 
 void image::generate_each(subsampler get_color, size_t number_of_samples, std::optional<rendered_line> row_notifier,
-                          fourcc::image<uint8_t, fourcc::pixel_format::Y8>* mask, uint8_t mask_threshold) {
+                          fourcc::image<uint8_t, fourcc::pixel_format::Y8>* mask, uint8_t mask_threshold, bool tone_mapping) {
     SampleFuzzer* delta;
     if constexpr (use_random_sample_points) {
         delta = new RandomSampleFuzzer();
@@ -117,8 +117,20 @@ void image::generate_each(subsampler get_color, size_t number_of_samples, std::o
             }
             // now average all the samples together.
             color value = color::blend_samples(samples);
-            // save the pixel
-            fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8>::at(y, x) = value.to_rgb8();
+            if (tone_mapping) {
+                ReinhardToneMapper mapper;
+                value = mapper(value);
+            }
+            if constexpr (format == fourcc::pixel_format::RGB8) {
+                // clamp the value
+                value.clamp();
+                // NOW FINALLY convert to sRGB space
+                value.to_space(color::space::logarithmic);
+                // save the pixel
+                fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8>::at(y, x) = value.to_rgb8();
+            // } else if constexpr (format == fourcc::pixel_format::RGBh) {
+            //     fourcc::image<fourcc::rgbh, fourcc::pixel_format::RGBh>::at(y, x) = value.to_rgbh();
+            }
         }
         if (row_notifier != std::nullopt) {
             rendered_line func = row_notifier.value();

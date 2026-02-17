@@ -166,6 +166,9 @@ struct half {
     constexpr half(float f) : raw{0} {
         from(f);
     }
+    constexpr half(double d) : raw{0} {
+        from(static_cast<float>(d));
+    }
     constexpr half(std::uint32_t s, std::uint32_t e, std::uint32_t m) : bits(m, e, s) {
     }
 

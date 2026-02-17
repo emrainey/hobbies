@@ -58,7 +58,8 @@ public:
     void generate_each(subsampler sub_func, size_t number_of_samples = 1,
                        std::optional<rendered_line> opt_func = std::nullopt,
                        fourcc::image<uint8_t, fourcc::pixel_format::Y8>* mask = nullptr,
-                       uint8_t mask_threshold = AAA_MASK_DISABLED);
+                       uint8_t mask_threshold = AAA_MASK_DISABLED,
+                       bool tone_mapping = false);
 
     /// Returns the image pixel at the point (rounded raster coordinates)
     fourcc::rgb8& at(point const& p);

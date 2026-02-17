@@ -45,7 +45,7 @@ public:
         , number_of_spheres{128}
         , spheres{}
         , mats{}
-        , sunlight{raytrace::vector{-2, 2, -1}, colors::white, lights::intensities::bright}
+        , sunlight{raytrace::vector{-2, 2, -1}, colors::white, 2.0_p}
         , specks{} {
         raytrace::point center = looking_at();
         spheres.push_back(new raytrace::objects::sphere(center, 4.5_p));

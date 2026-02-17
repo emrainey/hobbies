@@ -15,8 +15,7 @@ class PlanetWorld : public world {
 public:
     PlanetWorld()
         : world{raytrace::point{0, 50, 10}, raytrace::point{8, 0, 0}, "Planet World", "world_planet.tga"}
-        , sun_rays{raytrace::vector{-20, 0, -21}, colors::white, lights::intensities::bright / 2}
-        , inner_light{raytrace::point{0, 0, 80}, colors::white, lights::intensities::blinding}
+        , sun_rays{raytrace::vector{-20, 0, -21}, colors::white, lights::intensities::full * 2.3_p}
         , center{0, 0, 0}
         , ringA{center, R3::identity, 10.0_p, 11.8_p}
         , ringB{center, R3::identity, 12.0_p, 12.2_p}
@@ -44,7 +43,6 @@ public:
     }
 
     void add_to(scene& scene) override {
-        // scene.add_light(&inner_light);
         scene.add_light(&sun_rays);
         scene.add_object(&planet);
         scene.add_object(&ringA);
@@ -65,7 +63,6 @@ public:
 
 protected:
     lights::beam sun_rays;
-    lights::speck inner_light;
     raytrace::point center;
     objects::ring ringA;
     objects::ring ringB;

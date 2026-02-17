@@ -87,7 +87,7 @@ public:
         , tree10{raytrace::point{7, -8, 0}}
         , tree11{raytrace::point{7, -1, 0}}
         , tree12{raytrace::point{4, -3, 0}}
-        , moonlight{R3::vector{{-1, -1, -1}}, colors::silver, lights::intensities::full}
+        , moonlight{R3::vector{{-1, -1, -1}}, colors::silver, lights::intensities::full * 2}
         , lights{}
         , starfield{1024} {
         ground.material(&snow);

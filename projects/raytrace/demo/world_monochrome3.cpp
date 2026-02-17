@@ -21,9 +21,9 @@ public:
         : world{raytrace::point{15, -20, 0}, raytrace::point{20, 20, 15}, "Monochrome World 3",
                 "world_monochrome_3.tga"}
         , light_subsamples{5}
-        , light0{raytrace::point{-5, 0, 40}, 1, colors::white, 10, light_subsamples}
-        , light1{raytrace::point{5, 0, 40}, 1, colors::white, 10, light_subsamples}
-        , beam0{raytrace::vector{10, 10, -100}, colors::white, 10E11}
+        , light0{raytrace::point{-5, 0, 40}, 1, colors::white, 30 * lights::intensities::bright, light_subsamples}
+        , light1{raytrace::point{5, 0, 40}, 1, colors::white, 30 * lights::intensities::bright, light_subsamples}
+        , beam0{raytrace::vector{10, 10, -100}, colors::white, lights::intensities::bright}
         , s0{raytrace::point{5, 20, 15}, 6}
         , t0{raytrace::point{-2, 20, 17}, 3, 1}              // , o0{}
                                                              // coordinates in overlap space

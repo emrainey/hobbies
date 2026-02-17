@@ -16,7 +16,7 @@ color light::color_at(point const& world_point) const {
     if (use_true_intensity) {
         C = m_color;
         // this doesn't clamp
-        C.scale(intensity, false);
+        C.scale(intensity);
     } else {
         // caution! this is a clamped intensity, not true intensity
         C = m_color * intensity;

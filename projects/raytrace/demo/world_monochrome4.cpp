@@ -20,9 +20,9 @@ public:
     MonochromeWorld()
         : world{raytrace::point{40, 9, 37}, raytrace::point{0, 0, 15}, "Monochrome World 4", "world_monochrome_4.tga"}
         , light_subsamples{5}
-        , light0{raytrace::point{-5, 0, 40}, 1, colors::white, 10, light_subsamples}
-        , light1{raytrace::point{5, 0, 40}, 1, colors::white, 10, light_subsamples}
-        , beam0{-R3::basis::Z, colors::white, 10E11}
+        , light0{raytrace::point{-5, 0, 40}, 1, colors::white, lights::intensities::full * 1.9_p, light_subsamples}
+        , light1{raytrace::point{5, 0, 40}, 1, colors::white, lights::intensities::full * 1.9_p, light_subsamples}
+        , beam0{-R3::basis::Z, colors::white, lights::intensities::full * 3.0_p}
         , s0{raytrace::point{0, 0, 5}, 5}
         , s1{raytrace::point{0, 0, 15}, 5}
         , s2{raytrace::point{0, 0, 25}, 5}

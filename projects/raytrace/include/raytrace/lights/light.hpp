@@ -26,6 +26,7 @@ constexpr static precision bright{1E1};
 constexpr static precision intense{1E2};
 constexpr static precision radiant{1E3};
 constexpr static precision blinding{1E11};
+constexpr static precision searing{1E20};
 }  // namespace intensities
 
 /// An interface to all light types in the system which is used to determine the color contribution at some surface

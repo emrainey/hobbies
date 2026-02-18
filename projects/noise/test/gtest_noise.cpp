@@ -162,12 +162,12 @@ TEST(NoiseTest, PadImage) {
     noise::precision sum = 0.0_p;
     noise::pad_<noise::precision, 128> pad;
     pad.generate();
-    fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8> img(128, 128);
+    fourcc::image<fourcc::PixelFormat::RGB8> img(128, 128);
     img.for_each([&](size_t y, size_t x, fourcc::rgb8& pixel) {
         sum += pad.at(y, x);
-        pixel.r = 255u * pad.at(y, x);
-        pixel.g = 255u * pad.at(y, x);
-        pixel.b = 255u * pad.at(y, x);
+        pixel.components.r = 255u * pad.at(y, x);
+        pixel.components.g = 255u * pad.at(y, x);
+        pixel.components.b = 255u * pad.at(y, x);
     });
     ASSERT_LT(0.0_p, sum / (128 * 128));
     img.save("pad.ppm");
@@ -190,7 +190,7 @@ public:
 protected:
     noise::pad pad;
     std::string image_name;
-    fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8> image;
+    fourcc::image<fourcc::PixelFormat::RGB8> image;
 };
 
 TEST_F(NoiseImageTest, RandomNoiseImage) {
@@ -204,9 +204,9 @@ TEST_F(NoiseImageTest, RandomNoiseImage) {
         noise::precision _r, r = noise::random(vec, vec_r, gain);
         noise::precision _g, g = noise::random(vec, vec_g, gain);
         noise::precision _b, b = noise::random(vec, vec_b, gain);
-        pixel.r = 255u * std::modf(r, &_r);
-        pixel.g = 255u * std::modf(g, &_g);
-        pixel.b = 255u * std::modf(b, &_b);
+        pixel.components.r = 255u * std::modf(r, &_r);
+        pixel.components.g = 255u * std::modf(g, &_g);
+        pixel.components.b = 255u * std::modf(b, &_b);
     });
     image_name = "noise_image_random.ppm";
 }
@@ -219,9 +219,9 @@ TEST_F(NoiseImageTest, PerlinNoiseImage) {
     image.for_each([&](size_t y, size_t x, fourcc::rgb8& pixel) {
         noise::point pnt{(noise::precision)x, (noise::precision)y};
         noise::precision p = noise::perlin(pnt, scale, seeds, gain);
-        pixel.r = 255u * p;
-        pixel.g = 255u * p;
-        pixel.b = 255u * p;
+        pixel.components.r = 255u * p;
+        pixel.components.g = 255u * p;
+        pixel.components.b = 255u * p;
     });
     image_name = "noise_image_perlin.ppm";
 }
@@ -232,9 +232,9 @@ TEST_F(NoiseImageTest, Turbulence) {
     image.for_each([&](size_t y, size_t x, fourcc::rgb8& pixel) {
         noise::point pnt{(noise::precision)x, (noise::precision)y};
         noise::precision value = noise::turbulence(pnt, size, scale, pad);
-        pixel.r = 255u * value;
-        pixel.g = 255u * value;
-        pixel.b = 255u * value;
+        pixel.components.r = 255u * value;
+        pixel.components.g = 255u * value;
+        pixel.components.b = 255u * value;
     });
     image_name = "noise_image_turbulence.ppm";
 }
@@ -247,9 +247,9 @@ TEST_F(NoiseImageTest, TurbulenceSin) {
         noise::point pnt{(noise::precision)x, (noise::precision)y};
         noise::precision value = noise::turbulentsin(pnt, xs, ys, power, size, scale, pad);
         // printf("x=%zu, y=%zu, value=%lf\n", x, y, value);
-        pixel.r = value;
-        pixel.g = value;
-        pixel.b = value;
+        pixel.components.r = 255u * value;
+        pixel.components.g = 255u * value;
+        pixel.components.b = 255u * value;
     });
     image_name = "noise_image_turbulentsin.ppm";
 }
@@ -264,9 +264,9 @@ TEST_F(NoiseImageTest, TurbulenceSinNormalized) {
         noise::point pnt{u * 1024.0_p, v * 1024.0_p};  // scale to the normailzed range to some
         noise::precision value = noise::turbulentsin(pnt, xs, ys, power, size, scale, pad);
         // printf("u,v=%lf,%lf value=%lf\n", u, v, value);
-        pixel.r = value;
-        pixel.g = value;
-        pixel.b = value;
+        pixel.components.r = 255u * value;
+        pixel.components.g = 255u * value;
+        pixel.components.b = 255u * value;
     });
     image_name = "noise_image_turbulentsin_norm.ppm";
 }
@@ -282,9 +282,9 @@ TEST_F(NoiseImageTest, FractalBrownian) {
     image.for_each([&](size_t y, size_t x, fourcc::rgb8& pixel) {
         noise::point pnt{(noise::precision)x / image.width, (noise::precision)y / image.height};
         noise::precision value = noise::fractal_brownian(pnt, seeds, octaves, lacunarity, gain, amplitude, frequency);
-        pixel.r = 255u * value;
-        pixel.g = 255u * value;
-        pixel.b = 255u * value;
+        pixel.components.r = 255u * value;
+        pixel.components.g = 255u * value;
+        pixel.components.b = 255u * value;
     });
     image_name = "noise_image_fractal_brownian.ppm";
 }

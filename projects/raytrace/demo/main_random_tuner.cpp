@@ -80,10 +80,14 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
                 // std::cout << "UV: " << uv << std::endl;
                 return raytrace::functions::pseudo_random_noise(uv, colors);
             });
-            random_noise_image.for_each([&](int y, int x, fourcc::rgb8 &pixel) {
-                render_image.at<cv::Vec3b>(y, x)[0] = pixel.b;
-                render_image.at<cv::Vec3b>(y, x)[1] = pixel.g;
-                render_image.at<cv::Vec3b>(y, x)[2] = pixel.r;
+            random_noise_image.for_each([&](int y, int x, raytrace::image::PixelStorageType &pixel) {
+                raytrace::color value(pixel.components.r, pixel.components.g, pixel.components.b, pixel.components.i);
+                value.clamp();
+                value.ToEncoding(fourcc::Encoding::GammaCorrected );
+                auto srgb = value.to_<fourcc::PixelFormat::RGB8>();
+                render_image.at<cv::Vec3b>(y, x)[0] = srgb.components.b;
+                render_image.at<cv::Vec3b>(y, x)[1] = srgb.components.g;
+                render_image.at<cv::Vec3b>(y, x)[2] = srgb.components.r;
             });
             // for (int y = 0; y < random_noise_image.height; y++) {
             //     for (int x = 0; x < random_noise_image.width; x++) {

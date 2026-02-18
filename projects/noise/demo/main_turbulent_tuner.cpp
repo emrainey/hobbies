@@ -17,8 +17,8 @@ constexpr int width = 320;
 constexpr int height = 240;
 
 // noise image
-fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8> noise_image(height, width);
-fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8> pad_image(noise::pad::dimensions, noise::pad::dimensions);
+fourcc::image<fourcc::PixelFormat::RGB8> noise_image(height, width);
+fourcc::image<fourcc::PixelFormat::RGB8> pad_image(noise::pad::dimensions, noise::pad::dimensions);
 // the render image
 cv::Mat render_image(height, width, CV_8UC3);
 cv::Mat render_pad_image(noise::pad::dimensions, noise::pad::dimensions, CV_8UC3);
@@ -34,9 +34,9 @@ noise::pad map;
 void generate_pad_image(void) {
     pad_image.for_each([&](size_t y, size_t x, fourcc::rgb8 &pixel) {
         noise::precision v = map.at(y, x);
-        pixel.r = uint8_t(255u * v);
-        pixel.g = uint8_t(255u * v);
-        pixel.b = uint8_t(255u * v);
+        pixel.components.r = uint8_t(255u * v);
+        pixel.components.g = uint8_t(255u * v);
+        pixel.components.b = uint8_t(255u * v);
     });
 }
 
@@ -48,25 +48,25 @@ void generate_noise_image(void) {
         if constexpr (noise::debug::turbulentsin) {
             printf("x,y={%lf, %lf} = %lf\n", pnt.x(), pnt.y(), n);
         }
-        pixel.r = uint8_t(std::floor(n));
-        pixel.g = uint8_t(std::floor(n));
-        pixel.b = uint8_t(std::floor(n));
+        pixel.components.r = uint8_t(std::floor(n));
+        pixel.components.g = uint8_t(std::floor(n));
+        pixel.components.b = uint8_t(std::floor(n));
     });
 }
 
 void copy_to_cv_image(void) {
     noise_image.for_each([&](size_t y, size_t x, fourcc::rgb8 &pixel) {
-        render_image.at<cv::Vec3b>(y, x)[0] = pixel.r;
-        render_image.at<cv::Vec3b>(y, x)[1] = pixel.g;
-        render_image.at<cv::Vec3b>(y, x)[2] = pixel.b;
+        render_image.at<cv::Vec3b>(y, x)[0] = pixel.components.r;
+        render_image.at<cv::Vec3b>(y, x)[1] = pixel.components.g;
+        render_image.at<cv::Vec3b>(y, x)[2] = pixel.components.b;
     });
 }
 
 void copy_to_pad_image(void) {
     pad_image.for_each([&](size_t y, size_t x, fourcc::rgb8 &pixel) {
-        render_pad_image.at<cv::Vec3b>(y, x)[0] = pixel.r;
-        render_pad_image.at<cv::Vec3b>(y, x)[1] = pixel.g;
-        render_pad_image.at<cv::Vec3b>(y, x)[2] = pixel.b;
+        render_pad_image.at<cv::Vec3b>(y, x)[0] = pixel.components.r;
+        render_pad_image.at<cv::Vec3b>(y, x)[1] = pixel.components.g;
+        render_pad_image.at<cv::Vec3b>(y, x)[2] = pixel.components.b;
     });
 }
 

@@ -2,57 +2,24 @@
 
 #include <cmath>
 #include <cstdint>
-#include <fourcc/image.hpp>
+#include <fourcc/fourcc.hpp>
 #include "raytrace/configuration.hpp"
 #include "raytrace/types.hpp"
 
 namespace raytrace {
+using color = fourcc::color;
 
-/// The Gamma Correction Namespace
-namespace gamma {
+using fourcc::gamma::interpolate;
 
-///
-/// Removes Gamma Correction
-/// @see https://ixora.io/projects/colorblindness/color-blindness-simulation-research/
-/// @param value The value to correct (must be nominal (0-1))
-/// @return The corrected value
-///
-constexpr precision remove_correction(precision value) {
-    if constexpr (use_full) {
-        if (value <= 0.04045_p) {
-            return value / 12.92_p;
-        } else {
-            return std::pow((value + 0.055_p) / 1.055_p, 2.4_p);
-        }
-    } else {
-        return std::pow(value, 2.2_p);
-    }
+using fourcc::blend;
+
+using fourcc::operator==;
+
+using fourcc::operator<<;
+
+inline color wavelength_to_color(iso::meters lambda) noexcept(false) {
+    return fourcc::wavelength_to_color(lambda);
 }
-
-///
-/// Applies Gamma Correction
-/// @see https://ixora.io/projects/colorblindness/color-blindness-simulation-research/
-/// @param value The value to correct (must be nominal (0-1))
-/// @return The corrected value
-///
-constexpr precision apply_correction(precision value) {
-    if constexpr (use_full) {
-        if (value <= 0.0031308_p) {
-            return 12.92_p * value;
-        } else {
-            return (1.055_p * std::pow(value, 0.41666_p)) - 0.055_p;
-        }
-    } else {
-        return std::pow(value, 1.0_p / 2.2_p);
-    }
-}
-
-}  // namespace gamma
-
-/// Adds two channels together after gamma correction by the scalar given.
-/// @note the scalar must be 0.0_p <= s <= 1.0_p.
-/// @retval precision will be clamped from 0.0_p to 1.0_p
-precision gamma_interpolate(precision const a, precision const b, precision const s);
 
 #if defined(USE_XMMT)
 #if defined(USE_PRECISION_AS_FLOAT)
@@ -61,135 +28,6 @@ using precision4 = intel::float4;
 using precision4 = intel::double4;
 #endif
 #endif
-
-/// @brief sRGB linear color space value
-class color {
-public:
-    /// The number of channels in the color (red, green, blue, intensity)
-    constexpr static size_t NUM_CHANNELS = 4;
-
-    /// Indicates how the values are stored
-    enum class space : int {
-        linear,         ///< Values add together linearly, no gamma correction
-        logarithmic,    ///< Values are stored in a logarithmic space, so they add together logarithmically (gamma corrected)
-    };
-
-    /// Simple Parameter Constructor
-    constexpr explicit color() : color(0.0_p, 0.0_p, 0.0_p) {
-    }
-
-    /// Full Parameter Constructor with Intensity.
-    /// @warning Intensity is currently not used.
-    constexpr explicit color(precision _r, precision _g, precision _b, precision _i = 1.0_p)
-        : channels{_r, _g, _b, _i}, representation{space::linear} {
-    }
-
-    // Copy Constructor
-    color(color const& other);
-    // Move constructor
-    color(color&& other);
-    // Copy Assign
-    color& operator=(color const&);
-    // Move Assign
-    color& operator=(color&&);  // this is used in the get_color() assignment
-    // Destructor
-    ~color() = default;
-
-    /// Returns the RED channel of the color
-    constexpr precision const& red() const {
-        return channels[0];
-    }
-    /// Returns the GREEN channel of the color
-    constexpr precision const& green() const {
-        return channels[1];
-    }
-    /// Returns the BLUE channel of the color
-    constexpr precision const& blue() const {
-        return channels[2];
-    }
-    /// Returns the INTENSITY channel of the color
-    constexpr precision const& intensity() const {
-        return channels[3];
-    }
-
-    /// Converts the color from one space to another.
-    void to_space(space desired);
-
-    /// Returns the current color space of the color.
-    space color_space() const {
-        return representation;
-    }
-
-    /// Scaling operator
-    inline void scale(precision const a) {
-        /// ensure linear space for scaling
-        to_space(space::linear);
-        for (auto& c : channels) {
-            c *= a;
-        }
-    }
-
-    /// Restricts the color to the range 0.0_p to 1.0_p. This should ONLY be done right before
-    /// outputting the color to an image, and should not be done in the middle of calculations.
-    inline void clamp() {
-        for (auto& c : channels) {
-            c = std::clamp(c, 0.0_p, 1.0_p);
-        }
-    }
-
-    /// Scale Wrapper
-    inline color& operator*=(precision const a) {
-        scale(a);
-        return (*this);
-    }
-
-    /// Converts to RGBA format with 8 bits per channel in sRGB color space
-    fourcc::rgba to_rgba() const;
-
-    /// Converts to ABGR format with 8 bits per channel in sRGB color space
-    fourcc::abgr to_abgr() const;
-
-    /// Converts to RGB format with 8 bits per channel in sRGB color space
-    fourcc::rgb8 to_rgb8() const;
-
-    /// Converts to BGR format with 8 bits per channel in sRGB color space
-    fourcc::bgr8 to_bgr8() const;
-
-    /// Converts to RGBh format with 16 bits per channel in LINEAR color space
-    fourcc::rgbh to_rgbh() const;
-
-    /// Allows a per channel operation
-    void per_channel(std::function<precision(precision c)> iter);
-
-    /// Accumulates colors together (does not gamma correct)
-    color& operator+=(color const& other);
-
-    /// The comparison precision for equal colors (to a millionth)
-    constexpr static precision equality_limit = 1.0E-6;
-
-    /// Blends all colors together in a equal weighted average with gamma
-    /// correction.
-    /// @param subsamples The vector of color samples
-    static color blend_samples(std::vector<color> const& subsamples);
-
-    /// Accumulates all the samples together into a summed color in the linear space
-    static color accumulate_samples(std::vector<color> const& samples);
-
-    /// Map numbers near the range -1.0_p to 1.0_p to a color in the spectrum.
-    /// Bluer for negatives, Reds for Positives.
-    static color jet(precision d);
-
-    /// Takes a number between min and max and returns an RGB from 0.0_p to 1.0_p.
-    /// If the input is out of range, returns magenta.
-    static color greyscale(precision d, precision min, precision max);
-
-    /// Generates a random color.
-    static color random();
-
-protected:
-    precision channels[NUM_CHANNELS];   ///< The color channels (red @ 0, green @ 1, blue @ 2, intensity @ 3)
-    space representation;               ///< The color space the channels are currently represented in (linear or logarithmic)
-};
 
 namespace colors {
 constexpr color white(1.0_p, 1.0_p, 1.0_p);
@@ -305,12 +143,6 @@ constexpr color steel(0.62_p, 0.62_p, 0.51_p);
 constexpr color tin(0.72_p, 0.71_p, 0.61_p);
 }  // namespace colors
 
-/// Assumes a 50% blend (uses gamma correct)
-color blend(color const& x, color const& y);
-
-/// Allows for user blend ratio (uses gamma correct)
-color interpolate(color const& x, color const& y, precision a);
-
 namespace operators {
 /// Blend the colors together (uses gamma correct)
 inline color operator+(color const& x, color const& y) {
@@ -330,21 +162,10 @@ inline color operator*(precision a, color const& x) {
 }
 
 /// Pairwise Color Mixing (when a light and a surface color self select the output color)
-color operator*(color const& a, color const& b);
+inline color operator*(color const& a, color const& b) {
+    return fourcc::operators::operator*(a, b);
+}
 }  // namespace operators
-
-std::ostream& operator<<(std::ostream& os, color const& c);
-
-/// Compares two colors within the epsilon
-bool operator==(color const& a, color const& b);
-
-///
-/// Converts a specific wavelength of light into an LMS color.
-/// @see https://en.wikipedia.org/wiki/LMS_color_space
-/// @param lambda The wavelength of the photon. Must be between 380nm and 780nm.
-/// @note This uses a simplified gaussian response for each LMS peak.
-///
-color wavelength_to_color(iso::meters lambda) noexcept(false);
 
 /// Given a color map it to another color using some predefined mapping function.
 /// This is used for tone mapping and false color mapping.
@@ -353,6 +174,7 @@ public:
     /// The mapping function to use for the tone mapping. This is a function that takes in a color and outputs a color.
     /// @param color The color to map to another color.
     virtual color operator()(color const&) = 0;
+
 protected:
     ~ToneMapper() = default;
 };
@@ -363,7 +185,8 @@ public:
     /// Maps a color to another color using the Reinhard Tone Mapping algorithm.
     /// @param color The color to map to another color.
     inline color operator()(color const& c) override {
-        // this is a simple implementation of the Reinhard Tone Mapping algorithm. It maps the color to a new color using the formula:
+        // this is a simple implementation of the Reinhard Tone Mapping algorithm. It maps the color to a new color
+        // using the formula:
         color d = c;
         d += colors::white;  // add white to the color to brighten it up (linear)
         // c' = c / (c + 1)

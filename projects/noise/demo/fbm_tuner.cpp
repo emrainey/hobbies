@@ -18,7 +18,7 @@ constexpr int height = 1024;
 constexpr int scale = 1024;
 
 // noise image
-fourcc::image<fourcc::yf, fourcc::pixel_format::YF> noise_image(height, width);
+fourcc::image<fourcc::PixelFormat::YF> noise_image(height, width);
 // the render image
 cv::Mat render_image(height, width, CV_32FC1);  // CV_8UC3);
 size_t octaves = 6;
@@ -36,10 +36,10 @@ void generate_noise_image(void) {
            amplitude, frequency);
     noise_image.for_each([&](size_t y, size_t x, fourcc::yf &pixel) {
         noise::point pnt{(noise::precision)x / scale, (noise::precision)y / scale};
-        pixel.y = (float)noise::fractal_brownian(pnt, seed, octaves, lacunarity, gain, amplitude, frequency);
+        pixel.components.y = (float)noise::fractal_brownian(pnt, seed, octaves, lacunarity, gain, amplitude, frequency);
     });
     noise_image.for_each([&](size_t y, size_t x, fourcc::yf &pixel) {
-        float n = pixel.y;  // the intensity, not the cartesian y
+        float n = pixel.components.y;  // the intensity, not the cartesian y
         // if min is negative, slide it up to be zero to some larger value
         render_image.at<float>(y, x) = n;
     });

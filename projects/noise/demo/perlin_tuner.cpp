@@ -27,7 +27,7 @@ noise::precision gain = 32.0_p;
 // scale of the pattern
 noise::precision scale = 32.0_p;
 // noise image
-fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8> noise_image(height, width);
+fourcc::image<fourcc::PixelFormat::RGB8> noise_image(height, width);
 // the render image
 cv::Mat render_image(height, width, CV_8UC3);
 // the vector image
@@ -37,17 +37,17 @@ void generate_noise_image(void) {
     noise_image.for_each([&](int y, int x, fourcc::rgb8 &pixel) {
         noise::point pnt{noise::precision(x), noise::precision(y)};
         noise::precision n = noise::perlin(pnt, scale, seed, gain);
-        pixel.r = n * 255;
-        pixel.g = n * 255;
-        pixel.b = n * 255;
+        pixel.components.r = n * 255;
+        pixel.components.g = n * 255;
+        pixel.components.b = n * 255;
     });
 }
 
 void copy_to_cv_image(void) {
     noise_image.for_each([&](int y, int x, fourcc::rgb8 &pixel) {
-        render_image.at<cv::Vec3b>(y, x)[0] = pixel.r;
-        render_image.at<cv::Vec3b>(y, x)[1] = pixel.g;
-        render_image.at<cv::Vec3b>(y, x)[2] = pixel.b;
+        render_image.at<cv::Vec3b>(y, x)[0] = pixel.components.r;
+        render_image.at<cv::Vec3b>(y, x)[1] = pixel.components.g;
+        render_image.at<cv::Vec3b>(y, x)[2] = pixel.components.b;
     });
 }
 

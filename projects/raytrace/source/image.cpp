@@ -9,23 +9,23 @@
 
 namespace raytrace {
 
-image::image(size_t h, size_t w) : fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8>(h, w) {
+image::image(size_t h, size_t w) : fourcc::image<fourcc::PixelFormat::RGBId>(h, w) {
     basal::exception::throw_if(basal::is_odd(height) or basal::is_odd(width), __FILE__, __LINE__,
                                "Height %d and Width %d must be even", height, width);
 }
 
-fourcc::rgb8& image::at(size_t y, size_t x) {
-    return fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8>::at(y, x);
+image::PixelStorageType& image::at(size_t y, size_t x) {
+    return fourcc::image<format>::at(y, x);
 }
 
-fourcc::rgb8 const& image::at(size_t y, size_t x) const {
-    return fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8>::at(y, x);
+image::PixelStorageType const& image::at(size_t y, size_t x) const {
+    return fourcc::image<format>::at(y, x);
 }
 
-fourcc::rgb8& image::at(image::point const& p) {
+image::PixelStorageType& image::at(image::point const& p) {
     size_t x = static_cast<size_t>(std::floor(p.x()));
     size_t y = static_cast<size_t>(std::floor(p.y()));
-    return fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8>::at(y, x);
+    return fourcc::image<format>::at(y, x);
 }
 
 /// @brief The sampling pattern for the image plane, defined as vectors from the center of the pixel. (0.5_p, 0.5_p)
@@ -93,7 +93,7 @@ public:
 };
 
 void image::generate_each(subsampler get_color, size_t number_of_samples, std::optional<rendered_line> row_notifier,
-                          fourcc::image<uint8_t, fourcc::pixel_format::Y8>* mask, uint8_t mask_threshold, bool tone_mapping) {
+                          fourcc::image<fourcc::PixelFormat::Y8>* mask, uint8_t mask_threshold, bool tone_mapping) {
     SampleFuzzer* delta;
     if constexpr (use_random_sample_points) {
         delta = new RandomSampleFuzzer();
@@ -121,16 +121,8 @@ void image::generate_each(subsampler get_color, size_t number_of_samples, std::o
                 ReinhardToneMapper mapper;
                 value = mapper(value);
             }
-            if constexpr (format == fourcc::pixel_format::RGB8) {
-                // clamp the value
-                value.clamp();
-                // NOW FINALLY convert to sRGB space
-                value.to_space(color::space::logarithmic);
-                // save the pixel
-                fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8>::at(y, x) = value.to_rgb8();
-            // } else if constexpr (format == fourcc::pixel_format::RGBh) {
-            //     fourcc::image<fourcc::rgbh, fourcc::pixel_format::RGBh>::at(y, x) = value.to_rgbh();
-            }
+            auto out = value.to_<fourcc::PixelFormat::RGBId>();
+            fourcc::image<format>::at(y, x) = out;
         }
         if (row_notifier != std::nullopt) {
             rendered_line func = row_notifier.value();

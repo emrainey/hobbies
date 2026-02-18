@@ -13,7 +13,7 @@ using namespace iso::literals;
 class ArtWorld : public world {
 public:
     ArtWorld()
-        : world(raytrace::point{0, 25, 10}, raytrace::point{0, 0, 10}, "Art1 World", "world_art1.tga")
+        : world(raytrace::point{0, 25, 10}, raytrace::point{0, 0, 10}, "Art1 World", "world_art1.exr")
         , sun_rays{raytrace::vector{-20, 0, -21}, colors::white, lights::intensities::dim}
         , floor{200.0_p}
         , pyramid1{looking_at(), 0}
@@ -31,7 +31,7 @@ public:
         // this creates a gradient from top to bottom
         iso::radians sky_angle = angle(R3::basis::Z, world_ray.direction());
         precision scalar = sky_angle.value / iso::pi;
-        return interpolate(colors::dark_slate_blue, colors::light_blue, scalar);
+        return fourcc::gamma::interpolate(colors::dark_slate_blue, colors::light_blue, scalar);
         // return colors::black;
     }
 

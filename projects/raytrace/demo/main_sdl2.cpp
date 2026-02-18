@@ -182,16 +182,24 @@ int main(int argc, char *argv[]) {
                                 return;
                             }
                         }
-                        view.capture.for_each([&](size_t y, size_t x, fourcc::rgb8 const &pixel) -> void {
+                        view.capture.for_each([&](size_t y, size_t x, raytrace::image::PixelStorageType const &pixel) -> void {
                             if (row_index != y)
                                 return;  // if it's not this row, skip it
                             uint8_t *pixels = reinterpret_cast<uint8_t *>(surface->pixels);  // this is double width!
                             size_t offset = (y * surface->pitch) + (x * sizeof(fourcc::bgra))
                                             + (view_offset * sizeof(fourcc::bgra));
+
+                            // clamp, then convert to sRGB
+                            raytrace::color value(pixel.components.r, pixel.components.g, pixel.components.b, pixel.components.i);
+                            value.clamp();
+                            value.ToEncoding(fourcc::Encoding::GammaCorrected );
+                            // save the pixel in B G R A order
+                            auto srgb = value.to_<fourcc::PixelFormat::RGB8>();
+
                             // B G R A order
-                            pixels[offset + 0u] = pixel.b;
-                            pixels[offset + 1u] = pixel.g;
-                            pixels[offset + 2u] = pixel.r;
+                            pixels[offset + 0u] = srgb.components.b;
+                            pixels[offset + 1u] = srgb.components.g;
+                            pixels[offset + 2u] = srgb.components.r;
                             pixels[offset + 3u] = 0u;
                         });
                         if (window_mutex.try_lock()) {
@@ -231,14 +239,20 @@ int main(int argc, char *argv[]) {
                         return -1;
                     }
                 }
-                view.capture.for_each([&](size_t y, size_t x, fourcc::rgb8 const &pixel) -> void {
+                view.capture.for_each([&](size_t y, size_t x, raytrace::image::PixelStorageType const &pixel) -> void {
                     uint8_t *pixels = reinterpret_cast<uint8_t *>(surface->pixels);
                     size_t offset
                         = (y * surface->pitch) + (x * sizeof(fourcc::bgra)) + (view_offset * sizeof(fourcc::bgra));
+                    // clamp, then convert to sRGB
+                    raytrace::color value(pixel.components.r, pixel.components.g, pixel.components.b, pixel.components.i);
+                    value.clamp();
+                    value.ToEncoding(fourcc::Encoding::GammaCorrected );
+                    auto srgb = value.to_<fourcc::PixelFormat::RGB8>();
+
                     // B G R A order
-                    pixels[offset + 0u] = pixel.b;
-                    pixels[offset + 1u] = pixel.g;
-                    pixels[offset + 2u] = pixel.r;
+                    pixels[offset + 0u] = srgb.components.b;
+                    pixels[offset + 1u] = srgb.components.g;
+                    pixels[offset + 2u] = srgb.components.r;
                     pixels[offset + 3u] = 0u;
                 });
                 SDL_UpdateWindowSurface(window);

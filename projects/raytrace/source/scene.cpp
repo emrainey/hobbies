@@ -290,13 +290,11 @@ color scene::reflected_light(precision reflectivity, mediums::medium const& medi
                                    world_reflection, sample_index, reflection_depth, recursive_contribution);
             }
             // blend or accumulate? all the surface samples from this light (could be all black)
-            // FIXME which of these look better? Blending or accumulating?
-            // color surface_color = color::accumulate_samples(surface_color_samples);
-            color surface_color = color::blend_samples(surface_color_samples);
+            color surface_color = fourcc::color::blend_samples(surface_color_samples);
             surface_colors.push_back(surface_color);
         }
         // now accumulate all the light sources together (including ambient)
-        color surface_properties_color = color::accumulate_samples(surface_colors);
+        color surface_properties_color = fourcc::accumulate_samples(surface_colors);
 
         if (reflection_depth > 0) {
             // mix how much local surface color versus reflected surface there should be
@@ -480,13 +478,18 @@ void scene::render(camera& view, std::string filename, size_t number_of_samples,
         // trace the ray out to the world, starting from a vacuum
         color c = trace(world_ray, *m_media, reflection_depth);
         // Ensure our color spaces are correct for the renderer (should be in linear space)
-        basal::exception::throw_unless(c.color_space() == color::space::linear, __FILE__, __LINE__, "Color should be in linear space");
+        basal::exception::throw_unless(c.GetEncoding() == fourcc::Encoding::Linear, __FILE__, __LINE__, "Color should be in linear space");
         return c;
     };
     // if we're doing adaptive anti-aliasing we only shoot 1 ray at first and then compute a contrast mask
     // later
     view.capture.generate_each(tracer, adaptive_antialiasing ? 1 : number_of_samples, row_notifier, &view.mask,
                                image::AAA_MASK_DISABLED, tone_mapper);
+
+    // create the sRGB image
+    fourcc::image<fourcc::PixelFormat::RGB8> first_srgb_image{view.capture.height, view.capture.width};
+    fourcc::convert(view.capture, first_srgb_image);
+
     // if the threshold is not disabled, then compute the extra pixels based on the mask
     if (aaa_mask_threshold < image::AAA_MASK_DISABLED) {
         // reset all rendered lines
@@ -497,18 +500,23 @@ void scene::render(camera& view, std::string filename, size_t number_of_samples,
             }
         }
         // compute the mask
-        fourcc::sobel_mask(view.capture, view.mask);
+        fourcc::sobel_mask(first_srgb_image, view.mask);
         // update the image based on the mask
         view.capture.generate_each(tracer, number_of_samples, row_notifier, &view.mask, aaa_mask_threshold);
     }
+
+    // re-create the sRGB image
+    fourcc::image<fourcc::PixelFormat::RGB8> srgb_image{view.capture.height, view.capture.width};
+    fourcc::convert(view.capture, srgb_image);
+
     // if we want to filter the image before viewing or saving, do that here.
     if (filter_capture) {
         // copy the image into a duplicate
-        fourcc::image<fourcc::rgb8, fourcc::pixel_format::RGB8> capture_copy(view.capture);
+        fourcc::image<fourcc::PixelFormat::RGB8> capture_copy(srgb_image);
         int16_t kernel[3]{1, 2, 1};
-        fourcc::filter(view.capture, capture_copy, kernel);
+        fourcc::filter(srgb_image, capture_copy, kernel);
     }
-    view.capture.save(filename);
+    srgb_image.save(filename);
 }
 
 void scene::print(std::ostream& os, char const str[]) const {

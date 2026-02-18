@@ -10,8 +10,12 @@ find_package(Doxygen)
 
 # === Targets ===
 add_library(hobbies-fourcc
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/image.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/convert.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/convolve.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/encoding.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/image.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/pairs.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/pixel.cpp
 )
 target_include_directories(hobbies-fourcc
     PUBLIC
@@ -25,6 +29,7 @@ target_include_directories(hobbies-fourcc
 target_link_libraries(hobbies-fourcc
     PUBLIC
         hobbies-basal
+        hobbies-uom
     PRIVATE
         enabled-warnings
         enabled-debugging
@@ -42,6 +47,7 @@ set_target_properties(hobbies-fourcc PROPERTIES
 if (BUILD_UNIT_TESTS AND Threads_FOUND AND GTest_FOUND)
     add_executable(gtest_fourcc
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_fourcc.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_pixel.cpp
     )
     target_link_libraries(gtest_fourcc PRIVATE hobbies-fourcc enabled-debugging GTest::gtest GTest::gmock GTest::gtest_main Threads::Threads)
     add_test(NAME gtest_fourcc COMMAND gtest_fourcc)

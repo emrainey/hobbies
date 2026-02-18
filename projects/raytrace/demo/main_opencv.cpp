@@ -216,10 +216,14 @@ int main(int argc, char* argv[]) {
 
             std::cout << "Image Rendered in " << diff.count() << " seconds" << std::endl;
 
-            view.capture.for_each([&](size_t y, size_t x, fourcc::rgb8 const& pixel) -> void {
-                render_image.at<cv::Vec3b>(y, x)[0] = pixel.b;
-                render_image.at<cv::Vec3b>(y, x)[1] = pixel.g;
-                render_image.at<cv::Vec3b>(y, x)[2] = pixel.r;
+            view.capture.for_each([&](size_t y, size_t x, raytrace::image::PixelStorageType const& pixel) -> void {
+                raytrace::color value(pixel.components.r, pixel.components.g, pixel.components.b, pixel.components.i);
+                value.clamp();
+                value.ToEncoding(fourcc::Encoding::GammaCorrected );
+                auto srgb = value.to_<fourcc::PixelFormat::RGB8>();
+                render_image.at<cv::Vec3b>(y, x)[0] = srgb.components.b;
+                render_image.at<cv::Vec3b>(y, x)[1] = srgb.components.g;
+                render_image.at<cv::Vec3b>(y, x)[2] = srgb.components.r;
             });
             cv::imshow(world.window_name(), render_image);
             cv::imwrite("render_image.png", render_image);

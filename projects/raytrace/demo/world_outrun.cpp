@@ -36,13 +36,13 @@ public:
         iso::radians obj_angle = angle(R3::basis::Z, obj_vec);
         precision scalar = obj_angle.value / (iso::pi / 2.0_p);
         if (scalar < 1.0_p) {
-            return interpolate(colors::orange_red, colors::yellow, scalar);
+            return fourcc::gamma::interpolate(colors::orange_red, colors::yellow, scalar);
         } else {
             if ((1.0_p < scalar and scalar <= 1.05_p) or (1.1_p < scalar and scalar <= 1.15_p)
                 or (1.2_p < scalar and scalar <= 1.25_p) or (1.3_p < scalar and scalar <= 1.35_p)) {
                 return colors::black;
             } else {
-                return interpolate(colors::red, colors::orange_red, 1.0_p - scalar);
+                return fourcc::gamma::interpolate(colors::red, colors::orange_red, 1.0_p - scalar);
             }
         }
     }
@@ -85,7 +85,7 @@ public:
         // this creates a gradient from top to bottom
         iso::radians sky_angle = angle(R3::basis::Z, world_ray.direction());
         precision scalar = sky_angle.value / (2 * iso::pi);
-        return interpolate(colors::dark_slate_blue, colors::black, scalar);
+        return fourcc::gamma::interpolate(colors::dark_slate_blue, colors::black, scalar);
         // return colors::black;
     }
 

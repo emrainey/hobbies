@@ -9,6 +9,7 @@ AlignConsecutiveAssignments:
   AcrossEmptyLines: false
   AcrossComments: false
   AlignCompound: false
+  AlignFunctionDeclarations: false
   AlignFunctionPointers: false
   PadOperators: true
 AlignConsecutiveBitFields:
@@ -16,6 +17,7 @@ AlignConsecutiveBitFields:
   AcrossEmptyLines: false
   AcrossComments: false
   AlignCompound: false
+  AlignFunctionDeclarations: false
   AlignFunctionPointers: false
   PadOperators: false
 AlignConsecutiveDeclarations:
@@ -23,6 +25,7 @@ AlignConsecutiveDeclarations:
   AcrossEmptyLines: false
   AcrossComments: false
   AlignCompound: false
+  AlignFunctionDeclarations: true
   AlignFunctionPointers: false
   PadOperators: false
 AlignConsecutiveMacros:
@@ -30,6 +33,7 @@ AlignConsecutiveMacros:
   AcrossEmptyLines: false
   AcrossComments: false
   AlignCompound: false
+  AlignFunctionDeclarations: false
   AlignFunctionPointers: false
   PadOperators: false
 AlignConsecutiveShortCaseStatements:
@@ -43,6 +47,7 @@ AlignConsecutiveTableGenBreakingDAGArgColons:
   AcrossEmptyLines: false
   AcrossComments: false
   AlignCompound: false
+  AlignFunctionDeclarations: false
   AlignFunctionPointers: false
   PadOperators: false
 AlignConsecutiveTableGenCondOperatorColons:
@@ -50,6 +55,7 @@ AlignConsecutiveTableGenCondOperatorColons:
   AcrossEmptyLines: false
   AcrossComments: false
   AlignCompound: false
+  AlignFunctionDeclarations: false
   AlignFunctionPointers: false
   PadOperators: false
 AlignConsecutiveTableGenDefinitionColons:
@@ -57,12 +63,13 @@ AlignConsecutiveTableGenDefinitionColons:
   AcrossEmptyLines: false
   AcrossComments: false
   AlignCompound: false
+  AlignFunctionDeclarations: false
   AlignFunctionPointers: false
   PadOperators: false
 AlignEscapedNewlines: Left
-AlignOperands:   Align
+AlignOperands: Align
 AlignTrailingComments:
-  Kind:            Always
+  Kind: Always
   OverEmptyLines: 0
 AllowAllArgumentsOnNextLine: true
 AllowAllParametersOfDeclarationOnNextLine: true
@@ -76,13 +83,16 @@ AllowShortFunctionsOnASingleLine: None
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLambdasOnASingleLine: All
 AllowShortLoopsOnASingleLine: true
+AllowShortNamespacesOnASingleLine: false
 AlwaysBreakAfterDefinitionReturnType: None
 AlwaysBreakBeforeMultilineStrings: true
 AttributeMacros:
   - __capability
 BinPackArguments: true
-BinPackParameters: true
+BinPackLongBracedList: true
+BinPackParameters: BinPack
 BitFieldColonSpacing: Both
+BracedInitializerIndentWidth: -1
 BraceWrapping:
   AfterCaseLabel: false
   AfterClass: false
@@ -111,7 +121,9 @@ BreakBeforeBinaryOperators: All
 BreakBeforeConceptDeclarations: Always
 BreakBeforeBraces: Attach
 BreakBeforeInlineASMColon: OnlyMultiline
+BreakBeforeTemplateCloser: false
 BreakBeforeTernaryOperators: true
+BreakBinaryOperations: Never
 BreakConstructorInitializers: BeforeComma
 BreakFunctionDefinitionParameters: false
 BreakInheritanceList: BeforeComma
@@ -127,6 +139,7 @@ DerivePointerAlignment: true
 DisableFormat: false
 EmptyLineAfterAccessModifier: Never
 EmptyLineBeforeAccessModifier: LogicalBlock
+EnumTrailingComma: Leave
 ExperimentalAutoDetectBinPacking: false
 FixNamespaceComments: true
 ForEachMacros:
@@ -135,30 +148,30 @@ ForEachMacros:
   - BOOST_FOREACH
 IfMacros:
   - KJ_IF_MAYBE
-IncludeBlocks:   Regroup
+IncludeBlocks: Regroup
 IncludeCategories:
-  - Regex:           '^<ext/.*\.h>'
+  - Regex: '^<ext/.*\.h>'
     Priority: 2
     SortPriority: 0
     CaseSensitive: false
-  - Regex:           '^<.*\.h>'
+  - Regex: '^<.*\.h>'
     Priority: 1
     SortPriority: 0
     CaseSensitive: false
-  - Regex:           '^<.*'
+  - Regex: "^<.*"
     Priority: 2
     SortPriority: 0
     CaseSensitive: false
-  - Regex:           '.*'
+  - Regex: ".*"
     Priority: 3
     SortPriority: 0
     CaseSensitive: false
-IncludeIsMainRegex: '([-_
-](test|unittest))?$'
-IncludeIsMainSourceRegex: ''
+IncludeIsMainRegex: "([-_](test|unittest))?$"
+IncludeIsMainSourceRegex: ""
 IndentAccessModifiers: false
 IndentCaseBlocks: false
 IndentCaseLabels: true
+IndentExportBlock: true
 IndentExternBlock: AfterExternBlock
 IndentGotoLabels: true
 IndentPPDirectives: None
@@ -181,10 +194,11 @@ KeepEmptyLines:
   AtEndOfFile: false
   AtStartOfBlock: false
   AtStartOfFile: true
+KeepFormFeed: false
 LambdaBodyIndentation: Signature
-LineEnding:      DeriveLF
-MacroBlockBegin: ''
-MacroBlockEnd:   ''
+LineEnding: DeriveLF
+MacroBlockBegin: ""
+MacroBlockEnd: ""
 MainIncludeChar: Quote
 MaxEmptyLinesToKeep: 1
 NamespaceIndentation: None
@@ -193,9 +207,11 @@ ObjCBlockIndentWidth: 2
 ObjCBreakBeforeNestedBlockParam: true
 ObjCSpaceAfterProperty: false
 ObjCSpaceBeforeProtocolList: true
+OneLineFormatOffRegex: ""
 PackConstructorInitializers: NextLine
 PenaltyBreakAssignment: 2
 PenaltyBreakBeforeFirstCallParameter: 1
+PenaltyBreakBeforeMemberAccess: 150
 PenaltyBreakComment: 300
 PenaltyBreakFirstLessLess: 120
 PenaltyBreakOpenParenthesis: 0
@@ -209,18 +225,18 @@ PointerAlignment: Left
 PPIndentWidth: -1
 QualifierAlignment: Leave
 RawStringFormats:
-  - Language:        Cpp
+  - Language: Cpp
     Delimiters:
       - cc
       - CC
       - cpp
       - Cpp
       - CPP
-      - 'c++'
-      - 'C++'
-    CanonicalDelimiter: ''
-    BasedOnStyle:    google
-  - Language:        TextProto
+      - "c++"
+      - "C++"
+    CanonicalDelimiter: ""
+    BasedOnStyle: google
+  - Language: TextProto
     Delimiters:
       - pb
       - PB
@@ -237,10 +253,11 @@ RawStringFormats:
       - ParseTestProto
       - ParsePartialTestProto
     CanonicalDelimiter: pb
-    BasedOnStyle:    google
+    BasedOnStyle: google
 ReferenceAlignment: Left
 ReflowComments: true
 RemoveBracesLLVM: false
+RemoveEmptyLinesInUnwrappedLines: false
 RemoveParentheses: Leave
 RemoveSemicolon: false
 RequiresClausePosition: OwnLine
@@ -248,11 +265,14 @@ RequiresExpressionIndentation: OuterScope
 SeparateDefinitionBlocks: Leave
 ShortNamespaceLines: 1
 SkipMacroDefinitionBody: false
-SortIncludes:    Never
+SortIncludes:
+  Enabled: false
+  IgnoreCase: false
 SortJavaStaticImport: Before
 SortUsingDeclarations: LexicographicNumeric
 SpaceAfterCStyleCast: false
 SpaceAfterLogicalNot: false
+SpaceAfterOperatorKeyword: false
 SpaceAfterTemplateKeyword: true
 SpaceAroundPointerQualifiers: Default
 SpaceBeforeAssignmentOperators: true
@@ -268,6 +288,7 @@ SpaceBeforeParensOptions:
   AfterFunctionDefinitionName: false
   AfterFunctionDeclarationName: false
   AfterIfMacros: true
+  AfterNot: false
   AfterOverloadedOperator: false
   AfterPlacementOperator: true
   AfterRequiresInClause: false
@@ -277,12 +298,12 @@ SpaceBeforeRangeBasedForLoopColon: true
 SpaceBeforeSquareBrackets: false
 SpaceInEmptyBlock: false
 SpacesBeforeTrailingComments: 2
-SpacesInAngles:  Never
+SpacesInAngles: Never
 SpacesInContainerLiterals: true
 SpacesInLineCommentPrefix:
   Minimum: 1
   Maximum: -1
-SpacesInParens:  Never
+SpacesInParens: Never
 SpacesInParensOptions:
   ExceptDoubleParentheses: false
   InCStyleCasts: false
@@ -290,7 +311,7 @@ SpacesInParensOptions:
   InEmptyParentheses: false
   Other: false
 SpacesInSquareBrackets: false
-Standard:        Auto
+Standard: Auto
 StatementAttributeLikeMacros:
   - Q_EMIT
 StatementMacros:
@@ -298,7 +319,7 @@ StatementMacros:
   - QT_REQUIRE_VERSION
 TableGenBreakInsideDAGArg: DontBreak
 TabWidth: 4
-UseTab:          Never
+UseTab: Never
 VerilogBreakBetweenInstancePorts: true
 WhitespaceSensitiveMacros:
   - BOOST_PP_STRINGIZE
@@ -306,5 +327,6 @@ WhitespaceSensitiveMacros:
   - NS_SWIFT_NAME
   - PP_STRINGIZE
   - STRINGIZE
-...
+WrapNamespaceBodyWithEmptyLines: Leave
+---
 

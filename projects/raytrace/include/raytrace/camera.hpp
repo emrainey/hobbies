@@ -92,7 +92,7 @@ public:
     linalg::matrix const& intrinsics() const;
 
     raytrace::image capture;                                ///< The image projected on the plane
-    fourcc::image<uint8_t, fourcc::pixel_format::Y8> mask;  ///< The mask of the capture image
+    fourcc::image<fourcc::PixelFormat::Y8> mask;  ///< The mask of the capture image
 protected:
     linalg::matrix m_intrinsics;   ///< Camera Intrinsics
     precision m_pixel_scale;       ///< The scaling factor for sizing pixels in the image plane

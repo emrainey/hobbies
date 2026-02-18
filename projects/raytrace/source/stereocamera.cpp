@@ -50,7 +50,7 @@ image stereo_camera::merge_images(void) const noexcept {
     if (m_layout == Layout::LeftRight) {
         // the width is the sum of the two widths (side by side)
         raytrace::image merged{m_cameras[0].capture.height, m_cameras[0].capture.width + m_cameras[1].capture.width};
-        merged.for_each([&](size_t row, size_t col, fourcc::rgb8& pixel) -> void {
+        merged.for_each([&](size_t row, size_t col, image::PixelStorageType& pixel) -> void {
             if (col < m_cameras[0].capture.width) {
                 pixel = m_cameras[0].capture.at(row, col);
             } else {
@@ -61,7 +61,7 @@ image stereo_camera::merge_images(void) const noexcept {
     } else {  // if (m_layout == Layout::TopBottom) {
         // the height is the sum of the two heights (top and bottom)
         raytrace::image merged{m_cameras[0].capture.height + m_cameras[1].capture.height, m_cameras[0].capture.width};
-        merged.for_each([&](size_t row, size_t col, fourcc::rgb8& pixel) -> void {
+        merged.for_each([&](size_t row, size_t col, image::PixelStorageType& pixel) -> void {
             if (row < m_cameras[0].capture.height) {
                 pixel = m_cameras[0].capture.at(row, col);
             } else {

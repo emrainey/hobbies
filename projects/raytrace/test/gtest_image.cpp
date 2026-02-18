@@ -14,7 +14,7 @@ TEST(ImageTest, OddSizedImage) {
 TEST(ImageTest, Basics) {
     image img(10, 20);
     ASSERT_EQ(200, img.area());
-    ASSERT_EQ(200 * sizeof(fourcc::rgb8), img.bytes());
+    ASSERT_EQ(200 * sizeof(fourcc::rgbid), img.bytes());
 }
 
 TEST(ImageTest, IteratorsTest) {
@@ -22,19 +22,19 @@ TEST(ImageTest, IteratorsTest) {
     image::point p{0, 0};
 
     img3.generate_each([&](image::point const&) -> color { return colors::red; });
-    ASSERT_EQ(255, img3.at(p).r);
-    ASSERT_EQ(0, img3.at(p).g);
-    ASSERT_EQ(0, img3.at(p).b);
+    ASSERT_EQ(1.0, img3.at(p).components.r);
+    ASSERT_EQ(0.0, img3.at(p).components.g);
+    ASSERT_EQ(0.0, img3.at(p).components.b);
 
     img3.generate_each([&](image::point const&) -> color { return colors::green; });
-    ASSERT_EQ(0, img3.at(p).r);
-    ASSERT_EQ(255, img3.at(p).g);
-    ASSERT_EQ(0, img3.at(p).b);
+    ASSERT_EQ(0.0, img3.at(p).components.r);
+    ASSERT_EQ(1.0, img3.at(p).components.g);
+    ASSERT_EQ(0.0, img3.at(p).components.b);
 
     img3.generate_each([&](image::point const&) -> color { return colors::blue; });
-    ASSERT_EQ(0, img3.at(p).r);
-    ASSERT_EQ(0, img3.at(p).g);
-    ASSERT_EQ(255, img3.at(p).b);
+    ASSERT_EQ(0.0, img3.at(p).components.r);
+    ASSERT_EQ(0.0, img3.at(p).components.g);
+    ASSERT_EQ(1.0, img3.at(p).components.b);
 }
 
 TEST(ImageTest, SubsamplingCount) {
@@ -67,10 +67,10 @@ TEST(ImageTest, DISABLED_SubsamplerTest) {
     image img4(2, 2);
     precision g = 0.61250591370193386_p;  //  -> ~156
     color tmp0(g, g, g);
-    fourcc::rgb8 dark_grey = tmp0.to_rgb8();
-    EXPECT_EQ(156u, dark_grey.r);
-    EXPECT_EQ(156u, dark_grey.g);
-    EXPECT_EQ(156u, dark_grey.b);
+    fourcc::rgb8 dark_grey = tmp0.to_<fourcc::PixelFormat::RGB8>();
+    EXPECT_EQ(156u, dark_grey.components.r);
+    EXPECT_EQ(156u, dark_grey.components.g);
+    EXPECT_EQ(156u, dark_grey.components.b);
     int i = 0;
     std::array<color, 3> samples = {colors::red, colors::green, colors::blue};
     /// FIXME the lambda so that it will produce the same answers deterministically
@@ -87,11 +87,14 @@ TEST(ImageTest, DISABLED_SubsamplerTest) {
     };
     auto renderer = [&](size_t row_index, bool is_completed) -> void {
         image::point pnt(row_index, 0);
-        fourcc::rgb8 pix = img4.at(pnt);
+        auto pix = img4.at(pnt);
         EXPECT_TRUE(is_completed);
-        EXPECT_EQ(dark_grey.r, pix.r) << pix.r << " at " << pnt.x() << ", " << pnt.y() << std::endl;
-        EXPECT_EQ(dark_grey.g, pix.g) << pix.g << " at " << pnt.x() << ", " << pnt.y() << std::endl;
-        EXPECT_EQ(dark_grey.b, pix.b) << pix.b << " at " << pnt.x() << ", " << pnt.y() << std::endl;
+        EXPECT_EQ(dark_grey.components.r, pix.components.r)
+            << pix.components.r << " at " << pnt.x() << ", " << pnt.y() << std::endl;
+        EXPECT_EQ(dark_grey.components.g, pix.components.g)
+            << pix.components.g << " at " << pnt.x() << ", " << pnt.y() << std::endl;
+        EXPECT_EQ(dark_grey.components.b, pix.components.b)
+            << pix.components.b << " at " << pnt.x() << ", " << pnt.y() << std::endl;
     };
     img4.generate_each(subsampler, samples.size(), renderer);
     img4.save("averaged_dark_grey.ppm");
@@ -114,15 +117,15 @@ TEST(ImageTest, SubsamplingChecker) {
             color c;
             if ((not ix and not iy) or (ix and iy)) {
                 c = colors::red;
-                c.to_space(color::space::logarithmic);
-                image5.at(n) = c.to_rgb8();
+                image5.at(n) = c.to_<fourcc::PixelFormat::RGBId>();
             } else {
                 c = colors::blue;
-                c.to_space(color::space::logarithmic);
-                image5.at(n) = c.to_rgb8();
+                image5.at(n) = c.to_<fourcc::PixelFormat::RGBId>();
             }
             return colors::yellow;
         },
         32);
-    image5.save("subsampling.ppm");
+    fourcc::image<fourcc::PixelFormat::RGB8> image7(480, 640);
+    fourcc::convert(image5, image7);
+    image7.save("subsampling.ppm");
 }

@@ -1,4 +1,5 @@
-#include "fourcc/image.hpp"
+/// @file
+/// Implements the image operations
 
 #include <cinttypes>
 #include <cstdio>
@@ -6,6 +7,8 @@
 #include <cassert>
 #include <filesystem>
 
+#include "fourcc/image.hpp"
+#include "fourcc/convert.hpp"
 #include "fourcc/targa.hpp"
 #include "fourcc/openexr.hpp"
 
@@ -22,14 +25,25 @@ static bool is_extension(std::string filename, std::string ext) {
 }
 
 template <>
-bool image<rgba, pixel_format::RGBA>::save(std::string filename) const {
+bool image<PixelFormat::RGB8>::save(std::string filename) const;
+
+template <>
+bool image<PixelFormat::RGBId>::save(std::string filename) const {
+
+    image<PixelFormat::RGB8> output{height, width}; // make it the same size as us
+    fourcc::convert(*this, output);
+    return output.save(filename);
+}
+
+template <>
+bool image<PixelFormat::RGBA>::save(std::string filename) const {
     if (is_extension(filename, ".rgb")) {
         FILE* fp = fopen(filename.c_str(), "wb");
         if (fp) {
             for_each([&](fourcc::rgba const& pixel) -> void {
-                fwrite(&pixel.r, sizeof(pixel.r), 1, fp);
-                fwrite(&pixel.g, sizeof(pixel.g), 1, fp);
-                fwrite(&pixel.b, sizeof(pixel.b), 1, fp);
+                fwrite(&pixel.components.r, sizeof(pixel.components.r), 1, fp);
+                fwrite(&pixel.components.g, sizeof(pixel.components.g), 1, fp);
+                fwrite(&pixel.components.b, sizeof(pixel.components.b), 1, fp);
             });
             fclose(fp);
             return true;
@@ -38,9 +52,9 @@ bool image<rgba, pixel_format::RGBA>::save(std::string filename) const {
         FILE* fp = fopen(filename.c_str(), "wb");
         if (fp) {
             for_each([&](fourcc::rgba const& pixel) -> void {
-                fwrite(&pixel.b, sizeof(pixel.b), 1, fp);
-                fwrite(&pixel.g, sizeof(pixel.g), 1, fp);
-                fwrite(&pixel.r, sizeof(pixel.r), 1, fp);
+                fwrite(&pixel.components.b, sizeof(pixel.components.b), 1, fp);
+                fwrite(&pixel.components.g, sizeof(pixel.components.g), 1, fp);
+                fwrite(&pixel.components.r, sizeof(pixel.components.r), 1, fp);
             });
             fclose(fp);
             return true;
@@ -54,9 +68,9 @@ bool image<rgba, pixel_format::RGBA>::save(std::string filename) const {
             fprintf(fp, "TUPLTYPE %s\n", channel_order(format));
             fprintf(fp, "ENDHDR\n");
             for_each([&](rgba const& pixel) -> void {
-                fwrite(&pixel.r, sizeof(pixel.r), 1, fp);
-                fwrite(&pixel.g, sizeof(pixel.g), 1, fp);
-                fwrite(&pixel.b, sizeof(pixel.b), 1, fp);
+                fwrite(&pixel.components.r, sizeof(pixel.components.r), 1, fp);
+                fwrite(&pixel.components.g, sizeof(pixel.components.g), 1, fp);
+                fwrite(&pixel.components.b, sizeof(pixel.components.b), 1, fp);
             });
             fclose(fp);
         }
@@ -84,9 +98,9 @@ bool image<rgba, pixel_format::RGBA>::save(std::string filename) const {
             for (size_t y = (height - 1); /* y >= 0 */; y--) {
                 for (size_t x = 0; x < width; x++) {
                     rgba const& pixel = at(y, x);
-                    fwrite(&pixel.b, sizeof(pixel.b), 1, fp);
-                    fwrite(&pixel.g, sizeof(pixel.g), 1, fp);
-                    fwrite(&pixel.r, sizeof(pixel.r), 1, fp);
+                    fwrite(&pixel.components.b, sizeof(pixel.components.b), 1, fp);
+                    fwrite(&pixel.components.g, sizeof(pixel.components.g), 1, fp);
+                    fwrite(&pixel.components.r, sizeof(pixel.components.r), 1, fp);
                 }
                 if (y == 0) {
                     break;
@@ -99,7 +113,7 @@ bool image<rgba, pixel_format::RGBA>::save(std::string filename) const {
 }
 
 template <>
-bool image<abgr, pixel_format::ABGR>::save(std::string filename) const {
+bool image<PixelFormat::ABGR>::save(std::string filename) const {
     FILE* fp = fopen(filename.c_str(), "wb");
     if (fp) {
         fprintf(fp, "P7\n");
@@ -108,9 +122,9 @@ bool image<abgr, pixel_format::ABGR>::save(std::string filename) const {
         fprintf(fp, "TUPLTYPE %s\n", channel_order(format));
         fprintf(fp, "ENDHDR\n");
         for_each([&](abgr const& pixel) -> void {
-            fwrite(&pixel.b, sizeof(uint8_t), 1, fp);
-            fwrite(&pixel.g, sizeof(uint8_t), 1, fp);
-            fwrite(&pixel.r, sizeof(uint8_t), 1, fp);
+            fwrite(&pixel.components.b, sizeof(uint8_t), 1, fp);
+            fwrite(&pixel.components.g, sizeof(uint8_t), 1, fp);
+            fwrite(&pixel.components.r, sizeof(uint8_t), 1, fp);
         });
         fclose(fp);
         return true;
@@ -119,7 +133,7 @@ bool image<abgr, pixel_format::ABGR>::save(std::string filename) const {
 }
 
 template <>
-bool image<rgb8, pixel_format::RGB8>::save(std::string filename) const {
+bool image<PixelFormat::RGB8>::save(std::string filename) const {
     if (is_extension(filename, ".ppm")) {
         static constexpr bool use_p6 = true;
         FILE* fp = fopen(filename.c_str(), "wb");
@@ -162,9 +176,9 @@ bool image<rgb8, pixel_format::RGB8>::save(std::string filename) const {
             for (size_t y = (height - 1); /* y >= 0 */; y--) {
                 for (size_t x = 0; x < width; x++) {
                     rgb8 const& pixel = at(y, x);
-                    fwrite(&pixel.b, sizeof(pixel.b), 1, fp);
-                    fwrite(&pixel.g, sizeof(pixel.g), 1, fp);
-                    fwrite(&pixel.r, sizeof(pixel.r), 1, fp);
+                    fwrite(&pixel.components.b, sizeof(pixel.components.b), 1, fp);
+                    fwrite(&pixel.components.g, sizeof(pixel.components.g), 1, fp);
+                    fwrite(&pixel.components.r, sizeof(pixel.components.r), 1, fp);
                 }
                 if (y == 0) {
                     break;
@@ -178,7 +192,7 @@ bool image<rgb8, pixel_format::RGB8>::save(std::string filename) const {
 }
 
 template <>
-bool image<bgr8, pixel_format::BGR8>::save(std::string filename) const {
+bool image<PixelFormat::BGR8>::save(std::string filename) const {
     FILE* fp = fopen(filename.c_str(), "wb");
     if (fp) {
         fprintf(fp, "P7\n");
@@ -194,7 +208,7 @@ bool image<bgr8, pixel_format::BGR8>::save(std::string filename) const {
 }
 
 template <>
-bool image<rgbh, pixel_format::RGBh>::save(std::string filename) const {
+bool image<PixelFormat::RGBh>::save(std::string filename) const {
     FILE* fp = fopen(filename.c_str(), "wb");
     if (fp) {
         uint8_t const zero = 0;
@@ -345,9 +359,9 @@ bool image<rgbh, pixel_format::RGBh>::save(std::string filename) const {
             }
             if (column < width) {
                 // accumulate into the scan line
-                uint8_t const* r = reinterpret_cast<uint8_t const*>(&pixel.r);
-                uint8_t const* g = reinterpret_cast<uint8_t const*>(&pixel.g);
-                uint8_t const* b = reinterpret_cast<uint8_t const*>(&pixel.b);
+                uint8_t const* r = reinterpret_cast<uint8_t const*>(&pixel.components.r);
+                uint8_t const* g = reinterpret_cast<uint8_t const*>(&pixel.components.g);
+                uint8_t const* b = reinterpret_cast<uint8_t const*>(&pixel.components.b);
                 size_t r_index = column * sizeof(basal::half);
                 size_t g_index = r_index + (width * sizeof(basal::half));
                 size_t b_index = g_index + (width * sizeof(basal::half));
@@ -378,7 +392,7 @@ bool image<rgbh, pixel_format::RGBh>::save(std::string filename) const {
 }
 
 template <>
-bool image<uint8_t, pixel_format::GREY8>::save(std::string filename) const {
+bool image<PixelFormat::GREY8>::save(std::string filename) const {
     FILE* fp = fopen(filename.c_str(), "wb");
     if (fp) {
         fprintf(fp, "P5\n");
@@ -392,7 +406,7 @@ bool image<uint8_t, pixel_format::GREY8>::save(std::string filename) const {
 }
 
 template <>
-bool image<uint8_t, pixel_format::Y8>::save(std::string filename) const {
+bool image<PixelFormat::Y8>::save(std::string filename) const {
     FILE* fp = fopen(filename.c_str(), "wb");
     if (fp) {
         fprintf(fp, "P5\n");
@@ -406,7 +420,7 @@ bool image<uint8_t, pixel_format::Y8>::save(std::string filename) const {
 }
 
 template <>
-bool image<uint16_t, pixel_format::Y16>::save(std::string filename) const {
+bool image<PixelFormat::Y16>::save(std::string filename) const {
     FILE* fp = fopen(filename.c_str(), "wb");
     if (fp) {
         fprintf(fp, "P5\n");
@@ -420,7 +434,7 @@ bool image<uint16_t, pixel_format::Y16>::save(std::string filename) const {
 }
 
 template <>
-bool image<rgb565, pixel_format::RGBP>::save(std::string filename) const {
+bool image<PixelFormat::RGBP>::save(std::string filename) const {
     FILE* fp = fopen(filename.c_str(), "wb");
     if (fp) {
         fprintf(fp, "P565\n");
@@ -434,7 +448,7 @@ bool image<rgb565, pixel_format::RGBP>::save(std::string filename) const {
 }
 
 template <>
-bool image<uint32_t, pixel_format::Y32>::save(std::string filename) const {
+bool image<PixelFormat::Y32>::save(std::string filename) const {
     FILE* fp = fopen(filename.c_str(), "wb");
     if (fp) {
         fprintf(fp, "P5\n");
@@ -447,51 +461,32 @@ bool image<uint32_t, pixel_format::Y32>::save(std::string filename) const {
     return false;
 }
 
-std::pair<size_t, size_t> dimensions(std::string type) {
-    if (type == std::string("SQCIF")) {
-        return std::make_pair(128, 96);
-    } else if (type == std::string("QCIF")) {
-        return std::make_pair(176, 144);
-    } else if (type == std::string("CIF")) {
-        return std::make_pair(352, 288);
-    } else if (type == std::string("CGA")) {
-        return std::make_pair(320, 200);
-    } else if (type == std::string("QVGA")) {
-        return std::make_pair(320, 240);
-    } else if (type == std::string("VGA")) {
-        return std::make_pair(640, 480);
-    } else if (type == std::string("WVGA")) {
-        return std::make_pair(800, 480);
-    } else if (type == std::string("XGA")) {
-        return std::make_pair(1024, 768);
-    } else if (type == std::string("SXGA")) {
-        return std::make_pair(1280, 1024);
-    } else if (type == std::string("UXGA")) {
-        return std::make_pair(1600, 1200);
-    } else if (type == std::string("QXGA")) {
-        return std::make_pair(2048, 1536);
-    } else if (type == std::string("WXGA")) {
-        return std::make_pair(1280, 768);
-    } else if (type == std::string("WSXGA+")) {
-        return std::make_pair(1680, 1050);
-    } else if (type == std::string("HD720")) {
-        return std::make_pair(1280, 720);
-    } else if (type == std::string("HD1080")) {
-        return std::make_pair(1920, 1080);
-    } else if (type == std::string("2K")) {
-        return std::make_pair(2048, 1080);
-    } else if (type == std::string("UWFHD")) {
-        return std::make_pair(2560, 1080);
-    } else if (type == std::string("WQHD")) {
-        return std::make_pair(2560, 1440);
-    } else if (type == std::string("UWQHD")) {
-        return std::make_pair(3440, 1440);
-    } else if (type == std::string("4KUHD")) {
-        return std::make_pair(3840, 2160);
-    } else if (type == std::string("5KUHD")) {
-        return std::make_pair(5120, 2880);
+fourcc::image<fourcc::PixelFormat::RGB8> convert_rgbid_to_rgb8(
+    fourcc::image<fourcc::PixelFormat::RGBId> const& in) {
+    fourcc::image<fourcc::PixelFormat::RGB8> out(in.height, in.width);
+    for (size_t y = 0; y < in.height; y++) {
+        for (size_t x = 0; x < in.width; x++) {
+            auto const& rgb = in.at(y, x);
+            // create a pixel template type
+            fourcc::pixel<PixelFormat::RGBId> rgbp{rgb};
+            // clamp the value
+            rgbp.clamp();
+            // NOW FINALLY convert to sRGB space
+            rgbp.ToEncoding(fourcc::Encoding::GammaCorrected);
+            // save the pixel
+            out.at(y, x) = rgbp.to_<PixelFormat::RGB8>();
+        }
     }
-    return std::make_pair(0, 0);
+    return out;
 }
 
+namespace gamma {
+
+color interpolate(color const& x, color const& y, precision a) {
+    return color{gamma::interpolate(x.red(), y.red(), a),
+                 gamma::interpolate(x.green(), y.green(), a),
+                 gamma::interpolate(x.blue(), y.blue(), a)};
+}
+
+}  // namespace gamma
 }  // namespace fourcc

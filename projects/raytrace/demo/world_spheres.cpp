@@ -44,7 +44,7 @@ public:
         , bulbs{} {
         raytrace::point center = R3::origin;
         spheres.push_back(new raytrace::objects::sphere(center, 6));
-        subspheres(spheres, center, 12.0_p, 2);
+        subspheres(spheres, center, 12.0_p, 3);
         for (auto& s : spheres) {
             // s->material(&custom_metal);
             // s->material(&custom_plain);

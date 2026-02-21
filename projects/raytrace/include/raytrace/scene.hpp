@@ -155,6 +155,12 @@ public:
     /// Adds a media which the entire scene is set into
     void add_media(mediums::medium const* media);
 
+    /// Adds the ambient light value for the entire scene.
+    /// If particular objects need more light, consider using emissive materials instead.
+    /// @note Use the intensity channel to set the overall brightness of the ambient light.
+    ///       The color channels will set the color of the ambient light.
+    void set_ambient_light(color ambient);
+
     /// Removes all objects and lights from a scene
     void clear();
 
@@ -175,6 +181,9 @@ protected:
 
     /// The list of lights in the scene
     light_list m_lights;
+
+    /// the Ambient light for the scene (defaults to black)
+    color m_ambient_light;
 
     /// The Background mapper
     background_mapper m_background;

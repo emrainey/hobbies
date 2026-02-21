@@ -550,4 +550,9 @@ void scene::set_background_mapper(background_mapper mapper) {
     }
 }
 
+void scene::set_ambient_light(color ambient) {
+    // use the intensity channel as the brightness value for the light
+    m_ambient_light = ambient;
+}
+
 }  // namespace raytrace

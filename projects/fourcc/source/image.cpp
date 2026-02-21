@@ -24,13 +24,20 @@ static bool is_extension(std::string filename, std::string ext) {
     return false;
 }
 
+// +==============================================================+
+// Forward Declare the Template Specializations for saving the images. These are defined after the convert functions since some of the convert functions use them.
+
 template <>
 bool image<PixelFormat::RGB8>::save(std::string filename) const;
 
 template <>
-bool image<PixelFormat::RGBId>::save(std::string filename) const {
+bool image<PixelFormat::RGBh>::save(std::string filename) const;
 
-    image<PixelFormat::RGB8> output{height, width}; // make it the same size as us
+// +==============================================================+
+
+template <>
+bool image<PixelFormat::RGBId>::save(std::string filename) const {
+    image<DefaultPixelStorageType> output{height, width}; // make it the same size as us
     fourcc::convert(*this, output);
     return output.save(filename);
 }
@@ -187,6 +194,28 @@ bool image<PixelFormat::RGB8>::save(std::string filename) const {
             fclose(fp);
             return true;
         }
+    }
+    return false;
+}
+
+template <>
+bool image<PixelFormat::RGBf>::save(std::string filename) const {
+FILE* fp = fopen(filename.c_str(), "wb");
+    if (fp) {
+        fprintf(fp, "PF\n");
+        fprintf(fp, "%zu %zu\n", width, height);
+        fprintf(fp, "-1.000000\n"); // little endian float
+        for (size_t y = (height - 1); /* y >= 0 */; y--) {
+            for (size_t x = 0; x < width; x++) {
+                rgbf const& pixel = at(y, x);
+                fwrite(&pixel, sizeof(rgbf), 1, fp);
+            }
+            if (y == 0) {
+                break;
+            }
+        }
+        fclose(fp);
+        return true;
     }
     return false;
 }

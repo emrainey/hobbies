@@ -469,6 +469,21 @@ constexpr bool is_yuv_type(PixelFormat fmt) {
     return GetColorSpace(fmt) == ColorSpace::YUV;
 }
 
+constexpr PixelFormat GetFormatForExtension(std::string_view extension) {
+    if (extension == ".ppm") {
+        return PixelFormat::RGB8;
+    } else if (extension == ".pgm") {
+        return PixelFormat::Y16;
+    } else if (extension == ".pfm") {
+        return PixelFormat::RGBf;
+    } else if (extension == ".tga") {
+        return PixelFormat::RGB8;
+    } else if (extension == ".exr") {
+        return PixelFormat::RGBh;
+    }
+    return PixelFormat::RGB8;  // default to RGB8
+}
+
 namespace { // anonymous namespace for testing types
 using TestType = decltype(GetStorageType<PixelFormat::RGB8>());
 static_assert(std::is_same_v<TestType, rgb8>, "Must be this type!");

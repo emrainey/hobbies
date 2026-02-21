@@ -67,6 +67,25 @@ TEST(FourccTest, RGBh) {
     img.save("gradient.exr");
 }
 
+
+TEST(FourccTest, RGBf) {
+    image<PixelFormat::RGBf> image{480, 640};
+    image.for_each([](size_t sy, size_t sx, rgbf& pixel) -> void {
+        // each corner is a different color
+        // white -> red
+        // |          |
+        // blue -> green
+        float c = static_cast<float>(sy) / static_cast<float>(sx);
+        if (c > 1.0f) {
+            c = 1 / c;
+        }
+        pixel.components.r = 1.0f - (static_cast<float>(sy) / 480.0f);
+        pixel.components.g = c;
+        pixel.components.b = 1.0f - (static_cast<float>(sx) / 640.0f);
+    });
+    image.save("gradient.pfm");
+}
+
 TEST(FourccTest, Filter) {
     image<PixelFormat::RGB8> img(480, 640);
     img.for_each([](size_t y, size_t x, rgb8& pixel) {

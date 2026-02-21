@@ -25,6 +25,8 @@ class image {
 public:
     /// The image pixel type used in this image based on the Pixel format
     using PixelStorageType = decltype(GetStorageType<PIXEL_FORMAT>());
+    /// Defines the default output save Storage Type for images
+    constexpr static PixelFormat DefaultPixelStorageType = PixelFormat::RGBh;
 
     /// The number of channel_count in the pixel
     size_t const depth;

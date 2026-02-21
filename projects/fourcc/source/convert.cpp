@@ -49,4 +49,33 @@ void convert(image<PixelFormat::RGBId> const& in, image<PixelFormat::RGB8>& out)
     }
 }
 
+void convert(image<PixelFormat::RGBId> const& in, image<PixelFormat::RGBh>& out) {
+    basal::exception::throw_unless(in.height == out.height, __FILE__, __LINE__, "Must be the same height %zu != %zu",
+                                   in.height, out.height);
+    basal::exception::throw_unless(in.width == out.width, __FILE__, __LINE__, "Must be the same width %zu != %zu",
+                                   in.width, out.width);
+    for (size_t y = 0; y < in.height; y++) {
+        for (size_t x = 0; x < in.width; x++) {
+            color in_pixel{in.at(y, x)};
+            // no clamping or anything! just convert to half float
+            out.at(y, x) = in_pixel.to_<PixelFormat::RGBh>();
+        }
+    }
+}
+
+
+void convert(image<PixelFormat::RGBId> const& in, image<PixelFormat::RGBf>& out) {
+    basal::exception::throw_unless(in.height == out.height, __FILE__, __LINE__, "Must be the same height %zu != %zu",
+                                   in.height, out.height);
+    basal::exception::throw_unless(in.width == out.width, __FILE__, __LINE__, "Must be the same width %zu != %zu",
+                                   in.width, out.width);
+    for (size_t y = 0; y < in.height; y++) {
+        for (size_t x = 0; x < in.width; x++) {
+            color in_pixel{in.at(y, x)};
+            // no clamping or anything! just convert to half float
+            out.at(y, x) = in_pixel.to_<PixelFormat::RGBf>();
+        }
+    }
+}
+
 }  // namespace fourcc

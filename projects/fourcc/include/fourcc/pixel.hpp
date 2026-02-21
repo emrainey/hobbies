@@ -228,6 +228,16 @@ protected:
         return pixel;
     }
 
+    rgbf to_rgbf() const {
+        rgbf pixel;
+        basal::exception::throw_unless(encoding_ == Encoding::Linear, __FILE__, __LINE__,
+                                       "Color should be in Linear Encoding");
+        pixel.components.r = static_cast<float>(red());
+        pixel.components.g = static_cast<float>(green());
+        pixel.components.b = static_cast<float>(blue());
+        return pixel;
+    }
+
     rgbid to_rgbid() const {
         rgbid pixel;
         basal::exception::throw_unless(encoding_ == Encoding::Linear, __FILE__, __LINE__,
@@ -255,6 +265,10 @@ public:
             return to_bgr8();
         } else if constexpr (std::is_same_v<OutputType, rgbh>) {
             return to_rgbh();
+        } else if constexpr (std::is_same_v<OutputType, rgbf>) {
+            return to_rgbf();
+        } else if constexpr (std::is_same_v<OutputType, rgbid>) {
+            return to_rgbid();
         } else {
             return OutputType{};
         }

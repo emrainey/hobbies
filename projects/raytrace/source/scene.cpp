@@ -486,10 +486,6 @@ void scene::render(camera& view, std::string filename, size_t number_of_samples,
     view.capture.generate_each(tracer, adaptive_antialiasing ? 1 : number_of_samples, row_notifier, &view.mask,
                                image::AAA_MASK_DISABLED, tone_mapper);
 
-    // create the sRGB image
-    fourcc::image<fourcc::PixelFormat::RGB8> first_srgb_image{view.capture.height, view.capture.width};
-    fourcc::convert(view.capture, first_srgb_image);
-
     // if the threshold is not disabled, then compute the extra pixels based on the mask
     if (aaa_mask_threshold < image::AAA_MASK_DISABLED) {
         // reset all rendered lines
@@ -499,6 +495,9 @@ void scene::render(camera& view, std::string filename, size_t number_of_samples,
                 func(y, false);
             }
         }
+        // create the sRGB image
+        fourcc::image<fourcc::PixelFormat::RGB8> first_srgb_image{view.capture.height, view.capture.width};
+        fourcc::convert(view.capture, first_srgb_image);
         // compute the mask
         fourcc::sobel_mask(first_srgb_image, view.mask);
         // update the image based on the mask
@@ -516,7 +515,14 @@ void scene::render(camera& view, std::string filename, size_t number_of_samples,
         int16_t kernel[3]{1, 2, 1};
         fourcc::filter(srgb_image, capture_copy, kernel);
     }
+
+    // This will save the Gamma corrected image
     srgb_image.save(filename);
+
+    // Additionally create a .pfm format image
+    fourcc::image<fourcc::PixelFormat::RGBf> pfm_image{view.capture.height, view.capture.width};
+    fourcc::convert(view.capture, pfm_image);
+    pfm_image.save(filename + ".pfm");
 }
 
 void scene::print(std::ostream& os, char const str[]) const {

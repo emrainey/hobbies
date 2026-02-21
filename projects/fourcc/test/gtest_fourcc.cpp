@@ -86,7 +86,27 @@ TEST(FourccTest, RGBf) {
     image.save("gradient.pfm");
 }
 
-TEST(FourccTest, Filter) {
+TEST(FourccTest, FilterRGBf) {
+    image<PixelFormat::RGBf> img(480, 640);
+    img.for_each([](size_t y, size_t x, rgbf& pixel) {
+        if (((x / 2) % 2) == 0) {
+            pixel.components.r = static_cast<float>((x + y + 137) % 256) / 255.0f;
+            pixel.components.g = static_cast<float>((x + y + 11) % 256) / 255.0f;
+            pixel.components.b = static_cast<float>((x + y + 89) % 256) / 255.0f;
+        } else {
+            pixel.components.r = 0.0f;
+            pixel.components.g = 0.0f;
+            pixel.components.b = 0.0f;
+        }
+    });
+    img.save("pre-filter.pfm");
+    image<PixelFormat::RGBf> filtered(480, 640);
+    float kernel[3] = {-1.0, 2.0, 1.0};
+    filter(filtered, img, kernel);
+    filtered.save("post-filter.pfm");
+}
+
+TEST(FourccTest, FilterRGB8) {
     image<PixelFormat::RGB8> img(480, 640);
     img.for_each([](size_t y, size_t x, rgb8& pixel) {
         if (((x / 2) % 2) == 0) {

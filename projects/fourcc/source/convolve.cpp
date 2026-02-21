@@ -194,6 +194,66 @@ void filter(image<PixelFormat::RGB8>& output, image<PixelFormat::RGB8> const& in
     }
 }
 
+void filter(fourcc::image<fourcc::PixelFormat::RGBf>& output,
+            fourcc::image<fourcc::PixelFormat::RGBf> const& input,
+            float const kernel[3]) {
+    basal::exception::throw_unless(output.width == input.width, __FILE__, __LINE__);
+    basal::exception::throw_unless(output.height == input.height, __FILE__, __LINE__);
+    float sum = kernel[0] + kernel[1] + kernel[2];
+    sum = (sum == 0.0f ? 1.0f : sum);
+    for (size_t y = 0; y < input.height; y++) {
+        if (y == 0 or y == (input.height - 1)) {
+            for (size_t x = 0; x < input.width; x++) {
+                output.at(y, x) = input.at(y, x);
+            }
+            continue;
+        }
+        output.at(y, 0) = input.at(y, 0);
+        for (size_t x = 1; x < input.width - 1; x++) {
+            float r = (kernel[0] * input.at(y, x - 1).components.r) + (kernel[1] * input.at(y, x - 0).components.r)
+                        + (kernel[2] * input.at(y, x + 1).components.r);
+            float g = (kernel[0] * input.at(y, x - 1).components.g) + (kernel[1] * input.at(y, x - 0).components.g)
+                        + (kernel[2] * input.at(y, x + 1).components.g);
+            float b = (kernel[0] * input.at(y, x - 1).components.b) + (kernel[1] * input.at(y, x - 0).components.b)
+                        + (kernel[2] * input.at(y, x + 1).components.b);
+            output.at(y, x).components.r = r / sum;
+            output.at(y, x).components.g = g / sum;
+            output.at(y, x).components.b = b / sum;
+        }
+        output.at(y, input.width - 1) = input.at(y, input.width - 1);
+    }
+}
+
+void filter(fourcc::image<fourcc::PixelFormat::RGBId>& output,
+            fourcc::image<fourcc::PixelFormat::RGBId> const& input,
+            double const kernel[3]) {
+    basal::exception::throw_unless(output.width == input.width, __FILE__, __LINE__);
+    basal::exception::throw_unless(output.height == input.height, __FILE__, __LINE__);
+    double sum = kernel[0] + kernel[1] + kernel[2];
+    sum = (sum == 0.0 ? 1.0 : sum);
+    for (size_t y = 0; y < input.height; y++) {
+        if (y == 0 or y == (input.height - 1)) {
+            for (size_t x = 0; x < input.width; x++) {
+                output.at(y, x) = input.at(y, x);
+            }
+            continue;
+        }
+        output.at(y, 0) = input.at(y, 0);
+        for (size_t x = 1; x < input.width - 1; x++) {
+            double r = (kernel[0] * input.at(y, x - 1).components.r) + (kernel[1] * input.at(y, x - 0).components.r)
+                        + (kernel[2] * input.at(y, x + 1).components.r);
+            double g = (kernel[0] * input.at(y, x - 1).components.g) + (kernel[1] * input.at(y, x - 0).components.g)
+                        + (kernel[2] * input.at(y, x + 1).components.g);
+            double b = (kernel[0] * input.at(y, x - 1).components.b) + (kernel[1] * input.at(y, x - 0).components.b)
+                        + (kernel[2] * input.at(y, x + 1).components.b);
+            output.at(y, x).components.r = r / sum;
+            output.at(y, x).components.g = g / sum;
+            output.at(y, x).components.b = b / sum;
+        }
+        output.at(y, input.width - 1) = input.at(y, input.width - 1);
+    }
+}
+
 void box(image<PixelFormat::RGB8>& output, image<PixelFormat::RGB8> const& input) {
     basal::exception::throw_unless(output.width == input.width, __FILE__, __LINE__);
     basal::exception::throw_unless(output.height == input.height, __FILE__, __LINE__);

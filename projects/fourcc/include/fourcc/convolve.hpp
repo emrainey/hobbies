@@ -23,7 +23,17 @@ void sobel_mask(fourcc::image<fourcc::PixelFormat::IYU2> const& iyu2_image,
 void sobel_mask(fourcc::image<fourcc::PixelFormat::RGB8> const& rgb_image,
                 fourcc::image<fourcc::PixelFormat::Y8>& mask);
 
-/// Runs a 1D filter across an image
+/// Runs a 1D filter across a linear uncompressed image
+/// @warning no gamma correction!
+void filter(fourcc::image<fourcc::PixelFormat::RGBf>& output,
+            fourcc::image<fourcc::PixelFormat::RGBf> const& input, float const kernel[3]);
+
+/// Runs a 1D filter across a linear uncompressed image
+/// @warning no gamma correction!
+void filter(fourcc::image<fourcc::PixelFormat::RGBId>& output,
+            fourcc::image<fourcc::PixelFormat::RGBId> const& input, double const kernel[3]);
+
+/// Runs a 1D filter across an encoded image
 /// @warning no gamma correction!
 void filter(fourcc::image<fourcc::PixelFormat::RGB8>& output,
             fourcc::image<fourcc::PixelFormat::RGB8> const& input, int16_t const kernel[3]);

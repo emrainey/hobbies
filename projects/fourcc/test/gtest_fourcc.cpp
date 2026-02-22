@@ -197,3 +197,28 @@ TEST(FourccTest, GaussianFilter) {
     gaussian(output, img);
     output.save("post-gaussian.ppm");
 }
+
+template <size_t N>
+void bilateral_test() {
+    size_t W = (N + 1) * 6;
+    image<PixelFormat::RGBId> img(W, W);
+    img.for_each([](size_t y, size_t x, rgbid& pixel) {
+        // find the distance from the center
+        size_t j = y % (N + 1);
+        size_t i = x % (N + 1);
+        size_t k = (x + y) % (N + 1);
+        pixel.components.r = static_cast<double>(j / static_cast<double>(N));
+        pixel.components.g = static_cast<double>(k / static_cast<double>(N));
+        pixel.components.b = static_cast<double>(i / static_cast<double>(N));
+    });
+    img.save("pre-bilateral-" + std::to_string(N) + ".pfm");
+    image<PixelFormat::RGBId> output(W, W);
+    fourcc::bilateral<N>(output, img);
+    output.save("post-bilateral-" + std::to_string(N) + ".pfm");
+}
+
+TEST(FourccTest, BilateralFilter) {
+    bilateral_test<3>();
+    bilateral_test<5>();
+    bilateral_test<7>();
+}

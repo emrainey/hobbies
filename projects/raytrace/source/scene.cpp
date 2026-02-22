@@ -508,10 +508,12 @@ void scene::render(camera& view, std::string filename, size_t number_of_samples,
     // if we want to filter the image before viewing or saving, do that here.
     if (filter_capture) {
         // copy the image into a duplicate
-        fourcc::image<fourcc::PixelFormat::RGBId> capture_copy{view.capture.height, view.capture.width};
-        precision kernel[3]{1.0_p, 2.0_p, 1.0_p};
+        fourcc::image<fourcc::PixelFormat::RGBId> capture_copy{view.capture};
+        capture_copy.save("pre-bilateral.pfm");
+        // precision kernel[3]{1.0_p, 2.0_p, 1.0_p};
         // output into the original buffer
-        fourcc::filter(view.capture, capture_copy, kernel);
+        // fourcc::filter(view.capture, capture_copy, kernel);
+        fourcc::bilateral<5>(view.capture, capture_copy);
     }
 
     // This will save based on the file extension

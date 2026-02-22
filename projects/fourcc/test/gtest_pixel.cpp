@@ -120,9 +120,9 @@ TEST(ColorTest, InterpolateCorners) {
     img5.for_each([&](size_t y, size_t x, rgb8& pixel) {
         precision a = precision(x) / img5.width;
         precision b = precision(y) / img5.height;
-        color c = fourcc::linear::interpolate(colors::red, colors::green, a);
-        color d = fourcc::linear::interpolate(colors::blue, colors::white, b);
-        color e = fourcc::linear::blend(c, d);
+        color c = fourcc::gamma::interpolate(colors::red, colors::green, a);
+        color d = fourcc::gamma::interpolate(colors::blue, colors::white, b);
+        color e = fourcc::gamma::blend(c, d);
         e.clamp();
         e.ToEncoding(fourcc::Encoding::GammaCorrected );
         pixel = e.to_<fourcc::PixelFormat::RGB8>();

@@ -23,7 +23,7 @@ public:
             if (d > limit) {
                 // interpolate the color based on the distance from the center
                 auto diff = (1.0f - d) * scale;  // should now be 0 to 1
-                return interpolate(colors::black, colors::white, diff);
+                return fourcc::linear::interpolate(colors::black, colors::white, diff);
             }
         }
         return colors::black;

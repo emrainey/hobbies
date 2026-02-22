@@ -258,6 +258,7 @@ int main(int argc, char* argv[]) {
     if (verbose) {
         scene.print(std::cout, world.window_name().c_str());
     }
+    scene.set_ambient_light(world.ambient());
 
     do {
         if (state == State::MENU) {

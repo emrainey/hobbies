@@ -117,6 +117,7 @@ int main(int argc, char* argv[]) {
     // the camera anchor points
     raytrace::animation::anchors anchors = world.get_anchors();
     raytrace::animation::Animator animator{params.fps, anchors};
+    raytrace::color ambient = world.ambient();
 
     // what we're rendering into, these need to exist outside the loop
     // so that the displays don't get corrupted from the memory being deallocated or freed
@@ -144,6 +145,7 @@ int main(int argc, char* argv[]) {
             if (verbose) {
                 scene.print(std::cout, world.window_name().c_str());
             }
+            scene.set_ambient_light(ambient);
 
             // The completion data will be stored in here, a bool per line.
             std::vector<bool> completed(height);

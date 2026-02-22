@@ -273,8 +273,9 @@ color scene::reflected_light(precision reflectivity, mediums::medium const& medi
         // find the *reflected* medium color from all lights (without blocked paths)
         // The set of colors from each light source (including ambient)
         std::vector<color> surface_colors;
-        // the medium starts at the ambient light
-        surface_colors.push_back(medium.ambient(object_surface_point));
+        // the medium starts at the ambient light from the scene
+        // surface_colors.push_back(medium.ambient(object_surface_point));
+        // surface_colors.push_back(m_ambient_light);
         // for each light in the scene... check the SHADOW rays!
         statistics::get().shadow_rays++;
         for (auto& light_ : m_lights) {
@@ -289,7 +290,7 @@ color scene::reflected_light(precision reflectivity, mediums::medium const& medi
                     = direct_light(scene_light, medium, world_surface_point, object_surface_point, world_surface_normal,
                                    world_reflection, sample_index, reflection_depth, recursive_contribution);
             }
-            // blend or accumulate? all the surface samples from this light (could be all black)
+            // blend (linearly) all the surface samples from this light (could be all black)
             color surface_color = fourcc::color::blend_samples(surface_color_samples);
             surface_colors.push_back(surface_color);
         }
@@ -316,7 +317,7 @@ color scene::reflected_light(precision reflectivity, mediums::medium const& medi
                         trace(world_reflection, media, reflection_depth - 1, recursive_contribution * smoothness));
 
                     // somehow interpolate the two based on how much of a smooth mirror this medium is.
-                    reflected_color = interpolate(bounced_color, surface_properties_color, smoothness);
+                    reflected_color = fourcc::linear::interpolate(bounced_color, surface_properties_color, smoothness);
                 }
             } else {
                 // perfectly diffuse so it's just surface properties
@@ -328,7 +329,7 @@ color scene::reflected_light(precision reflectivity, mediums::medium const& medi
             reflected_color = surface_properties_color;
         }
     }
-    return reflected_color;
+    return fourcc::linear::blend(reflected_color, m_ambient_light);
 }
 
 color scene::transmitted_light(precision transparency, mediums::medium const& medium, ray const& world_refraction,
@@ -423,9 +424,9 @@ color scene::trace(ray const& world_ray, mediums::medium const& media, size_t re
             = transmitted_light(transparency, medium, world_refraction, reflection_depth, recursive_contribution);
         // ======================================================
         // blend that reflected color with the transmitted color
-        surface_color = interpolate(transmitted_color, reflected_color, transparency);
+        surface_color = fourcc::linear::interpolate(transmitted_color, reflected_color, transparency);
         // now add emitted color
-        surface_color += emitted_color;  // this will clamp internally
+        surface_color += emitted_color;
         // the media will absorb some of the light from that surface.
         traced_color = media.absorbance(nearest.distance, surface_color);
     } else {  // if (get_type(closest_intersection) == geometry::intersectionType::None) {
@@ -504,25 +505,17 @@ void scene::render(camera& view, std::string filename, size_t number_of_samples,
         view.capture.generate_each(tracer, number_of_samples, row_notifier, &view.mask, aaa_mask_threshold);
     }
 
-    // re-create the sRGB image
-    fourcc::image<fourcc::PixelFormat::RGB8> srgb_image{view.capture.height, view.capture.width};
-    fourcc::convert(view.capture, srgb_image);
-
     // if we want to filter the image before viewing or saving, do that here.
     if (filter_capture) {
         // copy the image into a duplicate
-        fourcc::image<fourcc::PixelFormat::RGB8> capture_copy(srgb_image);
-        int16_t kernel[3]{1, 2, 1};
-        fourcc::filter(srgb_image, capture_copy, kernel);
+        fourcc::image<fourcc::PixelFormat::RGBId> capture_copy{view.capture.height, view.capture.width};
+        precision kernel[3]{1.0_p, 2.0_p, 1.0_p};
+        // output into the original buffer
+        fourcc::filter(view.capture, capture_copy, kernel);
     }
 
-    // This will save the Gamma corrected image
-    srgb_image.save(filename);
-
-    // Additionally create a .pfm format image
-    fourcc::image<fourcc::PixelFormat::RGBf> pfm_image{view.capture.height, view.capture.width};
-    fourcc::convert(view.capture, pfm_image);
-    pfm_image.save(filename + ".pfm");
+    // This will save based on the file extension
+    view.capture.save(filename);
 }
 
 void scene::print(std::ostream& os, char const str[]) const {
@@ -551,8 +544,10 @@ void scene::set_background_mapper(background_mapper mapper) {
 }
 
 void scene::set_ambient_light(color ambient) {
+    using fourcc::operators::operator*;
     // use the intensity channel as the brightness value for the light
     m_ambient_light = ambient;
+    m_ambient_light *= ambient.intensity();
 }
 
 }  // namespace raytrace

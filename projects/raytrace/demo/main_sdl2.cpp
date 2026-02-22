@@ -122,6 +122,7 @@ int main(int argc, char *argv[]) {
             if (verbose) {
                 scene.print(std::cout, world.window_name().c_str());
             }
+            scene.set_ambient_light(world.ambient());
 
             size_t view_offset = 0u;
             for (auto &view : stereo_view) {
@@ -192,11 +193,10 @@ int main(int argc, char *argv[]) {
                             // clamp, then convert to sRGB
                             raytrace::color value(pixel.components.r, pixel.components.g, pixel.components.b, pixel.components.i);
                             value.clamp();
-                            value.ToEncoding(fourcc::Encoding::GammaCorrected );
-                            // save the pixel in B G R A order
+                            value.ToEncoding(fourcc::Encoding::GammaCorrected);
                             auto srgb = value.to_<fourcc::PixelFormat::RGB8>();
 
-                            // B G R A order
+                            // B G R A order in SDL2
                             pixels[offset + 0u] = srgb.components.b;
                             pixels[offset + 1u] = srgb.components.g;
                             pixels[offset + 2u] = srgb.components.r;

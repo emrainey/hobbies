@@ -27,7 +27,7 @@ color transparent::absorbance(precision distance, color const& given_color) cons
         return given_color * m_diffuse;
     }
     precision dropoff = std::exp(-distance * m_fade);
-    return given_color * interpolate(colors::white, m_diffuse, dropoff);
+    return given_color * fourcc::linear::interpolate(colors::white, m_diffuse, dropoff);
 }
 
 }  // namespace mediums

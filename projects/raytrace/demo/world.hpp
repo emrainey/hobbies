@@ -10,7 +10,12 @@ public:
     /// Constructor
     world(raytrace::point const& from, raytrace::point const& at, std::string const& window_name,
           std::string const& file_name)
-        : looking_from_(from), looking_at_(at), window_name_(window_name), file_name_(file_name) {
+        : looking_from_(from)
+        , looking_at_(at)
+        , window_name_(window_name)
+        , file_name_(file_name)
+        , background_{colors::black}
+        , ambient_{1.0_p, 1.0_p, 1.0_p, 0.75_p} {
     }
 
     /// Adds all the objects and lights to the scene.
@@ -45,7 +50,12 @@ public:
     }
 
     virtual color background(raytrace::ray const&) const {
-        return colors::black;
+        return background_;
+    }
+
+    virtual color ambient() const {
+        // this carries intensity in the 4th channel!
+        return ambient_;
     }
 
 protected:
@@ -53,6 +63,8 @@ protected:
     raytrace::point looking_at_;
     std::string window_name_;
     std::string file_name_;
+    raytrace::color background_;
+    raytrace::color ambient_;
 
     virtual ~world() = default;
 };

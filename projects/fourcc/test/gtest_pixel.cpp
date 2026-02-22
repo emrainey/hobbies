@@ -32,15 +32,15 @@ TEST(ColorTest, DefaultConstruction) {
     ASSERT_NEAR(0.0_p, c.blue(), basal::epsilon);
 }
 
-TEST(ColorTest, Basics) {
+TEST(ColorTest, GammaInterpolation) {
     precision gg = 0.73536062_p;
     precision c = gamma::interpolate(1.0_p, 0.0_p, 0.5_p);
     ASSERT_NEAR(c, gg, basal::epsilon);
 }
 
-TEST(ColorTest, Blending) {
-    ASSERT_TRUE(colors::grey == blend(colors::black, colors::white));
-    ASSERT_RGBID_COLOR_EQ(colors::grey, blend(colors::black, colors::white));
+TEST(ColorTest, GammaBlending) {
+    ASSERT_TRUE(colors::grey == fourcc::gamma::blend(colors::black, colors::white));
+    ASSERT_RGBID_COLOR_EQ(colors::grey, fourcc::gamma::blend(colors::black, colors::white));
 }
 
 TEST(ColorTest, Assignment) {
@@ -108,7 +108,7 @@ TEST(ColorTest, InterpolateGreyScale) {
     img4.for_each([&](size_t y, size_t x, rgb8& pixel) {
         y |= 0;
         precision a = precision(x) / img4.width;
-        color c = interpolate(colors::white, colors::black, a);
+        color c = fourcc::linear::interpolate(colors::white, colors::black, a);
         c.ToEncoding(fourcc::Encoding::GammaCorrected );
         pixel = c.to_<PixelFormat::RGB8>();
     });
@@ -120,9 +120,9 @@ TEST(ColorTest, InterpolateCorners) {
     img5.for_each([&](size_t y, size_t x, rgb8& pixel) {
         precision a = precision(x) / img5.width;
         precision b = precision(y) / img5.height;
-        color c = interpolate(colors::red, colors::green, a);
-        color d = interpolate(colors::blue, colors::white, b);
-        color e = blend(c, d);
+        color c = fourcc::linear::interpolate(colors::red, colors::green, a);
+        color d = fourcc::linear::interpolate(colors::blue, colors::white, b);
+        color e = fourcc::linear::blend(c, d);
         e.clamp();
         e.ToEncoding(fourcc::Encoding::GammaCorrected );
         pixel = e.to_<fourcc::PixelFormat::RGB8>();

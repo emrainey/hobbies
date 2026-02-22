@@ -28,7 +28,7 @@ public:
         , rubber{colors::grey, mediums::ambient::none, colors::grey, mediums::smoothness::none, roughness::tight}
         , steel{colors::grey, mediums::smoothness::polished, roughness::tight}
         , polka{13, colors::cyan, colors::blue}
-        , beam_of_light{raytrace::vector{-20, 0, -21}, colors::white, lights::intensities::full}
+        , beam_of_light{raytrace::vector{-20, 0, -21}, colors::white, lights::intensities::full * 3.0_p}
         , inner_light{raytrace::point{0, 0, 10}, colors::white, lights::intensities::moderate}
         , look_at{0, 0, 10}
         , plane0{}
@@ -57,6 +57,7 @@ public:
             views[i]->move_to(look_froms[i], camera_principal);
             scenes[i]->add_light(&beam_of_light);
             scenes[i]->add_object(&plane0);
+            scenes[i]->set_ambient_light(color{1.0_p, 1.0_p, 1.0_p, 0.5_p});
         }
     }
 

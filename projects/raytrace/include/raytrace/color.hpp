@@ -7,15 +7,15 @@
 #include "raytrace/types.hpp"
 
 namespace raytrace {
+
 using color = fourcc::color;
-
-using fourcc::gamma::interpolate;
-
-using fourcc::blend;
-
 using fourcc::operator==;
-
 using fourcc::operator<<;
+
+namespace operators {
+using fourcc::operators::operator*;
+using fourcc::operators::operator+;
+}
 
 inline color wavelength_to_color(iso::meters lambda) noexcept(false) {
     return fourcc::wavelength_to_color(lambda);
@@ -142,30 +142,6 @@ constexpr color stainless(0.97_p, 1.0_p, 1.0_p);
 constexpr color steel(0.62_p, 0.62_p, 0.51_p);
 constexpr color tin(0.72_p, 0.71_p, 0.61_p);
 }  // namespace colors
-
-namespace operators {
-/// Blend the colors together (uses gamma correct)
-inline color operator+(color const& x, color const& y) {
-    return blend(x, y);
-}
-
-/// Scale all the channels together
-inline color operator*(color const& x, precision a) {
-    color y = x;
-    y.scale(a);
-    return y;
-}
-
-/// Scale all the channels together
-inline color operator*(precision a, color const& x) {
-    return operator*(x, a);
-}
-
-/// Pairwise Color Mixing (when a light and a surface color self select the output color)
-inline color operator*(color const& a, color const& b) {
-    return fourcc::operators::operator*(a, b);
-}
-}  // namespace operators
 
 /// Given a color map it to another color using some predefined mapping function.
 /// This is used for tone mapping and false color mapping.

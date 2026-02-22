@@ -13,8 +13,8 @@ using namespace iso::literals;
 class ArtWorld : public world {
 public:
     ArtWorld()
-        : world(raytrace::point{0, 25, 10}, raytrace::point{0, 0, 10}, "Art1 World", "world_art1.exr")
-        , sun_rays{raytrace::vector{-20, 0, -21}, colors::white, lights::intensities::dim}
+        : world(raytrace::point{0, 25, 10}, raytrace::point{0, 0, 10}, "Art1 World", "world_art1.tga")
+        , sun_rays{raytrace::vector{-20, 0, -21}, colors::white, lights::intensities::full + 0.5_p}
         , floor{200.0_p}
         , pyramid1{looking_at(), 0}
         , orb{raytrace::point{0, 0, 12}, 2.0_p}
@@ -23,6 +23,9 @@ public:
         orb.material(&mediums::metals::stainless);
         floor.material(&mediums::metals::stainless);
         halo.material(&mediums::metals::copper);
+        ambient_ = colors::stainless;
+        // this is the only way to set the intensity of the ambient light is in the I channel
+        ambient_.intensity(0.75_p);
     }
 
     ~ArtWorld() = default;

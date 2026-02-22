@@ -69,6 +69,7 @@ int main(int argc, char* argv[]) {
     size_t reflection_depth = 4;
     bool should_quit = false;
     bool should_render = true;
+    color ambient;
     std::string windowName("RayTracing Surface Tester");
 
     // the render image
@@ -128,6 +129,9 @@ int main(int argc, char* argv[]) {
         // define some surfaces
         color dark = color_choices[ambient_color_index];
         color light = color_choices[diffuse_color_index];
+        ambient = color_choices[ambient_color_index];
+        ambient.intensity(ambient_scale);
+        scene.set_ambient_light(ambient);
         mediums::plain test_surface(color_choices[ambient_color_index], ambient_scale,
                                     color_choices[diffuse_color_index], smoothiness, tightness);
         mediums::checkerboard checkers{repeat, dark, light};

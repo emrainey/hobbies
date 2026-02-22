@@ -67,19 +67,20 @@ TEST(LightTest, DISABLED_TriColorSpots) {
     scene.add_object(&floor);
     scene.add_object(&shape);
     scene.print(std::cout, "TriColor");
-    scene.render(view, "tricolor_spots.ppm", 1, 1, std::nullopt, true);
+    scene.render(view, "tricolor_spots.pfm", 1, 1, std::nullopt, true);
 }
 
 TEST(LightTest, DISABLED_BulbTest) {
     raytrace::objects::sphere shape(raytrace::point{0, 0, 3}, 3);
     raytrace::objects::plane floor;
-    raytrace::lights::bulb light(raytrace::point{0, 0, 9}, 0.2_p, colors::white, lights::intensities::intense, 16);
+    raytrace::lights::bulb light(raytrace::point{0, 0, 12}, 3.0_p, colors::white, lights::intensities::intense * 2.0_p, 16);
     raytrace::scene scene;
     raytrace::camera view(480, 640, iso::degrees(55));
     view.move_to(raytrace::point{30, 30, 30}, raytrace::point{29, 29, 29});
     scene.add_light(&light);
     scene.add_object(&floor);
     scene.add_object(&shape);
+    scene.set_ambient_light(color{1.0_p, 1.0_p, 1.0_p, 0.75_p});
     scene.print(std::cout, "BulbTest");
     scene.render(view, "bulb_and_sphere.ppm", 1, 1, std::nullopt, true);
 }

@@ -65,7 +65,7 @@ namespace linear {
 /// @param b The second value to interpolate between.
 /// @param s The ratio between a and b to use for the interpolation. Should be between 0 and 1, where 0 is all a and 1 is all b.
 constexpr precision interpolate(precision a, precision b, precision s) {
-    return a * (1.0_p - s) + b * s;
+    return (a * s) + (b * (1.0_p - s));
 }
 
 }  // namespace linear

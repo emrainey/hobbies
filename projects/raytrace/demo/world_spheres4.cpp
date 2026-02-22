@@ -43,7 +43,7 @@ public:
         // this creates a gradient from top to bottom
         iso::radians sky_angle = angle(R3::basis::Z, world_ray.direction());
         precision scalar = sky_angle.value / iso::pi;
-        return interpolate(colors::black, colors::white, scalar);
+        return fourcc::linear::interpolate(colors::black, colors::white, scalar);
         // return colors::black;
     }
 

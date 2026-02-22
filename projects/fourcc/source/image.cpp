@@ -31,15 +31,29 @@ template <>
 bool image<PixelFormat::RGB8>::save(std::string filename) const;
 
 template <>
+bool image<PixelFormat::RGBf>::save(std::string filename) const;
+
+template <>
 bool image<PixelFormat::RGBh>::save(std::string filename) const;
 
 // +==============================================================+
 
 template <>
 bool image<PixelFormat::RGBId>::save(std::string filename) const {
-    image<DefaultPixelStorageType> output{height, width}; // make it the same size as us
-    fourcc::convert(*this, output);
-    return output.save(filename);
+    if (is_extension(filename, ".pfm")) {
+        image<PixelFormat::RGBf> output{height, width};
+        fourcc::convert(*this, output);
+        return output.save(filename);
+    } else if (is_extension(filename, ".ppm") or is_extension(filename, ".tga")) {
+        image<PixelFormat::RGB8> output{height, width};
+        fourcc::convert(*this, output);
+        return output.save(filename);
+    } else if (is_extension(filename, ".exr")) {
+        image<PixelFormat::RGBh> output{height, width};
+        fourcc::convert(*this, output);
+        return output.save(filename);
+    }
+    return false;
 }
 
 template <>
@@ -510,12 +524,18 @@ fourcc::image<fourcc::PixelFormat::RGB8> convert_rgbid_to_rgb8(
 }
 
 namespace gamma {
-
 color interpolate(color const& x, color const& y, precision a) {
     return color{gamma::interpolate(x.red(), y.red(), a),
                  gamma::interpolate(x.green(), y.green(), a),
                  gamma::interpolate(x.blue(), y.blue(), a)};
 }
-
 }  // namespace gamma
+
+namespace linear {
+color interpolate(color const& x, color const& y, precision a) {
+    return color{linear::interpolate(x.red(), y.red(), a),
+                 linear::interpolate(x.green(), y.green(), a),
+                 linear::interpolate(x.blue(), y.blue(), a)};
+}
+}  // namespace linear
 }  // namespace fourcc

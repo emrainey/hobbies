@@ -160,6 +160,13 @@ public:
         }
     }
 
+    void intensity(typename StorageType::ChannelType value) {
+        static_assert(std::is_same_v<StorageType,rgbid>, "Must be an RGBId type");
+        if constexpr (channel_count >= 4) {
+            data_.channels[3] = value;
+        }
+    }
+
     constexpr static ChannelType equality_limit = 1.0E-6;
 
     static pixel blend_samples(std::vector<pixel> const& subsamples) {
@@ -291,6 +298,7 @@ color greyscale(precision d, precision min, precision max) ;
 /// Generates a pixel of a random color
 color random();
 
+namespace gamma {
 template <PixelFormat PIXEL_FORMAT, typename = std::enable_if_t<is_rgb_type(PIXEL_FORMAT)>>
 pixel<PIXEL_FORMAT> interpolate(pixel<PIXEL_FORMAT> const& x,
                                 pixel<PIXEL_FORMAT> const& y,
@@ -305,6 +313,25 @@ pixel<PIXEL_FORMAT> blend(pixel<PIXEL_FORMAT> const& x,
                           pixel<PIXEL_FORMAT> const& y) {
     return interpolate(x, y, 0.5_p);
 }
+
+} // namespace gamma
+
+namespace linear {
+template <PixelFormat PIXEL_FORMAT, typename = std::enable_if_t<is_rgb_type(PIXEL_FORMAT)>>
+pixel<PIXEL_FORMAT> interpolate(pixel<PIXEL_FORMAT> const& x,
+                                pixel<PIXEL_FORMAT> const& y,
+                                precision ratio) {
+    return pixel<PIXEL_FORMAT>(linear::interpolate(x.red(), y.red(), ratio),
+                               linear::interpolate(x.green(), y.green(), ratio),
+                               linear::interpolate(x.blue(), y.blue(), ratio));
+}
+template <PixelFormat PIXEL_FORMAT, typename = std::enable_if_t<is_rgb_type(PIXEL_FORMAT)>>
+pixel<PIXEL_FORMAT> blend(pixel<PIXEL_FORMAT> const& x,
+                          pixel<PIXEL_FORMAT> const& y) {
+    return interpolate(x, y, 0.5_p);
+}
+
+}  // namespace linear
 
 color wavelength_to_color(iso::meters lambda) noexcept(false);
 
@@ -322,10 +349,31 @@ std::ostream& operator<<(std::ostream& os, pixel<PIXEL_FORMAT> const& c) {
 }
 
 namespace operators {
+
+/// Pairwise Color Mixing (when a light and a surface color self select the output color)
 template <PixelFormat PIXEL_FORMAT, typename = std::enable_if_t<is_rgb_type(PIXEL_FORMAT)>>
 pixel<PIXEL_FORMAT> operator*(pixel<PIXEL_FORMAT> const& a,
                               pixel<PIXEL_FORMAT> const& b) {
     return pixel<PIXEL_FORMAT>(a.red() * b.red(), a.green() * b.green(), a.blue() * b.blue());
 }
+
+/// Blend the colors together linearly (no gamma correction)
+/// @note To use gamma correction, use the `gamma` namespace blend directly.
+inline color operator+(color const& x, color const& y) {
+    return linear::blend(x, y);
+}
+
+/// Scale all the channels together
+inline color operator*(color const& x, precision a) {
+    color y = x;
+    y.scale(a);
+    return y;
+}
+
+/// Scale all the channels together
+inline color operator*(precision a, color const& x) {
+    return operator*(x, a);
+}
+
 }  // namespace operators
 }  // namespace fourcc

@@ -18,32 +18,32 @@ using namespace iso::literals;
 class MonochromeWorld : public world {
 public:
     MonochromeWorld()
-        : world{raytrace::point{15, -20, 0}, raytrace::point{20, 20, 15}, "Monochrome World 3",
+        : world{raytrace::point{0, -20, 0}, raytrace::point{0, 0, 0}, "Monochrome World 3",
                 "world_monochrome_3.tga"}
         , light_subsamples{5}
-        , light0{raytrace::point{-5, 0, 40}, 1, colors::white, 30 * lights::intensities::bright, light_subsamples}
-        , light1{raytrace::point{5, 0, 40}, 1, colors::white, 30 * lights::intensities::bright, light_subsamples}
-        , beam0{raytrace::vector{10, 10, -100}, colors::white, lights::intensities::bright}
-        , s0{raytrace::point{5, 20, 15}, 6}
-        , t0{raytrace::point{-2, 20, 17}, 3, 1}              // , o0{}
-                                                             // coordinates in overlap space
-        , c0{raytrace::point{0, 0, 0}, 100, 100, 100}        // coordinates in overlap space
-        , c1{raytrace::point{-15, -100, 35}, 10, 2.5_p, 10}  // coordinates in world space
-        , c2{raytrace::point{15, 20, 35}, 10, 2.5_p, 10}
-        , o1{c0, c1, raytrace::objects::overlap::type::subtractive}
-        , p0{raytrace::point{20, 20, 15}, 5} {
+        , light0{raytrace::point{-7, 0, 0}, 1, colors::white, 30 * lights::intensities::bright, light_subsamples}
+        , light1{raytrace::point{7, 0, 0}, 1, colors::white, 30 * lights::intensities::bright, light_subsamples}
+        , s0{raytrace::point{0, 0, 0}, 5.0_p}
+        , s1{raytrace::point{7, 7, 0}, 2.0_p}
+        , s2{raytrace::point{-7, 7, 0}, 2.0_p}
+        , s3{raytrace::point{-7, -7, 0}, 2.0_p}
+        , s4{raytrace::point{7, -7, 0}, 2.0_p}
+        , cone0{raytrace::point{0, 0, 0}, 0.5_p, 0.5_p}
+        , torus0{raytrace::point{0, 0, 5}, 3.0_p, 0.5_p}
+        , torus1{raytrace::point{0, 0, -5}, 3.0_p, 0.5_p}
+        , cube0{raytrace::point{0, -27, 0}, 5.0_p, 5.0_p, 5.0_p} {
+
         // assign surfaces and materials
         s0.material(&mediums::metals::stainless);
-        t0.material(&mediums::metals::stainless);
-        c0.material(&mediums::metals::stainless);
-        c1.material(&mediums::metals::stainless);
-        o1.material(&mediums::metals::stainless);
-        // overlaps compute a centroid for their position which could be off-origin
-        // assign it's location here which will then "move" the other subobjects
-        o1.position(raytrace::point{0, 120, 0});
-        c2.material(&mediums::metals::stainless);
-        p0.material(&mediums::metals::stainless);
-        p0.rotation(iso::degrees{90}, iso::degrees{45}, iso::degrees{0});
+        s1.material(&mediums::metals::copper);
+        s2.material(&mediums::metals::copper);
+        s3.material(&mediums::metals::copper);
+        s4.material(&mediums::metals::copper);
+        cone0.material(&mediums::metals::bronze);
+        torus0.material(&mediums::metals::stainless);
+        torus1.material(&mediums::metals::stainless);
+        cube0.material(&mediums::metals::gold);
+        cube0.rotation(iso::radians{iso::pi/4}, iso::radians{0}, iso::radians{iso::pi / 4});
     }
 
     ~MonochromeWorld() = default;
@@ -59,15 +59,15 @@ public:
         // add lights to the scene
         scene.add_light(&light0);
         scene.add_light(&light1);
-        scene.add_light(&beam0);
         scene.add_object(&s0);
-        scene.add_object(&t0);
-        // scene.add_object(&o0);
-        // scene.add_object(&c0);
-        // scene.add_object(&c1);
-        scene.add_object(&o1);
-        scene.add_object(&c2);
-        scene.add_object(&p0);
+        scene.add_object(&s1);
+        scene.add_object(&s2);
+        scene.add_object(&s3);
+        scene.add_object(&s4);
+        scene.add_object(&cone0);
+        scene.add_object(&torus0);
+        scene.add_object(&torus1);
+        scene.add_object(&cube0);
     }
 
     raytrace::animation::anchors get_anchors() const override {
@@ -83,16 +83,17 @@ protected:
     // lights
     raytrace::lights::bulb light0;
     raytrace::lights::bulb light1;
-    raytrace::lights::beam beam0;
     // objects
     raytrace::objects::sphere s0;
-    raytrace::objects::torus t0;
-    // raytrace::objects::overlap o0; // s0 + t0
-    raytrace::objects::cuboid c0;
-    raytrace::objects::cuboid c1;   // sunk in
-    raytrace::objects::cuboid c2;   // sticks out
-    raytrace::objects::overlap o1;  // c0 - c1
-    raytrace::objects::pyramid p0;
+    raytrace::objects::sphere s1;
+    raytrace::objects::sphere s2;
+    raytrace::objects::sphere s3;
+    raytrace::objects::sphere s4;
+    raytrace::objects::ellipticalcone cone0;
+    raytrace::objects::torus torus0;
+    raytrace::objects::torus torus1;
+    raytrace::objects::cuboid cube0;
+
 };
 
 // declare a single instance and return the reference to it

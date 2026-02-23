@@ -65,18 +65,32 @@ public:
         , sun_center{raytrace::point{0, -3000, 200}}
         , sun_rays{raytrace::vector{0, 200, -200}, colors::white, 2 * lights::intensities::bright}
         , grid{10.0_p, outrun::neon_pink, colors::black}
-        , floor{2000.0_p}
+        /* , schott_glass{mediums::refractive_index::glass, 0.04_p, outrun::neon_pink} */
+        , floor{200.0_p}
         , sun_surface{}
         , sun{sun_center, 600.0_p}
         , s0{raytrace::point{0, 0, 5.0_p}, 5.0_p}
         , s1{raytrace::point{6, -6, 6.0_p}, 6.0_p}
-        , s2{raytrace::point{-7, -7, 7.0_p}, 7.0_p} {
+        , s2{raytrace::point{-7, -7, 7.0_p}, 7.0_p}
+        , e0{raytrace::point{-20, -100, 45.0_p}, 23.5_p, 5.5_p, 4.0_p}
+        , e1{raytrace::point{-40, -100, 50.0_p}, 13.5_p, 7.5_p, 5.0_p}
+        , pyramid0{raytrace::point{50, -100, 0}, 40.0_p}
+        , pyramid1{raytrace::point{-50, -100, 0}, 40.0_p} {
         grid.mapper(std::bind(&raytrace::objects::square::map, &floor, std::placeholders::_1));
         floor.material(&grid);
         sun.material(&sun_surface);
         s0.material(&mediums::metals::gold);
         s1.material(&mediums::metals::stainless);
         s2.material(&mediums::metals::silver);
+        // e0.material(&schott_glass);
+        e0.material(&mediums::metals::bronze);
+        e1.material(&mediums::metals::bronze);
+        pyramid0.material(&grid);
+        pyramid1.material(&grid);
+        pyramid0.rotation(iso::degrees{0}, iso::degrees{0}, iso::degrees{90.0_p});
+        pyramid1.rotation(iso::degrees{0}, iso::degrees{0}, iso::degrees{-90.0_p});
+        ambient_ = outrun::neon_orange;
+        ambient_.intensity(0.5_p);
     }
 
     ~OutrunWorld() = default;
@@ -85,12 +99,10 @@ public:
         // this creates a gradient from top to bottom
         iso::radians sky_angle = angle(R3::basis::Z, world_ray.direction());
         precision scalar = sky_angle.value / (2 * iso::pi);
-        return fourcc::gamma::interpolate(colors::dark_slate_blue, colors::black, scalar);
-        // return colors::black;
+        return fourcc::gamma::interpolate(outrun::neon_pink, colors::dark_slate_blue, scalar);
     }
 
     void add_to(scene& scene) override {
-        // scene.add_light(&inner_light);
         scene.add_light(&sun_rays);
         scene.add_object(&floor);
         scene.add_object(&sun);
@@ -98,6 +110,10 @@ public:
         scene.add_object(&s0);
         scene.add_object(&s1);
         scene.add_object(&s2);
+        scene.add_object(&e0);
+        scene.add_object(&e1);
+        scene.add_object(&pyramid0);
+        scene.add_object(&pyramid1);
     }
 
     raytrace::animation::anchors get_anchors() const override {
@@ -113,15 +129,17 @@ protected:
     lights::beam sun_rays;
     raytrace::point center;
     raytrace::mediums::grid grid;
+    // mediums::transparent schott_glass;
     raytrace::objects::square floor;
     outrun::Sun sun_surface;
     raytrace::objects::sphere sun;
     raytrace::objects::sphere s0;
     raytrace::objects::sphere s1;
     raytrace::objects::sphere s2;
-    // FIXME need a mesh network of mountains to make this more thematically "outrun".
-    // FIXME add a terminal overlay somehow. Maybe a medium which takes strings and is able to render them to a surface
-    // as a uv map?
+    raytrace::objects::ellipsoid e0;
+    raytrace::objects::ellipsoid e1;
+    raytrace::objects::pyramid pyramid0;
+    raytrace::objects::pyramid pyramid1;
 };
 
 // declare a single instance and return the reference to it

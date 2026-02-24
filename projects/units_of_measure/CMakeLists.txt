@@ -61,6 +61,16 @@ set_target_properties(hobbies-uom PROPERTIES
     SOVERSION ${PROJECT_VERSION_MAJOR}
     POSITION_INDEPENDENT_CODE ON
 )
+install(TARGETS hobbies-uom
+    EXPORT uom-targets
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/units_of_measure
+    DESTINATION include
+    FILES_MATCHING PATTERN "*.hpp"
+)
 
 # === Unit Testing ===
 if (BUILD_UNIT_TESTS AND Threads_FOUND AND GTest_FOUND)

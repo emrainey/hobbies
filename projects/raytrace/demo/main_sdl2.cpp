@@ -35,6 +35,7 @@ struct Parameters {
     double separation;
     bool filter;
     bool tone_mapping;
+    bool go;
 };
 
 int main(int argc, char *argv[]) {
@@ -57,7 +58,8 @@ int main(int argc, char *argv[]) {
                                       "Adaptive Anti-Aliasing Threshold value (255 disables)"},
                                      {"-s", "--separation", 0.0_p, "Stereo Camera view separation"},
                                     {"-e", "--filter", false, "Whether to do a post-process filter on the capture before saving"},
-                                    {"-t", "--tone-mapping", false, "Whether to apply tone mapping to the final image"}};
+                                    {"-t", "--tone-mapping", false, "Whether to apply tone mapping to the final image"},
+                                     {"-g", "--go", false, "Go immediately, no waiting for user input"}};
 
     basal::options::process(dimof(opts), opts, argc, argv);
     basal::exit_unless(basal::options::find(opts, "--dims", params.dim_name), __FILE__, __LINE__,
@@ -78,6 +80,8 @@ int main(int argc, char *argv[]) {
     basal::exit_unless(basal::options::find(opts, "--filter", params.filter), __FILE__, __LINE__,
                        "Must be able to assign a bool");
     basal::exit_unless(basal::options::find(opts, "--tone-mapping", params.tone_mapping), __FILE__, __LINE__,
+                       "Must be able to assign a bool");
+    basal::exit_unless(basal::options::find(opts, "--go", params.go), __FILE__, __LINE__,
                        "Must be able to assign a bool");
     basal::options::print(dimof(opts), opts);
 
@@ -104,6 +108,11 @@ int main(int argc, char *argv[]) {
     // Fill the surface white
     SDL_FillRect(surface, NULL, SDL_MapRGB(surface->format, 0xFF, 0xFF, 0xFF));
     SDL_UpdateWindowSurface(window);
+
+    if (params.go) {
+        should_render = true;
+        should_quit = true;
+    }
 
     do {
         if (should_render) {

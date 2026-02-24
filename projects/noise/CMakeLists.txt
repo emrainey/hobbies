@@ -42,6 +42,16 @@ set_target_properties(hobbies-noise PROPERTIES
     SOVERSION ${PROJECT_VERSION_MAJOR}
     POSITION_INDEPENDENT_CODE ON
 )
+install(TARGETS hobbies-noise
+    EXPORT noise-targets
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/noise
+    DESTINATION include
+    FILES_MATCHING PATTERN "*.hpp"
+)
 
 # === Demos ===
 if (OpenCV_FOUND)
@@ -53,6 +63,13 @@ target_link_libraries(demo_perlin_tuner ${OpenCV_LIBS} hobbies-noise hobbies-lin
 
 add_executable(demo_fbm_tuner ${CMAKE_CURRENT_SOURCE_DIR}/demo/fbm_tuner.cpp)
 target_link_libraries(demo_fbm_tuner ${OpenCV_LIBS} hobbies-noise hobbies-linalg-utils)
+
+install(TARGETS demo_turbulent_tuner demo_perlin_tuner demo_fbm_tuner
+    EXPORT noise-targets
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+)
 endif(OpenCV_FOUND)
 
 # === Googletests ===

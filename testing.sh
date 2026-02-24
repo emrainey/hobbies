@@ -1,21 +1,17 @@
 #!/usr/bin/env bash
 
-if [[ -z ${PRJ_ROOT} ]]; then
-    PRJ_ROOT=`pwd`/build/homebrew-llvm/projects
-fi
-unset PRJ_PATH
-for prj in `ls -1 ${PRJ_ROOT}`; do
-    #echo "${prj}"
-    PRJ_PATH=${PRJ_PATH}:${PRJ_ROOT}/${prj}
-done
+PRESET=homebrew-llvm
 
-export DYLD_LIBRARY_PATH=${DYLD_LIBRARY_PATH}:${PRJ_PATH}
-export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${PRJ_PATH}
-export PATH=${PATH}:${PRJ_PATH}
+# Enforce that the build worked and installed
+cmake --build build/${PRESET} --target install
 echo "============="
+export DYLD_LIBRARY_PATH=`pwd`/install/${PRESET}/lib:${DYLD_LIBRARY_PATH}
 echo "DYLD_LIBRARY_PATH=${DYLD_LIBRARY_PATH}"
 echo "============="
+export LD_LIBRARY_PATH=`pwd`/install/${PRESET}/lib:${LD_LIBRARY_PATH}
 echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}"
 echo "============="
+export PATH=`pwd`/install/${PRESET}/bin:${PATH}
 echo "PATH=${PATH}"
-(cd testing && ../$*)
+echo "============="
+(cd testing && $*)

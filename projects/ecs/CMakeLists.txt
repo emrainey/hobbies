@@ -40,6 +40,12 @@ find_package(Doxygen)
 if (SDL2_FOUND)
 add_executable(demo_ecs ${CMAKE_CURRENT_SOURCE_DIR}/demo/main.cpp)
 target_link_libraries(demo_ecs PUBLIC ${SDL2_LIBRARIES}) # hobbies-ecs
+install(TARGETS demo_ecs
+    EXPORT ecs-targets
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+)
 endif(SDL2_FOUND)
 
 # === Doxygen ===

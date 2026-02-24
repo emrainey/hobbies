@@ -38,6 +38,16 @@ set_target_properties(hobbies-linalg PROPERTIES
     SOVERSION ${PROJECT_VERSION_MAJOR}
     POSITION_INDEPENDENT_CODE ON
 )
+install(TARGETS hobbies-linalg
+    EXPORT linalg-targets
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/linalg
+    DESTINATION include
+    FILES_MATCHING PATTERN "*.hpp"
+)
 
 # === Googletests ===
 if (BUILD_UNIT_TESTS AND Threads_FOUND AND GTest_FOUND)

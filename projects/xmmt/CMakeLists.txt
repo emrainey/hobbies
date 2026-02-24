@@ -21,6 +21,16 @@ target_include_directories(hobbies-xmmt INTERFACE
     $<INSTALL_INTERFACE:include>
 )
 target_link_libraries(hobbies-xmmt INTERFACE hobbies-basal native-optimized)
+install(TARGETS hobbies-xmmt
+    EXPORT xmmt-targets
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/xmmt
+    DESTINATION include
+    FILES_MATCHING PATTERN "*.hpp"
+)
 
 # === Googletests ===
 if (USE_XMMT AND BUILD_UNIT_TESTS AND Threads_FOUND AND GTest_FOUND)

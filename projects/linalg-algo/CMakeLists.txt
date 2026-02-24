@@ -30,6 +30,16 @@ set_target_properties(hobbies-linalg-algo PROPERTIES
     SOVERSION ${PROJECT_VERSION_MAJOR}
     POSITION_INDEPENDENT_CODE ON
 )
+install(TARGETS hobbies-linalg-algo
+    EXPORT linalg-algo-targets
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/linalg-algo
+    DESTINATION include
+    FILES_MATCHING PATTERN "*.hpp"
+)
 
 # === Demos ===
 if (OpenCV_FOUND)

@@ -36,6 +36,16 @@ set_target_properties(hobbies-htm PROPERTIES
     SOVERSION ${PROJECT_VERSION_MAJOR}
     POSITION_INDEPENDENT_CODE ON
 )
+install(TARGETS hobbies-htm
+    EXPORT htm-targets
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/htm
+    DESTINATION include
+    FILES_MATCHING PATTERN "*.hpp"
+)
 
 # === Demos ===
 add_executable(demo_sparse_word ${CMAKE_CURRENT_SOURCE_DIR}/demo/sparse_word.cpp)

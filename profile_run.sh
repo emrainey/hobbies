@@ -3,7 +3,8 @@
 export CPUPROFILE_FREQUENCY=1000
 export DYLD_INSERT_LIBRARIES=/opt/homebrew/Cellar/gperftools/2.16/lib/libprofiler.dylib
 _PATH=`pwd`/build/homebrew-llvm-profiled/projects/raytrace
-export DYLD_LIBRARY_PATH=./install/lib:${_PATH}
+export LD_LIBRARY_PATH=./install/homebrew-llvm-profiled/lib:${_PATH}
+export DYLD_LIBRARY_PATH=./install/homebrew-llvm-profiled/lib:${_PATH}
 _PRGM=demo_sdl2
 _FILE=${_PRGM}-perf.pdf
 export CPUPROFILE=${_PRGM}.prof

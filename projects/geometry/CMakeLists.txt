@@ -47,6 +47,16 @@ set_target_properties(hobbies-geometry PROPERTIES
     SOVERSION ${PROJECT_VERSION_MAJOR}
     POSITION_INDEPENDENT_CODE ON
 )
+install(TARGETS hobbies-geometry
+    EXPORT geometry-targets
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/geometry
+    DESTINATION include
+    FILES_MATCHING PATTERN "*.hpp"
+)
 
 # === Googletests ===
 if (BUILD_UNIT_TESTS AND Threads_FOUND AND GTest_FOUND)

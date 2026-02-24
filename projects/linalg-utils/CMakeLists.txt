@@ -31,6 +31,16 @@ set_target_properties(hobbies-linalg-utils PROPERTIES
     SOVERSION ${PROJECT_VERSION_MAJOR}
     POSITION_INDEPENDENT_CODE ON
 )
+install(TARGETS hobbies-linalg-utils
+    EXPORT linalg-utils-targets
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/linalg-utils
+    DESTINATION include
+    FILES_MATCHING PATTERN "*.hpp"
+)
 
 # === Demos ===
 add_executable(demo_least_squares ${CMAKE_CURRENT_SOURCE_DIR}/demo/demo_least_squares.cpp)
@@ -40,6 +50,13 @@ target_link_libraries(demo_least_squares hobbies-linalg-utils)
 add_executable(demo_images ${CMAKE_CURRENT_SOURCE_DIR}/demo/demo_images.cpp)
 target_include_directories(demo_images PRIVATE ${OpenCV_INCLUDE_DIRS})
 target_link_libraries(demo_images hobbies-linalg-utils)
+
+install(TARGETS demo_least_squares demo_images
+    EXPORT linalg-utils-targets
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+)
 
 # === Doxygen ===
 if (Doxygen_FOUND)

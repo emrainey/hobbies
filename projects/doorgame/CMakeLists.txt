@@ -48,12 +48,28 @@ set_target_properties(hobbies-doorgame PROPERTIES
     SOVERSION ${PROJECT_VERSION_MAJOR}
     POSITION_INDEPENDENT_CODE ON
 )
+install(TARGETS hobbies-doorgame
+    EXPORT doorgame-targets
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/doorgame
+    DESTINATION include
+    FILES_MATCHING PATTERN "*.hpp"
+)
 
 # === Demos ===
 if (Curses_FOUND)
 add_executable(demo_doorgame ${CMAKE_CURRENT_SOURCE_DIR}/demo/main.cpp)
 target_link_libraries(demo_doorgame PUBLIC hobbies-doorgame  ${CURSES_LIBRARIES})
 target_compile_definitions(demo_doorgame PUBLIC ${CURSES_CFLAGS})
+install(TARGETS hobbies-doorgame
+    EXPORT doorgame-targets
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+)
 endif(Curses_FOUND)
 
 # === Doxygen ===

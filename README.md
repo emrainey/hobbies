@@ -77,11 +77,11 @@ Conan support has been removed until I have time to read up on Conan 2.0 builds.
 
 ## Running
 
-While in the hobbies' root, you can run things by pre-pending the LD (DYLD) path.
+While in the hobbies' root, you can run things by pre-pending the LD (DYLD) path, or by using `testing.sh` which will set the path for you.
 
 ```bash
-# Running the NCurses Raytracing Console on Mac
-DYLD_LIBRARY_PATH=install/lib:build/projects/raytrace ./build/projects/raytrace/demo_curses -m world_example -d QCIF -r 4 -b 5
+# Running the NCurses Raytracing Console on Mac (this is too wordy!)
+DYLD_LIBRARY_PATH=install/homebrew-llvm/lib:build/homebrew-llvm/projects/raytrace ./build/homebrew-llvm/projects/raytrace/demo_curses -m world_example -d QCIF -r 4 -b 5
 ```
 
 ## Testing Folder
@@ -90,9 +90,9 @@ I've added an explicit folder to run tests. You can run them using the testing w
 
 ```bash
 # Basic
-./testing.sh demo_curses -m world_example
+./testing.sh demo_sdl2 -m world_example
 # Advanced (Stereoscopic)
-./testing.sh demo_sdl2 -m world_snowman --dims CIF --aaa 128 --separation 2.0
+./testing.sh demo_sdl2 -m world_snowman --dims CIF --aaa 128 --separation 2.0 -w 1280 -h 720
 ```
 
 ## Profiling
@@ -102,7 +102,7 @@ There's two ways to run the profiling tools which have been tested on Mac OS. Th
 ```bash
 # This will generate a "testing/profiling.txt" with the top 100 called functions.
 # >> See the Presets to build with profiling enabled! <<
-./raytrace.sh ... options ...
+./profile_run.sh ... options ...
 ```
 
 ```bash

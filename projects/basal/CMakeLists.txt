@@ -47,6 +47,16 @@ set_target_properties(hobbies-basal PROPERTIES
     SOVERSION ${PROJECT_VERSION_MAJOR}
     POSITION_INDEPENDENT_CODE ON
 )
+install(TARGETS hobbies-basal
+    EXPORT basal-targets
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/basal
+    DESTINATION include
+    FILES_MATCHING PATTERN "*.hpp"
+)
 
 # === Unit Tests ===
 if (BUILD_UNIT_TESTS AND Threads_FOUND AND GTest_FOUND)

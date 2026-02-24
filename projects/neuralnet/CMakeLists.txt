@@ -49,6 +49,16 @@ set_target_properties(hobbies-neuralnet PROPERTIES
     SOVERSION ${PROJECT_VERSION_MAJOR}
     POSITION_INDEPENDENT_CODE ON
 )
+install(TARGETS hobbies-neuralnet
+    EXPORT neuralnet-targets
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/neuralnet
+    DESTINATION include
+    FILES_MATCHING PATTERN "*.hpp"
+)
 
 # === Demos ===
 add_executable(demo_neuralnet ${CMAKE_CURRENT_SOURCE_DIR}/demo/neuralnet_counter.cpp)
@@ -56,6 +66,13 @@ target_link_libraries(demo_neuralnet hobbies-neuralnet ${OpenCV_LIBS})
 
 add_executable(neuralnet ${CMAKE_CURRENT_SOURCE_DIR}/source/neuralnet.cpp)
 target_link_libraries(neuralnet hobbies-neuralnet ${OpenCV_LIBS})
+
+install(TARGETS neuralnet demo_neuralnet
+    EXPORT neuralnet-targets
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+)
 
 # === Googletests ===
 if (BUILD_UNIT_TESTS AND Threads_FOUND AND GTest_FOUND)

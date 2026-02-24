@@ -108,6 +108,16 @@ set_target_properties(hobbies-raytrace PROPERTIES
     SOVERSION ${PROJECT_VERSION_MAJOR}
     POSITION_INDEPENDENT_CODE ON
 )
+install(TARGETS hobbies-raytrace
+    EXPORT raytrace-targets
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/raytrace
+    DESTINATION include
+    FILES_MATCHING PATTERN "*.hpp"
+)
 
 # === Demos ===
 if (OpenCV_FOUND AND Threads_FOUND)
@@ -130,6 +140,13 @@ add_executable(demo_functions
     ${CMAKE_CURRENT_SOURCE_DIR}/demo/main_functions.cpp
 )
 target_link_libraries(demo_functions PRIVATE ${OpenCV_LIBS} hobbies-raytrace hobbies-linalg-utils Threads::Threads)
+
+install(TARGETS demo_sphere_surfaces demo_opencv_gui demo_random_tuner demo_functions
+    EXPORT raytrace-targets
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin)
+
 endif()
 
 if (Threads_FOUND AND CURSES_FOUND)
@@ -139,6 +156,12 @@ if (Threads_FOUND AND CURSES_FOUND)
     # target_include_directories(demo_curses PRIVATE ${CURSES_INCLUDE_DIRS})
     target_link_libraries(demo_curses PRIVATE hobbies-raytrace ${CURSES_LIBRARIES} Threads::Threads)
     target_compile_options(demo_curses PRIVATE ${CURSES_CFLAGS})
+    install(TARGETS demo_curses
+        EXPORT raytrace-targets
+        ARCHIVE DESTINATION lib
+        LIBRARY DESTINATION lib
+        RUNTIME DESTINATION bin)
+
 endif()
 
 if (SDL2_FOUND AND Threads_FOUND)
@@ -147,6 +170,11 @@ if (SDL2_FOUND AND Threads_FOUND)
     )
     # target_include_directories(demo_sdl2 PRIVATE ${SDL2_INCLUDE_DIRS})
     target_link_libraries(demo_sdl2 PRIVATE hobbies-raytrace ${SDL2_LIBRARIES} Threads::Threads)
+    install(TARGETS demo_sdl2
+        EXPORT raytrace-targets
+        ARCHIVE DESTINATION lib
+        LIBRARY DESTINATION lib
+        RUNTIME DESTINATION bin)
 endif()
 
 # === Worlds ===
@@ -169,7 +197,12 @@ list(APPEND DEMOS world_spheres world_spheres2 world_spheres3 world_spheres4)
 foreach(demo IN LISTS DEMOS)
     add_library(${demo} SHARED ${CMAKE_CURRENT_SOURCE_DIR}/demo/${demo}.cpp)
     target_link_libraries(${demo} PRIVATE hobbies-raytrace)
-    add_test(NAME test-${demo} COMMAND demo_sdl2 -m ${demo} -d QVGA -a 128 -s 0.125)
+    add_test(NAME test-${demo} COMMAND demo_sdl2 -m ${demo} --go -d SQCIF -r 2 -b 1 -s 0.125)
+    install(TARGETS ${demo}
+        EXPORT raytrace-targets
+        ARCHIVE DESTINATION lib
+        LIBRARY DESTINATION lib
+        RUNTIME DESTINATION bin)
 endforeach()
 
 # === Googletests ===

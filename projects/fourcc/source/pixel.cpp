@@ -9,16 +9,16 @@ color accumulate_samples(std::vector<color> const& samples) {
     color tmp;
     for (auto& sample : samples) {
         basal::exception::throw_unless(sample.GetEncoding() == Encoding::Linear, __FILE__, __LINE__,
-                                        "Color should be in linear Encoding");
+                                       "Color should be in linear Encoding");
         tmp += sample;
     }
     return tmp;
 }
 
 color jet(precision value) {
-    auto interpolate
-        = [](precision val, precision y0, precision x0, precision y1,
-                precision x1) -> precision { return (val - x0) * (y1 - y0) / (x1 - x0) + y0; };
+    auto interpolate = [](precision val, precision y0, precision x0, precision y1, precision x1) -> precision {
+        return (val - x0) * (y1 - y0) / (x1 - x0) + y0;
+    };
     auto base = [&](precision val) -> precision {
         if (val <= -0.75_p)
             return 0.0_p;
@@ -37,9 +37,7 @@ color jet(precision value) {
     return color(r, g, b);
 }
 
-color greyscale(precision value,
-                precision min,
-                precision max) {
+color greyscale(precision value, precision min, precision max) {
     precision v{1.0_p};
     if (min <= value and value <= max) {
         precision range = max - min;

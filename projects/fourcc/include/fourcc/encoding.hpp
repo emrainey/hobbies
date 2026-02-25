@@ -14,13 +14,16 @@ constexpr bool use_full{true};
 /// Enables contract enforcement on the parameters to the use of gama related functions.
 constexpr bool enforce_contract{false};
 
-/// Interpolates between a and b using the gamma correction scheme. The ratio is between 0 and 1, where 0 is all a and 1 is all b.
+/// Interpolates between a and b using the gamma correction scheme. The ratio is between 0 and 1, where 0 is all a and 1
+/// is all b.
 /// @param a The first value to interpolate between.
 /// @param b The second value to interpolate between.
-/// @param s The ratio between a and b to use for the interpolation. Should be between 0 and 1, where 0 is all a and 1 is all b.
+/// @param s The ratio between a and b to use for the interpolation. Should be between 0 and 1, where 0 is all a and 1
+/// is all b.
 precision interpolate(precision a, precision b, precision s);
 
-/// Converts a Gamma Corrected value to a Linear value. This is used for converting from sRGB space to linear space for calculations.
+/// Converts a Gamma Corrected value to a Linear value. This is used for converting from sRGB space to linear space for
+/// calculations.
 /// @param value The value to convert from gamma corrected to linear. Should be between 0 and 1.
 constexpr precision remove_correction(precision value) {
     using namespace basal::literals;
@@ -35,7 +38,8 @@ constexpr precision remove_correction(precision value) {
     }
 }
 
-/// Converts a Linear value to a Gamma Corrected value. This is used for converting from linear space to sRGB space for output.
+/// Converts a Linear value to a Gamma Corrected value. This is used for converting from linear space to sRGB space for
+/// output.
 /// @param value The value to convert from linear to gamma corrected. Should be between 0 and 1.
 constexpr precision apply_correction(precision value) {
     using namespace basal::literals;
@@ -50,10 +54,12 @@ constexpr precision apply_correction(precision value) {
     }
 }
 
-/// Interpolates between a and b using the gamma correction scheme. The ratio is between 0 and 1, where 0 is all a and 1 is all b.
+/// Interpolates between a and b using the gamma correction scheme. The ratio is between 0 and 1, where 0 is all a and 1
+/// is all b.
 /// @param a The first value to interpolate between.
 /// @param b The second value to interpolate between.
-/// @param s The ratio between a and b to use for the interpolation. Should be between 0 and 1, where 0 is all a and 1 is all b.
+/// @param s The ratio between a and b to use for the interpolation. Should be between 0 and 1, where 0 is all a and 1
+/// is all b.
 precision interpolate(precision const a, precision const b, precision const s);
 
 }  // namespace gamma
@@ -63,7 +69,8 @@ namespace linear {
 /// Interpolates between a and b using the linear scheme. The ratio is between 0 and 1, where 0 is all a and 1 is all b.
 /// @param a The first value to interpolate between.
 /// @param b The second value to interpolate between.
-/// @param s The ratio between a and b to use for the interpolation. Should be between 0 and 1, where 0 is all a and 1 is all b.
+/// @param s The ratio between a and b to use for the interpolation. Should be between 0 and 1, where 0 is all a and 1
+/// is all b.
 constexpr precision interpolate(precision a, precision b, precision s) {
     return (a * s) + (b * (1.0_p - s));
 }

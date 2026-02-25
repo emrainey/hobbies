@@ -83,7 +83,7 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
             random_noise_image.for_each([&](int y, int x, raytrace::image::PixelStorageType &pixel) {
                 raytrace::color value(pixel.components.r, pixel.components.g, pixel.components.b, pixel.components.i);
                 value.clamp();
-                value.ToEncoding(fourcc::Encoding::GammaCorrected );
+                value.ToEncoding(fourcc::Encoding::GammaCorrected);
                 auto srgb = value.to_<fourcc::PixelFormat::RGB8>();
                 render_image.at<cv::Vec3b>(y, x)[0] = srgb.components.b;
                 render_image.at<cv::Vec3b>(y, x)[1] = srgb.components.g;

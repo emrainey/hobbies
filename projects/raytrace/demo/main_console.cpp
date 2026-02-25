@@ -268,8 +268,8 @@ int main(int argc, char* argv[]) {
             console.print(3, 2, "SUBSAMPLES: %zu, REFLECTIONS: %zu ANTI-ALIAS MASK: %zu", params.subsamples,
                           params.reflections, params.mask_threshold);
             console.print(4, 2, "CAMERA FROM {%0.3lf,%0.3lf,%0.3lf} AT {%0.3lf,%0.3lf,%0.3lf} FOV=%0.2lf",
-                          world.looking_from().x(), world.looking_from().y(), world.looking_from().z(), world.looking_at().x(),
-                          world.looking_at().y(), world.looking_at().z(), params.fov);
+                          world.looking_from().x(), world.looking_from().y(), world.looking_from().z(),
+                          world.looking_at().x(), world.looking_at().y(), world.looking_at().z(), params.fov);
             console.print(5, 2, "#LIGHTS %zu #OBJECTS %zu", scene.number_of_lights(), scene.number_of_objects());
             // console.print(6, 2, "START TIME: %s, RENDERING TIME: %0.3lf secs", std::ctime(&start_time),
             // diff.count());

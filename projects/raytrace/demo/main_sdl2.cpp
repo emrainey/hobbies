@@ -48,18 +48,19 @@ int main(int argc, char *argv[]) {
     std::string module_name;
     bool should_show_help = true;
 
-    basal::options::config opts[] = {{"-d", "--dims", std::string("QVGA"), "Use text video format like VGA or 2K"},
-                                     {"-b", "--subsamples", (size_t)1, "Number of subsamples"},
-                                     {"-r", "--reflections", (size_t)4, "Reflection Depth"},
-                                     {"-f", "--fov", 55.0_p, "Field of View in Degrees"},
-                                     {"-v", "--verbose", false, "Enables showing the early debugging"},
-                                     {"-m", "--module", std::string(""), "Module to load"},
-                                     {"-a", "--aaa", (size_t)raytrace::image::AAA_MASK_DISABLED,
-                                      "Adaptive Anti-Aliasing Threshold value (255 disables)"},
-                                     {"-s", "--separation", 0.0_p, "Stereo Camera view separation"},
-                                    {"-e", "--filter", false, "Whether to do a post-process filter on the capture before saving"},
-                                    {"-t", "--tone-mapping", false, "Whether to apply tone mapping to the final image"},
-                                     {"-g", "--go", false, "Go immediately, no waiting for user input"}};
+    basal::options::config opts[]
+        = {{"-d", "--dims", std::string("QVGA"), "Use text video format like VGA or 2K"},
+           {"-b", "--subsamples", (size_t)1, "Number of subsamples"},
+           {"-r", "--reflections", (size_t)4, "Reflection Depth"},
+           {"-f", "--fov", 55.0_p, "Field of View in Degrees"},
+           {"-v", "--verbose", false, "Enables showing the early debugging"},
+           {"-m", "--module", std::string(""), "Module to load"},
+           {"-a", "--aaa", (size_t)raytrace::image::AAA_MASK_DISABLED,
+            "Adaptive Anti-Aliasing Threshold value (255 disables)"},
+           {"-s", "--separation", 0.0_p, "Stereo Camera view separation"},
+           {"-e", "--filter", false, "Whether to do a post-process filter on the capture before saving"},
+           {"-t", "--tone-mapping", false, "Whether to apply tone mapping to the final image"},
+           {"-g", "--go", false, "Go immediately, no waiting for user input"}};
 
     basal::options::process(dimof(opts), opts, argc, argv);
     basal::exit_unless(basal::options::find(opts, "--dims", params.dim_name), __FILE__, __LINE__,
@@ -192,7 +193,8 @@ int main(int argc, char *argv[]) {
                                 return;
                             }
                         }
-                        view.capture.for_each([&](size_t y, size_t x, raytrace::image::PixelStorageType const &pixel) -> void {
+                        view.capture.for_each([&](size_t y, size_t x,
+                                                  raytrace::image::PixelStorageType const &pixel) -> void {
                             if (row_index != y)
                                 return;  // if it's not this row, skip it
                             uint8_t *pixels = reinterpret_cast<uint8_t *>(surface->pixels);  // this is double width!
@@ -200,7 +202,8 @@ int main(int argc, char *argv[]) {
                                             + (view_offset * sizeof(fourcc::bgra));
 
                             // clamp, then convert to sRGB
-                            raytrace::color value(pixel.components.r, pixel.components.g, pixel.components.b, pixel.components.i);
+                            raytrace::color value(pixel.components.r, pixel.components.g, pixel.components.b,
+                                                  pixel.components.i);
                             value.clamp();
                             value.ToEncoding(fourcc::Encoding::GammaCorrected);
                             auto srgb = value.to_<fourcc::PixelFormat::RGB8>();
@@ -253,9 +256,10 @@ int main(int argc, char *argv[]) {
                     size_t offset
                         = (y * surface->pitch) + (x * sizeof(fourcc::bgra)) + (view_offset * sizeof(fourcc::bgra));
                     // clamp, then convert to sRGB
-                    raytrace::color value(pixel.components.r, pixel.components.g, pixel.components.b, pixel.components.i);
+                    raytrace::color value(pixel.components.r, pixel.components.g, pixel.components.b,
+                                          pixel.components.i);
                     value.clamp();
-                    value.ToEncoding(fourcc::Encoding::GammaCorrected );
+                    value.ToEncoding(fourcc::Encoding::GammaCorrected);
                     auto srgb = value.to_<fourcc::PixelFormat::RGB8>();
 
                     // B G R A order

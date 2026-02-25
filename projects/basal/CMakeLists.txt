@@ -64,6 +64,7 @@ if (BUILD_UNIT_TESTS AND Threads_FOUND AND GTest_FOUND)
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_basal.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_fraction.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_listable.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_worker.cpp
     )
     target_link_libraries(gtest_basal PRIVATE hobbies-basal GTest::gtest GTest::gmock GTest::gtest_main Threads::Threads)
     add_test(NAME gtest_basal COMMAND gtest_basal)

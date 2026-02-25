@@ -15,7 +15,7 @@ using fourcc::operator<<;
 namespace operators {
 using fourcc::operators::operator*;
 using fourcc::operators::operator+;
-}
+}  // namespace operators
 
 inline color wavelength_to_color(iso::meters lambda) noexcept(false) {
     return fourcc::wavelength_to_color(lambda);

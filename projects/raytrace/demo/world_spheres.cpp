@@ -37,8 +37,10 @@ public:
         : world{raytrace::point{-10.0_p, 6.66_p, 20.0_p}, raytrace::point{3.0_p, 0.0_p, 6.0_p}, "Spheres World",
                 "world_spheres.tga"}
         , custom_grey{0.975_p, 0.97_p, 0.97_p}
-        , custom_metal{colors::white, raytrace::mediums::smoothness::barely, raytrace::mediums::roughness::loose, 0.25_p}
-        , custom_plain{colors::white, 1.0_p / 8.0_p, colors::green, raytrace::mediums::smoothness::barely, raytrace::mediums::roughness::very_loose}
+        , custom_metal{colors::white, raytrace::mediums::smoothness::barely, raytrace::mediums::roughness::loose,
+                       0.25_p}
+        , custom_plain{colors::white, 1.0_p / 8.0_p, colors::green, raytrace::mediums::smoothness::barely,
+                       raytrace::mediums::roughness::very_loose}
         , spheres{}
         , specks{}
         , bulbs{} {

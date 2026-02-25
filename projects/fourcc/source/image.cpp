@@ -25,7 +25,8 @@ static bool is_extension(std::string filename, std::string ext) {
 }
 
 // +==============================================================+
-// Forward Declare the Template Specializations for saving the images. These are defined after the convert functions since some of the convert functions use them.
+// Forward Declare the Template Specializations for saving the images. These are defined after the convert functions
+// since some of the convert functions use them.
 
 template <>
 bool image<PixelFormat::RGB8>::save(std::string filename) const;
@@ -214,11 +215,11 @@ bool image<PixelFormat::RGB8>::save(std::string filename) const {
 
 template <>
 bool image<PixelFormat::RGBf>::save(std::string filename) const {
-FILE* fp = fopen(filename.c_str(), "wb");
+    FILE* fp = fopen(filename.c_str(), "wb");
     if (fp) {
         fprintf(fp, "PF\n");
         fprintf(fp, "%zu %zu\n", width, height);
-        fprintf(fp, "-1.000000\n"); // little endian float
+        fprintf(fp, "-1.000000\n");  // little endian float
         for (size_t y = (height - 1); /* y >= 0 */; y--) {
             for (size_t x = 0; x < width; x++) {
                 rgbf const& pixel = at(y, x);
@@ -504,8 +505,7 @@ bool image<PixelFormat::Y32>::save(std::string filename) const {
     return false;
 }
 
-fourcc::image<fourcc::PixelFormat::RGB8> convert_rgbid_to_rgb8(
-    fourcc::image<fourcc::PixelFormat::RGBId> const& in) {
+fourcc::image<fourcc::PixelFormat::RGB8> convert_rgbid_to_rgb8(fourcc::image<fourcc::PixelFormat::RGBId> const& in) {
     fourcc::image<fourcc::PixelFormat::RGB8> out(in.height, in.width);
     for (size_t y = 0; y < in.height; y++) {
         for (size_t x = 0; x < in.width; x++) {
@@ -525,16 +525,14 @@ fourcc::image<fourcc::PixelFormat::RGB8> convert_rgbid_to_rgb8(
 
 namespace gamma {
 color interpolate(color const& x, color const& y, precision a) {
-    return color{gamma::interpolate(x.red(), y.red(), a),
-                 gamma::interpolate(x.green(), y.green(), a),
+    return color{gamma::interpolate(x.red(), y.red(), a), gamma::interpolate(x.green(), y.green(), a),
                  gamma::interpolate(x.blue(), y.blue(), a)};
 }
 }  // namespace gamma
 
 namespace linear {
 color interpolate(color const& x, color const& y, precision a) {
-    return color{linear::interpolate(x.red(), y.red(), a),
-                 linear::interpolate(x.green(), y.green(), a),
+    return color{linear::interpolate(x.red(), y.red(), a), linear::interpolate(x.green(), y.green(), a),
                  linear::interpolate(x.blue(), y.blue(), a)};
 }
 }  // namespace linear

@@ -67,7 +67,6 @@ TEST(FourccTest, RGBh) {
     img.save("gradient.exr");
 }
 
-
 TEST(FourccTest, RGBf) {
     image<PixelFormat::RGBf> image{480, 640};
     image.for_each([](size_t sy, size_t sx, rgbf& pixel) -> void {

@@ -91,7 +91,7 @@ public:
     /// Returns the camera intrinsics for inspection
     linalg::matrix const& intrinsics() const;
 
-    raytrace::image capture;                                ///< The image projected on the plane
+    raytrace::image capture;                      ///< The image projected on the plane
     fourcc::image<fourcc::PixelFormat::Y8> mask;  ///< The mask of the capture image
 protected:
     linalg::matrix m_intrinsics;   ///< Camera Intrinsics

@@ -8,8 +8,8 @@ using namespace basal::literals;
 using namespace fourcc;
 using namespace fourcc::operators;
 
-#define ASSERT_RGBID_COLOR_EQ(simple, compound)                                                 \
-    {                                                                                           \
+#define ASSERT_RGBID_COLOR_EQ(simple, compound)                                           \
+    {                                                                                     \
         ASSERT_NEAR((simple).red(), (compound).red(), fourcc::color::equality_limit);     \
         ASSERT_NEAR((simple).green(), (compound).green(), fourcc::color::equality_limit); \
         ASSERT_NEAR((simple).blue(), (compound).blue(), fourcc::color::equality_limit);   \
@@ -109,7 +109,7 @@ TEST(ColorTest, InterpolateGreyScale) {
         y |= 0;
         precision a = precision(x) / img4.width;
         color c = fourcc::linear::interpolate(colors::white, colors::black, a);
-        c.ToEncoding(fourcc::Encoding::GammaCorrected );
+        c.ToEncoding(fourcc::Encoding::GammaCorrected);
         pixel = c.to_<PixelFormat::RGB8>();
     });
     img4.save("interpolate_greyscale.ppm");
@@ -124,7 +124,7 @@ TEST(ColorTest, InterpolateCorners) {
         color d = fourcc::gamma::interpolate(colors::blue, colors::white, b);
         color e = fourcc::gamma::blend(c, d);
         e.clamp();
-        e.ToEncoding(fourcc::Encoding::GammaCorrected );
+        e.ToEncoding(fourcc::Encoding::GammaCorrected);
         pixel = e.to_<fourcc::PixelFormat::RGB8>();
     });
     img5.save("interpolate_corners.ppm");
@@ -136,7 +136,7 @@ TEST(ColorTest, LogarithmicGreyscale) {
         y |= 0;
         precision v = precision(x) / img7.width;
         color c{v, v, v};
-        c.ToEncoding(fourcc::Encoding::GammaCorrected );
+        c.ToEncoding(fourcc::Encoding::GammaCorrected);
         pixel = c.to_<fourcc::PixelFormat::RGB8>();
     });
     img7.save("logarithmic_greyscale.ppm");
@@ -149,7 +149,7 @@ TEST(ColorTest, BlendingSamplesBW) {
 
     precision g = 0.21404114048223255_p;
     tmp.clamp();
-    tmp.ToEncoding(fourcc::Encoding::GammaCorrected );
+    tmp.ToEncoding(fourcc::Encoding::GammaCorrected);
     color median_grey{g, g, g};
     ASSERT_RGBID_COLOR_EQ(median_grey, tmp);
 }
@@ -161,7 +161,7 @@ TEST(ColorTest, BlendingSamplesRGB) {
 
     precision g = 0.090841711183407683_p;
     tmp.clamp();
-    tmp.ToEncoding(fourcc::Encoding::GammaCorrected );
+    tmp.ToEncoding(fourcc::Encoding::GammaCorrected);
     color dark_grey{g, g, g};
     ASSERT_RGBID_COLOR_EQ(dark_grey, tmp);
 }
@@ -173,7 +173,7 @@ TEST(ColorTest, LMSImage) {
         precision w = (x / 2.0_p) + 380.0_p;
         iso::meters lambda(w * std::pow(10.0_p, -9.0_p));
         auto value = wavelength_to_color(lambda);
-        value.ToEncoding(fourcc::Encoding::GammaCorrected );
+        value.ToEncoding(fourcc::Encoding::GammaCorrected);
         pixel = value.to_<fourcc::PixelFormat::RGB8>();
     });
     img.save("lms.ppm");

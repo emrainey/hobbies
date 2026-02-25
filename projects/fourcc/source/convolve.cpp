@@ -73,8 +73,8 @@ void sobel_mask(image<PixelFormat::IYU2> const& iyu2_image, image<PixelFormat::Y
     });
 }
 
-void convolve(image<PixelFormat::Y16>& out, int16_t const (&kernel)[3][3],
-              image<PixelFormat::RGB8> const& input, ChannelName channel) {
+void convolve(image<PixelFormat::Y16>& out, int16_t const (&kernel)[3][3], image<PixelFormat::RGB8> const& input,
+              ChannelName channel) {
     for (size_t y = 1; y < (input.height - 1); y++) {
         for (size_t x = 1; x < (input.width - 1); x++) {
             int32_t sum = 0;
@@ -108,8 +108,8 @@ void convolve(image<PixelFormat::Y16>& out, int16_t const (&kernel)[3][3],
     }
 }
 
-void convolve(image<PixelFormat::Y16>& out, int16_t const (&kernel)[3][3],
-              image<PixelFormat::IYU2> const& input, ChannelName channel) {
+void convolve(image<PixelFormat::Y16>& out, int16_t const (&kernel)[3][3], image<PixelFormat::IYU2> const& input,
+              ChannelName channel) {
     for (size_t y = 1; y < (input.height - 1); y++) {
         for (size_t x = 1; x < (input.width - 1); x++) {
             int32_t sum = 0;
@@ -144,8 +144,7 @@ void convolve(image<PixelFormat::Y16>& out, int16_t const (&kernel)[3][3],
 }
 
 // use a simple kernel like -1, 2, -1 or if you use one which does not sum to 0.
-void filter(image<PixelFormat::RGB8>& output, image<PixelFormat::RGB8> const& input,
-            int16_t const kernel[3]) {
+void filter(image<PixelFormat::RGB8>& output, image<PixelFormat::RGB8> const& input, int16_t const kernel[3]) {
     basal::exception::throw_unless(output.width == input.width, __FILE__, __LINE__);
     basal::exception::throw_unless(output.height == input.height, __FILE__, __LINE__);
     int16_t sum = kernel[0] + kernel[1] + kernel[2];
@@ -167,8 +166,7 @@ void filter(image<PixelFormat::RGB8>& output, image<PixelFormat::RGB8> const& in
     }
 }
 
-void filter(image<PixelFormat::RGB8>& output, image<PixelFormat::RGB8> const& input,
-            int16_t (&kernel)[3][3]) {
+void filter(image<PixelFormat::RGB8>& output, image<PixelFormat::RGB8> const& input, int16_t (&kernel)[3][3]) {
     int16_t const sum = kernel_sum(kernel);
     for (size_t y = 1; y < input.height; y++) {
         if (y == 0 or y == (input.height - 1)) {
@@ -199,9 +197,7 @@ void filter(image<PixelFormat::RGB8>& output, image<PixelFormat::RGB8> const& in
     }
 }
 
-void filter(image<PixelFormat::RGBf>& output,
-            image<PixelFormat::RGBf> const& input,
-            float const kernel[3]) {
+void filter(image<PixelFormat::RGBf>& output, image<PixelFormat::RGBf> const& input, float const kernel[3]) {
     basal::exception::throw_unless(output.width == input.width, __FILE__, __LINE__);
     basal::exception::throw_unless(output.height == input.height, __FILE__, __LINE__);
     float sum = kernel[0] + kernel[1] + kernel[2];
@@ -216,11 +212,11 @@ void filter(image<PixelFormat::RGBf>& output,
         output.at(y, 0) = input.at(y, 0);
         for (size_t x = 1; x < input.width - 1; x++) {
             float r = (kernel[0] * input.at(y, x - 1).components.r) + (kernel[1] * input.at(y, x - 0).components.r)
-                        + (kernel[2] * input.at(y, x + 1).components.r);
+                      + (kernel[2] * input.at(y, x + 1).components.r);
             float g = (kernel[0] * input.at(y, x - 1).components.g) + (kernel[1] * input.at(y, x - 0).components.g)
-                        + (kernel[2] * input.at(y, x + 1).components.g);
+                      + (kernel[2] * input.at(y, x + 1).components.g);
             float b = (kernel[0] * input.at(y, x - 1).components.b) + (kernel[1] * input.at(y, x - 0).components.b)
-                        + (kernel[2] * input.at(y, x + 1).components.b);
+                      + (kernel[2] * input.at(y, x + 1).components.b);
             output.at(y, x).components.r = r / sum;
             output.at(y, x).components.g = g / sum;
             output.at(y, x).components.b = b / sum;
@@ -229,9 +225,7 @@ void filter(image<PixelFormat::RGBf>& output,
     }
 }
 
-void filter(image<PixelFormat::RGBId>& output,
-            image<PixelFormat::RGBId> const& input,
-            double const kernel[3]) {
+void filter(image<PixelFormat::RGBId>& output, image<PixelFormat::RGBId> const& input, double const kernel[3]) {
     basal::exception::throw_unless(output.width == input.width, __FILE__, __LINE__);
     basal::exception::throw_unless(output.height == input.height, __FILE__, __LINE__);
     double sum = kernel[0] + kernel[1] + kernel[2];
@@ -246,11 +240,11 @@ void filter(image<PixelFormat::RGBId>& output,
         output.at(y, 0) = input.at(y, 0);
         for (size_t x = 1; x < input.width - 1; x++) {
             double r = (kernel[0] * input.at(y, x - 1).components.r) + (kernel[1] * input.at(y, x - 0).components.r)
-                        + (kernel[2] * input.at(y, x + 1).components.r);
+                       + (kernel[2] * input.at(y, x + 1).components.r);
             double g = (kernel[0] * input.at(y, x - 1).components.g) + (kernel[1] * input.at(y, x - 0).components.g)
-                        + (kernel[2] * input.at(y, x + 1).components.g);
+                       + (kernel[2] * input.at(y, x + 1).components.g);
             double b = (kernel[0] * input.at(y, x - 1).components.b) + (kernel[1] * input.at(y, x - 0).components.b)
-                        + (kernel[2] * input.at(y, x + 1).components.b);
+                       + (kernel[2] * input.at(y, x + 1).components.b);
             output.at(y, x).components.r = r / sum;
             output.at(y, x).components.g = g / sum;
             output.at(y, x).components.b = b / sum;
@@ -259,10 +253,7 @@ void filter(image<PixelFormat::RGBId>& output,
     }
 }
 
-void filter(image<PixelFormat::RGBId>& output,
-            image<PixelFormat::RGBId> const& input,
-            double (&kernel)[3][3])
-{
+void filter(image<PixelFormat::RGBId>& output, image<PixelFormat::RGBId> const& input, double (&kernel)[3][3]) {
     basal::exception::throw_unless(output.width == input.width, __FILE__, __LINE__);
     basal::exception::throw_unless(output.height == input.height, __FILE__, __LINE__);
     double const sum = kernel_sum(kernel);
@@ -295,7 +286,6 @@ void filter(image<PixelFormat::RGBId>& output,
     }
 }
 
-
 void box(image<PixelFormat::RGB8>& output, image<PixelFormat::RGB8> const& input) {
     basal::exception::throw_unless(output.width == input.width, __FILE__, __LINE__);
     basal::exception::throw_unless(output.height == input.height, __FILE__, __LINE__);
@@ -310,25 +300,28 @@ void gaussian(image<PixelFormat::RGB8>& output, image<PixelFormat::RGB8> const& 
     filter(output, input, kernel);
 }
 
-
-/// Computes the spatial gaussian for a given x, y and sigma. This is used in the bilateral filter to compute the spatial weights.
+/// Computes the spatial gaussian for a given x, y and sigma. This is used in the bilateral filter to compute the
+/// spatial weights.
 /// @param x The x distance from the center pixel (positive or negative)
 /// @param y The y distance from the center pixel (positive or negative)
-/// @param sigma The standard deviation of the gaussian. This controls the amount of smoothing. A larger sigma will result in more smoothing.
+/// @param sigma The standard deviation of the gaussian. This controls the amount of smoothing. A larger sigma will
+/// result in more smoothing.
 constexpr static precision spatial_gaussian(double x, double y, double sigma) {
     return std::exp(-((x * x) + (y * y)) / (2.0 * sigma * sigma));
 }
 
-/// Computes the range gaussian for a given pixel difference and sigma. This is used in the bilateral filter to compute the range weights.
-/// @param r The difference in pixel values between the center pixel and the neighboring pixel. This is typically the Euclidean distance in color space (e.g., RGB or Lab) between the two pixels.
-/// @param sigma The standard deviation of the gaussian. This controls the amount of smoothing. A larger sigma will result in more smoothing, allowing more dissimilar pixels to contribute to the output pixel value.
+/// Computes the range gaussian for a given pixel difference and sigma. This is used in the bilateral filter to compute
+/// the range weights.
+/// @param r The difference in pixel values between the center pixel and the neighboring pixel. This is typically the
+/// Euclidean distance in color space (e.g., RGB or Lab) between the two pixels.
+/// @param sigma The standard deviation of the gaussian. This controls the amount of smoothing. A larger sigma will
+/// result in more smoothing, allowing more dissimilar pixels to contribute to the output pixel value.
 constexpr static precision range_gaussian(double r, double sigma) {
     return std::exp(-(r * r) / (2.0 * sigma * sigma));
 }
 
 template <size_t N>
-void bilateral(image<PixelFormat::RGBId>& output,
-               image<PixelFormat::RGBId> const& input) {
+void bilateral(image<PixelFormat::RGBId>& output, image<PixelFormat::RGBId> const& input) {
     static_assert(N > 1 and (N & 1) == 1, "N must be Odd and larger than 1");
     basal::exception::throw_unless(output.width == input.width, __FILE__, __LINE__);
     basal::exception::throw_unless(output.height == input.height, __FILE__, __LINE__);
@@ -373,11 +366,11 @@ void bilateral(image<PixelFormat::RGBId>& output,
         }
         // middle part where the filtering happens
         for (size_t x = hN; x < input.width - hN; x++) {
-            double  r{0.0}, g{0.0}, b{0.0};
+            double r{0.0}, g{0.0}, b{0.0};
 
             // recompute the weights based on the pixel differences!
-            for (size_t j = y - hN, m = 0; j <= (y+hN); j++, m++) {
-                for (size_t i = x - hN, n = 0; i <= (x+hN); i++, n++) {
+            for (size_t j = y - hN, m = 0; j <= (y + hN); j++, m++) {
+                for (size_t i = x - hN, n = 0; i <= (x + hN); i++, n++) {
                     auto px = input.at(j, i);
                     auto center_px = input.at(y, x);
                     double dr = static_cast<double>(px.components.r) - static_cast<double>(center_px.components.r);
@@ -390,8 +383,8 @@ void bilateral(image<PixelFormat::RGBId>& output,
             }
 
             sum = 0.0;
-            for (size_t j = y - hN, m = 0; j <= (y+hN); j++, m++) {
-                for (size_t i = x - hN, n = 0; i <= (x+hN); i++, n++) {
+            for (size_t j = y - hN, m = 0; j <= (y + hN); j++, m++) {
+                for (size_t i = x - hN, n = 0; i <= (x + hN); i++, n++) {
                     auto px = input.at(j, i);
                     r += (spatial[m][n] * weights[m][n] * px.components.r);
                     g += (spatial[m][n] * weights[m][n] * px.components.g);

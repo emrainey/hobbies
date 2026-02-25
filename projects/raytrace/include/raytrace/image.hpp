@@ -54,13 +54,14 @@ public:
     /// @param opt_func The optional renderer callback
     /// @param mask The mask image to use
     /// @param mask_threshold Used to do adaptive anti-aliasing. If the mask pixel is above the threshold value, then it
-    /// @param tone_mapping Whether to apply tone mapping to the final pixel value. If true, the Reinhard tone mapper is applied. This is typically used when rendering to an HDR format like RGBh. If false, no tone mapping is applied and the pixel value is directly converted to the output format.
-    /// will attempt to recompute. If 255, anti-aliasing is disabled.
+    /// @param tone_mapping Whether to apply tone mapping to the final pixel value. If true, the Reinhard tone mapper is
+    /// applied. This is typically used when rendering to an HDR format like RGBh. If false, no tone mapping is applied
+    /// and the pixel value is directly converted to the output format. will attempt to recompute. If 255, anti-aliasing
+    /// is disabled.
     void generate_each(subsampler sub_func, size_t number_of_samples = 1,
                        std::optional<rendered_line> opt_func = std::nullopt,
                        fourcc::image<fourcc::PixelFormat::Y8>* mask = nullptr,
-                       uint8_t mask_threshold = AAA_MASK_DISABLED,
-                       bool tone_mapping = false);
+                       uint8_t mask_threshold = AAA_MASK_DISABLED, bool tone_mapping = false);
 
     /// Returns the image pixel at the point (rounded raster coordinates)
     PixelStorageType& at(point const& p);

@@ -29,7 +29,7 @@ PYBIND11_MODULE(pyhobbies, module) {
             });
         py::enum_<fourcc::Encoding>(color, "space")
             .value("linear", fourcc::Encoding::Linear)
-            .value("logarithmic", fourcc::Encoding::GammaCorrected )
+            .value("logarithmic", fourcc::Encoding::GammaCorrected)
             .export_values();
         // POINT Object
         py::class_<raytrace::point> point(submodule, "point");

@@ -66,8 +66,8 @@ constexpr static precision sqrt_2 = precision(1.414213562373095);      // sqrt(2
 constexpr static precision inv_sqrt_2 = precision(0.707106781186547);  // 1.0/sqrt(2.0);
 constexpr static precision sqrt_3 = precision(1.732050807568877);      // sqrt(3.0);
 constexpr static precision inv_sqrt_3 = precision(0.577350269189626);  // 1.0/sqrt(3.0);
-constexpr static precision sin_pi_3 = precision(0.86602540378);  // sin(pi/3)
-constexpr static precision cos_pi_3 = precision(0.5);  // cos(pi/3)
+constexpr static precision sin_pi_3 = precision(0.86602540378);        // sin(pi/3)
+constexpr static precision cos_pi_3 = precision(0.5);                  // cos(pi/3)
 
 inline precision clamp(precision min, precision value, precision max) {
     return std::max(min, std::min(value, max));

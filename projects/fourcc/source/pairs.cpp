@@ -55,4 +55,4 @@ std::pair<size_t, size_t> dimensions(std::string type) {
     return std::make_pair(0, 0);
 }
 
-}
+}  // namespace fourcc

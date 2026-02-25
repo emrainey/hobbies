@@ -15,7 +15,6 @@
 #include <basal/exception.hpp>
 #include <basal/ieee754.hpp>
 
-
 /// The Visualization Namespace
 namespace fourcc {
 
@@ -44,8 +43,8 @@ enum class ChannelName : int8_t {
 /// The types of encoding to use to convert the values to the other
 /// types.
 enum class Encoding : int {
-    Linear,     ///< No range compression, full range of storage type.
-    GammaCorrected, ///< Gamma corrected encoding (uses the 2.2 scheme)
+    Linear,          ///< No range compression, full range of storage type.
+    GammaCorrected,  ///< Gamma corrected encoding (uses the 2.2 scheme)
 };
 
 /// The high level color space that that pixels use to represent color.
@@ -202,8 +201,8 @@ union rgbaf {
 };
 
 /// RGB + Intensity format for intermediate calculations where we want to preserve the full range of values without
-/// clamping, and also have an intensity ChannelType for things like alpha or other uses. This is in the Linear space and
-/// not clamped.
+/// clamping, and also have an intensity ChannelType for things like alpha or other uses. This is in the Linear space
+/// and not clamped.
 union rgbid {
     using ChannelType = double;
     constexpr static size_t channel_count = 4;
@@ -290,7 +289,6 @@ constexpr char const* channel_order(PixelFormat fmt) {
             return "???";
     }
 }
-
 
 /// Returns the number of planes in the format
 constexpr int planes_in_format(PixelFormat fmt __attribute__((unused))) {
@@ -408,7 +406,6 @@ constexpr bool uses_rgb565(PixelFormat fmt) {
     return (fmt == PixelFormat::RGBP);
 }
 
-
 template <PixelFormat PIXEL_FORMAT>
 auto GetStorageType() {
     if constexpr (uses_uint8(PIXEL_FORMAT)) {
@@ -484,7 +481,7 @@ constexpr PixelFormat GetFormatForExtension(std::string_view extension) {
     return PixelFormat::RGB8;  // default to RGB8
 }
 
-namespace { // anonymous namespace for testing types
+namespace {  // anonymous namespace for testing types
 using TestType = decltype(GetStorageType<PixelFormat::RGB8>());
 static_assert(std::is_same_v<TestType, rgb8>, "Must be this type!");
 static_assert(ColorSpace::RGB == GetColorSpace(PixelFormat::RGB8), "RGB8 should be in the RGB colorspace");

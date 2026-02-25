@@ -32,7 +32,8 @@ TEST(FaceTest, Texture) {
     raytrace::point B{1.0_p, 1.0_p, 0.0_p};
     raytrace::point C{-2.0_p, 3.0_p, 0.0_p};
     raytrace::point D{1.0_p, 2.0_p, 0.0_p};
-    raytrace::objects::face f{A, B, C, image::point{1.0_p, 0.0_p}, image::point{0.0_p, 0.0_p}, image::point{0.0_p, 1.0_p}};
+    raytrace::objects::face f{
+        A, B, C, image::point{1.0_p, 0.0_p}, image::point{0.0_p, 0.0_p}, image::point{0.0_p, 1.0_p}};
     f.print(std::cout, "Face");
     EXPECT_EQ(f.points().size(), 3u);
     EXPECT_VECTOR_EQ(R3::basis::Z, f.normal(D));

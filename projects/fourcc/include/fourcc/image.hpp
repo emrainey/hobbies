@@ -45,11 +45,7 @@ public:
 
     /// Sized and typed constructor
     image(size_t h, size_t w)
-        : depth{channels_in_format(format)}
-        , width{w}
-        , height{h}
-        , planes{planes_in_format(format)}
-        , data{planes} {
+        : depth{channels_in_format(format)}, width{w}, height{h}, planes{planes_in_format(format)}, data{planes} {
         for (auto& plane : data) {
             // each unit is a PixelStorageType
             plane.resize(width * height);
@@ -194,20 +190,24 @@ protected:
 /// Gamma correction namespace
 namespace gamma {
 
-/// Interpolates between two colors using the gamma correction scheme. The ratio is between 0 and 1, where 0 is all x and 1 is all y.
+/// Interpolates between two colors using the gamma correction scheme. The ratio is between 0 and 1, where 0 is all x
+/// and 1 is all y.
 /// @param x The first color to interpolate between.
 /// @param y The second color to interpolate between.
-/// @param a The ratio between x and y to use for the interpolation. Should be between 0 and 1, where 0 is all x and 1 is all y.
+/// @param a The ratio between x and y to use for the interpolation. Should be between 0 and 1, where 0 is all x and 1
+/// is all y.
 color interpolate(color const& x, color const& y, precision a);
 
 }  // namespace gamma
 
 namespace linear {
 
-/// Interpolates between two colors using the linear scheme. The ratio is between 0 and 1, where 0 is all x and 1 is all y.
+/// Interpolates between two colors using the linear scheme. The ratio is between 0 and 1, where 0 is all x and 1 is all
+/// y.
 /// @param x The first color to interpolate between.
 /// @param y The second color to interpolate between.
-/// @param a The ratio between x and y to use for the interpolation. Should be between 0 and 1, where 0 is all x and 1 is all y.
+/// @param a The ratio between x and y to use for the interpolation. Should be between 0 and 1, where 0 is all x and 1
+/// is all y.
 color interpolate(color const& x, color const& y, precision a);
-}
+}  // namespace linear
 }  // namespace fourcc

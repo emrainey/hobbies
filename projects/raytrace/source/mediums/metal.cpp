@@ -25,7 +25,7 @@ color metal::specular(raytrace::point const& volumetric_point, precision scaling
 raytrace::vector metal::perturbation(raytrace::point const& volumetric_point __attribute__((unused))) const {
     if (m_fuzz_scale > 0.0_p) {
         size_t denom = 79;
-        int r = rand(); // [0, 32767]
+        int r = rand();  // [0, 32767]
         size_t num = static_cast<size_t>(r) % denom;
         auto u = mapping::golden_ratio_mapper(num, denom);
         auto v = u - geometry::R3::origin;

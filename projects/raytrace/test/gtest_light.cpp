@@ -73,7 +73,8 @@ TEST(LightTest, DISABLED_TriColorSpots) {
 TEST(LightTest, DISABLED_BulbTest) {
     raytrace::objects::sphere shape(raytrace::point{0, 0, 3}, 3);
     raytrace::objects::plane floor;
-    raytrace::lights::bulb light(raytrace::point{0, 0, 12}, 3.0_p, colors::white, lights::intensities::intense * 2.0_p, 16);
+    raytrace::lights::bulb light(raytrace::point{0, 0, 12}, 3.0_p, colors::white, lights::intensities::intense * 2.0_p,
+                                 16);
     raytrace::scene scene;
     raytrace::camera view(480, 640, iso::degrees(55));
     view.move_to(raytrace::point{30, 30, 30}, raytrace::point{29, 29, 29});

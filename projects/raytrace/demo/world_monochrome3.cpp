@@ -18,8 +18,7 @@ using namespace iso::literals;
 class MonochromeWorld : public world {
 public:
     MonochromeWorld()
-        : world{raytrace::point{0, -20, 0}, raytrace::point{0, 0, 0}, "Monochrome World 3",
-                "world_monochrome_3.tga"}
+        : world{raytrace::point{0, -20, 0}, raytrace::point{0, 0, 0}, "Monochrome World 3", "world_monochrome_3.tga"}
         , light_subsamples{5}
         , light0{raytrace::point{-7, 0, 0}, 1, colors::white, 30 * lights::intensities::bright, light_subsamples}
         , light1{raytrace::point{7, 0, 0}, 1, colors::white, 30 * lights::intensities::bright, light_subsamples}
@@ -32,7 +31,6 @@ public:
         , torus0{raytrace::point{0, 0, 5}, 3.0_p, 0.5_p}
         , torus1{raytrace::point{0, 0, -5}, 3.0_p, 0.5_p}
         , cube0{raytrace::point{0, -27, 0}, 5.0_p, 5.0_p, 5.0_p} {
-
         // assign surfaces and materials
         s0.material(&mediums::metals::stainless);
         s1.material(&mediums::metals::copper);
@@ -43,7 +41,7 @@ public:
         torus0.material(&mediums::metals::stainless);
         torus1.material(&mediums::metals::stainless);
         cube0.material(&mediums::metals::gold);
-        cube0.rotation(iso::radians{iso::pi/4}, iso::radians{0}, iso::radians{iso::pi / 4});
+        cube0.rotation(iso::radians{iso::pi / 4}, iso::radians{0}, iso::radians{iso::pi / 4});
     }
 
     ~MonochromeWorld() = default;
@@ -93,7 +91,6 @@ protected:
     raytrace::objects::torus torus0;
     raytrace::objects::torus torus1;
     raytrace::objects::cuboid cube0;
-
 };
 
 // declare a single instance and return the reference to it

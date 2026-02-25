@@ -3,7 +3,6 @@
 /// @file
 /// Definitions for The Pixel Template Class and related functions.
 
-
 #include <iso/iso.hpp>
 #include <cstdint>
 #include <functional>
@@ -40,7 +39,6 @@ protected:
     Encoding encoding_;
 
 public:
-
     /// Default Constructor
     template <typename = void>
     constexpr pixel() : data_{}, encoding_{Encoding::Linear} {
@@ -53,7 +51,7 @@ public:
     /// Explicit constructor from the specific rgbid type
     constexpr explicit pixel(ChannelType _r, ChannelType _g, ChannelType _b, ChannelType _i = 1.0_p)
         : data_{}, encoding_{Encoding::Linear} {
-        static_assert(std::is_same_v<StorageType,rgbid>, "This constructor is only for RGBId types");
+        static_assert(std::is_same_v<StorageType, rgbid>, "This constructor is only for RGBId types");
         data_.components.r = _r;
         data_.components.g = _g;
         data_.components.b = _b;
@@ -65,7 +63,7 @@ public:
     }
 
     void ToEncoding(Encoding desired) {
-        if (desired == Encoding::Linear and encoding_ == Encoding::GammaCorrected ) {
+        if (desired == Encoding::Linear and encoding_ == Encoding::GammaCorrected) {
             data_.channels[0] = gamma::apply_correction(data_.channels[0]);
             data_.channels[1] = gamma::apply_correction(data_.channels[1]);
             data_.channels[2] = gamma::apply_correction(data_.channels[2]);
@@ -80,7 +78,7 @@ public:
             if constexpr (channel_count >= 4) {
                 data_.channels[3] = gamma::remove_correction(data_.channels[3]);
             }
-            encoding_ = Encoding::GammaCorrected ;
+            encoding_ = Encoding::GammaCorrected;
         } else {
         }
     }
@@ -152,7 +150,7 @@ public:
     }
 
     constexpr ChannelType intensity() const {
-        static_assert(std::is_same_v<StorageType,rgbid>, "Must be an RGBId type");
+        static_assert(std::is_same_v<StorageType, rgbid>, "Must be an RGBId type");
         if constexpr (channel_count >= 4) {
             return data_.channels[3];
         } else {
@@ -161,7 +159,7 @@ public:
     }
 
     void intensity(typename StorageType::ChannelType value) {
-        static_assert(std::is_same_v<StorageType,rgbid>, "Must be an RGBId type");
+        static_assert(std::is_same_v<StorageType, rgbid>, "Must be an RGBId type");
         if constexpr (channel_count >= 4) {
             data_.channels[3] = value;
         }
@@ -185,7 +183,7 @@ public:
 protected:
     rgba to_rgba() const {
         rgba pixel;
-        basal::exception::throw_unless(encoding_ == Encoding::GammaCorrected , __FILE__, __LINE__,
+        basal::exception::throw_unless(encoding_ == Encoding::GammaCorrected, __FILE__, __LINE__,
                                        "Color should be in GammaCorrected Encoding");
         pixel.components.r = static_cast<uint8_t>(std::round(red() * 255));
         pixel.components.g = static_cast<uint8_t>(std::round(green() * 255));
@@ -196,7 +194,7 @@ protected:
 
     abgr to_abgr() const {
         abgr pixel;
-        basal::exception::throw_unless(encoding_ == Encoding::GammaCorrected , __FILE__, __LINE__,
+        basal::exception::throw_unless(encoding_ == Encoding::GammaCorrected, __FILE__, __LINE__,
                                        "Color should be in GammaCorrected Encoding");
         pixel.components.r = static_cast<uint8_t>(std::round(red() * 255));
         pixel.components.g = static_cast<uint8_t>(std::round(green() * 255));
@@ -207,7 +205,7 @@ protected:
 
     rgb8 to_rgb8() const {
         rgb8 pixel;
-        basal::exception::throw_unless(encoding_ == Encoding::GammaCorrected , __FILE__, __LINE__,
+        basal::exception::throw_unless(encoding_ == Encoding::GammaCorrected, __FILE__, __LINE__,
                                        "Color should be in GammaCorrected Encoding");
         pixel.components.r = static_cast<uint8_t>(std::round(red() * 255));
         pixel.components.g = static_cast<uint8_t>(std::round(green() * 255));
@@ -217,7 +215,7 @@ protected:
 
     bgr8 to_bgr8() const {
         bgr8 pixel;
-        basal::exception::throw_unless(encoding_ == Encoding::GammaCorrected , __FILE__, __LINE__,
+        basal::exception::throw_unless(encoding_ == Encoding::GammaCorrected, __FILE__, __LINE__,
                                        "Color should be in GammaCorrected Encoding");
         pixel.components.r = static_cast<uint8_t>(std::round(red() * 255));
         pixel.components.g = static_cast<uint8_t>(std::round(green() * 255));
@@ -261,7 +259,7 @@ public:
     auto to_() const -> decltype(GetStorageType<OTHER_FORMAT>()) {
         using OutputType = decltype(GetStorageType<OTHER_FORMAT>());
         if constexpr (std::is_same_v<OutputType, StorageType>) {
-            return data_; // copy
+            return data_;  // copy
         } else if constexpr (std::is_same_v<OutputType, rgba>) {
             return to_rgba();
         } else if constexpr (std::is_same_v<OutputType, abgr>) {
@@ -292,42 +290,37 @@ color accumulate_samples(std::vector<color> const& samples);
 /// Color-Codes a precision value from -1.0 to 1.0 using the jet color map.
 color jet(precision value);
 
-/// Color-Codes a precision value from min to max using a greyscale color map. Values outside the range are colored magenta.
-color greyscale(precision d, precision min, precision max) ;
+/// Color-Codes a precision value from min to max using a greyscale color map. Values outside the range are colored
+/// magenta.
+color greyscale(precision d, precision min, precision max);
 
 /// Generates a pixel of a random color
 color random();
 
 namespace gamma {
 template <PixelFormat PIXEL_FORMAT, typename = std::enable_if_t<is_rgb_type(PIXEL_FORMAT)>>
-pixel<PIXEL_FORMAT> interpolate(pixel<PIXEL_FORMAT> const& x,
-                                pixel<PIXEL_FORMAT> const& y,
-                                precision ratio) {
+pixel<PIXEL_FORMAT> interpolate(pixel<PIXEL_FORMAT> const& x, pixel<PIXEL_FORMAT> const& y, precision ratio) {
     return pixel<PIXEL_FORMAT>(gamma::interpolate(x.red(), y.red(), ratio),
                                gamma::interpolate(x.green(), y.green(), ratio),
                                gamma::interpolate(x.blue(), y.blue(), ratio));
 }
 
 template <PixelFormat PIXEL_FORMAT, typename = std::enable_if_t<is_rgb_type(PIXEL_FORMAT)>>
-pixel<PIXEL_FORMAT> blend(pixel<PIXEL_FORMAT> const& x,
-                          pixel<PIXEL_FORMAT> const& y) {
+pixel<PIXEL_FORMAT> blend(pixel<PIXEL_FORMAT> const& x, pixel<PIXEL_FORMAT> const& y) {
     return interpolate(x, y, 0.5_p);
 }
 
-} // namespace gamma
+}  // namespace gamma
 
 namespace linear {
 template <PixelFormat PIXEL_FORMAT, typename = std::enable_if_t<is_rgb_type(PIXEL_FORMAT)>>
-pixel<PIXEL_FORMAT> interpolate(pixel<PIXEL_FORMAT> const& x,
-                                pixel<PIXEL_FORMAT> const& y,
-                                precision ratio) {
+pixel<PIXEL_FORMAT> interpolate(pixel<PIXEL_FORMAT> const& x, pixel<PIXEL_FORMAT> const& y, precision ratio) {
     return pixel<PIXEL_FORMAT>(linear::interpolate(x.red(), y.red(), ratio),
                                linear::interpolate(x.green(), y.green(), ratio),
                                linear::interpolate(x.blue(), y.blue(), ratio));
 }
 template <PixelFormat PIXEL_FORMAT, typename = std::enable_if_t<is_rgb_type(PIXEL_FORMAT)>>
-pixel<PIXEL_FORMAT> blend(pixel<PIXEL_FORMAT> const& x,
-                          pixel<PIXEL_FORMAT> const& y) {
+pixel<PIXEL_FORMAT> blend(pixel<PIXEL_FORMAT> const& x, pixel<PIXEL_FORMAT> const& y) {
     return interpolate(x, y, 0.5_p);
 }
 
@@ -352,8 +345,7 @@ namespace operators {
 
 /// Pairwise Color Mixing (when a light and a surface color self select the output color)
 template <PixelFormat PIXEL_FORMAT, typename = std::enable_if_t<is_rgb_type(PIXEL_FORMAT)>>
-pixel<PIXEL_FORMAT> operator*(pixel<PIXEL_FORMAT> const& a,
-                              pixel<PIXEL_FORMAT> const& b) {
+pixel<PIXEL_FORMAT> operator*(pixel<PIXEL_FORMAT> const& a, pixel<PIXEL_FORMAT> const& b) {
     return pixel<PIXEL_FORMAT>(a.red() * b.red(), a.green() * b.green(), a.blue() * b.blue());
 }
 

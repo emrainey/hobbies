@@ -124,17 +124,16 @@ public:
     /// @param number_of_samples The number of subsamples per pixel.
     /// @param reflection_depth The depth of recursion for a traced ray. 1 equals no reflections.
     /// @param func     The optional callback per pixel (used for updating UIs)
-    /// @param aaa_mask_threshold The threshold for the adaptive anti-aliasing mask. If the mask pixel is above the threshold value, then it
-    ///                           will attempt to recompute. If 255, anti-aliasing is disabled. If 1, anti-aliasing is enabled for all pixels.
-    /// @param filter_capture Whether to do a post-process filter on the capture before saving. This is separate from tone mapping as it is just a convolution filter, not a color mapping.
+    /// @param aaa_mask_threshold The threshold for the adaptive anti-aliasing mask. If the mask pixel is above the
+    /// threshold value, then it
+    ///                           will attempt to recompute. If 255, anti-aliasing is disabled. If 1, anti-aliasing is
+    ///                           enabled for all pixels.
+    /// @param filter_capture Whether to do a post-process filter on the capture before saving. This is separate from
+    /// tone mapping as it is just a convolution filter, not a color mapping.
     /// @param tone_mapper Whether to apply tone mapping to the final image.
-    void render(camera& view,
-                std::string filename,
-                size_t number_of_samples = 1,
-                size_t reflection_depth = 1,
+    void render(camera& view, std::string filename, size_t number_of_samples = 1, size_t reflection_depth = 1,
                 std::optional<image::rendered_line> func = std::nullopt,
-                uint8_t mask_threshold = raytrace::image::AAA_MASK_DISABLED,
-                bool filter_capture = false,
+                uint8_t mask_threshold = raytrace::image::AAA_MASK_DISABLED, bool filter_capture = false,
                 bool tone_mapper = false);
 
     /// The limit for reflective contributions to the top level trace.

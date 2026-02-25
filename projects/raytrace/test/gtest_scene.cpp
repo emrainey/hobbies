@@ -63,7 +63,8 @@ TEST(SceneTest, LowResSpheres) {
     raytrace::objects::sphere s1{raytrace::point{4, -2, 0}, 0.75_p};
     raytrace::objects::sphere s2{raytrace::point{4, 2, 0}, 0.25_p};
     raytrace::mediums::checkerboard c0{6.0_p, colors::red, colors::green};
-    raytrace::lights::beam sunlight{raytrace::vector{-1, 0, -1}, raytrace::colors::white, lights::intensities::full * 3.0_p};
+    raytrace::lights::beam sunlight{raytrace::vector{-1, 0, -1}, raytrace::colors::white,
+                                    lights::intensities::full * 3.0_p};
     s0.material(&c0);
     s1.material(&raytrace::mediums::metals::bronze);
     s2.material(&raytrace::mediums::dull);
@@ -71,7 +72,7 @@ TEST(SceneTest, LowResSpheres) {
     iso::degrees fov(65);
     // tiny image, simple camera placement
     scene scene;
-    scene.set_ambient_light(color{1.0_p,1.0_p, 1.0_p, 0.75_p});
+    scene.set_ambient_light(color{1.0_p, 1.0_p, 1.0_p, 0.75_p});
     raytrace::camera view(240, 320, fov);
     raytrace::point look_from(-1, 0, 0);
     raytrace::point look_at(4, 0, 0);

@@ -437,7 +437,8 @@ color scene::trace(ray const& world_ray, mediums::medium const& media, size_t re
 }
 
 void scene::render(camera& view, std::string filename, size_t number_of_samples, size_t reflection_depth,
-                   std::optional<image::rendered_line> row_notifier, uint8_t aaa_mask_threshold, bool filter_capture, bool tone_mapper) {
+                   std::optional<image::rendered_line> row_notifier, uint8_t aaa_mask_threshold, bool filter_capture,
+                   bool tone_mapper) {
     bool adaptive_antialiasing = aaa_mask_threshold != raytrace::image::AAA_MASK_DISABLED;
     if constexpr (debug::camera) {
         view.print(std::cout, "Camera Info:\n");
@@ -468,7 +469,8 @@ void scene::render(camera& view, std::string filename, size_t number_of_samples,
 
     if constexpr (debug::render) {
         std::cout << "Rendering with " << number_of_samples << " samples and reflection depth of " << reflection_depth
-                  << std::endl << std::flush;
+                  << std::endl
+                  << std::flush;
     }
 
     auto tracer = [&](image::point const& pnt) -> color {
@@ -479,7 +481,8 @@ void scene::render(camera& view, std::string filename, size_t number_of_samples,
         // trace the ray out to the world, starting from a vacuum
         color c = trace(world_ray, *m_media, reflection_depth);
         // Ensure our color spaces are correct for the renderer (should be in linear space)
-        basal::exception::throw_unless(c.GetEncoding() == fourcc::Encoding::Linear, __FILE__, __LINE__, "Color should be in linear space");
+        basal::exception::throw_unless(c.GetEncoding() == fourcc::Encoding::Linear, __FILE__, __LINE__,
+                                       "Color should be in linear space");
         return c;
     };
     // if we're doing adaptive anti-aliasing we only shoot 1 ray at first and then compute a contrast mask

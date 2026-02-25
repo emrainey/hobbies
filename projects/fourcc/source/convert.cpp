@@ -33,7 +33,6 @@ void convert(image<PixelFormat::RGB8> const& in, image<PixelFormat::IYU2>& out) 
     }
 }
 
-
 void convert(image<PixelFormat::RGBId> const& in, image<PixelFormat::RGB8>& out) {
     basal::exception::throw_unless(in.height == out.height, __FILE__, __LINE__, "Must be the same height %zu != %zu",
                                    in.height, out.height);
@@ -62,7 +61,6 @@ void convert(image<PixelFormat::RGBId> const& in, image<PixelFormat::RGBh>& out)
         }
     }
 }
-
 
 void convert(image<PixelFormat::RGBId> const& in, image<PixelFormat::RGBf>& out) {
     basal::exception::throw_unless(in.height == out.height, __FILE__, __LINE__, "Must be the same height %zu != %zu",

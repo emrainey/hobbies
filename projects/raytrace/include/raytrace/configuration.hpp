@@ -31,7 +31,7 @@ static constexpr bool bounds{false};
 /// Enables debug for rendering
 static constexpr bool render{false};
 /// Enables debug for Node tree
-static constexpr bool tree{true};
+static constexpr bool tree{false};
 }  // namespace debug
 
 /// Enforces range checking on some calls

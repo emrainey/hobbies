@@ -16,10 +16,10 @@ namespace basal {
 exception::exception(std::string desc, std::string loc, std::size_t line)
     : std::exception{}, description{desc}, location{loc}, line_number{line} {
 #if defined(__linux__) || defined(__APPLE__)
-    if (support_backtrace) {
-        size = static_cast<size_t>(backtrace(stack.data(), stack.size()));
+    if constexpr (support_backtrace) {
+        size = static_cast<size_t>(backtrace(stack.data(), static_cast<int>(stack.size())));
         // print out all the frames to stderr
-        stack_strings = backtrace_symbols(stack.data(), size);
+        stack_strings = backtrace_symbols(stack.data(), static_cast<int>(size));
         if (stack_strings) {
             description.append("\n");
             for (size_t s = 1; s < size; s++) {

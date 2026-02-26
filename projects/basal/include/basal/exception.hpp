@@ -13,9 +13,14 @@
 
 namespace basal {
 
-static constexpr bool support_backtrace = false;
+/// Enables backtrace prints
+static constexpr bool support_backtrace{true};
+
 namespace debug {
-static constexpr bool exceptions{true};  ///< Enables debug for the exceptions
+
+/// Enables debug for the exceptions
+static constexpr bool exceptions{true};
+
 }  // namespace debug
 
 /// Stack Tracking Exception

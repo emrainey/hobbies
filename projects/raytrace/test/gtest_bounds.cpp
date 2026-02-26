@@ -145,7 +145,7 @@ TEST(BoundsTest, EveryAngle) {
         raytrace::vector V = (geometry::R3::origin - P).normalized();
         // create a ray from the two parts
         raytrace::ray R = raytrace::ray{P, V};
-        // check if the ray insects with the bounds
-        ASSERT_TRUE(bounds.intersects(R)) << "Ray: " << R << " Bounds: " << bounds;
+        // check if the ray intersects with the bounds
+        ASSERT_TRUE(bounds.intersects(R)) << "Ray: " << R << " Outside: " << bounds;
     }
 }

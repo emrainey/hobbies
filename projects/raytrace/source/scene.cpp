@@ -451,7 +451,7 @@ void scene::render(camera& view, std::string filename, size_t number_of_samples,
         // creates a Node in the list with the given bounds
         m_nodes.emplace_back(m_bounds);
         if constexpr (debug::tree) {
-            std::cout << "Bounds: " << m_bounds << std::endl;
+            std::cout << "Outer: " << m_bounds << std::endl;
         }
         // insert everything from the objects list into the nodes if it is not in the infinite list.
         size_t items{0UL};
@@ -535,7 +535,7 @@ std::ostream& operator<<(std::ostream& os, scene const& sc) {
     os << "Scene: " << std::endl;
     os << "  Objects: " << sc.number_of_objects() << std::endl;
     os << "  Lights: " << sc.number_of_lights() << std::endl;
-    os << "  Bounds: " << sc.m_bounds << std::endl;
+    os << "  Outer: " << sc.m_bounds << std::endl;
     os << "  Media: " << (sc.m_media ? "Some" : "none") << std::endl;
     return os;
 }

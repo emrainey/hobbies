@@ -36,35 +36,25 @@ public:
     SpheresWorld()
         : world{raytrace::point{-10.0_p, 6.66_p, 20.0_p}, raytrace::point{3.0_p, 0.0_p, 6.0_p}, "Spheres World",
                 "world_spheres.tga"}
-        , custom_grey{0.975_p, 0.97_p, 0.97_p}
-        , custom_metal{colors::white, raytrace::mediums::smoothness::barely, raytrace::mediums::roughness::loose,
-                       0.25_p}
-        , custom_plain{colors::white, 1.0_p / 8.0_p, colors::green, raytrace::mediums::smoothness::barely,
-                       raytrace::mediums::roughness::very_loose}
         , spheres{}
         , specks{}
         , bulbs{} {
-        raytrace::point center = R3::origin;
-        spheres.push_back(new raytrace::objects::sphere(center, 6));
-        subspheres(spheres, center, 12.0_p, 3);
+        spheres.push_back(new raytrace::objects::sphere(R3::origin, 6.0_p));
+        subspheres(spheres, R3::origin, 12.0_p, 3U);
         for (auto& s : spheres) {
-            // s->material(&custom_metal);
-            // s->material(&custom_plain);
             s->material(&mediums::metals::stainless);
         }
-        precision intensity = 60.0_p;
+        ambient_ = colors::stainless;
+        ambient_.intensity(0.875_p);
+        precision intensity = 150.0_p;
         specks.push_back(new lights::speck(raytrace::point{+6.0_p, +6.0_p, 9.0_p}, colors::white, intensity));
         specks.push_back(new lights::speck(raytrace::point{-6.0_p, +6.0_p, 9.0_p}, colors::white, intensity));
         specks.push_back(new lights::speck(raytrace::point{-6.0_p, -6.0_p, 9.0_p}, colors::white, intensity));
         specks.push_back(new lights::speck(raytrace::point{+6.0_p, -6.0_p, 9.0_p}, colors::white, intensity));
-        // bulbs.push_back(
-        //     new lights::bulb(raytrace::point{+6, +6, 9}, 1.0_p, colors::white, lights::intensities::blinding, 16));
-        // bulbs.push_back(
-        //     new lights::bulb(raytrace::point{-6, +6, 9}, 1.0_p, colors::white, lights::intensities::blinding, 16));
-        // bulbs.push_back(
-        //     new lights::bulb(raytrace::point{-6, -6, 9}, 1.0_p, colors::white, lights::intensities::blinding, 16));
-        // bulbs.push_back(
-        //     new lights::bulb(raytrace::point{+6, -6, 9}, 1.0_p, colors::white, lights::intensities::blinding, 16));
+        specks.push_back(new lights::speck(raytrace::point{+6.0_p, +6.0_p, -9.0_p}, colors::white, intensity));
+        specks.push_back(new lights::speck(raytrace::point{-6.0_p, +6.0_p, -9.0_p}, colors::white, intensity));
+        specks.push_back(new lights::speck(raytrace::point{-6.0_p, -6.0_p, -9.0_p}, colors::white, intensity));
+        specks.push_back(new lights::speck(raytrace::point{+6.0_p, -6.0_p, -9.0_p}, colors::white, intensity));
     }
 
     ~SpheresWorld() {
@@ -101,9 +91,6 @@ public:
     }
 
 protected:
-    raytrace::color custom_grey;
-    raytrace::mediums::metal custom_metal;
-    raytrace::mediums::plain custom_plain;
     std::vector<raytrace::objects::sphere*> spheres;
     std::vector<raytrace::lights::speck*> specks;
     std::vector<raytrace::lights::bulb*> bulbs;

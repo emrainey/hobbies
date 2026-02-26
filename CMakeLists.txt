@@ -37,4 +37,4 @@ add_subdirectory(projects/htm)
 add_subdirectory(projects/doorgame)
 add_subdirectory(projects/audio)
 add_subdirectory(projects/ecs)
-# add_subdirectory(projects/pyhobbies) # DISABLING For a Momemnt
+add_subdirectory(projects/pyhobbies)

@@ -15,25 +15,25 @@ PYBIND11_MODULE(pyhobbies, module) {
         // raytracing submodule
         // COLOR Object
         py::module submodule = module.def_submodule("raytrace");
-        py::class_<raytrace::color> color(submodule, "color");
-        color.def(py::init<raytrace::precision, raytrace::precision, raytrace::precision>())
+        py::class_<raytrace::color> color_class(submodule, "color");
+        color_class.def(py::init<raytrace::precision, raytrace::precision, raytrace::precision>())
             .def("scale", &raytrace::color::scale)
-            .def(py::self *= float())  // scale
-            .def("red", &raytrace::color::red)
-            .def("green", &raytrace::color::green)
-            .def("blue", &raytrace::color::blue)
+            .def(py::self *= float())  // scales
+            .def("red", (raytrace::precision const& (raytrace::color::*)() const)&raytrace::color::red)
+            .def("green", (raytrace::precision const& (raytrace::color::*)() const)&raytrace::color::green)
+            .def("blue", (raytrace::precision const& (raytrace::color::*)() const)&raytrace::color::blue)
             .def("clamp", &raytrace::color::clamp)
             .def("__repr__", [](raytrace::color const& c) -> auto {
                 return "<raytrace.color = R:" + std::to_string(c.red()) + " G:" + std::to_string(c.green())
                        + " B:" + std::to_string(c.blue()) + ">";
             });
-        py::enum_<fourcc::Encoding>(color, "space")
+        py::enum_<fourcc::Encoding>(color_class, "space")
             .value("linear", fourcc::Encoding::Linear)
             .value("logarithmic", fourcc::Encoding::GammaCorrected)
             .export_values();
         // POINT Object
-        py::class_<raytrace::point> point(submodule, "point");
-        point.def(py::init<raytrace::precision, raytrace::precision, raytrace::precision>())
+        py::class_<raytrace::point> point_class(submodule, "point");
+        point_class.def(py::init<raytrace::precision, raytrace::precision, raytrace::precision>())
             .def(py::self *= float())   // scale
             .def(py::self == py::self)  // equality
             // .def(py::self != py::self) // inequality
@@ -49,8 +49,8 @@ PYBIND11_MODULE(pyhobbies, module) {
             });
 
         // VECTOR Object
-        py::class_<raytrace::vector> vector(submodule, "vector");
-        vector.def(py::init<raytrace::precision, raytrace::precision, raytrace::precision>())
+        py::class_<raytrace::vector> vector_class(submodule, "vector");
+        vector_class.def(py::init<raytrace::precision, raytrace::precision, raytrace::precision>())
             .def(py::self *= float())   // scale
             .def(py::self /= float())   // divide
             .def(py::self += py::self)  // accumulate
@@ -99,8 +99,8 @@ PYBIND11_MODULE(pyhobbies, module) {
         });
 
         // RAY Object
-        py::class_<raytrace::ray> ray(submodule, "ray");
-        ray.def(py::init<raytrace::point, raytrace::vector>())
+        py::class_<raytrace::ray> ray_class(submodule, "ray");
+        ray_class.def(py::init<raytrace::point, raytrace::vector>())
             .def("position", &raytrace::ray::location)
             .def("direction", &raytrace::ray::direction)
             .def("distance_along", &raytrace::ray::distance_along)
@@ -112,8 +112,8 @@ PYBIND11_MODULE(pyhobbies, module) {
             });
 
         // MEDIUM Object
-        py::class_<raytrace::mediums::medium> medium(submodule, "medium");
-        medium.def(py::init<>())
+        py::class_<raytrace::mediums::medium> medium_class(submodule, "medium");
+        medium_class.def(py::init<>())
             .def("ambient", &raytrace::mediums::medium::ambient)
             .def("diffuse", &raytrace::mediums::medium::diffuse)
             .def("specular", &raytrace::mediums::medium::specular)

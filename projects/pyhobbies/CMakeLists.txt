@@ -30,4 +30,40 @@ install(TARGETS pyhobbies
     DESTINATION lib
 )
 
+# === Tests ===
+if (BUILD_UNIT_TESTS)
+    # Found on https://discourse.cmake.org/t/possible-to-create-a-python-virtual-env-from-cmake-and-then-find-it-with-findpython3/1132/2
+    # Find just the interpreter first
+    find_package(Python3 REQUIRED Interpreter)
+    # Print the version and create the virtual environment
+    execute_process (
+        COMMAND_ECHO STDOUT
+        COMMAND ${Python3_EXECUTABLE} --version
+        COMMAND ${Python3_EXECUTABLE} -m venv ${CMAKE_BINARY_DIR}/venv
+    )
+    # This mimics the activation of the venv
+    set(ENV{VIRTUAL_ENV} "${CMAKE_BINARY_DIR}/venv")
+    # changes the context of the search
+    set(Python3_FIND_VIRTUALENV FIRST)
+    # gets rid of the previous find
+    unset(Python3_EXECUTABLE)
+    ## Launch a new search
+    find_package (Python3 COMPONENTS Interpreter Development)
+    # Print the version and the install the pips
+    execute_process (
+        COMMAND_ECHO STDOUT
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        COMMAND ${Python3_EXECUTABLE} --version
+        COMMAND ${Python3_EXECUTABLE} -m pip install jinja2 pyyaml pytest
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    )
+    add_test(
+        NAME pyhobbies-pytests
+        COMMAND ${Python3_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/tests
+    )
+    set_tests_properties(pyhobbies-pytests PROPERTIES
+        ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}:${CMAKE_BINARY_DIR}/projects/raytrace:$ENV{PYTHONPATH}"
+    )
+endif(BUILD_UNIT_TESTS)
+
 endif()

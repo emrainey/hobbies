@@ -253,6 +253,17 @@ if (BUILD_UNIT_TESTS AND Threads_FOUND AND GTest_FOUND)
     coverage_target(gtest_raytrace)
 endif()
 
+# === GoogleTest Benchmarks ===
+find_package(Benchmark)
+if (BUILD_UNIT_TESTS AND Threads_FOUND AND Benchmark_FOUND)
+    add_executable(gbench_raytrace
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/gbench_raytrace.cpp
+    )
+    target_link_libraries(gbench_raytrace PRIVATE hobbies-raytrace enabled-debugging benchmark::benchmark Threads::Threads)
+    # CMake Test Plugin
+    add_test(NAME gbench_raytrace COMMAND gbench_raytrace)
+endif()
+
 # === Doxygen ===
 if (Doxygen_FOUND)
     set(DOXYGEN_GENERATE_HTML YES)

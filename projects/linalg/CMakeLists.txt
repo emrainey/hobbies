@@ -59,6 +59,16 @@ if (BUILD_UNIT_TESTS AND Threads_FOUND AND GTest_FOUND)
     add_test(NAME gtest_linalg COMMAND gtest_linalg)
 endif()
 
+# === Google Benchmarks ===
+if (BUILD_UNIT_TESTS AND Threads_FOUND)
+    find_package(benchmark REQUIRED)
+    add_executable(gbench_linalg
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/gbench_linalg.cpp
+    )
+    target_link_libraries(gbench_linalg PRIVATE hobbies-linalg enabled-debugging benchmark::benchmark Threads::Threads)
+    add_test(NAME gbench_linalg COMMAND gbench_linalg)
+endif()
+
 # === Doxygen ===
 if (Doxygen_FOUND)
     set(DOXYGEN_GENERATE_HTML YES)

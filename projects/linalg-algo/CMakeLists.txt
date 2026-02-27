@@ -56,6 +56,16 @@ if (BUILD_UNIT_TESTS AND GTest_FOUND)
     add_test(NAME gtest_softmax COMMAND gtest_softmax)
 endif()
 
+# === Google Benchmarks ===
+find_package(benchmark)
+if (BUILD_UNIT_TESTS AND benchmark_FOUND)
+    add_executable(gbench_algo
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/gbench_algo.cpp
+    )
+    target_link_libraries(gbench_algo PRIVATE hobbies-linalg-algo benchmark::benchmark)
+    add_test(NAME gbench_algo COMMAND gbench_algo)
+endif()
+
 # === Doxygen ===
 find_package(Doxygen)
 if (Doxygen_FOUND)

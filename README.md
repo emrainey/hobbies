@@ -63,12 +63,27 @@ You can open either the `hobbies.code-workspace` or the folder itself. VSCode ca
 
 ## Building
 
+### Dependencies
+
+```bash
+# On Mac OS using Homebrew
+brew install cmake llvm openmp sdl2 googletest fmt lcov doxygen graphviz google-benchmark
+```
+
+### Mac OS
+
 Due to issues with OpenMP no longer being supported on Apple Clang and GCC not being able to link (can't find libgcrt1.a), LLVM is the currently working compiler. This is actually a good thing as latest LLVM code produces faster results in raytracing.
 
 ```bash
 # Building on Apple Silicon
-cmake --preset native-llvm-19
-cmake --build build/native-llvm-19
+$ cmake --workflow --list-presets
+Available workflow presets:
+
+  "unit-tests"    - Homebrew LLVM
+  "profiling-run" - Homebrew LLVM with Profiling
+
+# Build the unit tests and run them
+$ cmake --workflow --preset unit-tests
 ```
 
 ### Conan
@@ -92,7 +107,7 @@ I've added an explicit folder to run tests. You can run them using the testing w
 # Basic
 ./testing.sh demo_sdl2 -m world_example
 # Advanced (Stereoscopic)
-./testing.sh demo_sdl2 -m world_snowman --dims CIF --aaa 128 --separation 2.0 -w 1280 -h 720
+./testing.sh demo_sdl2 -m world_snowman --dims CIF --aaa 128 --separation 2.0
 ```
 
 ## Profiling

@@ -104,7 +104,8 @@ TEST(GeomExtraTests, RotationOfVectors) {
     ASSERT_VECTOR_EQ(v5, v3);
 }
 
-TEST(GeomExtraTests, DotPerf) {
+// Moved to Google Benchmark
+TEST(GeomExtraTests, DISABLE_DotPerf) {
     R4::vector v{{1.0_p, 0.4_p, 0.8_p, 0.0_p}};
     R4::vector u{{0.5_p, 1.0_p, 0.4_p, 1.0_p}};
     constexpr size_t number_of_ops = 100'000'000;
@@ -118,7 +119,8 @@ TEST(GeomExtraTests, DotPerf) {
     std::cout << "dots rate:" << rate << " M-dots/sec, Period: " << diff.count() / 1E9 << " sec" << std::endl;
 }
 
-TEST(GeomExtraTests, CrossPerf) {
+// Moved to Google Benchmark
+TEST(GeomExtraTests, DISABLE_CrossPerf) {
     R3::vector a{{1.0_p, 3.0_p, 7.2_p}};
     R3::vector b{{-4.0_p, 0.9_p, 12}};
     constexpr size_t number_of_ops = 100'000'000;

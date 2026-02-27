@@ -36,7 +36,7 @@ protected:
     std::string activity;
 };
 
-TEST_F(PerfCounter, IntersectionsPlane) {
+TEST_F(PerfCounter, DISABLED_IntersectionsPlane) {
     raytrace::ray r{raytrace::point{0, 0, 2}, -R3::basis::Z};
     raytrace::objects::plane obj;
     activity = std::string("plane intersections");
@@ -76,7 +76,7 @@ TEST_F(PerfCounter, IntersectionsTriangle) {
     }
 }
 
-TEST_F(PerfCounter, IntersectionsCuboid) {
+TEST_F(PerfCounter, DISABLED_IntersectionsCuboid) {
     raytrace::ray r{raytrace::point{0, 0, 2}, -R3::basis::Z};
     raytrace::objects::cuboid obj(R3::origin, 1.0_p, 1.0_p, 1.0_p);
     activity = std::string("cuboid intersections");

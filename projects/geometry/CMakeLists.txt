@@ -82,6 +82,15 @@ if (BUILD_UNIT_TESTS AND Threads_FOUND AND GTest_FOUND)
     coverage_target(gtest_geometry)
 endif()
 
+if (BUILD_UNIT_TESTS AND Threads_FOUND)
+    find_package(benchmark)
+    add_executable(gbench_geometry
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/gbench_geometry.cpp
+    )
+    target_link_libraries(gbench_geometry PRIVATE hobbies-geometry enabled-debugging benchmark::benchmark Threads::Threads)
+    add_test(NAME gbench_geometry COMMAND gbench_geometry)
+endif()
+
 # === Doxygen ===
 if (Doxygen_FOUND)
     set(DOXYGEN_GENERATE_HTML YES)

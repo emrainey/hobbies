@@ -5,6 +5,8 @@
 using namespace linalg;
 using namespace geometry;
 
+constexpr static bool debug_output{false};
+
 namespace linalg {
 kmeans::kmeans(std::vector<geometry::R2::point>& points) : m_points{points}, m_centroids{}, m_cluster_assignment{} {
 }
@@ -31,11 +33,16 @@ void kmeans::configure(size_t N) {
 /// Creates the first cluster points via some equations
 void kmeans::initial(InitialMethod method) {
     if (method == InitialMethod::RandomPoints) {
-        printf("Initializing %zu centroids\n", m_centroids.size());
+        if constexpr (debug_output) {
+            printf("Initializing %zu centroids\n", m_centroids.size());
+        }
         for (size_t c = 0; c < m_centroids.size(); c++) {
             size_t r = rand() % m_points.size();
             m_centroids[c] = m_points[r];
-            m_centroids[c].print(std::cout, "Initial Centroid:");
+            if constexpr (debug_output) {
+                m_centroids[c].print(std::cout, "Initial Centroid:");
+                printf("Centroid[%zu] = Point[%zu] => %lf,%lf\n", c, r, m_centroids[c].x(), m_centroids[c].y());
+            }
         }
     }
 }
@@ -46,8 +53,10 @@ precision kmeans::iteration(IterationMethod method) {
 
     auto euclidean = [](R2::point const& A, R2::point const& B) -> precision { return (A - B).quadrance(); };
 
-    for (auto& cnt : m_centroids) {
-        cnt.print(std::cout, "Centroid:");
+    if constexpr(debug_output) {
+        for (auto& cnt : m_centroids) {
+            cnt.print(std::cout, "Centroid:");
+        }
     }
 
     // create a vector of metrics per centroid
@@ -66,13 +75,13 @@ precision kmeans::iteration(IterationMethod method) {
                 min_metric = metrics[m];
             }
         }
-#if 0
-        printf("Metrics: ");
-        for (size_t m = 0; m < metrics.size(); m++) {
-            printf("%E,%E=>%E ", m_centroids[m].x(), m_centroids[m].y(), metrics[m]);
+        if constexpr (debug_output) {
+            printf("Metrics: ");
+            for (size_t m = 0; m < metrics.size(); m++) {
+                printf("%E,%E=>%E ", m_centroids[m].x(), m_centroids[m].y(), metrics[m]);
+            }
+            printf("\n");
         }
-        printf("\n");
-#endif
         // assign to cluster of shortest distance metric
         m_cluster_assignment[p] = min_index;
     }
@@ -96,12 +105,16 @@ precision kmeans::iteration(IterationMethod method) {
     }
     // scale points (average)
     for (size_t c = 0; c < m_centroids.size(); c++) {
-        printf("Counts[%zu] = %zu\n", c, counts[c]);
+        if constexpr (debug_output) {
+            printf("Counts[%zu] = %zu\n", c, counts[c]);
+        }
         if (counts[c] > 0) {
             R2::point center(sums[c].x() / counts[c], sums[c].y() / counts[c]);
             precision err = sqrt(euclidean(m_centroids[c], center));
-            center.print(std::cout, "Computed Center:");
-            printf("Center[%zu] = %lf, %lf (error = %lf)\n", c, center.x(), center.y(), err);
+            if constexpr (debug_output) {
+                center.print(std::cout, "Computed Center:");
+                printf("Center[%zu] = %lf, %lf (error = %lf)\n", c, center.x(), center.y(), err);
+            }
             error += err;
             m_centroids[c] = center;
         }

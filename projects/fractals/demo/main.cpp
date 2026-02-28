@@ -15,6 +15,17 @@ struct Parameters {
     std::string filename;
 };
 
+size_t mandelbrot(std::complex<precision> const& c, size_t max_iterations) {
+    std::complex<precision> z = c;
+    size_t iteration_count{0U};
+
+    while (((z.real()*z.real()) + (z.imag()*z.imag())) <= 4.0_p and iteration_count < max_iterations) {
+        z = z * z + c;
+        iteration_count++;
+    }
+    return iteration_count;
+}
+
 int main(int argc, char *argv[]) {
     Parameters params;
     basal::options::config opts[] = {
@@ -60,23 +71,14 @@ int main(int argc, char *argv[]) {
         }
     };
 
-    auto mandelbrot = [params](fractals::image::point const& p, size_t iterations) -> fourcc::rgbid {
+    auto mandelbrot_sampler = [params](fractals::image::point const& p, size_t iterations) -> fourcc::rgbid {
         // Map point to complex plane
         precision h = static_cast<precision>(params.height);
         precision w = static_cast<precision>(params.width);
         precision x0 = ((p.x() / w) * (params.x_max - params.x_min)) + params.x_min;
-        precision y0 = ((p.y() / h) * (params.y_max - params.y_min)) + params.y_min;
-        precision x = 0.0_p;
-        precision y = 0.0_p;
-        size_t iteration_count{0U};
-
-        while (((x * x) + (y * y)) <= 4.0_p && iteration_count < iterations) {
-            precision xtemp = (x * x) - (y * y) + x0;
-            y = 2.0_p * x * y + y0;
-            x = xtemp;
-            iteration_count++;
-        }
-
+        precision i0 = ((p.y() / h) * (params.y_max - params.y_min)) + params.y_min;
+        std::complex<precision> const c{x0, i0};
+        size_t iteration_count = mandelbrot(c, iterations);
         fourcc::rgbid pixel;
         if (iteration_count == iterations) {
             // bounded
@@ -85,15 +87,15 @@ int main(int argc, char *argv[]) {
             pixel.components.r = 0.0_p;
             pixel.components.i = 1.0_p;
         } else {
-            precision color_value = precision(iteration_count) / precision(iterations);
-            precision jet_color = color_value * 2.0_p - 1.0_p;
-            // printf("Point (%f, %f) escaped after %zu iterations %lf -> %lf \n", x0, y0, iteration_count, color_value, jet_color);
-            pixel = fourcc::jet(jet_color).data();
+            precision normalized_iterations = precision(iteration_count) / precision(iterations);
+            precision jet_scalar = normalized_iterations * 2.0_p - 1.0_p;
+            // printf("Point (%f, %f) escaped after %zu iterations %lf -> %lf \n", x0, i0, iteration_count, normalized_iterations, jet_scalar);
+            pixel = fourcc::jet(jet_scalar).data();
         }
         return pixel;
     };
 
-    img.generate_sample(mandelbrot, params.max_iterations, line_notifier);
+    img.generate_sample(mandelbrot_sampler, params.max_iterations, line_notifier);
     img.save(params.filename);
     return 0;
 }

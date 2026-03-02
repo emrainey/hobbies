@@ -2,6 +2,9 @@
 #include "basal/options.hpp"
 #include "fractals/fractals.hpp"
 
+constexpr static bool generation_debug{false};
+constexpr static bool conversion_debug{false};
+
 using precision = basal::precision;
 
 struct Parameters {
@@ -15,9 +18,9 @@ struct Parameters {
     std::string filename;
 };
 
-size_t mandelbrot(std::complex<precision> const& c, size_t max_iterations) {
+fractals::image::PixelStorageType mandelbrot(std::complex<precision> const& c, uint16_t max_iterations) {
     std::complex<precision> z = c;
-    size_t iteration_count{0U};
+    fractals::image::PixelStorageType iteration_count{0U};
 
     while (((z.real()*z.real()) + (z.imag()*z.imag())) <= 4.0_p and iteration_count < max_iterations) {
         z = z * z + c;
@@ -35,7 +38,7 @@ int main(int argc, char *argv[]) {
         {"-ymax", "--y-max", 1.0_p, "Maximum Y value"},
         {"-w", "--width", (size_t)6000, "Image Width"},
         {"-h", "--height", (size_t)4000, "Image Height"},
-        {"-m", "--max-iterations", (size_t)1000, "Maximum Iterations"},
+        {"-m", "--max-iterations", (size_t)72, "Maximum Iterations"},
         {"-f", "--file", std::string("fractal.tga"), "Output File Name"},
     };
 
@@ -58,11 +61,12 @@ int main(int argc, char *argv[]) {
                        "Must have a text value");
     basal::options::print(basal::dimof(opts), opts);
 
-    // fourcc::image<fourc::PixelFormat::Y32> iterimage{params.height, params.width};
-    fractals::image img{params.height, params.width};
+    fractals::image computation_image{params.height, params.width};
+    fourcc::image<fourcc::PixelFormat::RGBId> color_image{params.height, params.width};
 
     size_t total_pixels = params.width * params.height;
-    printf("Generating fractal with %zu x %zu = %zu pixels\n", params.width, params.height, total_pixels);
+    uint16_t max_iterations = static_cast<uint16_t>(params.max_iterations);
+    printf("Generating fractal with %zu x %zu = %zu pixels, %u iterations\n", params.width, params.height, total_pixels, max_iterations);
 
     auto line_notifier = [&params](size_t row_index, bool completed_flag) {
         // this is a data race to update, but it's just for progress reporting
@@ -71,31 +75,49 @@ int main(int argc, char *argv[]) {
         }
     };
 
-    auto mandelbrot_sampler = [params](fractals::image::point const& p, size_t iterations) -> fourcc::rgbid {
+    auto mandelbrot_sampler = [params](fractals::image::point const& p, uint16_t max_iterations) -> fractals::image::PixelStorageType {
         // Map point to complex plane
         precision h = static_cast<precision>(params.height);
         precision w = static_cast<precision>(params.width);
         precision x0 = ((p.x() / w) * (params.x_max - params.x_min)) + params.x_min;
         precision i0 = ((p.y() / h) * (params.y_max - params.y_min)) + params.y_min;
         std::complex<precision> const c{x0, i0};
-        size_t iteration_count = mandelbrot(c, iterations);
-        fourcc::rgbid pixel;
-        if (iteration_count == iterations) {
-            // bounded
-            pixel.components.b = 0.0_p;
-            pixel.components.g = 0.0_p;
-            pixel.components.r = 0.0_p;
-            pixel.components.i = 1.0_p;
-        } else {
-            precision normalized_iterations = precision(iteration_count) / precision(iterations);
-            precision jet_scalar = normalized_iterations * 2.0_p - 1.0_p;
-            // printf("Point (%f, %f) escaped after %zu iterations %lf -> %lf \n", x0, i0, iteration_count, normalized_iterations, jet_scalar);
-            pixel = fourcc::jet(jet_scalar).data();
+        fractals::image::PixelStorageType pixel = mandelbrot(c, max_iterations);
+        if (generation_debug) {
+            printf("Point (%f, %f) => Complex (%f, %f) => Iterations %u\n",
+                   p.x(), p.y(), c.real(), c.imag(), static_cast<uint16_t>(pixel));
         }
         return pixel;
     };
 
-    img.generate_sample(mandelbrot_sampler, params.max_iterations, line_notifier);
-    img.save(params.filename);
+    // only needs to be done once with a possibly high iteration count
+    computation_image.generate_sample(mandelbrot_sampler, max_iterations, line_notifier);
+    computation_image.save("mandelbrot_raw.pgm");
+
+    // map the computation image to a color image
+    computation_image.for_each([&color_image, params](size_t y, size_t x, fractals::image::PixelStorageType& pixel) {
+        uint16_t iteration = static_cast<uint16_t>(pixel);
+        fourcc::image<fourcc::PixelFormat::RGBId>::PixelStorageType color_pixel;
+        if (iteration == params.max_iterations) {
+            // bounded
+            color_pixel.components.b = 0.0_p;
+            color_pixel.components.g = 0.0_p;
+            color_pixel.components.r = 0.0_p;
+            color_pixel.components.i = 1.0_p;
+        } else {
+            precision normalized_iterations = precision(iteration) / precision(params.max_iterations);
+            precision jet_scalar = normalized_iterations * 2.0_p - 1.0_p;
+            color_pixel = fourcc::jet(jet_scalar).data();
+        }
+        if (conversion_debug) {
+            printf("Pixel (%zu, %zu) => Iterations %u => Color (%f, %f, %f)\n",
+                   x, y, iteration,
+                   color_pixel.components.r,
+                   color_pixel.components.g,
+                   color_pixel.components.b);
+        }
+        color_image.at(y, x) = color_pixel;
+    });
+    color_image.save(params.filename);
     return 0;
 }

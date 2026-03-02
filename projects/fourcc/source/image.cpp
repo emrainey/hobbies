@@ -130,6 +130,8 @@ bool image<PixelFormat::RGBA>::save(std::string filename) const {
             }
             fclose(fp);
         }
+    } else {
+        fprintf(stderr, "Unsupported extension for RGBA image: %s\n", filename.c_str());
     }
     return false;
 }
@@ -215,44 +217,56 @@ bool image<PixelFormat::RGB8>::save(std::string filename) const {
 
 template <>
 bool image<PixelFormat::RGBf>::save(std::string filename) const {
-    FILE* fp = fopen(filename.c_str(), "wb");
-    if (fp) {
-        fprintf(fp, "PF\n");
-        fprintf(fp, "%zu %zu\n", width, height);
-        fprintf(fp, "-1.000000\n");  // little endian float
-        for (size_t y = (height - 1); /* y >= 0 */; y--) {
-            for (size_t x = 0; x < width; x++) {
-                rgbf const& pixel = at(y, x);
-                fwrite(&pixel, sizeof(rgbf), 1, fp);
+    if (is_extension(filename, ".pfm")) {
+        FILE* fp = fopen(filename.c_str(), "wb");
+        if (fp) {
+            fprintf(fp, "PF\n");
+            fprintf(fp, "%zu %zu\n", width, height);
+            fprintf(fp, "-1.000000\n");  // little endian float
+            for (size_t y = (height - 1); /* y >= 0 */; y--) {
+                for (size_t x = 0; x < width; x++) {
+                    rgbf const& pixel = at(y, x);
+                    fwrite(&pixel, sizeof(rgbf), 1, fp);
+                }
+                if (y == 0) {
+                    break;
+                }
             }
-            if (y == 0) {
-                break;
-            }
+            fclose(fp);
+            return true;
         }
-        fclose(fp);
-        return true;
+    } else {
+        fprintf(stderr, "Unsupported extension for RGBf image: %s\n", filename.c_str());
     }
     return false;
 }
 
 template <>
 bool image<PixelFormat::BGR8>::save(std::string filename) const {
-    FILE* fp = fopen(filename.c_str(), "wb");
-    if (fp) {
-        fprintf(fp, "P7\n");
-        fprintf(fp, "WIDTH %zu\nHEIGHT %zu\nDEPTH %zu\n", width, height, depth);
-        fprintf(fp, "MAXVAL %u\n", 255u);
-        fprintf(fp, "TUPLTYPE %s\n", channel_order(format));
-        fprintf(fp, "ENDHDR\n");
-        for_each([&](bgr8 const& pixel) -> void { fwrite(&pixel, sizeof(bgr8), 1, fp); });
-        fclose(fp);
-        return true;
+    if (is_extension(filename, ".pam")) {
+        FILE* fp = fopen(filename.c_str(), "wb");
+        if (fp) {
+            fprintf(fp, "P7\n");
+            fprintf(fp, "WIDTH %zu\nHEIGHT %zu\nDEPTH %zu\n", width, height, depth);
+            fprintf(fp, "MAXVAL %u\n", 255u);
+            fprintf(fp, "TUPLTYPE %s\n", channel_order(format));
+            fprintf(fp, "ENDHDR\n");
+            for_each([&](bgr8 const& pixel) -> void { fwrite(&pixel, sizeof(bgr8), 1, fp); });
+            fclose(fp);
+            return true;
+        }
+    } else {
+        fprintf(stderr, "Unsupported extension for BGR8 image: %s\n", filename.c_str());
     }
     return false;
 }
 
 template <>
 bool image<PixelFormat::RGBh>::save(std::string filename) const {
+    if (not is_extension(filename, ".exr")) {
+        fprintf(stderr, "Unsupported extension for RGBh image: %s\n", filename.c_str());
+        return false;
+    }
     FILE* fp = fopen(filename.c_str(), "wb");
     if (fp) {
         uint8_t const zero = 0;
@@ -437,42 +451,54 @@ bool image<PixelFormat::RGBh>::save(std::string filename) const {
 
 template <>
 bool image<PixelFormat::GREY8>::save(std::string filename) const {
-    FILE* fp = fopen(filename.c_str(), "wb");
-    if (fp) {
-        fprintf(fp, "P5\n");
-        fprintf(fp, "%zu %zu\n", width, height);
-        fprintf(fp, "%" PRIu32 "\n", uint32_t(1 << (8 * depth)) - 1);
-        for_each([&](uint8_t const& pixel) -> void { fwrite(&pixel, sizeof(pixel), 1, fp); });
-        fclose(fp);
-        return true;
+    if (is_extension(filename, ".pgm")) {
+        FILE* fp = fopen(filename.c_str(), "wb");
+        if (fp) {
+            fprintf(fp, "P5\n");
+            fprintf(fp, "%" PRIz " %" PRIz "\n", width, height);
+            fprintf(fp, "%" PRIu32 "\n", std::numeric_limits<uint8_t>::max());
+            for_each([&](uint8_t const& pixel) -> void { fwrite(&pixel, sizeof(pixel), 1, fp); });
+            fclose(fp);
+            return true;
+        }
+    } else {
+        fprintf(stderr, "Unsupported extension for GREY8 image: %s\n", filename.c_str());
     }
     return false;
 }
 
 template <>
 bool image<PixelFormat::Y8>::save(std::string filename) const {
-    FILE* fp = fopen(filename.c_str(), "wb");
-    if (fp) {
-        fprintf(fp, "P5\n");
-        fprintf(fp, "%zu %zu\n", width, height);
-        fprintf(fp, "%" PRIu32 "\n", uint32_t(1 << (8 * depth)) - 1);
-        for_each([&](uint8_t const& pixel) -> void { fwrite(&pixel, sizeof(pixel), 1, fp); });
-        fclose(fp);
-        return true;
+    if (is_extension(filename, ".pgm")) {
+        FILE* fp = fopen(filename.c_str(), "wb");
+        if (fp) {
+            fprintf(fp, "P5\n");
+            fprintf(fp, "%" PRIz " %" PRIz "\n", width, height);
+            fprintf(fp, "%" PRIu32 "\n", std::numeric_limits<uint8_t>::max());
+            for_each([&](uint8_t const& pixel) -> void { fwrite(&pixel, sizeof(pixel), 1, fp); });
+            fclose(fp);
+            return true;
+        }
+    } else {
+        fprintf(stderr, "Unsupported extension for Y8 image: %s\n", filename.c_str());
     }
     return false;
 }
 
 template <>
 bool image<PixelFormat::Y16>::save(std::string filename) const {
-    FILE* fp = fopen(filename.c_str(), "wb");
-    if (fp) {
-        fprintf(fp, "P5\n");
-        fprintf(fp, "%zu %zu\n", width, height);
-        fprintf(fp, "%" PRIu32 "\n", uint32_t(1 << (8 * depth)) - 1);
-        for_each([&](uint16_t const& pixel) -> void { fwrite(&pixel, sizeof(pixel), 1, fp); });
-        fclose(fp);
-        return true;
+    if (is_extension(filename, ".pgm")) {
+        FILE* fp = fopen(filename.c_str(), "wb");
+        if (fp) {
+            fprintf(fp, "P5\n");
+            fprintf(fp, "%" PRIz " %" PRIz "\n", width, height);
+            fprintf(fp, "%" PRIu32 "\n", std::numeric_limits<uint16_t>::max());
+            for_each([&](uint16_t const& pixel) -> void { fwrite(&pixel, sizeof(pixel), 1, fp); });
+            fclose(fp);
+            return true;
+        }
+    } else {
+        fprintf(stderr, "Unsupported extension for Y16 image: %s\n", filename.c_str());
     }
     return false;
 }
@@ -482,7 +508,7 @@ bool image<PixelFormat::RGBP>::save(std::string filename) const {
     FILE* fp = fopen(filename.c_str(), "wb");
     if (fp) {
         fprintf(fp, "P565\n");
-        fprintf(fp, "%zu %zu\n", width, height);
+        fprintf(fp, "%" PRIz " %" PRIz "\n", width, height);
         fprintf(fp, "%" PRIu32 "\n", uint32_t(1 << (8 * depth)) - 1);
         for_each([&](rgb565 const& pixel) -> void { fwrite(&pixel, sizeof(pixel), 1, fp); });
         fclose(fp);
@@ -493,14 +519,21 @@ bool image<PixelFormat::RGBP>::save(std::string filename) const {
 
 template <>
 bool image<PixelFormat::Y32>::save(std::string filename) const {
-    FILE* fp = fopen(filename.c_str(), "wb");
-    if (fp) {
-        fprintf(fp, "P5\n");
-        fprintf(fp, "%zu %zu\n", width, height);
-        fprintf(fp, "%" PRIu32 "\n", uint32_t(1 << (8 * depth)) - 1);
-        for_each([&](uint32_t const& pixel) -> void { fwrite(&pixel, sizeof(pixel), 1, fp); });
-        fclose(fp);
-        return true;
+    if (is_extension(filename, ".pam")) {
+        FILE* fp = fopen(filename.c_str(), "wb");
+        if (fp) {
+            fprintf(fp, "P7\n");
+            fprintf(fp, "WIDTH %" PRIz "\nHEIGHT %" PRIz "\n", width, height);
+            fprintf(fp, "DEPTH %" PRIz "\n", depth);
+            fprintf(fp, "MAXVAL %" PRIu32 "\n", std::numeric_limits<uint32_t>::max());
+            fprintf(fp, "TUPLTYPE %s\n", channel_order(format));
+            fprintf(fp, "ENDHDR\n");
+            for_each([&](uint32_t const& pixel) -> void { fwrite(&pixel, sizeof(pixel), 1, fp); });
+            fclose(fp);
+            return true;
+        }
+    } else {
+        fprintf(stderr, "Unsupported extension for Y32 image: %s\n", filename.c_str());
     }
     return false;
 }

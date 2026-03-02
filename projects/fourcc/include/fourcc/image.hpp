@@ -159,7 +159,7 @@ public:
 
     /// Returns total byte size of the image
     inline size_t bytes() const {
-        return sizeof(PixelStorageType) * width * height * planes;
+        return sizeof(PixelStorageType) * area() * planes;
     }
 
     /// Able to load the image type from file into an image

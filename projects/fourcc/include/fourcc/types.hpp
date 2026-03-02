@@ -285,6 +285,15 @@ constexpr char const* channel_order(PixelFormat fmt) {
             return "UYV";
         case PixelFormat::YF:
             return "YF";
+
+        case PixelFormat::Y800:
+            [[fallthrough]];
+        case PixelFormat::Y8:
+            [[fallthrough]];
+        case PixelFormat::Y16:
+            [[fallthrough]];
+        case PixelFormat::Y32:
+            return "GREYSCALE";
         default:
             return "???";
     }

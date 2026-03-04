@@ -15,6 +15,8 @@ Uses "jet" colormap for coloring the fractal based on iteration counts.
 
 ![Fractal Explorer Screenshot](docs/images/fractal.png)
 
+All the parameters are printed each render so locations can be revisited. This particular screen capture is at: `Generating fractal with 1920 x 1080 = 2073600 pixels, 296 iterations, x={-0.521889, -0.512303}, y={-0.104361, -0.098883}` with the Mandelbrot 3 choice.
+
 ### Command line options
 
 * `--x-min <value>`: Minimum x-coordinate of the viewing window.

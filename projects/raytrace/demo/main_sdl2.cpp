@@ -1,8 +1,9 @@
 ///
 /// @file
 /// @author Erik Rainey (erik.rainey@gmail.com)
-/// @brief Wraps a rendered scene with some OpenCV widgets
-/// @copyright Copyright (c) 2021
+/// @brief Wraps a rendered scene with some SDL2 code to allow for live previewing
+/// and user input to move the camera around.
+/// @copyright Copyright (c) 2021-2026
 ///
 
 #if defined(__APPLE__)

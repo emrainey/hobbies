@@ -29,6 +29,7 @@ using precision = basal::precision;
 enum class FractalChoice : int {
     Mandelbrot = 2,
     Mandelbrot3 = 3,
+    Nova = 4,
 };
 
 struct Parameters {
@@ -66,6 +67,24 @@ fractals::image::PixelStorageType mandelbrot3(std::complex<precision> const& c, 
     return iteration_count;
 }
 
+
+fractals::image::PixelStorageType nova(std::complex<precision> const& c, uint16_t max_iterations) {
+    std::complex<precision> z{1.0_p, 0.0_p};
+    std::complex<precision> diff{1.0_p, 0.0_p};
+    fractals::image::PixelStorageType iteration_count{0U};
+
+    while (diff.real() > 0.000001_p and iteration_count < max_iterations) {
+        auto z1 = (z - 1.0);
+        auto z3 = z1 * z1 * z1;
+        auto z2 = z * z;
+        auto zn = z - (z3)/(3.0 * z2) + c;
+        diff = std::abs(zn - z);
+        z = zn;
+        iteration_count++;
+    }
+    return iteration_count;
+}
+
 int main(int argc, char *argv[]) {
     Parameters params;
     bool should_render = true;
@@ -80,7 +99,7 @@ int main(int argc, char *argv[]) {
         {"-h", "--height", (size_t)1080, "Image Height"},
         {"-m", "--max-iterations", (size_t)72, "Maximum Iterations"},
         {"-f", "--file", std::string("fractal.tga"), "Output File Name"},
-        {"-c", "--choice", (int)FractalChoice::Mandelbrot, "Fractal Choice (Mandelbrot or Mandelbrot3)"},
+        {"-c", "--choice", (int)FractalChoice::Mandelbrot, "Fractal Choice (Mandelbrot or Mandelbrot3, or Nova)"},
     };
 
     basal::options::process(basal::dimof(opts), opts, argc, argv);
@@ -131,8 +150,10 @@ int main(int argc, char *argv[]) {
             pixel = mandelbrot(c, max_iterations);
         } else if (params.choice == FractalChoice::Mandelbrot3) {
             pixel = mandelbrot3(c, max_iterations);
+        } else if (params.choice == FractalChoice::Nova) {
+            pixel = nova(c, max_iterations);
         } else {
-            pixel = mandelbrot(c, max_iterations);
+            throw std::runtime_error("Unknown fractal choice");
         }
         if (generation_debug) {
             printf("Point (%f, %f) => Complex (%f, %f) => Iterations %u\n",

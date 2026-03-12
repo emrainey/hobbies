@@ -21,6 +21,9 @@ endif()
 set(CMAKE_CXX_STANDARD 17)
 enable_testing()
 
+# External Projects
+add_subdirectory(third-party)
+
 add_subdirectory(projects/basal)
 add_subdirectory(projects/units_of_measure)
 add_subdirectory(projects/fourcc)

@@ -19,9 +19,9 @@ PYBIND11_MODULE(pyhobbies, module) {
         color_class.def(py::init<raytrace::precision, raytrace::precision, raytrace::precision>())
             .def("scale", &raytrace::color::scale)
             .def(py::self *= float())  // scales
-            .def("red", (raytrace::precision const& (raytrace::color::*)() const)&raytrace::color::red)
-            .def("green", (raytrace::precision const& (raytrace::color::*)() const)&raytrace::color::green)
-            .def("blue", (raytrace::precision const& (raytrace::color::*)() const)&raytrace::color::blue)
+            .def("red", (raytrace::precision const& (raytrace::color::*)() const) & raytrace::color::red)
+            .def("green", (raytrace::precision const& (raytrace::color::*)() const) & raytrace::color::green)
+            .def("blue", (raytrace::precision const& (raytrace::color::*)() const) & raytrace::color::blue)
             .def("clamp", &raytrace::color::clamp)
             .def("__repr__", [](raytrace::color const& c) -> auto {
                 return "<raytrace.color = R:" + std::to_string(c.red()) + " G:" + std::to_string(c.green())

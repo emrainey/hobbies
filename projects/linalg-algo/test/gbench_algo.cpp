@@ -12,7 +12,8 @@ static void BM_KMeansIteration(benchmark::State& state) {
     size_t num_clusters = 5;
     std::vector<geometry::R2::point> points;
     for (size_t i = 0; i < num_points; i++) {
-        points.push_back(geometry::R2::point{static_cast<precision>(rand() % 1000), static_cast<precision>(rand() % 1000)});
+        points.push_back(
+            geometry::R2::point{static_cast<precision>(rand() % 1000), static_cast<precision>(rand() % 1000)});
     }
     linalg::kmeans kmeans_instance(points);
     kmeans_instance.configure(num_clusters);

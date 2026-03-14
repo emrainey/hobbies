@@ -28,8 +28,16 @@ BENCHMARK(BM_MatrixMultiplication4x4);
 
 // 5x5
 static void BM_MatrixMultiplication5x5(benchmark::State& state) {
-    matrix A{{{1.0, 2.0, 3.0, 4.0, 5.0}, {6.0, 7.0, 8.0, 9.0, 0.0}, {1.0, 2.0, 3.0, 4.0, 5.0}, {6.0, 7.0, 8.0, 9.0, 0.0}, {1.0, 2.0, 3.0, 4.0, 5.0}}};
-    matrix B{{{5.0, 4.0, 3.0, 2.0, 1.0}, {0.0, 9.0, 8.0, 7.0, 6.0}, {5.0, 4.0, 3.0, 2.0, 1.0},  {0.0, 9.0, 8.0, 7.0, 6.0}, {5.0, 4.0, 3.0, 2.0, 1.0}}};
+    matrix A{{{1.0, 2.0, 3.0, 4.0, 5.0},
+              {6.0, 7.0, 8.0, 9.0, 0.0},
+              {1.0, 2.0, 3.0, 4.0, 5.0},
+              {6.0, 7.0, 8.0, 9.0, 0.0},
+              {1.0, 2.0, 3.0, 4.0, 5.0}}};
+    matrix B{{{5.0, 4.0, 3.0, 2.0, 1.0},
+              {0.0, 9.0, 8.0, 7.0, 6.0},
+              {5.0, 4.0, 3.0, 2.0, 1.0},
+              {0.0, 9.0, 8.0, 7.0, 6.0},
+              {5.0, 4.0, 3.0, 2.0, 1.0}}};
     for (auto _ : state) {
         volatile auto C = A * B;
         // benchmark::DoNotOptimize(C);
@@ -106,6 +114,5 @@ static void BM_QuarticEquationSolver(benchmark::State& state) {
     }
 }
 BENCHMARK(BM_QuarticEquationSolver);
-
 
 BENCHMARK_MAIN();

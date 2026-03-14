@@ -27,8 +27,7 @@ public:
     virtual void addFace(uint32_t v1, uint32_t n1, uint32_t v2, uint32_t n2, uint32_t v3, uint32_t n3) = 0;
     /// @brief Adds a Triangular Face to the Observer given the indices of the vertexes, normals, and textures
     virtual void addFace(uint32_t v1, uint32_t t1, uint32_t n1, uint32_t v2, uint32_t t2, uint32_t n2, uint32_t v3,
-                         uint32_t t3, uint32_t n3)
-        = 0;
+                         uint32_t t3, uint32_t n3) = 0;
 
 protected:
     ~Observer() = default;

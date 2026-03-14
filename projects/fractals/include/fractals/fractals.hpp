@@ -32,10 +32,10 @@ public:
     using rendered_line = std::function<void(size_t row_index, bool completed)>;
 
     /// The function which iterates over each pixel to generate the fractal.
-    void generate_sample(sampler sampler, uint16_t max_iterations, std::optional<rendered_line> row_notifier = std::nullopt);
+    void generate_sample(sampler sampler, uint16_t max_iterations,
+                         std::optional<rendered_line> row_notifier = std::nullopt);
 
 protected:
-
 };
 
 }  // namespace fractals

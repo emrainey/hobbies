@@ -48,25 +48,23 @@ fractals::image::PixelStorageType mandelbrot(std::complex<precision> const& c, u
     std::complex<precision> z = c;
     fractals::image::PixelStorageType iteration_count{0U};
 
-    while (((z.real()*z.real()) + (z.imag()*z.imag())) <= 4.0_p and iteration_count < max_iterations) {
+    while (((z.real() * z.real()) + (z.imag() * z.imag())) <= 4.0_p and iteration_count < max_iterations) {
         z = z * z + c;
         iteration_count++;
     }
     return iteration_count;
 }
 
-
 fractals::image::PixelStorageType mandelbrot3(std::complex<precision> const& c, uint16_t max_iterations) {
     std::complex<precision> z = c;
     fractals::image::PixelStorageType iteration_count{0U};
 
-    while (((z.real()*z.real()) + (z.imag()*z.imag())) <= 4.0_p and iteration_count < max_iterations) {
+    while (((z.real() * z.real()) + (z.imag() * z.imag())) <= 4.0_p and iteration_count < max_iterations) {
         z = z * z * z + c;
         iteration_count++;
     }
     return iteration_count;
 }
-
 
 fractals::image::PixelStorageType nova(std::complex<precision> const& c, uint16_t max_iterations) {
     std::complex<precision> z{1.0_p, 0.0_p};
@@ -77,7 +75,7 @@ fractals::image::PixelStorageType nova(std::complex<precision> const& c, uint16_
         auto z1 = (z - 1.0);
         auto z3 = z1 * z1 * z1;
         auto z2 = z * z;
-        auto zn = z - (z3)/(3.0 * z2) + c;
+        auto zn = z - (z3) / (3.0 * z2) + c;
         diff = std::abs(zn - z);
         z = zn;
         iteration_count++;
@@ -85,7 +83,7 @@ fractals::image::PixelStorageType nova(std::complex<precision> const& c, uint16_
     return iteration_count;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
     Parameters params;
     bool should_render = true;
     bool should_quit = false;
@@ -131,14 +129,15 @@ int main(int argc, char *argv[]) {
     uint16_t max_iterations = static_cast<uint16_t>(params.max_iterations);
 
     SDL_Init(SDL_INIT_VIDEO);
-    SDL_Window *window
-        = SDL_CreateWindow("Fractal Images", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, params.width, params.height, 0);
-    SDL_Surface *surface = SDL_GetWindowSurface(window);
+    SDL_Window* window = SDL_CreateWindow("Fractal Images", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+                                          params.width, params.height, 0);
+    SDL_Surface* surface = SDL_GetWindowSurface(window);
     // Fill the surface white
     SDL_FillRect(surface, NULL, SDL_MapRGB(surface->format, 0xFF, 0xFF, 0xFF));
     SDL_UpdateWindowSurface(window);
 
-    auto mandelbrot_sampler = [&](fractals::image::point const& p, uint16_t max_iterations) -> fractals::image::PixelStorageType {
+    auto mandelbrot_sampler
+        = [&](fractals::image::point const& p, uint16_t max_iterations) -> fractals::image::PixelStorageType {
         // Map point to complex plane
         precision h = static_cast<precision>(params.height);
         precision w = static_cast<precision>(params.width);
@@ -156,16 +155,15 @@ int main(int argc, char *argv[]) {
             throw std::runtime_error("Unknown fractal choice");
         }
         if (generation_debug) {
-            printf("Point (%f, %f) => Complex (%f, %f) => Iterations %u\n",
-                   p.x(), p.y(), c.real(), c.imag(), static_cast<uint16_t>(pixel));
+            printf("Point (%f, %f) => Complex (%f, %f) => Iterations %u\n", p.x(), p.y(), c.real(), c.imag(),
+                   static_cast<uint16_t>(pixel));
         }
         return pixel;
     };
 
-    auto preview = [&](SDL_Surface* surface, SDL_Window* window,
-                       std::vector<std::atomic<uint8_t>> const& completed_rows,
-                       std::vector<uint8_t>& copied_rows, fractals::image& computation_image,
-                       uint16_t max_iterations) -> void {
+    auto preview
+        = [&](SDL_Surface* surface, SDL_Window* window, std::vector<std::atomic<uint8_t>> const& completed_rows,
+              std::vector<uint8_t>& copied_rows, fractals::image& computation_image, uint16_t max_iterations) -> void {
         // now copy to SDL surface but first must lock
         bool should_lock = SDL_MUSTLOCK(surface);
         if (should_lock) {
@@ -175,15 +173,16 @@ int main(int argc, char *argv[]) {
             }
         }
         // copy the row over to the display image and change it to RGBA
-        computation_image.for_each([surface, &completed_rows, &copied_rows, max_iterations](size_t y, size_t x, fractals::image::PixelStorageType const& iteration) {
+        computation_image.for_each([surface, &completed_rows, &copied_rows, max_iterations](
+                                       size_t y, size_t x, fractals::image::PixelStorageType const& iteration) {
             if (completed_rows[y].load(std::memory_order_acquire) == 0u) {
                 return;
             }
             if (copied_rows[y] != 0u) {
                 return;
             }
-            fourcc::bgra *pixel = reinterpret_cast<fourcc::bgra *>(surface->pixels);
-            size_t index = (y * (surface->pitch/sizeof(fourcc::bgra))) + x;
+            fourcc::bgra* pixel = reinterpret_cast<fourcc::bgra*>(surface->pixels);
+            size_t index = (y * (surface->pitch / sizeof(fourcc::bgra))) + x;
             if (iteration == max_iterations) {
                 // bounded
                 pixel[index].components.b = 0u;
@@ -194,9 +193,12 @@ int main(int argc, char *argv[]) {
                 precision normalized_iterations = precision(iteration) / precision(max_iterations);
                 precision jet_scalar = normalized_iterations * 2.0_p - 1.0_p;
                 auto rgb_pixel = fourcc::jet(jet_scalar).data();
-                pixel[index].components.b = static_cast<uint8_t>(basal::clamp(rgb_pixel.components.b * 255.0_p, 0.0_p, 255.0_p));
-                pixel[index].components.g = static_cast<uint8_t>(basal::clamp(rgb_pixel.components.g * 255.0_p, 0.0_p, 255.0_p));
-                pixel[index].components.r = static_cast<uint8_t>(basal::clamp(rgb_pixel.components.r * 255.0_p, 0.0_p, 255.0_p));
+                pixel[index].components.b
+                    = static_cast<uint8_t>(basal::clamp(rgb_pixel.components.b * 255.0_p, 0.0_p, 255.0_p));
+                pixel[index].components.g
+                    = static_cast<uint8_t>(basal::clamp(rgb_pixel.components.g * 255.0_p, 0.0_p, 255.0_p));
+                pixel[index].components.r
+                    = static_cast<uint8_t>(basal::clamp(rgb_pixel.components.r * 255.0_p, 0.0_p, 255.0_p));
                 pixel[index].components.a = 255u;
             }
             if (x == surface->w - 1) {
@@ -211,7 +213,9 @@ int main(int argc, char *argv[]) {
 
     do {
         if (should_render) {
-            printf("Generating fractal with %zu x %zu = %zu pixels, %u iterations, x={%lf, %lf}, y={%lf, %lf}\n", params.width, params.height, total_pixels, max_iterations, params.x_min, params.x_max, params.y_min, params.y_max);
+            printf("Generating fractal with %zu x %zu = %zu pixels, %u iterations, x={%lf, %lf}, y={%lf, %lf}\n",
+                   params.width, params.height, total_pixels, max_iterations, params.x_min, params.x_max, params.y_min,
+                   params.y_max);
             std::vector<std::atomic<uint8_t>> completed(params.height);
             for (auto& value : completed) {
                 value.store(0u, std::memory_order_relaxed);
@@ -223,10 +227,12 @@ int main(int argc, char *argv[]) {
                 while (preview_active) {
                     preview(surface, window, completed, copied_rows, computation_image, params.max_iterations);
                     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                    if (std::all_of(completed.begin(), completed.end(), [](std::atomic<uint8_t> const& value) {
-                            return value.load(std::memory_order_acquire) != 0u;
-                        }) and
-                        std::all_of(copied_rows.begin(), copied_rows.end(), [](uint8_t value) { return value != 0u; })) {
+                    if (std::all_of(completed.begin(), completed.end(),
+                                    [](std::atomic<uint8_t> const& value) {
+                                        return value.load(std::memory_order_acquire) != 0u;
+                                    })
+                        and std::all_of(copied_rows.begin(), copied_rows.end(),
+                                        [](uint8_t value) { return value != 0u; })) {
                         preview_active = false;
                     }
                 }
@@ -305,7 +311,8 @@ int main(int argc, char *argv[]) {
                         printf("Saved image to %s\n", params.filename.c_str());
                         computation_image.save("fractal.pgm");
                         // map the computation image to a color image
-                        computation_image.for_each([&color_image, params](size_t y, size_t x, fractals::image::PixelStorageType& pixel) {
+                        computation_image.for_each([&color_image, params](size_t y, size_t x,
+                                                                          fractals::image::PixelStorageType& pixel) {
                             uint16_t iteration = static_cast<uint16_t>(pixel);
                             fourcc::image<fourcc::PixelFormat::RGBId>::PixelStorageType color_pixel;
                             if (iteration == params.max_iterations) {
@@ -315,16 +322,14 @@ int main(int argc, char *argv[]) {
                                 color_pixel.components.r = 0.0_p;
                                 color_pixel.components.i = 1.0_p;
                             } else {
-                                precision normalized_iterations = precision(iteration) / precision(params.max_iterations);
+                                precision normalized_iterations
+                                    = precision(iteration) / precision(params.max_iterations);
                                 precision jet_scalar = normalized_iterations * 2.0_p - 1.0_p;
                                 color_pixel = fourcc::jet(jet_scalar).data();
                             }
                             if (conversion_debug) {
-                                printf("Pixel (%zu, %zu) => Iterations %u => Color (%f, %f, %f)\n",
-                                    x, y, iteration,
-                                    color_pixel.components.r,
-                                    color_pixel.components.g,
-                                    color_pixel.components.b);
+                                printf("Pixel (%zu, %zu) => Iterations %u => Color (%f, %f, %f)\n", x, y, iteration,
+                                       color_pixel.components.r, color_pixel.components.g, color_pixel.components.b);
                             }
                             color_image.at(y, x) = color_pixel;
                         });
@@ -333,13 +338,15 @@ int main(int argc, char *argv[]) {
                     }
                     case SDLK_t:
                         // increase iterations
-                        params.max_iterations = static_cast<size_t>(static_cast<precision>(params.max_iterations) * 1.25_p);
+                        params.max_iterations
+                            = static_cast<size_t>(static_cast<precision>(params.max_iterations) * 1.25_p);
                         max_iterations = static_cast<uint16_t>(params.max_iterations);
                         should_render = true;
                         break;
                     case SDLK_g:
                         // decrease iterations
-                        params.max_iterations = static_cast<size_t>(static_cast<precision>(params.max_iterations) * 0.75_p);
+                        params.max_iterations
+                            = static_cast<size_t>(static_cast<precision>(params.max_iterations) * 0.75_p);
                         if (params.max_iterations < 10u) {
                             params.max_iterations = 10u;
                         }
@@ -347,7 +354,7 @@ int main(int argc, char *argv[]) {
                         should_render = true;
                         break;
                 }
-                break; // pop out of while loop
+                break;  // pop out of while loop
             } else if (event.type == SDL_QUIT) {
                 std::cout << "Quitting ... " << std::endl;
                 should_quit = true;

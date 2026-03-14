@@ -53,7 +53,7 @@ precision kmeans::iteration(IterationMethod method) {
 
     auto euclidean = [](R2::point const& A, R2::point const& B) -> precision { return (A - B).quadrance(); };
 
-    if constexpr(debug_output) {
+    if constexpr (debug_output) {
         for (auto& cnt : m_centroids) {
             cnt.print(std::cout, "Centroid:");
         }

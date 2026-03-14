@@ -10,7 +10,8 @@ namespace isa {
 /// For declining stacks the stack starts at the limit - unit size and "grows" down.
 // If it exceeds the base, an exception will be issued.
 struct Stack {
-    Address limit{0};    ///< SLA: The highest numerical (exclusive) address of the stack. The first address is limit - unit
+    Address limit{
+        0};  ///< SLA: The highest numerical (exclusive) address of the stack. The first address is limit - unit
     Address current{0};  ///< SCA: The current address of the stack
     Address base{0};     ///< SBA: The lowest numerical address of the stack, used to judge stack overflow.
 };
@@ -110,6 +111,11 @@ public:
     /// Allows attaching memories to the memory bus of the CPU
     bool AddTightlyCoupledMemory(TightlyCoupledMemory& memory) {
         return sram_bus_.Attach(memory, memory.ViewRange());
+    }
+
+    /// [DEBUG] Allows Peeking at ANY memory address across the entire system through the CPU's view
+    bool Peek(Address address, uint32_t& value) const {
+        return sram_bus_.Peek(address, value);
     }
 
 protected:

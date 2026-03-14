@@ -15,8 +15,8 @@ std::string AddressRow(char const* name, isa::Address value) {
     std::ostringstream value_stream;
     value_stream << "0x" << std::uppercase << std::hex << std::setfill('0') << std::setw(sizeof(isa::Address) * 2U)
                  << value;
-    stream << std::right << std::setw(special_name_width) << name << " : " << std::left << std::setw(special_value_width)
-           << value_stream.str();
+    stream << std::right << std::setw(special_name_width) << name << " : " << std::left
+           << std::setw(special_value_width) << value_stream.str();
     return stream.str();
 }
 
@@ -26,8 +26,8 @@ std::string ScratchRow(char const* name, uint32_t value) {
     std::ostringstream stream;
     std::ostringstream value_stream;
     value_stream << "0x" << std::uppercase << std::hex << std::setfill('0') << std::setw(8U) << value;
-    stream << std::right << std::setw(scratch_name_width) << name << " : " << std::left << std::setw(scratch_value_width)
-           << value_stream.str();
+    stream << std::right << std::setw(scratch_name_width) << name << " : " << std::left
+           << std::setw(scratch_value_width) << value_stream.str();
     return stream.str();
 }
 

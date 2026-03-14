@@ -90,3 +90,28 @@ TEST(BusTest, AttachMemoryInitializeAndExerciseFaultCallbacks) {
     bus.Write(kUnassignedAddress, initial_data);
     bus.Read(kUnassignedAddress);
 }
+
+TEST(BusTest, PeekReflectsWhetherAddressIsBackedByAttachedMemory) {
+    constexpr Address kBusStart = 0x10000000U;
+    constexpr Address kBusEnd = 0x100000FFU;
+    constexpr Address kMemoryStart = 0x10000020U;
+    constexpr Address kMemoryEnd = 0x1000002FU;
+    constexpr Address kInsideAddress = 0x10000024U;
+    constexpr Address kInBusButUnmappedAddress = 0x10000010U;
+    constexpr Address kOutsideBusAddress = 0x20000000U;
+
+    TestBus bus{1U, Range{kBusStart, kBusEnd}};
+    Memory<TestingAttributes> memory{Range{kMemoryStart, kMemoryEnd}};
+
+    ASSERT_TRUE(bus.Attach(memory, memory.ViewRange()));
+
+    memory[kInsideAddress] = static_cast<TestBus::Attributes::AddressableUnitType>(0x5AU);
+
+    TestBus::Attributes::AddressableUnitType value = 0U;
+    EXPECT_TRUE(bus.Peek(kInsideAddress, value));
+    EXPECT_EQ(static_cast<TestBus::Attributes::AddressableUnitType>(0x5AU), value);
+
+    value = 0U;
+    EXPECT_FALSE(bus.Peek(kInBusButUnmappedAddress, value));
+    EXPECT_FALSE(bus.Peek(kOutsideBusAddress, value));
+}

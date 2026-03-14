@@ -174,11 +174,14 @@ protected:
 
 union Instruction {
     /// Default Constructor
-    constexpr Instruction() : noop{} {}
+    constexpr Instruction() : noop{} {
+    }
     /// Copy Constructor
-    constexpr Instruction(Instruction const& other) : base{other.base} {}
+    constexpr Instruction(Instruction const& other) : base{other.base} {
+    }
     /// Move Constructor
-    constexpr Instruction(Instruction&& other) : base{std::move(other.base)} {}
+    constexpr Instruction(Instruction&& other) : base{std::move(other.base)} {
+    }
     /// Copy Assignment
     Instruction& operator=(Instruction const& other) {
         base = other.base;

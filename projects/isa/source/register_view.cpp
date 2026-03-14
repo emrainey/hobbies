@@ -26,14 +26,14 @@ std::string FormatRegisterRow(std::string const& name, int name_width, std::stri
 ScratchRegisterRows FormatScratchRegisterRows(Processor const& cpu) {
     ScratchRegisterRows rows{};
     auto const& scratch = cpu.ViewScratch();
-    constexpr int scratch_name_width = 3;   // S15
+    constexpr int scratch_name_width = 3;    // S15
     constexpr int scratch_value_width = 10;  // 0x + 8 hex digits
 
     for (size_t index = 0; index < rows.size(); ++index) {
         std::ostringstream name_stream;
         name_stream << 'S' << std::dec << index;
         rows[index] = FormatRegisterRow(name_stream.str(), scratch_name_width,
-                        FormatHexValue(scratch[index].as_u32[0], 8U), scratch_value_width);
+                                        FormatHexValue(scratch[index].as_u32[0], 8U), scratch_value_width);
     }
 
     return rows;
@@ -56,10 +56,12 @@ SpecialRegisterRows FormatSpecialRegisterRows(Processor const& cpu) {
                                 special_value_width);
     rows[4] = FormatRegisterRow("SBA", special_name_width, FormatHexValue(special.stack_.base, special_hex_digits),
                                 special_value_width);
-    rows[5] = FormatRegisterRow("ESLA", special_name_width,
-                                FormatHexValue(special.exception_stack_.limit, special_hex_digits), special_value_width);
-    rows[6] = FormatRegisterRow("ESCA", special_name_width,
-                                FormatHexValue(special.exception_stack_.current, special_hex_digits), special_value_width);
+    rows[5]
+        = FormatRegisterRow("ESLA", special_name_width,
+                            FormatHexValue(special.exception_stack_.limit, special_hex_digits), special_value_width);
+    rows[6]
+        = FormatRegisterRow("ESCA", special_name_width,
+                            FormatHexValue(special.exception_stack_.current, special_hex_digits), special_value_width);
     rows[7] = FormatRegisterRow("ESBA", special_name_width,
                                 FormatHexValue(special.exception_stack_.base, special_hex_digits), special_value_width);
 

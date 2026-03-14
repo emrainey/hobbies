@@ -131,7 +131,6 @@ static_assert(log2(1U << 1U) == 1U, "Must be this value exactly");
 static_assert(log2(1U << 3U) == 3U, "Must be this value exactly");
 static_assert(log2(1U << 19U) == 19U, "Must be this value exactly");
 
-
 /// An index over a COUNT of items.
 template <size_t BITS>
 struct index {

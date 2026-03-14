@@ -7,10 +7,21 @@
 #include <ftxui/screen/string.hpp>
 
 #include <algorithm>
+#include <cctype>
+#include <cstdint>
+#include <iomanip>
+#include <limits>
+#include <sstream>
+#include <string>
 
 using namespace ftxui;
 
 namespace {
+
+constexpr size_t kMemoryBytesPerRow = 16U;
+constexpr size_t kMemoryPageRows = 8U;
+constexpr char kUnavailableMemoryCells[] = "-- -- -- --  -- -- -- --  -- -- -- --  -- -- -- --";
+using Address32 = std::uint32_t;
 
 template <typename RegisterRows>
 Elements BuildRegisterColumn(RegisterRows const& rows) {
@@ -24,16 +35,130 @@ Elements BuildRegisterColumn(RegisterRows const& rows) {
     return column;
 }
 
+std::string FormatAddressHex(Address32 address) {
+    std::ostringstream stream;
+    stream << "0x" << std::uppercase << std::hex << std::setfill('0') << std::setw(8)
+           << static_cast<unsigned int>(address);
+    return stream.str();
+}
+
+bool TryAddAddress(Address32 address, size_t offset, Address32& out) {
+    constexpr Address32 kAddressMax = std::numeric_limits<Address32>::max();
+    const auto safe_offset = static_cast<Address32>(offset);
+    if (safe_offset > kAddressMax - address) {
+        return false;
+    }
+    out = static_cast<Address32>(address + safe_offset);
+    return true;
+}
+
+Address32 SaturatingAddressAdd(Address32 address, size_t offset) {
+    Address32 result = 0;
+    if (TryAddAddress(address, offset, result)) {
+        return result;
+    }
+    return std::numeric_limits<Address32>::max();
+}
+
+Address32 SaturatingAddressSub(Address32 address, size_t offset) {
+    const auto safe_offset = static_cast<Address32>(offset);
+    if (safe_offset > address) {
+        return 0;
+    }
+    return static_cast<Address32>(address - safe_offset);
+}
+
+std::string StripLineBreaks(std::string input) {
+    input.erase(std::remove(input.begin(), input.end(), '\n'), input.end());
+    input.erase(std::remove(input.begin(), input.end(), '\r'), input.end());
+    return input;
+}
+
+bool TryParseAddress(std::string input, Address32& out) {
+    input = StripLineBreaks(std::move(input));
+
+    auto trim = [](std::string& value) {
+        while (not value.empty() && std::isspace(static_cast<unsigned char>(value.front()))) {
+            value.erase(value.begin());
+        }
+        while (not value.empty() && std::isspace(static_cast<unsigned char>(value.back()))) {
+            value.pop_back();
+        }
+    };
+
+    trim(input);
+    if (input.empty()) {
+        return false;
+    }
+
+    if ((input.size() > 2U) && input[0] == '0' && (input[1] == 'x' || input[1] == 'X')) {
+        input.erase(0, 2U);
+    }
+
+    if (input.empty()) {
+        return false;
+    }
+
+    for (char c : input) {
+        if (not std::isxdigit(static_cast<unsigned char>(c))) {
+            return false;
+        }
+    }
+
+    try {
+        const auto parsed = std::stoull(input, nullptr, 16);
+        if (parsed > static_cast<unsigned long long>(std::numeric_limits<Address32>::max())) {
+            return false;
+        }
+        out = static_cast<Address32>(parsed);
+        return true;
+    } catch (...) {
+        return false;
+    }
+}
+
+std::string FormatMemoryByte(isa::Processor const& cpu, Address32 address) {
+    uint32_t value = 0U;
+    if (not cpu.Peek(static_cast<isa::Address>(address), value)) {
+        return "--";
+    }
+
+    std::ostringstream stream;
+    stream << std::uppercase << std::hex << std::setfill('0') << std::setw(2) << (value & 0xFFU);
+    return stream.str();
+}
+
+std::string FormatMemoryRow(isa::Processor const& cpu, Address32 row_base_address) {
+    std::ostringstream stream;
+    stream << FormatAddressHex(row_base_address) << ": ";
+
+    for (size_t i = 0; i < kMemoryBytesPerRow; ++i) {
+        Address32 address = 0;
+        if (TryAddAddress(row_base_address, i, address)) {
+            stream << FormatMemoryByte(cpu, address);
+        } else {
+            stream << "--";
+        }
+
+        if (i + 1U < kMemoryBytesPerRow) {
+            stream << ((i % 4U == 3U) ? "  " : " ");
+        }
+    }
+
+    return stream.str();
+}
+
 }  // namespace
 
 int main(int argc, char* argv[]) {
-    isa::MemoryBus bus0{0U, isa::Range{0x00000000, 0x0000FFFF}};
-    isa::MemoryBus bus1{1U, isa::Range{0x00010000, 0x0001FFFF}};
-    isa::Processor cpu; // resets internally
+    (void)argc;
+    (void)argv;
+
+    isa::Processor cpu;  // resets internally
 
     // Start "Config"
 
-    isa::TightlyCoupledMemory sram0{isa::Range{0x10000000, 0x1000FFFF}}; // 64KB SRAM
+    isa::TightlyCoupledMemory sram0{isa::Range{0x10000000, 0x1000FFFF}};  // 64KB SRAM
     cpu.AddTightlyCoupledMemory(sram0);
 
     // Start "Loader"
@@ -65,6 +190,35 @@ int main(int argc, char* argv[]) {
 
     // End "Loader"
 
+    (void)demo_program;
+
+    constexpr Address32 kSramStartAddress = static_cast<Address32>(isa::memory::Map[2].range.start);
+    Address32 memory_base_address = kSramStartAddress;
+    std::string memory_base_input = FormatAddressHex(memory_base_address);
+    std::string memory_view_status = "Enter base address (hex) and press Enter";
+
+    const auto update_memory_base_input = [&] {
+        memory_base_input = FormatAddressHex(memory_base_address);
+        memory_view_status = "Viewing from " + memory_base_input;
+    };
+
+    InputOption memory_base_input_options;
+    memory_base_input_options.multiline = false;
+    memory_base_input_options.on_enter = [&] {
+        memory_base_input = StripLineBreaks(memory_base_input);
+
+        Address32 parsed = 0;
+        if (TryParseAddress(memory_base_input, parsed)) {
+            memory_base_address = parsed;
+            update_memory_base_input();
+        } else {
+            memory_view_status = "Invalid address, expected hexadecimal value";
+        }
+    };
+
+    Component memory_base_input_component = Input(&memory_base_input, "0x10000000", memory_base_input_options);
+    Component controls = Container::Vertical({memory_base_input_component});
+
     auto screen = ScreenInteractive::TerminalOutput();
 
     const auto asm_panel = [] {
@@ -79,33 +233,44 @@ int main(int argc, char* argv[]) {
     const auto registers_panel = [&cpu] {
         const auto scratch_rows = isa::FormatScratchRegisterRows(cpu);
         const auto special_rows = isa::FormatSpecialRegisterRows(cpu);
-        return window(text(" Registers "),
-                      hbox({
-                          vbox({
-                              text("Scratch"),
-                              separator(),
-                              vbox(BuildRegisterColumn(scratch_rows)) | flex,
-                          })
-                              | flex,
-                          separator(),
-                          vbox({
-                              text("Special"),
-                              separator(),
-                              vbox(BuildRegisterColumn(special_rows)) | flex,
-                          })
-                              | flex,
-                      }) | flex);
+        return window(text(" Registers "), hbox({
+                                               vbox({
+                                                   text("Scratch"),
+                                                   separator(),
+                                                   vbox(BuildRegisterColumn(scratch_rows)) | flex,
+                                               }) | flex,
+                                               separator(),
+                                               vbox({
+                                                   text("Special"),
+                                                   separator(),
+                                                   vbox(BuildRegisterColumn(special_rows)) | flex,
+                                               }) | flex,
+                                           }) | flex);
     };
 
-    const auto memory_panel = [] {
-        return window(text(" Memory "), vbox({
-                                            text("0x1000: 11 00 00 00  2A 00 00 00  FF 7F 00 00  00 00 00 00"),
-                                            text("0x1010: 08 00 10 00  0C 00 10 00  18 00 00 00  00 00 00 00"),
-                                            text("0x1020: 4D 4F 56 20  52 31 2C 20  23 31 30 00  00 00 00 00"),
-                                        }) | flex);
+    const auto memory_panel = [&](int memory_height) {
+        Elements rows;
+        rows.push_back(hbox({text("Base: "), memory_base_input_component->Render() | flex}));
+        rows.push_back(text(memory_view_status));
+        rows.push_back(text("Use Up/Down/PageUp/PageDown/Home to move view"));
+        rows.push_back(separator());
+
+        const int visible_rows = std::max(1, memory_height - 5);
+        for (int row = 0; row < visible_rows; ++row) {
+            Address32 row_address = 0;
+            const size_t row_offset = static_cast<size_t>(row) * kMemoryBytesPerRow;
+            if (TryAddAddress(memory_base_address, row_offset, row_address)) {
+                rows.push_back(text(FormatMemoryRow(cpu, row_address)));
+            } else {
+                rows.push_back(
+                    text(FormatAddressHex(std::numeric_limits<Address32>::max()) + ": " + kUnavailableMemoryCells));
+            }
+        }
+
+        return window(text(" Memory "), vbox(std::move(rows)) | flex);
     };
 
-    auto app = Renderer([&] {
+    auto app = Renderer(controls, [&] {
         const auto dimensions = Terminal::Size();
         const int container_height = std::max(8, dimensions.dimy - 2);
         const int top_height = std::max(3, (container_height * 2) / 3);
@@ -121,10 +286,56 @@ int main(int argc, char* argv[]) {
         return vbox({
                    top_row | size(HEIGHT, EQUAL, top_height),
                    separator(),
-                   memory_panel() | size(HEIGHT, EQUAL, memory_height),
+                   memory_panel(memory_height) | size(HEIGHT, EQUAL, memory_height),
                })
                | border | flex;
     });
+
+    app = CatchEvent(app, [&](Event event) {
+        if (event == Event::Return) {
+            memory_base_input = StripLineBreaks(memory_base_input);
+
+            Address32 parsed = 0;
+            if (TryParseAddress(memory_base_input, parsed)) {
+                memory_base_address = parsed;
+                update_memory_base_input();
+            } else {
+                memory_view_status = "Invalid address, expected hexadecimal value";
+            }
+            return true;
+        }
+
+        const size_t row_step = kMemoryBytesPerRow;
+        const size_t page_step = kMemoryBytesPerRow * kMemoryPageRows;
+
+        if (event == Event::ArrowUp) {
+            memory_base_address = SaturatingAddressSub(memory_base_address, row_step);
+            update_memory_base_input();
+            return true;
+        }
+        if (event == Event::ArrowDown) {
+            memory_base_address = SaturatingAddressAdd(memory_base_address, row_step);
+            update_memory_base_input();
+            return true;
+        }
+        if (event == Event::PageUp) {
+            memory_base_address = SaturatingAddressSub(memory_base_address, page_step);
+            update_memory_base_input();
+            return true;
+        }
+        if (event == Event::PageDown) {
+            memory_base_address = SaturatingAddressAdd(memory_base_address, page_step);
+            update_memory_base_input();
+            return true;
+        }
+        if (event == Event::Home) {
+            memory_base_address = kSramStartAddress;
+            update_memory_base_input();
+            return true;
+        }
+        return false;
+    });
+
     screen.Loop(app);
     return 0;
 }

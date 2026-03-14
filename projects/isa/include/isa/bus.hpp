@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <cstddef>
 #include <type_traits>
-#include <array>
+#include <vector>
 
 #include <isa/types.hpp>
 
@@ -50,7 +50,10 @@ public:
 
     /// Constructs a Memory that responds to the given Range
     /// @note Does not initialize memory! Client Program in Emulation is responsible for that.
-    constexpr Memory(Range r) : range_{r}, data_{} {
+    explicit Memory(Range r)
+        : range_{r}
+        , data_(static_cast<size_t>((r.Size() + sizeof(typename Attributes::AddressableUnitType) - 1U)
+                                    / sizeof(typename Attributes::AddressableUnitType))) {
     }
 
     /// Views the valid range for this memory
@@ -70,14 +73,15 @@ public:
         return data_[index];
     }
 
-    /// [Debug] the Peek at the Raw Memory Data by index. This is useful for unit tests to validate the address calculations.
+    /// [Debug] the Peek at the Raw Memory Data by index. This is useful for unit tests to validate the address
+    /// calculations.
     typename Attributes::AddressableUnitType const& Peek(size_t index) const {
         return data_[index];
     }
 
 protected:
     Range range_;
-    std::array<typename Attributes::AddressableUnitType, Attributes::CountOfAddressableUnits> data_;
+    std::vector<typename Attributes::AddressableUnitType> data_;
 };
 
 using TightlyCoupledMemory = Memory<TightlyCoupledBusAttributes>;
@@ -160,14 +164,30 @@ public:
         }
         // ensure no overlap with existing memories
         for (auto const& attached_memory : attached_memories_) {
-            if (attached_memory->ViewRange().Contains(memory_range) or
-                memory_range.Contains(attached_memory->ViewRange())) {
+            if (attached_memory->ViewRange().Contains(memory_range)
+                or memory_range.Contains(attached_memory->ViewRange())) {
                 return false;
             }
         }
         // all good, attach it
         attached_memories_.push_back(&memory);
         return true;
+    }
+
+    /// [DEBUG] Allows a Peek into the bus. Will not cause fault but will return true/false for a valid address or not.
+    bool Peek(Address address, typename Attributes::AddressableUnitType& value) const {
+        if (not range_.Contains(address)) {
+            return false;
+        }
+
+        for (auto& memory : attached_memories_) {
+            if (not memory->ViewRange().Contains(address)) {
+                continue;
+            }
+            value = (*memory)[address];
+            return true;
+        }
+        return false;
     }
 
 protected:

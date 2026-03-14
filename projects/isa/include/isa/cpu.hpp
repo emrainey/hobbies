@@ -1,6 +1,9 @@
 #pragma once
 
-#include <isa/isa.hpp>
+#include <isa/types.hpp>
+#include <isa/instructions.hpp>
+#include <isa/bus.hpp>
+#include <isa/map.hpp>
 
 namespace isa {
 
@@ -38,7 +41,11 @@ using DCache = std::array<CacheLine, 1024>;
 /// A simple CPU Processor class
 class Processor {
 public:
-    Processor() = default;
+    /// Default Constructor
+    Processor() : sram_bus_{0, Range{isa::memory::Map[2].range.start, isa::memory::Map[2].range.limit}} {
+        Reset();
+    }
+
     ~Processor() = default;
 
     /// The read-only view of the scratch registers
@@ -91,12 +98,28 @@ public:
         return data_cache_;
     }
 
+    /// Resets the CPU to default state
+    void Reset() {
+        instruction_cache_.fill(instructions::Instruction{instructions::NoOp{}});
+        data_cache_.fill(CacheLine{});
+        scratch_.fill(isa::word<32>{0});
+        evaluation_.fill(isa::Evaluation{});
+        special_ = Special{};
+    }
+
+    /// Allows attaching memories to the memory bus of the CPU
+    bool AddTightlyCoupledMemory(TightlyCoupledMemory& memory) {
+        return sram_bus_.Attach(memory, memory.ViewRange());
+    }
+
 protected:
     ICache instruction_cache_;
     DCache data_cache_;
     Scratch scratch_;
     Evaluations evaluation_;
     Special special_;
+    TightlyCoupledBus sram_bus_;
+    // PeripheralMemoryBus peripheral_bus_;
 };
 
 }  // namespace isa

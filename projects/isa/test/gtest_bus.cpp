@@ -44,3 +44,49 @@ TEST(BusTest, WriteUnassignedFault) {
     bus.Write(0x00010000U, data);  // Out of range address
     ::testing::Mock::VerifyAndClearExpectations(&listener);
 }
+
+TEST(BusTest, AttachMemoryInitializeAndExerciseFaultCallbacks) {
+    constexpr Address kBusStart = 0x00001000U;
+    constexpr Address kBusEnd = 0x0000100FU;
+    constexpr Address kAlignedAddress = 0x00001000U;
+    constexpr Address kUnalignedAddress = 0x00001001U;
+    constexpr Address kUnassignedAddress = 0x00002000U;
+
+    TestBus bus{0xBEEFU, Range{kBusStart, kBusEnd}};
+    Memory<TestingAttributes> memory{Range{kAlignedAddress, kAlignedAddress}};
+    MockBusListener listener;
+
+    ASSERT_TRUE(bus.Attach(memory, memory.ViewRange()));
+    bus.Register(&listener);
+
+    TestBus::Attributes::AddressableUnitType initial_data[TestBus::Attributes::CountOfAddressableUnits] = {};
+    for (size_t i = 0; i < TestBus::Attributes::CountOfAddressableUnits; ++i) {
+        initial_data[i] = static_cast<TestBus::Attributes::AddressableUnitType>(0xA0U + i);
+    }
+
+    {
+        testing::InSequence sequence;
+        EXPECT_CALL(listener,
+                    OnEvent(testing::Ref(bus), kAlignedAddress, TestBus::State::Fetch, TestBus::Events::WriteStarted));
+        EXPECT_CALL(listener,
+                    OnEvent(testing::Ref(bus), kAlignedAddress, TestBus::State::Idle, TestBus::Events::WriteCompleted));
+    }
+    bus.Write(kAlignedAddress, initial_data);
+
+    for (size_t i = 0; i < TestBus::Attributes::CountOfAddressableUnits; ++i) {
+        EXPECT_EQ(initial_data[i], memory.Peek(i));
+    }
+    ::testing::Mock::VerifyAndClearExpectations(&listener);
+
+    EXPECT_CALL(listener,
+                OnEvent(testing::Ref(bus), kUnalignedAddress, TestBus::State::Fault, TestBus::Events::UnalignedFault))
+        .Times(2);
+    EXPECT_CALL(listener,
+                OnEvent(testing::Ref(bus), kUnassignedAddress, TestBus::State::Fault, TestBus::Events::UnassignedFault))
+        .Times(2);
+
+    bus.Write(kUnalignedAddress, initial_data);
+    bus.Read(kUnalignedAddress);
+    bus.Write(kUnassignedAddress, initial_data);
+    bus.Read(kUnassignedAddress);
+}

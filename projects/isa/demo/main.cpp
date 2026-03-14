@@ -29,7 +29,14 @@ Elements BuildRegisterColumn(RegisterRows const& rows) {
 int main(int argc, char* argv[]) {
     isa::MemoryBus bus0{0U, isa::Range{0x00000000, 0x0000FFFF}};
     isa::MemoryBus bus1{1U, isa::Range{0x00010000, 0x0001FFFF}};
-    isa::Processor cpu;
+    isa::Processor cpu; // resets internally
+
+    // Start "Config"
+
+    isa::TightlyCoupledMemory sram0{isa::Range{0x10000000, 0x1000FFFF}}; // 64KB SRAM
+    cpu.AddTightlyCoupledMemory(sram0);
+
+    // Start "Loader"
 
     auto& scratch = cpu.GetScratch();
     scratch[0] = isa::word<32>{0x00001000U};
@@ -55,6 +62,8 @@ int main(int argc, char* argv[]) {
         isa::instructions::Instruction{isa::instructions::MoveImmediateToScratch{
             isa::Operand{isa::OperandType::Scratch, 3}, isa::Immediate<20>{0x12345}}},
     };
+
+    // End "Loader"
 
     auto screen = ScreenInteractive::TerminalOutput();
 

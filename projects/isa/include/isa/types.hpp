@@ -181,10 +181,17 @@ struct Range {
     Address start;  ///< Inclusive Start Value
     Address limit;  ///< Inclusive End Value
 
+    /// Checks to see if an address is contained in this range.
     constexpr bool Contains(Address addr) const {
         return (start <= addr) and (addr <= limit);
     }
 
+    /// Checks to see if a Range is fully contained in this range.
+    constexpr bool Contains(Range const& r) const {
+        return (start <= r.start) and (r.limit <= limit);
+    }
+
+    /// Returns the minimum type-addressable unit count of this range (i.e. bytes).
     constexpr size_t Size() const {
         return static_cast<size_t>(limit - start + 1);
     }

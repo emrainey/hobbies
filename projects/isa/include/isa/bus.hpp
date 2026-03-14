@@ -37,6 +37,7 @@ public:
                                               std::conditional_t<WidthInUnits == 8, std::uint64_t, void>>>>;
 };
 
+using TightlyCoupledBusAttributes = BusAttributes<32, 8, 1>;
 using MemoryBusAttributes = BusAttributes<64, 8, 1>;
 using PeripheralBusAttributes = BusAttributes<32, 32, 1>;
 
@@ -49,18 +50,37 @@ public:
 
     /// Constructs a Memory that responds to the given Range
     /// @note Does not initialize memory! Client Program in Emulation is responsible for that.
-    constexpr Memory(Range r) : range_{r} {
+    constexpr Memory(Range r) : range_{r}, data_{} {
     }
 
-    /// Determines if the given address is contained within the memory range
-    constexpr bool Contains(Address address) const {
-        return range_.Contains(address);
+    /// Views the valid range for this memory
+    Range const& ViewRange() const {
+        return range_;
+    }
+
+    /// Accesses the data at the given address, returning the minimum addressable unit set
+    typename Attributes::AddressableUnitType& operator[](Address address) {
+        size_t index = static_cast<size_t>(address - range_.start) / sizeof(typename Attributes::AddressableUnitType);
+        return data_[index];
+    }
+
+    /// Read-only access to the data at the given address, returning the const minimum addressable unit set
+    typename Attributes::AddressableUnitType const& operator[](Address address) const {
+        size_t index = static_cast<size_t>(address - range_.start) / sizeof(typename Attributes::AddressableUnitType);
+        return data_[index];
+    }
+
+    /// [Debug] the Peek at the Raw Memory Data by index. This is useful for unit tests to validate the address calculations.
+    typename Attributes::AddressableUnitType const& Peek(size_t index) const {
+        return data_[index];
     }
 
 protected:
     Range range_;
+    std::array<typename Attributes::AddressableUnitType, Attributes::CountOfAddressableUnits> data_;
 };
 
+using TightlyCoupledMemory = Memory<TightlyCoupledBusAttributes>;
 using MainMemory = Memory<MemoryBusAttributes>;
 using PeripheralMemory = Memory<PeripheralBusAttributes>;
 
@@ -72,7 +92,7 @@ public:
     using Attributes = BUS_ATTRIBUTES;
 
     /// Constructs a Bus that responds to the given Range
-    constexpr Bus(size_t index, Range r) : index_{index}, listener_{nullptr}, range_{r} {
+    constexpr Bus(size_t index, Range r) : index_{index}, listener_{nullptr}, range_{r}, attached_memories_{} {
     }
 
     /// A write operation on the Bus
@@ -132,6 +152,24 @@ public:
     /// The index given to the bus at construction
     size_t const& GetIndex() const;
 
+    /// Attaches a memory to a sub range (up to the full range) of the bus.
+    /// @return Returns false if the memory range is not contained within the bus range.
+    bool Attach(Memory<BUS_ATTRIBUTES>& memory, Range const& memory_range) {
+        if (not range_.Contains(memory_range)) {
+            return false;
+        }
+        // ensure no overlap with existing memories
+        for (auto const& attached_memory : attached_memories_) {
+            if (attached_memory->ViewRange().Contains(memory_range) or
+                memory_range.Contains(attached_memory->ViewRange())) {
+                return false;
+            }
+        }
+        // all good, attach it
+        attached_memories_.push_back(&memory);
+        return true;
+    }
+
 protected:
     /// The Bus Index used to delineate transactions
     size_t index_;
@@ -139,9 +177,17 @@ protected:
     Listener* listener_{nullptr};
     /// The valid addressable range
     Range range_;
+    /// The set of all attached memories on this bus.
+    std::vector<Memory<BUS_ATTRIBUTES>*> attached_memories_;
 };
 
+/// A Tightly Coupled Memory Bus can access on a word boundary
+using TightlyCoupledBus = Bus<TightlyCoupledBusAttributes>;
+
+/// A Main Memory Bus can access on a 64 bit boundary
 using MemoryBus = Bus<MemoryBusAttributes>;
+
+/// A periperhal bus can ONLY access data on a 32 bit boundary
 using PeripheralBus = Bus<PeripheralBusAttributes>;
 
 }  // namespace isa

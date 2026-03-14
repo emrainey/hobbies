@@ -100,17 +100,24 @@ struct Operand {
 
 namespace instructions {
 
+/// The base instruction class allows copy/move semantics
 class Base {
 public:
     Base() : op{Operator::None} {
     }
+
+    Base(Base const&) = default;
+    Base(Base&&) = default;
+    Base& operator=(Base const&) = default;
+    Base& operator=(Base&&) = default;
+
     Operator operator()() const {
         return op;
     }
 
 protected:
     Operator op : 8;
-    uint32_t : 24;
+    uint32_t arg : 24;
 };
 
 class NoOp {
@@ -166,12 +173,29 @@ protected:
 };
 
 union Instruction {
-    constexpr Instruction() : noop{} {
+    /// Default Constructor
+    constexpr Instruction() : noop{} {}
+    /// Copy Constructor
+    constexpr Instruction(Instruction const& other) : base{other.base} {}
+    /// Move Constructor
+    constexpr Instruction(Instruction&& other) : base{std::move(other.base)} {}
+    /// Copy Assignment
+    Instruction& operator=(Instruction const& other) {
+        base = other.base;
+        return *this;
     }
+    /// Move Assignment
+    Instruction& operator=(Instruction&& other) {
+        base = std::move(other.base);
+        return *this;
+    }
+    /// Typed Constructor
     constexpr Instruction(NoOp) : noop{} {
     }
+    /// Typed Constructor
     constexpr Instruction(MoveScratchToScratch m) : moves2s{m} {
     }
+    /// Typed Constructor
     constexpr Instruction(MoveImmediateToScratch mi) : movis{mi} {
     }
     //=================================

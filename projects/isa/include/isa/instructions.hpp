@@ -195,9 +195,7 @@ static_assert(sizeof(Instruction) == sizeof(uint32_t), "Must be this size");
 
 }  // namespace instructions
 
+/// A program is an unbounded array of instructions as far as we know.
 using program = instructions::Instruction[];
-
-template <size_t COUNT>
-using icache = cache<instructions::Instruction, COUNT>;
 
 }  // namespace isa

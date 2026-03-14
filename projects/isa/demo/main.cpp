@@ -12,12 +12,13 @@ using namespace ftxui;
 
 namespace {
 
-Elements BuildScratchRegisterColumn(isa::ScratchRegisterRows const& rows, size_t start, size_t count) {
+template <typename RegisterRows>
+Elements BuildRegisterColumn(RegisterRows const& rows) {
     Elements column;
-    column.reserve(count);
+    column.reserve(rows.size());
 
-    for (size_t index = start; index < (start + count); ++index) {
-        column.push_back(text(rows[index]));
+    for (auto const& row : rows) {
+        column.push_back(text(row));
     }
 
     return column;
@@ -29,12 +30,23 @@ int main(int argc, char* argv[]) {
     isa::MemoryBus bus0{0U, isa::Range{0x00000000, 0x0000FFFF}};
     isa::MemoryBus bus1{1U, isa::Range{0x00010000, 0x0001FFFF}};
     isa::Processor cpu;
+
     auto& scratch = cpu.GetScratch();
     scratch[0] = isa::word<32>{0x00001000U};
     scratch[1] = isa::word<32>{0x00000010U};
     scratch[2] = isa::word<32>{0x00000011U};
     scratch[3] = isa::word<32>{0x00012345U};
     scratch[4] = isa::word<32>{0xABCDEF01U};
+
+    auto& special = cpu.GetSpecial();
+    special.program_address_ = static_cast<isa::Address>(0x0000000000000008UL);
+    special.return_address_ = static_cast<isa::Address>(0x0000000000000010UL);
+    special.stack_.limit = static_cast<isa::Address>(0x0000000010000000UL);
+    special.stack_.current = static_cast<isa::Address>(0x000000000FFFFFF0UL);
+    special.stack_.base = static_cast<isa::Address>(0x000000000FFF0000UL);
+    special.exception_stack_.limit = static_cast<isa::Address>(0x0000000011000000UL);
+    special.exception_stack_.current = static_cast<isa::Address>(0x0000000010FFFF00UL);
+    special.exception_stack_.base = static_cast<isa::Address>(0x0000000010FF0000UL);
 
     isa::program demo_program = {
         isa::instructions::Instruction{isa::instructions::NoOp{}},
@@ -56,12 +68,23 @@ int main(int argc, char* argv[]) {
     };
 
     const auto registers_panel = [&cpu] {
-        const auto rows = isa::FormatScratchRegisterRows(cpu);
-        return window(text(" Scratch Registers "),
+        const auto scratch_rows = isa::FormatScratchRegisterRows(cpu);
+        const auto special_rows = isa::FormatSpecialRegisterRows(cpu);
+        return window(text(" Registers "),
                       hbox({
-                          vbox(BuildScratchRegisterColumn(rows, 0, rows.size() / 2)) | flex,
+                          vbox({
+                              text("Scratch"),
+                              separator(),
+                              vbox(BuildRegisterColumn(scratch_rows)) | flex,
+                          })
+                              | flex,
                           separator(),
-                          vbox(BuildScratchRegisterColumn(rows, rows.size() / 2, rows.size() / 2)) | flex,
+                          vbox({
+                              text("Special"),
+                              separator(),
+                              vbox(BuildRegisterColumn(special_rows)) | flex,
+                          })
+                              | flex,
                       }) | flex);
     };
 

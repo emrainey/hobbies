@@ -131,8 +131,6 @@ static_assert(log2(1U << 1U) == 1U, "Must be this value exactly");
 static_assert(log2(1U << 3U) == 3U, "Must be this value exactly");
 static_assert(log2(1U << 19U) == 19U, "Must be this value exactly");
 
-template <size_t COUNT>
-using scratch = word<32>[COUNT];
 
 /// An index over a COUNT of items.
 template <size_t BITS>
@@ -175,17 +173,6 @@ struct Immediate {
         return os;
     }
 };
-
-template <size_t KILO>
-using memory = uint8_t[KILO * 1024];
-
-template <typename UNIT, size_t COUNT>
-using cache = UNIT[COUNT];
-
-using line = uint8_t[8];
-
-template <size_t COUNT>
-using dcache = cache<line, COUNT>;
 
 /// The memory range that this Bus should respond to.
 struct Range {

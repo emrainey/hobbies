@@ -4,11 +4,131 @@
 #include <cstddef>
 #include <type_traits>
 #include <iostream>
+#include <iomanip>
+#include <sstream>
 
 namespace isa {
 
-/// 32 bit address space
-using Address = unsigned long;
+constexpr static size_t CountOfRegisters = 16;
+constexpr static size_t CountOfDataBits = 32;
+constexpr static size_t CountOfUnitsPerCacheLine = 16;
+
+/// 32 bit address representation for the ISA
+/// In order to keep the notion of a 32 bit pointer separated from the
+/// platform's notion of a pointer, we use a struct wrapper around a
+/// uint32_t to represent addresses in the ISA.
+struct Address {
+    using StorageType = std::enable_if_t<CountOfDataBits == 32, uint32_t>;
+
+    /// The storage of addresses
+    StorageType value{0};
+
+    /// Truncating Constructor!
+    /// @warning This constructor will truncate the input value to 32 bits, which may cause loss of information if the input value exceeds 32 bits. Use with caution!
+    constexpr Address(unsigned long long int v) : value(static_cast<StorageType>(v)) {
+    }
+
+    constexpr StorageType operator()() const {
+        return value;
+    }
+
+    constexpr explicit operator StorageType() const {
+        return value;
+    }
+
+    constexpr explicit operator uint64_t() const {
+        // upcasting is safe and does not lose precision.
+        return static_cast<uint64_t>(value);
+    }
+
+    constexpr explicit operator size_t() const {
+        // this may upcast to a 64 bit value on 64 bit platforms, but
+        // that's fine since it's only used for calculations and comparisons, not for actual memory access.
+        return static_cast<size_t>(value);
+    }
+
+    constexpr Address& operator=(size_t v) {
+        value = static_cast<StorageType>(v);
+        return *this;
+    }
+
+    constexpr Address& operator=(StorageType v) {
+        value = v;
+        return *this;
+    }
+
+    constexpr bool operator==(Address const& other) const {
+        return value == other.value;
+    }
+
+    constexpr bool operator!=(Address const& other) const {
+        return not operator==(other);
+    }
+
+    constexpr bool operator<(Address const& other) const {
+        return value < other.value;
+    }
+
+    constexpr bool operator<=(Address const& other) const {
+        return value <= other.value;
+    }
+
+    constexpr bool operator>(Address const& other) const {
+        return value > other.value;
+    }
+
+    constexpr bool operator>=(Address const& other) const {
+        return value >= other.value;
+    }
+
+    constexpr Address operator+(Address const& other) const {
+        return Address{static_cast<StorageType>(value + other.value)};
+    }
+
+    constexpr Address operator-(Address const& other) const {
+        return Address{static_cast<StorageType>(value - other.value)};
+    }
+
+#define INTEGER_OPERATOR(op) \
+    template <typename INTEGER> \
+    constexpr Address operator op(INTEGER offset) const { \
+        static_assert(std::is_integral_v<INTEGER>, "Offset must be an integral type"); \
+        return Address{static_cast<StorageType>(value op offset)}; \
+    } \
+    template <typename INTEGER> \
+    constexpr Address& operator op##=(INTEGER offset) { \
+        static_assert(std::is_integral_v<INTEGER>, "Offset must be an integral type"); \
+        value op##= static_cast<StorageType>(offset); \
+        return *this; \
+    }
+
+    INTEGER_OPERATOR(+)
+    INTEGER_OPERATOR(-)
+
+#undef INTEGER_OPERATOR
+
+// Bitwise operators for Address
+#define SELF_OPERATOR(op) \
+    constexpr Address operator op(Address const& other) const { \
+        return Address{static_cast<StorageType>(value op other.value)}; \
+    } \
+    constexpr Address& operator op##=(Address const& other) { \
+        value op##= static_cast<StorageType>(other.value); \
+        return *this; \
+    }
+
+    SELF_OPERATOR(&)
+    SELF_OPERATOR(|)
+    SELF_OPERATOR(^)
+#undef SELF_OPERATOR
+//=================================================================================
+
+    friend std::ostream& operator<<(std::ostream& os, Address const& address) {
+        os << "0x" << std::hex << std::uppercase << std::setfill('0') << std::setw(sizeof(isa::Address) * 2U) << static_cast<isa::Address::StorageType>(address.value);
+        return os;
+    }
+};
+static_assert(sizeof(Address) == 4, "Address type must be 32 bits to support 32-bit address space");
 
 /// Used to store comparison results
 struct Evaluation {
@@ -117,7 +237,7 @@ union word {
     float as_float[SizeInBytes / sizeof(float)];
     Address as_address;  ///< Can only be 1 address in a word
 };
-static_assert(sizeof(word<__LONG_WIDTH__>) == sizeof(Address), "Must be the same size");
+static_assert(sizeof(word<32>) == sizeof(Address), "Must be the same size");
 
 /// Recursively computes a log2 input value.
 /// @param n The value to compute the log2 of
@@ -130,6 +250,10 @@ constexpr TYPE log2(TYPE value) {
 static_assert(log2(1U << 1U) == 1U, "Must be this value exactly");
 static_assert(log2(1U << 3U) == 3U, "Must be this value exactly");
 static_assert(log2(1U << 19U) == 19U, "Must be this value exactly");
+
+/// The number of bits needed to index a Scratch Register or Evaluation Register
+constexpr static size_t CountOfIndexBits{log2(CountOfRegisters)};
+constexpr static size_t CountOfDataShiftBits{log2(CountOfDataBits)};
 
 /// An index over a COUNT of items.
 template <size_t BITS>
@@ -150,8 +274,8 @@ struct index {
     }
 
     template <size_t _BITS>
-    friend std::ostream& operator<<(std::ostream& os, index<_BITS> imm) {
-        os << std::dec << imm.value;
+    friend std::ostream& operator<<(std::ostream& os, index<_BITS> index) {
+        os << std::dec << index.value;
         return os;
     }
 };
@@ -181,7 +305,7 @@ struct Range {
     Address limit;  ///< Inclusive End Value
 
     /// Checks to see if an address is contained in this range.
-    constexpr bool Contains(Address addr) const {
+    constexpr bool Contains(Address const& addr) const {
         return (start <= addr) and (addr <= limit);
     }
 
@@ -192,7 +316,8 @@ struct Range {
 
     /// Returns the minimum type-addressable unit count of this range (i.e. bytes).
     constexpr size_t Size() const {
-        return static_cast<size_t>(limit - start + 1);
+        return static_cast<size_t>(limit - start + 1U);
     }
 };
+
 }  // namespace isa

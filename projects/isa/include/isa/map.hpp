@@ -78,8 +78,8 @@ constexpr static Address NullRegion{
     65536};  /// The space of unmapped address to catch null pointer derefs of structures, etc.
 
 constexpr static Mapping Map[] = {
-    Mapping{Range{0x00000000, NullRegion - 1}, Type::Unmapped,
-            attributes::None},  // Unmapped (bottom is intentionally unmapped to allow null pointer hard faults)
+    // Unmapped (bottom is intentionally unmapped to allow null pointer hard faults)
+    Mapping{Range{0x00000000, NullRegion - 1U}, Type::Unmapped, attributes::None},
     Mapping{Range{NullRegion, 0x0FFFFFFF}, Type::ROM, ExecuteRead},            // ROM
     Mapping{Range{0x10000000, 0x1FFFFFFF}, Type::RAM, ExecReadWrite},          // RAM
     Mapping{Range{0x20000000, 0x3FFFFFFF}, Type::Unmapped, attributes::None},  // Unmapped

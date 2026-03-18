@@ -1,3 +1,5 @@
+#include <basal/basal.hpp>
+#include <basal/options.hpp>
 #include <isa/isa.hpp>
 
 #include <ftxui/component/component.hpp>
@@ -9,10 +11,12 @@
 #include <algorithm>
 #include <cctype>
 #include <cstdint>
+#include <filesystem>
 #include <iomanip>
 #include <limits>
 #include <sstream>
 #include <string>
+#include <vector>
 
 using namespace ftxui;
 
@@ -20,6 +24,7 @@ namespace {
 
 constexpr size_t kMemoryBytesPerRow = 16U;
 constexpr size_t kMemoryPageRows = 8U;
+constexpr size_t kConsoleMaxLines = 128U;
 constexpr char kUnavailableMemoryCells[] = "-- -- -- --  -- -- -- --  -- -- -- --  -- -- -- --";
 using Address32 = std::uint32_t;
 
@@ -151,8 +156,12 @@ std::string FormatMemoryRow(isa::Processor const& cpu, Address32 row_base_addres
 }  // namespace
 
 int main(int argc, char* argv[]) {
-    (void)argc;
-    (void)argv;
+    basal::options::config opts[] = {
+        {"-d", "--dir", std::string("."), "Directory for saving/loading CPU state"},
+    };
+
+    basal::options::process(basal::dimof(opts), opts, argc, argv);
+    const std::filesystem::path state_directory = std::get<std::string>(opts[0].value);
 
     isa::Processor cpu;  // resets internally
 
@@ -171,14 +180,14 @@ int main(int argc, char* argv[]) {
     scratch[4] = isa::word<32>{0xABCDEF01U};
 
     auto& special = cpu.GetSpecial();
-    special.program_address_ = static_cast<isa::Address>(0x0000000000000008UL);
-    special.return_address_ = static_cast<isa::Address>(0x0000000000000010UL);
-    special.stack_.limit = static_cast<isa::Address>(0x0000000010000000UL);
-    special.stack_.current = static_cast<isa::Address>(0x000000000FFFFFF0UL);
-    special.stack_.base = static_cast<isa::Address>(0x000000000FFF0000UL);
-    special.exception_stack_.limit = static_cast<isa::Address>(0x0000000011000000UL);
-    special.exception_stack_.current = static_cast<isa::Address>(0x0000000010FFFF00UL);
-    special.exception_stack_.base = static_cast<isa::Address>(0x0000000010FF0000UL);
+    special.program_address_ = isa::Address{0x00000008UL};
+    special.return_address_ = isa::Address{0x00000010UL};
+    special.stack_.limit = isa::Address{0x10000000UL};
+    special.stack_.current = isa::Address{0x0FFFFFF0UL};
+    special.stack_.base = isa::Address{0x0FFF0000UL};
+    special.exception_stack_.limit = isa::Address{0x11000000UL};
+    special.exception_stack_.current = isa::Address{0x10FFFF00UL};
+    special.exception_stack_.base = isa::Address{0x10FF0000UL};
 
     isa::program demo_program = {
         isa::instructions::Instruction{isa::instructions::NoOp{}},
@@ -187,6 +196,11 @@ int main(int argc, char* argv[]) {
         isa::instructions::Instruction{isa::instructions::MoveImmediateToScratch{
             isa::Operand{isa::OperandType::Scratch, 3}, isa::Immediate<20>{0x12345}}},
     };
+    // copy the instruction to SRAM
+    for (size_t i = 0; i < basal::dimof(demo_program); ++i) {
+        cpu.Poke(isa::Address{0x10000000UL + i * sizeof(isa::instructions::Instruction)},
+                 demo_program[i].raw);
+    }
 
     // End "Loader"
 
@@ -196,10 +210,51 @@ int main(int argc, char* argv[]) {
     Address32 memory_base_address = kSramStartAddress;
     std::string memory_base_input = FormatAddressHex(memory_base_address);
     std::string memory_view_status = "Enter base address (hex) and press Enter";
+    std::vector<std::string> console_lines = {
+        "Console ready",
+        "State directory: " + state_directory.string(),
+        "Press s to save, l to load",
+    };
+
+    const auto push_console_line = [&](std::string const& line) {
+        console_lines.push_back(line);
+        if (console_lines.size() > kConsoleMaxLines) {
+            console_lines.erase(
+                console_lines.begin(),
+                console_lines.begin() + static_cast<std::ptrdiff_t>(console_lines.size() - kConsoleMaxLines));
+        }
+    };
 
     const auto update_memory_base_input = [&] {
         memory_base_input = FormatAddressHex(memory_base_address);
         memory_view_status = "Viewing from " + memory_base_input;
+    };
+
+    const auto update_persistence_status = [&](isa::PersistenceReport const& report) {
+        push_console_line(report.summary);
+        for (auto const& file_name : report.files) {
+            push_console_line("  " + file_name);
+        }
+    };
+
+    const auto save_cpu_state = [&] {
+        std::error_code error;
+        std::filesystem::create_directories(state_directory, error);
+        if (error) {
+            push_console_line("Save failed: could not create " + state_directory.string());
+            return;
+        }
+
+        update_persistence_status(cpu.Save(state_directory.string()));
+    };
+
+    const auto load_cpu_state = [&] {
+        auto const report = cpu.Load(state_directory.string());
+        update_persistence_status(report);
+        if (report.success) {
+            update_memory_base_input();
+            memory_view_status = "Loaded state; viewing from " + memory_base_input;
+        }
     };
 
     InputOption memory_base_input_options;
@@ -252,10 +307,10 @@ int main(int argc, char* argv[]) {
         Elements rows;
         rows.push_back(hbox({text("Base: "), memory_base_input_component->Render() | flex}));
         rows.push_back(text(memory_view_status));
-        rows.push_back(text("Use Up/Down/PageUp/PageDown/Home to move view"));
+        rows.push_back(text("Keys: Up/Down/PageUp/PageDown/Home move view"));
         rows.push_back(separator());
 
-        const int visible_rows = std::max(1, memory_height - 5);
+        const int visible_rows = std::max(1, memory_height - static_cast<int>(rows.size()) - 1);
         for (int row = 0; row < visible_rows; ++row) {
             Address32 row_address = 0;
             const size_t row_offset = static_cast<size_t>(row) * kMemoryBytesPerRow;
@@ -268,6 +323,20 @@ int main(int argc, char* argv[]) {
         }
 
         return window(text(" Memory "), vbox(std::move(rows)) | flex);
+    };
+
+    const auto console_panel = [&](int panel_height) {
+        Elements rows;
+        rows.push_back(text("Keys: s save, l load"));
+        rows.push_back(separator());
+
+        const int visible_rows = std::max(1, panel_height - static_cast<int>(rows.size()) - 1);
+        const int start = std::max(0, static_cast<int>(console_lines.size()) - visible_rows);
+        for (size_t i = static_cast<size_t>(start); i < console_lines.size(); ++i) {
+            rows.push_back(text(console_lines[i]));
+        }
+
+        return window(text(" Console "), vbox(std::move(rows)) | flex);
     };
 
     auto app = Renderer(controls, [&] {
@@ -283,10 +352,17 @@ int main(int argc, char* argv[]) {
                              })
                              | flex;
 
+        const auto bottom_row = hbox({
+                                    memory_panel(memory_height) | flex,
+                                    separator(),
+                                    console_panel(memory_height) | size(WIDTH, GREATER_THAN, 28) | flex,
+                                })
+                                | flex;
+
         return vbox({
                    top_row | size(HEIGHT, EQUAL, top_height),
                    separator(),
-                   memory_panel(memory_height) | size(HEIGHT, EQUAL, memory_height),
+                   bottom_row | size(HEIGHT, EQUAL, memory_height),
                })
                | border | flex;
     });
@@ -302,6 +378,15 @@ int main(int argc, char* argv[]) {
             } else {
                 memory_view_status = "Invalid address, expected hexadecimal value";
             }
+            return true;
+        }
+
+        if (event == Event::Character("s") || event == Event::Character("S")) {
+            save_cpu_state();
+            return true;
+        }
+        if (event == Event::Character("l") || event == Event::Character("L")) {
+            load_cpu_state();
             return true;
         }
 

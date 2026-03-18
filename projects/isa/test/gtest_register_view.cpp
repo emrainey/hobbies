@@ -13,8 +13,7 @@ std::string AddressRow(char const* name, isa::Address value) {
     constexpr size_t special_value_width = sizeof(isa::Address) * 2U + 2U;
     std::ostringstream stream;
     std::ostringstream value_stream;
-    value_stream << "0x" << std::uppercase << std::hex << std::setfill('0') << std::setw(sizeof(isa::Address) * 2U)
-                 << value;
+    value_stream << value;
     stream << std::right << std::setw(special_name_width) << name << " : " << std::left
            << std::setw(special_value_width) << value_stream.str();
     return stream.str();
@@ -53,14 +52,14 @@ TEST(RegisterViewTest, SpecialRowsReflectProcessorSpecialRegisters) {
     isa::Processor cpu;
     auto& special = cpu.GetSpecial();
 
-    special.program_address_ = static_cast<isa::Address>(0x1110UL);
-    special.return_address_ = static_cast<isa::Address>(0x2220UL);
-    special.stack_.limit = static_cast<isa::Address>(0x3330UL);
-    special.stack_.current = static_cast<isa::Address>(0x4440UL);
-    special.stack_.base = static_cast<isa::Address>(0x5550UL);
-    special.exception_stack_.limit = static_cast<isa::Address>(0x6660UL);
-    special.exception_stack_.current = static_cast<isa::Address>(0x7770UL);
-    special.exception_stack_.base = static_cast<isa::Address>(0x8880UL);
+    special.program_address_ = 0x1111UL;
+    special.return_address_ = 0x2220UL;
+    special.stack_.limit = 0x3330UL;
+    special.stack_.current = 0x4440UL;
+    special.stack_.base = 0x5550UL;
+    special.exception_stack_.limit = 0x6660UL;
+    special.exception_stack_.current = 0x7770UL;
+    special.exception_stack_.base = 0x8880UL;
 
     auto const rows = isa::FormatSpecialRegisterRows(cpu);
 

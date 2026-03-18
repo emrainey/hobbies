@@ -5,6 +5,9 @@
 #include <isa/bus.hpp>
 #include <isa/map.hpp>
 
+#include <string>
+#include <vector>
+
 namespace isa {
 
 /// For declining stacks the stack starts at the limit - unit size and "grows" down.
@@ -25,27 +28,34 @@ struct Special {
 };
 
 /// The evaluation registers
-using Evaluations = std::array<Evaluation, 16>;
+using Evaluations = std::array<Evaluation, CountOfRegisters>;
 
 /// The scratch registers
-using Scratch = std::array<word<32>, 16>;
+using Scratch = std::array<word<CountOfDataBits>, CountOfRegisters>;
 
 /// The Instruction Cache
 using ICache = std::array<instructions::Instruction, 256>;
 
+/// The Cache Line Unit Type.
+using CacheLineUnit = uint8_t;
+
 /// A simple Instruction Cache
-using CacheLine = std::array<uint8_t, 16>;
+using CacheLine = std::array<CacheLineUnit, CountOfUnitsPerCacheLine>;
 
 /// The Data Cache
 using DCache = std::array<CacheLine, 1024>;
+
+struct PersistenceReport {
+    bool success{false};
+    std::string summary{};
+    std::vector<std::string> files{};
+};
 
 /// A simple CPU Processor class
 class Processor {
 public:
     /// Default Constructor
-    Processor() : sram_bus_{0, Range{isa::memory::Map[2].range.start, isa::memory::Map[2].range.limit}} {
-        Reset();
-    }
+    Processor();
 
     ~Processor() = default;
 
@@ -100,23 +110,22 @@ public:
     }
 
     /// Resets the CPU to default state
-    void Reset() {
-        instruction_cache_.fill(instructions::Instruction{instructions::NoOp{}});
-        data_cache_.fill(CacheLine{});
-        scratch_.fill(isa::word<32>{0});
-        evaluation_.fill(isa::Evaluation{});
-        special_ = Special{};
-    }
+    void Reset();
 
     /// Allows attaching memories to the memory bus of the CPU
-    bool AddTightlyCoupledMemory(TightlyCoupledMemory& memory) {
-        return sram_bus_.Attach(memory, memory.ViewRange());
-    }
+    bool AddTightlyCoupledMemory(TightlyCoupledMemory& memory);
 
     /// [DEBUG] Allows Peeking at ANY memory address across the entire system through the CPU's view
-    bool Peek(Address address, uint32_t& value) const {
-        return sram_bus_.Peek(address, value);
-    }
+    bool Peek(Address address, uint32_t& value) const;
+
+    /// [DEBUG] Allows Poking at ANY memory address across the entire system through the CPU's view
+    bool Poke(Address address, uint32_t value);
+
+    /// Saves all the CPU state information to different files in the given folder
+    PersistenceReport Save(std::string const& folder) const;
+
+    /// Loads all the CPU state information from different files in the given folder
+    PersistenceReport Load(std::string const& folder);
 
 protected:
     ICache instruction_cache_;
@@ -125,6 +134,7 @@ protected:
     Evaluations evaluation_;
     Special special_;
     TightlyCoupledBus sram_bus_;
+    std::vector<TightlyCoupledMemory*> tightly_coupled_memories_;
     // PeripheralMemoryBus peripheral_bus_;
 };
 

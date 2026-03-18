@@ -4,6 +4,8 @@
 #include <cstddef>
 #include <iostream>
 
+#include <isa/types.hpp>
+
 namespace isa {
 
 /// The operation code for an instruction
@@ -11,26 +13,21 @@ namespace isa {
 enum class Operator : uint32_t {
     None = 0,  ///< noop
     // === Movement within Files ===
-    MoveScratchToScratch,        ///< moves2s scratchDestination, scratchSource
-    MoveParameterToParameter,    ///< movep2p parameterDestination, parameterSource
-    MoveEvaluationToEvaluation,  ///< movee2e evaluationDestination, evaluationSource
+    MoveScratchToScratch,        ///< move scratchDestination, scratchSource
+    MoveEvaluationToEvaluation,  ///< move evaluationDestination, evaluationSource
 
-    MoveImmediateToScratch,     ///< movi2s scratchDestination, #imm<16>
-    MoveImmediateToParameter,   ///< movi2p parameterIndex, #imm<16>
-    MoveImmediateToEvaluation,  ///< movi2e evaluationIndex, #imm<16>
+    MoveImmediateToScratch,     ///< move immediate to scratch
+    MoveImmediateToEvaluation,  ///< move immediate to evaluation
 
-    MoveParameterToScratch,   ///< movp2s scratchDestination, parameterIndex
-    MoveScratchToParameter,   ///< movs2p parameterIndex, scratchSource
-    MoveEvaluationToScratch,  ///< movee2s scratchDestination, evaluationIndex
-    MoveScratchToEvaluation,  ///< movs2e evaluationIndex, scratchSource
+    MoveEvaluationToScratch,  ///< move evaluation to scratch
+    MoveScratchToEvaluation,  ///< move scratch to evaluation
 
-    SwapScratch,     ///< swaps scratchA, scratchB
-    SwapParameter,   ///< swapp parameterA, parameterB
-    SwapEvaluation,  ///< swape evaluationA, evaluationB
+    SwapScratch,     ///< swap scratchA, scratchB
+    SwapParameter,   ///< swap parameterA, parameterB
+    SwapEvaluation,  ///< swap evaluationA, evaluationB
 
     ClearScratch,     ///< clears #imm<16> (each register is a bit)
     ClearEvaluation,  ///< cleare #imm<16> (each register is a bit)
-    ClearParameter,   ///< clearp #imm<16> (each register is a bit)
 
     // === Memory Operations ===
     LoadSingle,     ///< load scratchDestination, scratchAddress
@@ -88,8 +85,6 @@ struct Operand {
             os << "R";
         } else if (t == OperandType::Scratch) {
             os << "S";
-        } else if (t == OperandType::Parameter) {
-            os << "P";
         } else if (t == OperandType::Evaluation) {
             os << "E";
         }
@@ -137,33 +132,39 @@ class MoveScratchToScratch {
 public:
     MoveScratchToScratch() = delete;
     constexpr MoveScratchToScratch(Operand dst, Operand src)
-        : op{Operator::MoveScratchToScratch}, eval{0}, mask{0}, dst{dst.index}, src{src.index} {
+        : op{Operator::MoveScratchToScratch}, eval{0}, mask{0}, dst{dst.index}, src{src.index}, dir{0}, shift{0} {
     }
 
-    // constexpr Move(Operand dst, Immediate imm) : Instruction{Operator::Move, dst, immediate{imm}} {}
     friend std::ostream& operator<<(std::ostream& os, MoveScratchToScratch m) {
-        os << "moves2s" << Operand{OperandType::Scratch, m.dst} << ", " << Operand{OperandType::Scratch, m.src};
+        os << "move" << Operand{OperandType::Scratch, m.dst} << ", " << Operand{OperandType::Scratch, m.src};
         return os;
     }
 
 protected:
     const Operator op : 8;
-    uint32_t eval : 4;  ///< Evaluation
-    uint32_t mask : 4;  ///< Evaluation Mask
-    uint32_t dst : 4;   ///< Operand
-    uint32_t src : 4;   ///< Operand
-    uint32_t : 8;       // Reserved
+    uint32_t eval : CountOfIndexBits;  ///< Evaluation
+    uint32_t mask : CountOfIndexBits;  ///< Evaluation Mask
+    uint32_t dst : CountOfIndexBits;   ///< Operand
+    uint32_t src : CountOfIndexBits;   ///< Operand
+    uint32_t dir : 1;   ///< Direction for Shift (0 = Left, 1 = Right)
+    uint32_t shift : CountOfDataShiftBits; ///< Shift Amount (for shift instructions)
+    uint32_t : 2;       ///< Unused
 };
 
 class MoveImmediateToScratch {
 public:
+    using ImmediateType = isa::Immediate<20>;
     MoveImmediateToScratch() = delete;
-    constexpr MoveImmediateToScratch(Operand dst, Immediate<20> imm)
+    constexpr MoveImmediateToScratch(Operand dst, ImmediateType imm)
         : op{Operator::MoveImmediateToScratch}, dst{dst.index}, imm{imm.value} {
     }
     friend std::ostream& operator<<(std::ostream& os, MoveImmediateToScratch mi) {
-        os << "movi " << Operand{OperandType::Scratch, mi.dst} << ", " << Immediate<20>{mi.imm};
+        os << "move " << Operand{OperandType::Scratch, mi.dst} << ", " << ImmediateType{mi.imm};
         return os;
+    }
+
+    constexpr ImmediateType Immediate() const {
+        return ImmediateType{imm};
     }
 
 protected:
@@ -202,10 +203,11 @@ union Instruction {
     constexpr Instruction(MoveImmediateToScratch mi) : movis{mi} {
     }
     //=================================
-    Base base;
-    NoOp noop;
-    MoveScratchToScratch moves2s;
-    MoveImmediateToScratch movis;
+    uint32_t raw;                   ///< The raw bits of the instruction as it would be stored in memory
+    Base base;                      ///< The base instruction for decoding the operator
+    NoOp noop;                      ///< No Operation
+    MoveScratchToScratch moves2s;   ///< Move from scratch to scratch
+    MoveImmediateToScratch movis;   ///< Move immediate to scratch
     //=================================
     friend std::ostream& operator<<(std::ostream& os, Instruction instr) {
         if (instr.base() == Operator::None) {

@@ -39,18 +39,18 @@ TEST(BusTest, WriteUnassignedFault) {
 
     TestBus::Attributes::AddressableUnitType data[TestBus::Attributes::CountOfAddressableUnits] = {0xFF};
     EXPECT_CALL(listener,
-                OnEvent(testing::Ref(bus), 0x00010000U, TestBus::State::Fault, TestBus::Events::UnassignedFault))
+                OnEvent(testing::Ref(bus), Address{0x00010000U}, TestBus::State::Fault, TestBus::Events::UnassignedFault))
         .Times(1);
-    bus.Write(0x00010000U, data);  // Out of range address
+    bus.Write(Address{0x00010000U}, data);  // Out of range address
     ::testing::Mock::VerifyAndClearExpectations(&listener);
 }
 
 TEST(BusTest, AttachMemoryInitializeAndExerciseFaultCallbacks) {
-    constexpr Address kBusStart = 0x00001000U;
-    constexpr Address kBusEnd = 0x0000100FU;
-    constexpr Address kAlignedAddress = 0x00001000U;
-    constexpr Address kUnalignedAddress = 0x00001001U;
-    constexpr Address kUnassignedAddress = 0x00002000U;
+    constexpr Address kBusStart{0x00001000U};
+    constexpr Address kBusEnd{0x0000100FU};
+    constexpr Address kAlignedAddress{0x00001000U};
+    constexpr Address kUnalignedAddress{0x00001001U};
+    constexpr Address kUnassignedAddress{0x00002000U};
 
     TestBus bus{0xBEEFU, Range{kBusStart, kBusEnd}};
     Memory<TestingAttributes> memory{Range{kAlignedAddress, kAlignedAddress}};
@@ -92,13 +92,13 @@ TEST(BusTest, AttachMemoryInitializeAndExerciseFaultCallbacks) {
 }
 
 TEST(BusTest, PeekReflectsWhetherAddressIsBackedByAttachedMemory) {
-    constexpr Address kBusStart = 0x10000000U;
-    constexpr Address kBusEnd = 0x100000FFU;
-    constexpr Address kMemoryStart = 0x10000020U;
-    constexpr Address kMemoryEnd = 0x1000002FU;
-    constexpr Address kInsideAddress = 0x10000024U;
-    constexpr Address kInBusButUnmappedAddress = 0x10000010U;
-    constexpr Address kOutsideBusAddress = 0x20000000U;
+    constexpr Address kBusStart{0x10000000U};
+    constexpr Address kBusEnd{0x100000FFU};
+    constexpr Address kMemoryStart{0x10000020U};
+    constexpr Address kMemoryEnd{0x1000002FU};
+    constexpr Address kInsideAddress{0x10000024U};
+    constexpr Address kInBusButUnmappedAddress{0x10000010U};
+    constexpr Address kOutsideBusAddress{0x20000000U};
 
     TestBus bus{1U, Range{kBusStart, kBusEnd}};
     Memory<TestingAttributes> memory{Range{kMemoryStart, kMemoryEnd}};

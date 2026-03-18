@@ -190,6 +190,22 @@ public:
         return false;
     }
 
+    /// [DEBUG] Allows a Poke into the bus. Will not cause fault but will return true/false for a valid address or not.
+    bool Poke(Address address, typename Attributes::AddressableUnitType value) {
+        if (not range_.Contains(address)) {
+            return false;
+        }
+
+        for (auto& memory : attached_memories_) {
+            if (not memory->ViewRange().Contains(address)) {
+                continue;
+            }
+            (*memory)[address] = value;
+            return true;
+        }
+        return false;
+    }
+
 protected:
     /// The Bus Index used to delineate transactions
     size_t index_;

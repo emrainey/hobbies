@@ -9,9 +9,9 @@ namespace isa {
 
 namespace {
 
-std::string FormatHexValue(uint64_t value, int hex_digits) {
+std::string FormatHexValue(Address value) {
     std::ostringstream stream;
-    stream << "0x" << std::uppercase << std::hex << std::setfill('0') << std::setw(hex_digits) << value;
+    stream << value;
     return stream.str();
 }
 
@@ -33,7 +33,7 @@ ScratchRegisterRows FormatScratchRegisterRows(Processor const& cpu) {
         std::ostringstream name_stream;
         name_stream << 'S' << std::dec << index;
         rows[index] = FormatRegisterRow(name_stream.str(), scratch_name_width,
-                                        FormatHexValue(scratch[index].as_u32[0], 8U), scratch_value_width);
+                                        FormatHexValue(scratch[index].as_u32[0]), scratch_value_width);
     }
 
     return rows;
@@ -43,27 +43,22 @@ SpecialRegisterRows FormatSpecialRegisterRows(Processor const& cpu) {
     SpecialRegisterRows rows{};
     auto const& special = cpu.ViewSpecial();
     constexpr int special_name_width = 4;  // ESBA
-    constexpr int special_hex_digits = static_cast<int>(sizeof(Address) * 2U);
+    constexpr int special_hex_digits = static_cast<int>(sizeof(Address) * 2U); // 2 hex digits per byte
     constexpr int special_value_width = special_hex_digits + 2;  // 0x + digits
 
-    rows[0] = FormatRegisterRow("PA", special_name_width, FormatHexValue(special.program_address_, special_hex_digits),
-                                special_value_width);
-    rows[1] = FormatRegisterRow("RA", special_name_width, FormatHexValue(special.return_address_, special_hex_digits),
-                                special_value_width);
-    rows[2] = FormatRegisterRow("SLA", special_name_width, FormatHexValue(special.stack_.limit, special_hex_digits),
-                                special_value_width);
-    rows[3] = FormatRegisterRow("SCA", special_name_width, FormatHexValue(special.stack_.current, special_hex_digits),
-                                special_value_width);
-    rows[4] = FormatRegisterRow("SBA", special_name_width, FormatHexValue(special.stack_.base, special_hex_digits),
-                                special_value_width);
+    rows[0] = FormatRegisterRow("PA", special_name_width, FormatHexValue(special.program_address_), special_value_width);
+    rows[1] = FormatRegisterRow("RA", special_name_width, FormatHexValue(special.return_address_), special_value_width);
+    rows[2] = FormatRegisterRow("SLA", special_name_width, FormatHexValue(special.stack_.limit), special_value_width);
+    rows[3] = FormatRegisterRow("SCA", special_name_width, FormatHexValue(special.stack_.current), special_value_width);
+    rows[4] = FormatRegisterRow("SBA", special_name_width, FormatHexValue(special.stack_.base), special_value_width);
     rows[5]
         = FormatRegisterRow("ESLA", special_name_width,
-                            FormatHexValue(special.exception_stack_.limit, special_hex_digits), special_value_width);
+                            FormatHexValue(special.exception_stack_.limit), special_value_width);
     rows[6]
         = FormatRegisterRow("ESCA", special_name_width,
-                            FormatHexValue(special.exception_stack_.current, special_hex_digits), special_value_width);
+                            FormatHexValue(special.exception_stack_.current), special_value_width);
     rows[7] = FormatRegisterRow("ESBA", special_name_width,
-                                FormatHexValue(special.exception_stack_.base, special_hex_digits), special_value_width);
+                                FormatHexValue(special.exception_stack_.base), special_value_width);
 
     return rows;
 }

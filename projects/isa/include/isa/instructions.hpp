@@ -132,23 +132,40 @@ class MoveScratchToScratch {
 public:
     MoveScratchToScratch() = delete;
     constexpr MoveScratchToScratch(Operand dst, Operand src)
-        : op{Operator::MoveScratchToScratch}, eval{0}, mask{0}, dst{dst.index}, src{src.index}, dir{0}, shift{0} {
+        : op{Operator::MoveScratchToScratch}
+        , eval{0}
+        , mask{0}
+        , dst{dst.index}
+        , src{src.index}
+        , cond{0}
+        , dir{0}
+        , shift{0} {
     }
 
     friend std::ostream& operator<<(std::ostream& os, MoveScratchToScratch m) {
-        os << "move" << Operand{OperandType::Scratch, m.dst} << ", " << Operand{OperandType::Scratch, m.src};
+        if (m.cond) {
+            os << "move " << Operand{OperandType::Evaluation, m.eval} << ", "
+               << Operand{OperandType::Evaluation, m.mask} << ", ";
+        } else {
+            os << "move ";
+        }
+        os << Operand{OperandType::Scratch, m.dst} << ", " << Operand{OperandType::Scratch, m.src};
+        if (m.shift > 0) {
+            os << (m.dir ? " >> " : " << ") << m.shift;
+        }
         return os;
     }
 
 protected:
     const Operator op : 8;
-    uint32_t eval : CountOfIndexBits;  ///< Evaluation
-    uint32_t mask : CountOfIndexBits;  ///< Evaluation Mask
-    uint32_t dst : CountOfIndexBits;   ///< Operand
-    uint32_t src : CountOfIndexBits;   ///< Operand
-    uint32_t dir : 1;   ///< Direction for Shift (0 = Left, 1 = Right)
-    uint32_t shift : CountOfDataShiftBits; ///< Shift Amount (for shift instructions)
-    uint32_t : 2;       ///< Unused
+    uint32_t eval : CountOfIndexBits;       ///< Evaluation
+    uint32_t mask : CountOfIndexBits;       ///< Evaluation Mask
+    uint32_t dst : CountOfIndexBits;        ///< Operand
+    uint32_t src : CountOfIndexBits;        ///< Operand
+    uint32_t cond : 1;                      ///< If == 1, then the move is conditional on the evaluation and mask.
+    uint32_t : 1;                           ///< Unused
+    uint32_t dir : 1;                       ///< Direction for Shift (0 = Left, 1 = Right)
+    uint32_t shift : CountOfDataShiftBits;  ///< Shift Amount (for shift instructions)
 };
 
 class MoveImmediateToScratch {
@@ -203,11 +220,11 @@ union Instruction {
     constexpr Instruction(MoveImmediateToScratch mi) : movis{mi} {
     }
     //=================================
-    uint32_t raw;                   ///< The raw bits of the instruction as it would be stored in memory
-    Base base;                      ///< The base instruction for decoding the operator
-    NoOp noop;                      ///< No Operation
-    MoveScratchToScratch moves2s;   ///< Move from scratch to scratch
-    MoveImmediateToScratch movis;   ///< Move immediate to scratch
+    uint32_t raw;                  ///< The raw bits of the instruction as it would be stored in memory
+    Base base;                     ///< The base instruction for decoding the operator
+    NoOp noop;                     ///< No Operation
+    MoveScratchToScratch moves2s;  ///< Move from scratch to scratch
+    MoveImmediateToScratch movis;  ///< Move immediate to scratch
     //=================================
     friend std::ostream& operator<<(std::ostream& os, Instruction instr) {
         if (instr.base() == Operator::None) {
@@ -216,6 +233,8 @@ union Instruction {
             os << instr.moves2s;
         } else if (instr.base() == Operator::MoveImmediateToScratch) {
             os << instr.movis;
+        } else {
+            os << "??? -------";
         }
         return os;
     }

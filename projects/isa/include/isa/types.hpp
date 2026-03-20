@@ -24,7 +24,8 @@ struct Address {
     StorageType value{0};
 
     /// Truncating Constructor!
-    /// @warning This constructor will truncate the input value to 32 bits, which may cause loss of information if the input value exceeds 32 bits. Use with caution!
+    /// @warning This constructor will truncate the input value to 32 bits, which may cause loss of information if the
+    /// input value exceeds 32 bits. Use with caution!
     constexpr Address(unsigned long long int v) : value(static_cast<StorageType>(v)) {
     }
 
@@ -89,17 +90,17 @@ struct Address {
         return Address{static_cast<StorageType>(value - other.value)};
     }
 
-#define INTEGER_OPERATOR(op) \
-    template <typename INTEGER> \
-    constexpr Address operator op(INTEGER offset) const { \
+#define INTEGER_OPERATOR(op)                                                           \
+    template <typename INTEGER>                                                        \
+    constexpr Address operator op(INTEGER offset) const {                              \
         static_assert(std::is_integral_v<INTEGER>, "Offset must be an integral type"); \
-        return Address{static_cast<StorageType>(value op offset)}; \
-    } \
-    template <typename INTEGER> \
-    constexpr Address& operator op##=(INTEGER offset) { \
+        return Address{static_cast<StorageType>(value op offset)};                     \
+    }                                                                                  \
+    template <typename INTEGER>                                                        \
+    constexpr Address& operator op## = (INTEGER offset) {                              \
         static_assert(std::is_integral_v<INTEGER>, "Offset must be an integral type"); \
-        value op##= static_cast<StorageType>(offset); \
-        return *this; \
+        value op## = static_cast<StorageType>(offset);                                 \
+        return *this;                                                                  \
     }
 
     INTEGER_OPERATOR(+)
@@ -108,23 +109,24 @@ struct Address {
 #undef INTEGER_OPERATOR
 
 // Bitwise operators for Address
-#define SELF_OPERATOR(op) \
-    constexpr Address operator op(Address const& other) const { \
+#define SELF_OPERATOR(op)                                               \
+    constexpr Address operator op(Address const& other) const {         \
         return Address{static_cast<StorageType>(value op other.value)}; \
-    } \
-    constexpr Address& operator op##=(Address const& other) { \
-        value op##= static_cast<StorageType>(other.value); \
-        return *this; \
+    }                                                                   \
+    constexpr Address& operator op## = (Address const& other) {         \
+        value op## = static_cast<StorageType>(other.value);             \
+        return *this;                                                   \
     }
 
     SELF_OPERATOR(&)
     SELF_OPERATOR(|)
     SELF_OPERATOR(^)
 #undef SELF_OPERATOR
-//=================================================================================
+    //=================================================================================
 
     friend std::ostream& operator<<(std::ostream& os, Address const& address) {
-        os << "0x" << std::hex << std::uppercase << std::setfill('0') << std::setw(sizeof(isa::Address) * 2U) << static_cast<isa::Address::StorageType>(address.value);
+        os << "0x" << std::hex << std::uppercase << std::setfill('0') << std::setw(sizeof(isa::Address) * 2U)
+           << static_cast<isa::Address::StorageType>(address.value);
         return os;
     }
 };

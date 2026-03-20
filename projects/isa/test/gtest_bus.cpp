@@ -38,8 +38,8 @@ TEST(BusTest, WriteUnassignedFault) {
     bus.Register(&listener);
 
     TestBus::Attributes::AddressableUnitType data[TestBus::Attributes::CountOfAddressableUnits] = {0xFF};
-    EXPECT_CALL(listener,
-                OnEvent(testing::Ref(bus), Address{0x00010000U}, TestBus::State::Fault, TestBus::Events::UnassignedFault))
+    EXPECT_CALL(listener, OnEvent(testing::Ref(bus), Address{0x00010000U}, TestBus::State::Fault,
+                                  TestBus::Events::UnassignedFault))
         .Times(1);
     bus.Write(Address{0x00010000U}, data);  // Out of range address
     ::testing::Mock::VerifyAndClearExpectations(&listener);

@@ -25,6 +25,7 @@ namespace {
 constexpr size_t kMemoryBytesPerRow = 16U;
 constexpr size_t kMemoryPageRows = 8U;
 constexpr size_t kConsoleMaxLines = 128U;
+constexpr size_t kInstructionSize = sizeof(isa::instructions::Instruction);
 constexpr char kUnavailableMemoryCells[] = "-- -- -- --  -- -- -- --  -- -- -- --  -- -- -- --";
 using Address32 = std::uint32_t;
 
@@ -180,8 +181,8 @@ int main(int argc, char* argv[]) {
     scratch[4] = isa::word<32>{0xABCDEF01U};
 
     auto& special = cpu.GetSpecial();
-    special.program_address_ = isa::Address{0x00000008UL};
-    special.return_address_ = isa::Address{0x00000010UL};
+    special.program_address_ = isa::Address{0x10000000UL};
+    special.return_address_ = isa::Address{0x10000000UL};
     special.stack_.limit = isa::Address{0x10000000UL};
     special.stack_.current = isa::Address{0x0FFFFFF0UL};
     special.stack_.base = isa::Address{0x0FFF0000UL};
@@ -198,13 +199,10 @@ int main(int argc, char* argv[]) {
     };
     // copy the instruction to SRAM
     for (size_t i = 0; i < basal::dimof(demo_program); ++i) {
-        cpu.Poke(isa::Address{0x10000000UL + i * sizeof(isa::instructions::Instruction)},
-                 demo_program[i].raw);
+        cpu.Poke(isa::Address{0x10000000UL + i * sizeof(isa::instructions::Instruction)}, demo_program[i].raw);
     }
 
     // End "Loader"
-
-    (void)demo_program;
 
     constexpr Address32 kSramStartAddress = static_cast<Address32>(isa::memory::Map[2].range.start);
     Address32 memory_base_address = kSramStartAddress;
@@ -276,13 +274,48 @@ int main(int argc, char* argv[]) {
 
     auto screen = ScreenInteractive::TerminalOutput();
 
-    const auto asm_panel = [] {
-        return window(text(" Assembly "), vbox({
-                                              text("0x0000  MOV R1, #0x10"),
-                                              text("0x0004  ADD R2, R1, #0x01"),
-                                              text("0x0008  STR R2, [R0]"),
-                                              text("0x000C  B   0x0018"),
-                                          }) | flex);
+    const auto asm_panel = [&cpu](int asm_height) {
+        const auto& special = cpu.ViewSpecial();
+        const Address32 pc = static_cast<Address32>(special.program_address_);
+        // Align PC to instruction boundary
+        const Address32 aligned_pc = pc & ~(static_cast<Address32>(kInstructionSize) - 1U);
+
+        // Calculate how many instruction rows fit in the panel (2 rows for the window border)
+        const int visible_rows = std::max(1, asm_height - 2);
+
+        // Show a couple of instructions before the PC for context
+        constexpr size_t kLookBack = 2U;
+        const Address32 asm_base = SaturatingAddressSub(aligned_pc, kLookBack * kInstructionSize);
+
+        Elements rows;
+        for (int i = 0; i < visible_rows; ++i) {
+            Address32 addr = 0;
+            if (!TryAddAddress(asm_base, static_cast<size_t>(i) * kInstructionSize, addr)) {
+                rows.push_back(text("  [end of address space]"));
+                continue;
+            }
+
+            std::ostringstream line;
+            line << FormatAddressHex(addr) << "  ";
+
+            uint32_t raw_value = 0U;
+            if (cpu.Peek(static_cast<isa::Address>(addr), raw_value)) {
+                isa::instructions::Instruction instr;
+                instr.raw = raw_value;
+                line << instr;
+            } else {
+                line << "??";
+            }
+
+            const bool is_pc = (addr == aligned_pc);
+            if (is_pc) {
+                rows.push_back(text("> " + line.str()) | bold | inverted);
+            } else {
+                rows.push_back(text("  " + line.str()));
+            }
+        }
+
+        return window(text(" Assembly "), vbox(std::move(rows)) | flex);
     };
 
     const auto registers_panel = [&cpu] {
@@ -346,7 +379,7 @@ int main(int argc, char* argv[]) {
         const int memory_height = std::max(3, container_height - top_height - 1);
 
         const auto top_row = hbox({
-                                 asm_panel() | flex,
+                                 asm_panel(top_height) | flex,
                                  separator(),
                                  registers_panel() | flex,
                              })

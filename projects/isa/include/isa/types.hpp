@@ -132,7 +132,8 @@ struct Address {
 };
 static_assert(sizeof(Address) == 4, "Address type must be 32 bits to support 32-bit address space");
 
-/// Used to store comparison results
+/// Used to store comparison results, arithmetic flags, and precision flags for instructions to be used by conditional
+/// moves and other instructions that depend on the results of previous instructions.
 struct Evaluation {
     constexpr Evaluation()
         : comparison{0}
@@ -160,6 +161,10 @@ struct Evaluation {
     uint32_t precision : 1;   ///< 1 when a precision evaluation is made
     uint32_t : 5;
     // Comparison flags for comparison results
+    // When >= both greater_than and equal will be set (in addition to others)
+    // When <= both less_than and equal will be set (in addition to others)
+    // When the values are == equal will be set (in addition to others)
+    // When the values are != not_equal will be set (in addition to others)
     uint32_t less_than : 1;     ///< [comparison] 1 when a < b, 0 otherwise
     uint32_t equal : 1;         ///< [comparison] 1 when a == b, 0 otherwise
     uint32_t greater_than : 1;  ///< [comparison] 1 when a > b, 0 otherwise

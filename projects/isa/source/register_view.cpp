@@ -2,6 +2,7 @@
 
 #include <isa/cpu.hpp>
 
+#include <cstring>
 #include <iomanip>
 #include <sstream>
 
@@ -45,6 +46,7 @@ SpecialRegisterRows FormatSpecialRegisterRows(Processor const& cpu) {
     constexpr int special_name_width = 4;                                       // ESBA
     constexpr int special_hex_digits = static_cast<int>(sizeof(Address) * 2U);  // 2 hex digits per byte
     constexpr int special_value_width = special_hex_digits + 2;                 // 0x + digits
+    std::ostringstream register_stream;
 
     rows[0]
         = FormatRegisterRow("PA", special_name_width, FormatHexValue(special.program_address_), special_value_width);
@@ -58,6 +60,37 @@ SpecialRegisterRows FormatSpecialRegisterRows(Processor const& cpu) {
                                 special_value_width);
     rows[7] = FormatRegisterRow("ESBA", special_name_width, FormatHexValue(special.exception_stack_.base),
                                 special_value_width);
+
+    register_stream << special.exception_ ;
+    rows[8] = FormatRegisterRow("EXC", special_name_width, register_stream.str(), special_value_width);
+    // clear the stream for reuse
+    register_stream.str("");
+    register_stream.clear();
+    register_stream << special.mode_;
+    rows[9] = FormatRegisterRow("MODE", special_name_width, register_stream.str(), special_value_width);
+    // clear the stream for reuse
+    register_stream.str("");
+    register_stream.clear();
+    rows[10] = FormatRegisterRow("PERF", special_name_width, FormatHexValue(special.performance_counter_), special_value_width);
+    return rows;
+}
+
+EvaluationRegisterRows FormatEvaluationRegisterRows(Processor const& cpu) {
+    EvaluationRegisterRows rows{};
+    auto const& evals = cpu.ViewEvaluations();
+    constexpr int eval_name_width = 3;    // E15
+    constexpr int eval_value_width = 10;  // 0x + 8 hex digits
+
+    for (size_t index = 0; index < rows.size(); ++index) {
+        uint32_t raw = 0U;
+        static_assert(sizeof(Evaluation) == sizeof(uint32_t), "Evaluation must be 32 bits");
+        std::memcpy(&raw, &evals[index], sizeof(uint32_t));
+        std::ostringstream name_stream;
+        name_stream << 'E' << std::dec << index;
+        std::ostringstream value_stream;
+        value_stream << "0x" << std::uppercase << std::hex << std::setfill('0') << std::setw(8) << raw;
+        rows[index] = FormatRegisterRow(name_stream.str(), eval_name_width, value_stream.str(), eval_value_width);
+    }
 
     return rows;
 }

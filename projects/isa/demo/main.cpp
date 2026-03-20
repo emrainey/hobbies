@@ -1,6 +1,7 @@
 #include <basal/basal.hpp>
 #include <basal/options.hpp>
 #include <isa/isa.hpp>
+#include <isa/register_view.hpp>
 
 #include <ftxui/component/component.hpp>
 #include <ftxui/component/screen_interactive.hpp>
@@ -321,11 +322,18 @@ int main(int argc, char* argv[]) {
     const auto registers_panel = [&cpu] {
         const auto scratch_rows = isa::FormatScratchRegisterRows(cpu);
         const auto special_rows = isa::FormatSpecialRegisterRows(cpu);
+        const auto eval_rows = isa::FormatEvaluationRegisterRows(cpu);
         return window(text(" Registers "), hbox({
                                                vbox({
                                                    text("Scratch"),
                                                    separator(),
                                                    vbox(BuildRegisterColumn(scratch_rows)) | flex,
+                                               }) | flex,
+                                               separator(),
+                                               vbox({
+                                                   text("Evaluation"),
+                                                   separator(),
+                                                   vbox(BuildRegisterColumn(eval_rows)) | flex,
                                                }) | flex,
                                                separator(),
                                                vbox({

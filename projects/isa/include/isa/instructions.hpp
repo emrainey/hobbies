@@ -69,8 +69,7 @@ enum class Operator : uint32_t {
 enum class OperandType : uint32_t {
     None = 0,
     Scratch = 1,
-    Parameter = 2,
-    Evaluation = 3
+    Evaluation = 2
 };
 
 struct Operand {

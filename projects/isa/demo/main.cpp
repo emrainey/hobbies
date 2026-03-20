@@ -27,7 +27,6 @@ constexpr size_t kMemoryPageRows = 8U;
 constexpr size_t kConsoleMaxLines = 128U;
 constexpr size_t kInstructionSize = sizeof(isa::instructions::Instruction);
 constexpr char kUnavailableMemoryCells[] = "-- -- -- --  -- -- -- --  -- -- -- --  -- -- -- --";
-using Address32 = std::uint32_t;
 
 template <typename RegisterRows>
 Elements BuildRegisterColumn(RegisterRows const& rows) {
@@ -41,37 +40,37 @@ Elements BuildRegisterColumn(RegisterRows const& rows) {
     return column;
 }
 
-std::string FormatAddressHex(Address32 address) {
+std::string FormatAddressHex(isa::Address address) {
     std::ostringstream stream;
     stream << "0x" << std::uppercase << std::hex << std::setfill('0') << std::setw(8)
-           << static_cast<unsigned int>(address);
+           << static_cast<unsigned int>(address.value);
     return stream.str();
 }
 
-bool TryAddAddress(Address32 address, size_t offset, Address32& out) {
-    constexpr Address32 kAddressMax = std::numeric_limits<Address32>::max();
-    const auto safe_offset = static_cast<Address32>(offset);
-    if (safe_offset > kAddressMax - address) {
+bool TryAddAddress(isa::Address address, size_t offset, isa::Address& out) {
+    constexpr isa::Address kAddressMax{std::numeric_limits<isa::Address::StorageType>::max()};
+    const auto safe_offset = static_cast<isa::Address::StorageType>(offset);
+    if (isa::Address{safe_offset} > kAddressMax - address) {
         return false;
     }
-    out = static_cast<Address32>(address + safe_offset);
+    out = address + safe_offset;
     return true;
 }
 
-Address32 SaturatingAddressAdd(Address32 address, size_t offset) {
-    Address32 result = 0;
+isa::Address SaturatingAddressAdd(isa::Address address, size_t offset) {
+    isa::Address result{0};
     if (TryAddAddress(address, offset, result)) {
         return result;
     }
-    return std::numeric_limits<Address32>::max();
+    return isa::Address{std::numeric_limits<isa::Address::StorageType>::max()};
 }
 
-Address32 SaturatingAddressSub(Address32 address, size_t offset) {
-    const auto safe_offset = static_cast<Address32>(offset);
-    if (safe_offset > address) {
-        return 0;
+isa::Address SaturatingAddressSub(isa::Address address, size_t offset) {
+    const auto safe_offset = static_cast<isa::Address::StorageType>(offset);
+    if (isa::Address{safe_offset} > address) {
+        return isa::Address{0};
     }
-    return static_cast<Address32>(address - safe_offset);
+    return address - safe_offset;
 }
 
 std::string StripLineBreaks(std::string input) {
@@ -80,7 +79,7 @@ std::string StripLineBreaks(std::string input) {
     return input;
 }
 
-bool TryParseAddress(std::string input, Address32& out) {
+bool TryParseAddress(std::string input, isa::Address& out) {
     input = StripLineBreaks(std::move(input));
 
     auto trim = [](std::string& value) {
@@ -113,19 +112,19 @@ bool TryParseAddress(std::string input, Address32& out) {
 
     try {
         const auto parsed = std::stoull(input, nullptr, 16);
-        if (parsed > static_cast<unsigned long long>(std::numeric_limits<Address32>::max())) {
+        if (parsed > static_cast<unsigned long long>(std::numeric_limits<isa::Address::StorageType>::max())) {
             return false;
         }
-        out = static_cast<Address32>(parsed);
+        out = isa::Address{parsed};
         return true;
     } catch (...) {
         return false;
     }
 }
 
-std::string FormatMemoryByte(isa::Processor const& cpu, Address32 address) {
+std::string FormatMemoryByte(isa::Processor const& cpu, isa::Address address) {
     uint32_t value = 0U;
-    if (not cpu.Peek(static_cast<isa::Address>(address), value)) {
+    if (not cpu.Peek(address, value)) {
         return "--";
     }
 
@@ -134,12 +133,12 @@ std::string FormatMemoryByte(isa::Processor const& cpu, Address32 address) {
     return stream.str();
 }
 
-std::string FormatMemoryRow(isa::Processor const& cpu, Address32 row_base_address) {
+std::string FormatMemoryRow(isa::Processor const& cpu, isa::Address row_base_address) {
     std::ostringstream stream;
     stream << FormatAddressHex(row_base_address) << ": ";
 
     for (size_t i = 0; i < kMemoryBytesPerRow; ++i) {
-        Address32 address = 0;
+        isa::Address address{0};
         if (TryAddAddress(row_base_address, i, address)) {
             stream << FormatMemoryByte(cpu, address);
         } else {
@@ -204,8 +203,8 @@ int main(int argc, char* argv[]) {
 
     // End "Loader"
 
-    constexpr Address32 kSramStartAddress = static_cast<Address32>(isa::memory::Map[2].range.start);
-    Address32 memory_base_address = kSramStartAddress;
+    constexpr isa::Address kSramStartAddress = isa::memory::Map[2].range.start;
+    isa::Address memory_base_address = kSramStartAddress;
     std::string memory_base_input = FormatAddressHex(memory_base_address);
     std::string memory_view_status = "Enter base address (hex) and press Enter";
     std::vector<std::string> console_lines = {
@@ -260,7 +259,7 @@ int main(int argc, char* argv[]) {
     memory_base_input_options.on_enter = [&] {
         memory_base_input = StripLineBreaks(memory_base_input);
 
-        Address32 parsed = 0;
+        isa::Address parsed{0};
         if (TryParseAddress(memory_base_input, parsed)) {
             memory_base_address = parsed;
             update_memory_base_input();
@@ -276,20 +275,21 @@ int main(int argc, char* argv[]) {
 
     const auto asm_panel = [&cpu](int asm_height) {
         const auto& special = cpu.ViewSpecial();
-        const Address32 pc = static_cast<Address32>(special.program_address_);
+        const isa::Address pc = special.program_address_;
         // Align PC to instruction boundary
-        const Address32 aligned_pc = pc & ~(static_cast<Address32>(kInstructionSize) - 1U);
+        const isa::Address aligned_pc
+            = pc & isa::Address{~(static_cast<isa::Address::StorageType>(kInstructionSize) - 1U)};
 
         // Calculate how many instruction rows fit in the panel (2 rows for the window border)
         const int visible_rows = std::max(1, asm_height - 2);
 
         // Show a couple of instructions before the PC for context
         constexpr size_t kLookBack = 2U;
-        const Address32 asm_base = SaturatingAddressSub(aligned_pc, kLookBack * kInstructionSize);
+        const isa::Address asm_base = SaturatingAddressSub(aligned_pc, kLookBack * kInstructionSize);
 
         Elements rows;
         for (int i = 0; i < visible_rows; ++i) {
-            Address32 addr = 0;
+            isa::Address addr{0};
             if (!TryAddAddress(asm_base, static_cast<size_t>(i) * kInstructionSize, addr)) {
                 rows.push_back(text("  [end of address space]"));
                 continue;
@@ -299,12 +299,12 @@ int main(int argc, char* argv[]) {
             line << FormatAddressHex(addr) << "  ";
 
             uint32_t raw_value = 0U;
-            if (cpu.Peek(static_cast<isa::Address>(addr), raw_value)) {
+            if (cpu.Peek(addr, raw_value)) {
                 isa::instructions::Instruction instr;
                 instr.raw = raw_value;
                 line << instr;
             } else {
-                line << "??";
+                line << "";
             }
 
             const bool is_pc = (addr == aligned_pc);
@@ -345,13 +345,14 @@ int main(int argc, char* argv[]) {
 
         const int visible_rows = std::max(1, memory_height - static_cast<int>(rows.size()) - 1);
         for (int row = 0; row < visible_rows; ++row) {
-            Address32 row_address = 0;
+            isa::Address row_address{0};
             const size_t row_offset = static_cast<size_t>(row) * kMemoryBytesPerRow;
             if (TryAddAddress(memory_base_address, row_offset, row_address)) {
                 rows.push_back(text(FormatMemoryRow(cpu, row_address)));
             } else {
                 rows.push_back(
-                    text(FormatAddressHex(std::numeric_limits<Address32>::max()) + ": " + kUnavailableMemoryCells));
+                    text(FormatAddressHex(isa::Address{std::numeric_limits<isa::Address::StorageType>::max()}) + ": "
+                         + kUnavailableMemoryCells));
             }
         }
 
@@ -404,7 +405,7 @@ int main(int argc, char* argv[]) {
         if (event == Event::Return) {
             memory_base_input = StripLineBreaks(memory_base_input);
 
-            Address32 parsed = 0;
+            isa::Address parsed{0};
             if (TryParseAddress(memory_base_input, parsed)) {
                 memory_base_address = parsed;
                 update_memory_base_input();

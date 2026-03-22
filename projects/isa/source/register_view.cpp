@@ -61,7 +61,7 @@ SpecialRegisterRows FormatSpecialRegisterRows(Processor const& cpu) {
     rows[7] = FormatRegisterRow("ESBA", special_name_width, FormatHexValue(special.exception_stack_.base),
                                 special_value_width);
 
-    register_stream << special.exception_ ;
+    register_stream << special.exception_;
     rows[8] = FormatRegisterRow("EXC", special_name_width, register_stream.str(), special_value_width);
     // clear the stream for reuse
     register_stream.str("");
@@ -71,7 +71,8 @@ SpecialRegisterRows FormatSpecialRegisterRows(Processor const& cpu) {
     // clear the stream for reuse
     register_stream.str("");
     register_stream.clear();
-    rows[10] = FormatRegisterRow("PERF", special_name_width, FormatHexValue(special.performance_counter_), special_value_width);
+    rows[10] = FormatRegisterRow("PERF", special_name_width, FormatHexValue(special.performance_counter_),
+                                 special_value_width);
     return rows;
 }
 

@@ -9,6 +9,23 @@
 
 namespace isa {
 
+/// Recursively computes a log2 input value.
+/// @param n The value to compute the log2 of
+/// @return Returns the log2 value of the input
+template <typename TYPE>
+constexpr TYPE log2(TYPE value) {
+    static_assert(std::is_integral<TYPE>::value, "Must be an integral type");
+    return ((value < 2U) ? 0U : 1U + log2(value / 2U));
+}
+static_assert(log2(1U << 1U) == 1U, "Must be this value exactly");
+static_assert(log2(1U << 3U) == 3U, "Must be this value exactly");
+static_assert(log2(1U << 19U) == 19U, "Must be this value exactly");
+
+/// A function to compute if a number is a power of two which is useful for restricting sizes to binary powers.
+constexpr bool is_power_of_two(size_t value) {
+    return (value != 0) and ((value & (value - 1)) == 0);
+}
+
 constexpr static size_t CountOfRegisters = 16;
 constexpr static size_t CountOfDataBits = 32;
 constexpr static size_t CountOfUnitsPerCacheLine = 16;
@@ -48,6 +65,8 @@ struct Address {
         return static_cast<size_t>(value);
     }
 
+    /// @warning This may truncate the input value to 32 bits on 64 bit systems, which may cause loss of information if
+    /// the input value exceeds 32 bits. Use with caution!
     constexpr Address& operator=(size_t v) {
         value = static_cast<StorageType>(v);
         return *this;
@@ -246,18 +265,6 @@ union word {
 };
 static_assert(sizeof(word<32>) == sizeof(Address), "Must be the same size");
 
-/// Recursively computes a log2 input value.
-/// @param n The value to compute the log2 of
-/// @return Returns the log2 value of the input
-template <typename TYPE>
-constexpr TYPE log2(TYPE value) {
-    static_assert(std::is_integral<TYPE>::value, "Must be an integral type");
-    return ((value < 2U) ? 0U : 1U + log2(value / 2U));
-}
-static_assert(log2(1U << 1U) == 1U, "Must be this value exactly");
-static_assert(log2(1U << 3U) == 3U, "Must be this value exactly");
-static_assert(log2(1U << 19U) == 19U, "Must be this value exactly");
-
 /// The number of bits needed to index a Scratch Register or Evaluation Register
 constexpr static size_t CountOfIndexBits{log2(CountOfRegisters)};
 constexpr static size_t CountOfDataShiftBits{log2(CountOfDataBits)};
@@ -276,12 +283,20 @@ struct index {
         return static_cast<size_t>(value);
     }
 
-    operator uint32_t const&() const {
+    /// Returns a copy of the value
+    operator uint32_t() const {
         return value;
     }
 
-    template <size_t _BITS>
-    friend std::ostream& operator<<(std::ostream& os, index<_BITS> index) {
+    constexpr bool operator==(index<BITS> const& other) const {
+        return value == other.value;
+    }
+
+    constexpr bool operator!=(index<BITS> const& other) const {
+        return not operator==(other);
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, index<BITS> index) {
         os << std::dec << index.value;
         return os;
     }

@@ -4,11 +4,19 @@
 #include <isa/instructions.hpp>
 #include <isa/bus.hpp>
 #include <isa/map.hpp>
+#include <isa/cache.hpp>
 
 #include <string>
 #include <vector>
 
 namespace isa {
+
+/// Defining the Data Cache Size and Line Size
+using DataCache = Cache<uint8_t, 1024, 16>;  ///< A data cache with 1024 lines and 16 bytes per line
+
+/// Definining the Instruction Cache type
+using InstructionCache
+    = Cache<instructions::Instruction, 256, 1>;  ///< An instruction cache with 256 lines and 1 instruction per line
 
 /// For declining stacks the stack starts at the limit - unit size and "grows" down.
 // If it exceeds the base, an exception will be issued.
@@ -30,9 +38,7 @@ struct Mode {
     uint32_t : 29;
 
     friend std::ostream& operator<<(std::ostream& os, Mode mode) {
-        os << " E:" << mode.exception
-           << " P:" << mode.privileged
-           << " U:" << mode.nonprivileged;
+        os << " E:" << mode.exception << " P:" << mode.privileged << " U:" << mode.nonprivileged;
         return os;
     }
 };
@@ -49,7 +55,8 @@ struct Exception {
     uint32_t unmaskable : 1;
 
     /// Bus fault exception, meaning it is triggered by a memory access violation, such as accessing an invalid address,
-    /// accessing a protected memory region, or violating access permissions. 0 when the exception is a non-bus fault exception, meaning it is triggered by other events such as interrupts or software exceptions
+    /// accessing a protected memory region, or violating access permissions. 0 when the exception is a non-bus fault
+    /// exception, meaning it is triggered by other events such as interrupts or software exceptions
     uint32_t bus_fault : 1;
 
     /// 1 when the exception is a software interrupt, meaning it is triggered by a software instruction such
@@ -77,13 +84,8 @@ struct Exception {
     uint32_t external : 1;
 
     friend std::ostream& operator<<(std::ostream& os, Exception exc) {
-        os << " R:" << exc.reset
-           << " U:" << exc.unmaskable
-           << " B:" << exc.bus_fault
-           << " S:" << exc.software_interrupt
-           << " D:" << exc.delayed_software_interrupt
-           << " T:" << exc.ticker
-           << " E:" << exc.external;
+        os << " R:" << exc.reset << " U:" << exc.unmaskable << " B:" << exc.bus_fault << " S:" << exc.software_interrupt
+           << " D:" << exc.delayed_software_interrupt << " T:" << exc.ticker << " E:" << exc.external;
         return os;
     }
 };
@@ -199,6 +201,9 @@ public:
 
     /// Loads all the CPU state information from different files in the given folder
     PersistenceReport Load(std::string const& folder);
+
+    /// Performs a single cycle of the CPU which will execute each stage of the pipeline.
+    void Cycle();
 
 protected:
     ICache instruction_cache_;

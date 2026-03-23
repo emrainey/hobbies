@@ -1,6 +1,8 @@
 #pragma once
 
 #include <isa/types.hpp>
+#include <isa/persistence.hpp>
+#include <filesystem>
 
 namespace isa {
 
@@ -256,6 +258,14 @@ struct Cache {
         Invalidate(AddressToIndex(address));
     }
 
+    /// Clears all cache lines and resets the cache statistics. This is used for resetting the cache to a clean state,
+    void Clean() {
+        for (uint32_t i = 0; i < LineCount; ++i) {
+            Clear(Index{i});
+        }
+        statistics_ = Statistics{};
+    }
+
     /// @return True if the cache line corresponding to the address is valid and has a matching tag, indicating a cache
     /// hit.
     bool HasHit(Address address) const {
@@ -276,6 +286,29 @@ struct Cache {
         return statistics_;
     }
 
+    /// Saves the Cache state to a file, which can be used for debugging, testing, etc.
+    bool Save(std::string const& folder) const {
+        const std::filesystem::path directory{folder};
+        std::filesystem::create_directory(folder);
+        std::string error;
+        if (not WriteBinaryFile(directory / GetFileName(), lines_.data(), lines_.size(), error)) {
+            std::cerr << "Failed to save cache state: " << error << std::endl;
+            return false;
+        }
+        return true;
+    }
+
+    /// Loads the Cache state from a file, which can be used for debugging, testing, etc.
+    bool Load(std::string const& folder) {
+        const std::filesystem::path directory{folder};
+        std::string error;
+        if (not ReadBinaryFile(directory / GetFileName(), lines_.data(), lines_.size(), error)) {
+            std::cerr << "Failed to load cache state: " << error << std::endl;
+            return false;
+        }
+        return true;
+    }
+
     friend std::ostream& operator<<(std::ostream& os, Cache const& cache) {
         os << "Cache State:\n";
         for (size_t i = 0; i < LineCount; ++i) {
@@ -286,6 +319,11 @@ struct Cache {
     }
 
 protected:
+    /// @return The file name for saving or loading the cache state, based on the cache configuration.
+    std::string GetFileName() const {
+        return "cache_" + std::to_string(LineCount) + "x" + std::to_string(UnitsPerLine) + "x" + std::to_string(UnitSizeInBytes) + ".bin";
+    }
+
     /// Helper function to reconstruct the address from the tag and index for evictions and invalidations. This is used
     /// for providing the correct address in the cache event callbacks.
     Address GetAddressFromTagAndIndex(Tag tag, Index index) const {
@@ -299,7 +337,7 @@ protected:
         lines_[index].valid_ = false;
         lines_[index].dirty_ = false;
         lines_[index].tag_ = Tag{0};
-        std::fill(std::begin(lines_[index].data_), std::end(lines_[index].data_), UnitType{0});
+        std::fill(std::begin(lines_[index].data_), std::end(lines_[index].data_), UnitType{});
     }
 
     /// Maintains the cache line at the given index based on the provided tag, evicting or invalidating the line if it

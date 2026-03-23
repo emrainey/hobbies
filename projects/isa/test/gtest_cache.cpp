@@ -191,3 +191,25 @@ TEST_F(CacheTest, FetchMissUpdateHitPartialUpdateEvict) {
 
     ExpectStats(1, 1, 2, 0, 0);
 }
+
+/// Tests for the persistence of the Cache State using the TestCache
+TEST_F(CacheTest, Persistence) {
+    FetchMissUpdateHit(address, data);
+    ExpectStats(1, 1, 1, 0, 0);
+
+    // Save the cache state to a file
+    const std::string folder = "testing";
+    EXPECT_TRUE(cache.Save(folder));
+
+    cache.Clean();
+
+    // Create a new cache and load the state from the file
+    EXPECT_TRUE(cache.Load(folder));
+
+    // Verify TestCache cache
+    TestCache::Line line{};
+    EXPECT_TRUE(cache.Fetch(isa::Address{TestCacheAddress1}, line));
+    for (size_t i = 0; i < TestCache::UnitsPerLine; ++i) {
+        EXPECT_EQ(TestData1[i], line.data_[i]);
+    }
+}

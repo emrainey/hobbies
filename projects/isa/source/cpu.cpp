@@ -6,63 +6,14 @@
 #include <cstdio>
 #include <filesystem>
 
-namespace {
-
-constexpr char kScratchRegistersFile[] = "scratch_registers.bin";
-constexpr char kSpecialRegistersFile[] = "special_registers.bin";
-constexpr char kInstructionCacheFile[] = "instruction_cache.bin";
-constexpr char kDataCacheFile[] = "data_cache.bin";
-constexpr char kEvaluationRegistersFile[] = "evaluation_registers.bin";
-constexpr char kTightlyCoupledMemoryPrefix[] = "tightly_coupled_memory_";
-
-template <typename T>
-bool WriteBinaryFile(std::filesystem::path const& file_path, T const* data, size_t count, std::string& error) {
-    const std::string path_string = file_path.string();
-    FILE* file = std::fopen(path_string.c_str(), "wb");
-    if (file == nullptr) {
-        error = "could not open " + path_string + " for writing";
-        return false;
-    }
-
-    const size_t written = std::fwrite(data, sizeof(T), count, file);
-    std::fclose(file);
-    if (written != count) {
-        error = "short write to " + path_string;
-        return false;
-    }
-
-    return true;
-}
-
-template <typename T>
-bool ReadBinaryFile(std::filesystem::path const& file_path, T* data, size_t count, std::string& error) {
-    const std::string path_string = file_path.string();
-    FILE* file = std::fopen(path_string.c_str(), "rb");
-    if (file == nullptr) {
-        error = "could not open " + path_string + " for reading";
-        return false;
-    }
-
-    const size_t read = std::fread(data, sizeof(T), count, file);
-    std::fclose(file);
-    if (read != count) {
-        error = "short read from " + path_string;
-        return false;
-    }
-
-    return true;
-}
-
-}  // namespace
-
 namespace isa {
 Processor::Processor() : sram_bus_{0, Range{isa::memory::Map[2].range.start, isa::memory::Map[2].range.limit}} {
     Reset();
 }
 
 void Processor::Reset() {
-    instruction_cache_.fill(instructions::Instruction{instructions::NoOp{}});
-    data_cache_.fill(CacheLine{});
+    instruction_cache_.Clean();
+    data_cache_.Clean();
     scratch_.fill(isa::word<32>{0});
     evaluation_.fill(isa::Evaluation{});
     special_ = Special{};
@@ -106,15 +57,11 @@ PersistenceReport Processor::Save(std::string const& folder) const {
     if (not save_component(kSpecialRegistersFile, &special_, 1U)) {
         return report;
     }
-    if (not save_component(kInstructionCacheFile, instruction_cache_.data(), instruction_cache_.size())) {
-        return report;
-    }
-    if (not save_component(kDataCacheFile, data_cache_.data(), data_cache_.size())) {
-        return report;
-    }
     if (not save_component(kEvaluationRegistersFile, evaluation_.data(), evaluation_.size())) {
         return report;
     }
+    instruction_cache_.Save(folder);
+    data_cache_.Save(folder);
 
     for (size_t memory_index = 0; memory_index < tightly_coupled_memories_.size(); ++memory_index) {
         auto const* memory = tightly_coupled_memories_[memory_index];
@@ -146,8 +93,6 @@ PersistenceReport Processor::Load(std::string const& folder) {
 
     Scratch scratch = scratch_;
     Special special = special_;
-    ICache instruction_cache = instruction_cache_;
-    DCache data_cache = data_cache_;
     Evaluations evaluation = evaluation_;
     using Unit = TightlyCoupledMemory::Attributes::AddressableUnitType;
     struct MemoryImage {
@@ -173,10 +118,10 @@ PersistenceReport Processor::Load(std::string const& folder) {
     if (not load_component(kSpecialRegistersFile, &special, 1U)) {
         return report;
     }
-    if (not load_component(kInstructionCacheFile, instruction_cache.data(), instruction_cache.size())) {
+    if (not instruction_cache_.Load(folder)) {
         return report;
     }
-    if (not load_component(kDataCacheFile, data_cache.data(), data_cache.size())) {
+    if (not data_cache_.Load(folder)) {
         return report;
     }
     if (not load_component(kEvaluationRegistersFile, evaluation.data(), evaluation.size())) {
@@ -201,8 +146,6 @@ PersistenceReport Processor::Load(std::string const& folder) {
 
     scratch_ = scratch;
     special_ = special;
-    instruction_cache_ = instruction_cache;
-    data_cache_ = data_cache;
     evaluation_ = evaluation;
 
     for (auto const& image : memory_images) {

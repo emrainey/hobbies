@@ -5,6 +5,7 @@
 #include <isa/bus.hpp>
 #include <isa/map.hpp>
 #include <isa/cache.hpp>
+#include <isa/persistence.hpp>
 
 #include <string>
 #include <vector>
@@ -12,19 +13,20 @@
 namespace isa {
 
 /// Defining the Data Cache Size and Line Size
-using DataCache = Cache<uint8_t, 1024, 16>;  ///< A data cache with 1024 lines and 16 bytes per line
+using DataCache = Cache<uint8_t, 1024, 16>;
 
 /// Definining the Instruction Cache type
-using InstructionCache
-    = Cache<instructions::Instruction, 256, 1>;  ///< An instruction cache with 256 lines and 1 instruction per line
+using InstructionCache = Cache<instructions::Instruction, 256, 1>;
 
 /// For declining stacks the stack starts at the limit - unit size and "grows" down.
 // If it exceeds the base, an exception will be issued.
 struct Stack {
-    Address limit{
-        0};  ///< SLA: The highest numerical (exclusive) address of the stack. The first address is limit - unit
-    Address current{0};  ///< SCA: The current address of the stack
-    Address base{0};     ///< SBA: The lowest numerical address of the stack, used to judge stack overflow.
+    /// SLA: The highest numerical (exclusive) address of the stack. The first address is limit - unit
+    Address limit{0};
+    /// SCA: The current address of the stack
+    Address current{0};
+    /// SBA: The lowest numerical address of the stack, used to judge stack overflow.
+    Address base{0};
 };
 
 /// The Mode Register contains the current mode of the processor,
@@ -108,25 +110,14 @@ using Evaluations = std::array<Evaluation, CountOfRegisters>;
 /// The scratch registers
 using Scratch = std::array<word<CountOfDataBits>, CountOfRegisters>;
 
-/// The Instruction Cache
-using ICache = std::array<instructions::Instruction, 256>;
-
-/// The Cache Line Unit Type.
-using CacheLineUnit = uint8_t;
-
-/// A simple Instruction Cache
-using CacheLine = std::array<CacheLineUnit, CountOfUnitsPerCacheLine>;
-
-/// The Data Cache
-using DCache = std::array<CacheLine, 1024>;
-
 struct PersistenceReport {
     bool success{false};
     std::string summary{};
     std::vector<std::string> files{};
 };
 
-/// A simple CPU Processor class
+/// A simple CPU Processor class.
+/// This Model has a 4 Stage Pipeline (Fetch, Decode, Execute and Writeback) and a Harvard Architecture with separate instruction and data caches.
 class Processor {
 public:
     /// Default Constructor
@@ -150,12 +141,12 @@ public:
     }
 
     /// The read-only view of the instruction cache
-    ICache const& ViewInstructionCache() const {
+    InstructionCache const& ViewInstructionCache() const {
         return instruction_cache_;
     }
 
     /// The read-only view of the data cache
-    DCache const& ViewDataCache() const {
+    DataCache const& ViewDataCache() const {
         return data_cache_;
     }
 
@@ -175,12 +166,12 @@ public:
     }
 
     /// The instruction cache
-    ICache& GetInstructionCache() {
+    InstructionCache& GetInstructionCache() {
         return instruction_cache_;
     }
 
     /// The data cache
-    DCache& GetDataCache() {
+    DataCache& GetDataCache() {
         return data_cache_;
     }
 
@@ -206,8 +197,8 @@ public:
     void Cycle();
 
 protected:
-    ICache instruction_cache_;
-    DCache data_cache_;
+    InstructionCache instruction_cache_;
+    DataCache data_cache_;
     Scratch scratch_;
     Evaluations evaluation_;
     Special special_;

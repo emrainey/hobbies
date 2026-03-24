@@ -161,4 +161,56 @@ PersistenceReport Processor::Load(std::string const& folder) {
     report.summary = "Loaded " + std::to_string(report.files.size()) + " CPU state files from " + folder;
     return report;
 }
+
+void Processor::Cycle() {
+    // TODO implement a simple 4 stage pipeline.
+
+    // For now, we'll implement a simple execution environment.
+
+    // fetch
+    instructions::Instruction instruction;
+    if (not Peek(special_.program_address_, instruction.raw)) {
+        // If we fail to fetch an instruction, we'll treat it as a NoOp and just advance the program counter.
+        instruction = instructions::Instruction{instructions::NoOp{}};
+    }
+    switch (instruction.base()) {
+        case isa::Operator::None:
+            // Do nothing
+            break;
+        case isa::Operator::MoveScratchToScratch: {
+            // TODO add evaluation masking!
+            scratch_[instruction.moves2s.dst] = scratch_[instruction.moves2s.src];
+            break;
+        }
+        case isa::Operator::MoveImmediateToScratch:
+            scratch_[instruction.movis.dst] = instruction.movis.imm;
+            break;
+        case isa::Operator::SwapScratch:
+            std::swap(scratch_[instruction.swapS.a], scratch_[instruction.swapS.b]);
+            break;
+        case isa::Operator::SwapEvaluation:
+            std::swap(evaluation_[instruction.swapE.a], evaluation_[instruction.swapE.b]);
+            break;
+        case isa::Operator::ClearScratch:
+            for (size_t i = 0; i < scratch_.size(); ++i) {
+                if ((instruction.clearS.mask & (1U << i)) != 0U) {
+                    scratch_[i] = isa::word<32>{0};
+                }
+            }
+            break;
+        case isa::Operator::ClearEvaluation:
+            for (size_t i = 0; i < evaluation_.size(); ++i) {
+                if ((instruction.clearE.mask & (1U << i)) != 0U) {
+                    evaluation_[i] = isa::Evaluation{};
+                }
+            }
+            break;
+        default:
+            // TODO trigger invalid instruction exception!
+            break;
+    }
+    special_.program_address_ += sizeof(instructions::Instruction);
+    special_.performance_counter_ += 1;
+}
+
 }  // namespace isa

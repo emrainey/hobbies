@@ -177,8 +177,9 @@ int main(int argc, char* argv[]) {
     scratch[0] = isa::word<32>{0x00001000U};
     scratch[1] = isa::word<32>{0x00000010U};
     scratch[2] = isa::word<32>{0x00000011U};
-    scratch[3] = isa::word<32>{0x00012345U};
+    scratch[3] = isa::word<32>{0x5555AAAAU};
     scratch[4] = isa::word<32>{0xABCDEF01U};
+    scratch[5] = isa::word<32>{0x12345678U};
 
     auto& special = cpu.GetSpecial();
     special.program_address_ = isa::Address{0x10000000UL};
@@ -190,12 +191,23 @@ int main(int argc, char* argv[]) {
     special.exception_stack_.current = isa::Address{0x10FFFF00UL};
     special.exception_stack_.base = isa::Address{0x10FF0000UL};
 
+    auto& evaluation = cpu.GetEvaluations();
+    evaluation[0].comparison = 1U;
+    evaluation[0].greater_than = 1U;
+    evaluation[0].non_zero = 1U;
+
     isa::program demo_program = {
+        isa::instructions::Instruction{isa::instructions::ClearScratch{
+            isa::Operand{isa::OperandType::Mask, 0xFFFF}}},
         isa::instructions::Instruction{isa::instructions::NoOp{}},
-        isa::instructions::Instruction{isa::instructions::MoveScratchToScratch{
-            isa::Operand{isa::OperandType::Scratch, 1}, isa::Operand{isa::OperandType::Scratch, 2}}},
         isa::instructions::Instruction{isa::instructions::MoveImmediateToScratch{
-            isa::Operand{isa::OperandType::Scratch, 3}, isa::Immediate<20>{0x12345}}},
+            isa::Operand{isa::OperandType::Scratch, 0}, isa::Immediate<20>{0x12345}}},
+        isa::instructions::Instruction{isa::instructions::MoveScratchToScratch{
+            isa::Operand{isa::OperandType::Scratch, 1}, isa::Operand{isa::OperandType::Scratch, 0}}},
+        isa::instructions::Instruction{isa::instructions::SwapScratch{
+            isa::Operand{isa::OperandType::Scratch, 0}, isa::Operand{isa::OperandType::Scratch, 4}}},
+        isa::instructions::Instruction{isa::instructions::SwapEvaluation{
+            isa::Operand{isa::OperandType::Evaluation, 0}, isa::Operand{isa::OperandType::Evaluation, 1}}},
     };
     // copy the instruction to SRAM
     for (size_t i = 0; i < basal::dimof(demo_program); ++i) {
@@ -369,7 +381,7 @@ int main(int argc, char* argv[]) {
 
     const auto console_panel = [&](int panel_height) {
         Elements rows;
-        rows.push_back(text("Keys: s save, l load"));
+        rows.push_back(text("Keys: s save, l load, e execute cycle, q quit"));
         rows.push_back(separator());
 
         const int visible_rows = std::max(1, panel_height - static_cast<int>(rows.size()) - 1);
@@ -429,6 +441,15 @@ int main(int argc, char* argv[]) {
         }
         if (event == Event::Character("l") || event == Event::Character("L")) {
             load_cpu_state();
+            return true;
+        }
+        if (event == Event::Character("e") || event == Event::Character("E")) {
+            cpu.Cycle();
+            push_console_line("Executed cycle");
+            return true;
+        }
+        if (event == Event::Character("q") || event == Event::Character("Q")) {
+            screen.Exit();
             return true;
         }
 

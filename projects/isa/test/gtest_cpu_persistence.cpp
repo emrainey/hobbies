@@ -43,8 +43,8 @@ protected:
     isa::Processor restored_cpu;
     isa::TightlyCoupledMemory restored_memory{isa::Range{0x10000000U, 0x1000000FU}};
 
-    CpuPersistenceTest() : saved_memory{isa::Range{0x10000000U, 0x1000000FU}},
-                           restored_memory{isa::Range{0x10000000U, 0x1000000FU}} {
+    CpuPersistenceTest()
+        : saved_memory{isa::Range{0x10000000U, 0x1000000FU}}, restored_memory{isa::Range{0x10000000U, 0x1000000FU}} {
         EXPECT_TRUE(saved_cpu.AddTightlyCoupledMemory(saved_memory));
         EXPECT_TRUE(restored_cpu.AddTightlyCoupledMemory(restored_memory));
     }
@@ -59,9 +59,9 @@ protected:
         saved_special.stack_.current = static_cast<isa::Address>(0x33330000UL);
         saved_special.exception_stack_.base = static_cast<isa::Address>(0x44440000UL);
 
-        saved_cpu.GetEvaluations()[4].comparison = 1U;
-        saved_cpu.GetEvaluations()[4].greater_than = 1U;
-        saved_cpu.GetEvaluations()[4].non_zero = 1U;
+        saved_cpu.GetEvaluations()[4].bits.comparison = 1U;
+        saved_cpu.GetEvaluations()[4].bits.greater_than = 1U;
+        saved_cpu.GetEvaluations()[4].bits.non_zero = 1U;
         saved_memory[0x10000000U] = 0x10203040U;
         saved_memory[0x10000004U] = 0xA0B0C0D0U;
     }
@@ -78,17 +78,15 @@ protected:
         auto save_report = saved_cpu.Save(temp_directory.Path().string());
         ASSERT_TRUE(save_report.success);
         // Only non-empty components are saved; empty caches are not persisted
-        EXPECT_THAT(save_report.files,
-                    testing::ElementsAre(kScratchRegistersFile, kSpecialRegistersFile, kEvaluationRegistersFile,
-                                         kTightlyCoupledMemory0File));
+        EXPECT_THAT(save_report.files, testing::ElementsAre(kScratchRegistersFile, kSpecialRegistersFile,
+                                                            kEvaluationRegistersFile, kTightlyCoupledMemory0File));
     }
 
     void ExpectLoadReportSuccess() {
         auto load_report = restored_cpu.Load(temp_directory.Path().string());
         ASSERT_TRUE(load_report.success);
-        EXPECT_THAT(load_report.files,
-                    testing::ElementsAre(kScratchRegistersFile, kSpecialRegistersFile, kEvaluationRegistersFile,
-                                         kTightlyCoupledMemory0File));
+        EXPECT_THAT(load_report.files, testing::ElementsAre(kScratchRegistersFile, kSpecialRegistersFile,
+                                                            kEvaluationRegistersFile, kTightlyCoupledMemory0File));
     }
 
     void VerifyRestoredState() {
@@ -98,9 +96,9 @@ protected:
         EXPECT_EQ(static_cast<isa::Address>(0x22220000UL), restored_cpu.ViewSpecial().return_address_);
         EXPECT_EQ(static_cast<isa::Address>(0x33330000UL), restored_cpu.ViewSpecial().stack_.current);
         EXPECT_EQ(static_cast<isa::Address>(0x44440000UL), restored_cpu.ViewSpecial().exception_stack_.base);
-        EXPECT_EQ(1U, restored_cpu.ViewEvaluations()[4].comparison);
-        EXPECT_EQ(1U, restored_cpu.ViewEvaluations()[4].greater_than);
-        EXPECT_EQ(1U, restored_cpu.ViewEvaluations()[4].non_zero);
+        EXPECT_EQ(1U, restored_cpu.ViewEvaluations()[4].bits.comparison);
+        EXPECT_EQ(1U, restored_cpu.ViewEvaluations()[4].bits.greater_than);
+        EXPECT_EQ(1U, restored_cpu.ViewEvaluations()[4].bits.non_zero);
         EXPECT_EQ(0x10203040U, restored_memory[0x10000000U]);
         EXPECT_EQ(0xA0B0C0D0U, restored_memory[0x10000004U]);
     }

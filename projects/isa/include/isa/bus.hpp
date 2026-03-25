@@ -37,6 +37,7 @@ public:
                                               std::conditional_t<WidthInUnits == 8, std::uint64_t, void>>>>;
 };
 
+using FlashBusAttributes = BusAttributes<32, 8, 1>;
 using TightlyCoupledBusAttributes = BusAttributes<32, 8, 1>;
 using MemoryBusAttributes = BusAttributes<64, 8, 1>;
 using PeripheralBusAttributes = BusAttributes<32, 32, 1>;
@@ -84,6 +85,7 @@ protected:
     std::vector<typename Attributes::AddressableUnitType> data_;
 };
 
+using FlashMemory = Memory<FlashBusAttributes>;
 using TightlyCoupledMemory = Memory<TightlyCoupledBusAttributes>;
 using MainMemory = Memory<MemoryBusAttributes>;
 using PeripheralMemory = Memory<PeripheralBusAttributes>;
@@ -217,13 +219,16 @@ protected:
     std::vector<Memory<BUS_ATTRIBUTES>*> attached_memories_;
 };
 
+/// A Flash Bus can access on a byte boundary
+using FlashBus = Bus<FlashBusAttributes>;
+
 /// A Tightly Coupled Memory Bus can access on a word boundary
 using TightlyCoupledBus = Bus<TightlyCoupledBusAttributes>;
 
 /// A Main Memory Bus can access on a 64 bit boundary
 using MemoryBus = Bus<MemoryBusAttributes>;
 
-/// A periperhal bus can ONLY access data on a 32 bit boundary
+/// A peripheral bus can ONLY access data on a 32 bit boundary
 using PeripheralBus = Bus<PeripheralBusAttributes>;
 
 }  // namespace isa

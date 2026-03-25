@@ -321,7 +321,8 @@ struct Cache {
 protected:
     /// @return The file name for saving or loading the cache state, based on the cache configuration.
     std::string GetFileName() const {
-        return "cache_" + std::to_string(LineCount) + "x" + std::to_string(UnitsPerLine) + "x" + std::to_string(UnitSizeInBytes) + ".bin";
+        return "cache_" + std::to_string(LineCount) + "x" + std::to_string(UnitsPerLine) + "x"
+               + std::to_string(UnitSizeInBytes) + ".bin";
     }
 
     /// Helper function to reconstruct the address from the tag and index for evictions and invalidations. This is used

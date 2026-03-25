@@ -153,57 +153,44 @@ static_assert(sizeof(Address) == 4, "Address type must be 32 bits to support 32-
 
 /// Used to store comparison results, arithmetic flags, and precision flags for instructions to be used by conditional
 /// moves and other instructions that depend on the results of previous instructions.
-struct Evaluation {
-    constexpr Evaluation()
-        : comparison{0}
-        , arithmetic{0}
-        , precision{0}
-        , less_than{0}
-        , equal{0}
-        , greater_than{0}
-        , not_equal{0}
-        , positive{0}
-        , negative{0}
-        , zero{0}
-        , non_zero{0}
-        , overflow{0}
-        , saturated{0}
-        , undefined{0}
-        , inexact{0}
-        , rounded{0}
-        , subnormal{0}
-        , underflow{0} {
+union Evaluation {
+    constexpr Evaluation() : value{0} {
     }
-    // Type Bits
-    uint32_t comparison : 1;  ///< 1 when a comparison was made
-    uint32_t arithmetic : 1;  ///< 1 when an arithmetic evaluation is made
-    uint32_t precision : 1;   ///< 1 when a precision evaluation is made
-    uint32_t : 5;
-    // Comparison flags for comparison results
-    // When >= both greater_than and equal will be set (in addition to others)
-    // When <= both less_than and equal will be set (in addition to others)
-    // When the values are == equal will be set (in addition to others)
-    // When the values are != not_equal will be set (in addition to others)
-    uint32_t less_than : 1;     ///< [comparison] 1 when a < b, 0 otherwise
-    uint32_t equal : 1;         ///< [comparison] 1 when a == b, 0 otherwise
-    uint32_t greater_than : 1;  ///< [comparison] 1 when a > b, 0 otherwise
-    uint32_t not_equal : 1;     ///< [comparison] 1 when a != b, 0 otherwise
-    uint32_t : 4;
-    // Arithmetic Flags for ALU results
-    uint32_t positive : 1;   ///< [arithmetic] 1 when result is positive, 0 when negative
-    uint32_t negative : 1;   ///< [arithmetic] 1 when result is negative, 0 when positive
-    uint32_t zero : 1;       ///< [arithmetic] 1 when result is zero. 0 otherwise
-    uint32_t non_zero : 1;   ///< [arithmetic] 1 when result is non-zero. 0 otherwise
-    uint32_t overflow : 1;   ///< [arithmetic] 1 when a signed overflow occurred (result was > than signed max)
-    uint32_t saturated : 1;  ///< [arithmetic] 1 when result was saturated
-    uint32_t undefined : 1;  ///< [arithmetic] 1 when result is undefined (e.g., div by zero)
-    uint32_t : 1;
-    // Precision Flags for Floating Point results
-    uint32_t inexact : 1;    ///< [precision] 1 when result is inexact
-    uint32_t rounded : 1;    ///< [precision] 1 when result was rounded
-    uint32_t subnormal : 1;  ///< [precision] 1 when result is subnormal
-    uint32_t underflow : 1;  ///< [precision] 1 when result underflowed
-    uint32_t : 4;
+    constexpr Evaluation(uint32_t v) : value{v} {
+    }
+    struct fields {
+        // Type Bits
+        uint32_t comparison : 1;  ///< 1 when a comparison was made
+        uint32_t arithmetic : 1;  ///< 1 when an arithmetic evaluation is made
+        uint32_t precision : 1;   ///< 1 when a precision evaluation is made
+        uint32_t : 5;
+        // Comparison flags for comparison results
+        // When >= both greater_than and equal will be set (in addition to others)
+        // When <= both less_than and equal will be set (in addition to others)
+        // When the values are == equal will be set (in addition to others)
+        // When the values are != not_equal will be set (in addition to others)
+        uint32_t less_than : 1;     ///< [comparison] 1 when a < b, 0 otherwise
+        uint32_t equal : 1;         ///< [comparison] 1 when a == b, 0 otherwise
+        uint32_t greater_than : 1;  ///< [comparison] 1 when a > b, 0 otherwise
+        uint32_t not_equal : 1;     ///< [comparison] 1 when a != b, 0 otherwise
+        uint32_t : 4;
+        // Arithmetic Flags for ALU results
+        uint32_t positive : 1;   ///< [arithmetic] 1 when result is positive, 0 when negative
+        uint32_t negative : 1;   ///< [arithmetic] 1 when result is negative, 0 when positive
+        uint32_t zero : 1;       ///< [arithmetic] 1 when result is zero. 0 otherwise
+        uint32_t non_zero : 1;   ///< [arithmetic] 1 when result is non-zero. 0 otherwise
+        uint32_t overflow : 1;   ///< [arithmetic] 1 when a signed overflow occurred (result was > than signed max)
+        uint32_t saturated : 1;  ///< [arithmetic] 1 when result was saturated
+        uint32_t undefined : 1;  ///< [arithmetic] 1 when result is undefined (e.g., div by zero)
+        uint32_t : 1;
+        // Precision Flags for Floating Point results
+        uint32_t inexact : 1;    ///< [precision] 1 when result is inexact
+        uint32_t rounded : 1;    ///< [precision] 1 when result was rounded
+        uint32_t subnormal : 1;  ///< [precision] 1 when result is subnormal
+        uint32_t underflow : 1;  ///< [precision] 1 when result underflowed
+        uint32_t : 4;
+    } bits;
+    uint32_t value;
 };
 
 /// Platforms specific use of a Union for expressing the notion of a register word
@@ -312,8 +299,7 @@ struct Immediate {
     uint32_t value : BITS;
     uint32_t : 32 - BITS;
 
-    template <size_t _BITS>
-    friend std::ostream& operator<<(std::ostream& os, Immediate<_BITS> imm) {
+    friend std::ostream& operator<<(std::ostream& os, Immediate<BITS> imm) {
         os << "#" << std::hex << imm.value;
         return os;
     }

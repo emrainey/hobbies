@@ -51,27 +51,29 @@ SpecialRegisterRows FormatSpecialRegisterRows(Processor const& cpu) {
     rows[0]
         = FormatRegisterRow("PA", special_name_width, FormatHexValue(special.program_address_), special_value_width);
     rows[1] = FormatRegisterRow("RA", special_name_width, FormatHexValue(special.return_address_), special_value_width);
-    rows[2] = FormatRegisterRow("SLA", special_name_width, FormatHexValue(special.stack_.limit), special_value_width);
-    rows[3] = FormatRegisterRow("SCA", special_name_width, FormatHexValue(special.stack_.current), special_value_width);
-    rows[4] = FormatRegisterRow("SBA", special_name_width, FormatHexValue(special.stack_.base), special_value_width);
-    rows[5] = FormatRegisterRow("ESLA", special_name_width, FormatHexValue(special.exception_stack_.limit),
+    rows[2] = FormatRegisterRow("VTA", special_name_width, FormatHexValue(special.vector_table_address_),
                                 special_value_width);
-    rows[6] = FormatRegisterRow("ESCA", special_name_width, FormatHexValue(special.exception_stack_.current),
+    rows[3] = FormatRegisterRow("SLA", special_name_width, FormatHexValue(special.stack_.limit), special_value_width);
+    rows[4] = FormatRegisterRow("SCA", special_name_width, FormatHexValue(special.stack_.current), special_value_width);
+    rows[5] = FormatRegisterRow("SBA", special_name_width, FormatHexValue(special.stack_.base), special_value_width);
+    rows[6] = FormatRegisterRow("ESLA", special_name_width, FormatHexValue(special.exception_stack_.limit),
                                 special_value_width);
-    rows[7] = FormatRegisterRow("ESBA", special_name_width, FormatHexValue(special.exception_stack_.base),
+    rows[7] = FormatRegisterRow("ESCA", special_name_width, FormatHexValue(special.exception_stack_.current),
+                                special_value_width);
+    rows[8] = FormatRegisterRow("ESBA", special_name_width, FormatHexValue(special.exception_stack_.base),
                                 special_value_width);
 
     register_stream << special.exception_;
-    rows[8] = FormatRegisterRow("EXC", special_name_width, register_stream.str(), special_value_width);
+    rows[9] = FormatRegisterRow("EXC", special_name_width, register_stream.str(), special_value_width);
     // clear the stream for reuse
     register_stream.str("");
     register_stream.clear();
     register_stream << special.mode_;
-    rows[9] = FormatRegisterRow("MODE", special_name_width, register_stream.str(), special_value_width);
+    rows[10] = FormatRegisterRow("MODE", special_name_width, register_stream.str(), special_value_width);
     // clear the stream for reuse
     register_stream.str("");
     register_stream.clear();
-    rows[10] = FormatRegisterRow("PERF", special_name_width, FormatHexValue(special.performance_counter_),
+    rows[11] = FormatRegisterRow("PERF", special_name_width, FormatHexValue(special.performance_counter_),
                                  special_value_width);
     return rows;
 }

@@ -74,24 +74,37 @@ struct Mapping {
     }
 };
 
-constexpr static Address NullRegion{
-    65536};  /// The space of unmapped address to catch null pointer derefs of structures, etc.
-
 constexpr static Mapping Map[] = {
     // Unmapped (bottom is intentionally unmapped to allow null pointer hard faults)
-    Mapping{Range{0x00000000, NullRegion - 1U}, Type::Unmapped, attributes::None},
-    Mapping{Range{NullRegion, 0x0FFFFFFF}, Type::ROM, ExecuteRead},            // ROM
-    Mapping{Range{0x10000000, 0x1FFFFFFF}, Type::RAM, ExecReadWrite},          // RAM
-    Mapping{Range{0x20000000, 0x3FFFFFFF}, Type::Unmapped, attributes::None},  // Unmapped
+    Mapping{Range{0x00000000, 0x000FFFFF}, Type::Unmapped, attributes::None},
+    // BOOT ROM (64MB - 1MB for null region)
+    Mapping{Range{0x00100000, 0x00FFFFFF}, Type::ROM, ExecuteRead},
+    // Additional Flash ROM (16MB)
+    Mapping{Range{0x01000000, 0x01FFFFFF}, Type::ROM, ExecuteRead},
+    // RAM
+    Mapping{Range{0x10000000, 0x1FFFFFFF}, Type::RAM, ExecReadWrite},
+    // Unmapped region
+    Mapping{Range{0x20000000, 0x3FFFFFFF}, Type::Unmapped, attributes::None},
+    // Protected Peripherals (512MB)
     Mapping{Range{0x40000000, 0x5FFFFFFF}, Type::Peripheral,
-            attributes::Readable | attributes::Writeable},                     // Peripherals (512MB)
-    Mapping{Range{0x60000000, 0x7FFFFFFF}, Type::Unmapped, attributes::None},  // Unmapped
-    Mapping{Range{0x80000000, 0x9FFFFFFF}, Type::RAM, ExecReadWrite},          // RAM
-    Mapping{Range{0xA0000000, 0xEFFFFFFF}, Type::Unmapped, attributes::None},  // Unmapped
+            attributes::Readable | attributes::Writeable | attributes::Protected},
+    // Unmapped region
+    Mapping{Range{0x60000000, 0x7FFFFFFF}, Type::Unmapped, attributes::None},
+    // RAM (512MB)
+    Mapping{Range{0x80000000, 0x9FFFFFFF}, Type::RAM, ExecReadWrite},
+    // Unmapped region
+    Mapping{Range{0xA0000000, 0xEFFFFFFF}, Type::Unmapped, attributes::None},
+    // Protected CPU Registers
     Mapping{Range{0xF0000000, 0xFFFFFFFF}, Type::ROM,
-            attributes::Readable | attributes::Writeable | attributes::Protected},  // Protected CPU Registers
+            attributes::Readable | attributes::Writeable | attributes::Protected},
 };
 
 }  // namespace memory
+
+/// The default location where the vector table is assumed to be. This can be changed later by setting the VTA.
+constexpr static Address DefaultVectorTableAddress = memory::Map[1U].range.start;
+
+/// The default location for the start of SRAM
+constexpr static Address DefaultSramStartAddress = memory::Map[3U].range.start;
 
 }  // namespace isa

@@ -65,10 +65,11 @@ TEST(RegisterViewTest, SpecialRowsReflectProcessorSpecialRegisters) {
 
     EXPECT_EQ(AddressRow("PA", special.program_address_), rows[0]);
     EXPECT_EQ(AddressRow("RA", special.return_address_), rows[1]);
-    EXPECT_EQ(AddressRow("SLA", special.stack_.limit), rows[2]);
-    EXPECT_EQ(AddressRow("SCA", special.stack_.current), rows[3]);
-    EXPECT_EQ(AddressRow("SBA", special.stack_.base), rows[4]);
-    EXPECT_EQ(AddressRow("ESLA", special.exception_stack_.limit), rows[5]);
-    EXPECT_EQ(AddressRow("ESCA", special.exception_stack_.current), rows[6]);
-    EXPECT_EQ(AddressRow("ESBA", special.exception_stack_.base), rows[7]);
+    EXPECT_EQ(AddressRow("VTA", special.vector_table_address_), rows[2]);
+    EXPECT_EQ(AddressRow("SLA", special.stack_.limit), rows[3]);
+    EXPECT_EQ(AddressRow("SCA", special.stack_.current), rows[4]);
+    EXPECT_EQ(AddressRow("SBA", special.stack_.base), rows[5]);
+    EXPECT_EQ(AddressRow("ESLA", special.exception_stack_.limit), rows[6]);
+    EXPECT_EQ(AddressRow("ESCA", special.exception_stack_.current), rows[7]);
+    EXPECT_EQ(AddressRow("ESBA", special.exception_stack_.base), rows[8]);
 }

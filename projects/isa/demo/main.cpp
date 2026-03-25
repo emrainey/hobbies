@@ -164,60 +164,65 @@ int main(int argc, char* argv[]) {
     basal::options::process(basal::dimof(opts), opts, argc, argv);
     const std::filesystem::path state_directory = std::get<std::string>(opts[0].value);
 
-    isa::Processor cpu;  // resets internally
+    isa::Processor cpu;  // resets internally but nothing attached yet, so we'll need to reset again after attaching
+                         // memory to get the correct entry point loaded.
 
     // Start "Config"
 
+    isa::FlashMemory flash0{isa::Range{0x00100000, 0x001FFFFF}};  // Small 1MB Flash
+    cpu.AttachFlashMemory(flash0);
     isa::TightlyCoupledMemory sram0{isa::Range{0x10000000, 0x1000FFFF}};  // 64KB SRAM
     cpu.AddTightlyCoupledMemory(sram0);
 
     // Start "Loader"
 
+    cpu.Reset();  // reset after attaching memory to get the correct entry point loaded
+
     auto& scratch = cpu.GetScratch();
-    scratch[0] = isa::word<32>{0x00001000U};
-    scratch[1] = isa::word<32>{0x00000010U};
-    scratch[2] = isa::word<32>{0x00000011U};
-    scratch[3] = isa::word<32>{0x5555AAAAU};
-    scratch[4] = isa::word<32>{0xABCDEF01U};
-    scratch[5] = isa::word<32>{0x12345678U};
-
     auto& special = cpu.GetSpecial();
-    special.program_address_ = isa::Address{0x10000000UL};
-    special.return_address_ = isa::Address{0x10000000UL};
-    special.stack_.limit = isa::Address{0x10000000UL};
-    special.stack_.current = isa::Address{0x0FFFFFF0UL};
-    special.stack_.base = isa::Address{0x0FFF0000UL};
-    special.exception_stack_.limit = isa::Address{0x11000000UL};
-    special.exception_stack_.current = isa::Address{0x10FFFF00UL};
-    special.exception_stack_.base = isa::Address{0x10FF0000UL};
-
     auto& evaluation = cpu.GetEvaluations();
-    evaluation[0].comparison = 1U;
-    evaluation[0].greater_than = 1U;
-    evaluation[0].non_zero = 1U;
 
     isa::program demo_program = {
-        isa::instructions::Instruction{isa::instructions::ClearScratch{
-            isa::Operand{isa::OperandType::Mask, 0xFFFF}}},
+        isa::instructions::Instruction{isa::instructions::ClearScratch{isa::Operand{isa::OperandType::Mask, isa::Immediate<16>{0xFFFFU}}}},
+        isa::instructions::Instruction{isa::instructions::ClearEvaluation{isa::Operand{isa::OperandType::Mask, isa::Immediate<16>{0xFFFFU}}}},
         isa::instructions::Instruction{isa::instructions::NoOp{}},
         isa::instructions::Instruction{isa::instructions::MoveImmediateToScratch{
             isa::Operand{isa::OperandType::Scratch, 0}, isa::Immediate<20>{0x12345}}},
         isa::instructions::Instruction{isa::instructions::MoveScratchToScratch{
             isa::Operand{isa::OperandType::Scratch, 1}, isa::Operand{isa::OperandType::Scratch, 0}}},
-        isa::instructions::Instruction{isa::instructions::SwapScratch{
-            isa::Operand{isa::OperandType::Scratch, 0}, isa::Operand{isa::OperandType::Scratch, 4}}},
+        isa::instructions::Instruction{isa::instructions::SwapScratch{isa::Operand{isa::OperandType::Scratch, 0},
+                                                                      isa::Operand{isa::OperandType::Scratch, 4}}},
         isa::instructions::Instruction{isa::instructions::SwapEvaluation{
             isa::Operand{isa::OperandType::Evaluation, 0}, isa::Operand{isa::OperandType::Evaluation, 1}}},
+        isa::instructions::Instruction{isa::instructions::LoadSingle{isa::Operand{isa::OperandType::Scratch, 2},
+                                                                     isa::Operand{isa::OperandType::Scratch, 0},
+                                                                     isa::Immediate<14>{0x10}, true, false}},
     };
-    // copy the instruction to SRAM
-    for (size_t i = 0; i < basal::dimof(demo_program); ++i) {
-        cpu.Poke(isa::Address{0x10000000UL + i * sizeof(isa::instructions::Instruction)}, demo_program[i].raw);
+    // copy the default vector table to ROM so that the CPU can fetch the entry point from it on reset
+    uint32_t vector_table_offset = sizeof(isa::VectorTable);
+    isa::VectorTable vector_table{
+        .stack_initial = 0x10008000U,
+        .stack_boundary = 0x10000000U,
+        .exception_stack_initial = 0x10010000U,
+        .exception_stack_boundary = 0x10008000U,
+        .reset_handler = flash0.ViewRange().start + vector_table_offset,  // point the reset handler to the start of our demo program
+    };
+    isa::Address tmp = flash0.ViewRange().start;
+    for (size_t i = 0; i < isa::VectorTableCount; ++i) {
+        cpu.Poke(tmp + (i * sizeof(isa::Address)), vector_table[i].value);
     }
+    // copy the instruction to ROM
+    for (size_t i = 0; i < basal::dimof(demo_program); ++i) {
+        cpu.Poke(isa::Address{flash0.ViewRange().start + vector_table_offset + i * sizeof(isa::instructions::Instruction)},
+                 demo_program[i].raw);
+    }
+
+    // Cause the cpu to reset back to the entry point of the demo program, which will allow us to test the persistence of the CPU state after we load it later.
+    cpu.Reset();
 
     // End "Loader"
 
-    constexpr isa::Address kSramStartAddress = isa::memory::Map[2].range.start;
-    isa::Address memory_base_address = kSramStartAddress;
+    isa::Address memory_base_address = isa::DefaultVectorTableAddress;
     std::string memory_base_input = FormatAddressHex(memory_base_address);
     std::string memory_view_status = "Enter base address (hex) and press Enter";
     std::vector<std::string> console_lines = {
@@ -446,6 +451,9 @@ int main(int argc, char* argv[]) {
         if (event == Event::Character("e") || event == Event::Character("E")) {
             cpu.Cycle();
             push_console_line("Executed cycle");
+            if (cpu.ViewSpecial().exception_.HasException()) {
+                push_console_line(">>>Exception occurred!<<<");
+            }
             return true;
         }
         if (event == Event::Character("q") || event == Event::Character("Q")) {
@@ -477,7 +485,7 @@ int main(int argc, char* argv[]) {
             return true;
         }
         if (event == Event::Home) {
-            memory_base_address = kSramStartAddress;
+            memory_base_address = isa::DefaultSramStartAddress;
             update_memory_base_input();
             return true;
         }

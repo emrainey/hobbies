@@ -61,18 +61,24 @@ struct Exception {
     /// exception, meaning it is triggered by other events such as interrupts or software exceptions
     uint32_t bus_fault : 1;
 
+    /// Instruction fault exception, meaning it is triggered by an invalid or undefined instruction,
+    /// such as executing an instruction that is not supported by the processor or violates the instruction
+    /// encoding. 0 when the exception is a non-instruction fault exception, meaning it is triggered by other events
+    /// such as interrupts or software exceptions.
+    uint32_t instruction_fault : 1;
+
     /// 1 when the exception is a software interrupt, meaning it is triggered by a software instruction such
     /// as an SWI (Software Interrupt) instruction, and can be used for making system calls or requesting
     /// services from the operating system. 0 when the exception is a non-software interrupt,
     /// meaning it is triggered by other events such as hardware interrupts or faults.
-    uint32_t software_interrupt : 1;
+    uint32_t software_trigger : 1;
 
     /// 1 when the exception is a delayed software interrupt, meaning it is triggered by a software
     /// instruction such as a DSWI (Delayed Software Interrupt) instruction, and will be raised after the
     /// next instruction is executed, allowing for delayed handling of software interrupts. 0 when the
     /// exception is a non-delayed software interrupt, meaning it is triggered by other events such as
     /// hardware interrupts or faults, or by software instructions that do not have delayed behavior.
-    uint32_t delayed_software_interrupt : 1;
+    uint32_t deferred : 1;
 
     /// 1 when the exception is a ticker exception, meaning it is triggered by a timer or clock event, and
     /// can be used for implementing preemptive multitasking or time-sharing. 0 when the exception is a
@@ -85,21 +91,65 @@ struct Exception {
     /// it is triggered by other events such as interrupts or faults.
     uint32_t external : 1;
 
+    constexpr bool HasException() const {
+        return reset or unmaskable or bus_fault or instruction_fault or software_trigger or deferred or ticker or external;
+    }
+
     friend std::ostream& operator<<(std::ostream& os, Exception exc) {
-        os << " R:" << exc.reset << " U:" << exc.unmaskable << " B:" << exc.bus_fault << " S:" << exc.software_interrupt
-           << " D:" << exc.delayed_software_interrupt << " T:" << exc.ticker << " E:" << exc.external;
+        os << " R:" << exc.reset << " U:" << exc.unmaskable << " B:" << exc.bus_fault << " I:" << exc.instruction_fault
+           << " S:" << exc.software_trigger << " D:" << exc.deferred << " T:" << exc.ticker
+           << " E:" << exc.external;
         return os;
     }
 };
+
+struct VectorTable {
+    /// The Initial Stack Address to be used by the user mode, which can be different from the main stack used by the processor.
+    Address stack_initial{0};
+    /// The boundary of the stack, which can be used to detect stack overflows and underflows.
+    Address stack_boundary{0};
+    /// The Stack to be used when handling exceptions
+    Address exception_stack_initial{0};
+    /// The boundary of the exception stack, which can be used to detect stack overflows and underflows in exception handlers.
+    Address exception_stack_boundary{0};
+    /// The address of the reset handler, which is the entry point for the processor when it is reset.
+    Address reset_handler{0};
+    /// The address of the unmaskable handler, which is the entry point for handling unmaskable exceptions.
+    Address unmaskable_handler{0};
+    /// The address of the bus fault handler, which is the entry point for handling bus fault exceptions
+    Address bus_fault_handler{0};
+    /// The address of the instruction fault handler, which is the entry point for handling instruction fault exceptions.
+    Address instruction_fault_handler{0};
+    /// The address of the software trigger handler, which is the entry point for handling software trigger exceptions (like SWI/SVC)
+    Address software_trigger_handler{0};
+    /// The address of the deferred handler, which is the entry point for handling deferred exceptions.
+    Address deferred_handler{0};
+    /// The address of the ticker handler, which is the entry point for handling ticker exceptions.
+    Address ticker_handler{0};
+    /// The address of the external handler table, which is the entry point for handling external exceptions.
+    Address external_handler_table{0};
+
+    /// Used to copy the vector table to another location in memory, such as from ROM to RAM, which can be useful for
+    /// allowing the processor to use a different vector table for handling exceptions.
+    Address& operator[](size_t index) {
+        // cast this into a uint32_t pointer for easier indexing and copying
+        uint32_t* ptr = reinterpret_cast<uint32_t*>(this);
+        return reinterpret_cast<Address&>(ptr[index]);
+    }
+};
+constexpr static size_t VectorTableCount = sizeof(VectorTable) / sizeof(Address);
 
 struct Special {
     // special registers
     Address program_address_{0};  ///< PA: The current address of the instruction being executed
     Address return_address_{0};   ///< RA: The address which the control flow will return to when a return is issued.
-    Stack stack_{};               ///< The CPU Stack (growing down)
-    Stack exception_stack_{};     ///< The Exception Stack (growing down and Privileged)
-    Exception exception_{};       ///< The current exception being handled, if any
-    Mode mode_{};                 ///< The current mode of the processor
+    Address vector_table_address_{
+        DefaultVectorTableAddress};  ///< VTA: The address of the vector table of handler to pick the appropriate
+                                     ///< handler when an exception is raised.
+    Stack stack_{};                  ///< The CPU Stack (growing down)
+    Stack exception_stack_{};        ///< The Exception Stack (growing down and Privileged)
+    Exception exception_{};          ///< The current exception being handled, if any
+    Mode mode_{};                    ///< The current mode of the processor
     /// A simple performance counter that can be used for counting events, measuring time, etc.
     uint32_t performance_counter_{0};
 };
@@ -117,7 +167,8 @@ struct PersistenceReport {
 };
 
 /// A simple CPU Processor class.
-/// This Model has a 4 Stage Pipeline (Fetch, Decode, Execute and Writeback) and a Harvard Architecture with separate instruction and data caches.
+/// This Model has a 4 Stage Pipeline (Fetch, Decode, Execute and Writeback) and a Harvard Architecture with separate
+/// instruction and data caches.
 class Processor {
 public:
     /// Default Constructor
@@ -178,6 +229,9 @@ public:
     /// Resets the CPU to default state
     void Reset();
 
+    /// Allows attaching flash memories to the flash bus of the CPU
+    bool AttachFlashMemory(FlashMemory& memory);
+
     /// Allows attaching memories to the memory bus of the CPU
     bool AddTightlyCoupledMemory(TightlyCoupledMemory& memory);
 
@@ -197,11 +251,17 @@ public:
     void Cycle();
 
 protected:
+
+    /// Returns the handler which corresponds to the current exception being handled, if any, by looking it up in the vector table. If no exception is being handled, returns the reset handler.
+    Address GetHandler() const;
+
     InstructionCache instruction_cache_;
     DataCache data_cache_;
     Scratch scratch_;
     Evaluations evaluation_;
     Special special_;
+    FlashBus flash_bus_;
+    std::vector<FlashMemory*> flash_memories_;
     TightlyCoupledBus sram_bus_;
     std::vector<TightlyCoupledMemory*> tightly_coupled_memories_;
     // PeripheralMemoryBus peripheral_bus_;

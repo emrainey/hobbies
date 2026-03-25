@@ -73,27 +73,30 @@ enum class OperandType : uint32_t {
 };
 
 struct Operand {
-    constexpr Operand(OperandType t, uint32_t r) : index{r}, type{static_cast<uint32_t>(t)} {
+    constexpr Operand(OperandType t, uint32_t r) : index{r}, type{static_cast<uint32_t>(t)}, imm{0} {
+    }
+    constexpr Operand(OperandType t, Immediate<16> imm) : index{0}, type{static_cast<uint32_t>(t)}, imm{imm.value} {
     }
     uint32_t index : 4;
     uint32_t type : 2;
-    uint32_t : 26;
+    uint32_t imm : 16;
+    uint32_t : 10;
+
     friend std::ostream& operator<<(std::ostream& os, Operand o) {
         OperandType t = static_cast<OperandType>(o.type);
         if (t == OperandType::None) {
-            os << "R";
+            os << "R" << o.index;
         } else if (t == OperandType::Scratch) {
-            os << "S";
+            os << "S" << o.index;
         } else if (t == OperandType::Evaluation) {
-            os << "E";
+            os << "E" << o.index;
         } else if (t == OperandType::Mask) {
-            os << "0b" << std::bitset<16>(o.index);
+            os << "0b" << std::bitset<16>(o.imm);
             return os;
         } else {
             os << "???";
             return os;
         }
-        os << o.index;
         return os;
     }
 };
@@ -215,37 +218,71 @@ struct SwapEvaluation {
         return os;
     }
     Operator op : 8;
-    uint32_t a : 4;     ///< Evaluation Index A (0-15)
-    uint32_t b : 4;     ///< Evaluation Index B (0-15)
-    uint32_t : 16;      ///< Unused
+    uint32_t a : 4;  ///< Evaluation Index A (0-15)
+    uint32_t b : 4;  ///< Evaluation Index B (0-15)
+    uint32_t : 16;   ///< Unused
 };
 
 struct ClearScratch {
     ClearScratch() = delete;
-    constexpr ClearScratch(Operand mask) : op{Operator::ClearScratch}, mask{mask.index} {
+    constexpr ClearScratch(Operand mask) : op{Operator::ClearScratch}, mask{mask.imm} {
     }
     friend std::ostream& operator<<(std::ostream& os, ClearScratch c) {
-        os << "clears " << Operand{OperandType::Mask, c.mask};
+        os << "clears " << Operand{OperandType::Mask, Immediate<16>{c.mask}};
         return os;
     }
 
     Operator op : 8;
-    uint32_t mask : 16;  ///< Each bit corresponds to a register. If the bit is set, the corresponding register will be cleared.
-    uint32_t : 8;        ///< Unused
+    /// Each bit corresponds to a register. If the bit is set, the corresponding register will be cleared.
+    uint32_t mask : 16;
+    uint32_t : 8;
 };
 
 struct ClearEvaluation {
     ClearEvaluation() = delete;
-    constexpr ClearEvaluation(Operand mask) : op{Operator::ClearEvaluation}, mask{mask.index} {
+    constexpr ClearEvaluation(Operand mask) : op{Operator::ClearEvaluation}, mask{mask.imm} {
     }
     friend std::ostream& operator<<(std::ostream& os, ClearEvaluation c) {
-        os << "cleare " << Operand{OperandType::Mask, c.mask};
+        os << "cleare " << Operand{OperandType::Mask, Immediate<16>{c.mask}};
         return os;
     }
 
     Operator op : 8;
-    uint32_t mask : 16;  ///< Each bit corresponds to a register. If the bit is set, the corresponding register will be cleared.
-    uint32_t : 8;        ///< Unused
+    /// Each bit corresponds to a register. If the bit is set, the corresponding register will be cleared.
+    uint32_t mask : 16;
+    uint32_t : 8;
+};
+
+struct LoadSingle {
+    using ImmediateType = isa::Immediate<14>;
+    LoadSingle() = delete;
+    constexpr LoadSingle(Operand dst, Operand base, ImmediateType imm, bool inc = false, bool off = false)
+        : op{Operator::LoadSingle}
+        , dst{dst.index}
+        , base{base.index}
+        , inc{inc ? 1U : 0U}
+        , off{off ? 1U : 0U}
+        , imm{imm.value} {
+    }
+    friend std::ostream& operator<<(std::ostream& os, LoadSingle l) {
+        os << "load " << Operand{OperandType::Scratch, l.dst} << ", " << Operand{OperandType::Scratch, l.base};
+        if (l.inc) {
+            os << " += " << l.imm;
+        }
+        if (l.off) {
+            os << " + " << l.imm;
+        }
+        return os;
+    }
+
+    Operator op : 8;
+    uint32_t dst : 4;   ///< Destination Scratch Register
+    uint32_t base : 4;  ///< Base Scratch Register containing the address
+    uint32_t inc : 1;  ///< If set, the base scratch register will be incremented by the size of the load after the load
+                       ///< is performed.
+    uint32_t off : 1;  ///< If set, the base scratch register will be used as an offset from a base address in a special
+                       ///< register instead of an absolute address.
+    uint32_t imm : 14;  ///< The immediate value of the offset or increment in bytes.
 };
 
 union Instruction {
@@ -289,16 +326,20 @@ union Instruction {
     /// Typed Constructor for ClearEvaluation
     constexpr Instruction(ClearEvaluation c) : clearE{c} {
     }
+    /// Typed Constructor for Load
+    constexpr Instruction(LoadSingle l) : loads{l} {
+    }
     //=================================
     uint32_t raw;                  ///< The raw bits of the instruction as it would be stored in memory
     Base base;                     ///< The base instruction for decoding the operator
     NoOp noop;                     ///< No Operation
     MoveScratchToScratch moves2s;  ///< Move from scratch to scratch
     MoveImmediateToScratch movis;  ///< Move immediate to scratch
-    SwapScratch swapS;              ///< Swap two scratch registers
-    SwapEvaluation swapE;           ///< Swap two evaluation registers
+    SwapScratch swapS;             ///< Swap two scratch registers
+    SwapEvaluation swapE;          ///< Swap two evaluation registers
     ClearScratch clearS;           ///< Clear scratch registers based on a mask
     ClearEvaluation clearE;        ///< Clear evaluation registers based on a mask
+    LoadSingle loads;              ///< Load from memory to scratch register
     //=================================
     friend std::ostream& operator<<(std::ostream& os, Instruction instr) {
         if (instr.base() == Operator::None) {
@@ -315,6 +356,8 @@ union Instruction {
             os << instr.clearS;
         } else if (instr.base() == Operator::ClearEvaluation) {
             os << instr.clearE;
+        } else if (instr.base() == Operator::LoadSingle) {
+            os << instr.loads;
         } else {
             os << "??? -------";
         }

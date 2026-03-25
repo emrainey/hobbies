@@ -8,7 +8,7 @@ namespace isa {
 class Processor;
 
 using ScratchRegisterRows = std::array<std::string, 16>;
-using SpecialRegisterRows = std::array<std::string, 11>;
+using SpecialRegisterRows = std::array<std::string, 12>;
 using EvaluationRegisterRows = std::array<std::string, 16>;
 
 ScratchRegisterRows FormatScratchRegisterRows(Processor const& cpu);

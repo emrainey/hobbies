@@ -65,6 +65,7 @@ void Bus<BUS_ATTRIBUTES>::Read(Address address) {
 }
 
 // Emit symbols for the concrete bus types used by tests/demos.
+template class Bus<FlashBusAttributes>;
 template class Bus<MemoryBusAttributes>;
 template class Bus<PeripheralBusAttributes>;
 

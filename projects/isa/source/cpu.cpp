@@ -222,45 +222,59 @@ void Processor::Cycle() {
             // For a halt instruction, we'll just stop executing further instructions until the next reset.
             halted_ = true;
             break;
-        case isa::Operator::MoveScratchToScratch: {
+        case isa::Operator::Move: {
             bool allowed = true;  // default to allowed
-            if (instruction.moves2s.cond) {
+            if (instruction.move.cond) {
                 // if the eval & mask is not zero, then perform the move
-                uint32_t eval = evaluation_[instruction.moves2s.eval].value;
-                uint32_t mask = evaluation_[instruction.moves2s.mask].value;
+                uint32_t eval = evaluation_[instruction.move.eval].value;
+                uint32_t mask = evaluation_[instruction.move.mask].value;
                 allowed = (eval & mask) != 0U;
             }
-            if (allowed) {
-                uint32_t value = scratch_[instruction.moves2s.src].as_u32[0];
-                if (instruction.moves2s.dir) {
-                    value = static_cast<uint32_t>(static_cast<int32_t>(value) >> instruction.moves2s.shift);
+            if (allowed and instruction.move.type == 0U) {
+                uint32_t value = scratch_[instruction.move.src].as_u32[0];
+                if (instruction.move.dir) {
+                    value = static_cast<uint32_t>(static_cast<int32_t>(value) >> instruction.move.shift);
                 } else {
-                    value <<= instruction.moves2s.shift;
+                    value <<= instruction.move.shift;
                 }
-                scratch_[instruction.moves2s.dst].as_u32[0] = value;
+                scratch_[instruction.move.dst].as_u32[0] = value;
+            }
+            if (allowed and instruction.move.type == 1U) {
+                EvaluationUnit value = evaluation_[instruction.move.src].value;
+                if (instruction.move.dir) {
+                    value = static_cast<EvaluationUnit>(static_cast<uint8_t>(value) >> instruction.move.shift);
+                } else {
+                    value <<= instruction.move.shift;
+                }
+                evaluation_[instruction.move.dst].value = value;
             }
             break;
         }
         case isa::Operator::MoveImmediateToScratch:
             scratch_[instruction.movis.dst] = instruction.movis.imm;
             break;
-        case isa::Operator::SwapScratch:
-            std::swap(scratch_[instruction.swapS.a], scratch_[instruction.swapS.b]);
+        case isa::Operator::MoveImmediateToEvaluation:
+            evaluation_[instruction.movie.dst].value = instruction.movie.imm & 0xFFU;
             break;
-        case isa::Operator::SwapEvaluation:
-            std::swap(evaluation_[instruction.swapE.a], evaluation_[instruction.swapE.b]);
-            break;
-        case isa::Operator::ClearScratch:
-            for (size_t i = 0; i < scratch_.size(); ++i) {
-                if ((instruction.clearS.mask & (1U << i)) != 0U) {
-                    scratch_[i].as_u32[0] = 0U;
-                }
+        case isa::Operator::Swap:
+            if (instruction.swap.type == RegisterType::Scratch) {
+                std::swap(scratch_[instruction.swap.a], scratch_[instruction.swap.b]);
+            } else {
+                std::swap(evaluation_[instruction.swap.a], evaluation_[instruction.swap.b]);
             }
             break;
-        case isa::Operator::ClearEvaluation:
-            for (size_t i = 0; i < evaluation_.size(); ++i) {
-                if ((instruction.clearE.mask & (1U << i)) != 0U) {
-                    evaluation_[i].value = 0U;
+        case isa::Operator::Clear:
+            if (instruction.clear.type == RegisterType::Scratch) {
+                for (size_t i = 0; i < scratch_.size(); ++i) {
+                    if ((instruction.clear.mask & (1U << i)) != 0U) {
+                        scratch_[i].as_u32[0] = 0U;
+                    }
+                }
+            } else {
+                for (size_t i = 0; i < evaluation_.size(); ++i) {
+                    if ((instruction.clear.mask & (1U << i)) != 0U) {
+                        evaluation_[i].value = 0U;
+                    }
                 }
             }
             break;
@@ -301,8 +315,10 @@ void Processor::Cycle() {
                 allowed = (eval & mask) != 0U;
             }
             if (allowed) {
-                // jump does not save the Return Address!
-                // special_.return_address_ = special_.program_address_ + sizeof(instructions::Instruction);
+                if (jump.save) {
+                    // If the save bit is set, then we need to save the return address (i.e. the address of the next instruction) in the Return Address Special Register before we update the Program Address Register to jump to the target instruction.
+                    special_.return_address_ = special_.program_address_ + sizeof(instructions::Instruction);
+                }
                 if (jump.imm > 0) {
                     // TODO Bus fault if jump wraps around the address space
                     special_.return_address_
@@ -315,6 +331,29 @@ void Processor::Cycle() {
                     special_.return_address_ = scratch_[jump.dst].as_address;
                 }
             }
+            break;
+        }
+        case Operator::Compare: {
+            const auto& compare = instruction.compare;
+            ComparisonEvaluation cmp{};
+            if (compare.s) {
+                // Signed comparison
+                int32_t a = scratch_[compare.a].as_s32[0];
+                int32_t b = scratch_[compare.b].as_s32[0];
+                cmp.equal = (a == b) ? 1U : 0U;
+                cmp.less_than = (a < b) ? 1U : 0U;
+                cmp.greater_than = (a > b) ? 1U : 0U;
+                cmp.not_equal = (a != b) ? 1U : 0U;
+            } else {
+                // Unsigned comparison
+                uint32_t a = scratch_[compare.a].as_u32[0];
+                uint32_t b = scratch_[compare.b].as_u32[0];
+                cmp.equal = (a == b) ? 1U : 0U;
+                cmp.less_than = (a < b) ? 1U : 0U;
+                cmp.greater_than = (a > b) ? 1U : 0U;
+                cmp.not_equal = (a != b) ? 1U : 0U;
+            }
+            evaluation_[compare.e] = cmp;
             break;
         }
         default:

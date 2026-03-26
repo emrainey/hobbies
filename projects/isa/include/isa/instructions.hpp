@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <iostream>
 
+#include <basal/exception.hpp>
 #include <isa/types.hpp>
 
 namespace isa {
@@ -13,8 +14,7 @@ namespace isa {
 enum class Operator : uint32_t {
     None = 0,  ///< noop
     // === Movement within Files ===
-    MoveScratchToScratch,        ///< move scratchDestination, scratchSource
-    MoveEvaluationToEvaluation,  ///< move evaluationDestination, evaluationSource
+    Move,        ///< move destination, Source (use E or S prefix)
 
     MoveImmediateToScratch,     ///< move immediate to scratch
     MoveImmediateToEvaluation,  ///< move immediate to evaluation
@@ -22,11 +22,8 @@ enum class Operator : uint32_t {
     MoveEvaluationToScratch,  ///< move evaluation to scratch
     MoveScratchToEvaluation,  ///< move scratch to evaluation
 
-    SwapScratch,     ///< swap scratchA, scratchB
-    SwapEvaluation,  ///< swap evaluationA, evaluationB
-
-    ClearScratch,     ///< clears #imm<16> (each register is a bit)
-    ClearEvaluation,  ///< cleare #imm<16> (each register is a bit)
+    Swap,   ///< swap registerA, registerB; reg_type (0=scratch, 1=evaluation)
+    Clear,  ///< clear registers using mask; reg_type (0=scratch, 1=evaluation)
 
     // === Memory Operations ===
     LoadSingle,    ///< load scratchDestination, scratchAddress
@@ -37,8 +34,8 @@ enum class Operator : uint32_t {
 
     Jump,  ///< jump evaluation, mask, scratchAddress
 
-    UnsignedCompare,  ///< ucomp evaluationDestination, scratchA, scratchB
-    SignedCompare,    ///< scomp evaluationDestination, scratchA, scratchB
+    // === Comparison ===
+    Compare,  ///< Compare scratchA, scratchB
 
     // === Bit Operators ===
     And,    ///< and scratchDestination, scratchSource, scratchSource
@@ -152,55 +149,59 @@ protected:
     uint32_t : CountOfDataBits - CountOfOperatorBits;
 };
 
-struct MoveScratchToScratch {
+struct Move {
     using ImmediateType = isa::Immediate<log2(CountOfDataShiftBits)>;
-    MoveScratchToScratch() = delete;
-    constexpr MoveScratchToScratch(Operand dst, Operand src)
-        : op{Operator::MoveScratchToScratch}
+    Move() = delete;
+    constexpr Move(Operand dst, Operand src)
+        : op{Operator::Move}
         , eval{0}
         , mask{0}
         , dst{dst.index}
         , src{src.index}
         , cond{0}
+        , type{dst.type == static_cast<uint32_t>(OperandType::Evaluation) && src.type == static_cast<uint32_t>(OperandType::Evaluation) ? 1U : 0U}
         , dir{0}
         , shift{0} {
     }
 
-    constexpr MoveScratchToScratch(Operand eval, Operand mask, Operand dst, Operand src)
-        : op{Operator::MoveScratchToScratch}
+    constexpr Move(Operand eval, Operand mask, Operand dst, Operand src)
+        : op{Operator::Move}
         , eval{eval.index}
         , mask{mask.index}
         , dst{dst.index}
         , src{src.index}
         , cond{1}
+        , type{dst.type == static_cast<uint32_t>(OperandType::Evaluation) && src.type == static_cast<uint32_t>(OperandType::Evaluation) ? 1U : 0U}
         , dir{0}
         , shift{0} {
     }
 
-    constexpr MoveScratchToScratch(Operand dst, Operand src, bool shift_right, ImmediateType shift_amount)
-        : op{Operator::MoveScratchToScratch}
+    constexpr Move(Operand dst, Operand src, bool shift_right, ImmediateType shift_amount)
+        : op{Operator::Move}
         , eval{0}
         , mask{0}
         , dst{dst.index}
         , src{src.index}
         , cond{0}
+        , type{dst.type == static_cast<uint32_t>(OperandType::Evaluation) && src.type == static_cast<uint32_t>(OperandType::Evaluation) ? 1U : 0U}
         , dir{shift_right ? 1U : 0U}
         , shift{shift_amount.value} {
     }
 
-    constexpr MoveScratchToScratch(Operand eval, Operand mask, Operand dst, Operand src, bool shift_right,
+    constexpr Move(Operand eval, Operand mask, Operand dst, Operand src, bool shift_right,
                                    ImmediateType shift_amount)
-        : op{Operator::MoveScratchToScratch}
+        : op{Operator::Move}
         , eval{eval.index}
         , mask{mask.index}
         , dst{dst.index}
         , src{src.index}
         , cond{1}
+        , type{dst.type == static_cast<uint32_t>(OperandType::Evaluation) && src.type == static_cast<uint32_t>(OperandType::Evaluation) ? 1U : 0U}
         , dir{shift_right ? 1U : 0U}
         , shift{shift_amount.value} {
     }
 
-    friend std::ostream& operator<<(std::ostream& os, MoveScratchToScratch m) {
+    friend std::ostream& operator<<(std::ostream& os, Move m) {
         if (m.cond) {
             os << "move " << Operand{OperandType::Evaluation, m.eval} << ", "
                << Operand{OperandType::Evaluation, m.mask} << ", ";
@@ -220,8 +221,8 @@ struct MoveScratchToScratch {
     uint32_t dst : CountOfIndexBits;   ///< Operand
     uint32_t src : CountOfIndexBits;   ///< Operand
     uint32_t cond : 1;                 ///< If == 1, then the move is conditional on the evaluation and mask.
-    uint32_t : 1;      ///< Unused (TODO Could be used to indicate eval or scratch for conditional move?)
-    uint32_t dir : 1;  ///< Direction for Shift (0 = Left, 1 = Right)
+    uint32_t type: 1;                  ///< 0 = Scratch to Scratch, 1 = Evaluation to Evaluation
+    uint32_t dir : 1;                  ///< Direction for Shift (0 = Left, 1 = Right)
     uint32_t shift : CountOfDataShiftBits;  ///< Shift Amount (for shift instructions)
 };
 
@@ -230,6 +231,7 @@ struct MoveImmediateToScratch {
     MoveImmediateToScratch() = delete;
     constexpr MoveImmediateToScratch(Operand dst, ImmediateType imm)
         : op{Operator::MoveImmediateToScratch}, dst{dst.index}, imm{imm.value} {
+        basal::exception::throw_if(dst.type != to_underlying(OperandType::Scratch), __FILE__, __LINE__, "MoveImmediateToScratch instruction requires the destination operand to be a Scratch register");
     }
     friend std::ostream& operator<<(std::ostream& os, MoveImmediateToScratch mi) {
         os << "move " << Operand{OperandType::Scratch, mi.dst} << ", " << ImmediateType{mi.imm};
@@ -251,10 +253,12 @@ struct MoveImmediateToEvaluation {
 
     constexpr MoveImmediateToEvaluation(Operand dst, ImmediateType imm)
         : op{Operator::MoveImmediateToEvaluation}, dst{dst.index}, imm{imm.value} {
+        basal::exception::throw_if(dst.type != to_underlying(OperandType::Evaluation), __FILE__, __LINE__, "MoveImmediateToEvaluation instruction requires the destination operand to be an Evaluation register");
     }
 
     constexpr MoveImmediateToEvaluation(Operand dst, Evaluation eval)
         : op{Operator::MoveImmediateToEvaluation}, dst{dst.index}, imm{eval.value} {
+        basal::exception::throw_if(dst.type != to_underlying(OperandType::Evaluation), __FILE__, __LINE__, "MoveImmediateToEvaluation instruction requires the destination operand to be an Evaluation register");
     }
 
     friend std::ostream& operator<<(std::ostream& os, MoveImmediateToEvaluation mi) {
@@ -268,69 +272,48 @@ struct MoveImmediateToEvaluation {
 
     Operator op : CountOfOperatorBits;
     uint32_t dst : CountOfIndexBits;
-    uint32_t     : 20 - ImmediateType::Bits;
+    uint32_t : 20 - ImmediateType::Bits;
     uint32_t imm : ImmediateType::Bits;
 };
 
-struct SwapScratch {
-    SwapScratch() = delete;
-    constexpr SwapScratch(Operand a, Operand b) : op{Operator::SwapScratch}, a{a.index}, b{b.index} {
+struct Swap {
+    Swap() = delete;
+    constexpr Swap(Operand a, Operand b)
+        : op{Operator::Swap}, a{a.index}, b{b.index}, type{0} {
+        basal::exception::throw_unless(a.type == b.type, __FILE__, __LINE__, "Swap instruction requires both operands to be of the same type");
+        basal::exception::throw_if(a.type == static_cast<uint32_t>(OperandType::None) || a.type > static_cast<uint32_t>(OperandType::Evaluation), __FILE__, __LINE__, "Swap instruction requires both operands to be either Scratch or Evaluation registers");
+        type = (a.type == to_underlying(OperandType::Scratch)) ? RegisterType::Scratch : RegisterType::Evaluation;
     }
-    friend std::ostream& operator<<(std::ostream& os, SwapScratch s) {
-        os << "swap " << Operand{OperandType::Scratch, s.a} << ", " << Operand{OperandType::Scratch, s.b};
+
+    friend std::ostream& operator<<(std::ostream& os, Swap s) {
+        OperandType register_type = s.type == RegisterType::Scratch ? OperandType::Scratch : OperandType::Evaluation;
+        os << "swap " << Operand{register_type, s.a} << ", " << Operand{register_type, s.b};
         return os;
     }
 
     Operator op : CountOfOperatorBits;
     uint32_t a : CountOfIndexBits;
     uint32_t b : CountOfIndexBits;
-    uint32_t : 16;
+    RegisterType type : 1;
+    uint32_t : 15;
 };
 
-struct SwapEvaluation {
-    SwapEvaluation() = delete;
-    constexpr SwapEvaluation(Operand a, Operand b) : op{Operator::SwapEvaluation}, a{a.index}, b{b.index} {
-    }
-    friend std::ostream& operator<<(std::ostream& os, SwapEvaluation s) {
-        os << "swap " << Operand{OperandType::Evaluation, s.a} << ", " << Operand{OperandType::Evaluation, s.b};
-        return os;
-    }
-    Operator op : CountOfOperatorBits;
-    uint32_t a : CountOfIndexBits;
-    uint32_t b : CountOfIndexBits;
-    uint32_t : 16;   ///< Unused
-};
-
-struct ClearScratch {
+struct Clear {
     using ImmediateType = isa::Immediate<16>;
-    ClearScratch() = delete;
-    constexpr ClearScratch(Operand mask) : op{Operator::ClearScratch}, mask{mask.imm} {
+    Clear() = delete;
+    constexpr Clear(Operand mask, RegisterType evaluation = RegisterType::Scratch)
+        : op{Operator::Clear}, mask{mask.imm}, type{to_underlying(evaluation)} {
     }
-    friend std::ostream& operator<<(std::ostream& os, ClearScratch c) {
-        os << "clears " << Operand{OperandType::Mask, ImmediateType{c.mask}};
+    friend std::ostream& operator<<(std::ostream& os, Clear c) {
+        os << "clear " << (c.type == RegisterType::Scratch ? 'S' : 'E') << ", " << Operand{OperandType::Mask, ImmediateType{c.mask}};
         return os;
     }
 
     Operator op : CountOfOperatorBits;
     /// Each bit corresponds to a register. If the bit is set, the corresponding register will be cleared.
     uint32_t mask : ImmediateType::Bits;
-    uint32_t : 8;
-};
-
-struct ClearEvaluation {
-    using ImmediateType = isa::Immediate<16>;
-    ClearEvaluation() = delete;
-    constexpr ClearEvaluation(Operand mask) : op{Operator::ClearEvaluation}, mask{mask.imm} {
-    }
-    friend std::ostream& operator<<(std::ostream& os, ClearEvaluation c) {
-        os << "cleare " << Operand{OperandType::Mask, ImmediateType{c.mask}};
-        return os;
-    }
-
-    Operator op : CountOfOperatorBits;
-    /// Each bit corresponds to a register. If the bit is set, the corresponding register will be cleared.
-    uint32_t mask : ImmediateType::Bits;
-    uint32_t : 8;
+    RegisterType type : 1;
+    uint32_t : 7;
 };
 
 struct LoadSingle {
@@ -436,6 +419,31 @@ struct Jump {
     int32_t imm : ImmediateType::Bits;
 };
 
+/// Compares two scratch registers and sets flags in the Evaluation Register based on the result of the comparison.
+struct Compare {
+
+    constexpr Compare() : op{Operator::Compare}, e{0}, a{0}, b{0}, s{0} {
+    }
+
+    constexpr Compare(Operand e, Operand a, Operand b, bool signed_comparison = false) : op{Operator::Compare}, e{e.index}, a{a.index}, b{b.index}, s{signed_comparison ? 1U : 0U} {
+        basal::exception::throw_if(e.type != static_cast<uint32_t>(OperandType::Evaluation), __FILE__, __LINE__, "Compare instruction requires the first operand to be an Evaluation register");
+        basal::exception::throw_if(a.type != static_cast<uint32_t>(OperandType::Scratch), __FILE__, __LINE__, "Compare instruction requires the second operand to be a Scratch register");
+        basal::exception::throw_if(b.type != static_cast<uint32_t>(OperandType::Scratch), __FILE__, __LINE__, "Compare instruction requires the third operand to be a Scratch register");
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, Compare c) {
+        os << "compare " << Operand{OperandType::Evaluation, c.e} << ", " << Operand{OperandType::Scratch, c.a} << "<!=>" << Operand{OperandType::Scratch, c.b};
+        return os;
+    }
+
+    Operator op : CountOfOperatorBits;
+    uint32_t e : CountOfIndexBits;  ///< Evaluation Register to set flags in
+    uint32_t a : CountOfIndexBits;  ///< Scratch Register A
+    uint32_t b : CountOfIndexBits;  ///< Scratch Register B
+    uint32_t s : 1;  ///< If set, the comparison will be signed. If not set, the comparison will be unsigned.
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (3 * CountOfIndexBits) - 1;
+};
+
 union Instruction {
     /// Default Constructor
     constexpr Instruction() : noop{} {
@@ -463,7 +471,7 @@ union Instruction {
     constexpr Instruction(Halt) : halt{} {
     }
     /// Typed Constructor
-    constexpr Instruction(MoveScratchToScratch m) : moves2s{m} {
+    constexpr Instruction(Move m) : move{m} {
     }
     /// Typed Constructor
     constexpr Instruction(MoveImmediateToScratch mi) : movis{mi} {
@@ -472,16 +480,10 @@ union Instruction {
     constexpr Instruction(MoveImmediateToEvaluation mi) : movie{mi} {
     }
     /// Typed Constructor
-    constexpr Instruction(SwapScratch s) : swapS{s} {
+    constexpr Instruction(Swap s) : swap{s} {
     }
     /// Typed Constructor
-    constexpr Instruction(SwapEvaluation s) : swapE{s} {
-    }
-    /// Typed Constructor for ClearScratch
-    constexpr Instruction(ClearScratch c) : clearS{c} {
-    }
-    /// Typed Constructor for ClearEvaluation
-    constexpr Instruction(ClearEvaluation c) : clearE{c} {
+    constexpr Instruction(Clear c) : clear{c} {
     }
     /// Typed Constructor for Load
     constexpr Instruction(LoadSingle l) : loads{l} {
@@ -492,49 +494,49 @@ union Instruction {
     /// Typed Constructor for Jump
     constexpr Instruction(Jump j) : jumps{j} {
     }
+    /// Typed Constructor for Compare
+    constexpr Instruction(Compare c) : compare{c} {
+    }
     //=================================
     uint32_t raw;                     ///< The raw bits of the instruction as it would be stored in memory
     Base base;                        ///< The base instruction for decoding the operator
     NoOp noop;                        ///< No Operation
     Halt halt;                        ///< Halt the processor
-    MoveScratchToScratch moves2s;     ///< Move from scratch to scratch
+    Move move;     ///< Move from scratch to scratch
     MoveImmediateToScratch movis;     ///< Move immediate to scratch
     MoveImmediateToEvaluation movie;  ///< Move immediate to evaluation
-    SwapScratch swapS;                ///< Swap two scratch registers
-    SwapEvaluation swapE;             ///< Swap two evaluation registers
-    ClearScratch clearS;              ///< Clear scratch registers based on a mask
-    ClearEvaluation clearE;           ///< Clear evaluation registers based on a mask
+    Swap swap;                        ///< Swap registers based on reg_type
+    Clear clear;                      ///< Clear registers based on reg_type and mask
     LoadSingle loads;                 ///< Load from memory to scratch register
     StoreSingle stores;               ///< Store from scratch register to memory
     Jump jumps;                       ///< Jump to an address based on an evaluation and mask
+    Compare compare;                   ///< Compare two scratch registers and set flags in an evaluation register
     //=================================
     friend std::ostream& operator<<(std::ostream& os, Instruction instr) {
         if (instr.base() == Operator::None) {
             os << instr.noop;
         } else if (instr.base() == Operator::Halt) {
             os << instr.halt;
-        } else if (instr.base() == Operator::MoveScratchToScratch) {
-            os << instr.moves2s;
+        } else if (instr.base() == Operator::Move) {
+            os << instr.move;
         } else if (instr.base() == Operator::MoveImmediateToScratch) {
             os << instr.movis;
         } else if (instr.base() == Operator::MoveImmediateToEvaluation) {
             os << instr.movie;
-        } else if (instr.base() == Operator::SwapScratch) {
-            os << instr.swapS;
-        } else if (instr.base() == Operator::SwapEvaluation) {
-            os << instr.swapE;
-        } else if (instr.base() == Operator::ClearScratch) {
-            os << instr.clearS;
-        } else if (instr.base() == Operator::ClearEvaluation) {
-            os << instr.clearE;
+        } else if (instr.base() == Operator::Swap) {
+            os << instr.swap;
+        } else if (instr.base() == Operator::Clear) {
+            os << instr.clear;
         } else if (instr.base() == Operator::LoadSingle) {
             os << instr.loads;
         } else if (instr.base() == Operator::StoreSingle) {
             os << instr.stores;
         } else if (instr.base() == Operator::Jump) {
             os << instr.jumps;
+        } else if (instr.base() == Operator::Compare)   {
+            os << instr.compare;
         } else {
-            os << "??? -------";
+            os << "???";
         }
         return os;
     }

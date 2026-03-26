@@ -175,7 +175,7 @@ struct BaseEvaluation {
                                                 ///< evaluation. For BaseEvaluation, these bits are unused.
 
     friend std::ostream& operator<<(std::ostream& os, BaseEvaluation const& base) {
-        os << "T" << static_cast<EvaluationUnit>(base.type) << ", 0b" << std::bitset<EvaluationFlagBits>(base.flags);
+        os << "T" << static_cast<uint32_t>(base.type) << ", 0b" << std::bitset<EvaluationFlagBits>(base.flags);
         return os;
     }
 };
@@ -203,9 +203,9 @@ struct ComparisonEvaluation {
     EvaluationUnit : 2;                        ///< Unused bits for future expansion
 
     friend std::ostream& operator<<(std::ostream& os, ComparisonEvaluation c) {
-        os << "C(LT:" << static_cast<EvaluationUnit>(c.less_than) << ", EQ:" << static_cast<EvaluationUnit>(c.equal)
-           << ", GT:" << static_cast<EvaluationUnit>(c.greater_than) << ", NE:" << static_cast<EvaluationUnit>(c.not_equal)
-           << ")";
+        os << "C(LT:" << static_cast<uint32_t>(c.less_than) << ", EQ:" << static_cast<uint32_t>(c.equal)
+           << ", GT:" << static_cast<uint32_t>(c.greater_than)
+           << ", NE:" << static_cast<uint32_t>(c.not_equal) << ")";
         return os;
     }
 };
@@ -230,9 +230,9 @@ struct ArithmeticEvaluation {
     EvaluationUnit : 1;            ///< Unused bits for future expansion
 
     friend std::ostream& operator<<(std::ostream& os, ArithmeticEvaluation a) {
-        os << "A(+:" << static_cast<EvaluationUnit>(a.positive) << ", Z:" << static_cast<EvaluationUnit>(a.zero)
-           << ", O:" << static_cast<EvaluationUnit>(a.overflow) << ", S:" << static_cast<EvaluationUnit>(a.saturated)
-           << ", U:" << static_cast<EvaluationUnit>(a.undefined) << ")";
+        os << "A(+:" << static_cast<uint32_t>(a.positive) << ", Z:" << static_cast<uint32_t>(a.zero)
+           << ", O:" << static_cast<uint32_t>(a.overflow) << ", S:" << static_cast<uint32_t>(a.saturated)
+           << ", U:" << static_cast<uint32_t>(a.undefined) << ")";
         return os;
     }
 };
@@ -250,9 +250,9 @@ struct PrecisionEvaluation {
     EvaluationUnit : 2;                        ///< Unused bits for future expansion
 
     friend std::ostream& operator<<(std::ostream& os, PrecisionEvaluation p) {
-        os << "P(I:" << static_cast<EvaluationUnit>(p.inexact) << ", R:" << static_cast<EvaluationUnit>(p.rounded)
-           << ", S:" << static_cast<EvaluationUnit>(p.subnormal)
-           << ", U:" << static_cast<EvaluationUnit>(p.underflow) << ")";
+        os << "P(I:" << static_cast<uint32_t>(p.inexact) << ", R:" << static_cast<uint32_t>(p.rounded)
+           << ", S:" << static_cast<uint32_t>(p.subnormal) << ", U:" << static_cast<uint32_t>(p.underflow)
+           << ")";
         return os;
     }
 };
@@ -473,6 +473,11 @@ struct Range {
     constexpr size_t Size() const {
         return static_cast<size_t>(limit - start + 1U);
     }
+};
+
+enum class RegisterType : uint32_t {
+    Scratch = 0,
+    Evaluation = 1,
 };
 
 }  // namespace isa

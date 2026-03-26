@@ -8,7 +8,7 @@
 
 namespace isa {
 Processor::Processor()
-    : flash_bus_{0, isa::memory::Map[1].range}, sram_bus_{0, isa::memory::Map[2].range}, halted_{false} {
+    : flash_bus_{0, isa::memory::Map[1].range}, sram_bus_{0, isa::memory::Map[3].range}, halted_{false} {
 }
 
 void Processor::Reset() {

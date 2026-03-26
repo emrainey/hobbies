@@ -85,12 +85,11 @@ EvaluationRegisterRows FormatEvaluationRegisterRows(Processor const& cpu) {
     constexpr int eval_value_width = 10;  // 0x + 2 hex digits
 
     for (size_t index = 0; index < rows.size(); ++index) {
-        EvaluationUnit raw = 0U;
-        std::memcpy(&raw, &evals[index], sizeof(EvaluationUnit));
+        Evaluation eval = evals[index];
         std::ostringstream name_stream;
         name_stream << 'E' << std::dec << index;
         std::ostringstream value_stream;
-        value_stream << "0x" << std::uppercase << std::hex << std::setfill('0') << std::setw(2) << static_cast<int>(raw);
+        value_stream << eval;
         rows[index] = FormatRegisterRow(name_stream.str(), eval_name_width, value_stream.str(), eval_value_width);
     }
 

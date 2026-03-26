@@ -20,13 +20,15 @@
 #include <vector>
 
 using namespace ftxui;
+using namespace isa;
+using namespace instructions;
 
 namespace {
 
 constexpr size_t kMemoryBytesPerRow = 16U;
 constexpr size_t kMemoryPageRows = 8U;
 constexpr size_t kConsoleMaxLines = 128U;
-constexpr size_t kInstructionSize = sizeof(isa::instructions::Instruction);
+constexpr size_t kInstructionSize = sizeof(Instruction);
 constexpr char kUnavailableMemoryCells[] = "-- -- -- --  -- -- -- --  -- -- -- --  -- -- -- --";
 
 template <typename RegisterRows>
@@ -41,35 +43,35 @@ Elements BuildRegisterColumn(RegisterRows const& rows) {
     return column;
 }
 
-std::string FormatAddressHex(isa::Address address) {
+std::string FormatAddressHex(Address address) {
     std::ostringstream stream;
     stream << "0x" << std::uppercase << std::hex << std::setfill('0') << std::setw(8)
            << static_cast<unsigned int>(address.value);
     return stream.str();
 }
 
-bool TryAddAddress(isa::Address address, size_t offset, isa::Address& out) {
-    constexpr isa::Address kAddressMax{std::numeric_limits<isa::Address::StorageType>::max()};
-    const auto safe_offset = static_cast<isa::Address::StorageType>(offset);
-    if (isa::Address{safe_offset} > kAddressMax - address) {
+bool TryAddAddress(Address address, size_t offset, Address& out) {
+    constexpr Address kAddressMax{std::numeric_limits<Address::StorageType>::max()};
+    const auto safe_offset = static_cast<Address::StorageType>(offset);
+    if (Address{safe_offset} > kAddressMax - address) {
         return false;
     }
     out = address + safe_offset;
     return true;
 }
 
-isa::Address SaturatingAddressAdd(isa::Address address, size_t offset) {
-    isa::Address result{0};
+Address SaturatingAddressAdd(Address address, size_t offset) {
+    Address result{0};
     if (TryAddAddress(address, offset, result)) {
         return result;
     }
-    return isa::Address{std::numeric_limits<isa::Address::StorageType>::max()};
+    return Address{std::numeric_limits<Address::StorageType>::max()};
 }
 
-isa::Address SaturatingAddressSub(isa::Address address, size_t offset) {
-    const auto safe_offset = static_cast<isa::Address::StorageType>(offset);
-    if (isa::Address{safe_offset} > address) {
-        return isa::Address{0};
+Address SaturatingAddressSub(Address address, size_t offset) {
+    const auto safe_offset = static_cast<Address::StorageType>(offset);
+    if (Address{safe_offset} > address) {
+        return Address{0};
     }
     return address - safe_offset;
 }
@@ -80,7 +82,7 @@ std::string StripLineBreaks(std::string input) {
     return input;
 }
 
-bool TryParseAddress(std::string input, isa::Address& out) {
+bool TryParseAddress(std::string input, Address& out) {
     input = StripLineBreaks(std::move(input));
 
     auto trim = [](std::string& value) {
@@ -113,17 +115,17 @@ bool TryParseAddress(std::string input, isa::Address& out) {
 
     try {
         const auto parsed = std::stoull(input, nullptr, 16);
-        if (parsed > static_cast<unsigned long long>(std::numeric_limits<isa::Address::StorageType>::max())) {
+        if (parsed > static_cast<unsigned long long>(std::numeric_limits<Address::StorageType>::max())) {
             return false;
         }
-        out = isa::Address{parsed};
+        out = Address{parsed};
         return true;
     } catch (...) {
         return false;
     }
 }
 
-std::string FormatMemoryByte(isa::Processor const& cpu, isa::Address address) {
+std::string FormatMemoryByte(Processor const& cpu, Address address) {
     uint32_t value = 0U;
     if (not cpu.Peek(address, value)) {
         return "--";
@@ -134,12 +136,12 @@ std::string FormatMemoryByte(isa::Processor const& cpu, isa::Address address) {
     return stream.str();
 }
 
-std::string FormatMemoryRow(isa::Processor const& cpu, isa::Address row_base_address) {
+std::string FormatMemoryRow(Processor const& cpu, Address row_base_address) {
     std::ostringstream stream;
     stream << FormatAddressHex(row_base_address) << ": ";
 
     for (size_t i = 0; i < kMemoryBytesPerRow; ++i) {
-        isa::Address address{0};
+        Address address{0};
         if (TryAddAddress(row_base_address, i, address)) {
             stream << FormatMemoryByte(cpu, address);
         } else {
@@ -164,14 +166,14 @@ int main(int argc, char* argv[]) {
     basal::options::process(basal::dimof(opts), opts, argc, argv);
     const std::filesystem::path state_directory = std::get<std::string>(opts[0].value);
 
-    isa::Processor cpu;  // resets internally but nothing attached yet, so we'll need to reset again after attaching
-                         // memory to get the correct entry point loaded.
+    Processor cpu;  // resets internally but nothing attached yet, so we'll need to reset again after attaching
+                    // memory to get the correct entry point loaded.
 
     // Start "Config"
 
-    isa::FlashMemory flash0{isa::Range{0x00100000, 0x001FFFFF}};  // Small 1MB Flash
+    FlashMemory flash0{Range{0x00100000, 0x001FFFFF}};  // Small 1MB Flash
     cpu.AttachFlashMemory(flash0);
-    isa::TightlyCoupledMemory sram0{isa::Range{0x10000000, 0x1000FFFF}};  // 64KB SRAM
+    TightlyCoupledMemory sram0{Range{0x10000000, 0x1000FFFF}};  // 64KB SRAM
     cpu.AddTightlyCoupledMemory(sram0);
 
     // Start "Loader"
@@ -182,33 +184,25 @@ int main(int argc, char* argv[]) {
     auto& special = cpu.GetSpecial();
     auto& evaluation = cpu.GetEvaluations();
 
-    isa::program demo_program = {
-        isa::instructions::Instruction{
-            isa::instructions::ClearScratch{isa::Operand{isa::OperandType::Mask, isa::Immediate<16>{0xFFFFU}}}},
-        isa::instructions::Instruction{
-            isa::instructions::ClearEvaluation{isa::Operand{isa::OperandType::Mask, isa::Immediate<16>{0xFFFFU}}}},
-        isa::instructions::Instruction{isa::instructions::NoOp{}},
-        isa::instructions::Instruction{isa::instructions::MoveImmediateToScratch{
-            isa::Operand{isa::OperandType::Scratch, 0}, isa::Immediate<20>{0x12345}}},
-        isa::instructions::Instruction{isa::instructions::MoveScratchToScratch{
-            isa::Operand{isa::OperandType::Scratch, 1}, isa::Operand{isa::OperandType::Scratch, 0}}},
-        isa::instructions::Instruction{isa::instructions::SwapScratch{isa::Operand{isa::OperandType::Scratch, 0},
-                                                                      isa::Operand{isa::OperandType::Scratch, 4}}},
-        isa::instructions::Instruction{isa::instructions::SwapEvaluation{
-            isa::Operand{isa::OperandType::Evaluation, 0}, isa::Operand{isa::OperandType::Evaluation, 1}}},
-        isa::instructions::Instruction{isa::instructions::MoveImmediateToEvaluation{
-            isa::Operand{isa::OperandType::Evaluation, 0}, isa::Immediate<20>{0xFF}}},
-        isa::instructions::Instruction{isa::instructions::LoadSingle{isa::Operand{isa::OperandType::Scratch, 2},
-                                                                     isa::Operand{isa::OperandType::Scratch, 0},
-                                                                     isa::Immediate<14>{0x10}, true, false}},
-        isa::instructions::Instruction{isa::instructions::StoreSingle{isa::Operand{isa::OperandType::Scratch, 2},
-                                                                      isa::Operand{isa::OperandType::Scratch, 0},
-                                                                      isa::Immediate<14>{0x20}, true, false}},
-        isa::instructions::Instruction{isa::instructions::Halt{}},
+    program demo_program = {
+        Instruction{ClearScratch{Operand{OperandType::Mask, Immediate<16>{0xFFFFU}}}},
+        Instruction{ClearEvaluation{Operand{OperandType::Mask, Immediate<16>{0xFFFFU}}}},
+        Instruction{NoOp{}},
+        Instruction{MoveImmediateToScratch{Operand{OperandType::Scratch, 0}, Immediate<20>{0x12345}}},
+        Instruction{MoveScratchToScratch{Operand{OperandType::Scratch, 1}, Operand{OperandType::Scratch, 0}, true,
+                                         MoveScratchToScratch::ImmediateType{4}}},
+        Instruction{SwapScratch{Operand{OperandType::Scratch, 0}, Operand{OperandType::Scratch, 4}}},
+        Instruction{SwapEvaluation{Operand{OperandType::Evaluation, 0}, Operand{OperandType::Evaluation, 1}}},
+        Instruction{MoveImmediateToEvaluation{Operand{OperandType::Evaluation, 0}, MoveImmediateToEvaluation::ImmediateType{0xFF}}},
+        Instruction{LoadSingle{Operand{OperandType::Scratch, 2}, Operand{OperandType::Scratch, 0}, LoadSingle::ImmediateType{0x10},
+                               true, false}},
+        Instruction{StoreSingle{Operand{OperandType::Scratch, 2}, Operand{OperandType::Scratch, 0}, StoreSingle::ImmediateType{0x20},
+                                true, false}},
+        Instruction{Halt{}},
     };
     // copy the default vector table to ROM so that the CPU can fetch the entry point from it on reset
-    uint32_t vector_table_offset = sizeof(isa::VectorTable);
-    isa::VectorTable vector_table{
+    uint32_t vector_table_offset = sizeof(VectorTable);
+    VectorTable vector_table{
         .stack_initial = 0x10008000U,
         .stack_boundary = 0x10000000U,
         .exception_stack_initial = 0x10010000U,
@@ -216,15 +210,14 @@ int main(int argc, char* argv[]) {
         .reset_handler
         = flash0.ViewRange().start + vector_table_offset,  // point the reset handler to the start of our demo program
     };
-    isa::Address tmp = flash0.ViewRange().start;
-    for (size_t i = 0; i < isa::VectorTableCount; ++i) {
-        cpu.Poke(tmp + (i * sizeof(isa::Address)), vector_table[i].value);
+    Address tmp = flash0.ViewRange().start;
+    for (size_t i = 0; i < VectorTableCount; ++i) {
+        cpu.Poke(tmp + (i * sizeof(Address)), vector_table[i].value);
     }
     // copy the instruction to ROM
     for (size_t i = 0; i < basal::dimof(demo_program); ++i) {
-        cpu.Poke(
-            isa::Address{flash0.ViewRange().start + vector_table_offset + i * sizeof(isa::instructions::Instruction)},
-            demo_program[i].raw);
+        cpu.Poke(Address{flash0.ViewRange().start + vector_table_offset + i * sizeof(Instruction)},
+                 demo_program[i].raw);
     }
 
     // Cause the cpu to reset back to the entry point of the demo program, which will allow us to test the persistence
@@ -233,7 +226,7 @@ int main(int argc, char* argv[]) {
 
     // End "Loader"
 
-    isa::Address memory_base_address = isa::DefaultVectorTableAddress;
+    Address memory_base_address = DefaultVectorTableAddress;
     std::string memory_base_input = FormatAddressHex(memory_base_address);
     std::string memory_view_status = "Enter base address (hex) and press Enter";
     std::vector<std::string> console_lines = {
@@ -256,7 +249,7 @@ int main(int argc, char* argv[]) {
         memory_view_status = "Viewing from " + memory_base_input;
     };
 
-    const auto update_persistence_status = [&](isa::PersistenceReport const& report) {
+    const auto update_persistence_status = [&](PersistenceReport const& report) {
         push_console_line(report.summary);
         for (auto const& file_name : report.files) {
             push_console_line("  " + file_name);
@@ -288,7 +281,7 @@ int main(int argc, char* argv[]) {
     memory_base_input_options.on_enter = [&] {
         memory_base_input = StripLineBreaks(memory_base_input);
 
-        isa::Address parsed{0};
+        Address parsed{0};
         if (TryParseAddress(memory_base_input, parsed)) {
             memory_base_address = parsed;
             update_memory_base_input();
@@ -304,21 +297,20 @@ int main(int argc, char* argv[]) {
 
     const auto asm_panel = [&cpu](int asm_height) {
         const auto& special = cpu.ViewSpecial();
-        const isa::Address pc = special.program_address_;
+        const Address pc = special.program_address_;
         // Align PC to instruction boundary
-        const isa::Address aligned_pc
-            = pc & isa::Address{~(static_cast<isa::Address::StorageType>(kInstructionSize) - 1U)};
+        const Address aligned_pc = pc & Address{~(static_cast<Address::StorageType>(kInstructionSize) - 1U)};
 
         // Calculate how many instruction rows fit in the panel (2 rows for the window border)
         const int visible_rows = std::max(1, asm_height - 2);
 
         // Show a couple of instructions before the PC for context
         constexpr size_t kLookBack = 2U;
-        const isa::Address asm_base = SaturatingAddressSub(aligned_pc, kLookBack * kInstructionSize);
+        const Address asm_base = SaturatingAddressSub(aligned_pc, kLookBack * kInstructionSize);
 
         Elements rows;
         for (int i = 0; i < visible_rows; ++i) {
-            isa::Address addr{0};
+            Address addr{0};
             if (!TryAddAddress(asm_base, static_cast<size_t>(i) * kInstructionSize, addr)) {
                 rows.push_back(text("  [end of address space]"));
                 continue;
@@ -329,7 +321,7 @@ int main(int argc, char* argv[]) {
 
             uint32_t raw_value = 0U;
             if (cpu.Peek(addr, raw_value)) {
-                isa::instructions::Instruction instr;
+                Instruction instr;
                 instr.raw = raw_value;
                 line << instr;
             } else {
@@ -348,9 +340,9 @@ int main(int argc, char* argv[]) {
     };
 
     const auto registers_panel = [&cpu] {
-        const auto scratch_rows = isa::FormatScratchRegisterRows(cpu);
-        const auto special_rows = isa::FormatSpecialRegisterRows(cpu);
-        const auto eval_rows = isa::FormatEvaluationRegisterRows(cpu);
+        const auto scratch_rows = FormatScratchRegisterRows(cpu);
+        const auto special_rows = FormatSpecialRegisterRows(cpu);
+        const auto eval_rows = FormatEvaluationRegisterRows(cpu);
         return window(text(" Registers "), hbox({
                                                vbox({
                                                    text("Scratch"),
@@ -381,14 +373,13 @@ int main(int argc, char* argv[]) {
 
         const int visible_rows = std::max(1, memory_height - static_cast<int>(rows.size()) - 1);
         for (int row = 0; row < visible_rows; ++row) {
-            isa::Address row_address{0};
+            Address row_address{0};
             const size_t row_offset = static_cast<size_t>(row) * kMemoryBytesPerRow;
             if (TryAddAddress(memory_base_address, row_offset, row_address)) {
                 rows.push_back(text(FormatMemoryRow(cpu, row_address)));
             } else {
-                rows.push_back(
-                    text(FormatAddressHex(isa::Address{std::numeric_limits<isa::Address::StorageType>::max()}) + ": "
-                         + kUnavailableMemoryCells));
+                rows.push_back(text(FormatAddressHex(Address{std::numeric_limits<Address::StorageType>::max()}) + ": "
+                                    + kUnavailableMemoryCells));
             }
         }
 
@@ -441,7 +432,7 @@ int main(int argc, char* argv[]) {
         if (event == Event::Return) {
             memory_base_input = StripLineBreaks(memory_base_input);
 
-            isa::Address parsed{0};
+            Address parsed{0};
             if (TryParseAddress(memory_base_input, parsed)) {
                 memory_base_address = parsed;
                 update_memory_base_input();
@@ -504,7 +495,7 @@ int main(int argc, char* argv[]) {
             return true;
         }
         if (event == Event::Home) {
-            memory_base_address = isa::DefaultSramStartAddress;
+            memory_base_address = DefaultSramStartAddress;
             update_memory_base_input();
             return true;
         }

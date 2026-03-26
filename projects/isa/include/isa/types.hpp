@@ -165,15 +165,17 @@ enum class EvaluationType : EvaluationUnit {
 constexpr static size_t EvaluationTypeBits{2U};
 constexpr static size_t EvaluationFlagBits{6U};
 
-/// The base evaluation struct contains the type of the evaluation and is used for instructions that do not produce meaningful evaluation results but need to be able to be stored in an evaluation register for consistency.
+/// The base evaluation struct contains the type of the evaluation and is used for instructions that do not produce
+/// meaningful evaluation results but need to be able to be stored in an evaluation register for consistency.
 struct BaseEvaluation {
-    BaseEvaluation() : type{to_underlying(EvaluationType::None)}, flags{0} {
+    constexpr BaseEvaluation() : type{to_underlying(EvaluationType::None)}, flags{0} {
     }
-    EvaluationUnit type : EvaluationTypeBits;  ///< The EvaluationType (None).
-    EvaluationUnit flags : EvaluationFlagBits; ///< The Flags for Evaluation whose meaning depends on the type of the evaluation. For BaseEvaluation, these bits are unused.
+    EvaluationUnit type : EvaluationTypeBits;   ///< The EvaluationType (None).
+    EvaluationUnit flags : EvaluationFlagBits;  ///< The Flags for Evaluation whose meaning depends on the type of the
+                                                ///< evaluation. For BaseEvaluation, these bits are unused.
 
     friend std::ostream& operator<<(std::ostream& os, BaseEvaluation const& base) {
-        os << "E(Type: " << static_cast<uint32_t>(base.type) << ", Value: 0b" << std::bitset<EvaluationFlagBits>(base.flags) << ")";
+        os << "T" << static_cast<EvaluationUnit>(base.type) << ", 0b" << std::bitset<EvaluationFlagBits>(base.flags);
         return os;
     }
 };
@@ -182,9 +184,10 @@ struct BaseEvaluation {
 /// designed to fit within a single 6-bit field of an Evaluation register, allowing for efficient storage and retrieval
 /// of comparison results.
 struct ComparisonEvaluation {
-    ComparisonEvaluation() : type{to_underlying(EvaluationType::Comparison)}, less_than{0}, equal{0}, greater_than{0}, not_equal{0} {
+    constexpr ComparisonEvaluation()
+        : type{to_underlying(EvaluationType::Comparison)}, less_than{0}, equal{0}, greater_than{0}, not_equal{0} {
     }
-    ComparisonEvaluation(bool lt, bool eq, bool gt, bool ne)
+    constexpr ComparisonEvaluation(bool lt, bool eq, bool gt, bool ne)
         : type{to_underlying(EvaluationType::Comparison)}
         , less_than{EvaluationUnit(lt ? 1U : 0U)}
         , equal{EvaluationUnit(eq ? 1U : 0U)}
@@ -200,36 +203,44 @@ struct ComparisonEvaluation {
     EvaluationUnit : 2;                        ///< Unused bits for future expansion
 
     friend std::ostream& operator<<(std::ostream& os, ComparisonEvaluation c) {
-        os << "C(LT: " << static_cast<uint32_t>(c.less_than) << ", EQ: " << static_cast<uint32_t>(c.equal)
-           << ", GT: " << static_cast<uint32_t>(c.greater_than) << ", NE: " << static_cast<uint32_t>(c.not_equal) << ")";
+        os << "C(LT:" << static_cast<EvaluationUnit>(c.less_than) << ", EQ:" << static_cast<EvaluationUnit>(c.equal)
+           << ", GT:" << static_cast<EvaluationUnit>(c.greater_than) << ", NE:" << static_cast<EvaluationUnit>(c.not_equal)
+           << ")";
         return os;
     }
 };
 
 /// A struct to represent the results of arithmetic operations, which can be used for conditional moves and jumps.
 struct ArithmeticEvaluation {
-    ArithmeticEvaluation() : type{to_underlying(EvaluationType::Arithmetic)}, positive{0}, zero{0}, overflow{0}, saturated{0}, undefined{0} {
+    constexpr ArithmeticEvaluation()
+        : type{to_underlying(EvaluationType::Arithmetic)}
+        , positive{0}
+        , zero{0}
+        , overflow{0}
+        , saturated{0}
+        , undefined{0} {
     }
 
     EvaluationUnit type : EvaluationTypeBits;  ///< The EvaluationType (arithmetic).
-    EvaluationUnit positive : 1;               ///< 1 when result is positive, 0 when negative (zero is considered positive)
-    EvaluationUnit zero : 1;                   ///< 1 when result is zero. 0 otherwise
-    EvaluationUnit overflow : 1;               ///< 1 when a signed overflow occurred (result was > than signed max)
-    EvaluationUnit saturated : 1;              ///< 1 when result was saturated
-    EvaluationUnit undefined : 1;              ///< 1 when result is undefined (e.g., div by zero)
-    EvaluationUnit : 1;                        ///< Unused bits for future expansion
+    EvaluationUnit positive : 1;   ///< 1 when result is positive, 0 when negative (zero is considered positive)
+    EvaluationUnit zero : 1;       ///< 1 when result is zero. 0 otherwise
+    EvaluationUnit overflow : 1;   ///< 1 when a signed overflow occurred (result was > than signed max)
+    EvaluationUnit saturated : 1;  ///< 1 when result was saturated
+    EvaluationUnit undefined : 1;  ///< 1 when result is undefined (e.g., div by zero)
+    EvaluationUnit : 1;            ///< Unused bits for future expansion
 
     friend std::ostream& operator<<(std::ostream& os, ArithmeticEvaluation a) {
-        os << "A(Pos: " << static_cast<uint32_t>(a.positive) << ", Zero: " << static_cast<uint32_t>(a.zero)
-           << ", OVF: " << static_cast<uint32_t>(a.overflow) << ", Sat: " << static_cast<uint32_t>(a.saturated)
-           << ", Undef: " << static_cast<uint32_t>(a.undefined) << ")";
+        os << "A(+:" << static_cast<EvaluationUnit>(a.positive) << ", Z:" << static_cast<EvaluationUnit>(a.zero)
+           << ", O:" << static_cast<EvaluationUnit>(a.overflow) << ", S:" << static_cast<EvaluationUnit>(a.saturated)
+           << ", U:" << static_cast<EvaluationUnit>(a.undefined) << ")";
         return os;
     }
 };
 
 /// A struct to represent the results of floating-point operations, which can be used for conditional moves and jumps.
 struct PrecisionEvaluation {
-    PrecisionEvaluation() : type{to_underlying(EvaluationType::Precision)}, inexact{0}, rounded{0}, subnormal{0}, underflow{0} {
+    constexpr PrecisionEvaluation()
+        : type{to_underlying(EvaluationType::Precision)}, inexact{0}, rounded{0}, subnormal{0}, underflow{0} {
     }
     EvaluationUnit type : EvaluationTypeBits;  ///< The EvaluationType (precision).
     EvaluationUnit inexact : 1;                ///< 1 when result is inexact
@@ -239,23 +250,25 @@ struct PrecisionEvaluation {
     EvaluationUnit : 2;                        ///< Unused bits for future expansion
 
     friend std::ostream& operator<<(std::ostream& os, PrecisionEvaluation p) {
-        os << "P(Inexact: " << static_cast<uint32_t>(p.inexact) << ", Rounded: " << static_cast<uint32_t>(p.rounded)
-           << ", Subnormal: " << static_cast<uint32_t>(p.subnormal) << ", Underflow: " << static_cast<uint32_t>(p.underflow) << ")";
+        os << "P(I:" << static_cast<EvaluationUnit>(p.inexact) << ", R:" << static_cast<EvaluationUnit>(p.rounded)
+           << ", S:" << static_cast<EvaluationUnit>(p.subnormal)
+           << ", U:" << static_cast<EvaluationUnit>(p.underflow) << ")";
         return os;
     }
 };
 
-/// The Evaluation union allows for different types of evaluation results to be stored in the same register, with the type field indicating how to interpret the value.
+/// The Evaluation union allows for different types of evaluation results to be stored in the same register, with the
+/// type field indicating how to interpret the value.
 union Evaluation {
-    Evaluation() : value{0} {
+    constexpr Evaluation() : value{0} {
     }
-    Evaluation(EvaluationUnit raw) : value{raw} {
+    constexpr Evaluation(EvaluationUnit raw) : value{raw} {
     }
-    Evaluation(ComparisonEvaluation comparison) : comparison{comparison} {
+    constexpr Evaluation(ComparisonEvaluation comparison) : comparison{comparison} {
     }
-    Evaluation(ArithmeticEvaluation arithmetic) : arithmetic{arithmetic} {
+    constexpr Evaluation(ArithmeticEvaluation arithmetic) : arithmetic{arithmetic} {
     }
-    Evaluation(PrecisionEvaluation precision) : precision{precision} {
+    constexpr Evaluation(PrecisionEvaluation precision) : precision{precision} {
     }
     // === Assignment Operators for ease of use ===
     Evaluation& operator=(EvaluationUnit raw) {
@@ -413,7 +426,7 @@ struct Immediate {
     }
 
     uint32_t value : BITS;
-    uint32_t : 32 - BITS;
+    uint32_t : CountOfDataBits - BITS;
 
     friend std::ostream& operator<<(std::ostream& os, Immediate<BITS> imm) {
         os << "#" << std::hex << imm.value;
@@ -431,7 +444,7 @@ struct SignedImmediate {
     }
 
     int32_t value : BITS;
-    int32_t : 32 - BITS;
+    int32_t : CountOfDataBits - BITS;
 
     friend std::ostream& operator<<(std::ostream& os, SignedImmediate<BITS> imm) {
         os << "#" << std::hex << imm.value;

@@ -153,6 +153,7 @@ protected:
 };
 
 struct MoveScratchToScratch {
+    using ImmediateType = isa::Immediate<log2(CountOfDataShiftBits)>;
     MoveScratchToScratch() = delete;
     constexpr MoveScratchToScratch(Operand dst, Operand src)
         : op{Operator::MoveScratchToScratch}
@@ -163,6 +164,40 @@ struct MoveScratchToScratch {
         , cond{0}
         , dir{0}
         , shift{0} {
+    }
+
+    constexpr MoveScratchToScratch(Operand eval, Operand mask, Operand dst, Operand src)
+        : op{Operator::MoveScratchToScratch}
+        , eval{eval.index}
+        , mask{mask.index}
+        , dst{dst.index}
+        , src{src.index}
+        , cond{1}
+        , dir{0}
+        , shift{0} {
+    }
+
+    constexpr MoveScratchToScratch(Operand dst, Operand src, bool shift_right, ImmediateType shift_amount)
+        : op{Operator::MoveScratchToScratch}
+        , eval{0}
+        , mask{0}
+        , dst{dst.index}
+        , src{src.index}
+        , cond{0}
+        , dir{shift_right ? 1U : 0U}
+        , shift{shift_amount.value} {
+    }
+
+    constexpr MoveScratchToScratch(Operand eval, Operand mask, Operand dst, Operand src, bool shift_right,
+                                   ImmediateType shift_amount)
+        : op{Operator::MoveScratchToScratch}
+        , eval{eval.index}
+        , mask{mask.index}
+        , dst{dst.index}
+        , src{src.index}
+        , cond{1}
+        , dir{shift_right ? 1U : 0U}
+        , shift{shift_amount.value} {
     }
 
     friend std::ostream& operator<<(std::ostream& os, MoveScratchToScratch m) {
@@ -180,13 +215,13 @@ struct MoveScratchToScratch {
     }
 
     const Operator op : CountOfOperatorBits;
-    uint32_t eval : CountOfIndexBits;       ///< Evaluation
-    uint32_t mask : CountOfIndexBits;       ///< Evaluation Mask
-    uint32_t dst : CountOfIndexBits;        ///< Operand
-    uint32_t src : CountOfIndexBits;        ///< Operand
-    uint32_t cond : 1;                      ///< If == 1, then the move is conditional on the evaluation and mask.
-    uint32_t : 1;                           ///< Unused
-    uint32_t dir : 1;                       ///< Direction for Shift (0 = Left, 1 = Right)
+    uint32_t eval : CountOfIndexBits;  ///< Evaluation
+    uint32_t mask : CountOfIndexBits;  ///< Evaluation Mask
+    uint32_t dst : CountOfIndexBits;   ///< Operand
+    uint32_t src : CountOfIndexBits;   ///< Operand
+    uint32_t cond : 1;                 ///< If == 1, then the move is conditional on the evaluation and mask.
+    uint32_t : 1;      ///< Unused (TODO Could be used to indicate eval or scratch for conditional move?)
+    uint32_t dir : 1;  ///< Direction for Shift (0 = Left, 1 = Right)
     uint32_t shift : CountOfDataShiftBits;  ///< Shift Amount (for shift instructions)
 };
 
@@ -211,11 +246,17 @@ struct MoveImmediateToScratch {
 };
 
 struct MoveImmediateToEvaluation {
-    using ImmediateType = isa::Immediate<20>;
+    using ImmediateType = isa::Immediate<EvaluationTypeBits + EvaluationFlagBits>;
     MoveImmediateToEvaluation() = delete;
+
     constexpr MoveImmediateToEvaluation(Operand dst, ImmediateType imm)
         : op{Operator::MoveImmediateToEvaluation}, dst{dst.index}, imm{imm.value} {
     }
+
+    constexpr MoveImmediateToEvaluation(Operand dst, Evaluation eval)
+        : op{Operator::MoveImmediateToEvaluation}, dst{dst.index}, imm{eval.value} {
+    }
+
     friend std::ostream& operator<<(std::ostream& os, MoveImmediateToEvaluation mi) {
         os << "move " << Operand{OperandType::Evaluation, mi.dst} << ", " << ImmediateType{mi.imm};
         return os;
@@ -227,7 +268,8 @@ struct MoveImmediateToEvaluation {
 
     Operator op : CountOfOperatorBits;
     uint32_t dst : CountOfIndexBits;
-    uint32_t imm : 20;
+    uint32_t     : 20 - ImmediateType::Bits;
+    uint32_t imm : ImmediateType::Bits;
 };
 
 struct SwapScratch {
@@ -254,8 +296,8 @@ struct SwapEvaluation {
         return os;
     }
     Operator op : CountOfOperatorBits;
-    uint32_t a : 4;  ///< Evaluation Index A (0-15)
-    uint32_t b : 4;  ///< Evaluation Index B (0-15)
+    uint32_t a : CountOfIndexBits;
+    uint32_t b : CountOfIndexBits;
     uint32_t : 16;   ///< Unused
 };
 
@@ -365,7 +407,13 @@ struct Jump {
     }
 
     constexpr Jump(Operand eval, Operand mask, Operand dst, ImmediateType imm, bool save = false)
-        : op{Operator::Jump}, eval{eval.index}, mask{mask.index}, dst{dst.index}, cond{1}, save{save ? 1U : 0U}, imm{imm.value} {
+        : op{Operator::Jump}
+        , eval{eval.index}
+        , mask{mask.index}
+        , dst{dst.index}
+        , cond{1}
+        , save{save ? 1U : 0U}
+        , imm{imm.value} {
     }
     friend std::ostream& operator<<(std::ostream& os, Jump j) {
         os << "jump ";

@@ -204,8 +204,7 @@ struct ComparisonEvaluation {
 
     friend std::ostream& operator<<(std::ostream& os, ComparisonEvaluation c) {
         os << "C(LT:" << static_cast<uint32_t>(c.less_than) << ", EQ:" << static_cast<uint32_t>(c.equal)
-           << ", GT:" << static_cast<uint32_t>(c.greater_than)
-           << ", NE:" << static_cast<uint32_t>(c.not_equal) << ")";
+           << ", GT:" << static_cast<uint32_t>(c.greater_than) << ", NE:" << static_cast<uint32_t>(c.not_equal) << ")";
         return os;
     }
 };
@@ -251,8 +250,7 @@ struct PrecisionEvaluation {
 
     friend std::ostream& operator<<(std::ostream& os, PrecisionEvaluation p) {
         os << "P(I:" << static_cast<uint32_t>(p.inexact) << ", R:" << static_cast<uint32_t>(p.rounded)
-           << ", S:" << static_cast<uint32_t>(p.subnormal) << ", U:" << static_cast<uint32_t>(p.underflow)
-           << ")";
+           << ", S:" << static_cast<uint32_t>(p.subnormal) << ", U:" << static_cast<uint32_t>(p.underflow) << ")";
         return os;
     }
 };

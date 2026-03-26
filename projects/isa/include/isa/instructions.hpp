@@ -14,13 +14,10 @@ namespace isa {
 enum class Operator : uint32_t {
     None = 0,  ///< noop
     // === Movement within Files ===
-    Move,        ///< move destination, Source (use E or S prefix)
+    Move,  ///< move destination, Source (use E or S prefix)
 
     MoveImmediateToScratch,     ///< move immediate to scratch
     MoveImmediateToEvaluation,  ///< move immediate to evaluation
-
-    MoveEvaluationToScratch,  ///< move evaluation to scratch
-    MoveScratchToEvaluation,  ///< move scratch to evaluation
 
     Swap,   ///< swap registerA, registerB; reg_type (0=scratch, 1=evaluation)
     Clear,  ///< clear registers using mask; reg_type (0=scratch, 1=evaluation)
@@ -46,12 +43,24 @@ enum class Operator : uint32_t {
     Lsh,    ///< lsh scratchDestination, scratchSource, #imm<5>
     Count,  ///< count scratchDestination, scratchSource
     // === ALU (Integer) ===
-    Add,       ///< add scratchDestination, scratchSource, scratchSource -> OverFlow
-    Sub,       ///< sub scratchDestination, scratchSource, scratchSource -> Underflow
-    Multiply,  ///< mult scratchDestination, scratchSource, scratchSource -> Overflow or Underflow
-    Divide,    ///< div  scratchDestination, scratchSource, scratchSource -> Fault if scratchSource == 0
-    Modulo,    ///< modu scratchDestination, scratchSource, scratchSource -> Fault if scratchSource == 0
-    // === ALU (Float) ===
+    SignedAdd,         ///< sadd scratchDestination, scratchSource, scratchSource -> OverFlow
+    SignedSub,         ///< ssub scratchDestination, scratchSource, scratchSource -> Underflow
+    SignedMultiply,    ///< smult scratchDestination, scratchSource, scratchSource -> Overflow or Underflow
+    SignedDivide,      ///< sdiv  scratchDestination, scratchSource, scratchSource -> Fault if scratchSource == 0
+    SignedModulo,      ///< smod scratchDestination, scratchSource, scratchSource -> Fault if scratchSource == 0
+    UnsignedAdd,       ///< uadd scratchDestination, scratchSource, scratchSource -> OverFlow
+    UnsignedSub,       ///< usub scratchDestination, scratchSource, scratchSource -> Underflow
+    UnsignedMultiply,  ///< umult scratchDestination, scratchSource, scratchSource -> Overflow
+    UnsignedDivide,    ///< udiv  scratchDestination, scratchSource, scratchSource ->
+    UnsignedModulo,    ///< umod scratchDestination, scratchSource, scratchSource -> Fault if scratchSource == 0
+    // === ALU (Precision) ===
+    Fadd,       ///< fadd scratchDestination, scratchSource, scratchSource -> Overflow or Underflow
+    Fsub,       ///< fsub scratchDestination, scratchSource, scratchSource -> Overflow or Underflow
+    Fmultiply,  ///< fmult scratchDestination, scratchSource, scratchSource -> Overflow or Underflow
+    Fdivide,    ///< fdiv  scratchDestination, scratchSource, scratchSource -> Fault if scratchSource == 0
+    floor,      ///< ffloor scratchDestination, scratchSource
+    ceil,       ///< fceil  scratchDestination, scratchSource
+
     // === ALU (SIMD) ===
 
     Halt = 0xFFU  ///< Halts the processor.
@@ -159,7 +168,10 @@ struct Move {
         , dst{dst.index}
         , src{src.index}
         , cond{0}
-        , type{dst.type == static_cast<uint32_t>(OperandType::Evaluation) && src.type == static_cast<uint32_t>(OperandType::Evaluation) ? 1U : 0U}
+        , type{dst.type == static_cast<uint32_t>(OperandType::Evaluation)
+                       && src.type == static_cast<uint32_t>(OperandType::Evaluation)
+                   ? 1U
+                   : 0U}
         , dir{0}
         , shift{0} {
     }
@@ -171,7 +183,10 @@ struct Move {
         , dst{dst.index}
         , src{src.index}
         , cond{1}
-        , type{dst.type == static_cast<uint32_t>(OperandType::Evaluation) && src.type == static_cast<uint32_t>(OperandType::Evaluation) ? 1U : 0U}
+        , type{dst.type == static_cast<uint32_t>(OperandType::Evaluation)
+                       && src.type == static_cast<uint32_t>(OperandType::Evaluation)
+                   ? 1U
+                   : 0U}
         , dir{0}
         , shift{0} {
     }
@@ -183,20 +198,25 @@ struct Move {
         , dst{dst.index}
         , src{src.index}
         , cond{0}
-        , type{dst.type == static_cast<uint32_t>(OperandType::Evaluation) && src.type == static_cast<uint32_t>(OperandType::Evaluation) ? 1U : 0U}
+        , type{dst.type == static_cast<uint32_t>(OperandType::Evaluation)
+                       && src.type == static_cast<uint32_t>(OperandType::Evaluation)
+                   ? 1U
+                   : 0U}
         , dir{shift_right ? 1U : 0U}
         , shift{shift_amount.value} {
     }
 
-    constexpr Move(Operand eval, Operand mask, Operand dst, Operand src, bool shift_right,
-                                   ImmediateType shift_amount)
+    constexpr Move(Operand eval, Operand mask, Operand dst, Operand src, bool shift_right, ImmediateType shift_amount)
         : op{Operator::Move}
         , eval{eval.index}
         , mask{mask.index}
         , dst{dst.index}
         , src{src.index}
         , cond{1}
-        , type{dst.type == static_cast<uint32_t>(OperandType::Evaluation) && src.type == static_cast<uint32_t>(OperandType::Evaluation) ? 1U : 0U}
+        , type{dst.type == static_cast<uint32_t>(OperandType::Evaluation)
+                       && src.type == static_cast<uint32_t>(OperandType::Evaluation)
+                   ? 1U
+                   : 0U}
         , dir{shift_right ? 1U : 0U}
         , shift{shift_amount.value} {
     }
@@ -216,13 +236,13 @@ struct Move {
     }
 
     const Operator op : CountOfOperatorBits;
-    uint32_t eval : CountOfIndexBits;  ///< Evaluation
-    uint32_t mask : CountOfIndexBits;  ///< Evaluation Mask
-    uint32_t dst : CountOfIndexBits;   ///< Operand
-    uint32_t src : CountOfIndexBits;   ///< Operand
-    uint32_t cond : 1;                 ///< If == 1, then the move is conditional on the evaluation and mask.
-    uint32_t type: 1;                  ///< 0 = Scratch to Scratch, 1 = Evaluation to Evaluation
-    uint32_t dir : 1;                  ///< Direction for Shift (0 = Left, 1 = Right)
+    uint32_t eval : CountOfIndexBits;       ///< Evaluation
+    uint32_t mask : CountOfIndexBits;       ///< Evaluation Mask
+    uint32_t dst : CountOfIndexBits;        ///< Operand
+    uint32_t src : CountOfIndexBits;        ///< Operand
+    uint32_t cond : 1;                      ///< If == 1, then the move is conditional on the evaluation and mask.
+    uint32_t type : 1;                      ///< 0 = Scratch to Scratch, 1 = Evaluation to Evaluation
+    uint32_t dir : 1;                       ///< Direction for Shift (0 = Left, 1 = Right)
     uint32_t shift : CountOfDataShiftBits;  ///< Shift Amount (for shift instructions)
 };
 
@@ -231,7 +251,9 @@ struct MoveImmediateToScratch {
     MoveImmediateToScratch() = delete;
     constexpr MoveImmediateToScratch(Operand dst, ImmediateType imm)
         : op{Operator::MoveImmediateToScratch}, dst{dst.index}, imm{imm.value} {
-        basal::exception::throw_if(dst.type != to_underlying(OperandType::Scratch), __FILE__, __LINE__, "MoveImmediateToScratch instruction requires the destination operand to be a Scratch register");
+        basal::exception::throw_if(
+            dst.type != to_underlying(OperandType::Scratch), __FILE__, __LINE__,
+            "MoveImmediateToScratch instruction requires the destination operand to be a Scratch register");
     }
     friend std::ostream& operator<<(std::ostream& os, MoveImmediateToScratch mi) {
         os << "move " << Operand{OperandType::Scratch, mi.dst} << ", " << ImmediateType{mi.imm};
@@ -253,12 +275,16 @@ struct MoveImmediateToEvaluation {
 
     constexpr MoveImmediateToEvaluation(Operand dst, ImmediateType imm)
         : op{Operator::MoveImmediateToEvaluation}, dst{dst.index}, imm{imm.value} {
-        basal::exception::throw_if(dst.type != to_underlying(OperandType::Evaluation), __FILE__, __LINE__, "MoveImmediateToEvaluation instruction requires the destination operand to be an Evaluation register");
+        basal::exception::throw_if(
+            dst.type != to_underlying(OperandType::Evaluation), __FILE__, __LINE__,
+            "MoveImmediateToEvaluation instruction requires the destination operand to be an Evaluation register");
     }
 
     constexpr MoveImmediateToEvaluation(Operand dst, Evaluation eval)
         : op{Operator::MoveImmediateToEvaluation}, dst{dst.index}, imm{eval.value} {
-        basal::exception::throw_if(dst.type != to_underlying(OperandType::Evaluation), __FILE__, __LINE__, "MoveImmediateToEvaluation instruction requires the destination operand to be an Evaluation register");
+        basal::exception::throw_if(
+            dst.type != to_underlying(OperandType::Evaluation), __FILE__, __LINE__,
+            "MoveImmediateToEvaluation instruction requires the destination operand to be an Evaluation register");
     }
 
     friend std::ostream& operator<<(std::ostream& os, MoveImmediateToEvaluation mi) {
@@ -278,10 +304,13 @@ struct MoveImmediateToEvaluation {
 
 struct Swap {
     Swap() = delete;
-    constexpr Swap(Operand a, Operand b)
-        : op{Operator::Swap}, a{a.index}, b{b.index}, type{0} {
-        basal::exception::throw_unless(a.type == b.type, __FILE__, __LINE__, "Swap instruction requires both operands to be of the same type");
-        basal::exception::throw_if(a.type == static_cast<uint32_t>(OperandType::None) || a.type > static_cast<uint32_t>(OperandType::Evaluation), __FILE__, __LINE__, "Swap instruction requires both operands to be either Scratch or Evaluation registers");
+    constexpr Swap(Operand a, Operand b) : op{Operator::Swap}, a{a.index}, b{b.index}, type{0} {
+        basal::exception::throw_unless(a.type == b.type, __FILE__, __LINE__,
+                                       "Swap instruction requires both operands to be of the same type");
+        basal::exception::throw_if(
+            a.type == static_cast<uint32_t>(OperandType::None)
+                || a.type > static_cast<uint32_t>(OperandType::Evaluation),
+            __FILE__, __LINE__, "Swap instruction requires both operands to be either Scratch or Evaluation registers");
         type = (a.type == to_underlying(OperandType::Scratch)) ? RegisterType::Scratch : RegisterType::Evaluation;
     }
 
@@ -305,7 +334,8 @@ struct Clear {
         : op{Operator::Clear}, mask{mask.imm}, type{to_underlying(evaluation)} {
     }
     friend std::ostream& operator<<(std::ostream& os, Clear c) {
-        os << "clear " << (c.type == RegisterType::Scratch ? 'S' : 'E') << ", " << Operand{OperandType::Mask, ImmediateType{c.mask}};
+        os << "clear " << (c.type == RegisterType::Scratch ? 'S' : 'E') << ", "
+           << Operand{OperandType::Mask, ImmediateType{c.mask}};
         return os;
     }
 
@@ -421,18 +451,22 @@ struct Jump {
 
 /// Compares two scratch registers and sets flags in the Evaluation Register based on the result of the comparison.
 struct Compare {
-
     constexpr Compare() : op{Operator::Compare}, e{0}, a{0}, b{0}, s{0} {
     }
 
-    constexpr Compare(Operand e, Operand a, Operand b, bool signed_comparison = false) : op{Operator::Compare}, e{e.index}, a{a.index}, b{b.index}, s{signed_comparison ? 1U : 0U} {
-        basal::exception::throw_if(e.type != static_cast<uint32_t>(OperandType::Evaluation), __FILE__, __LINE__, "Compare instruction requires the first operand to be an Evaluation register");
-        basal::exception::throw_if(a.type != static_cast<uint32_t>(OperandType::Scratch), __FILE__, __LINE__, "Compare instruction requires the second operand to be a Scratch register");
-        basal::exception::throw_if(b.type != static_cast<uint32_t>(OperandType::Scratch), __FILE__, __LINE__, "Compare instruction requires the third operand to be a Scratch register");
+    constexpr Compare(Operand e, Operand a, Operand b, bool signed_comparison = false)
+        : op{Operator::Compare}, e{e.index}, a{a.index}, b{b.index}, s{signed_comparison ? 1U : 0U} {
+        basal::exception::throw_if(e.type != static_cast<uint32_t>(OperandType::Evaluation), __FILE__, __LINE__,
+                                   "Compare instruction requires the first operand to be an Evaluation register");
+        basal::exception::throw_if(a.type != static_cast<uint32_t>(OperandType::Scratch), __FILE__, __LINE__,
+                                   "Compare instruction requires the second operand to be a Scratch register");
+        basal::exception::throw_if(b.type != static_cast<uint32_t>(OperandType::Scratch), __FILE__, __LINE__,
+                                   "Compare instruction requires the third operand to be a Scratch register");
     }
 
     friend std::ostream& operator<<(std::ostream& os, Compare c) {
-        os << "compare " << Operand{OperandType::Evaluation, c.e} << ", " << Operand{OperandType::Scratch, c.a} << "<!=>" << Operand{OperandType::Scratch, c.b};
+        os << "compare " << Operand{OperandType::Evaluation, c.e} << ", " << Operand{OperandType::Scratch, c.a}
+           << "<!=>" << Operand{OperandType::Scratch, c.b};
         return os;
     }
 
@@ -442,6 +476,436 @@ struct Compare {
     uint32_t b : CountOfIndexBits;  ///< Scratch Register B
     uint32_t s : 1;  ///< If set, the comparison will be signed. If not set, the comparison will be unsigned.
     uint32_t : CountOfDataBits - CountOfOperatorBits - (3 * CountOfIndexBits) - 1;
+};
+
+struct BitwiseAnd {
+    BitwiseAnd() = delete;
+    constexpr BitwiseAnd(Operand dst, Operand src1, Operand src2)
+        : op{Operator::And}, dst{dst.index}, src1{src1.index}, src2{src2.index} {
+        basal::exception::throw_unless(dst.type == static_cast<uint32_t>(OperandType::Scratch)
+                                           && src1.type == static_cast<uint32_t>(OperandType::Scratch)
+                                           && src2.type == static_cast<uint32_t>(OperandType::Scratch),
+                                       __FILE__, __LINE__,
+                                       "BitwiseAnd instruction requires all operands to be Scratch registers");
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, BitwiseAnd a) {
+        os << "and " << Operand{OperandType::Scratch, a.dst} << ", " << Operand{OperandType::Scratch, a.src1} << ", "
+           << Operand{OperandType::Scratch, a.src2};
+        return os;
+    }
+
+    Operator op : CountOfOperatorBits;
+    uint32_t dst : CountOfIndexBits;   ///< Destination Scratch Register
+    uint32_t src1 : CountOfIndexBits;  ///< Source Scratch Register 1
+    uint32_t src2 : CountOfIndexBits;  ///< Source Scratch Register 2
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (3 * CountOfIndexBits);
+};
+
+struct BitwiseOr {
+    BitwiseOr() = delete;
+    constexpr BitwiseOr(Operand dst, Operand src1, Operand src2)
+        : op{Operator::Or}, dst{dst.index}, src1{src1.index}, src2{src2.index} {
+        basal::exception::throw_unless(dst.type == static_cast<uint32_t>(OperandType::Scratch)
+                                           && src1.type == static_cast<uint32_t>(OperandType::Scratch)
+                                           && src2.type == static_cast<uint32_t>(OperandType::Scratch),
+                                       __FILE__, __LINE__,
+                                       "BitwiseOr instruction requires all operands to be Scratch registers");
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, BitwiseOr o) {
+        os << "or " << Operand{OperandType::Scratch, o.dst} << ", " << Operand{OperandType::Scratch, o.src1} << ", "
+           << Operand{OperandType::Scratch, o.src2};
+        return os;
+    }
+
+    Operator op : CountOfOperatorBits;
+    uint32_t dst : CountOfIndexBits;   ///< Destination Scratch Register
+    uint32_t src1 : CountOfIndexBits;  ///< Source Scratch Register 1
+    uint32_t src2 : CountOfIndexBits;  ///< Source Scratch Register 2
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (3 * CountOfIndexBits);
+};
+
+struct BitwiseXor {
+    BitwiseXor() = delete;
+    constexpr BitwiseXor(Operand dst, Operand src1, Operand src2)
+        : op{Operator::Xor}, dst{dst.index}, src1{src1.index}, src2{src2.index} {
+        basal::exception::throw_unless(dst.type == static_cast<uint32_t>(OperandType::Scratch)
+                                           && src1.type == static_cast<uint32_t>(OperandType::Scratch)
+                                           && src2.type == static_cast<uint32_t>(OperandType::Scratch),
+                                       __FILE__, __LINE__,
+                                       "BitwiseXor instruction requires all operands to be Scratch registers");
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, BitwiseXor x) {
+        os << "xor " << Operand{OperandType::Scratch, x.dst} << ", " << Operand{OperandType::Scratch, x.src1} << ", "
+           << Operand{OperandType::Scratch, x.src2};
+        return os;
+    }
+
+    Operator op : CountOfOperatorBits;
+    uint32_t dst : CountOfIndexBits;   ///< Destination Scratch Register
+    uint32_t src1 : CountOfIndexBits;  ///< Source Scratch Register 1
+    uint32_t src2 : CountOfIndexBits;  ///< Source Scratch Register 2
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (3 * CountOfIndexBits);
+};
+
+struct BitwiseNot {
+    BitwiseNot() = delete;
+    constexpr BitwiseNot(Operand dst, Operand src) : op{Operator::Not}, dst{dst.index}, src{src.index} {
+        basal::exception::throw_unless(dst.type == static_cast<uint32_t>(OperandType::Scratch)
+                                           && src.type == static_cast<uint32_t>(OperandType::Scratch),
+                                       __FILE__, __LINE__,
+                                       "BitwiseNot instruction requires both operands to be Scratch registers");
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, BitwiseNot n) {
+        os << "not " << Operand{OperandType::Scratch, n.dst} << ", " << Operand{OperandType::Scratch, n.src};
+        return os;
+    }
+
+    Operator op : CountOfOperatorBits;
+    uint32_t dst : CountOfIndexBits;  ///< Destination Scratch Register
+    uint32_t src : CountOfIndexBits;  ///< Source Scratch Register
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (2 * CountOfIndexBits);
+};
+
+struct BitwiseRsh {
+    using ImmediateType = isa::Immediate<5>;
+    BitwiseRsh() = delete;
+    constexpr BitwiseRsh(Operand dst, Operand src, ImmediateType shift)
+        : op{Operator::Rsh}, dst{dst.index}, src{src.index}, shift{shift.value} {
+        basal::exception::throw_unless(dst.type == static_cast<uint32_t>(OperandType::Scratch)
+                                           && src.type == static_cast<uint32_t>(OperandType::Scratch),
+                                       __FILE__, __LINE__,
+                                       "BitwiseRsh instruction requires both operands to be Scratch registers");
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, BitwiseRsh r) {
+        os << "rsh " << Operand{OperandType::Scratch, r.dst} << ", " << Operand{OperandType::Scratch, r.src} << ", "
+           << r.shift;
+        return os;
+    }
+
+    Operator op : CountOfOperatorBits;
+    uint32_t dst : CountOfIndexBits;       ///< Destination Scratch Register
+    uint32_t src : CountOfIndexBits;       ///< Source Scratch Register
+    uint32_t shift : ImmediateType::Bits;  ///< Shift Amount (0-31)
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (2 * CountOfIndexBits) - ImmediateType::Bits;
+};
+
+struct BitwiseLsh {
+    using ImmediateType = isa::Immediate<5>;
+    BitwiseLsh() = delete;
+    constexpr BitwiseLsh(Operand dst, Operand src, ImmediateType shift)
+        : op{Operator::Lsh}, dst{dst.index}, src{src.index}, shift{shift.value} {
+        basal::exception::throw_unless(dst.type == static_cast<uint32_t>(OperandType::Scratch)
+                                           && src.type == static_cast<uint32_t>(OperandType::Scratch),
+                                       __FILE__, __LINE__,
+                                       "BitwiseLsh instruction requires both operands to be Scratch registers");
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, BitwiseLsh l) {
+        os << "lsh " << Operand{OperandType::Scratch, l.dst} << ", " << Operand{OperandType::Scratch, l.src} << ", "
+           << l.shift;
+        return os;
+    }
+
+    Operator op : CountOfOperatorBits;
+    uint32_t dst : CountOfIndexBits;       ///< Destination Scratch Register
+    uint32_t src : CountOfIndexBits;       ///< Source Scratch Register
+    uint32_t shift : ImmediateType::Bits;  ///< Shift Amount (0-31)
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (2 * CountOfIndexBits) - ImmediateType::Bits;
+};
+
+struct BitCount {
+    BitCount() = delete;
+    constexpr BitCount(Operand dst, Operand src) : op{Operator::Count}, dst{dst.index}, src{src.index} {
+        basal::exception::throw_unless(dst.type == static_cast<uint32_t>(OperandType::Scratch)
+                                           && src.type == static_cast<uint32_t>(OperandType::Scratch),
+                                       __FILE__, __LINE__,
+                                       "BitCount instruction requires both operands to be Scratch registers");
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, BitCount c) {
+        os << "count " << Operand{OperandType::Scratch, c.dst} << ", " << Operand{OperandType::Scratch, c.src};
+        return os;
+    }
+
+    Operator op : CountOfOperatorBits;
+    uint32_t dst : CountOfIndexBits;  ///< Destination Scratch Register
+    uint32_t src : CountOfIndexBits;  ///< Source Scratch Register
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (2 * CountOfIndexBits);
+};
+
+struct SignedAdd {
+    SignedAdd() = delete;
+    constexpr SignedAdd(Operand eval, Operand dst, Operand src1, Operand src2)
+        : op{Operator::SignedAdd}, eval{eval.index}, dst{dst.index}, src1{src1.index}, src2{src2.index} {
+        basal::exception::throw_unless(eval.type == static_cast<uint32_t>(OperandType::Evaluation)
+                                           && dst.type == static_cast<uint32_t>(OperandType::Scratch)
+                                           && src1.type == static_cast<uint32_t>(OperandType::Scratch)
+                                           && src2.type == static_cast<uint32_t>(OperandType::Scratch),
+                                       __FILE__, __LINE__,
+                                       "SignedAdd instruction requires evaluation to be Evaluation and others to be Scratch registers");
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, SignedAdd a) {
+        os << "sadd " << Operand{OperandType::Evaluation, a.eval} << ", " << Operand{OperandType::Scratch, a.dst}
+           << ", " << Operand{OperandType::Scratch, a.src1} << ", "
+           << Operand{OperandType::Scratch, a.src2};
+        return os;
+    }
+
+    Operator op : CountOfOperatorBits;
+    uint32_t eval : CountOfIndexBits;  ///< Evaluation Register
+    uint32_t dst : CountOfIndexBits;   ///< Destination Scratch Register
+    uint32_t src1 : CountOfIndexBits;  ///< Source Scratch Register 1
+    uint32_t src2 : CountOfIndexBits;  ///< Source Scratch Register 2
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (4 * CountOfIndexBits);
+};
+
+struct SignedSub {
+    SignedSub() = delete;
+    constexpr SignedSub(Operand eval, Operand dst, Operand src1, Operand src2)
+        : op{Operator::SignedSub}, eval{eval.index}, dst{dst.index}, src1{src1.index}, src2{src2.index} {
+        basal::exception::throw_unless(eval.type == static_cast<uint32_t>(OperandType::Evaluation)
+                                           && dst.type == static_cast<uint32_t>(OperandType::Scratch)
+                                           && src1.type == static_cast<uint32_t>(OperandType::Scratch)
+                                           && src2.type == static_cast<uint32_t>(OperandType::Scratch),
+                                       __FILE__, __LINE__,
+                                       "SignedSub instruction requires evaluation to be Evaluation and others to be Scratch registers");
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, SignedSub s) {
+        os << "ssub " << Operand{OperandType::Evaluation, s.eval} << ", " << Operand{OperandType::Scratch, s.dst}
+           << ", " << Operand{OperandType::Scratch, s.src1} << ", "
+           << Operand{OperandType::Scratch, s.src2};
+        return os;
+    }
+
+    Operator op : CountOfOperatorBits;
+    uint32_t eval : CountOfIndexBits;  ///< Evaluation Register
+    uint32_t dst : CountOfIndexBits;   ///< Destination Scratch Register
+    uint32_t src1 : CountOfIndexBits;  ///< Source Scratch Register 1
+    uint32_t src2 : CountOfIndexBits;  ///< Source Scratch Register 2
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (4 * CountOfIndexBits);
+};
+
+struct SignedMultiply {
+    SignedMultiply() = delete;
+    constexpr SignedMultiply(Operand eval, Operand dst, Operand src1, Operand src2)
+        : op{Operator::SignedMultiply}, eval{eval.index}, dst{dst.index}, src1{src1.index}, src2{src2.index} {
+        basal::exception::throw_unless(eval.type == static_cast<uint32_t>(OperandType::Evaluation)
+                                           && dst.type == static_cast<uint32_t>(OperandType::Scratch)
+                                           && src1.type == static_cast<uint32_t>(OperandType::Scratch)
+                                           && src2.type == static_cast<uint32_t>(OperandType::Scratch),
+                                       __FILE__, __LINE__,
+                                       "SignedMultiply instruction requires evaluation to be Evaluation and others to be Scratch registers");
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, SignedMultiply m) {
+        os << "smul " << Operand{OperandType::Evaluation, m.eval} << ", " << Operand{OperandType::Scratch, m.dst}
+           << ", " << Operand{OperandType::Scratch, m.src1} << ", "
+           << Operand{OperandType::Scratch, m.src2};
+        return os;
+    }
+
+    Operator op : CountOfOperatorBits;
+    uint32_t eval : CountOfIndexBits;  ///< Evaluation Register
+    uint32_t dst : CountOfIndexBits;   ///< Destination Scratch Register
+    uint32_t src1 : CountOfIndexBits;  ///< Source Scratch Register 1
+    uint32_t src2 : CountOfIndexBits;  ///< Source Scratch Register 2
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (4 * CountOfIndexBits);
+};
+
+struct SignedDivide {
+    SignedDivide() = delete;
+    constexpr SignedDivide(Operand eval, Operand dst, Operand src1, Operand src2)
+        : op{Operator::SignedDivide}, eval{eval.index}, dst{dst.index}, src1{src1.index}, src2{src2.index} {
+        basal::exception::throw_unless(eval.type == static_cast<uint32_t>(OperandType::Evaluation)
+                                           && dst.type == static_cast<uint32_t>(OperandType::Scratch)
+                                           && src1.type == static_cast<uint32_t>(OperandType::Scratch)
+                                           && src2.type == static_cast<uint32_t>(OperandType::Scratch),
+                                       __FILE__, __LINE__,
+                                       "SignedDivide instruction requires evaluation to be Evaluation and others to be Scratch registers");
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, SignedDivide d) {
+        os << "sdiv " << Operand{OperandType::Evaluation, d.eval} << ", " << Operand{OperandType::Scratch, d.dst}
+           << ", " << Operand{OperandType::Scratch, d.src1} << ", "
+           << Operand{OperandType::Scratch, d.src2};
+        return os;
+    }
+
+    Operator op : CountOfOperatorBits;
+    uint32_t eval : CountOfIndexBits;  ///< Evaluation Register
+    uint32_t dst : CountOfIndexBits;   ///< Destination Scratch Register
+    uint32_t src1 : CountOfIndexBits;  ///< Source Scratch Register 1
+    uint32_t src2 : CountOfIndexBits;  ///< Source Scratch Register 2
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (4 * CountOfIndexBits);
+};
+
+struct SignedModulo {
+    SignedModulo() = delete;
+    constexpr SignedModulo(Operand eval, Operand dst, Operand src1, Operand src2)
+        : op{Operator::SignedModulo}, eval{eval.index}, dst{dst.index}, src1{src1.index}, src2{src2.index} {
+        basal::exception::throw_unless(eval.type == static_cast<uint32_t>(OperandType::Evaluation)
+                                           && dst.type == static_cast<uint32_t>(OperandType::Scratch)
+                                           && src1.type == static_cast<uint32_t>(OperandType::Scratch)
+                                           && src2.type == static_cast<uint32_t>(OperandType::Scratch),
+                                       __FILE__, __LINE__,
+                                       "SignedModulo instruction requires evaluation to be Evaluation and others to be Scratch registers");
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, SignedModulo m) {
+        os << "smod " << Operand{OperandType::Evaluation, m.eval} << ", " << Operand{OperandType::Scratch, m.dst}
+           << ", " << Operand{OperandType::Scratch, m.src1} << ", "
+           << Operand{OperandType::Scratch, m.src2};
+        return os;
+    }
+
+    Operator op : CountOfOperatorBits;
+    uint32_t eval : CountOfIndexBits;  ///< Evaluation Register
+    uint32_t dst : CountOfIndexBits;   ///< Destination Scratch Register
+    uint32_t src1 : CountOfIndexBits;  ///< Source Scratch Register 1
+    uint32_t src2 : CountOfIndexBits;  ///< Source Scratch Register 2
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (4 * CountOfIndexBits);
+};
+
+struct UnsignedAdd {
+    UnsignedAdd() = delete;
+    constexpr UnsignedAdd(Operand eval, Operand dst, Operand src1, Operand src2)
+        : op{Operator::UnsignedAdd}, eval{eval.index}, dst{dst.index}, src1{src1.index}, src2{src2.index} {
+        basal::exception::throw_unless(eval.type == static_cast<uint32_t>(OperandType::Evaluation)
+                                           && dst.type == static_cast<uint32_t>(OperandType::Scratch)
+                                           && src1.type == static_cast<uint32_t>(OperandType::Scratch)
+                                           && src2.type == static_cast<uint32_t>(OperandType::Scratch),
+                                       __FILE__, __LINE__,
+                                       "UnsignedAdd instruction requires evaluation to be Evaluation and others to be Scratch registers");
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, UnsignedAdd a) {
+        os << "uadd " << Operand{OperandType::Evaluation, a.eval} << ", " << Operand{OperandType::Scratch, a.dst}
+           << ", " << Operand{OperandType::Scratch, a.src1} << ", "
+           << Operand{OperandType::Scratch, a.src2};
+        return os;
+    }
+
+    Operator op : CountOfOperatorBits;
+    uint32_t eval : CountOfIndexBits;  ///< Evaluation Register
+    uint32_t dst : CountOfIndexBits;   ///< Destination Scratch Register
+    uint32_t src1 : CountOfIndexBits;  ///< Source Scratch Register 1
+    uint32_t src2 : CountOfIndexBits;  ///< Source Scratch Register 2
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (4 * CountOfIndexBits);
+};
+
+struct UnsignedSub {
+    UnsignedSub() = delete;
+    constexpr UnsignedSub(Operand eval, Operand dst, Operand src1, Operand src2)
+        : op{Operator::UnsignedSub}, eval{eval.index}, dst{dst.index}, src1{src1.index}, src2{src2.index} {
+        basal::exception::throw_unless(eval.type == static_cast<uint32_t>(OperandType::Evaluation)
+                                           && dst.type == static_cast<uint32_t>(OperandType::Scratch)
+                                           && src1.type == static_cast<uint32_t>(OperandType::Scratch)
+                                           && src2.type == static_cast<uint32_t>(OperandType::Scratch),
+                                       __FILE__, __LINE__,
+                                       "UnsignedSub instruction requires evaluation to be Evaluation and others to be Scratch registers");
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, UnsignedSub s) {
+        os << "usub " << Operand{OperandType::Evaluation, s.eval} << ", " << Operand{OperandType::Scratch, s.dst}
+           << ", " << Operand{OperandType::Scratch, s.src1} << ", "
+           << Operand{OperandType::Scratch, s.src2};
+        return os;
+    }
+
+    Operator op : CountOfOperatorBits;
+    uint32_t eval : CountOfIndexBits;  ///< Evaluation Register
+    uint32_t dst : CountOfIndexBits;   ///< Destination Scratch Register
+    uint32_t src1 : CountOfIndexBits;  ///< Source Scratch Register 1
+    uint32_t src2 : CountOfIndexBits;  ///< Source Scratch Register 2
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (4 * CountOfIndexBits);
+};
+
+struct UnsignedMultiply {
+    UnsignedMultiply() = delete;
+    constexpr UnsignedMultiply(Operand eval, Operand dst, Operand src1, Operand src2)
+        : op{Operator::UnsignedMultiply}, eval{eval.index}, dst{dst.index}, src1{src1.index}, src2{src2.index} {
+        basal::exception::throw_unless(eval.type == static_cast<uint32_t>(OperandType::Evaluation)
+                                           && dst.type == static_cast<uint32_t>(OperandType::Scratch)
+                                           && src1.type == static_cast<uint32_t>(OperandType::Scratch)
+                                           && src2.type == static_cast<uint32_t>(OperandType::Scratch),
+                                       __FILE__, __LINE__,
+                                       "UnsignedMultiply instruction requires evaluation to be Evaluation and others to be Scratch registers");
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, UnsignedMultiply m) {
+        os << "umul " << Operand{OperandType::Evaluation, m.eval} << ", " << Operand{OperandType::Scratch, m.dst}
+           << ", " << Operand{OperandType::Scratch, m.src1} << ", "
+           << Operand{OperandType::Scratch, m.src2};
+        return os;
+    }
+
+    Operator op : CountOfOperatorBits;
+    uint32_t eval : CountOfIndexBits;  ///< Evaluation Register
+    uint32_t dst : CountOfIndexBits;   ///< Destination Scratch Register
+    uint32_t src1 : CountOfIndexBits;  ///< Source Scratch Register 1
+    uint32_t src2 : CountOfIndexBits;  ///< Source Scratch Register 2
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (4 * CountOfIndexBits);
+};
+
+struct UnsignedDivide {
+    UnsignedDivide() = delete;
+    constexpr UnsignedDivide(Operand eval, Operand dst, Operand src1, Operand src2)
+        : op{Operator::UnsignedDivide}, eval{eval.index}, dst{dst.index}, src1{src1.index}, src2{src2.index} {
+        basal::exception::throw_unless(eval.type == static_cast<uint32_t>(OperandType::Evaluation)
+                                           && dst.type == static_cast<uint32_t>(OperandType::Scratch)
+                                           && src1.type == static_cast<uint32_t>(OperandType::Scratch)
+                                           && src2.type == static_cast<uint32_t>(OperandType::Scratch),
+                                       __FILE__, __LINE__,
+                                       "UnsignedDivide instruction requires evaluation to be Evaluation and others to be Scratch registers");
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, UnsignedDivide d) {
+        os << "udiv " << Operand{OperandType::Evaluation, d.eval} << ", " << Operand{OperandType::Scratch, d.dst}
+           << ", " << Operand{OperandType::Scratch, d.src1} << ", "
+           << Operand{OperandType::Scratch, d.src2};
+        return os;
+    }
+
+    Operator op : CountOfOperatorBits;
+    uint32_t eval : CountOfIndexBits;  ///< Evaluation Register
+    uint32_t dst : CountOfIndexBits;   ///< Destination Scratch Register
+    uint32_t src1 : CountOfIndexBits;  ///< Source Scratch Register 1
+    uint32_t src2 : CountOfIndexBits;  ///< Source Scratch Register 2
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (4 * CountOfIndexBits);
+};
+
+struct UnsignedModulo {
+    UnsignedModulo() = delete;
+    constexpr UnsignedModulo(Operand eval, Operand dst, Operand src1, Operand src2)
+        : op{Operator::UnsignedModulo}, eval{eval.index}, dst{dst.index}, src1{src1.index}, src2{src2.index} {
+        basal::exception::throw_unless(eval.type == static_cast<uint32_t>(OperandType::Evaluation)
+                                           && dst.type == static_cast<uint32_t>(OperandType::Scratch)
+                                           && src1.type == static_cast<uint32_t>(OperandType::Scratch)
+                                           && src2.type == static_cast<uint32_t>(OperandType::Scratch),
+                                       __FILE__, __LINE__,
+                                       "UnsignedModulo instruction requires evaluation to be Evaluation and others to be Scratch registers");
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, UnsignedModulo m) {
+        os << "umod " << Operand{OperandType::Evaluation, m.eval} << ", " << Operand{OperandType::Scratch, m.dst}
+           << ", " << Operand{OperandType::Scratch, m.src1} << ", "
+           << Operand{OperandType::Scratch, m.src2};
+        return os;
+    }
+
+    Operator op : CountOfOperatorBits;
+    uint32_t eval : CountOfIndexBits;  ///< Evaluation Register
+    uint32_t dst : CountOfIndexBits;   ///< Destination Scratch Register
+    uint32_t src1 : CountOfIndexBits;  ///< Source Scratch Register 1
+    uint32_t src2 : CountOfIndexBits;  ///< Source Scratch Register 2
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (4 * CountOfIndexBits);
 };
 
 union Instruction {
@@ -497,12 +961,64 @@ union Instruction {
     /// Typed Constructor for Compare
     constexpr Instruction(Compare c) : compare{c} {
     }
+    /// Typed Constructor for BitwiseAnd
+    constexpr Instruction(BitwiseAnd a) : bitwise_and{a} {
+    }
+    /// Typed Constructor for BitwiseOr
+    constexpr Instruction(BitwiseOr o) : bitwise_or{o} {
+    }
+    /// Typed Constructor for BitwiseXor
+    constexpr Instruction(BitwiseXor x) : bitwise_xor{x} {
+    }
+    /// Typed Constructor for BitwiseNot
+    constexpr Instruction(BitwiseNot n) : bitwise_not{n} {
+    }
+    /// Typed Constructor for BitwiseRsh
+    constexpr Instruction(BitwiseRsh r) : bitwise_rsh{r} {
+    }
+    /// Typed Constructor for BitwiseLsh
+    constexpr Instruction(BitwiseLsh l) : bitwise_lsh{l} {
+    }
+    /// Typed Constructor for BitCount
+    constexpr Instruction(BitCount c) : bit_count{c} {
+    }
+    /// Typed Constructor for SignedAdd
+    constexpr Instruction(SignedAdd a) : signed_add{a} {
+    }
+    /// Typed Constructor for SignedSub
+    constexpr Instruction(SignedSub s) : signed_sub{s} {
+    }
+    /// Typed Constructor for SignedMultiply
+    constexpr Instruction(SignedMultiply m) : signed_multiply{m} {
+    }
+    /// Typed Constructor for SignedDivide
+    constexpr Instruction(SignedDivide d) : signed_divide{d} {
+    }
+    /// Typed Constructor for SignedModulo
+    constexpr Instruction(SignedModulo m) : signed_modulo{m} {
+    }
+    /// Typed Constructor for UnsignedAdd
+    constexpr Instruction(UnsignedAdd a) : unsigned_add{a} {
+    }
+    /// Typed Constructor for UnsignedSub
+    constexpr Instruction(UnsignedSub s) : unsigned_sub{s} {
+    }
+    /// Typed Constructor for UnsignedMultiply
+    constexpr Instruction(UnsignedMultiply m) : unsigned_multiply{m} {
+    }
+    /// Typed Constructor for UnsignedDivide
+    constexpr Instruction(UnsignedDivide d) : unsigned_divide{d} {
+    }
+    /// Typed Constructor for UnsignedModulo
+    constexpr Instruction(UnsignedModulo m) : unsigned_modulo{m} {
+    }
+
     //=================================
     uint32_t raw;                     ///< The raw bits of the instruction as it would be stored in memory
     Base base;                        ///< The base instruction for decoding the operator
     NoOp noop;                        ///< No Operation
     Halt halt;                        ///< Halt the processor
-    Move move;     ///< Move from scratch to scratch
+    Move move;                        ///< Move from scratch to scratch
     MoveImmediateToScratch movis;     ///< Move immediate to scratch
     MoveImmediateToEvaluation movie;  ///< Move immediate to evaluation
     Swap swap;                        ///< Swap registers based on reg_type
@@ -510,7 +1026,35 @@ union Instruction {
     LoadSingle loads;                 ///< Load from memory to scratch register
     StoreSingle stores;               ///< Store from scratch register to memory
     Jump jumps;                       ///< Jump to an address based on an evaluation and mask
-    Compare compare;                   ///< Compare two scratch registers and set flags in an evaluation register
+    Compare compare;                  ///< Compare two scratch registers and set flags in an evaluation register
+    BitwiseAnd bitwise_and;  ///< Perform bitwise AND on two scratch registers and store the result in a destination
+                             ///< scratch register
+    BitwiseOr bitwise_or;    ///< Perform bitwise OR on two scratch registers and
+    BitwiseXor bitwise_xor;  ///< Perform bitwise XOR on two scratch registers and store the result in a destination
+                             ///< scratch register
+    BitwiseNot bitwise_not;  ///< Perform bitwise NOT on a scratch register and store the result in a destination
+                             ///< scratch register
+    BitwiseRsh bitwise_rsh;  ///< Perform bitwise right shift on a scratch register by an immediate value and store the
+                             ///< result in a destination scratch register
+    BitwiseLsh bitwise_lsh;  ///< Perform bitwise left shift on a scratch register by an immediate value and store the
+                             ///< result in a destination scratch register
+    BitCount bit_count;    ///< Count the number of set bits in a scratch register and store the result in a destination
+                           ///< scratch register
+    SignedAdd signed_add;  ///< Perform signed addition on two scratch registers and store the result in a destination
+                           ///< scratch register
+    SignedSub signed_sub;  ///< Perform signed subtraction on two scratch registers and store the result
+    SignedMultiply signed_multiply;  ///< Perform signed multiplication on two scratch registers and store the result in a
+                                ///< destination scratch register
+    SignedDivide signed_divide;    ///< Perform signed division on two scratch registers and store the result
+    SignedModulo signed_modulo;   ///< Perform signed modulo on two scratch registers and store the result in a destination
+                               ///< scratch register
+    UnsignedAdd unsigned_add;  ///< Perform unsigned addition on two scratch registers and store the
+    UnsignedSub unsigned_sub;  ///< Perform unsigned subtraction on two scratch registers and store the result in a
+                               ///< destination scratch register
+    UnsignedMultiply unsigned_multiply;  ///< Perform unsigned multiplication on two scratch registers and store the
+    UnsignedDivide unsigned_divide;    ///< Perform unsigned division on two scratch registers and store the result in a
+                                    ///< destination scratch register
+    UnsignedModulo unsigned_modulo;    ///< Perform unsigned modulo on two scratch registers and store the
     //=================================
     friend std::ostream& operator<<(std::ostream& os, Instruction instr) {
         if (instr.base() == Operator::None) {
@@ -533,8 +1077,42 @@ union Instruction {
             os << instr.stores;
         } else if (instr.base() == Operator::Jump) {
             os << instr.jumps;
-        } else if (instr.base() == Operator::Compare)   {
+        } else if (instr.base() == Operator::Compare) {
             os << instr.compare;
+        } else if (instr.base() == Operator::And) {
+            os << instr.bitwise_and;
+        } else if (instr.base() == Operator::Or) {
+            os << instr.bitwise_or;
+        } else if (instr.base() == Operator::Xor) {
+            os << instr.bitwise_xor;
+        } else if (instr.base() == Operator::Not) {
+            os << instr.bitwise_not;
+        } else if (instr.base() == Operator::Rsh) {
+            os << instr.bitwise_rsh;
+        } else if (instr.base() == Operator::Lsh) {
+            os << instr.bitwise_lsh;
+        } else if (instr.base() == Operator::Count) {
+            os << instr.bit_count;
+        } else if (instr.base() == Operator::SignedAdd) {
+            os << instr.signed_add;
+        } else if (instr.base() == Operator::SignedSub) {
+            os << instr.signed_sub;
+        } else if (instr.base() == Operator::SignedMultiply) {
+            os << instr.signed_multiply;
+        } else if (instr.base() == Operator::SignedDivide) {
+            os << instr.signed_divide;
+        } else if (instr.base() == Operator::SignedModulo) {
+            os << instr.signed_modulo;
+        } else if (instr.base() == Operator::UnsignedAdd) {
+            os << instr.unsigned_add;
+        } else if (instr.base() == Operator::UnsignedSub) {
+            os << instr.unsigned_sub;
+        } else if (instr.base() == Operator::UnsignedMultiply) {
+            os << instr.unsigned_multiply;
+        } else if (instr.base() == Operator::UnsignedDivide) {
+            os << instr.unsigned_divide;
+        } else if (instr.base() == Operator::UnsignedModulo) {
+            os << instr.unsigned_modulo;
         } else {
             os << "???";
         }

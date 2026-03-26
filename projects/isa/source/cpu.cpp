@@ -316,19 +316,21 @@ void Processor::Cycle() {
             }
             if (allowed) {
                 if (jump.save) {
-                    // If the save bit is set, then we need to save the return address (i.e. the address of the next instruction) in the Return Address Special Register before we update the Program Address Register to jump to the target instruction.
+                    // If the save bit is set, then we need to save the return address (i.e. the address of the next
+                    // instruction) in the Return Address Special Register before we update the Program Address Register
+                    // to jump to the target instruction.
                     special_.return_address_ = special_.program_address_ + sizeof(instructions::Instruction);
                 }
                 if (jump.imm > 0) {
-                    // TODO Bus fault if jump wraps around the address space
-                    special_.return_address_
+                    // TODO Bus fault if jump wraps around the address space by exceeding the maximum address
+                    special_.program_address_
                         = scratch_[jump.dst].as_address + Address{static_cast<isa::Address::StorageType>(jump.imm)};
                 } else if (jump.imm < 0) {
-                    // TODO Bus fault if jump wraps around the address space
-                    special_.return_address_
+                    // TODO Bus fault if jump wraps around the address space by going under zero
+                    special_.program_address_
                         = scratch_[jump.dst].as_address - Address{static_cast<isa::Address::StorageType>(-jump.imm)};
                 } else {
-                    special_.return_address_ = scratch_[jump.dst].as_address;
+                    special_.program_address_ = scratch_[jump.dst].as_address;
                 }
             }
             break;
@@ -354,6 +356,149 @@ void Processor::Cycle() {
                 cmp.not_equal = (a != b) ? 1U : 0U;
             }
             evaluation_[compare.e] = cmp;
+            break;
+        }
+        case Operator::And: {
+            const auto& and_instr = instruction.bitwise_and;
+            uint32_t result = scratch_[and_instr.src1].as_u32[0] & scratch_[and_instr.src2].as_u32[0];
+            scratch_[and_instr.dst].as_u32[0] = result;
+            break;
+        }
+        case Operator::Or: {
+            const auto& or_instr = instruction.bitwise_or;
+            uint32_t result = scratch_[or_instr.src1].as_u32[0] | scratch_[or_instr.src2].as_u32[0];
+            scratch_[or_instr.dst].as_u32[0] = result;
+            break;
+        }
+        case Operator::Xor: {
+            const auto& xor_instr = instruction.bitwise_xor;
+            uint32_t result = scratch_[xor_instr.src1].as_u32[0] ^ scratch_[xor_instr.src2].as_u32[0];
+            scratch_[xor_instr.dst].as_u32[0] = result;
+            break;
+        }
+        case Operator::Not: {
+            const auto& not_instr = instruction.bitwise_not;
+            uint32_t result = ~scratch_[not_instr.src].as_u32[0];
+            scratch_[not_instr.dst].as_u32[0] = result;
+            break;
+        }
+        case Operator::Rsh: {
+            const auto& rsh_instr = instruction.bitwise_rsh;
+            uint32_t result = scratch_[rsh_instr.src].as_u32[0] >> rsh_instr.shift;
+            scratch_[rsh_instr.dst].as_u32[0] = result;
+            break;
+        }
+        case Operator::Lsh: {
+            const auto& lsh_instr = instruction.bitwise_lsh;
+            uint32_t result = scratch_[lsh_instr.src].as_u32[0] << lsh_instr.shift;
+            scratch_[lsh_instr.dst].as_u32[0] = result;
+            break;
+        }
+        case Operator::Count: {
+            const auto& count_instr = instruction.bit_count;
+            uint32_t value = scratch_[count_instr.src].as_u32[0];
+            uint32_t result = 0U;
+            while (value) {
+                result += value & 1U;
+                value >>= 1;
+            }
+            scratch_[count_instr.dst].as_u32[0] = result;
+            break;
+        }
+        case Operator::SignedAdd: {
+            const auto& sadd_instr = instruction.signed_add;
+            int64_t result = static_cast<int64_t>(scratch_[sadd_instr.src1].as_s32[0])
+                             + static_cast<int64_t>(scratch_[sadd_instr.src2].as_s32[0]);
+            // TODO saturation and overflow detection
+            scratch_[sadd_instr.dst].as_u32[0] = static_cast<uint32_t>(result & 0xFFFF'FFFFU);
+            break;
+        }
+        case Operator::SignedSub: {
+            const auto& ssub_instr = instruction.signed_sub;
+            int64_t result = static_cast<int64_t>(scratch_[ssub_instr.src1].as_s32[0])
+                             - static_cast<int64_t>(scratch_[ssub_instr.src2].as_s32[0]);
+            // TODO saturation and overflow detection
+            scratch_[ssub_instr.dst].as_u32[0] = static_cast<uint32_t>(result & 0xFFFF'FFFFU);
+            break;
+        }
+        case Operator::SignedMultiply: {
+            const auto& smul_instr = instruction.signed_multiply;
+            int64_t result = static_cast<int64_t>(scratch_[smul_instr.src1].as_s32[0])
+                             * static_cast<int64_t>(scratch_[smul_instr.src2].as_s32[0]);
+            // TODO saturation and overflow detection
+            scratch_[smul_instr.dst].as_u32[0] = static_cast<uint32_t>(result & 0xFFFF'FFFFU);
+            break;
+        }
+        case Operator::SignedDivide: {
+            const auto& sdiv_instr = instruction.signed_divide;
+            int32_t divisor = scratch_[sdiv_instr.src2].as_s32[0];
+            if (divisor == 0) {
+                // Division by zero exception
+                special_.exception_.instruction_fault = 1;
+            } else {
+                int32_t result = scratch_[sdiv_instr.src1].as_s32[0] / divisor;
+                scratch_[sdiv_instr.dst].as_u32[0] = static_cast<uint32_t>(result);
+            }
+            break;
+        }
+        case Operator::SignedModulo: {
+            const auto& smod_instr = instruction.signed_modulo;
+            int32_t divisor = scratch_[smod_instr.src2].as_s32[0];
+            if (divisor == 0) {
+                // Division by zero exception
+                special_.exception_.instruction_fault = 1;
+            } else {
+                int32_t result = scratch_[smod_instr.src1].as_s32[0] % divisor;
+                scratch_[smod_instr.dst].as_u32[0] = static_cast<uint32_t>(result);
+            }
+            break;
+        }
+        case Operator::UnsignedAdd: {
+            const auto& uadd_instr = instruction.unsigned_add;
+            uint64_t result = static_cast<uint64_t>(scratch_[uadd_instr.src1].as_u32[0])
+                              + static_cast<uint64_t>(scratch_[uadd_instr.src2].as_u32[0]);
+            // TODO saturation and overflow detection
+            scratch_[uadd_instr.dst].as_u32[0] = static_cast<uint32_t>(result & 0xFFFF'FFFFU);
+            break;
+        }
+        case Operator::UnsignedSub: {
+            const auto& usub_instr = instruction.unsigned_sub;
+            uint64_t result = static_cast<uint64_t>(scratch_[usub_instr.src1].as_u32[0])
+                              - static_cast<uint64_t>(scratch_[usub_instr.src2].as_u32[0]);
+            // TODO saturation and overflow detection
+            scratch_[usub_instr.dst].as_u32[0] = static_cast<uint32_t>(result & 0xFFFF'FFFFU);
+            break;
+        }
+        case Operator::UnsignedMultiply: {
+            const auto& umul_instr = instruction.unsigned_multiply;
+            uint64_t result = static_cast<uint64_t>(scratch_[umul_instr.src1].as_u32[0])
+                              * static_cast<uint64_t>(scratch_[umul_instr.src2].as_u32[0]);
+            // TODO saturation and overflow detection
+            scratch_[umul_instr.dst].as_u32[0] = static_cast<uint32_t>(result & 0xFFFF'FFFFU);
+            break;
+        }
+        case Operator::UnsignedDivide: {
+            const auto& udiv_instr = instruction.unsigned_divide;
+            uint32_t divisor = scratch_[udiv_instr.src2].as_u32[0];
+            if (divisor == 0) {
+                // Division by zero exception
+                special_.exception_.instruction_fault = 1;
+            } else {
+                uint32_t result = scratch_[udiv_instr.src1].as_u32[0    ] / divisor;
+                scratch_[udiv_instr.dst].as_u32[0] = result;
+            }
+            break;
+        }
+        case Operator::UnsignedModulo: {
+            const auto& umod_instr = instruction.unsigned_modulo;
+            uint32_t divisor = scratch_[umod_instr.src2].as_u32[0];
+            if (divisor == 0) {
+                // Division by zero exception
+                special_.exception_.instruction_fault = 1;
+            } else {
+                uint32_t result = scratch_[umod_instr.src1].as_u32[0] % divisor;
+                scratch_[umod_instr.dst].as_u32[0] = result;
+            }
             break;
         }
         default:

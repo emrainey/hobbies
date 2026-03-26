@@ -92,25 +92,27 @@ struct Exception {
     uint32_t external : 1;
 
     constexpr bool HasException() const {
-        return reset or unmaskable or bus_fault or instruction_fault or software_trigger or deferred or ticker or external;
+        return reset or unmaskable or bus_fault or instruction_fault or software_trigger or deferred or ticker
+               or external;
     }
 
     friend std::ostream& operator<<(std::ostream& os, Exception exc) {
         os << " R:" << exc.reset << " U:" << exc.unmaskable << " B:" << exc.bus_fault << " I:" << exc.instruction_fault
-           << " S:" << exc.software_trigger << " D:" << exc.deferred << " T:" << exc.ticker
-           << " E:" << exc.external;
+           << " S:" << exc.software_trigger << " D:" << exc.deferred << " T:" << exc.ticker << " E:" << exc.external;
         return os;
     }
 };
 
 struct VectorTable {
-    /// The Initial Stack Address to be used by the user mode, which can be different from the main stack used by the processor.
+    /// The Initial Stack Address to be used by the user mode, which can be different from the main stack used by the
+    /// processor.
     Address stack_initial{0};
     /// The boundary of the stack, which can be used to detect stack overflows and underflows.
     Address stack_boundary{0};
     /// The Stack to be used when handling exceptions
     Address exception_stack_initial{0};
-    /// The boundary of the exception stack, which can be used to detect stack overflows and underflows in exception handlers.
+    /// The boundary of the exception stack, which can be used to detect stack overflows and underflows in exception
+    /// handlers.
     Address exception_stack_boundary{0};
     /// The address of the reset handler, which is the entry point for the processor when it is reset.
     Address reset_handler{0};
@@ -118,9 +120,11 @@ struct VectorTable {
     Address unmaskable_handler{0};
     /// The address of the bus fault handler, which is the entry point for handling bus fault exceptions
     Address bus_fault_handler{0};
-    /// The address of the instruction fault handler, which is the entry point for handling instruction fault exceptions.
+    /// The address of the instruction fault handler, which is the entry point for handling instruction fault
+    /// exceptions.
     Address instruction_fault_handler{0};
-    /// The address of the software trigger handler, which is the entry point for handling software trigger exceptions (like SWI/SVC)
+    /// The address of the software trigger handler, which is the entry point for handling software trigger exceptions
+    /// (like SWI/SVC)
     Address software_trigger_handler{0};
     /// The address of the deferred handler, which is the entry point for handling deferred exceptions.
     Address deferred_handler{0};
@@ -229,6 +233,12 @@ public:
     /// Resets the CPU to default state
     void Reset();
 
+    /// Returns whether the CPU is currently halted, which can be used for determining whether to execute a cycle or
+    /// not.
+    bool IsHalted() const {
+        return halted_;
+    }
+
     /// Allows attaching flash memories to the flash bus of the CPU
     bool AttachFlashMemory(FlashMemory& memory);
 
@@ -251,10 +261,11 @@ public:
     void Cycle();
 
 protected:
-
-    /// Returns the handler which corresponds to the current exception being handled, if any, by looking it up in the vector table. If no exception is being handled, returns the reset handler.
+    /// Returns the handler which corresponds to the current exception being handled, if any, by looking it up in the
+    /// vector table. If no exception is being handled, returns the reset handler.
     Address GetHandler() const;
 
+    // === Data Members ===
     InstructionCache instruction_cache_;
     DataCache data_cache_;
     Scratch scratch_;
@@ -265,6 +276,9 @@ protected:
     TightlyCoupledBus sram_bus_;
     std::vector<TightlyCoupledMemory*> tightly_coupled_memories_;
     // PeripheralMemoryBus peripheral_bus_;
+
+    // === Control Variables for Pipeline Stages ===
+    bool halted_;
 };
 
 }  // namespace isa

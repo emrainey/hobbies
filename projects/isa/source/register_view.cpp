@@ -82,16 +82,15 @@ EvaluationRegisterRows FormatEvaluationRegisterRows(Processor const& cpu) {
     EvaluationRegisterRows rows{};
     auto const& evals = cpu.ViewEvaluations();
     constexpr int eval_name_width = 3;    // E15
-    constexpr int eval_value_width = 10;  // 0x + 8 hex digits
+    constexpr int eval_value_width = 10;  // 0x + 2 hex digits
 
     for (size_t index = 0; index < rows.size(); ++index) {
-        uint32_t raw = 0U;
-        static_assert(sizeof(Evaluation) == sizeof(uint32_t), "Evaluation must be 32 bits");
-        std::memcpy(&raw, &evals[index], sizeof(uint32_t));
+        EvaluationUnit raw = 0U;
+        std::memcpy(&raw, &evals[index], sizeof(EvaluationUnit));
         std::ostringstream name_stream;
         name_stream << 'E' << std::dec << index;
         std::ostringstream value_stream;
-        value_stream << "0x" << std::uppercase << std::hex << std::setfill('0') << std::setw(8) << raw;
+        value_stream << "0x" << std::uppercase << std::hex << std::setfill('0') << std::setw(2) << static_cast<int>(raw);
         rows[index] = FormatRegisterRow(name_stream.str(), eval_name_width, value_stream.str(), eval_value_width);
     }
 

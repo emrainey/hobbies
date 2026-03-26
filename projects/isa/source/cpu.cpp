@@ -7,15 +7,17 @@
 #include <filesystem>
 
 namespace isa {
-Processor::Processor() : flash_bus_{0, isa::memory::Map[1].range}, sram_bus_{0, isa::memory::Map[2].range} {
+Processor::Processor()
+    : flash_bus_{0, isa::memory::Map[1].range}, sram_bus_{0, isa::memory::Map[2].range}, halted_{false} {
 }
 
 void Processor::Reset() {
     instruction_cache_.Clean();
     data_cache_.Clean();
     scratch_.fill(isa::word<32>{0xFFFF'FFFFU});
-    evaluation_.fill(0xFFFF'FFFFU);
+    evaluation_.fill(isa::Evaluation{0xFFU});
     special_ = Special{};
+    halted_ = false;
 
     // Load the Entry point from the Vector Table Into the Program Address Register
     uint32_t offset = offsetof(VectorTable, reset_handler);
@@ -203,6 +205,9 @@ PersistenceReport Processor::Load(std::string const& folder) {
 }
 
 void Processor::Cycle() {
+    if (halted_) {
+        return;
+    }
     // For now, we'll implement a simple execution environment.
     instructions::Instruction instruction;
     if (not Peek(special_.program_address_, instruction.raw)) {
@@ -213,8 +218,12 @@ void Processor::Cycle() {
         case isa::Operator::None:
             // Do nothing
             break;
+        case isa::Operator::Halt:
+            // For a halt instruction, we'll just stop executing further instructions until the next reset.
+            halted_ = true;
+            break;
         case isa::Operator::MoveScratchToScratch: {
-            bool allowed = true; // default to allowed
+            bool allowed = true;  // default to allowed
             if (instruction.moves2s.cond) {
                 // if the eval & mask is not zero, then perform the move
                 uint32_t eval = evaluation_[instruction.moves2s.eval].value;
@@ -269,6 +278,45 @@ void Processor::Cycle() {
             }
             break;
         }
+        case isa::Operator::StoreSingle: {
+            const auto& store = instruction.stores;
+            const Address address = scratch_[store.base].as_address + (store.off ? Address{store.imm} : Address{0});
+            uint32_t value = scratch_[store.src].as_u32[0];
+            if (Poke(address, value)) {
+                if (store.inc) {
+                    scratch_[store.base].as_address += store.imm;
+                }
+            } else {
+                special_.exception_.bus_fault = 1;
+            }
+            break;
+        }
+        case isa::Operator::Jump: {
+            const auto& jump = instruction.jumps;
+            bool allowed = true;  // default to allowed
+            if (jump.cond) {
+                // if the eval & mask is not zero, then perform the jump
+                uint32_t eval = evaluation_[jump.eval].value;
+                uint32_t mask = evaluation_[jump.mask].value;
+                allowed = (eval & mask) != 0U;
+            }
+            if (allowed) {
+                // jump does not save the Return Address!
+                // special_.return_address_ = special_.program_address_ + sizeof(instructions::Instruction);
+                if (jump.imm > 0) {
+                    // TODO Bus fault if jump wraps around the address space
+                    special_.return_address_
+                        = scratch_[jump.dst].as_address + Address{static_cast<isa::Address::StorageType>(jump.imm)};
+                } else if (jump.imm < 0) {
+                    // TODO Bus fault if jump wraps around the address space
+                    special_.return_address_
+                        = scratch_[jump.dst].as_address - Address{static_cast<isa::Address::StorageType>(-jump.imm)};
+                } else {
+                    special_.return_address_ = scratch_[jump.dst].as_address;
+                }
+            }
+            break;
+        }
         default:
             special_.exception_.instruction_fault = 1;
             break;
@@ -298,16 +346,19 @@ Address Processor::GetHandler() const {
         } else if (special_.exception_.ticker) {
             index = offsetof(VectorTable, ticker_handler) / sizeof(Address);
         } else if (special_.exception_.external) {
-            // For external exceptions, we need to look up the handler in the external handler table using the external exception number as an index.
-            uint32_t external_index = special_.exception_.external - 1; // External exception numbers are 1-based
+            // For external exceptions, we need to look up the handler in the external handler table using the external
+            // exception number as an index.
+            uint32_t external_index = special_.exception_.external - 1;  // External exception numbers are 1-based
             Address external_table_address{0U};
-            if (Peek(special_.vector_table_address_ + offsetof(VectorTable, external_handler_table), external_table_address.value)) {
+            if (Peek(special_.vector_table_address_ + offsetof(VectorTable, external_handler_table),
+                     external_table_address.value)) {
                 Address entry_address = external_table_address + Address{external_index * sizeof(Address)};
                 if (Peek(entry_address, handler.value)) {
                     return handler;
                 }
             }
-            // If we fail to fetch the handler for an external exception, we'll treat it as a reset exception and use the reset handler.
+            // If we fail to fetch the handler for an external exception, we'll treat it as a reset exception and use
+            // the reset handler.
             index = offsetof(VectorTable, reset_handler) / sizeof(Address);
         }
 
@@ -321,7 +372,7 @@ Address Processor::GetHandler() const {
     if (Peek(special_.vector_table_address_ + offsetof(VectorTable, reset_handler), reset_handler.value)) {
         return reset_handler;
     }
-    return Address{0U}; // TODO throw exception!
+    return Address{0U};  // TODO throw exception!
 }
 
 }  // namespace isa

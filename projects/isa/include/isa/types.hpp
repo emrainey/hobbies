@@ -30,6 +30,8 @@ constexpr static size_t CountOfRegisters = 16;
 constexpr static size_t CountOfDataBits = 32;
 constexpr static size_t CountOfUnitsPerCacheLine = 16;
 
+constexpr auto to_underlying = [](auto e) { return static_cast<std::underlying_type_t<decltype(e)>>(e); };
+
 /// 32 bit address representation for the ISA
 /// In order to keep the notion of a 32 bit pointer separated from the
 /// platform's notion of a pointer, we use a struct wrapper around a
@@ -151,47 +153,159 @@ struct Address {
 };
 static_assert(sizeof(Address) == 4, "Address type must be 32 bits to support 32-bit address space");
 
-/// Used to store comparison results, arithmetic flags, and precision flags for instructions to be used by conditional
-/// moves and other instructions that depend on the results of previous instructions.
-union Evaluation {
-    constexpr Evaluation() : value{0} {
-    }
-    constexpr Evaluation(uint32_t v) : value{v} {
-    }
-    struct fields {
-        // Type Bits
-        uint32_t comparison : 1;  ///< 1 when a comparison was made
-        uint32_t arithmetic : 1;  ///< 1 when an arithmetic evaluation is made
-        uint32_t precision : 1;   ///< 1 when a precision evaluation is made
-        uint32_t : 5;
-        // Comparison flags for comparison results
-        // When >= both greater_than and equal will be set (in addition to others)
-        // When <= both less_than and equal will be set (in addition to others)
-        // When the values are == equal will be set (in addition to others)
-        // When the values are != not_equal will be set (in addition to others)
-        uint32_t less_than : 1;     ///< [comparison] 1 when a < b, 0 otherwise
-        uint32_t equal : 1;         ///< [comparison] 1 when a == b, 0 otherwise
-        uint32_t greater_than : 1;  ///< [comparison] 1 when a > b, 0 otherwise
-        uint32_t not_equal : 1;     ///< [comparison] 1 when a != b, 0 otherwise
-        uint32_t : 4;
-        // Arithmetic Flags for ALU results
-        uint32_t positive : 1;   ///< [arithmetic] 1 when result is positive, 0 when negative
-        uint32_t negative : 1;   ///< [arithmetic] 1 when result is negative, 0 when positive
-        uint32_t zero : 1;       ///< [arithmetic] 1 when result is zero. 0 otherwise
-        uint32_t non_zero : 1;   ///< [arithmetic] 1 when result is non-zero. 0 otherwise
-        uint32_t overflow : 1;   ///< [arithmetic] 1 when a signed overflow occurred (result was > than signed max)
-        uint32_t saturated : 1;  ///< [arithmetic] 1 when result was saturated
-        uint32_t undefined : 1;  ///< [arithmetic] 1 when result is undefined (e.g., div by zero)
-        uint32_t : 1;
-        // Precision Flags for Floating Point results
-        uint32_t inexact : 1;    ///< [precision] 1 when result is inexact
-        uint32_t rounded : 1;    ///< [precision] 1 when result was rounded
-        uint32_t subnormal : 1;  ///< [precision] 1 when result is subnormal
-        uint32_t underflow : 1;  ///< [precision] 1 when result underflowed
-        uint32_t : 4;
-    } bits;
-    uint32_t value;
+/// The Evaluation Storage Unit is a byte.
+using EvaluationUnit = uint8_t;
+
+enum class EvaluationType : EvaluationUnit {
+    None = 0U,
+    Comparison = 1U,
+    Arithmetic = 2U,
+    Precision = 3U,
 };
+constexpr static size_t EvaluationTypeBits{2U};
+constexpr static size_t EvaluationFlagBits{6U};
+
+/// The base evaluation struct contains the type of the evaluation and is used for instructions that do not produce meaningful evaluation results but need to be able to be stored in an evaluation register for consistency.
+struct BaseEvaluation {
+    BaseEvaluation() : type{to_underlying(EvaluationType::None)}, flags{0} {
+    }
+    EvaluationUnit type : EvaluationTypeBits;  ///< The EvaluationType (None).
+    EvaluationUnit flags : EvaluationFlagBits; ///< The Flags for Evaluation whose meaning depends on the type of the evaluation. For BaseEvaluation, these bits are unused.
+
+    friend std::ostream& operator<<(std::ostream& os, BaseEvaluation const& base) {
+        os << "E(Type: " << static_cast<uint32_t>(base.type) << ", Value: 0b" << std::bitset<EvaluationFlagBits>(base.flags) << ")";
+        return os;
+    }
+};
+
+/// A struct to represent the results of comparisons, which can be used for conditional moves and jumps. The struct is
+/// designed to fit within a single 6-bit field of an Evaluation register, allowing for efficient storage and retrieval
+/// of comparison results.
+struct ComparisonEvaluation {
+    ComparisonEvaluation() : type{to_underlying(EvaluationType::Comparison)}, less_than{0}, equal{0}, greater_than{0}, not_equal{0} {
+    }
+    ComparisonEvaluation(bool lt, bool eq, bool gt, bool ne)
+        : type{to_underlying(EvaluationType::Comparison)}
+        , less_than{EvaluationUnit(lt ? 1U : 0U)}
+        , equal{EvaluationUnit(eq ? 1U : 0U)}
+        , greater_than{EvaluationUnit(gt ? 1U : 0U)}
+        , not_equal{EvaluationUnit(ne ? 1U : 0U)} {
+    }
+
+    EvaluationUnit type : EvaluationTypeBits;  ///< The EvaluationType (comparison).
+    EvaluationUnit less_than : 1;              ///< 1 when a < b, 0 otherwise
+    EvaluationUnit equal : 1;                  ///< 1 when a == b, 0 otherwise
+    EvaluationUnit greater_than : 1;           ///< 1 when a > b, 0 otherwise
+    EvaluationUnit not_equal : 1;              ///< 1 when a != b, 0 otherwise
+    EvaluationUnit : 2;                        ///< Unused bits for future expansion
+
+    friend std::ostream& operator<<(std::ostream& os, ComparisonEvaluation c) {
+        os << "C(LT: " << static_cast<uint32_t>(c.less_than) << ", EQ: " << static_cast<uint32_t>(c.equal)
+           << ", GT: " << static_cast<uint32_t>(c.greater_than) << ", NE: " << static_cast<uint32_t>(c.not_equal) << ")";
+        return os;
+    }
+};
+
+/// A struct to represent the results of arithmetic operations, which can be used for conditional moves and jumps.
+struct ArithmeticEvaluation {
+    ArithmeticEvaluation() : type{to_underlying(EvaluationType::Arithmetic)}, positive{0}, zero{0}, overflow{0}, saturated{0}, undefined{0} {
+    }
+
+    EvaluationUnit type : EvaluationTypeBits;  ///< The EvaluationType (arithmetic).
+    EvaluationUnit positive : 1;               ///< 1 when result is positive, 0 when negative (zero is considered positive)
+    EvaluationUnit zero : 1;                   ///< 1 when result is zero. 0 otherwise
+    EvaluationUnit overflow : 1;               ///< 1 when a signed overflow occurred (result was > than signed max)
+    EvaluationUnit saturated : 1;              ///< 1 when result was saturated
+    EvaluationUnit undefined : 1;              ///< 1 when result is undefined (e.g., div by zero)
+    EvaluationUnit : 1;                        ///< Unused bits for future expansion
+
+    friend std::ostream& operator<<(std::ostream& os, ArithmeticEvaluation a) {
+        os << "A(Pos: " << static_cast<uint32_t>(a.positive) << ", Zero: " << static_cast<uint32_t>(a.zero)
+           << ", OVF: " << static_cast<uint32_t>(a.overflow) << ", Sat: " << static_cast<uint32_t>(a.saturated)
+           << ", Undef: " << static_cast<uint32_t>(a.undefined) << ")";
+        return os;
+    }
+};
+
+/// A struct to represent the results of floating-point operations, which can be used for conditional moves and jumps.
+struct PrecisionEvaluation {
+    PrecisionEvaluation() : type{to_underlying(EvaluationType::Precision)}, inexact{0}, rounded{0}, subnormal{0}, underflow{0} {
+    }
+    EvaluationUnit type : EvaluationTypeBits;  ///< The EvaluationType (precision).
+    EvaluationUnit inexact : 1;                ///< 1 when result is inexact
+    EvaluationUnit rounded : 1;                ///< 1 when result was rounded
+    EvaluationUnit subnormal : 1;              ///< 1 when result is subnormal
+    EvaluationUnit underflow : 1;              ///< 1 when result underflowed
+    EvaluationUnit : 2;                        ///< Unused bits for future expansion
+
+    friend std::ostream& operator<<(std::ostream& os, PrecisionEvaluation p) {
+        os << "P(Inexact: " << static_cast<uint32_t>(p.inexact) << ", Rounded: " << static_cast<uint32_t>(p.rounded)
+           << ", Subnormal: " << static_cast<uint32_t>(p.subnormal) << ", Underflow: " << static_cast<uint32_t>(p.underflow) << ")";
+        return os;
+    }
+};
+
+/// The Evaluation union allows for different types of evaluation results to be stored in the same register, with the type field indicating how to interpret the value.
+union Evaluation {
+    Evaluation() : value{0} {
+    }
+    Evaluation(EvaluationUnit raw) : value{raw} {
+    }
+    Evaluation(ComparisonEvaluation comparison) : comparison{comparison} {
+    }
+    Evaluation(ArithmeticEvaluation arithmetic) : arithmetic{arithmetic} {
+    }
+    Evaluation(PrecisionEvaluation precision) : precision{precision} {
+    }
+    // === Assignment Operators for ease of use ===
+    Evaluation& operator=(EvaluationUnit raw) {
+        value = raw;
+        return *this;
+    }
+    Evaluation& operator=(ComparisonEvaluation comparison) {
+        this->comparison = comparison;
+        return *this;
+    }
+    Evaluation& operator=(ArithmeticEvaluation arithmetic) {
+        this->arithmetic = arithmetic;
+        return *this;
+    }
+    Evaluation& operator=(PrecisionEvaluation precision) {
+        this->precision = precision;
+        return *this;
+    }
+
+    // === Storage ===
+    /// An empty evaluation with no flags set, used for instructions that do not produce meaningful evaluation results
+    BaseEvaluation base;
+    /// The results of a comparison operation
+    ComparisonEvaluation comparison;
+    /// Flags for arithmetic operations (e.g., positive, negative, zero, overflow)
+    ArithmeticEvaluation arithmetic;
+    /// Flags for floating-point precision (e.g., inexact, rounded)
+    PrecisionEvaluation precision;
+    /// The raw value of the evaluation for easy access and storage
+    EvaluationUnit value;
+    // === Storage ===
+
+    friend std::ostream& operator<<(std::ostream& os, Evaluation const& eval) {
+        if (eval.base.type == to_underlying(EvaluationType::None)) {
+            os << eval.base;
+        } else if (eval.base.type == to_underlying(EvaluationType::Comparison)) {
+            os << eval.comparison;
+        } else if (eval.base.type == to_underlying(EvaluationType::Arithmetic)) {
+            os << eval.arithmetic;
+        } else if (eval.base.type == to_underlying(EvaluationType::Precision)) {
+            os << eval.precision;
+        }
+        return os;
+    }
+
+    EvaluationType Type() const {
+        return static_cast<EvaluationType>(base.type);
+    }
+};
+static_assert(sizeof(Evaluation) == sizeof(EvaluationUnit), "Evaluation must be 8 bits");
 
 /// Platforms specific use of a Union for expressing the notion of a register word
 template <size_t BITS>
@@ -289,9 +403,11 @@ struct index {
     }
 };
 
-/// Used to express an immediate value of a given bit size
+/// Used to express an unsigned immediate value of a given bit size
 template <size_t BITS>
 struct Immediate {
+    constexpr static size_t Bits{BITS};
+
     /// Constructs an immediate value
     constexpr Immediate(uint32_t v) : value{v} {
     }
@@ -300,6 +416,24 @@ struct Immediate {
     uint32_t : 32 - BITS;
 
     friend std::ostream& operator<<(std::ostream& os, Immediate<BITS> imm) {
+        os << "#" << std::hex << imm.value;
+        return os;
+    }
+};
+
+/// Used to express a signed immediate value of a given bit size
+template <size_t BITS>
+struct SignedImmediate {
+    constexpr static size_t Bits{BITS};
+
+    /// Constructs a signed immediate value
+    constexpr SignedImmediate(int32_t v) : value{v} {
+    }
+
+    int32_t value : BITS;
+    int32_t : 32 - BITS;
+
+    friend std::ostream& operator<<(std::ostream& os, SignedImmediate<BITS> imm) {
         os << "#" << std::hex << imm.value;
         return os;
     }

@@ -183,8 +183,10 @@ int main(int argc, char* argv[]) {
     auto& evaluation = cpu.GetEvaluations();
 
     isa::program demo_program = {
-        isa::instructions::Instruction{isa::instructions::ClearScratch{isa::Operand{isa::OperandType::Mask, isa::Immediate<16>{0xFFFFU}}}},
-        isa::instructions::Instruction{isa::instructions::ClearEvaluation{isa::Operand{isa::OperandType::Mask, isa::Immediate<16>{0xFFFFU}}}},
+        isa::instructions::Instruction{
+            isa::instructions::ClearScratch{isa::Operand{isa::OperandType::Mask, isa::Immediate<16>{0xFFFFU}}}},
+        isa::instructions::Instruction{
+            isa::instructions::ClearEvaluation{isa::Operand{isa::OperandType::Mask, isa::Immediate<16>{0xFFFFU}}}},
         isa::instructions::Instruction{isa::instructions::NoOp{}},
         isa::instructions::Instruction{isa::instructions::MoveImmediateToScratch{
             isa::Operand{isa::OperandType::Scratch, 0}, isa::Immediate<20>{0x12345}}},
@@ -194,9 +196,15 @@ int main(int argc, char* argv[]) {
                                                                       isa::Operand{isa::OperandType::Scratch, 4}}},
         isa::instructions::Instruction{isa::instructions::SwapEvaluation{
             isa::Operand{isa::OperandType::Evaluation, 0}, isa::Operand{isa::OperandType::Evaluation, 1}}},
+        isa::instructions::Instruction{isa::instructions::MoveImmediateToEvaluation{
+            isa::Operand{isa::OperandType::Evaluation, 0}, isa::Immediate<20>{0xFF}}},
         isa::instructions::Instruction{isa::instructions::LoadSingle{isa::Operand{isa::OperandType::Scratch, 2},
                                                                      isa::Operand{isa::OperandType::Scratch, 0},
                                                                      isa::Immediate<14>{0x10}, true, false}},
+        isa::instructions::Instruction{isa::instructions::StoreSingle{isa::Operand{isa::OperandType::Scratch, 2},
+                                                                      isa::Operand{isa::OperandType::Scratch, 0},
+                                                                      isa::Immediate<14>{0x20}, true, false}},
+        isa::instructions::Instruction{isa::instructions::Halt{}},
     };
     // copy the default vector table to ROM so that the CPU can fetch the entry point from it on reset
     uint32_t vector_table_offset = sizeof(isa::VectorTable);
@@ -205,7 +213,8 @@ int main(int argc, char* argv[]) {
         .stack_boundary = 0x10000000U,
         .exception_stack_initial = 0x10010000U,
         .exception_stack_boundary = 0x10008000U,
-        .reset_handler = flash0.ViewRange().start + vector_table_offset,  // point the reset handler to the start of our demo program
+        .reset_handler
+        = flash0.ViewRange().start + vector_table_offset,  // point the reset handler to the start of our demo program
     };
     isa::Address tmp = flash0.ViewRange().start;
     for (size_t i = 0; i < isa::VectorTableCount; ++i) {
@@ -213,11 +222,13 @@ int main(int argc, char* argv[]) {
     }
     // copy the instruction to ROM
     for (size_t i = 0; i < basal::dimof(demo_program); ++i) {
-        cpu.Poke(isa::Address{flash0.ViewRange().start + vector_table_offset + i * sizeof(isa::instructions::Instruction)},
-                 demo_program[i].raw);
+        cpu.Poke(
+            isa::Address{flash0.ViewRange().start + vector_table_offset + i * sizeof(isa::instructions::Instruction)},
+            demo_program[i].raw);
     }
 
-    // Cause the cpu to reset back to the entry point of the demo program, which will allow us to test the persistence of the CPU state after we load it later.
+    // Cause the cpu to reset back to the entry point of the demo program, which will allow us to test the persistence
+    // of the CPU state after we load it later.
     cpu.Reset();
 
     // End "Loader"
@@ -454,6 +465,14 @@ int main(int argc, char* argv[]) {
             if (cpu.ViewSpecial().exception_.HasException()) {
                 push_console_line(">>>Exception occurred!<<<");
             }
+            if (cpu.IsHalted()) {
+                push_console_line("CPU is halted. Press r to reset.");
+            }
+            return true;
+        }
+        if (event == Event::Character("r") || event == Event::Character("R")) {
+            cpu.Reset();
+            push_console_line("CPU Reset");
             return true;
         }
         if (event == Event::Character("q") || event == Event::Character("Q")) {

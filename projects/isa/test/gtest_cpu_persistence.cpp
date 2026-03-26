@@ -59,9 +59,7 @@ protected:
         saved_special.stack_.current = static_cast<isa::Address>(0x33330000UL);
         saved_special.exception_stack_.base = static_cast<isa::Address>(0x44440000UL);
 
-        saved_cpu.GetEvaluations()[4].bits.comparison = 1U;
-        saved_cpu.GetEvaluations()[4].bits.greater_than = 1U;
-        saved_cpu.GetEvaluations()[4].bits.non_zero = 1U;
+        saved_cpu.GetEvaluations()[4] = isa::ComparisonEvaluation{};
         saved_memory[0x10000000U] = 0x10203040U;
         saved_memory[0x10000004U] = 0xA0B0C0D0U;
     }
@@ -96,9 +94,7 @@ protected:
         EXPECT_EQ(static_cast<isa::Address>(0x22220000UL), restored_cpu.ViewSpecial().return_address_);
         EXPECT_EQ(static_cast<isa::Address>(0x33330000UL), restored_cpu.ViewSpecial().stack_.current);
         EXPECT_EQ(static_cast<isa::Address>(0x44440000UL), restored_cpu.ViewSpecial().exception_stack_.base);
-        EXPECT_EQ(1U, restored_cpu.ViewEvaluations()[4].bits.comparison);
-        EXPECT_EQ(1U, restored_cpu.ViewEvaluations()[4].bits.greater_than);
-        EXPECT_EQ(1U, restored_cpu.ViewEvaluations()[4].bits.non_zero);
+        EXPECT_EQ(isa::EvaluationType::Comparison, restored_cpu.ViewEvaluations()[4].Type());
         EXPECT_EQ(0x10203040U, restored_memory[0x10000000U]);
         EXPECT_EQ(0xA0B0C0D0U, restored_memory[0x10000004U]);
     }

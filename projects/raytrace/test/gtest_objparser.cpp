@@ -5,9 +5,17 @@
 #include <raytrace/objparser.hpp>
 #include <raytrace/objects/model.hpp>
 
+#include <filesystem>
+
 #include "raytrace/gtest_helper.hpp"
 
 using namespace raytrace;
+
+namespace {
+std::string CubeObjPath() {
+    return (std::filesystem::path{__FILE__}.parent_path() / "cube.obj").string();
+}
+}  // namespace
 
 class MockObserver : public obj::Observer {
 public:
@@ -203,8 +211,8 @@ TEST(ObjParser, CubeModelFromString) {
 
 TEST(ObjParser, CubeModelFromFile) {
     objects::Model model;
-    printf("The test has to run from the root ${workspaceFolder}/testing of hobbies\r\n");
-    model.LoadFromFile("../projects/raytrace/test/cube.obj");
+    std::string const cube_obj_path = CubeObjPath();
+    model.LoadFromFile(cube_obj_path.c_str());
     ASSERT_EQ(8u, model.GetStatistics().vertices);
     ASSERT_EQ(14u, model.GetStatistics().textures);
     ASSERT_EQ(6u, model.GetStatistics().normals);
@@ -214,8 +222,8 @@ TEST(ObjParser, CubeModelFromFile) {
 
 TEST(ObjParser, DISABLED_CubeModelAsObject) {
     objects::Model model;
-    printf("The test has to run from the root ${workspaceFolder}/testing of hobbies\r\n");
-    model.LoadFromFile("../projects/raytrace/test/cube.obj");
+    std::string const cube_obj_path = CubeObjPath();
+    model.LoadFromFile(cube_obj_path.c_str());
     EXPECT_POINT_EQ(R3::origin, model.position());
     // move by enough to not be able to hit the original box
     model.move_by(raytrace::vector{10, 10, 10});

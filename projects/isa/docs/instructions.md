@@ -99,7 +99,25 @@ copy SLA, Ss                        - SLA = s
 copy SBA, Ss                        - SBA = s
 ```
 
-### Bitwise Operators
+### Bitwise1 Operators
+
+All bitwise1 mnemonics are four letters except for rotate which has to specify the direction.
+
+```asm
+bcpl Sd, Ss : Ex                    - d = ~s (bit invert)
+brsh Sd, Ss, #imm<5> : Ex           - d = s >> #imm<5>
+basr Sd, Ss, #imm<5> : Ex           - d = int((int)s >> #imm<5>)
+blsh Sd, Ss, #imm<5> : Ex           - d = s << #imm<5>
+brot.r/l Sd, Ss, #imm<5> : Ex       - d = (s << #imm<5>) | (s >> (32 - #imm<5>))
+bcnt Sd, Ss : Ex                    - d = count 1's in s
+bclz Sd, Ss : Ex                    - d = count leading zeros in s
+bnot Sd, Ss : Ex                    - d = s ? 0 : 0xFFFFFFFF
+bset Sd, Ss, #imm<5> : Ex           - d = s | 1 << #imm<5>
+bclr Sd, Ss, #imm<5> : Ex           - d = s & ~(1 << #imm<5>)
+btgl Sd, Ss, #imm<5> : Ex           - d = s ^ (1 << #imm<5>)
+```
+
+### Bitwise2 Operators
 
 All bitwise mnemonics are four letters and effect eval register of the given index.
 
@@ -107,17 +125,6 @@ All bitwise mnemonics are four letters and effect eval register of the given ind
 band Sd, Sa, Sb : Ex                - d = a & b
 borr Sd, Sa, Sb : Ex                - d = a | b
 bxor Sd, Sa, Sb : Ex                - d = a ^ b
-
-bbis Sd, Ss, #imm<5> : Ex           - d = s | 1 << #imm<5>
-bbic Sd, Ss, #imm<5> : Ex           - d = s & ~(1 << #imm<5>)
-bbix Sd, Ss, #imm<5> : Ex           - d = s ^ (1 << #imm<5>)
-
-bnot Sd, Ss : Ex                    - d = s ? 0 : 0xFFFFFFFF
-bcpl Sd, Ss : Ex                    - d = ~s (bit invert)
-blsh Sd, Ss, #imm<5> : Ex           - d = s << #imm<5>
-brsh Sd, Ss, #imm<5> : Ex           - d = s >> #imm<5>
-brot Sd, Ss, #imm<5> : Ex           - d = (s << #imm<5>) | (s >> (32 - #imm<5>))
-basr Sd, Ss, #imm<5> : Ex           - d = int((int)s >> #imm<5>)
 ```
 
 ### ALU Ops

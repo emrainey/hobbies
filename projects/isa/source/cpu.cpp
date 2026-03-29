@@ -130,15 +130,15 @@ PersistenceReport Processor::Save(std::string const& folder) const {
 }
 
 bool Processor::Load(program const& prog, Address load_address) {
-        Address address = load_address;
-        for (const auto& instr : prog) {
-            if (not Poke(address, instr.raw)) {
-                return false;
-            }
-            address += sizeof(instructions::Instruction);
+    Address address = load_address;
+    for (const auto& instr : prog) {
+        if (not Poke(address, instr.raw)) {
+            return false;
         }
-        return true;
+        address += sizeof(instructions::Instruction);
     }
+    return true;
+}
 
 PersistenceReport Processor::Load(std::string const& folder) {
     PersistenceReport report;
@@ -356,8 +356,10 @@ void Processor::Cycle() {
                 allowed = (eval & mask) != 0U;
             }
             if (allowed) {
-                /// Grow the Stack Pointer by the immediate value * 4 (since the immediate value is in terms of 32-bit words)
-                /// Growth of a Stack is _downwards_ in memory, so we subtract the immediate value from the current Stack Pointer to grow the stack. We also need to check for stack overflow by ensuring that we don't grow the stack beyond its limit.
+                /// Grow the Stack Pointer by the immediate value * 4 (since the immediate value is in terms of 32-bit
+                /// words) Growth of a Stack is _downwards_ in memory, so we subtract the immediate value from the
+                /// current Stack Pointer to grow the stack. We also need to check for stack overflow by ensuring that
+                /// we don't grow the stack beyond its limit.
                 Address next = special_.stack_.current - Address{static_cast<isa::Address::StorageType>(grow.imm * 4U)};
                 if (next <= special_.stack_.base) {
                     special_.stack_.current = next;
@@ -377,8 +379,10 @@ void Processor::Cycle() {
                 allowed = (eval & mask) != 0U;
             }
             if (allowed) {
-                /// Undo the growth of the Stack Pointer by the immediate value * 4 (since the immediate value is in terms of 32-bit words)
-                /// This is done by adding the immediate value to the current Stack Pointer, and we also need to check for stack underflow by ensuring that we don't undo the growth beyond the initial stack pointer.
+                /// Undo the growth of the Stack Pointer by the immediate value * 4 (since the immediate value is in
+                /// terms of 32-bit words) This is done by adding the immediate value to the current Stack Pointer, and
+                /// we also need to check for stack underflow by ensuring that we don't undo the growth beyond the
+                /// initial stack pointer.
                 Address next = special_.stack_.current + Address{static_cast<isa::Address::StorageType>(undo.imm * 4U)};
                 if (next <= special_.stack_.limit) {
                     special_.stack_.current = next;
@@ -398,10 +402,13 @@ void Processor::Cycle() {
                 allowed = (eval & mask) != 0U;
             }
             if (allowed) {
-                // For a call instruction, we'll save the return address (i.e. the address of the next instruction) in the Return Address Special Register before we update the Program Address Register to leap to the target instruction.
+                // For a call instruction, we'll save the return address (i.e. the address of the next instruction) in
+                // the Return Address Special Register before we update the Program Address Register to leap to the
+                // target instruction.
                 special_.return_address_ = special_.program_address_ + sizeof(instructions::Instruction);
                 Address handler{0};
-                // read the vector tabke to get the address of the system call handler corresponding to the system call number in the immediate value of the instruction
+                // read the vector tabke to get the address of the system call handler corresponding to the system call
+                // number in the immediate value of the instruction
                 uint32_t offset = offsetof(VectorTable, system_call_handler);
                 if (Peek(special_.vector_table_address_ + offset, handler.value)) {
                     special_.call_number_ = call.imm;
@@ -451,48 +458,67 @@ void Processor::Cycle() {
             break;
         }
         case Operator::And: {
-            const auto& bitwise = instruction.bitwise;
+            const auto& bitwise = instruction.bitwise2;
             uint32_t result = scratch_[bitwise.src1].as_u32[0] & scratch_[bitwise.src2].as_u32[0];
             scratch_[bitwise.dst].as_u32[0] = result;
             break;
         }
         case Operator::Or: {
-            const auto& bitwise = instruction.bitwise;
+            const auto& bitwise = instruction.bitwise2;
             uint32_t result = scratch_[bitwise.src1].as_u32[0] | scratch_[bitwise.src2].as_u32[0];
             scratch_[bitwise.dst].as_u32[0] = result;
             break;
         }
         case Operator::Xor: {
-            const auto& bitwise = instruction.bitwise;
+            const auto& bitwise = instruction.bitwise2;
             uint32_t result = scratch_[bitwise.src1].as_u32[0] ^ scratch_[bitwise.src2].as_u32[0];
             scratch_[bitwise.dst].as_u32[0] = result;
             break;
         }
         case Operator::Complement: {
-            const auto& complement_instr = instruction.bitwise_complement;
+            const auto& complement_instr = instruction.bitwise1;
             uint32_t result = ~scratch_[complement_instr.src].as_u32[0];
             scratch_[complement_instr.dst].as_u32[0] = result;
             break;
         }
         case Operator::Rsh: {
-            const auto& rsh_instr = instruction.bitwise_rsh;
+            const auto& rsh_instr = instruction.bitwise1;
             uint32_t result = scratch_[rsh_instr.src].as_u32[0] >> rsh_instr.shift;
             scratch_[rsh_instr.dst].as_u32[0] = result;
             break;
         }
         case Operator::Lsh: {
-            const auto& lsh_instr = instruction.bitwise_lsh;
+            const auto& lsh_instr = instruction.bitwise1;
             uint32_t result = scratch_[lsh_instr.src].as_u32[0] << lsh_instr.shift;
             scratch_[lsh_instr.dst].as_u32[0] = result;
             break;
         }
-        case Operator::Count: {
-            const auto& count_instr = instruction.bit_count;
+        case Operator::Count1s: {
+            const auto& count_instr = instruction.bitwise1;
             uint32_t value = scratch_[count_instr.src].as_u32[0];
             uint32_t result = 0U;
             while (value) {
                 result += value & 1U;
                 value >>= 1;
+            }
+            scratch_[count_instr.dst].as_u32[0] = result;
+            break;
+        }
+        case Operator::CountL0s: {
+            const auto& count_instr = instruction.bitwise1;
+            uint32_t value = scratch_[count_instr.src].as_u32[0];
+            uint32_t result = 0U;
+            uint32_t shift = 31;
+            uint32_t mask = 1U << shift;
+            // count the leading zeros by checking the most significant bit shifting right until we encounter a 1 or run out of bits
+            while ((value & mask) == 0U) {
+                result++;
+                mask = 1U << shift;
+                if (shift == 0) {
+                    break;
+                } else {
+                    shift--;
+                }
             }
             scratch_[count_instr.dst].as_u32[0] = result;
             break;
@@ -576,7 +602,7 @@ void Processor::Cycle() {
                 // Division by zero exception
                 special_.exception_.instruction_fault = 1;
             } else {
-                uint32_t result = scratch_[udiv_instr.src1].as_u32[0    ] / divisor;
+                uint32_t result = scratch_[udiv_instr.src1].as_u32[0] / divisor;
                 scratch_[udiv_instr.dst].as_u32[0] = result;
             }
             break;

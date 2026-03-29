@@ -47,11 +47,11 @@ struct Mode {
 
 using ExceptionUnit = uint32_t;
 
-
 enum class ExceptionType : ExceptionUnit {
     Reset = 0,
     Unmaskable = 1,
-    Nested = 2,         ///< A fault occurred while trying to handle another exception, which can be used to detect faults in exception handlers and prevent infinite exception loops.
+    Nested = 2,  ///< A fault occurred while trying to handle another exception, which can be used to detect faults in
+                 ///< exception handlers and prevent infinite exception loops.
     BusFault = 3,
     InstructionFault = 4,
     ArithmeticFault = 5,
@@ -67,7 +67,6 @@ constexpr static size_t CountOfExceptionTypes{1024U};
 
 constexpr static size_t CountOfExceptionTypeBits{log2(CountOfExceptionTypes)};
 
-
 struct Exception {
     /// 1 when the exception is a reset exception, meaning it is triggered by a reset signal and
     /// causes the processor to reset. 0 when the exception is a non-reset exception, meaning it
@@ -79,9 +78,9 @@ struct Exception {
     /// meaning it can be ignored or handled by an exception handler.
     uint32_t unmaskable : 1;
 
-    /// 1 when the exception is nested, meaning it is triggered while the processor is already handling another exception,
-    /// and can be used to detect faults in exception handlers and prevent infinite exception loops.
-    /// 0 when the exception is non-nested, meaning it is not triggered during the handling of another exception.
+    /// 1 when the exception is nested, meaning it is triggered while the processor is already handling another
+    /// exception, and can be used to detect faults in exception handlers and prevent infinite exception loops. 0 when
+    /// the exception is non-nested, meaning it is not triggered during the handling of another exception.
     uint32_t nested : 1;
 
     /// Bus fault exception, meaning it is triggered by a memory access violation, such as accessing an invalid address,
@@ -99,7 +98,8 @@ struct Exception {
     uint32_t arithmetic_fault : 1;
 
     /// 1 When the Stack has overflow or underflowed, meaning it is triggered when the stack pointer exceeds the stack
-    /// boundary in either direction, and can be used to detect stack overflows and underflows. 0 when the exception is a non-stack fault exception, meaning it is triggered by other events such as interrupts or software exceptions.
+    /// boundary in either direction, and can be used to detect stack overflows and underflows. 0 when the exception is
+    /// a non-stack fault exception, meaning it is triggered by other events such as interrupts or software exceptions.
     uint32_t stack_fault : 1;
 
     /// 1 when the exception is a software interrupt, meaning it is triggered by a software instruction such
@@ -110,7 +110,8 @@ struct Exception {
 
     /// 1 when the exception is a system call, meaning it is triggered by a software instruction such as a
     /// SYSCALL instruction, and can be used for making system calls or requesting services from the operating
-    /// system. 0 when the exception is a non-system call exception, meaning it is triggered by other events such as hardware interrupts or faults.
+    /// system. 0 when the exception is a non-system call exception, meaning it is triggered by other events such as
+    /// hardware interrupts or faults.
     uint32_t system_call : 1;
 
     /// 1 when the exception is a delayed software interrupt, meaning it is triggered by a software
@@ -133,17 +134,20 @@ struct Exception {
 
     uint32_t : 4;  ///< Unused bits for future expansion
 
-    /// The type of the exception which occurred. This field should be used to determine which exception currently needs to be handled during the handler.
+    /// The type of the exception which occurred. This field should be used to determine which exception currently needs
+    /// to be handled during the handler.
     ExceptionType type : CountOfExceptionTypeBits;
 
     constexpr bool HasException() const {
-        return reset or unmaskable or bus_fault or instruction_fault or arithmetic_fault or stack_fault or tripped or system_call or deferred or ticker
-               or external;
+        return reset or unmaskable or bus_fault or instruction_fault or arithmetic_fault or stack_fault or tripped
+               or system_call or deferred or ticker or external;
     }
 
     friend std::ostream& operator<<(std::ostream& os, Exception exc) {
-        os << " R:" << exc.reset << " U:" << exc.unmaskable << "N:" << exc.nested << " B:" << exc.bus_fault << " I:" << exc.instruction_fault
-           << " A:" << exc.arithmetic_fault << " S:" << exc.stack_fault << "C:" << exc.system_call << " D:" << exc.deferred << " T:" << exc.ticker << " E:" << exc.external << " SE:" << static_cast<uint32_t>(exc.type);
+        os << " R:" << exc.reset << " U:" << exc.unmaskable << "N:" << exc.nested << " B:" << exc.bus_fault
+           << " I:" << exc.instruction_fault << " A:" << exc.arithmetic_fault << " S:" << exc.stack_fault
+           << "C:" << exc.system_call << " D:" << exc.deferred << " T:" << exc.ticker << " E:" << exc.external
+           << " SE:" << static_cast<uint32_t>(exc.type);
         return os;
     }
 };
@@ -176,7 +180,9 @@ struct VectorTable {
     Address stack_fault_handler{0};
     /// The address of the software trip handler, which is the entry point for handling software trip exceptions
     Address trip_handler{0};
-    /// The address of the system call handler, which is the entry point for handling functions which rely on elevated privileges, such as I/O operations, memory management, etc. This can be used for implementing system calls in an operating system.
+    /// The address of the system call handler, which is the entry point for handling functions which rely on elevated
+    /// privileges, such as I/O operations, memory management, etc. This can be used for implementing system calls in an
+    /// operating system.
     Address system_call_handler{0};
     /// The address of the deferred handler, which is the entry point for handling deferred exceptions.
     Address deferred_handler{0};
@@ -195,7 +201,8 @@ struct VectorTable {
 };
 constexpr static size_t VectorTableCount = sizeof(VectorTable) / sizeof(Address);
 
-/// The Special Registers of the processor, which include the Program Address Register, the Stack Pointer, the Mode Register, etc.
+/// The Special Registers of the processor, which include the Program Address Register, the Stack Pointer, the Mode
+/// Register, etc.
 struct Special {
     Address program_address_{0};  ///< PA: The current address of the instruction being executed
     Address return_address_{0};   ///< RA: The address which the control flow will return to when a return is issued.
@@ -212,7 +219,8 @@ struct Special {
     uint32_t performance_counter_{0};
 };
 
-/// The number of special registers is the size of the Special struct divided by the size of an Address, since each special register is the size of an Address.
+/// The number of special registers is the size of the Special struct divided by the size of an Address, since each
+/// special register is the size of an Address.
 constexpr static size_t CountOfSpecialRegisters = sizeof(Special) / sizeof(Address);
 
 /// The evaluation registers

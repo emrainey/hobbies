@@ -131,7 +131,7 @@ struct Address {
 
 #undef INTEGER_OPERATOR
 
-// Bitwise operators for Address
+// Bitwise2 operators for Address
 #define SELF_OPERATOR(op)                                               \
     constexpr Address operator op(Address const& other) const {         \
         return Address{static_cast<StorageType>(value op other.value)}; \
@@ -214,11 +214,7 @@ struct ComparisonEvaluation {
 /// A struct to represent the results of arithmetic operations, which can be used for conditional moves and leaps.
 struct ArithmeticEvaluation {
     constexpr ArithmeticEvaluation()
-        : type{to_underlying(EvaluationType::Arithmetic)}
-        , positive{0}
-        , zero{0}
-        , overflow{0}
-        , undefined{0} {
+        : type{to_underlying(EvaluationType::Arithmetic)}, positive{0}, zero{0}, overflow{0}, undefined{0} {
     }
 
     EvaluationUnit type : EvaluationTypeBits;  ///< The EvaluationType (arithmetic).
@@ -230,8 +226,7 @@ struct ArithmeticEvaluation {
 
     friend std::ostream& operator<<(std::ostream& os, ArithmeticEvaluation a) {
         os << "A(+:" << static_cast<uint32_t>(a.positive) << ", Z:" << static_cast<uint32_t>(a.zero)
-           << ", O:" << static_cast<uint32_t>(a.overflow)
-           << ", U:" << static_cast<uint32_t>(a.undefined) << ")";
+           << ", O:" << static_cast<uint32_t>(a.overflow) << ", U:" << static_cast<uint32_t>(a.undefined) << ")";
         return os;
     }
 };

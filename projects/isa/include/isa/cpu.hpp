@@ -60,8 +60,9 @@ enum class ExceptionType : ExceptionUnit {
     SystemCall = 8,
     Deferred = 9,
     Ticker = 10,
+    Safe = 11,
     /// Used by a top level peripheral handler
-    External = 11,
+    External = 12,
 };
 constexpr static size_t CountOfExceptionTypes{1024U};
 
@@ -126,13 +127,17 @@ struct Exception {
     /// non-ticker exception, meaning it is triggered by other events such as interrupts or faults.
     uint32_t ticker : 1;
 
+    /// 1 when the exception is a safe exception, meaning the processor should transfer control to a known-safe
+    /// handler.
+    uint32_t safe : 1;
+
     /// 1 when the exception is an external exception, meaning it is triggered by a
     /// peripheral device or I/O event, and can be used for handling input/output operations
     /// or device interactions. 0 when the exception is a non-external exception, meaning
     /// it is triggered by other events such as interrupts or faults.
     uint32_t external : 1;
 
-    uint32_t : 4;  ///< Unused bits for future expansion
+    uint32_t : 3;  ///< Unused bits for future expansion
 
     /// The type of the exception which occurred. This field should be used to determine which exception currently needs
     /// to be handled during the handler.
@@ -140,14 +145,14 @@ struct Exception {
 
     constexpr bool HasException() const {
         return reset or unmaskable or bus_fault or instruction_fault or arithmetic_fault or stack_fault or tripped
-               or system_call or deferred or ticker or external;
+               or system_call or deferred or ticker or safe or external;
     }
 
     friend std::ostream& operator<<(std::ostream& os, Exception exc) {
         os << " R:" << exc.reset << " U:" << exc.unmaskable << "N:" << exc.nested << " B:" << exc.bus_fault
            << " I:" << exc.instruction_fault << " A:" << exc.arithmetic_fault << " S:" << exc.stack_fault
-           << "C:" << exc.system_call << " D:" << exc.deferred << " T:" << exc.ticker << " E:" << exc.external
-           << " SE:" << static_cast<uint32_t>(exc.type);
+           << "C:" << exc.system_call << " D:" << exc.deferred << " T:" << exc.ticker << " H:" << exc.safe
+           << " E:" << exc.external << " SE:" << static_cast<uint32_t>(exc.type);
         return os;
     }
 };
@@ -188,6 +193,8 @@ struct VectorTable {
     Address deferred_handler{0};
     /// The address of the ticker handler, which is the entry point for handling ticker exceptions.
     Address ticker_handler{0};
+    /// The address of a safe fallback handler for low-priority safety recovery.
+    Address safe_handler{0};
     /// The address of the external handler table, which is the entry point for handling external exceptions.
     Address external_handler_table{0};
 
@@ -348,5 +355,56 @@ protected:
     // === Control Variables for Pipeline Stages ===
     bool halted_;
 };
+
+namespace operations {
+template <typename OPERAND_TYPE, typename INTERMEDIATE_TYPE>
+constexpr OPERAND_TYPE Addition(OPERAND_TYPE a, OPERAND_TYPE b, bool& overflow) {
+    constexpr auto pos_med = static_cast<INTERMEDIATE_TYPE>(std::numeric_limits<OPERAND_TYPE>::max() / 2);
+    constexpr auto neg_med = static_cast<INTERMEDIATE_TYPE>(std::numeric_limits<OPERAND_TYPE>::min() / 2);
+    overflow = false;
+    if (static_cast<INTERMEDIATE_TYPE>(a) < neg_med and static_cast<INTERMEDIATE_TYPE>(b) < neg_med) {
+        overflow = true;
+        return std::numeric_limits<OPERAND_TYPE>::min();
+    }
+    if (static_cast<INTERMEDIATE_TYPE>(a) > pos_med and static_cast<INTERMEDIATE_TYPE>(b) > pos_med) {
+        overflow = true;
+        return std::numeric_limits<OPERAND_TYPE>::max();
+    }
+    return a + b;
+}
+
+template <typename OPERAND_TYPE, typename INTERMEDIATE_TYPE>
+constexpr OPERAND_TYPE Subtraction(OPERAND_TYPE a, OPERAND_TYPE b, bool& overflow) {
+    constexpr auto pos_med = static_cast<INTERMEDIATE_TYPE>(std::numeric_limits<OPERAND_TYPE>::max() / 2);
+    constexpr auto neg_med = static_cast<INTERMEDIATE_TYPE>(std::numeric_limits<OPERAND_TYPE>::min() / 2);
+    overflow = false;
+    if (static_cast<INTERMEDIATE_TYPE>(a) < neg_med and static_cast<INTERMEDIATE_TYPE>(b) < neg_med) {
+        overflow = true;
+        return std::numeric_limits<OPERAND_TYPE>::min();
+    }
+    if (static_cast<INTERMEDIATE_TYPE>(a) > pos_med and static_cast<INTERMEDIATE_TYPE>(b) > pos_med) {
+        overflow = true;
+        return std::numeric_limits<OPERAND_TYPE>::max();
+    }
+    return a - b;
+}
+
+template <typename OPERAND_TYPE, typename INTERMEDIATE_TYPE>
+constexpr OPERAND_TYPE Multiply(OPERAND_TYPE a, OPERAND_TYPE b, bool& overflow) {
+    constexpr auto pos_med = static_cast<INTERMEDIATE_TYPE>(std::numeric_limits<OPERAND_TYPE>::max() / 2);
+    constexpr auto neg_med = static_cast<INTERMEDIATE_TYPE>(std::numeric_limits<OPERAND_TYPE>::min() / 2);
+    overflow = false;
+    if (static_cast<INTERMEDIATE_TYPE>(a) < neg_med and static_cast<INTERMEDIATE_TYPE>(b) < neg_med) {
+        overflow = true;
+        return std::numeric_limits<OPERAND_TYPE>::min();
+    }
+    if (static_cast<INTERMEDIATE_TYPE>(a) > pos_med and static_cast<INTERMEDIATE_TYPE>(b) > pos_med) {
+        overflow = true;
+        return std::numeric_limits<OPERAND_TYPE>::max();
+    }
+    return a * b;
+}
+
+}  // namespace operations
 
 }  // namespace isa

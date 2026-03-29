@@ -62,6 +62,7 @@ if (BUILD_UNIT_TESTS AND Threads_FOUND AND GTest_FOUND)
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_cpu_persistence.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_register_view.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_cache.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_instruction.cpp
     )
     target_link_libraries(gtest_isa PRIVATE hobbies-isa enabled-debugging GTest::gtest GTest::gmock GTest::gtest_main Threads::Threads)
     add_test(NAME gtest_isa COMMAND gtest_isa)

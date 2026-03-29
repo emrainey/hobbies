@@ -3,13 +3,15 @@
 #include <array>
 #include <string>
 
+#include <isa/cpu.hpp>
+
 namespace isa {
 
 class Processor;
 
-using ScratchRegisterRows = std::array<std::string, 16>;
-using SpecialRegisterRows = std::array<std::string, 12>;
-using EvaluationRegisterRows = std::array<std::string, 16>;
+using ScratchRegisterRows = std::array<std::string, CountOfScratchRegisters>;
+using SpecialRegisterRows = std::array<std::string, CountOfSpecialRegisters>;
+using EvaluationRegisterRows = std::array<std::string, CountOfEvaluationRegisters>;
 
 ScratchRegisterRows FormatScratchRegisterRows(Processor const& cpu);
 SpecialRegisterRows FormatSpecialRegisterRows(Processor const& cpu);

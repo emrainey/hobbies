@@ -195,8 +195,8 @@ struct VectorTable {
 };
 constexpr static size_t VectorTableCount = sizeof(VectorTable) / sizeof(Address);
 
+/// The Special Registers of the processor, which include the Program Address Register, the Stack Pointer, the Mode Register, etc.
 struct Special {
-    // special registers
     Address program_address_{0};  ///< PA: The current address of the instruction being executed
     Address return_address_{0};   ///< RA: The address which the control flow will return to when a return is issued.
     Address vector_table_address_{
@@ -211,6 +211,9 @@ struct Special {
     /// A simple performance counter that can be used for counting events, measuring time, etc.
     uint32_t performance_counter_{0};
 };
+
+/// The number of special registers is the size of the Special struct divided by the size of an Address, since each special register is the size of an Address.
+constexpr static size_t CountOfSpecialRegisters = sizeof(Special) / sizeof(Address);
 
 /// The evaluation registers
 using Evaluations = std::array<Evaluation, CountOfEvaluationRegisters>;

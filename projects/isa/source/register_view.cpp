@@ -43,7 +43,7 @@ ScratchRegisterRows FormatScratchRegisterRows(Processor const& cpu) {
 SpecialRegisterRows FormatSpecialRegisterRows(Processor const& cpu) {
     SpecialRegisterRows rows{};
     auto const& special = cpu.ViewSpecial();
-    constexpr int special_name_width = 4;                                       // ESBA
+    constexpr int special_name_width = 4;                                       // like ESBA
     constexpr int special_hex_digits = static_cast<int>(sizeof(Address) * 2U);  // 2 hex digits per byte
     constexpr int special_value_width = special_hex_digits + 2;                 // 0x + digits
     std::ostringstream register_stream;

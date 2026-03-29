@@ -17,7 +17,7 @@ if (NOT CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
 set(USE_XMMT OFF)
 endif()
 
-# Build Everything with C++17 and full native optimizations
+# Build Everything with C++17 and full native optimizations (Apple doesn't like C++20 yet)
 set(CMAKE_CXX_STANDARD 17)
 enable_testing()
 

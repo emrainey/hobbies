@@ -14,35 +14,41 @@ namespace isa {
 enum class Operator : uint32_t {
     None = 0,  ///< noop
     // === Movement within Files ===
-    Move,  ///< move destination, Source (use E or S prefix)
+    Move,  ///< move destination, Source
 
     MoveImmediateToScratch,     ///< move immediate to scratch
     MoveImmediateToEvaluation,  ///< move immediate to evaluation
 
-    Swap,   ///< swap registerA, registerB; reg_type (0=scratch, 1=evaluation)
-    Clear,  ///< clear registers using mask; reg_type (0=scratch, 1=evaluation)
+    Swap,  ///< swap registerA, registerB; reg_type (0=scratch, 1=evaluation)
+    Zero,  ///< clear registers using mask; reg_type (0=scratch, 1=evaluation)
+
+    // === Special Register Manipulation ===
+    Leap,    ///< leap to address in scratch with optional immediate offset and condition
+    Back,    ///< back from subroutine to address in Return Address Special Register
+    Grow,    ///< grow #imm<16> (mask of scratch)
+    Undo,    ///< undo #imm<16> (mask of scratch)
+    Call,    ///< call #imm<16> (System Call Number)
+    Trip,    ///< Trip #imm<16> (Trip an exception with the given exception type encoded in the immediate value. This can be used to test triggering interrupts)
 
     // === Memory Operations ===
-    LoadSingle,    ///< load scratchDestination, scratchAddress
-    LoadMultiple,  ///< loadm scratchAddress, scratchFlags<16>
-
-    StoreSingle,    ///< store scratchSource, scratchAddress
-    StoreMultiple,  ///< storem scratchAddress, scratchFlags<16>
-
-    Jump,  ///< jump evaluation, mask, scratchAddress
+    Load,    ///< load scratchDestination, scratchAddress
+    Save,    ///< store scratchSource, scratchAddress
 
     // === Comparison ===
     Compare,  ///< Compare scratchA, scratchB
 
     // === Bit Operators ===
-    And,    ///< and scratchDestination, scratchSource, scratchSource
-    Or,     ///< or  scratchDestination, scratchSource, scratchSource
-    Xor,    ///< xor scratchDestination, scratchSource, scratchSource
-    Not,    ///< not scratchDestination, scratchSource
-    Rsh,    ///< rsh scratchDestination, scratchSource, #imm<5>
-    Lsh,    ///< lsh scratchDestination, scratchSource, #imm<5>
-    Count,  ///< count scratchDestination, scratchSource
+    And,    ///< band scratchDestination, scratchSource, scratchSource
+    Or,     ///< bor  scratchDestination, scratchSource, scratchSource
+    Xor,    ///< bxor scratchDestination, scratchSource, scratchSource
+    Complement,    ///< bcmpl scratchDestination, scratchSource
+    Rsh,    ///< brsh scratchDestination, scratchSource, #imm<5>
+    Lsh,    ///< blsh scratchDestination, scratchSource, #imm<5>
+    Rotate, ///< brot scratchDestination, scratchSource, #imm<5>
+    Count,  ///< bcount scratchDestination, scratchSource
     // === ALU (Integer) ===
+    Add,               ///< {s/u}{s}add.{type}{size} Es, Sd, Sa, Sb
+
     SignedAdd,         ///< sadd scratchDestination, scratchSource, scratchSource -> OverFlow
     SignedSub,         ///< ssub scratchDestination, scratchSource, scratchSource -> Underflow
     SignedMultiply,    ///< smult scratchDestination, scratchSource, scratchSource -> Overflow or Underflow
@@ -158,6 +164,33 @@ protected:
     uint32_t : CountOfDataBits - CountOfOperatorBits;
 };
 
+struct Copy {
+    Copy() = delete;
+    constexpr Copy(Operand dst, Operand src)
+        : op{Operator::None}, dst{dst.index}, src{src.index}, eval{0}, cond{0} {
+        basal::exception::throw_unless(
+            dst.type == to_underlying(OperandType::Scratch) and src.type == to_underlying(OperandType::Scratch),
+            __FILE__, __LINE__, "Copy instruction requires both source and destination operands to be Scratch registers");
+    }
+    constexpr Copy(Operand dst, Operand src, Operand eval)
+        : op{Operator::None}, dst{dst.index}, src{src.index}, eval{eval.index}, cond{1} {
+        basal::exception::throw_unless(
+            dst.type == to_underlying(OperandType::Scratch) and src.type == to_underlying(OperandType::Scratch),
+            __FILE__, __LINE__, "Copy instruction requires both source and destination operands to be Scratch registers");
+    }
+    friend std::ostream& operator<<(std::ostream& os, Copy c) {
+        os << "copy " << Operand{OperandType::Scratch, c.dst} << ", " << Operand{OperandType::Scratch, c.src};
+        return os;
+    }
+
+    Operator op : CountOfOperatorBits;
+    uint32_t dst : CountOfScratchIndexBits;
+    uint32_t src : CountOfScratchIndexBits;
+    uint32_t eval : CountOfEvalIndexBits;
+    uint32_t cond : 1; ///< If == 1, then the copy will set the evaluation register
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (2 * CountOfScratchIndexBits) - CountOfEvalIndexBits - 1;
+};
+
 struct Move {
     using ImmediateType = isa::Immediate<log2(CountOfDataShiftBits)>;
     Move() = delete;
@@ -236,10 +269,10 @@ struct Move {
     }
 
     const Operator op : CountOfOperatorBits;
-    uint32_t eval : CountOfIndexBits;       ///< Evaluation
-    uint32_t mask : CountOfIndexBits;       ///< Evaluation Mask
-    uint32_t dst : CountOfIndexBits;        ///< Operand
-    uint32_t src : CountOfIndexBits;        ///< Operand
+    uint32_t eval : CountOfEvalIndexBits;       ///< Evaluation
+    uint32_t mask : CountOfEvalIndexBits;       ///< Evaluation Mask
+    uint32_t dst : CountOfScratchIndexBits;        ///< Operand
+    uint32_t src : CountOfScratchIndexBits;        ///< Operand
     uint32_t cond : 1;                      ///< If == 1, then the move is conditional on the evaluation and mask.
     uint32_t type : 1;                      ///< 0 = Scratch to Scratch, 1 = Evaluation to Evaluation
     uint32_t dir : 1;                       ///< Direction for Shift (0 = Left, 1 = Right)
@@ -265,7 +298,7 @@ struct MoveImmediateToScratch {
     }
 
     Operator op : CountOfOperatorBits;
-    uint32_t dst : CountOfIndexBits;
+    uint32_t dst : CountOfScratchIndexBits;
     uint32_t imm : 20;
 };
 
@@ -297,8 +330,8 @@ struct MoveImmediateToEvaluation {
     }
 
     Operator op : CountOfOperatorBits;
-    uint32_t dst : CountOfIndexBits;
-    uint32_t : 20 - ImmediateType::Bits;
+    uint32_t dst : CountOfScratchIndexBits;
+    uint32_t : CountOfDataBits - CountOfOperatorBits - CountOfScratchIndexBits - ImmediateType::Bits;
     uint32_t imm : ImmediateType::Bits;
 };
 
@@ -321,19 +354,19 @@ struct Swap {
     }
 
     Operator op : CountOfOperatorBits;
-    uint32_t a : CountOfIndexBits;
-    uint32_t b : CountOfIndexBits;
+    uint32_t a : CountOfScratchIndexBits;
+    uint32_t b : CountOfScratchIndexBits;
     RegisterType type : 1;
     uint32_t : 15;
 };
 
-struct Clear {
-    using ImmediateType = isa::Immediate<16>;
-    Clear() = delete;
-    constexpr Clear(Operand mask, RegisterType evaluation = RegisterType::Scratch)
-        : op{Operator::Clear}, mask{mask.imm}, type{to_underlying(evaluation)} {
+struct Zero {
+    using ImmediateType = isa::Immediate<std::max(CountOfScratchRegisters, CountOfEvaluationRegisters)>;
+    Zero() = delete;
+    constexpr Zero(Operand mask, RegisterType evaluation = RegisterType::Scratch)
+        : op{Operator::Zero}, mask{mask.imm}, type{to_underlying(evaluation)} {
     }
-    friend std::ostream& operator<<(std::ostream& os, Clear c) {
+    friend std::ostream& operator<<(std::ostream& os, Zero c) {
         os << "clear " << (c.type == RegisterType::Scratch ? 'S' : 'E') << ", "
            << Operand{OperandType::Mask, ImmediateType{c.mask}};
         return os;
@@ -346,18 +379,18 @@ struct Clear {
     uint32_t : 7;
 };
 
-struct LoadSingle {
+struct Load {
     using ImmediateType = isa::Immediate<14>;
-    LoadSingle() = delete;
-    constexpr LoadSingle(Operand dst, Operand base, ImmediateType imm, bool inc = false, bool off = false)
-        : op{Operator::LoadSingle}
+    Load() = delete;
+    constexpr Load(Operand dst, Operand base, ImmediateType imm, bool inc = false, bool off = false)
+        : op{Operator::Load}
         , dst{dst.index}
         , base{base.index}
         , inc{inc ? 1U : 0U}
         , off{off ? 1U : 0U}
         , imm{imm.value} {
     }
-    friend std::ostream& operator<<(std::ostream& os, LoadSingle l) {
+    friend std::ostream& operator<<(std::ostream& os, Load l) {
         os << "load " << Operand{OperandType::Scratch, l.dst} << ", " << Operand{OperandType::Scratch, l.base};
         if (l.inc) {
             os << " += " << l.imm;
@@ -369,8 +402,8 @@ struct LoadSingle {
     }
 
     Operator op : CountOfOperatorBits;
-    uint32_t dst : CountOfIndexBits;   ///< Destination Scratch Register
-    uint32_t base : CountOfIndexBits;  ///< Base Scratch Register containing the address
+    uint32_t dst : CountOfScratchIndexBits;   ///< Destination Scratch Register
+    uint32_t base : CountOfScratchIndexBits;  ///< Base Scratch Register containing the address
     uint32_t inc : 1;  ///< If set, the base scratch register will be incremented by the size of the load after the load
                        ///< is performed.
     uint32_t off : 1;  ///< If set, the base scratch register will be used as an offset from a base address in a special
@@ -378,11 +411,11 @@ struct LoadSingle {
     uint32_t imm : ImmediateType::Bits;  ///< The immediate value of the offset or increment in bytes.
 };
 
-struct StoreSingle {
+struct Save {
     using ImmediateType = isa::Immediate<14>;
-    StoreSingle() = delete;
-    constexpr StoreSingle(Operand src, Operand base, ImmediateType imm, bool inc = false, bool off = false)
-        : op{Operator::StoreSingle}
+    Save() = delete;
+    constexpr Save(Operand src, Operand base, ImmediateType imm, bool inc = false, bool off = false)
+        : op{Operator::Save}
         , src{src.index}
         , base{base.index}
         , inc{inc ? 1U : 0U}
@@ -390,7 +423,7 @@ struct StoreSingle {
         , imm{imm.value} {
     }
 
-    friend std::ostream& operator<<(std::ostream& os, StoreSingle s) {
+    friend std::ostream& operator<<(std::ostream& os, Save s) {
         os << "store " << Operand{OperandType::Scratch, s.src} << ", " << Operand{OperandType::Scratch, s.base};
         if (s.inc) {
             os << " += " << s.imm;
@@ -402,8 +435,8 @@ struct StoreSingle {
     }
 
     Operator op : CountOfOperatorBits;
-    uint32_t src : CountOfIndexBits;   ///< Source Scratch Register
-    uint32_t base : CountOfIndexBits;  ///< Base Scratch Register containing the address
+    uint32_t src : CountOfScratchIndexBits;   ///< Source Scratch Register
+    uint32_t base : CountOfScratchIndexBits;  ///< Base Scratch Register containing the address
     uint32_t inc : 1;                  ///< If set, the base scratch register will
                                        ///< be incremented by the size of the store after the store is performed.
     uint32_t off : 1;  ///< If set, the base scratch register will be used as an offset from a base address in a special
@@ -411,16 +444,16 @@ struct StoreSingle {
     uint32_t imm : ImmediateType::Bits;  ///< The immediate value of the offset or increment in bytes
 };
 
-/// The Jump Instruction
-struct Jump {
+/// The Leap Instruction
+struct Leap {
     using ImmediateType = isa::SignedImmediate<10>;
-    Jump() = delete;
-    constexpr Jump(Operand dst, ImmediateType imm, bool save = false)
-        : op{Operator::Jump}, eval{0}, mask{0}, dst{dst.index}, cond{0}, save{save ? 1U : 0U}, imm{imm.value} {
+    Leap() = delete;
+    constexpr Leap(Operand dst, ImmediateType imm, bool save = false)
+        : op{Operator::Leap}, eval{0}, mask{0}, dst{dst.index}, cond{0}, save{save ? 1U : 0U}, imm{imm.value} {
     }
 
-    constexpr Jump(Operand eval, Operand mask, Operand dst, ImmediateType imm, bool save = false)
-        : op{Operator::Jump}
+    constexpr Leap(Operand eval, Operand mask, Operand dst, ImmediateType imm, bool save = false)
+        : op{Operator::Leap}
         , eval{eval.index}
         , mask{mask.index}
         , dst{dst.index}
@@ -428,8 +461,8 @@ struct Jump {
         , save{save ? 1U : 0U}
         , imm{imm.value} {
     }
-    friend std::ostream& operator<<(std::ostream& os, Jump j) {
-        os << "jump ";
+    friend std::ostream& operator<<(std::ostream& os, Leap j) {
+        os << "leap ";
         if (j.cond) {
             os << Operand{OperandType::Evaluation, j.eval} << ", " << Operand{OperandType::Evaluation, j.mask} << ", ";
         }
@@ -438,15 +471,129 @@ struct Jump {
     }
 
     Operator op : CountOfOperatorBits;
-    uint32_t eval : CountOfIndexBits;  ///< Evaluation Register to check
-    uint32_t mask : CountOfIndexBits;  ///< Mask for the evaluation register
-    uint32_t dst : CountOfIndexBits;   ///< Scratch Register containing the destination address
-    uint32_t cond : 1;                 ///< If == 1, then the jump is conditional on the evaluation and mask.
-    uint32_t save : 1;  ///< If == 1, then the jump will save the return address in the Return Address Special Register.
-    /// SIGNED Immediate value for the jump (e.g. for relative jumps or as an offset). The value is multiplied by 4 to
-    /// get a byte offset, since instructions are 4 bytes. This means that the relative jump range is +/- 2^12
+    uint32_t eval : CountOfEvalIndexBits;  ///< Evaluation Register to check
+    uint32_t mask : CountOfEvalIndexBits;  ///< Mask for the evaluation register
+    uint32_t dst : CountOfScratchIndexBits;   ///< Scratch Register containing the destination address
+    uint32_t cond : 1;                 ///< If == 1, then the leap is conditional on the evaluation and mask.
+    uint32_t save : 1;  ///< If == 1, then the leap will save the return address in the Return Address Special Register.
+    /// SIGNED Immediate value for the leap (e.g. for relative leap or as an offset). The value is multiplied by 4 to
+    /// get a byte offset, since instructions are 4 bytes. This means that the relative leap range is +/- 2^12
     /// instructions, which should be sufficient for most use cases.
     int32_t imm : ImmediateType::Bits;
+};
+
+
+struct Back {
+    Back() = delete;
+    constexpr Back(bool zero = false) : op{Operator::Back}, zero{zero ? 1U : 0U} {
+    }
+    friend std::ostream& operator<<(std::ostream& os, Back b) {
+        os << "back";
+        if (b.zero) {
+            os << " zero";
+        }
+        return os;
+    }
+
+    Operator op : CountOfOperatorBits;
+    uint32_t zero : 1;  ///< If == 1, then the back will zero the return address after returning.
+    uint32_t : CountOfDataBits - CountOfOperatorBits - 1;
+};
+
+struct Grow {
+    using ImmediateType = isa::Immediate<10>;
+    Grow() = delete;
+    constexpr Grow(ImmediateType imm) : op{Operator::Grow}, eval{0}, mask{0}, cond{0}, imm{imm.value} {
+    }
+    constexpr Grow(Operand e, Operand m, ImmediateType imm) : op{Operator::Grow}, eval{e.index}, mask{m.index}, cond{1}, imm{imm.value} {
+        basal::exception::throw_if(e.type != static_cast<uint32_t>(OperandType::Evaluation), __FILE__, __LINE__,
+                                   "Grow instruction requires the first operand to be an Evaluation register");
+        basal::exception::throw_if(m.type != static_cast<uint32_t>(OperandType::Evaluation), __FILE__, __LINE__,
+                                   "Grow instruction requires the second operand to be an Evaluation register");
+    }
+    friend std::ostream& operator<<(std::ostream& os, Grow g) {
+        os << "grow " << Operand{OperandType::Evaluation, g.eval} << ", " << Operand{OperandType::Evaluation, g.mask} << ", "<< ImmediateType{g.imm};
+        return os;
+    }
+
+    Operator op : CountOfOperatorBits;
+    uint32_t eval : CountOfEvalIndexBits;   ///< Evaluation Register to check for conditional trip (if cond == 1)
+    uint32_t mask : CountOfEvalIndexBits;   ///< Mask for the evaluation register
+    uint32_t cond : 1;  ///< If == 1, then the trip will be conditional on the evaluation and mask.
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (2 * CountOfEvalIndexBits) - ImmediateType::Bits - 1;
+    uint32_t imm : ImmediateType::Bits;     ///< Each bit corresponds to a scratch register. If the bit is set, the corresponding scratch register will be grown.
+};
+
+struct Undo {
+    using ImmediateType = isa::Immediate<10>;
+    Undo() = delete;
+    constexpr Undo(ImmediateType imm) : op{Operator::Undo}, eval{0}, mask{0}, cond{0}, imm{imm.value} {
+    }
+    constexpr Undo(Operand e, Operand m, ImmediateType imm) : op{Operator::Undo}, eval{e.index}, mask{m.index}, cond{1}, imm{imm.value} {
+        basal::exception::throw_if(e.type != static_cast<uint32_t>(OperandType::Evaluation), __FILE__, __LINE__,
+                                   "Undo instruction requires the first operand to be an Evaluation register");
+        basal::exception::throw_if(m.type != static_cast<uint32_t>(OperandType::Evaluation), __FILE__, __LINE__,
+                                   "Undo instruction requires the second operand to be an Evaluation register");
+    }
+    friend std::ostream& operator<<(std::ostream& os, Undo u) {
+        os << "undo " << Operand{OperandType::Evaluation, u.eval} << ", " << Operand{OperandType::Evaluation, u.mask} << ", "<< ImmediateType{u.imm};
+        return os;
+    }
+
+    Operator op : CountOfOperatorBits;
+    uint32_t eval : CountOfEvalIndexBits;   ///< Evaluation Register to check for conditional trip (if cond == 1)
+    uint32_t mask : CountOfEvalIndexBits;   ///< Mask for the evaluation register
+    uint32_t cond : 1;  ///< If == 1, then the trip will be conditional on the evaluation and mask.
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (2 * CountOfEvalIndexBits) - ImmediateType::Bits - 1;
+    uint32_t imm : ImmediateType::Bits;     ///< Each bit corresponds to a scratch register. If the bit is set, the corresponding scratch register will be undone (shrunk).
+};
+
+struct Call {
+    using ImmediateType = isa::Immediate<10>;
+    Call() = delete;
+    constexpr Call(ImmediateType imm) : op{Operator::Call}, eval{0}, mask{0}, cond{0}, imm{imm.value} {
+    }
+    constexpr Call(Operand e, Operand m, ImmediateType imm) : op{Operator::Call}, eval{e.index}, mask{m.index}, cond{1}, imm{imm.value} {
+        basal::exception::throw_if(e.type != static_cast<uint32_t>(OperandType::Evaluation), __FILE__, __LINE__,
+                                   "Call instruction requires the first operand to be an Evaluation register");
+        basal::exception::throw_if(m.type != static_cast<uint32_t>(OperandType::Evaluation), __FILE__, __LINE__,
+                                   "Call instruction requires the second operand to be an Evaluation register");
+    }
+    friend std::ostream& operator<<(std::ostream& os, Call c) {
+        os << "call " << Operand{OperandType::Evaluation, c.eval} << ", " << Operand{OperandType::Evaluation, c.mask} << ", "<< ImmediateType{c.imm};
+        return os;
+    }
+
+    Operator op : CountOfOperatorBits;
+    uint32_t eval : CountOfEvalIndexBits;   ///< Evaluation Register to check for conditional trip (if cond == 1)
+    uint32_t mask : CountOfEvalIndexBits;   ///< Mask for the evaluation register
+    uint32_t cond : 1;  ///< If == 1, then the trip will be conditional on the evaluation and mask.
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (2 * CountOfEvalIndexBits) - ImmediateType::Bits - 1;
+    uint32_t imm : ImmediateType::Bits;     ///< The immediate value of the system call number to call.
+};
+
+struct Trip {
+    using ImmediateType = isa::Immediate<10>;
+    Trip() = delete;
+    constexpr Trip(ImmediateType imm) : op{Operator::Trip}, eval{0}, mask{0}, cond{0}, imm{imm.value} {
+    }
+    constexpr Trip(Operand e, Operand m, ImmediateType imm) : op{Operator::Trip}, eval{e.index}, mask{m.index}, cond{1}, imm{imm.value} {
+        basal::exception::throw_if(e.type != static_cast<uint32_t>(OperandType::Evaluation), __FILE__, __LINE__,
+                                   "Trip instruction requires the first operand to be an Evaluation register");
+        basal::exception::throw_if(m.type != static_cast<uint32_t>(OperandType::Evaluation), __FILE__, __LINE__,
+                                   "Trip instruction requires the second operand to be an Evaluation register");
+    }
+    friend std::ostream& operator<<(std::ostream& os, Trip t) {
+        os << "trip " << Operand{OperandType::Evaluation, t.eval} << ", " << Operand{OperandType::Evaluation, t.mask} << ", "<< ImmediateType{t.imm};
+        return os;
+    }
+
+    Operator op : CountOfOperatorBits;
+    uint32_t eval : CountOfEvalIndexBits;   ///< Evaluation Register to check for conditional trip (if cond == 1)
+    uint32_t mask : CountOfEvalIndexBits;   ///< Mask for the evaluation register
+    uint32_t cond : 1;  ///< If == 1, then the trip will be conditional on the evaluation and mask.
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (2 * CountOfEvalIndexBits) - ImmediateType::Bits - 1;
+    uint32_t imm : ImmediateType::Bits;     ///< The immediate value of the exception type to trip.
 };
 
 /// Compares two scratch registers and sets flags in the Evaluation Register based on the result of the comparison.
@@ -471,11 +618,11 @@ struct Compare {
     }
 
     Operator op : CountOfOperatorBits;
-    uint32_t e : CountOfIndexBits;  ///< Evaluation Register to set flags in
-    uint32_t a : CountOfIndexBits;  ///< Scratch Register A
-    uint32_t b : CountOfIndexBits;  ///< Scratch Register B
+    uint32_t e : CountOfScratchIndexBits;  ///< Evaluation Register to set flags in
+    uint32_t a : CountOfScratchIndexBits;  ///< Scratch Register A
+    uint32_t b : CountOfScratchIndexBits;  ///< Scratch Register B
     uint32_t s : 1;  ///< If set, the comparison will be signed. If not set, the comparison will be unsigned.
-    uint32_t : CountOfDataBits - CountOfOperatorBits - (3 * CountOfIndexBits) - 1;
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (3 * CountOfScratchIndexBits) - 1;
 };
 
 struct BitwiseAnd {
@@ -496,10 +643,10 @@ struct BitwiseAnd {
     }
 
     Operator op : CountOfOperatorBits;
-    uint32_t dst : CountOfIndexBits;   ///< Destination Scratch Register
-    uint32_t src1 : CountOfIndexBits;  ///< Source Scratch Register 1
-    uint32_t src2 : CountOfIndexBits;  ///< Source Scratch Register 2
-    uint32_t : CountOfDataBits - CountOfOperatorBits - (3 * CountOfIndexBits);
+    uint32_t dst : CountOfScratchIndexBits;   ///< Destination Scratch Register
+    uint32_t src1 : CountOfScratchIndexBits;  ///< Source Scratch Register 1
+    uint32_t src2 : CountOfScratchIndexBits;  ///< Source Scratch Register 2
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (3 * CountOfScratchIndexBits);
 };
 
 struct BitwiseOr {
@@ -520,10 +667,10 @@ struct BitwiseOr {
     }
 
     Operator op : CountOfOperatorBits;
-    uint32_t dst : CountOfIndexBits;   ///< Destination Scratch Register
-    uint32_t src1 : CountOfIndexBits;  ///< Source Scratch Register 1
-    uint32_t src2 : CountOfIndexBits;  ///< Source Scratch Register 2
-    uint32_t : CountOfDataBits - CountOfOperatorBits - (3 * CountOfIndexBits);
+    uint32_t dst : CountOfScratchIndexBits;   ///< Destination Scratch Register
+    uint32_t src1 : CountOfScratchIndexBits;  ///< Source Scratch Register 1
+    uint32_t src2 : CountOfScratchIndexBits;  ///< Source Scratch Register 2
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (3 * CountOfScratchIndexBits);
 };
 
 struct BitwiseXor {
@@ -544,30 +691,30 @@ struct BitwiseXor {
     }
 
     Operator op : CountOfOperatorBits;
-    uint32_t dst : CountOfIndexBits;   ///< Destination Scratch Register
-    uint32_t src1 : CountOfIndexBits;  ///< Source Scratch Register 1
-    uint32_t src2 : CountOfIndexBits;  ///< Source Scratch Register 2
-    uint32_t : CountOfDataBits - CountOfOperatorBits - (3 * CountOfIndexBits);
+    uint32_t dst : CountOfScratchIndexBits;   ///< Destination Scratch Register
+    uint32_t src1 : CountOfScratchIndexBits;  ///< Source Scratch Register 1
+    uint32_t src2 : CountOfScratchIndexBits;  ///< Source Scratch Register 2
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (3 * CountOfScratchIndexBits);
 };
 
-struct BitwiseNot {
-    BitwiseNot() = delete;
-    constexpr BitwiseNot(Operand dst, Operand src) : op{Operator::Not}, dst{dst.index}, src{src.index} {
+struct BitwiseComplement {
+    BitwiseComplement() = delete;
+    constexpr BitwiseComplement(Operand dst, Operand src) : op{Operator::Complement}, dst{dst.index}, src{src.index} {
         basal::exception::throw_unless(dst.type == static_cast<uint32_t>(OperandType::Scratch)
                                            && src.type == static_cast<uint32_t>(OperandType::Scratch),
                                        __FILE__, __LINE__,
-                                       "BitwiseNot instruction requires both operands to be Scratch registers");
+                                       "BitwiseComplement instruction requires both operands to be Scratch registers");
     }
 
-    friend std::ostream& operator<<(std::ostream& os, BitwiseNot n) {
-        os << "not " << Operand{OperandType::Scratch, n.dst} << ", " << Operand{OperandType::Scratch, n.src};
+    friend std::ostream& operator<<(std::ostream& os, BitwiseComplement n) {
+        os << "cmpl " << Operand{OperandType::Scratch, n.dst} << ", " << Operand{OperandType::Scratch, n.src};
         return os;
     }
 
     Operator op : CountOfOperatorBits;
-    uint32_t dst : CountOfIndexBits;  ///< Destination Scratch Register
-    uint32_t src : CountOfIndexBits;  ///< Source Scratch Register
-    uint32_t : CountOfDataBits - CountOfOperatorBits - (2 * CountOfIndexBits);
+    uint32_t dst : CountOfScratchIndexBits;  ///< Destination Scratch Register
+    uint32_t src : CountOfScratchIndexBits;  ///< Source Scratch Register
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (2 * CountOfScratchIndexBits);
 };
 
 struct BitwiseRsh {
@@ -588,10 +735,10 @@ struct BitwiseRsh {
     }
 
     Operator op : CountOfOperatorBits;
-    uint32_t dst : CountOfIndexBits;       ///< Destination Scratch Register
-    uint32_t src : CountOfIndexBits;       ///< Source Scratch Register
+    uint32_t dst : CountOfScratchIndexBits;       ///< Destination Scratch Register
+    uint32_t src : CountOfScratchIndexBits;       ///< Source Scratch Register
     uint32_t shift : ImmediateType::Bits;  ///< Shift Amount (0-31)
-    uint32_t : CountOfDataBits - CountOfOperatorBits - (2 * CountOfIndexBits) - ImmediateType::Bits;
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (2 * CountOfScratchIndexBits) - ImmediateType::Bits;
 };
 
 struct BitwiseLsh {
@@ -612,10 +759,10 @@ struct BitwiseLsh {
     }
 
     Operator op : CountOfOperatorBits;
-    uint32_t dst : CountOfIndexBits;       ///< Destination Scratch Register
-    uint32_t src : CountOfIndexBits;       ///< Source Scratch Register
+    uint32_t dst : CountOfScratchIndexBits;       ///< Destination Scratch Register
+    uint32_t src : CountOfScratchIndexBits;       ///< Source Scratch Register
     uint32_t shift : ImmediateType::Bits;  ///< Shift Amount (0-31)
-    uint32_t : CountOfDataBits - CountOfOperatorBits - (2 * CountOfIndexBits) - ImmediateType::Bits;
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (2 * CountOfScratchIndexBits) - ImmediateType::Bits;
 };
 
 struct BitCount {
@@ -633,9 +780,9 @@ struct BitCount {
     }
 
     Operator op : CountOfOperatorBits;
-    uint32_t dst : CountOfIndexBits;  ///< Destination Scratch Register
-    uint32_t src : CountOfIndexBits;  ///< Source Scratch Register
-    uint32_t : CountOfDataBits - CountOfOperatorBits - (2 * CountOfIndexBits);
+    uint32_t dst : CountOfScratchIndexBits;  ///< Destination Scratch Register
+    uint32_t src : CountOfScratchIndexBits;  ///< Source Scratch Register
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (2 * CountOfScratchIndexBits);
 };
 
 struct SignedAdd {
@@ -658,11 +805,11 @@ struct SignedAdd {
     }
 
     Operator op : CountOfOperatorBits;
-    uint32_t eval : CountOfIndexBits;  ///< Evaluation Register
-    uint32_t dst : CountOfIndexBits;   ///< Destination Scratch Register
-    uint32_t src1 : CountOfIndexBits;  ///< Source Scratch Register 1
-    uint32_t src2 : CountOfIndexBits;  ///< Source Scratch Register 2
-    uint32_t : CountOfDataBits - CountOfOperatorBits - (4 * CountOfIndexBits);
+    uint32_t eval : CountOfEvalIndexBits;  ///< Evaluation Register
+    uint32_t dst : CountOfScratchIndexBits;   ///< Destination Scratch Register
+    uint32_t src1 : CountOfScratchIndexBits;  ///< Source Scratch Register 1
+    uint32_t src2 : CountOfScratchIndexBits;  ///< Source Scratch Register 2
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (4 * CountOfScratchIndexBits);
 };
 
 struct SignedSub {
@@ -685,11 +832,11 @@ struct SignedSub {
     }
 
     Operator op : CountOfOperatorBits;
-    uint32_t eval : CountOfIndexBits;  ///< Evaluation Register
-    uint32_t dst : CountOfIndexBits;   ///< Destination Scratch Register
-    uint32_t src1 : CountOfIndexBits;  ///< Source Scratch Register 1
-    uint32_t src2 : CountOfIndexBits;  ///< Source Scratch Register 2
-    uint32_t : CountOfDataBits - CountOfOperatorBits - (4 * CountOfIndexBits);
+    uint32_t eval : CountOfEvalIndexBits;  ///< Evaluation Register
+    uint32_t dst : CountOfScratchIndexBits;   ///< Destination Scratch Register
+    uint32_t src1 : CountOfScratchIndexBits;  ///< Source Scratch Register 1
+    uint32_t src2 : CountOfScratchIndexBits;  ///< Source Scratch Register 2
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (4 * CountOfScratchIndexBits);
 };
 
 struct SignedMultiply {
@@ -712,11 +859,11 @@ struct SignedMultiply {
     }
 
     Operator op : CountOfOperatorBits;
-    uint32_t eval : CountOfIndexBits;  ///< Evaluation Register
-    uint32_t dst : CountOfIndexBits;   ///< Destination Scratch Register
-    uint32_t src1 : CountOfIndexBits;  ///< Source Scratch Register 1
-    uint32_t src2 : CountOfIndexBits;  ///< Source Scratch Register 2
-    uint32_t : CountOfDataBits - CountOfOperatorBits - (4 * CountOfIndexBits);
+    uint32_t eval : CountOfEvalIndexBits;  ///< Evaluation Register
+    uint32_t dst : CountOfScratchIndexBits;   ///< Destination Scratch Register
+    uint32_t src1 : CountOfScratchIndexBits;  ///< Source Scratch Register 1
+    uint32_t src2 : CountOfScratchIndexBits;  ///< Source Scratch Register 2
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (4 * CountOfScratchIndexBits);
 };
 
 struct SignedDivide {
@@ -739,11 +886,11 @@ struct SignedDivide {
     }
 
     Operator op : CountOfOperatorBits;
-    uint32_t eval : CountOfIndexBits;  ///< Evaluation Register
-    uint32_t dst : CountOfIndexBits;   ///< Destination Scratch Register
-    uint32_t src1 : CountOfIndexBits;  ///< Source Scratch Register 1
-    uint32_t src2 : CountOfIndexBits;  ///< Source Scratch Register 2
-    uint32_t : CountOfDataBits - CountOfOperatorBits - (4 * CountOfIndexBits);
+    uint32_t eval : CountOfEvalIndexBits;  ///< Evaluation Register
+    uint32_t dst : CountOfScratchIndexBits;   ///< Destination Scratch Register
+    uint32_t src1 : CountOfScratchIndexBits;  ///< Source Scratch Register 1
+    uint32_t src2 : CountOfScratchIndexBits;  ///< Source Scratch Register 2
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (4 * CountOfScratchIndexBits);
 };
 
 struct SignedModulo {
@@ -766,11 +913,11 @@ struct SignedModulo {
     }
 
     Operator op : CountOfOperatorBits;
-    uint32_t eval : CountOfIndexBits;  ///< Evaluation Register
-    uint32_t dst : CountOfIndexBits;   ///< Destination Scratch Register
-    uint32_t src1 : CountOfIndexBits;  ///< Source Scratch Register 1
-    uint32_t src2 : CountOfIndexBits;  ///< Source Scratch Register 2
-    uint32_t : CountOfDataBits - CountOfOperatorBits - (4 * CountOfIndexBits);
+    uint32_t eval : CountOfEvalIndexBits;  ///< Evaluation Register
+    uint32_t dst : CountOfScratchIndexBits;   ///< Destination Scratch Register
+    uint32_t src1 : CountOfScratchIndexBits;  ///< Source Scratch Register 1
+    uint32_t src2 : CountOfScratchIndexBits;  ///< Source Scratch Register 2
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (4 * CountOfScratchIndexBits);
 };
 
 struct UnsignedAdd {
@@ -793,11 +940,11 @@ struct UnsignedAdd {
     }
 
     Operator op : CountOfOperatorBits;
-    uint32_t eval : CountOfIndexBits;  ///< Evaluation Register
-    uint32_t dst : CountOfIndexBits;   ///< Destination Scratch Register
-    uint32_t src1 : CountOfIndexBits;  ///< Source Scratch Register 1
-    uint32_t src2 : CountOfIndexBits;  ///< Source Scratch Register 2
-    uint32_t : CountOfDataBits - CountOfOperatorBits - (4 * CountOfIndexBits);
+    uint32_t eval : CountOfEvalIndexBits;  ///< Evaluation Register
+    uint32_t dst : CountOfScratchIndexBits;   ///< Destination Scratch Register
+    uint32_t src1 : CountOfScratchIndexBits;  ///< Source Scratch Register 1
+    uint32_t src2 : CountOfScratchIndexBits;  ///< Source Scratch Register 2
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (4 * CountOfScratchIndexBits);
 };
 
 struct UnsignedSub {
@@ -820,11 +967,11 @@ struct UnsignedSub {
     }
 
     Operator op : CountOfOperatorBits;
-    uint32_t eval : CountOfIndexBits;  ///< Evaluation Register
-    uint32_t dst : CountOfIndexBits;   ///< Destination Scratch Register
-    uint32_t src1 : CountOfIndexBits;  ///< Source Scratch Register 1
-    uint32_t src2 : CountOfIndexBits;  ///< Source Scratch Register 2
-    uint32_t : CountOfDataBits - CountOfOperatorBits - (4 * CountOfIndexBits);
+    uint32_t eval : CountOfEvalIndexBits;  ///< Evaluation Register
+    uint32_t dst : CountOfScratchIndexBits;   ///< Destination Scratch Register
+    uint32_t src1 : CountOfScratchIndexBits;  ///< Source Scratch Register 1
+    uint32_t src2 : CountOfScratchIndexBits;  ///< Source Scratch Register 2
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (4 * CountOfScratchIndexBits);
 };
 
 struct UnsignedMultiply {
@@ -847,11 +994,11 @@ struct UnsignedMultiply {
     }
 
     Operator op : CountOfOperatorBits;
-    uint32_t eval : CountOfIndexBits;  ///< Evaluation Register
-    uint32_t dst : CountOfIndexBits;   ///< Destination Scratch Register
-    uint32_t src1 : CountOfIndexBits;  ///< Source Scratch Register 1
-    uint32_t src2 : CountOfIndexBits;  ///< Source Scratch Register 2
-    uint32_t : CountOfDataBits - CountOfOperatorBits - (4 * CountOfIndexBits);
+    uint32_t eval : CountOfEvalIndexBits;  ///< Evaluation Register
+    uint32_t dst : CountOfScratchIndexBits;   ///< Destination Scratch Register
+    uint32_t src1 : CountOfScratchIndexBits;  ///< Source Scratch Register 1
+    uint32_t src2 : CountOfScratchIndexBits;  ///< Source Scratch Register 2
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (4 * CountOfScratchIndexBits);
 };
 
 struct UnsignedDivide {
@@ -874,11 +1021,11 @@ struct UnsignedDivide {
     }
 
     Operator op : CountOfOperatorBits;
-    uint32_t eval : CountOfIndexBits;  ///< Evaluation Register
-    uint32_t dst : CountOfIndexBits;   ///< Destination Scratch Register
-    uint32_t src1 : CountOfIndexBits;  ///< Source Scratch Register 1
-    uint32_t src2 : CountOfIndexBits;  ///< Source Scratch Register 2
-    uint32_t : CountOfDataBits - CountOfOperatorBits - (4 * CountOfIndexBits);
+    uint32_t eval : CountOfEvalIndexBits;  ///< Evaluation Register
+    uint32_t dst : CountOfScratchIndexBits;   ///< Destination Scratch Register
+    uint32_t src1 : CountOfScratchIndexBits;  ///< Source Scratch Register 1
+    uint32_t src2 : CountOfScratchIndexBits;  ///< Source Scratch Register 2
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (4 * CountOfScratchIndexBits);
 };
 
 struct UnsignedModulo {
@@ -901,11 +1048,11 @@ struct UnsignedModulo {
     }
 
     Operator op : CountOfOperatorBits;
-    uint32_t eval : CountOfIndexBits;  ///< Evaluation Register
-    uint32_t dst : CountOfIndexBits;   ///< Destination Scratch Register
-    uint32_t src1 : CountOfIndexBits;  ///< Source Scratch Register 1
-    uint32_t src2 : CountOfIndexBits;  ///< Source Scratch Register 2
-    uint32_t : CountOfDataBits - CountOfOperatorBits - (4 * CountOfIndexBits);
+    uint32_t eval : CountOfEvalIndexBits;  ///< Evaluation Register
+    uint32_t dst : CountOfScratchIndexBits;   ///< Destination Scratch Register
+    uint32_t src1 : CountOfScratchIndexBits;  ///< Source Scratch Register 1
+    uint32_t src2 : CountOfScratchIndexBits;  ///< Source Scratch Register 2
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (4 * CountOfScratchIndexBits);
 };
 
 union Instruction {
@@ -934,6 +1081,9 @@ union Instruction {
     /// Typed Constructor
     constexpr Instruction(Halt) : halt{} {
     }
+    /// Typed Constructor for Copy
+    constexpr Instruction(Copy c) : copy{c} {
+    }
     /// Typed Constructor
     constexpr Instruction(Move m) : move{m} {
     }
@@ -947,16 +1097,31 @@ union Instruction {
     constexpr Instruction(Swap s) : swap{s} {
     }
     /// Typed Constructor
-    constexpr Instruction(Clear c) : clear{c} {
+    constexpr Instruction(Zero c) : clear{c} {
     }
     /// Typed Constructor for Load
-    constexpr Instruction(LoadSingle l) : loads{l} {
+    constexpr Instruction(Load l) : loads{l} {
     }
     /// Typed Constructor for Store
-    constexpr Instruction(StoreSingle s) : stores{s} {
+    constexpr Instruction(Save s) : save{s} {
     }
-    /// Typed Constructor for Jump
-    constexpr Instruction(Jump j) : jumps{j} {
+    /// Typed Constructor for Leap
+    constexpr Instruction(Leap j) : leap{j} {
+    }
+    /// Typed Constructor for Back
+    constexpr Instruction(Back b) : back{b} {
+    }
+    /// Typed Constructor for Grow
+    constexpr Instruction(Grow g) : grow{g} {
+    }
+    /// Typed Constructor for Undo
+    constexpr Instruction(Undo u) : undo{u} {
+    }
+    /// Typed Constructor for Call
+    constexpr Instruction(Call c) : call{c} {
+    }
+    /// Typed Constructor for Trip
+    constexpr Instruction(Trip t) : trip{t} {
     }
     /// Typed Constructor for Compare
     constexpr Instruction(Compare c) : compare{c} {
@@ -970,8 +1135,8 @@ union Instruction {
     /// Typed Constructor for BitwiseXor
     constexpr Instruction(BitwiseXor x) : bitwise_xor{x} {
     }
-    /// Typed Constructor for BitwiseNot
-    constexpr Instruction(BitwiseNot n) : bitwise_not{n} {
+    /// Typed Constructor for BitwiseComplement
+    constexpr Instruction(BitwiseComplement n) : bitwise_complement{n} {
     }
     /// Typed Constructor for BitwiseRsh
     constexpr Instruction(BitwiseRsh r) : bitwise_rsh{r} {
@@ -1018,21 +1183,27 @@ union Instruction {
     Base base;                        ///< The base instruction for decoding the operator
     NoOp noop;                        ///< No Operation
     Halt halt;                        ///< Halt the processor
+    Copy copy;                        ///< Copy from one evaluation register to another
     Move move;                        ///< Move from scratch to scratch
     MoveImmediateToScratch movis;     ///< Move immediate to scratch
     MoveImmediateToEvaluation movie;  ///< Move immediate to evaluation
     Swap swap;                        ///< Swap registers based on reg_type
-    Clear clear;                      ///< Clear registers based on reg_type and mask
-    LoadSingle loads;                 ///< Load from memory to scratch register
-    StoreSingle stores;               ///< Store from scratch register to memory
-    Jump jumps;                       ///< Jump to an address based on an evaluation and mask
-    Compare compare;                  ///< Compare two scratch registers and set flags in an evaluation register
+    Zero clear;                      ///< Zero registers based on reg_type and mask
+    Load loads;                ///< Load from memory to scratch register
+    Save save;                       ///< Saves a value from scratch register to memory
+    Leap leap;                       ///< Leap to an address based on an evaluation and mask
+    Back back;                       ///< Returns from a Leap
+    Grow grow;                       ///< Grow the memory by a number of pages specified in an evaluation register
+    Undo undo;                       ///< Undo the last memory growth
+    Call call;                       ///< Call a subroutine at an address specified in an evaluation register
+    Trip trip;                       ///< Trip to an address specified in an evaluation register and save the return
+    Compare compare;                 ///< Compare two scratch registers and set flags in an evaluation register
     BitwiseAnd bitwise_and;  ///< Perform bitwise AND on two scratch registers and store the result in a destination
                              ///< scratch register
     BitwiseOr bitwise_or;    ///< Perform bitwise OR on two scratch registers and
     BitwiseXor bitwise_xor;  ///< Perform bitwise XOR on two scratch registers and store the result in a destination
                              ///< scratch register
-    BitwiseNot bitwise_not;  ///< Perform bitwise NOT on a scratch register and store the result in a destination
+    BitwiseComplement bitwise_complement;  ///< Perform bitwise NOT on a scratch register and store the result in a destination
                              ///< scratch register
     BitwiseRsh bitwise_rsh;  ///< Perform bitwise right shift on a scratch register by an immediate value and store the
                              ///< result in a destination scratch register
@@ -1069,14 +1240,24 @@ union Instruction {
             os << instr.movie;
         } else if (instr.base() == Operator::Swap) {
             os << instr.swap;
-        } else if (instr.base() == Operator::Clear) {
+        } else if (instr.base() == Operator::Zero) {
             os << instr.clear;
-        } else if (instr.base() == Operator::LoadSingle) {
+        } else if (instr.base() == Operator::Load) {
             os << instr.loads;
-        } else if (instr.base() == Operator::StoreSingle) {
-            os << instr.stores;
-        } else if (instr.base() == Operator::Jump) {
-            os << instr.jumps;
+        } else if (instr.base() == Operator::Save) {
+            os << instr.save;
+        } else if (instr.base() == Operator::Leap) {
+            os << instr.leap;
+        } else if (instr.base() == Operator::Back) {
+            os << instr.back;
+        } else if (instr.base() == Operator::Grow) {
+            os << instr.grow;
+        } else if (instr.base() == Operator::Undo) {
+            os << instr.undo;
+        } else if (instr.base() == Operator::Call) {
+            os << instr.call;
+        } else if (instr.base() == Operator::Trip) {
+            os << instr.trip;
         } else if (instr.base() == Operator::Compare) {
             os << instr.compare;
         } else if (instr.base() == Operator::And) {
@@ -1085,8 +1266,8 @@ union Instruction {
             os << instr.bitwise_or;
         } else if (instr.base() == Operator::Xor) {
             os << instr.bitwise_xor;
-        } else if (instr.base() == Operator::Not) {
-            os << instr.bitwise_not;
+        } else if (instr.base() == Operator::Complement) {
+            os << instr.bitwise_complement;
         } else if (instr.base() == Operator::Rsh) {
             os << instr.bitwise_rsh;
         } else if (instr.base() == Operator::Lsh) {
@@ -1123,7 +1304,7 @@ static_assert(sizeof(Instruction) == sizeof(uint32_t), "Must be this size");
 
 }  // namespace instructions
 
-/// A program is an unbounded array of instructions as far as we know.
-using program = instructions::Instruction[];
+/// A program is an ordered sequence of instructions
+using program = std::vector<instructions::Instruction>;
 
 }  // namespace isa

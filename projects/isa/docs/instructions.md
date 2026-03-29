@@ -1,19 +1,15 @@
 # Instructions
 
-The set of instructions in the ISA generall fall into several categories including data movement, stack manipulation, arithmetic/logic operations, floating point operations, and control flow.
+The set of instructions in the ISA generally fall into several categories including data movement, stack manipulation, arithmetic/logic operations, floating point operations, and control flow. Every attempt is made to use four letter mnemonics for instructions.
 
 ---
 
 ```asm
-# Unary d = op s
-op d, s
-```
+# One Term: d = op s
+code Sd, Ss
 
----
-
-```asm
-# Binary: d = a op b with side effects in e
-op d, a, b
+# Two Inputs: d = a op b with side effects in e
+code Sd, Sa, Sb : Ex
 ```
 
 ---
@@ -26,7 +22,9 @@ op d, a, b
   * `Sb` - Scratch source B
 * `Ex` - Evaluation Register x
 
-## Operators
+There are 16 Scratch and 16 Evaluation registers. The Scratch registers are used for general purpose computation and can be read/written by most instructions.
+
+## Operation Codes
 
 ```asm
 noop -- no operation
@@ -43,21 +41,22 @@ This translates to:
 ### Control Flow
 
 ```asm
-jump Sa                             - PA = Sa, RA unchanged
-jump Es, Em, Sa                     - PA = Sa if (Es & Em) != 0, RA unchanged
-call Sa                             - PA = Sa, RA = PA + 4 (todo: special case of copy?)
-call Sa, #imm<16>                   - PA = Sa + offset (todo: special case of copy?)
-call #imm<30>                       - PA = #imm<30> << 2
-call Es, Em, Sa                     - PA = Sa, RA = PA + 4 if (Es & Em) != 0
-return                              - PA = RA (todo: special case of copy?)
-sys #imm<16>                        - syscall with code #imm<16>
+halt                                - stop execution until reset
+leap Sa                             - PA = Sa, RA unchanged
+leap Es, Em, Sa                     - PA = Sa if (Es & Em) != 0, RA unchanged
+leap Sa                             - PA = Sa, RA = PA + 4 (todo: special case of copy?)
+leap Sa, #imm<16>                   - PA = Sa + offset (todo: special case of copy?)
+leap #imm<30>                       - PA = #imm<30> << 2
+leap Es, Em, Sa                     - PA = Sa, RA = PA + 4 if (Es & Em) != 0
+back                                - PA = RA, RA = SAFE
+call #imm<16>                       - system call with code #imm<16>
 ```
 
 This translates to an instruction word of:
 
 ```c++
-0bxxxx'xxxx'xxxx'xxxx'xxxx'xxxx'xxxx'xx01 - jump #imm<32> (last 2 bits of imm must be zero)
-0bxxxx'xxxx'xxxx'xxxx'xxxx'xxxx'xxxx'xx11 = call #imm<32> (last 2 bits of imm must be zero)
+0bxxxx'xxxx'xxxx'xxxx'xxxx'xxxx'xxxx'xx01 - leap #imm<32> (last 2 bits of imm must be zero)
+0bxxxx'xxxx'xxxx'xxxx'xxxx'xxxx'xxxx'xx11 = leap #imm<32> (last 2 bits of imm must be zero)
 //-------------------------------------^ set RA or not
 ```
 
@@ -66,12 +65,13 @@ This translates to an instruction word of:
 ```asm
 copy Sd, Ss                         - d = s
 copy Sd, #imm<16>                   - d = #imm<16>
+move Sd, Sa                         - d = a, a = 0
 swap Sa, Sb                         - a swap b
 zero {mask}                         - all registers set in mask are zeroed
 load Sd, Sa                         - d = *(a)
 load Sa, {mask}                     - Sx,y,z = *Sa, *Sa+4, etc
-store Sa, Ss                        - *(a) = s
-store Sa, {mask}                    - *Sa, *(Sa+4), etc = Sx,y,z
+save Sa, Ss                         - *(a) = s
+save Sa, {mask}                     - *Sa, *(Sa+4), etc = Sx,y,z
 ```
 
 This translates to:
@@ -80,19 +80,17 @@ This translates to:
 0bxxxx'xxxx'xxxx'xxxx'xxxx'xxxx'xxxx'x100 - copy Sd, Ss
 ```
 
-
-
 ### Stack Address
 
 Implies SCA inc/dec, _can cause Hardware Faults_!
 
 ```asm
 grow #imm<16>                       - SCA -= #imm<16> * word_size
-shrink #imm<16>                     - SCA += #imm<16> * word_size
+undo #imm<16>                       - SCA += #imm<16> * word_size
 load Sd, SCA, Ro                    - d = *(SCA + o)
-store SCA, Ro, Ss                   - *(SCA + o) = s
-save {flags}                        - store multiple from SCA, SCA -= count_of_flags * word_size
-restore {flags}                     - load multiple to SCA, SCA += count_of_flags * word_size
+save SCA, So, Ss                    - *(SCA + o) = s
+???? {flags}                        - store multiple from SCA, SCA -= count_of_flags * word_size
+???? {flags}                        - load multiple to SCA, SCA += count_of_flags * word_size
 copy Sd, SCA                        - d = SCA
 copy Sd, SLA                        - d = SLA
 copy Sd, SBA                        - d = SBA
@@ -101,55 +99,66 @@ copy SLA, Ss                        - SLA = s
 copy SBA, Ss                        - SBA = s
 ```
 
-### Logic Operators
+### Bitwise Operators
+
+All bitwise mnemonics are four letters and effect eval register of the given index.
 
 ```asm
-and  Sd, Sa, Sb                     - d = a & b
-or   Sd, Sa, Sb                     - d = a | b
-xor  Sd, Sa, Sb                     - d = a ^ b
-nand Sd, Sa, Sb                     - d = !(a & b)
-nor  Sd, Sa, Sb                     - d = !(a | b)
-nxor Sd, Sa, Sb                     - d = !(a ^ b)
+band Sd, Sa, Sb : Ex                - d = a & b
+borr Sd, Sa, Sb : Ex                - d = a | b
+bxor Sd, Sa, Sb : Ex                - d = a ^ b
 
-bis  Sd, Ss, #imm<5>                - d = s | 1 << #imm<5>
-bic  Sd, Ss, #imm<5>                - d = s & ~(1 << #imm<5>)
-bit  Sd, Ss, #imm<5>                - d = s ^ (1 << #imm<5>)
+bbis Sd, Ss, #imm<5> : Ex           - d = s | 1 << #imm<5>
+bbic Sd, Ss, #imm<5> : Ex           - d = s & ~(1 << #imm<5>)
+bbix Sd, Ss, #imm<5> : Ex           - d = s ^ (1 << #imm<5>)
 
-cmpl Sd, Ss                         - d = ~s (bit invert)
-lsh  Sd, Ss, #imm<5>                - d = s << #imm<5>
-rsh  Sd, Ss, #imm<5>                - d = s >> #imm<5>
-arsh Sd, Ss, #imm<5>                - d = int((int)s >> #imm<5>)
+bnot Sd, Ss : Ex                    - d = s ? 0 : 0xFFFFFFFF
+bcpl Sd, Ss : Ex                    - d = ~s (bit invert)
+blsh Sd, Ss, #imm<5> : Ex           - d = s << #imm<5>
+brsh Sd, Ss, #imm<5> : Ex           - d = s >> #imm<5>
+brot Sd, Ss, #imm<5> : Ex           - d = (s << #imm<5>) | (s >> (32 - #imm<5>))
+basr Sd, Ss, #imm<5> : Ex           - d = int((int)s >> #imm<5>)
 ```
 
 ### ALU Ops
 
-All arithmetic logic operations effects eval register of same index as scratch register destintation.
+All arithmetic logic operations effects eval register of the same index as scratch register destination. The signed or unsigned nature of the operation is determined by the mnemonic (e.g., `add.sXX` vs `add.uXX`) followed by the bit size (e.g., `add.s32` vs `add.s32`).
 
 ```asm
-add Sd, Sa, Sb                      - d = a + b (e flags)
-sub Sd, Sa, Sb                      - d = a - b (e flags)
-mul Sd, Sa, Sb                      - d = a * b (e flags)
-div Sd, Sa, Sb                      - d = a / b (e flags)
-mod Sd, Sa, Sb                      - d = a % b (e flags)
+add.xXX Sd, Sa, Sb : Ex                      - d = a + b (e flags)
+sub.xXX Sd, Sa, Sb : Ex                      - d = a - b (e flags)
+mul.xXX Sd, Sa, Sb : Ex                      - d = a * b (e flags)
+div.xXX Sd, Sa, Sb : Ex                      - d = a / b (e flags)
+mod.xXX Sd, Sa, Sb : Ex                      - d = a % b (e flags)
 ```
 
 ### FPU Ops
 
-Effects eval register of the same index as scratch register.
-
 ```asm
-fadd Sd, Sa, Sb                     - d = a + b (e flags)
-fsub Sd, Sa, Sb                     - d = a - b (e flags)
-fmul Sd, Sa, Sb                     - d = a * b (e flags)
-fdiv Sd, Sa, Sb                     - d = a / b (e flags)
-fflr Sd, Ss                         - d = floor(s)
-fcel Sd, Ss                         - d = ceil(s)
-fcvt Sd, Ss                         - d = int(s)
-fcvt Sd, Sd                         - d = float(s)
+fadd Sd, Sa, Sb : Ex                     - d = a + b (e flags)
+fsub Sd, Sa, Sb : Ex                     - d = a - b (e flags)
+fmul Sd, Sa, Sb : Ex                     - d = a * b (e flags)
+fdiv Sd, Sa, Sb : Ex                     - d = a / b (e flags)
+fflr Sd, Ss : Ex                         - d = floor(s)
+fcel Sd, Ss : Ex                         - d = ceil(s)
+fcvt.i Sd, Ss : Ex                       - d = int(s)
+fcvt.f Sd, Ss : Ex                       - d = float(s)
 ```
 
 ### Comparisons
 
 ```asm
-cmp Ed, Sa, Sb (parallel compare and sets flags in e)
+cmp.l Sa, Sb : Ex                        - Comparison of a and b, set flags in Ex
+cmp.a Sa, Sb : Ex                        - Arithmetic compare a and b, set flags in Ex (zero, overflow, underflow)
+cmp.f Sa, Sb : Ex                        - Floating Point compare a and b, set flags in Ex
+```
+
+### Additional Functionality
+
+Locking and Unlocking with Hardware Mutexes:
+
+```asm
+lock L0
+test Ex, L0
+unlk L0
 ```

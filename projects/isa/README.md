@@ -17,6 +17,6 @@
 ** [ ] RAM
 * Basic Arithmetic and Logic Instructions
 * Load/Store Singles and Multiples
-* Jump and Branch Instructions
+* Leap and Branch Instructions
 * Simple Fault Handling
 ** Some Faults are moved to be bits in the Evaluation Results for speed

@@ -19,6 +19,8 @@
 #include <string>
 #include <vector>
 
+#include "program1.hpp"
+
 using namespace ftxui;
 using namespace isa;
 using namespace instructions;
@@ -184,44 +186,11 @@ int main(int argc, char* argv[]) {
     auto& special = cpu.GetSpecial();
     auto& evaluation = cpu.GetEvaluations();
 
-    program demo_program = {
-        Instruction{Clear{Operand{OperandType::Mask, Immediate<16>{0xFFFFU}}, RegisterType::Scratch}},
-        Instruction{Clear{Operand{OperandType::Mask, Immediate<16>{0xFFFFU}}, RegisterType::Evaluation}},
-        Instruction{NoOp{}},
-        Instruction{MoveImmediateToScratch{Operand{OperandType::Scratch, 0}, Immediate<20>{0xAAAAA}}},
-        Instruction{
-            Move{Operand{OperandType::Scratch, 1}, Operand{OperandType::Scratch, 0}, true, Move::ImmediateType{4}}},
-        Instruction{MoveImmediateToScratch{Operand{OperandType::Scratch, 0}, Immediate<20>{0x33333}}},
-        Instruction{MoveImmediateToScratch{Operand{OperandType::Scratch, 3}, Immediate<20>{0x55555}}},
-        Instruction{MoveImmediateToScratch{Operand{OperandType::Scratch, 5}, Immediate<20>{0xCCCCC}}},
-        Instruction{BitCount{Operand{OperandType::Scratch, 7}, Operand{OperandType::Scratch, 0}}},
-        Instruction{BitwiseAnd{Operand{OperandType::Scratch, 7}, Operand{OperandType::Scratch, 1},
-                               Operand{OperandType::Scratch, 3}}},
-        Instruction{BitwiseOr{Operand{OperandType::Scratch, 8}, Operand{OperandType::Scratch, 1},
-                              Operand{OperandType::Scratch, 3}}},
-        Instruction{BitwiseXor{Operand{OperandType::Scratch, 9}, Operand{OperandType::Scratch, 1},
-                               Operand{OperandType::Scratch, 3}}},
-        Instruction{Swap{Operand{OperandType::Scratch, 0}, Operand{OperandType::Scratch, 4}}},
-        Instruction{Compare{Operand{OperandType::Evaluation, 0}, Operand{OperandType::Scratch, 0},
-                            Operand{OperandType::Scratch, 3}}},
-        Instruction{Compare{Operand{OperandType::Evaluation, 1}, Operand{OperandType::Scratch, 1},
-                            Operand{OperandType::Scratch, 3}}},
-        Instruction{Compare{Operand{OperandType::Evaluation, 2}, Operand{OperandType::Scratch, 3},
-                            Operand{OperandType::Scratch, 5}}},
-        Instruction{Compare{Operand{OperandType::Evaluation, 3}, Operand{OperandType::Scratch, 1},
-                            Operand{OperandType::Scratch, 4}}},
-        Instruction{Swap{Operand{OperandType::Evaluation, 0}, Operand{OperandType::Evaluation, 4}}},
-        Instruction{MoveImmediateToEvaluation{Operand{OperandType::Evaluation, 5},
-                                              MoveImmediateToEvaluation::ImmediateType{0xFF}}},
-        Instruction{MoveImmediateToEvaluation{Operand{OperandType::Evaluation, 6},
-                                              ComparisonEvaluation{true, false, false, true}}},
-        Instruction{Jump{Operand{OperandType::Scratch, 0}, Jump::ImmediateType{0x2}, true}},
-        Instruction{LoadSingle{Operand{OperandType::Scratch, 2}, Operand{OperandType::Scratch, 0},
-                               LoadSingle::ImmediateType{0x10}, true, false}},
-        Instruction{StoreSingle{Operand{OperandType::Scratch, 2}, Operand{OperandType::Scratch, 0},
-                                StoreSingle::ImmediateType{0x20}, true, false}},
-        Instruction{Halt{}},
-    };
+    program demo_program;
+
+    // copy
+    demo_program = program1;
+
     // copy the default vector table to ROM so that the CPU can fetch the entry point from it on reset
     uint32_t vector_table_offset = sizeof(VectorTable);
     VectorTable vector_table{
@@ -236,11 +205,8 @@ int main(int argc, char* argv[]) {
     for (size_t i = 0; i < VectorTableCount; ++i) {
         cpu.Poke(tmp + (i * sizeof(Address)), vector_table[i].value);
     }
-    // copy the instruction to ROM
-    for (size_t i = 0; i < basal::dimof(demo_program); ++i) {
-        cpu.Poke(Address{flash0.ViewRange().start + vector_table_offset + i * sizeof(Instruction)},
-                 demo_program[i].raw);
-    }
+    // load the program into flash at the appropriate offset so that the reset handler will point to it correctly.
+    cpu.Load(demo_program, flash0.ViewRange().start + vector_table_offset);
 
     // Cause the cpu to reset back to the entry point of the demo program, which will allow us to test the persistence
     // of the CPU state after we load it later.

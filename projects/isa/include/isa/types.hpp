@@ -6,6 +6,7 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <span>
 
 namespace isa {
 
@@ -26,7 +27,8 @@ constexpr bool is_power_of_two(size_t value) {
     return (value != 0) and ((value & (value - 1)) == 0);
 }
 
-constexpr static size_t CountOfRegisters = 16;
+constexpr static size_t CountOfScratchRegisters = 16;
+constexpr static size_t CountOfEvaluationRegisters = 16;
 constexpr static size_t CountOfDataBits = 32;
 constexpr static size_t CountOfUnitsPerCacheLine = 16;
 
@@ -180,7 +182,7 @@ struct BaseEvaluation {
     }
 };
 
-/// A struct to represent the results of comparisons, which can be used for conditional moves and jumps. The struct is
+/// A struct to represent the results of comparisons, which can be used for conditional moves and leaps. The struct is
 /// designed to fit within a single 6-bit field of an Evaluation register, allowing for efficient storage and retrieval
 /// of comparison results.
 struct ComparisonEvaluation {
@@ -209,34 +211,32 @@ struct ComparisonEvaluation {
     }
 };
 
-/// A struct to represent the results of arithmetic operations, which can be used for conditional moves and jumps.
+/// A struct to represent the results of arithmetic operations, which can be used for conditional moves and leaps.
 struct ArithmeticEvaluation {
     constexpr ArithmeticEvaluation()
         : type{to_underlying(EvaluationType::Arithmetic)}
         , positive{0}
         , zero{0}
         , overflow{0}
-        , saturated{0}
         , undefined{0} {
     }
 
     EvaluationUnit type : EvaluationTypeBits;  ///< The EvaluationType (arithmetic).
     EvaluationUnit positive : 1;   ///< 1 when result is positive, 0 when negative (zero is considered positive)
     EvaluationUnit zero : 1;       ///< 1 when result is zero. 0 otherwise
-    EvaluationUnit overflow : 1;   ///< 1 when a signed overflow occurred (result was > than signed max)
-    EvaluationUnit saturated : 1;  ///< 1 when result was saturated
+    EvaluationUnit overflow : 1;   ///< 1 when an overflow occurred (result was > than max and caused a wrap)
     EvaluationUnit undefined : 1;  ///< 1 when result is undefined (e.g., div by zero)
-    EvaluationUnit : 1;            ///< Unused bits for future expansion
+    EvaluationUnit : 2;            ///< Unused bits for future expansion
 
     friend std::ostream& operator<<(std::ostream& os, ArithmeticEvaluation a) {
         os << "A(+:" << static_cast<uint32_t>(a.positive) << ", Z:" << static_cast<uint32_t>(a.zero)
-           << ", O:" << static_cast<uint32_t>(a.overflow) << ", S:" << static_cast<uint32_t>(a.saturated)
+           << ", O:" << static_cast<uint32_t>(a.overflow)
            << ", U:" << static_cast<uint32_t>(a.undefined) << ")";
         return os;
     }
 };
 
-/// A struct to represent the results of floating-point operations, which can be used for conditional moves and jumps.
+/// A struct to represent the results of floating-point operations, which can be used for conditional moves and leaps.
 struct PrecisionEvaluation {
     constexpr PrecisionEvaluation()
         : type{to_underlying(EvaluationType::Precision)}, inexact{0}, rounded{0}, subnormal{0}, underflow{0} {
@@ -329,31 +329,22 @@ union word {
     }
 
     /// Constructs a word from a char array
-    constexpr word(const char* v) : as_char{*v} {
-    }
-    /// Constructs a word from a uint8_t
-    constexpr word(uint8_t v) : as_u08{v, 0U, 0U, 0U} {
-    }
-    /// Constructs a word from two uint8_t
-    constexpr word(uint8_t b, uint8_t a) : as_u08{a, b, 0U, 0U} {
-    }
-    /// Constructs a word from three uint8_t
-    constexpr word(uint8_t c, uint8_t b, uint8_t a) : as_u08{a, b, c, 0U} {
+    constexpr word(const char v[4]) : as_char{v[0], v[1], v[2], v[3]} {
     }
     /// Constructs a word from four uint8_t
     constexpr word(uint8_t d, int8_t c, uint8_t b, uint8_t a) : as_u08{a, b, c, d} {
     }
     /// Constructs a word from a uint16_t
-    constexpr word(uint16_t v) : as_u16{v, 0U} {
+    constexpr word(uint16_t b, uint16_t a) : as_u16{a, b} {
     }
     /// Constructs a word from a 32-bit unsigned integer
     constexpr word(uint32_t v) : as_u32{v} {
     }
     /// Constructs a word from an int8_t
-    constexpr word(int8_t v) : as_s08{v, 0, 0, 0} {
+    constexpr word(int8_t d, int8_t c, int8_t b, int8_t a) : as_s08{a, b, c, d} {
     }
     /// Constructs a word from an int16_t
-    constexpr word(int16_t v) : as_s16{v, 0} {
+    constexpr word(int16_t b, int16_t a) : as_s16{a, b} {
     }
     /// Constructs a word from an int32_t
     constexpr word(int32_t v) : as_s32{v} {
@@ -378,7 +369,8 @@ union word {
 static_assert(sizeof(word<32>) == sizeof(Address), "Must be the same size");
 
 /// The number of bits needed to index a Scratch Register or Evaluation Register
-constexpr static size_t CountOfIndexBits{log2(CountOfRegisters)};
+constexpr static size_t CountOfScratchIndexBits{log2(CountOfScratchRegisters)};
+constexpr static size_t CountOfEvalIndexBits{log2(CountOfEvaluationRegisters)};
 constexpr static size_t CountOfDataShiftBits{log2(CountOfDataBits)};
 
 /// An index over a COUNT of items.
@@ -477,5 +469,8 @@ enum class RegisterType : uint32_t {
     Scratch = 0,
     Evaluation = 1,
 };
+
+/// Data is non-program memory to Load either into ROM or RAM
+using data = std::vector<word<CountOfDataBits>>;
 
 }  // namespace isa

@@ -73,7 +73,12 @@ SpecialRegisterRows FormatSpecialRegisterRows(Processor const& cpu) {
     // clear the stream for reuse
     register_stream.str("");
     register_stream.clear();
-    rows[11] = FormatRegisterRow("PERF", special_name_width, FormatHexValue(special.performance_counter_),
+    register_stream << special.call_number_;
+    rows[11] = FormatRegisterRow("CALL", special_name_width, register_stream.str(), special_value_width);
+    // clear the stream for reuse
+    register_stream.str("");
+    register_stream.clear();
+    rows[12] = FormatRegisterRow("PERF", special_name_width, FormatHexValue(special.performance_counter_),
                                  special_value_width);
     return rows;
 }

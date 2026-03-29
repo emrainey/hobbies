@@ -129,6 +129,17 @@ PersistenceReport Processor::Save(std::string const& folder) const {
     return report;
 }
 
+bool Processor::Load(program const& prog, Address load_address) {
+        Address address = load_address;
+        for (const auto& instr : prog) {
+            if (not Poke(address, instr.raw)) {
+                return false;
+            }
+            address += sizeof(instructions::Instruction);
+        }
+        return true;
+    }
+
 PersistenceReport Processor::Load(std::string const& folder) {
     PersistenceReport report;
     const std::filesystem::path directory{folder};
@@ -263,7 +274,7 @@ void Processor::Cycle() {
                 std::swap(evaluation_[instruction.swap.a], evaluation_[instruction.swap.b]);
             }
             break;
-        case isa::Operator::Clear:
+        case isa::Operator::Zero:
             if (instruction.clear.type == RegisterType::Scratch) {
                 for (size_t i = 0; i < scratch_.size(); ++i) {
                     if ((instruction.clear.mask & (1U << i)) != 0U) {
@@ -278,7 +289,7 @@ void Processor::Cycle() {
                 }
             }
             break;
-        case isa::Operator::LoadSingle: {
+        case isa::Operator::Load: {
             const auto& load = instruction.loads;
             const Address address = scratch_[load.base].as_address + (load.off ? Address{load.imm} : Address{0});
             uint32_t value = 0U;
@@ -292,46 +303,127 @@ void Processor::Cycle() {
             }
             break;
         }
-        case isa::Operator::StoreSingle: {
-            const auto& store = instruction.stores;
-            const Address address = scratch_[store.base].as_address + (store.off ? Address{store.imm} : Address{0});
-            uint32_t value = scratch_[store.src].as_u32[0];
+        case isa::Operator::Save: {
+            const auto& save = instruction.save;
+            const Address address = scratch_[save.base].as_address + (save.off ? Address{save.imm} : Address{0});
+            uint32_t value = scratch_[save.src].as_u32[0];
             if (Poke(address, value)) {
-                if (store.inc) {
-                    scratch_[store.base].as_address += store.imm;
+                if (save.inc) {
+                    scratch_[save.base].as_address += save.imm;
                 }
             } else {
                 special_.exception_.bus_fault = 1;
             }
             break;
         }
-        case isa::Operator::Jump: {
-            const auto& jump = instruction.jumps;
+        case isa::Operator::Leap: {
+            const auto& leap = instruction.leap;
             bool allowed = true;  // default to allowed
-            if (jump.cond) {
-                // if the eval & mask is not zero, then perform the jump
-                uint32_t eval = evaluation_[jump.eval].value;
-                uint32_t mask = evaluation_[jump.mask].value;
+            if (leap.cond) {
+                // if the eval & mask is not zero, then perform the leap
+                uint32_t eval = evaluation_[leap.eval].value;
+                uint32_t mask = evaluation_[leap.mask].value;
                 allowed = (eval & mask) != 0U;
             }
             if (allowed) {
-                if (jump.save) {
+                if (leap.save) {
                     // If the save bit is set, then we need to save the return address (i.e. the address of the next
                     // instruction) in the Return Address Special Register before we update the Program Address Register
-                    // to jump to the target instruction.
+                    // to leap to the target instruction.
                     special_.return_address_ = special_.program_address_ + sizeof(instructions::Instruction);
                 }
-                if (jump.imm > 0) {
-                    // TODO Bus fault if jump wraps around the address space by exceeding the maximum address
+                if (leap.imm > 0) {
+                    // TODO Bus fault if leap wraps around the address space by exceeding the maximum address
                     special_.program_address_
-                        = scratch_[jump.dst].as_address + Address{static_cast<isa::Address::StorageType>(jump.imm)};
-                } else if (jump.imm < 0) {
-                    // TODO Bus fault if jump wraps around the address space by going under zero
+                        = scratch_[leap.dst].as_address + Address{static_cast<isa::Address::StorageType>(leap.imm)};
+                } else if (leap.imm < 0) {
+                    // TODO Bus fault if leap wraps around the address space by going under zero
                     special_.program_address_
-                        = scratch_[jump.dst].as_address - Address{static_cast<isa::Address::StorageType>(-jump.imm)};
+                        = scratch_[leap.dst].as_address - Address{static_cast<isa::Address::StorageType>(-leap.imm)};
                 } else {
-                    special_.program_address_ = scratch_[jump.dst].as_address;
+                    special_.program_address_ = scratch_[leap.dst].as_address;
                 }
+            }
+            break;
+        }
+        case Operator::Grow: {
+            const auto& grow = instruction.grow;
+            uint32_t eval = evaluation_[grow.eval].value;
+            uint32_t mask = evaluation_[grow.mask].value;
+            bool allowed = true;
+            if (grow.cond) {
+                // if the eval & mask is not zero, then perform the grow
+                allowed = (eval & mask) != 0U;
+            }
+            if (allowed) {
+                /// Grow the Stack Pointer by the immediate value * 4 (since the immediate value is in terms of 32-bit words)
+                /// Growth of a Stack is _downwards_ in memory, so we subtract the immediate value from the current Stack Pointer to grow the stack. We also need to check for stack overflow by ensuring that we don't grow the stack beyond its limit.
+                Address next = special_.stack_.current - Address{static_cast<isa::Address::StorageType>(grow.imm * 4U)};
+                if (next <= special_.stack_.base) {
+                    special_.stack_.current = next;
+                } else {
+                    special_.exception_.stack_fault = 1;
+                }
+            }
+            break;
+        }
+        case Operator::Undo: {
+            const auto& undo = instruction.undo;
+            uint32_t eval = evaluation_[undo.eval].value;
+            uint32_t mask = evaluation_[undo.mask].value;
+            bool allowed = true;
+            if (undo.cond) {
+                // if the eval & mask is not zero, then perform the undo
+                allowed = (eval & mask) != 0U;
+            }
+            if (allowed) {
+                /// Undo the growth of the Stack Pointer by the immediate value * 4 (since the immediate value is in terms of 32-bit words)
+                /// This is done by adding the immediate value to the current Stack Pointer, and we also need to check for stack underflow by ensuring that we don't undo the growth beyond the initial stack pointer.
+                Address next = special_.stack_.current + Address{static_cast<isa::Address::StorageType>(undo.imm * 4U)};
+                if (next <= special_.stack_.limit) {
+                    special_.stack_.current = next;
+                } else {
+                    special_.exception_.stack_fault = 1;
+                }
+            }
+            break;
+        }
+        case Operator::Call: {
+            const auto& call = instruction.call;
+            bool allowed = true;  // default to allowed
+            if (call.cond) {
+                // if the eval & mask is not zero, then perform the call
+                uint32_t eval = evaluation_[call.eval].value;
+                uint32_t mask = evaluation_[call.mask].value;
+                allowed = (eval & mask) != 0U;
+            }
+            if (allowed) {
+                // For a call instruction, we'll save the return address (i.e. the address of the next instruction) in the Return Address Special Register before we update the Program Address Register to leap to the target instruction.
+                special_.return_address_ = special_.program_address_ + sizeof(instructions::Instruction);
+                Address handler{0};
+                // read the vector tabke to get the address of the system call handler corresponding to the system call number in the immediate value of the instruction
+                uint32_t offset = offsetof(VectorTable, system_call_handler);
+                if (Peek(special_.vector_table_address_ + offset, handler.value)) {
+                    special_.call_number_ = call.imm;
+                    special_.program_address_ = handler;
+                } else {
+                    special_.exception_.bus_fault = 1;
+                }
+            }
+            break;
+        }
+        case Operator::Trip: {
+            const auto& trip = instruction.trip;
+            bool allowed = true;  // default to allowed
+            if (trip.cond) {
+                // if the eval & mask is not zero, then perform the trip
+                uint32_t eval = evaluation_[trip.eval].value;
+                uint32_t mask = evaluation_[trip.mask].value;
+                allowed = (eval & mask) != 0U;
+            }
+            if (allowed) {
+                special_.exception_.type = static_cast<ExceptionType>(trip.imm);
+                special_.exception_.tripped = 1;
             }
             break;
         }
@@ -376,10 +468,10 @@ void Processor::Cycle() {
             scratch_[xor_instr.dst].as_u32[0] = result;
             break;
         }
-        case Operator::Not: {
-            const auto& not_instr = instruction.bitwise_not;
-            uint32_t result = ~scratch_[not_instr.src].as_u32[0];
-            scratch_[not_instr.dst].as_u32[0] = result;
+        case Operator::Complement: {
+            const auto& complement_instr = instruction.bitwise_complement;
+            uint32_t result = ~scratch_[complement_instr.src].as_u32[0];
+            scratch_[complement_instr.dst].as_u32[0] = result;
             break;
         }
         case Operator::Rsh: {
@@ -519,12 +611,20 @@ Address Processor::GetHandler() const {
         size_t index = 0;
         if (special_.exception_.unmaskable) {
             index = offsetof(VectorTable, unmaskable_handler) / sizeof(Address);
+        } else if (special_.exception_.nested) {
+            index = offsetof(VectorTable, nested_handler) / sizeof(Address);
         } else if (special_.exception_.bus_fault) {
             index = offsetof(VectorTable, bus_fault_handler) / sizeof(Address);
         } else if (special_.exception_.instruction_fault) {
             index = offsetof(VectorTable, instruction_fault_handler) / sizeof(Address);
-        } else if (special_.exception_.software_trigger) {
-            index = offsetof(VectorTable, software_trigger_handler) / sizeof(Address);
+        } else if (special_.exception_.arithmetic_fault) {
+            index = offsetof(VectorTable, arithmetic_fault_handler) / sizeof(Address);
+        } else if (special_.exception_.stack_fault) {
+            index = offsetof(VectorTable, stack_fault_handler) / sizeof(Address);
+        } else if (special_.exception_.tripped) {
+            index = offsetof(VectorTable, trip_handler) / sizeof(Address);
+        } else if (special_.exception_.system_call) {
+            index = offsetof(VectorTable, system_call_handler) / sizeof(Address);
         } else if (special_.exception_.deferred) {
             index = offsetof(VectorTable, deferred_handler) / sizeof(Address);
         } else if (special_.exception_.ticker) {

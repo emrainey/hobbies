@@ -42,7 +42,10 @@ set_target_properties(hobbies-isa PROPERTIES
 
 # === Demos ===
 if (SDL2_FOUND)
-add_executable(demo_isa ${CMAKE_CURRENT_SOURCE_DIR}/demo/main.cpp)
+add_executable(demo_isa
+    ${CMAKE_CURRENT_SOURCE_DIR}/demo/main.cpp
+    # ${CMAKE_CURRENT_SOURCE_DIR}/demo/program1.cpp
+)
 target_link_libraries(demo_isa PUBLIC ${SDL2_LIBRARIES} hobbies-isa ftxui::screen ftxui::dom ftxui::component)
 install(TARGETS demo_isa
     EXPORT isa-targets

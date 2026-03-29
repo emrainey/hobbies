@@ -45,6 +45,29 @@ struct Mode {
     }
 };
 
+using ExceptionUnit = uint32_t;
+
+
+enum class ExceptionType : ExceptionUnit {
+    Reset = 0,
+    Unmaskable = 1,
+    Nested = 2,         ///< A fault occurred while trying to handle another exception, which can be used to detect faults in exception handlers and prevent infinite exception loops.
+    BusFault = 3,
+    InstructionFault = 4,
+    ArithmeticFault = 5,
+    StackFault = 6,
+    Triggered = 7,
+    SystemCall = 8,
+    Deferred = 9,
+    Ticker = 10,
+    /// Used by a top level peripheral handler
+    External = 11,
+};
+constexpr static size_t CountOfExceptionTypes{1024U};
+
+constexpr static size_t CountOfExceptionTypeBits{log2(CountOfExceptionTypes)};
+
+
 struct Exception {
     /// 1 when the exception is a reset exception, meaning it is triggered by a reset signal and
     /// causes the processor to reset. 0 when the exception is a non-reset exception, meaning it
@@ -55,6 +78,11 @@ struct Exception {
     /// and will always cause the processor to enter an exception state. 0 when the exception is maskable,
     /// meaning it can be ignored or handled by an exception handler.
     uint32_t unmaskable : 1;
+
+    /// 1 when the exception is nested, meaning it is triggered while the processor is already handling another exception,
+    /// and can be used to detect faults in exception handlers and prevent infinite exception loops.
+    /// 0 when the exception is non-nested, meaning it is not triggered during the handling of another exception.
+    uint32_t nested : 1;
 
     /// Bus fault exception, meaning it is triggered by a memory access violation, such as accessing an invalid address,
     /// accessing a protected memory region, or violating access permissions. 0 when the exception is a non-bus fault
@@ -67,14 +95,26 @@ struct Exception {
     /// such as interrupts or software exceptions.
     uint32_t instruction_fault : 1;
 
+    /// Arithmetic fault exception, meaning it is triggered by an arithmetic error, such as division by zero.
+    uint32_t arithmetic_fault : 1;
+
+    /// 1 When the Stack has overflow or underflowed, meaning it is triggered when the stack pointer exceeds the stack
+    /// boundary in either direction, and can be used to detect stack overflows and underflows. 0 when the exception is a non-stack fault exception, meaning it is triggered by other events such as interrupts or software exceptions.
+    uint32_t stack_fault : 1;
+
     /// 1 when the exception is a software interrupt, meaning it is triggered by a software instruction such
     /// as an SWI (Software Interrupt) instruction, and can be used for making system calls or requesting
     /// services from the operating system. 0 when the exception is a non-software interrupt,
     /// meaning it is triggered by other events such as hardware interrupts or faults.
-    uint32_t software_trigger : 1;
+    uint32_t tripped : 1;
+
+    /// 1 when the exception is a system call, meaning it is triggered by a software instruction such as a
+    /// SYSCALL instruction, and can be used for making system calls or requesting services from the operating
+    /// system. 0 when the exception is a non-system call exception, meaning it is triggered by other events such as hardware interrupts or faults.
+    uint32_t system_call : 1;
 
     /// 1 when the exception is a delayed software interrupt, meaning it is triggered by a software
-    /// instruction such as a DSWI (Delayed Software Interrupt) instruction, and will be raised after the
+    /// instruction such as a deferred system call, and will be raised after the
     /// next instruction is executed, allowing for delayed handling of software interrupts. 0 when the
     /// exception is a non-delayed software interrupt, meaning it is triggered by other events such as
     /// hardware interrupts or faults, or by software instructions that do not have delayed behavior.
@@ -91,14 +131,19 @@ struct Exception {
     /// it is triggered by other events such as interrupts or faults.
     uint32_t external : 1;
 
+    uint32_t : 4;  ///< Unused bits for future expansion
+
+    /// The type of the exception which occurred. This field should be used to determine which exception currently needs to be handled during the handler.
+    ExceptionType type : CountOfExceptionTypeBits;
+
     constexpr bool HasException() const {
-        return reset or unmaskable or bus_fault or instruction_fault or software_trigger or deferred or ticker
+        return reset or unmaskable or bus_fault or instruction_fault or arithmetic_fault or stack_fault or tripped or system_call or deferred or ticker
                or external;
     }
 
     friend std::ostream& operator<<(std::ostream& os, Exception exc) {
-        os << " R:" << exc.reset << " U:" << exc.unmaskable << " B:" << exc.bus_fault << " I:" << exc.instruction_fault
-           << " S:" << exc.software_trigger << " D:" << exc.deferred << " T:" << exc.ticker << " E:" << exc.external;
+        os << " R:" << exc.reset << " U:" << exc.unmaskable << "N:" << exc.nested << " B:" << exc.bus_fault << " I:" << exc.instruction_fault
+           << " A:" << exc.arithmetic_fault << " S:" << exc.stack_fault << "C:" << exc.system_call << " D:" << exc.deferred << " T:" << exc.ticker << " E:" << exc.external << " SE:" << static_cast<uint32_t>(exc.type);
         return os;
     }
 };
@@ -118,14 +163,21 @@ struct VectorTable {
     Address reset_handler{0};
     /// The address of the unmaskable handler, which is the entry point for handling unmaskable exceptions.
     Address unmaskable_handler{0};
+    /// The address of the nested handler, which is the entry point for handling nested exceptions.
+    Address nested_handler{0};
     /// The address of the bus fault handler, which is the entry point for handling bus fault exceptions
     Address bus_fault_handler{0};
     /// The address of the instruction fault handler, which is the entry point for handling instruction fault
     /// exceptions.
     Address instruction_fault_handler{0};
-    /// The address of the software trigger handler, which is the entry point for handling software trigger exceptions
-    /// (like SWI/SVC)
-    Address software_trigger_handler{0};
+    /// The address of the arithmetic fault handler, which is the entry point for handling arithmetic fault exceptions.
+    Address arithmetic_fault_handler{0};
+    /// The address of the stack fault handler, which is the entry point for handling stack fault exceptions.
+    Address stack_fault_handler{0};
+    /// The address of the software trip handler, which is the entry point for handling software trip exceptions
+    Address trip_handler{0};
+    /// The address of the system call handler, which is the entry point for handling functions which rely on elevated privileges, such as I/O operations, memory management, etc. This can be used for implementing system calls in an operating system.
+    Address system_call_handler{0};
     /// The address of the deferred handler, which is the entry point for handling deferred exceptions.
     Address deferred_handler{0};
     /// The address of the ticker handler, which is the entry point for handling ticker exceptions.
@@ -154,15 +206,17 @@ struct Special {
     Stack exception_stack_{};        ///< The Exception Stack (growing down and Privileged)
     Exception exception_{};          ///< The current exception being handled, if any
     Mode mode_{};                    ///< The current mode of the processor
+    /// The current system call number
+    uint32_t call_number_{0};
     /// A simple performance counter that can be used for counting events, measuring time, etc.
     uint32_t performance_counter_{0};
 };
 
 /// The evaluation registers
-using Evaluations = std::array<Evaluation, CountOfRegisters>;
+using Evaluations = std::array<Evaluation, CountOfEvaluationRegisters>;
 
 /// The scratch registers
-using Scratch = std::array<word<CountOfDataBits>, CountOfRegisters>;
+using Scratch = std::array<word<CountOfDataBits>, CountOfScratchRegisters>;
 
 struct PersistenceReport {
     bool success{false};
@@ -256,6 +310,9 @@ public:
 
     /// Loads all the CPU state information from different files in the given folder
     PersistenceReport Load(std::string const& folder);
+
+    /// Loads a program into memory starting at the given address. This can be used for loading a program into flash/RAM
+    bool Load(program const& prog, Address load_address);
 
     /// Performs a single cycle of the CPU which will execute each stage of the pipeline.
     void Cycle();

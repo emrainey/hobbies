@@ -14,5 +14,5 @@
 * Breakpoint - executed breakpoint instruction
 * Semihosting - execute external semihosting feature in place of normal instruction. Requires debugger support.
 * Invalid Operation - executed invalid operation instruction
-* Syscall - executed syscall instruction to elevate privilege
+* System Call - executed system call instruction to elevate privilege
 

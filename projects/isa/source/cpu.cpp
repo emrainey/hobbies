@@ -697,6 +697,8 @@ Address Processor::GetHandler() const {
             index = offsetof(VectorTable, deferred_handler) / sizeof(Address);
         } else if (special_.exception_.ticker) {
             index = offsetof(VectorTable, ticker_handler) / sizeof(Address);
+        } else if (special_.exception_.privilege_fault) {
+            index = offsetof(VectorTable, privilege_handler) / sizeof(Address);
         } else if (special_.exception_.safe) {
             index = offsetof(VectorTable, safe_handler) / sizeof(Address);
         } else if (special_.exception_.external) {

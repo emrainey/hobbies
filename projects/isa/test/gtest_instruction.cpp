@@ -14,6 +14,7 @@ protected:
     static constexpr uint32_t kInstructionFaultHandler = 0x10000200U;
     static constexpr uint32_t kTripHandler = 0x10000210U;
     static constexpr uint32_t kSystemCallHandler = 0x10000220U;
+    static constexpr uint32_t kPrivilegeHandler = 0x10000228U;
     static constexpr uint32_t kSafeHandler = 0x10000230U;
     static constexpr uint32_t kDataAddress = 0x10000300U;
 
@@ -43,6 +44,7 @@ protected:
             cpu.Poke(kMemoryBase + offsetof(isa::VectorTable, instruction_fault_handler), kInstructionFaultHandler));
         ASSERT_TRUE(cpu.Poke(kMemoryBase + offsetof(isa::VectorTable, trip_handler), kTripHandler));
         ASSERT_TRUE(cpu.Poke(kMemoryBase + offsetof(isa::VectorTable, system_call_handler), kSystemCallHandler));
+        ASSERT_TRUE(cpu.Poke(kMemoryBase + offsetof(isa::VectorTable, privilege_handler), kPrivilegeHandler));
         ASSERT_TRUE(cpu.Poke(kMemoryBase + offsetof(isa::VectorTable, safe_handler), kSafeHandler));
 
         cpu.GetScratch()[0].as_u32[0] = 0U;
@@ -198,6 +200,17 @@ TEST_F(InstructionTest, SafeExceptionRoutesToSafeHandlerAboveExternalPriority) {
     RunSingleInstruction(isa::instructions::Instruction{isa::instructions::NoOp{}});
 
     EXPECT_EQ(kSafeHandler, cpu.ViewSpecial().program_address_.value);
+}
+
+TEST_F(InstructionTest, PrivilegeExceptionRoutesAboveSafeAndExternalPriority) {
+    cpu.GetSpecial().exception_.privilege_fault = 1;
+    cpu.GetSpecial().exception_.safe = 1;
+    cpu.GetSpecial().exception_.external = 1;
+    cpu.GetSpecial().exception_.type = isa::ExceptionType::Privilege;
+
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::NoOp{}});
+
+    EXPECT_EQ(kPrivilegeHandler, cpu.ViewSpecial().program_address_.value);
 }
 
 TEST_F(InstructionTest, GrowMovesStackPointerDownByImmediateWords) {

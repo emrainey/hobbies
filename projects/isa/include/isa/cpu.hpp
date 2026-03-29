@@ -60,9 +60,10 @@ enum class ExceptionType : ExceptionUnit {
     SystemCall = 8,
     Deferred = 9,
     Ticker = 10,
-    Safe = 11,
+    Privilege = 11,
+    Safe = 12,
     /// Used by a top level peripheral handler
-    External = 12,
+    External = 13,
 };
 constexpr static size_t CountOfExceptionTypes{1024U};
 
@@ -127,6 +128,10 @@ struct Exception {
     /// non-ticker exception, meaning it is triggered by other events such as interrupts or faults.
     uint32_t ticker : 1;
 
+    /// 1 when the exception is a privilege exception, meaning a privileged operation was attempted without
+    /// sufficient access level.
+    uint32_t privilege_fault : 1;
+
     /// 1 when the exception is a safe exception, meaning the processor should transfer control to a known-safe
     /// handler.
     uint32_t safe : 1;
@@ -137,7 +142,7 @@ struct Exception {
     /// it is triggered by other events such as interrupts or faults.
     uint32_t external : 1;
 
-    uint32_t : 3;  ///< Unused bits for future expansion
+    uint32_t : 2;  ///< Unused bits for future expansion
 
     /// The type of the exception which occurred. This field should be used to determine which exception currently needs
     /// to be handled during the handler.
@@ -145,14 +150,14 @@ struct Exception {
 
     constexpr bool HasException() const {
         return reset or unmaskable or bus_fault or instruction_fault or arithmetic_fault or stack_fault or tripped
-               or system_call or deferred or ticker or safe or external;
+               or system_call or deferred or ticker or privilege_fault or safe or external;
     }
 
     friend std::ostream& operator<<(std::ostream& os, Exception exc) {
         os << " R:" << exc.reset << " U:" << exc.unmaskable << "N:" << exc.nested << " B:" << exc.bus_fault
            << " I:" << exc.instruction_fault << " A:" << exc.arithmetic_fault << " S:" << exc.stack_fault
-           << "C:" << exc.system_call << " D:" << exc.deferred << " T:" << exc.ticker << " H:" << exc.safe
-           << " E:" << exc.external << " SE:" << static_cast<uint32_t>(exc.type);
+           << "C:" << exc.system_call << " D:" << exc.deferred << " T:" << exc.ticker << " P:" << exc.privilege_fault
+           << " H:" << exc.safe << " E:" << exc.external << " SE:" << static_cast<uint32_t>(exc.type);
         return os;
     }
 };
@@ -193,6 +198,8 @@ struct VectorTable {
     Address deferred_handler{0};
     /// The address of the ticker handler, which is the entry point for handling ticker exceptions.
     Address ticker_handler{0};
+    /// The address of the privilege handler, which handles privilege exceptions.
+    Address privilege_handler{0};
     /// The address of a safe fallback handler for low-priority safety recovery.
     Address safe_handler{0};
     /// The address of the external handler table, which is the entry point for handling external exceptions.
@@ -241,6 +248,23 @@ struct PersistenceReport {
     std::string summary{};
     std::vector<std::string> files{};
 };
+
+constexpr static Operator PrivilegedInstructions[] = {
+    Operator::Halt,
+    Operator::Trip,
+};
+
+/// A helper function to determine whether an instruction is a privileged instruction, which requires elevated
+/// privileges to execute, and will cause a privileged instruction exception if attempted to be executed without the
+/// required privileges.
+constexpr static bool IsPrivilegedInstruction(Operator op) {
+    for (auto privileged_op : PrivilegedInstructions) {
+        if (op == privileged_op) {
+            return true;
+        }
+    }
+    return false;
+}
 
 /// A simple CPU Processor class.
 /// This Model has a 4 Stage Pipeline (Fetch, Decode, Execute and Writeback) and a Harvard Architecture with separate

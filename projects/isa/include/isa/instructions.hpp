@@ -625,19 +625,33 @@ struct Compare {
     uint32_t : CountOfDataBits - CountOfOperatorBits - (3 * CountOfScratchIndexBits) - 1;
 };
 
-struct BitwiseAnd {
-    BitwiseAnd() = delete;
-    constexpr BitwiseAnd(Operand dst, Operand src1, Operand src2)
-        : op{Operator::And}, dst{dst.index}, src1{src1.index}, src2{src2.index} {
-        basal::exception::throw_unless(dst.type == static_cast<uint32_t>(OperandType::Scratch)
-                                           && src1.type == static_cast<uint32_t>(OperandType::Scratch)
-                                           && src2.type == static_cast<uint32_t>(OperandType::Scratch),
-                                       __FILE__, __LINE__,
-                                       "BitwiseAnd instruction requires all operands to be Scratch registers");
+class Bitwise {
+public:
+    Bitwise() = delete;
+
+    constexpr static Bitwise And(Operand dst, Operand src1, Operand src2) {
+        return Bitwise(Operator::And, dst, src1, src2);
     }
 
-    friend std::ostream& operator<<(std::ostream& os, BitwiseAnd a) {
-        os << "and " << Operand{OperandType::Scratch, a.dst} << ", " << Operand{OperandType::Scratch, a.src1} << ", "
+    constexpr static Bitwise Or(Operand dst, Operand src1, Operand src2) {
+        return Bitwise(Operator::Or, dst, src1, src2);
+    }
+
+    constexpr static Bitwise Xor(Operand dst, Operand src1, Operand src2) {
+        return Bitwise(Operator::Xor, dst, src1, src2);
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, Bitwise a) {
+        if (a.op == Operator::And) {
+            os << "band ";
+        } else if (a.op == Operator::Or) {
+            os << "borr ";
+        } else if (a.op == Operator::Xor) {
+            os << "bxor ";
+        } else {
+            os << "??? ";
+        }
+        os << Operand{OperandType::Scratch, a.dst} << ", " << Operand{OperandType::Scratch, a.src1} << ", "
            << Operand{OperandType::Scratch, a.src2};
         return os;
     }
@@ -647,54 +661,16 @@ struct BitwiseAnd {
     uint32_t src1 : CountOfScratchIndexBits;  ///< Source Scratch Register 1
     uint32_t src2 : CountOfScratchIndexBits;  ///< Source Scratch Register 2
     uint32_t : CountOfDataBits - CountOfOperatorBits - (3 * CountOfScratchIndexBits);
-};
 
-struct BitwiseOr {
-    BitwiseOr() = delete;
-    constexpr BitwiseOr(Operand dst, Operand src1, Operand src2)
-        : op{Operator::Or}, dst{dst.index}, src1{src1.index}, src2{src2.index} {
+protected:
+    constexpr Bitwise(Operator op, Operand dst, Operand src1, Operand src2)
+        : op{op}, dst{dst.index}, src1{src1.index}, src2{src2.index} {
         basal::exception::throw_unless(dst.type == static_cast<uint32_t>(OperandType::Scratch)
                                            && src1.type == static_cast<uint32_t>(OperandType::Scratch)
                                            && src2.type == static_cast<uint32_t>(OperandType::Scratch),
                                        __FILE__, __LINE__,
-                                       "BitwiseOr instruction requires all operands to be Scratch registers");
+                                       "Bitwise instruction requires all operands to be Scratch registers");
     }
-
-    friend std::ostream& operator<<(std::ostream& os, BitwiseOr o) {
-        os << "or " << Operand{OperandType::Scratch, o.dst} << ", " << Operand{OperandType::Scratch, o.src1} << ", "
-           << Operand{OperandType::Scratch, o.src2};
-        return os;
-    }
-
-    Operator op : CountOfOperatorBits;
-    uint32_t dst : CountOfScratchIndexBits;   ///< Destination Scratch Register
-    uint32_t src1 : CountOfScratchIndexBits;  ///< Source Scratch Register 1
-    uint32_t src2 : CountOfScratchIndexBits;  ///< Source Scratch Register 2
-    uint32_t : CountOfDataBits - CountOfOperatorBits - (3 * CountOfScratchIndexBits);
-};
-
-struct BitwiseXor {
-    BitwiseXor() = delete;
-    constexpr BitwiseXor(Operand dst, Operand src1, Operand src2)
-        : op{Operator::Xor}, dst{dst.index}, src1{src1.index}, src2{src2.index} {
-        basal::exception::throw_unless(dst.type == static_cast<uint32_t>(OperandType::Scratch)
-                                           && src1.type == static_cast<uint32_t>(OperandType::Scratch)
-                                           && src2.type == static_cast<uint32_t>(OperandType::Scratch),
-                                       __FILE__, __LINE__,
-                                       "BitwiseXor instruction requires all operands to be Scratch registers");
-    }
-
-    friend std::ostream& operator<<(std::ostream& os, BitwiseXor x) {
-        os << "xor " << Operand{OperandType::Scratch, x.dst} << ", " << Operand{OperandType::Scratch, x.src1} << ", "
-           << Operand{OperandType::Scratch, x.src2};
-        return os;
-    }
-
-    Operator op : CountOfOperatorBits;
-    uint32_t dst : CountOfScratchIndexBits;   ///< Destination Scratch Register
-    uint32_t src1 : CountOfScratchIndexBits;  ///< Source Scratch Register 1
-    uint32_t src2 : CountOfScratchIndexBits;  ///< Source Scratch Register 2
-    uint32_t : CountOfDataBits - CountOfOperatorBits - (3 * CountOfScratchIndexBits);
 };
 
 struct BitwiseComplement {
@@ -1127,13 +1103,7 @@ union Instruction {
     constexpr Instruction(Compare c) : compare{c} {
     }
     /// Typed Constructor for BitwiseAnd
-    constexpr Instruction(BitwiseAnd a) : bitwise_and{a} {
-    }
-    /// Typed Constructor for BitwiseOr
-    constexpr Instruction(BitwiseOr o) : bitwise_or{o} {
-    }
-    /// Typed Constructor for BitwiseXor
-    constexpr Instruction(BitwiseXor x) : bitwise_xor{x} {
+    constexpr Instruction(Bitwise x) : bitwise{x} {
     }
     /// Typed Constructor for BitwiseComplement
     constexpr Instruction(BitwiseComplement n) : bitwise_complement{n} {
@@ -1198,11 +1168,8 @@ union Instruction {
     Call call;                       ///< Call a subroutine at an address specified in an evaluation register
     Trip trip;                       ///< Trip to an address specified in an evaluation register and save the return
     Compare compare;                 ///< Compare two scratch registers and set flags in an evaluation register
-    BitwiseAnd bitwise_and;  ///< Perform bitwise AND on two scratch registers and store the result in a destination
-                             ///< scratch register
-    BitwiseOr bitwise_or;    ///< Perform bitwise OR on two scratch registers and
-    BitwiseXor bitwise_xor;  ///< Perform bitwise XOR on two scratch registers and store the result in a destination
-                             ///< scratch register
+    Bitwise bitwise;                 ///< Perform bitwise operations on two scratch registers and store the result in a destination
+                                    ///< scratch register
     BitwiseComplement bitwise_complement;  ///< Perform bitwise NOT on a scratch register and store the result in a destination
                              ///< scratch register
     BitwiseRsh bitwise_rsh;  ///< Perform bitwise right shift on a scratch register by an immediate value and store the
@@ -1261,11 +1228,11 @@ union Instruction {
         } else if (instr.base() == Operator::Compare) {
             os << instr.compare;
         } else if (instr.base() == Operator::And) {
-            os << instr.bitwise_and;
+            os << instr.bitwise;
         } else if (instr.base() == Operator::Or) {
-            os << instr.bitwise_or;
+            os << instr.bitwise;
         } else if (instr.base() == Operator::Xor) {
-            os << instr.bitwise_xor;
+            os << instr.bitwise;
         } else if (instr.base() == Operator::Complement) {
             os << instr.bitwise_complement;
         } else if (instr.base() == Operator::Rsh) {

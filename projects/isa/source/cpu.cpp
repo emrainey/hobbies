@@ -451,21 +451,21 @@ void Processor::Cycle() {
             break;
         }
         case Operator::And: {
-            const auto& and_instr = instruction.bitwise_and;
-            uint32_t result = scratch_[and_instr.src1].as_u32[0] & scratch_[and_instr.src2].as_u32[0];
-            scratch_[and_instr.dst].as_u32[0] = result;
+            const auto& bitwise = instruction.bitwise;
+            uint32_t result = scratch_[bitwise.src1].as_u32[0] & scratch_[bitwise.src2].as_u32[0];
+            scratch_[bitwise.dst].as_u32[0] = result;
             break;
         }
         case Operator::Or: {
-            const auto& or_instr = instruction.bitwise_or;
-            uint32_t result = scratch_[or_instr.src1].as_u32[0] | scratch_[or_instr.src2].as_u32[0];
-            scratch_[or_instr.dst].as_u32[0] = result;
+            const auto& bitwise = instruction.bitwise;
+            uint32_t result = scratch_[bitwise.src1].as_u32[0] | scratch_[bitwise.src2].as_u32[0];
+            scratch_[bitwise.dst].as_u32[0] = result;
             break;
         }
         case Operator::Xor: {
-            const auto& xor_instr = instruction.bitwise_xor;
-            uint32_t result = scratch_[xor_instr.src1].as_u32[0] ^ scratch_[xor_instr.src2].as_u32[0];
-            scratch_[xor_instr.dst].as_u32[0] = result;
+            const auto& bitwise = instruction.bitwise;
+            uint32_t result = scratch_[bitwise.src1].as_u32[0] ^ scratch_[bitwise.src2].as_u32[0];
+            scratch_[bitwise.dst].as_u32[0] = result;
             break;
         }
         case Operator::Complement: {

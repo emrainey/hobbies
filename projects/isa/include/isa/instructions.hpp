@@ -60,12 +60,17 @@ enum class Operator : uint32_t {
     Modulo,    ///< mod{s/u}.{type}{size} Sd, Sa, Sb : Es
 
     // === ALU (Precision) ===
+    // 1 arg
+    FloatingFloor,    ///< fflr scratchDestination, scratchSource
+    FloatingCeil,     ///< fcel scratchDestination, scratchSource
+    FloatingAbs,      ///< fabs scratchDestination, scratchSource
+    FloatingNegate,   ///< fneg scratchDestination, scratchSource
+    FloatingConvert,  ///< fcvts{type}{size} scratchDestination, scratchSource
+    // 2 arg
     FloatingAddition,        ///< fadd scratchDestination, scratchSource, scratchSource -> Overflow or Underflow
     FloatingSubtraction,     ///< fsub scratchDestination, scratchSource, scratchSource -> Overflow or Underflow
     FloatingMultiplication,  ///< fmul scratchDestination, scratchSource, scratchSource -> Overflow or Underflow
-    FloatingDivision,        ///< fdiv  scratchDestination, scratchSource, scratchSource -> Fault if scratchSource == 0
-    FloatingFloor,           ///< fflr scratchDestination, scratchSource
-    FloatingCeil,            ///< fcel  scratchDestination, scratchSource
+    FloatingDivision,        ///< fdiv scratchDestination, scratchSource, scratchSource -> Fault if scratchSource == 0
 
     // === ALU (SIMD) ===
 
@@ -956,6 +961,67 @@ protected:
     }
 };
 
+/// Unary Precision (Floating) Operations
+class Precision1 {
+public:
+    Precision1() = delete;
+
+    constexpr static Precision1 FAbs(Operand dst, Operand src) {
+        return Precision1(Operator::FloatingAbs, dst, src);
+    }
+
+    constexpr static Precision1 FNeg(Operand dst, Operand src) {
+        return Precision1(Operator::FloatingNegate, dst, src);
+    }
+
+    constexpr static Precision1 Floor(Operand dst, Operand src) {
+        return Precision1(Operator::FloatingFloor, dst, src);
+    }
+
+    constexpr static Precision1 Ceil(Operand dst, Operand src) {
+        return Precision1(Operator::FloatingCeil, dst, src);
+    }
+
+    constexpr static Precision1 Convert(Operand dst, Operand src, bool float_to_int = true) {
+        Precision1 p(Operator::FloatingConvert, dst, src);
+        p.dir = float_to_int ? 1U : 0U;
+        return p;
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, Precision1 p) {
+        if (p.op == Operator::FloatingAbs) {
+            os << "fabs ";
+        } else if (p.op == Operator::FloatingNegate) {
+            os << "fneg ";
+        } else if (p.op == Operator::FloatingFloor) {
+            os << "fflr ";
+        } else if (p.op == Operator::FloatingCeil) {
+            os << "fcel ";
+        } else if (p.op == Operator::FloatingConvert) {
+            os << "fcvt" << (p.dir ? ".f2i " : ".i2f ");
+        } else {
+            os << "??? ";
+        }
+        os << Operand{OperandType::Scratch, p.dst} << ", " << Operand{OperandType::Scratch, p.src};
+        return os;
+    }
+
+    Operator op : CountOfOperatorBits;  ///< The specific precision operation to perform (e.g. fabs, fneg, fflr, fcel,
+                                        ///< fcvt, etc)
+    uint32_t dst : CountOfScratchIndexBits;  ///< Destination Scratch Register
+    uint32_t src : CountOfScratchIndexBits;  ///< Source Scratch Register
+    uint32_t dir : 1;  ///< Direction for conversion (0 = Int to Float, 1 = Float to Int) (only used for fcvt)
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (2 * CountOfScratchIndexBits) - 1;
+
+protected:
+    constexpr Precision1(Operator op, Operand dst, Operand src) : op{op}, dst{dst.index}, src{src.index}, dir{0} {
+        basal::exception::throw_unless(dst.type == static_cast<uint32_t>(OperandType::Scratch)
+                                           && src.type == static_cast<uint32_t>(OperandType::Scratch),
+                                       __FILE__, __LINE__,
+                                       "Precision1 instruction requires both operands to be Scratch registers");
+    }
+};
+
 union Instruction {
     /// Default Constructor
     constexpr Instruction() : noop{} {
@@ -1036,6 +1102,9 @@ union Instruction {
     /// Typed Constructor for Arithmetic
     constexpr Instruction(Arithmetic a) : arithmetic{a} {
     }
+    /// Typed Constructor for Precision1
+    constexpr Instruction(Precision1 p) : precision1{p} {
+    }
     //=================================
     uint32_t raw;                     ///< The raw bits of the instruction as it would be stored in memory
     Base base;                        ///< The base instruction for decoding the operator
@@ -1059,6 +1128,7 @@ union Instruction {
     Bitwise2 bitwise2;                ///< Holds the 2 argument bitwise operations (AND, OR, XOR)
     Bitwise1 bitwise1;                ///< Holds the 1 argument bitwise operations
     Arithmetic arithmetic;            ///< Holds the arithmetic operations (ADD, SUB, MUL, DIV, MOD)
+    Precision1 precision1;            ///< Holds the unary precision operations (FAbs, FNeg, Floor, Ceil, Convert)
     //=================================
     friend std::ostream& operator<<(std::ostream& os, Instruction instr) {
         if (instr.base() == Operator::None) {
@@ -1133,6 +1203,16 @@ union Instruction {
             os << instr.arithmetic;
         } else if (instr.base() == Operator::Modulo) {
             os << instr.arithmetic;
+        } else if (instr.base() == Operator::FloatingAbs) {
+            os << instr.precision1;
+        } else if (instr.base() == Operator::FloatingNegate) {
+            os << instr.precision1;
+        } else if (instr.base() == Operator::FloatingFloor) {
+            os << instr.precision1;
+        } else if (instr.base() == Operator::FloatingCeil) {
+            os << instr.precision1;
+        } else if (instr.base() == Operator::FloatingConvert) {
+            os << instr.precision1;
         } else {
             os << "???";
         }

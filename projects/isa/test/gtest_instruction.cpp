@@ -393,3 +393,39 @@ TEST_F(InstructionTest, ArithmeticModuloWritesResult) {
 
     EXPECT_EQ(42U, cpu.ViewScratch()[1].as_u32[0]);
 }
+
+TEST_F(InstructionTest, FloatingAbsWritesAbsoluteValue) {
+    cpu.GetScratch()[2].as_float[0] = -3.25F;
+
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Precision1::FAbs(
+        isa::Operand{isa::OperandType::Scratch, 1}, isa::Operand{isa::OperandType::Scratch, 2})});
+
+    EXPECT_FLOAT_EQ(3.25F, cpu.ViewScratch()[1].as_float[0]);
+}
+
+TEST_F(InstructionTest, FloatingNegateWritesNegatedValue) {
+    cpu.GetScratch()[2].as_float[0] = 6.5F;
+
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Precision1::FNeg(
+        isa::Operand{isa::OperandType::Scratch, 1}, isa::Operand{isa::OperandType::Scratch, 2})});
+
+    EXPECT_FLOAT_EQ(-6.5F, cpu.ViewScratch()[1].as_float[0]);
+}
+
+TEST_F(InstructionTest, FloatingFloorWritesFlooredValue) {
+    cpu.GetScratch()[2].as_float[0] = 3.75F;
+
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Precision1::Floor(
+        isa::Operand{isa::OperandType::Scratch, 1}, isa::Operand{isa::OperandType::Scratch, 2})});
+
+    EXPECT_FLOAT_EQ(3.0F, cpu.ViewScratch()[1].as_float[0]);
+}
+
+TEST_F(InstructionTest, FloatingCeilWritesCeiledValue) {
+    cpu.GetScratch()[2].as_float[0] = 3.25F;
+
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Precision1::Ceil(
+        isa::Operand{isa::OperandType::Scratch, 1}, isa::Operand{isa::OperandType::Scratch, 2})});
+
+    EXPECT_FLOAT_EQ(4.0F, cpu.ViewScratch()[1].as_float[0]);
+}

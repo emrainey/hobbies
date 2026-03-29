@@ -661,6 +661,30 @@ void Processor::Cycle() {
             }
             break;
         }
+        case Operator::FloatingAbs: {
+            const auto& precision1 = instruction.precision1;
+            float value = scratch_[precision1.src].as_float[0];
+            scratch_[precision1.dst].as_float[0] = std::abs(value);
+            break;
+        }
+        case Operator::FloatingNegate: {
+            const auto& precision1 = instruction.precision1;
+            float value = scratch_[precision1.src].as_float[0];
+            scratch_[precision1.dst].as_float[0] = -value;
+            break;
+        }
+        case Operator::FloatingCeil: {
+            const auto& precision1 = instruction.precision1;
+            float value = scratch_[precision1.src].as_float[0];
+            scratch_[precision1.dst].as_float[0] = std::ceil(value);
+            break;
+        }
+        case Operator::FloatingFloor: {
+            const auto& precision1 = instruction.precision1;
+            float value = scratch_[precision1.src].as_float[0];
+            scratch_[precision1.dst].as_float[0] = std::floor(value);
+            break;
+        }
         default:
             special_.exception_.instruction_fault = 1;
             break;

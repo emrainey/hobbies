@@ -65,6 +65,7 @@ enum class Operator : uint32_t {
     FloatingCeil,     ///< fcel scratchDestination, scratchSource
     FloatingAbs,      ///< fabs scratchDestination, scratchSource
     FloatingNegate,   ///< fneg scratchDestination, scratchSource
+    FloatingFractional,  ///< ffrc scratchDestination, scratchSource
     FloatingConvert,  ///< fcvts{type}{size} scratchDestination, scratchSource
     // 2 arg
     FloatingAddition,        ///< fadd scratchDestination, scratchSource, scratchSource -> Overflow or Underflow
@@ -988,6 +989,10 @@ public:
         return p;
     }
 
+    constexpr static Precision1 Fractional(Operand dst, Operand src) {
+        return Precision1(Operator::FloatingFractional, dst, src);
+    }
+
     friend std::ostream& operator<<(std::ostream& os, Precision1 p) {
         if (p.op == Operator::FloatingAbs) {
             os << "fabs ";
@@ -999,6 +1004,8 @@ public:
             os << "fcel ";
         } else if (p.op == Operator::FloatingConvert) {
             os << "fcvt" << (p.dir ? ".f2i " : ".i2f ");
+        } else if (p.op == Operator::FloatingFractional) {
+            os << "ffrc ";
         } else {
             os << "??? ";
         }
@@ -1019,6 +1026,93 @@ protected:
                                            && src.type == static_cast<uint32_t>(OperandType::Scratch),
                                        __FILE__, __LINE__,
                                        "Precision1 instruction requires both operands to be Scratch registers");
+    }
+};
+
+class Precision2 {
+public:
+    Precision2() = delete;
+
+    constexpr static Precision2 FAdd(Operand dst, Operand src1, Operand src2) {
+        return Precision2(Operator::FloatingAddition, dst, src1, src2);
+    }
+
+
+    constexpr static Precision2 FAdd(Operand dst, Operand src1, Operand src2, Operand eval) {
+        return Precision2(Operator::FloatingAddition, dst, src1, src2, eval);
+    }
+
+    constexpr static Precision2 FSub(Operand dst, Operand src1, Operand src2) {
+        return Precision2(Operator::FloatingSubtraction, dst, src1, src2);
+    }
+
+    constexpr static Precision2 FSub(Operand dst, Operand src1, Operand src2, Operand eval) {
+        return Precision2(Operator::FloatingSubtraction, dst, src1, src2, eval);
+    }
+
+    constexpr static Precision2 FMul(Operand dst, Operand src1, Operand src2) {
+        return Precision2(Operator::FloatingMultiplication, dst, src1, src2);
+    }
+
+    constexpr static Precision2 FMul(Operand dst, Operand src1, Operand src2, Operand eval) {
+        return Precision2(Operator::FloatingMultiplication, dst, src1, src2, eval);
+    }
+
+    constexpr static Precision2 FDiv(Operand dst, Operand src1, Operand src2) {
+        return Precision2(Operator::FloatingDivision, dst, src1, src2);
+    }
+
+    constexpr static Precision2 FDiv(Operand dst, Operand src1, Operand src2, Operand eval) {
+        return Precision2(Operator::FloatingDivision, dst, src1, src2, eval);
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, Precision2 p) {
+        if (p.op == Operator::FloatingAddition) {
+            os << "fadd ";
+        } else if (p.op == Operator::FloatingSubtraction) {
+            os << "fsub ";
+        } else if (p.op == Operator::FloatingMultiplication) {
+            os << "fmul ";
+        } else if (p.op == Operator::FloatingDivision) {
+            os << "fdiv ";
+        } else {
+            os << "??? ";
+        }
+        os << Operand{OperandType::Scratch, p.dst} << ", " << Operand{OperandType::Scratch, p.src1} << ", "
+           << Operand{OperandType::Scratch, p.src2};
+        if (p.cond) {
+            os << " : " << Operand{OperandType::Evaluation, p.eval};
+        }
+        return os;
+    }
+
+    Operator op : CountOfOperatorBits;  ///< The specific precision operation to perform (e.g. fadd, fsub, fmul, fdiv, etc)
+    uint32_t dst : CountOfScratchIndexBits;  ///< Destination Scratch Register
+    uint32_t src1 : CountOfScratchIndexBits;  ///< Source Scratch Register
+    uint32_t src2 : CountOfScratchIndexBits;  ///< Source Scratch Register 2
+    uint32_t eval : CountOfEvalIndexBits;     ///< Evaluation Register to check for conditional operation (if cond == 1)
+    uint32_t cond : 1;                        ///< If == 1, then the operation
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (3 * CountOfScratchIndexBits) - CountOfEvalIndexBits - 1;
+protected:
+    constexpr Precision2(Operator op, Operand dst, Operand src1, Operand src2)
+        : op{op}, dst{dst.index}, src1{src1.index}, src2{src2.index}, eval{0}, cond{0} {
+        basal::exception::throw_unless(dst.type == static_cast<uint32_t>(OperandType::Scratch)
+                                           && src1.type == static_cast<uint32_t>(OperandType::Scratch)
+                                           && src2.type == static_cast<uint32_t>(OperandType::Scratch),
+                                       __FILE__, __LINE__,
+                                       "Precision2 instruction requires all operands to be Scratch registers");
+    }
+
+    constexpr Precision2(Operator op, Operand dst, Operand src1, Operand src2, Operand eval)
+        : op{op}, dst{dst.index}, src1{src1.index}, src2{src2.index}, eval{eval.index}, cond{1} {
+        basal::exception::throw_unless(dst.type == static_cast<uint32_t>(OperandType::Scratch)
+                                           && src1.type == static_cast<uint32_t>(OperandType::Scratch)
+                                           && src2.type == static_cast<uint32_t>(OperandType::Scratch),
+                                       __FILE__, __LINE__,
+                                       "Precision2 instruction requires all operands to be Scratch registers");
+        basal::exception::throw_if(eval.type != static_cast<uint32_t>(OperandType::None)
+                                       && eval.type != static_cast<uint32_t>(OperandType::Evaluation), __FILE__,
+                                   __LINE__, "Precision2 instruction requires the evaluation operand to be either None or an Evaluation register");
     }
 };
 
@@ -1105,6 +1199,9 @@ union Instruction {
     /// Typed Constructor for Precision1
     constexpr Instruction(Precision1 p) : precision1{p} {
     }
+    /// Typed Constructor for Precision2
+    constexpr Instruction(Precision2 p) : precision2{p} {
+    }
     //=================================
     uint32_t raw;                     ///< The raw bits of the instruction as it would be stored in memory
     Base base;                        ///< The base instruction for decoding the operator
@@ -1129,6 +1226,7 @@ union Instruction {
     Bitwise1 bitwise1;                ///< Holds the 1 argument bitwise operations
     Arithmetic arithmetic;            ///< Holds the arithmetic operations (ADD, SUB, MUL, DIV, MOD)
     Precision1 precision1;            ///< Holds the unary precision operations (FAbs, FNeg, Floor, Ceil, Convert)
+    Precision2 precision2;            ///< Holds the binary precision operations (FAdd, FSub, FMul, FDiv)
     //=================================
     friend std::ostream& operator<<(std::ostream& os, Instruction instr) {
         if (instr.base() == Operator::None) {
@@ -1213,6 +1311,16 @@ union Instruction {
             os << instr.precision1;
         } else if (instr.base() == Operator::FloatingConvert) {
             os << instr.precision1;
+        } else if (instr.base() == Operator::FloatingFractional) {
+            os << instr.precision1;
+        } else if (instr.base() == Operator::FloatingAddition) {
+            os << instr.precision2;
+        } else if (instr.base() == Operator::FloatingSubtraction) {
+            os << instr.precision2;
+        } else if (instr.base() == Operator::FloatingMultiplication) {
+            os << instr.precision2;
+        } else if (instr.base() == Operator::FloatingDivision) {
+            os << instr.precision2;
         } else {
             os << "???";
         }

@@ -154,13 +154,16 @@ struct Exception {
     }
 
     friend std::ostream& operator<<(std::ostream& os, Exception exc) {
-        os << " R:" << exc.reset << " U:" << exc.unmaskable << "N:" << exc.nested << " B:" << exc.bus_fault
-           << " I:" << exc.instruction_fault << " A:" << exc.arithmetic_fault << " S:" << exc.stack_fault
-           << "C:" << exc.system_call << " D:" << exc.deferred << " T:" << exc.ticker << " P:" << exc.privilege_fault
-           << " H:" << exc.safe << " E:" << exc.external << " SE:" << static_cast<uint32_t>(exc.type);
+        word<CountOfDataBits> fields = *reinterpret_cast<word<CountOfDataBits>*>(&exc);
+        os << fields.as_u32[0];
+        // os << " R:" << exc.reset << " U:" << exc.unmaskable << "N:" << exc.nested << " B:" << exc.bus_fault
+        //    << " I:" << exc.instruction_fault << " A:" << exc.arithmetic_fault << " S:" << exc.stack_fault
+        //    << "C:" << exc.system_call << " D:" << exc.deferred << " T:" << exc.ticker << " P:" << exc.privilege_fault
+        //    << " H:" << exc.safe << " E:" << exc.external << " SE:" << static_cast<uint32_t>(exc.type);
         return os;
     }
 };
+static_assert(sizeof(Exception) == sizeof(word<CountOfDataBits>), "Exception struct must be the size of a single word for efficient storage and manipulation");
 
 struct VectorTable {
     /// The Initial Stack Address to be used by the user mode, which can be different from the main stack used by the

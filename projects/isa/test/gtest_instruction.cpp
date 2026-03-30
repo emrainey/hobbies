@@ -429,3 +429,56 @@ TEST_F(InstructionTest, FloatingCeilWritesCeiledValue) {
 
     EXPECT_FLOAT_EQ(4.0F, cpu.ViewScratch()[1].as_float[0]);
 }
+
+TEST_F(InstructionTest, FloatingFractionalWritesFractionalPart) {
+    cpu.GetScratch()[2].as_float[0] = 3.75F;
+
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Precision1::Fractional(
+        isa::Operand{isa::OperandType::Scratch, 1}, isa::Operand{isa::OperandType::Scratch, 2})});
+
+    EXPECT_FLOAT_EQ(0.75F, cpu.ViewScratch()[1].as_float[0]);
+}
+
+TEST_F(InstructionTest, FloatingAdditionWritesSum) {
+    cpu.GetScratch()[2].as_float[0] = 1.5F;
+    cpu.GetScratch()[3].as_float[0] = 2.25F;
+
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Precision2::FAdd(
+        isa::Operand{isa::OperandType::Scratch, 1}, isa::Operand{isa::OperandType::Scratch, 2},
+        isa::Operand{isa::OperandType::Scratch, 3})});
+
+    EXPECT_FLOAT_EQ(3.75F, cpu.ViewScratch()[1].as_float[0]);
+}
+
+TEST_F(InstructionTest, FloatingSubtractionWritesDifference) {
+    cpu.GetScratch()[2].as_float[0] = 5.0F;
+    cpu.GetScratch()[3].as_float[0] = 1.5F;
+
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Precision2::FSub(
+        isa::Operand{isa::OperandType::Scratch, 1}, isa::Operand{isa::OperandType::Scratch, 2},
+        isa::Operand{isa::OperandType::Scratch, 3})});
+
+    EXPECT_FLOAT_EQ(3.5F, cpu.ViewScratch()[1].as_float[0]);
+}
+
+TEST_F(InstructionTest, FloatingMultiplicationWritesProduct) {
+    cpu.GetScratch()[2].as_float[0] = 2.5F;
+    cpu.GetScratch()[3].as_float[0] = 3.0F;
+
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Precision2::FMul(
+        isa::Operand{isa::OperandType::Scratch, 1}, isa::Operand{isa::OperandType::Scratch, 2},
+        isa::Operand{isa::OperandType::Scratch, 3})});
+
+    EXPECT_FLOAT_EQ(7.5F, cpu.ViewScratch()[1].as_float[0]);
+}
+
+TEST_F(InstructionTest, FloatingDivisionWritesQuotient) {
+    cpu.GetScratch()[2].as_float[0] = 7.5F;
+    cpu.GetScratch()[3].as_float[0] = 2.5F;
+
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Precision2::FDiv(
+        isa::Operand{isa::OperandType::Scratch, 1}, isa::Operand{isa::OperandType::Scratch, 2},
+        isa::Operand{isa::OperandType::Scratch, 3})});
+
+    EXPECT_FLOAT_EQ(3.0F, cpu.ViewScratch()[1].as_float[0]);
+}

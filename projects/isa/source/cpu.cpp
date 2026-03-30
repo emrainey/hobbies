@@ -1,6 +1,7 @@
 /// @file
 /// @brief Implementation of the CPU class
 
+#include <basal/ieee754.hpp>
 #include <isa/cpu.hpp>
 
 #include <cstdio>
@@ -683,6 +684,46 @@ void Processor::Cycle() {
             const auto& precision1 = instruction.precision1;
             float value = scratch_[precision1.src].as_float[0];
             scratch_[precision1.dst].as_float[0] = std::floor(value);
+            break;
+        }
+        case Operator::FloatingFractional: {
+            const auto& precision1 = instruction.precision1;
+            float value = scratch_[precision1.src].as_float[0];
+            scratch_[precision1.dst].as_float[0] = value - std::floor(value);
+            break;
+        }
+        case Operator::FloatingAddition: {
+            const auto& precision2 = instruction.precision2;
+            float a = scratch_[precision2.src1].as_float[0];
+            float b = scratch_[precision2.src2].as_float[0];
+            scratch_[precision2.dst].as_float[0] = a + b;
+            break;
+        }
+        case Operator::FloatingSubtraction: {
+            const auto& precision2 = instruction.precision2;
+            float a = scratch_[precision2.src1].as_float[0];
+            float b = scratch_[precision2.src2].as_float[0];
+            scratch_[precision2.dst].as_float[0] = a - b;
+            break;
+        }
+        case Operator::FloatingMultiplication: {
+            const auto& precision2 = instruction.precision2;
+            float a = scratch_[precision2.src1].as_float[0];
+            float b = scratch_[precision2.src2].as_float[0];
+            scratch_[precision2.dst].as_float[0] = a * b;
+            break;
+        }
+        case Operator::FloatingDivision: {
+            const auto& precision2 = instruction.precision2;
+            float divisor = scratch_[precision2.src2].as_float[0];
+            // very nearly zero from either direction
+            if (std::abs(divisor) < std::numeric_limits<float>::epsilon()) {
+                // Division by zero exception
+                special_.exception_.instruction_fault = 1;
+            } else {
+                float dividend = scratch_[precision2.src1].as_float[0];
+                scratch_[precision2.dst].as_float[0] = dividend / divisor;
+            }
             break;
         }
         default:

@@ -1,7 +1,6 @@
 #include "raytrace/scene.hpp"
 
 #include <cassert>
-#include <tuple>
 
 namespace raytrace {
 
@@ -517,8 +516,10 @@ void scene::render(camera& view, std::string filename, size_t number_of_samples,
         fourcc::bilateral<3>(view.capture, capture_copy);
     }
 
-    // This will save based on the file extension
-    view.capture.save(filename);
+    if (not filename.empty()) {
+        // This will save based on the file extension
+        view.capture.save(filename);
+    }
 }
 
 void scene::print(std::ostream& os, char const str[]) const {

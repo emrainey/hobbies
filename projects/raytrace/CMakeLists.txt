@@ -164,6 +164,18 @@ if (Threads_FOUND AND CURSES_FOUND)
 
 endif()
 
+if (Threads_FOUND)
+    add_executable(demo_ftxui
+        ${CMAKE_CURRENT_SOURCE_DIR}/demo/main_ftxui.cpp
+    )
+    target_link_libraries(demo_ftxui PRIVATE hobbies-raytrace Threads::Threads ftxui::screen ftxui::dom ftxui::component)
+    install(TARGETS demo_ftxui
+        EXPORT raytrace-targets
+        ARCHIVE DESTINATION lib
+        LIBRARY DESTINATION lib
+        RUNTIME DESTINATION bin)
+endif()
+
 if (SDL2_FOUND AND Threads_FOUND)
     add_executable(demo_sdl2
         ${CMAKE_CURRENT_SOURCE_DIR}/demo/main_sdl2.cpp

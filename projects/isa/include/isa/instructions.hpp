@@ -61,12 +61,12 @@ enum class Operator : uint32_t {
 
     // === ALU (Precision) ===
     // 1 arg
-    FloatingFloor,    ///< fflr scratchDestination, scratchSource
-    FloatingCeil,     ///< fcel scratchDestination, scratchSource
-    FloatingAbs,      ///< fabs scratchDestination, scratchSource
-    FloatingNegate,   ///< fneg scratchDestination, scratchSource
+    FloatingFloor,       ///< fflr scratchDestination, scratchSource
+    FloatingCeil,        ///< fcel scratchDestination, scratchSource
+    FloatingAbs,         ///< fabs scratchDestination, scratchSource
+    FloatingNegate,      ///< fneg scratchDestination, scratchSource
     FloatingFractional,  ///< ffrc scratchDestination, scratchSource
-    FloatingConvert,  ///< fcvts{type}{size} scratchDestination, scratchSource
+    FloatingConvert,     ///< fcvts{type}{size} scratchDestination, scratchSource
     // 2 arg
     FloatingAddition,        ///< fadd scratchDestination, scratchSource, scratchSource -> Overflow or Underflow
     FloatingSubtraction,     ///< fsub scratchDestination, scratchSource, scratchSource -> Overflow or Underflow
@@ -262,15 +262,13 @@ struct Move {
     }
 
     friend std::ostream& operator<<(std::ostream& os, Move m) {
-        if (m.cond) {
-            os << "move " << Operand{OperandType::Evaluation, m.eval} << ", "
-               << Operand{OperandType::Evaluation, m.mask} << ", ";
-        } else {
-            os << "move ";
-        }
+        os << "move ";
         os << Operand{OperandType::Scratch, m.dst} << ", " << Operand{OperandType::Scratch, m.src};
         if (m.shift > 0) {
             os << (m.dir ? " >> " : " << ") << m.shift;
+        }
+        if (m.cond) {
+            os << " : " << Operand{OperandType::Evaluation, m.eval} << ", " << Operand{OperandType::Evaluation, m.mask};
         }
         return os;
     }
@@ -460,10 +458,10 @@ struct Leap {
     }
     friend std::ostream& operator<<(std::ostream& os, Leap j) {
         os << "leap ";
-        if (j.cond) {
-            os << Operand{OperandType::Evaluation, j.eval} << ", " << Operand{OperandType::Evaluation, j.mask} << ", ";
-        }
         os << Operand{OperandType::Scratch, j.dst} << " + (" << ImmediateType{j.imm} << " * 4)";
+        if (j.cond) {
+            os << " : " << Operand{OperandType::Evaluation, j.eval} << ", " << Operand{OperandType::Evaluation, j.mask};
+        }
         return os;
     }
 
@@ -509,8 +507,10 @@ struct Grow {
                                    "Grow instruction requires the second operand to be an Evaluation register");
     }
     friend std::ostream& operator<<(std::ostream& os, Grow g) {
-        os << "grow " << Operand{OperandType::Evaluation, g.eval} << ", " << Operand{OperandType::Evaluation, g.mask}
-           << ", " << ImmediateType{g.imm};
+        os << "grow " << ImmediateType{g.imm};
+        if (g.cond) {
+            os << " : " << Operand{OperandType::Evaluation, g.eval} << ", " << Operand{OperandType::Evaluation, g.mask};
+        }
         return os;
     }
 
@@ -536,8 +536,10 @@ struct Undo {
                                    "Undo instruction requires the second operand to be an Evaluation register");
     }
     friend std::ostream& operator<<(std::ostream& os, Undo u) {
-        os << "undo " << Operand{OperandType::Evaluation, u.eval} << ", " << Operand{OperandType::Evaluation, u.mask}
-           << ", " << ImmediateType{u.imm};
+        os << "undo " << ImmediateType{u.imm};
+        if (u.cond) {
+            os << " : " << Operand{OperandType::Evaluation, u.eval} << ", " << Operand{OperandType::Evaluation, u.mask};
+        }
         return os;
     }
 
@@ -563,8 +565,10 @@ struct Call {
                                    "Call instruction requires the second operand to be an Evaluation register");
     }
     friend std::ostream& operator<<(std::ostream& os, Call c) {
-        os << "call " << Operand{OperandType::Evaluation, c.eval} << ", " << Operand{OperandType::Evaluation, c.mask}
-           << ", " << ImmediateType{c.imm};
+        os << "call " << ImmediateType{c.imm};
+        if (c.cond) {
+            os << " : " << Operand{OperandType::Evaluation, c.eval} << ", " << Operand{OperandType::Evaluation, c.mask};
+        }
         return os;
     }
 
@@ -589,8 +593,10 @@ struct Trip {
                                    "Trip instruction requires the second operand to be an Evaluation register");
     }
     friend std::ostream& operator<<(std::ostream& os, Trip t) {
-        os << "trip " << Operand{OperandType::Evaluation, t.eval} << ", " << Operand{OperandType::Evaluation, t.mask}
-           << ", " << ImmediateType{t.imm};
+        os << "trip " << ImmediateType{t.imm};
+        if (t.cond) {
+            os << " : " << Operand{OperandType::Evaluation, t.eval} << ", " << Operand{OperandType::Evaluation, t.mask};
+        }
         return os;
     }
 
@@ -618,8 +624,8 @@ struct Compare {
     }
 
     friend std::ostream& operator<<(std::ostream& os, Compare c) {
-        os << "compare " << Operand{OperandType::Evaluation, c.e} << ", " << Operand{OperandType::Scratch, c.a}
-           << "<!=>" << Operand{OperandType::Scratch, c.b};
+        os << "compare " << Operand{OperandType::Scratch, c.a} << "<!=>" << Operand{OperandType::Scratch, c.b} << " : "
+           << Operand{OperandType::Evaluation, c.e};
         return os;
     }
 
@@ -1037,7 +1043,6 @@ public:
         return Precision2(Operator::FloatingAddition, dst, src1, src2);
     }
 
-
     constexpr static Precision2 FAdd(Operand dst, Operand src1, Operand src2, Operand eval) {
         return Precision2(Operator::FloatingAddition, dst, src1, src2, eval);
     }
@@ -1086,13 +1091,15 @@ public:
         return os;
     }
 
-    Operator op : CountOfOperatorBits;  ///< The specific precision operation to perform (e.g. fadd, fsub, fmul, fdiv, etc)
-    uint32_t dst : CountOfScratchIndexBits;  ///< Destination Scratch Register
+    Operator op
+        : CountOfOperatorBits;  ///< The specific precision operation to perform (e.g. fadd, fsub, fmul, fdiv, etc)
+    uint32_t dst : CountOfScratchIndexBits;   ///< Destination Scratch Register
     uint32_t src1 : CountOfScratchIndexBits;  ///< Source Scratch Register
     uint32_t src2 : CountOfScratchIndexBits;  ///< Source Scratch Register 2
     uint32_t eval : CountOfEvalIndexBits;     ///< Evaluation Register to check for conditional operation (if cond == 1)
     uint32_t cond : 1;                        ///< If == 1, then the operation
     uint32_t : CountOfDataBits - CountOfOperatorBits - (3 * CountOfScratchIndexBits) - CountOfEvalIndexBits - 1;
+
 protected:
     constexpr Precision2(Operator op, Operand dst, Operand src1, Operand src2)
         : op{op}, dst{dst.index}, src1{src1.index}, src2{src2.index}, eval{0}, cond{0} {
@@ -1110,9 +1117,11 @@ protected:
                                            && src2.type == static_cast<uint32_t>(OperandType::Scratch),
                                        __FILE__, __LINE__,
                                        "Precision2 instruction requires all operands to be Scratch registers");
-        basal::exception::throw_if(eval.type != static_cast<uint32_t>(OperandType::None)
-                                       && eval.type != static_cast<uint32_t>(OperandType::Evaluation), __FILE__,
-                                   __LINE__, "Precision2 instruction requires the evaluation operand to be either None or an Evaluation register");
+        basal::exception::throw_if(
+            eval.type != static_cast<uint32_t>(OperandType::None)
+                && eval.type != static_cast<uint32_t>(OperandType::Evaluation),
+            __FILE__, __LINE__,
+            "Precision2 instruction requires the evaluation operand to be either None or an Evaluation register");
     }
 };
 

@@ -161,11 +161,3 @@ cmp.f Sa, Sb : Ex                        - Floating Point compare a and b, set f
 ```
 
 ### Additional Functionality
-
-Locking and Unlocking with Hardware Mutexes:
-
-```asm
-lock L0
-test Ex, L0
-unlk L0
-```

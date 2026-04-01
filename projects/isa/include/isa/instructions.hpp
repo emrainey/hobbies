@@ -412,12 +412,16 @@ struct Load {
 struct Save {
     using ImmediateType = isa::Immediate<14>;
     Save() = delete;
-    constexpr Save(Operand src, Operand base, ImmediateType imm, bool inc = false, bool off = false)
-        : op{Operator::Save}, src{src.index}, base{base.index}, inc{inc ? 1U : 0U}, off{off ? 1U : 0U}, imm{imm.value} {
+    constexpr Save(Operand src, Operand base, ImmediateType imm = ImmediateType{0}, bool inc_or_off = false)
+        : op{Operator::Save}, src{src.index}, base{base.index}, inc{inc_or_off ? 1U : 0U}, off{inc_or_off ? 0U : 1U}, imm{imm.value} {
+        if (imm.value == 0U) {
+            inc = 0U;
+            off = 0U;
+        }
     }
 
     friend std::ostream& operator<<(std::ostream& os, Save s) {
-        os << "store " << Operand{Operand::Type::Scratch, s.src} << ", " << Operand{Operand::Type::Scratch, s.base};
+        os << "save " << Operand{Operand::Type::Scratch, s.src} << ", " << Operand{Operand::Type::Scratch, s.base};
         if (s.inc) {
             os << " += " << s.imm;
         }

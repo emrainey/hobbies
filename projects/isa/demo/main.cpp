@@ -133,8 +133,13 @@ std::string FormatMemoryByte(Processor const& cpu, Address address) {
         return "--";
     }
 
+    // Memory is word-addressable internally; select the requested byte within that word.
+    constexpr uint32_t kBytesPerWord = sizeof(uint32_t);
+    const uint32_t byte_lane = static_cast<uint32_t>(address.value % kBytesPerWord);
+    const uint32_t byte_value = (value >> (byte_lane * 8U)) & 0xFFU;
+
     std::ostringstream stream;
-    stream << std::uppercase << std::hex << std::setfill('0') << std::setw(2) << (value & 0xFFU);
+    stream << std::uppercase << std::hex << std::setfill('0') << std::setw(2) << byte_value;
     return stream.str();
 }
 

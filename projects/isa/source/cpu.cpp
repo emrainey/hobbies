@@ -277,11 +277,12 @@ void Processor::Cycle() {
             }
             break;
         }
-        case isa::Operator::MoveImmediateToScratch:
-            scratch_[instruction.movis.dst] = instruction.movis.imm;
-            break;
-        case isa::Operator::MoveImmediateToEvaluation:
-            evaluation_[instruction.movie.dst].value = instruction.movie.imm & 0xFFU;
+        case isa::Operator::MoveImmediate:
+            if (instruction.movi.eval) {
+                evaluation_[instruction.movi.dst].value = instruction.movi.imm & 0xFFU;
+            } else {
+                scratch_[instruction.movi.dst] = instruction.movi.imm << (instruction.movi.upper ? 16U : 0U);
+            }
             break;
         case isa::Operator::Swap:
             if (instruction.swap.type == RegisterType::Scratch) {

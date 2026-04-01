@@ -163,7 +163,8 @@ struct Exception {
         return os;
     }
 };
-static_assert(sizeof(Exception) == sizeof(word<CountOfDataBits>), "Exception struct must be the size of a single word for efficient storage and manipulation");
+static_assert(sizeof(Exception) == sizeof(word<CountOfDataBits>),
+              "Exception struct must be the size of a single word for efficient storage and manipulation");
 
 struct VectorTable {
     /// The Initial Stack Address to be used by the user mode, which can be different from the main stack used by the

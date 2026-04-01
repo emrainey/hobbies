@@ -84,7 +84,7 @@ TEST_F(InstructionTest, CopyCopiesValueWithoutClearingSource) {
     cpu.GetScratch()[2].as_u32[0] = 0x22222222U;
 
     RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Copy{
-        isa::Operand{isa::OperandType::Scratch, 1}, isa::Operand{isa::OperandType::Scratch, 2}}});
+        isa::Operand{isa::Operand::Type::Scratch, 1}, isa::Operand{isa::Operand::Type::Scratch, 2}}});
 
     EXPECT_EQ(0x22222222U, cpu.ViewScratch()[1].as_u32[0]);
     EXPECT_EQ(0x22222222U, cpu.ViewScratch()[2].as_u32[0]);
@@ -96,23 +96,29 @@ TEST_F(InstructionTest, MoveCopiesScratchRegisterAndClearsSource) {
     cpu.GetScratch()[2].as_u32[0] = 0x12345678U;
 
     RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Move{
-        isa::Operand{isa::OperandType::Scratch, 1}, isa::Operand{isa::OperandType::Scratch, 2}}});
+        isa::Operand{isa::Operand::Type::Scratch, 1}, isa::Operand{isa::Operand::Type::Scratch, 2}}});
 
     EXPECT_EQ(0x12345678U, cpu.ViewScratch()[1].as_u32[0]);
     EXPECT_EQ(0U, cpu.ViewScratch()[2].as_u32[0]);
 }
 
 TEST_F(InstructionTest, MoveImmediateToScratchWritesDestination) {
-    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::MoveImmediateToScratch{
-        isa::Operand{isa::OperandType::Scratch, 1}, isa::Immediate<20>{0xABCDEU}}});
+    RunSingleInstruction(isa::instructions::Instruction{
+        isa::instructions::MoveImmediate{isa::Operand{isa::Operand::Type::Scratch, 1}, isa::Immediate<16>{0xABCDU}}});
 
-    EXPECT_EQ(0xABCDEU, cpu.ViewScratch()[1].as_u32[0]);
+    EXPECT_EQ(0xABCDU, cpu.ViewScratch()[1].as_u32[0]);
+}
+
+TEST_F(InstructionTest, MoveImmediateToScratchWritesDestination2) {
+    RunSingleInstruction(isa::instructions::Instruction{
+        isa::instructions::MoveImmediate{isa::Operand{isa::Operand::Type::Scratch, 1}, isa::Immediate<16>{0xABCDU}, true}});
+
+    EXPECT_EQ(0xABCD0000U, cpu.ViewScratch()[1].as_u32[0]);
 }
 
 TEST_F(InstructionTest, MoveImmediateToEvaluationWritesLowByte) {
-    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::MoveImmediateToEvaluation{
-        isa::Operand{isa::OperandType::Evaluation, 1},
-        isa::Immediate<isa::EvaluationTypeBits + isa::EvaluationFlagBits>{0xA5U}}});
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::MoveImmediate{
+        isa::Operand{isa::Operand::Type::Evaluation, 1}, isa::instructions::MoveImmediate::ImmediateType{0xA5U}}});
 
     EXPECT_EQ(0xA5U, cpu.ViewEvaluations()[1].value);
 }
@@ -122,7 +128,7 @@ TEST_F(InstructionTest, SwapExchangesScratchValues) {
     cpu.GetScratch()[2].as_u32[0] = 0x55555555U;
 
     RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Swap{
-        isa::Operand{isa::OperandType::Scratch, 1}, isa::Operand{isa::OperandType::Scratch, 2}}});
+        isa::Operand{isa::Operand::Type::Scratch, 1}, isa::Operand{isa::Operand::Type::Scratch, 2}}});
 
     EXPECT_EQ(0x55555555U, cpu.ViewScratch()[1].as_u32[0]);
     EXPECT_EQ(0xAAAAAAAAU, cpu.ViewScratch()[2].as_u32[0]);
@@ -134,7 +140,7 @@ TEST_F(InstructionTest, ZeroClearsMaskedScratchRegisters) {
     cpu.GetScratch()[2].as_u32[0] = 12U;
 
     RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Zero{
-        isa::Operand{isa::OperandType::Mask, isa::Immediate<16>{0b0111U}}, isa::RegisterType::Scratch}});
+        isa::Operand{isa::Operand::Type::Mask, isa::Immediate<16>{0b0111U}}, isa::RegisterType::Scratch}});
 
     EXPECT_EQ(0U, cpu.ViewScratch()[0].as_u32[0]);
     EXPECT_EQ(0U, cpu.ViewScratch()[1].as_u32[0]);
@@ -146,7 +152,7 @@ TEST_F(InstructionTest, LoadReadsMemoryIntoScratch) {
     cpu.GetScratch()[1].as_address = isa::Address{kDataAddress};
 
     RunSingleInstruction(isa::instructions::Instruction{
-        isa::instructions::Load{isa::Operand{isa::OperandType::Scratch, 2}, isa::Operand{isa::OperandType::Scratch, 1},
+        isa::instructions::Load{isa::Operand{isa::Operand::Type::Scratch, 2}, isa::Operand{isa::Operand::Type::Scratch, 1},
                                 isa::Immediate<14>{0U}}});
 
     EXPECT_EQ(0xCAFEBABEU, cpu.ViewScratch()[2].as_u32[0]);
@@ -157,7 +163,7 @@ TEST_F(InstructionTest, SaveWritesScratchToMemory) {
     cpu.GetScratch()[2].as_u32[0] = 0xDEADBEEFU;
 
     RunSingleInstruction(isa::instructions::Instruction{
-        isa::instructions::Save{isa::Operand{isa::OperandType::Scratch, 2}, isa::Operand{isa::OperandType::Scratch, 1},
+        isa::instructions::Save{isa::Operand{isa::Operand::Type::Scratch, 2}, isa::Operand{isa::Operand::Type::Scratch, 1},
                                 isa::Immediate<14>{0U}}});
 
     uint32_t saved = 0U;
@@ -169,7 +175,7 @@ TEST_F(InstructionTest, LeapJumpsToTargetAddress) {
     cpu.GetScratch()[1].as_address = isa::Address{0x10000180U};
 
     RunSingleInstruction(isa::instructions::Instruction{
-        isa::instructions::Leap{isa::Operand{isa::OperandType::Scratch, 1}, isa::SignedImmediate<10>{0}}});
+        isa::instructions::Leap{isa::Operand{isa::Operand::Type::Scratch, 1}, isa::SignedImmediate<10>{0}}});
 
     EXPECT_EQ(0x10000184U, cpu.ViewSpecial().program_address_.value);
 }
@@ -249,8 +255,8 @@ TEST_F(InstructionTest, CompareUpdatesEvaluationFlags) {
     cpu.GetScratch()[3].as_u32[0] = 9U;
 
     RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Compare{
-        isa::Operand{isa::OperandType::Evaluation, 0}, isa::Operand{isa::OperandType::Scratch, 2},
-        isa::Operand{isa::OperandType::Scratch, 3}, false}});
+        isa::Operand{isa::Operand::Type::Evaluation, 0}, isa::Operand{isa::Operand::Type::Scratch, 2},
+        isa::Operand{isa::Operand::Type::Scratch, 3}, false}});
 
     auto const cmp = cpu.ViewEvaluations()[0].comparison;
     EXPECT_EQ(1U, cmp.less_than);
@@ -264,8 +270,8 @@ TEST_F(InstructionTest, BitwiseAndWritesResult) {
     cpu.GetScratch()[3].as_u32[0] = 0xAAU;
 
     RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Bitwise2::And(
-        isa::Operand{isa::OperandType::Scratch, 1}, isa::Operand{isa::OperandType::Scratch, 2},
-        isa::Operand{isa::OperandType::Scratch, 3})});
+        isa::Operand{isa::Operand::Type::Scratch, 1}, isa::Operand{isa::Operand::Type::Scratch, 2},
+        isa::Operand{isa::Operand::Type::Scratch, 3})});
 
     EXPECT_EQ(0xA0U, cpu.ViewScratch()[1].as_u32[0]);
 }
@@ -275,8 +281,8 @@ TEST_F(InstructionTest, BitwiseOrWritesResult) {
     cpu.GetScratch()[3].as_u32[0] = 0x0FU;
 
     RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Bitwise2::Or(
-        isa::Operand{isa::OperandType::Scratch, 1}, isa::Operand{isa::OperandType::Scratch, 2},
-        isa::Operand{isa::OperandType::Scratch, 3})});
+        isa::Operand{isa::Operand::Type::Scratch, 1}, isa::Operand{isa::Operand::Type::Scratch, 2},
+        isa::Operand{isa::Operand::Type::Scratch, 3})});
 
     EXPECT_EQ(0xFFU, cpu.ViewScratch()[1].as_u32[0]);
 }
@@ -286,8 +292,8 @@ TEST_F(InstructionTest, BitwiseXorWritesResult) {
     cpu.GetScratch()[3].as_u32[0] = 0xAAU;
 
     RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Bitwise2::Xor(
-        isa::Operand{isa::OperandType::Scratch, 1}, isa::Operand{isa::OperandType::Scratch, 2},
-        isa::Operand{isa::OperandType::Scratch, 3})});
+        isa::Operand{isa::Operand::Type::Scratch, 1}, isa::Operand{isa::Operand::Type::Scratch, 2},
+        isa::Operand{isa::Operand::Type::Scratch, 3})});
 
     EXPECT_EQ(0x5AU, cpu.ViewScratch()[1].as_u32[0]);
 }
@@ -296,7 +302,7 @@ TEST_F(InstructionTest, BitwiseComplementWritesResult) {
     cpu.GetScratch()[2].as_u32[0] = 0x00000000U;
 
     RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Bitwise1::Complement(
-        isa::Operand{isa::OperandType::Scratch, 1}, isa::Operand{isa::OperandType::Scratch, 2})});
+        isa::Operand{isa::Operand::Type::Scratch, 1}, isa::Operand{isa::Operand::Type::Scratch, 2})});
 
     EXPECT_EQ(0xFFFFFFFFU, cpu.ViewScratch()[1].as_u32[0]);
 }
@@ -305,8 +311,8 @@ TEST_F(InstructionTest, BitwiseRightShiftWritesResult) {
     cpu.GetScratch()[2].as_u32[0] = 0x80U;
 
     RunSingleInstruction(isa::instructions::Instruction{
-        isa::instructions::Bitwise1::Rsh(isa::Operand{isa::OperandType::Scratch, 1},
-                                         isa::Operand{isa::OperandType::Scratch, 2}, isa::Immediate<5>{2U})});
+        isa::instructions::Bitwise1::Rsh(isa::Operand{isa::Operand::Type::Scratch, 1},
+                                         isa::Operand{isa::Operand::Type::Scratch, 2}, isa::Immediate<5>{2U})});
 
     EXPECT_EQ(0x20U, cpu.ViewScratch()[1].as_u32[0]);
 }
@@ -315,8 +321,8 @@ TEST_F(InstructionTest, BitwiseLeftShiftWritesResult) {
     cpu.GetScratch()[2].as_u32[0] = 0x11U;
 
     RunSingleInstruction(isa::instructions::Instruction{
-        isa::instructions::Bitwise1::Lsh(isa::Operand{isa::OperandType::Scratch, 1},
-                                         isa::Operand{isa::OperandType::Scratch, 2}, isa::Immediate<5>{3U})});
+        isa::instructions::Bitwise1::Lsh(isa::Operand{isa::Operand::Type::Scratch, 1},
+                                         isa::Operand{isa::Operand::Type::Scratch, 2}, isa::Immediate<5>{3U})});
 
     EXPECT_EQ(0x88U, cpu.ViewScratch()[1].as_u32[0]);
 }
@@ -325,7 +331,7 @@ TEST_F(InstructionTest, BitwiseCountOnesWritesResult) {
     cpu.GetScratch()[2].as_u32[0] = 0b10110100U;
 
     RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Bitwise1::Count(
-        isa::Operand{isa::OperandType::Scratch, 1}, isa::Operand{isa::OperandType::Scratch, 2})});
+        isa::Operand{isa::Operand::Type::Scratch, 1}, isa::Operand{isa::Operand::Type::Scratch, 2})});
 
     EXPECT_EQ(4U, cpu.ViewScratch()[1].as_u32[0]);
 }
@@ -334,7 +340,7 @@ TEST_F(InstructionTest, BitwiseCountLeadingZerosWritesResult) {
     cpu.GetScratch()[2].as_u32[0] = 0x00FF0000U;
 
     RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Bitwise1::LeadingZeros(
-        isa::Operand{isa::OperandType::Scratch, 1}, isa::Operand{isa::OperandType::Scratch, 2})});
+        isa::Operand{isa::Operand::Type::Scratch, 1}, isa::Operand{isa::Operand::Type::Scratch, 2})});
 
     EXPECT_EQ(8U, cpu.ViewScratch()[1].as_u32[0]);
 }
@@ -344,8 +350,8 @@ TEST_F(InstructionTest, ArithmeticAdditionWritesResult) {
     cpu.GetScratch()[3].as_u32[0] = 30U;
 
     RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Arithmetic::Addu(
-        isa::Operand{isa::OperandType::Scratch, 1}, isa::Operand{isa::OperandType::Scratch, 2},
-        isa::Operand{isa::OperandType::Scratch, 3})});
+        isa::Operand{isa::Operand::Type::Scratch, 1}, isa::Operand{isa::Operand::Type::Scratch, 2},
+        isa::Operand{isa::Operand::Type::Scratch, 3})});
 
     EXPECT_EQ(42U, cpu.ViewScratch()[1].as_u32[0]);
 }
@@ -355,8 +361,8 @@ TEST_F(InstructionTest, ArithmeticSubtractionWritesResult) {
     cpu.GetScratch()[3].as_u32[0] = 2U;
 
     RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Arithmetic::Subu(
-        isa::Operand{isa::OperandType::Scratch, 1}, isa::Operand{isa::OperandType::Scratch, 2},
-        isa::Operand{isa::OperandType::Scratch, 3})});
+        isa::Operand{isa::Operand::Type::Scratch, 1}, isa::Operand{isa::Operand::Type::Scratch, 2},
+        isa::Operand{isa::Operand::Type::Scratch, 3})});
 
     EXPECT_EQ(38U, cpu.ViewScratch()[1].as_u32[0]);
 }
@@ -366,8 +372,8 @@ TEST_F(InstructionTest, ArithmeticMultiplyWritesResult) {
     cpu.GetScratch()[3].as_u32[0] = 7U;
 
     RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Arithmetic::Mulu(
-        isa::Operand{isa::OperandType::Scratch, 1}, isa::Operand{isa::OperandType::Scratch, 2},
-        isa::Operand{isa::OperandType::Scratch, 3})});
+        isa::Operand{isa::Operand::Type::Scratch, 1}, isa::Operand{isa::Operand::Type::Scratch, 2},
+        isa::Operand{isa::Operand::Type::Scratch, 3})});
 
     EXPECT_EQ(42U, cpu.ViewScratch()[1].as_u32[0]);
 }
@@ -377,8 +383,8 @@ TEST_F(InstructionTest, ArithmeticDivideWritesResult) {
     cpu.GetScratch()[3].as_u32[0] = 2U;
 
     RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Arithmetic::Divu(
-        isa::Operand{isa::OperandType::Scratch, 1}, isa::Operand{isa::OperandType::Scratch, 2},
-        isa::Operand{isa::OperandType::Scratch, 3})});
+        isa::Operand{isa::Operand::Type::Scratch, 1}, isa::Operand{isa::Operand::Type::Scratch, 2},
+        isa::Operand{isa::Operand::Type::Scratch, 3})});
 
     EXPECT_EQ(42U, cpu.ViewScratch()[1].as_u32[0]);
 }
@@ -388,8 +394,8 @@ TEST_F(InstructionTest, ArithmeticModuloWritesResult) {
     cpu.GetScratch()[3].as_u32[0] = 43U;
 
     RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Arithmetic::Modu(
-        isa::Operand{isa::OperandType::Scratch, 1}, isa::Operand{isa::OperandType::Scratch, 2},
-        isa::Operand{isa::OperandType::Scratch, 3})});
+        isa::Operand{isa::Operand::Type::Scratch, 1}, isa::Operand{isa::Operand::Type::Scratch, 2},
+        isa::Operand{isa::Operand::Type::Scratch, 3})});
 
     EXPECT_EQ(42U, cpu.ViewScratch()[1].as_u32[0]);
 }
@@ -398,7 +404,7 @@ TEST_F(InstructionTest, FloatingAbsWritesAbsoluteValue) {
     cpu.GetScratch()[2].as_float[0] = -3.25F;
 
     RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Precision1::FAbs(
-        isa::Operand{isa::OperandType::Scratch, 1}, isa::Operand{isa::OperandType::Scratch, 2})});
+        isa::Operand{isa::Operand::Type::Scratch, 1}, isa::Operand{isa::Operand::Type::Scratch, 2})});
 
     EXPECT_FLOAT_EQ(3.25F, cpu.ViewScratch()[1].as_float[0]);
 }
@@ -407,7 +413,7 @@ TEST_F(InstructionTest, FloatingNegateWritesNegatedValue) {
     cpu.GetScratch()[2].as_float[0] = 6.5F;
 
     RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Precision1::FNeg(
-        isa::Operand{isa::OperandType::Scratch, 1}, isa::Operand{isa::OperandType::Scratch, 2})});
+        isa::Operand{isa::Operand::Type::Scratch, 1}, isa::Operand{isa::Operand::Type::Scratch, 2})});
 
     EXPECT_FLOAT_EQ(-6.5F, cpu.ViewScratch()[1].as_float[0]);
 }
@@ -416,7 +422,7 @@ TEST_F(InstructionTest, FloatingFloorWritesFlooredValue) {
     cpu.GetScratch()[2].as_float[0] = 3.75F;
 
     RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Precision1::Floor(
-        isa::Operand{isa::OperandType::Scratch, 1}, isa::Operand{isa::OperandType::Scratch, 2})});
+        isa::Operand{isa::Operand::Type::Scratch, 1}, isa::Operand{isa::Operand::Type::Scratch, 2})});
 
     EXPECT_FLOAT_EQ(3.0F, cpu.ViewScratch()[1].as_float[0]);
 }
@@ -425,7 +431,7 @@ TEST_F(InstructionTest, FloatingCeilWritesCeiledValue) {
     cpu.GetScratch()[2].as_float[0] = 3.25F;
 
     RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Precision1::Ceil(
-        isa::Operand{isa::OperandType::Scratch, 1}, isa::Operand{isa::OperandType::Scratch, 2})});
+        isa::Operand{isa::Operand::Type::Scratch, 1}, isa::Operand{isa::Operand::Type::Scratch, 2})});
 
     EXPECT_FLOAT_EQ(4.0F, cpu.ViewScratch()[1].as_float[0]);
 }
@@ -434,7 +440,7 @@ TEST_F(InstructionTest, FloatingFractionalWritesFractionalPart) {
     cpu.GetScratch()[2].as_float[0] = 3.75F;
 
     RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Precision1::Fractional(
-        isa::Operand{isa::OperandType::Scratch, 1}, isa::Operand{isa::OperandType::Scratch, 2})});
+        isa::Operand{isa::Operand::Type::Scratch, 1}, isa::Operand{isa::Operand::Type::Scratch, 2})});
 
     EXPECT_FLOAT_EQ(0.75F, cpu.ViewScratch()[1].as_float[0]);
 }
@@ -444,8 +450,8 @@ TEST_F(InstructionTest, FloatingAdditionWritesSum) {
     cpu.GetScratch()[3].as_float[0] = 2.25F;
 
     RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Precision2::FAdd(
-        isa::Operand{isa::OperandType::Scratch, 1}, isa::Operand{isa::OperandType::Scratch, 2},
-        isa::Operand{isa::OperandType::Scratch, 3})});
+        isa::Operand{isa::Operand::Type::Scratch, 1}, isa::Operand{isa::Operand::Type::Scratch, 2},
+        isa::Operand{isa::Operand::Type::Scratch, 3})});
 
     EXPECT_FLOAT_EQ(3.75F, cpu.ViewScratch()[1].as_float[0]);
 }
@@ -455,8 +461,8 @@ TEST_F(InstructionTest, FloatingSubtractionWritesDifference) {
     cpu.GetScratch()[3].as_float[0] = 1.5F;
 
     RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Precision2::FSub(
-        isa::Operand{isa::OperandType::Scratch, 1}, isa::Operand{isa::OperandType::Scratch, 2},
-        isa::Operand{isa::OperandType::Scratch, 3})});
+        isa::Operand{isa::Operand::Type::Scratch, 1}, isa::Operand{isa::Operand::Type::Scratch, 2},
+        isa::Operand{isa::Operand::Type::Scratch, 3})});
 
     EXPECT_FLOAT_EQ(3.5F, cpu.ViewScratch()[1].as_float[0]);
 }
@@ -466,8 +472,8 @@ TEST_F(InstructionTest, FloatingMultiplicationWritesProduct) {
     cpu.GetScratch()[3].as_float[0] = 3.0F;
 
     RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Precision2::FMul(
-        isa::Operand{isa::OperandType::Scratch, 1}, isa::Operand{isa::OperandType::Scratch, 2},
-        isa::Operand{isa::OperandType::Scratch, 3})});
+        isa::Operand{isa::Operand::Type::Scratch, 1}, isa::Operand{isa::Operand::Type::Scratch, 2},
+        isa::Operand{isa::Operand::Type::Scratch, 3})});
 
     EXPECT_FLOAT_EQ(7.5F, cpu.ViewScratch()[1].as_float[0]);
 }
@@ -477,8 +483,8 @@ TEST_F(InstructionTest, FloatingDivisionWritesQuotient) {
     cpu.GetScratch()[3].as_float[0] = 2.5F;
 
     RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Precision2::FDiv(
-        isa::Operand{isa::OperandType::Scratch, 1}, isa::Operand{isa::OperandType::Scratch, 2},
-        isa::Operand{isa::OperandType::Scratch, 3})});
+        isa::Operand{isa::Operand::Type::Scratch, 1}, isa::Operand{isa::Operand::Type::Scratch, 2},
+        isa::Operand{isa::Operand::Type::Scratch, 3})});
 
     EXPECT_FLOAT_EQ(3.0F, cpu.ViewScratch()[1].as_float[0]);
 }

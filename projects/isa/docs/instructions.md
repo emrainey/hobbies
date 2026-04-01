@@ -154,10 +154,14 @@ fcvt.f Sd, Ss : Ex                       - d = float(s)
 
 ### Comparisons
 
+The Comparison instruction sets flags related to the type of comparison being performed. The flags are stored in the evaluation register of the given index. There are three types of comparisons:
+
+* Logical compare which sets flags based on the result of a bitwise comparison of the two operands (e.g., equal, not equal, less than, greater than, etc.).
+* Arithmetic compare which sets flags based on the result of an arithmetic comparison of the two operands (e.g., zero, overflow, underflow, etc.).
+* Floating point compare which sets flags based on the result of a floating point comparison of the two operands (e.g., zero, overflow, underflow, etc.).
+
 ```asm
 cmp.l Sa, Sb : Ex                        - Comparison of a and b, set flags in Ex
 cmp.a Sa, Sb : Ex                        - Arithmetic compare a and b, set flags in Ex (zero, overflow, underflow)
 cmp.f Sa, Sb : Ex                        - Floating Point compare a and b, set flags in Ex
 ```
-
-### Additional Functionality

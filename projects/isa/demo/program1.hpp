@@ -5,42 +5,46 @@ namespace isa {
 
 using namespace instructions;
 
+// === Some helper aliases to make writing programs easier in C++
+
+using Op = Operand;
+
+constexpr static auto E = Operand::Type::Evaluation;
+constexpr static auto S = Operand::Type::Scratch;
+constexpr static auto M = Operand::Type::Mask;
+
+template <size_t BITS>
+using imm = Immediate<BITS>;
+
+// === Example Program ===
+
 program program1 = {
-    Instruction{Zero{Operand{OperandType::Mask, Immediate<16>{0xFFFFU}}, RegisterType::Scratch}},
-    Instruction{Zero{Operand{OperandType::Mask, Immediate<16>{0xFFFFU}}, RegisterType::Evaluation}},
-    Instruction{NoOp{}},
-    Instruction{MoveImmediateToScratch{Operand{OperandType::Scratch, 0}, Immediate<20>{0xAAAAA}}},
-    Instruction{Move{Operand{OperandType::Scratch, 1}, Operand{OperandType::Scratch, 0}, true, Move::ImmediateType{4}}},
-    Instruction{MoveImmediateToScratch{Operand{OperandType::Scratch, 0}, Immediate<20>{0x33333}}},
-    Instruction{MoveImmediateToScratch{Operand{OperandType::Scratch, 3}, Immediate<20>{0x55555}}},
-    Instruction{MoveImmediateToScratch{Operand{OperandType::Scratch, 5}, Immediate<20>{0xCCCCC}}},
-    Instruction{Bitwise1::Count(Operand{OperandType::Scratch, 7}, Operand{OperandType::Scratch, 0})},
-    Instruction{Bitwise2::And(Operand{OperandType::Scratch, 7}, Operand{OperandType::Scratch, 1},
-                              Operand{OperandType::Scratch, 3})},
-    Instruction{Bitwise2::Or(Operand{OperandType::Scratch, 8}, Operand{OperandType::Scratch, 1},
-                             Operand{OperandType::Scratch, 3})},
-    Instruction{Bitwise2::Xor(Operand{OperandType::Scratch, 9}, Operand{OperandType::Scratch, 1},
-                              Operand{OperandType::Scratch, 3})},
-    Instruction{Swap{Operand{OperandType::Scratch, 0}, Operand{OperandType::Scratch, 4}}},
-    Instruction{Compare{Operand{OperandType::Evaluation, 0}, Operand{OperandType::Scratch, 0},
-                        Operand{OperandType::Scratch, 3}}},
-    Instruction{Compare{Operand{OperandType::Evaluation, 1}, Operand{OperandType::Scratch, 1},
-                        Operand{OperandType::Scratch, 3}}},
-    Instruction{Compare{Operand{OperandType::Evaluation, 2}, Operand{OperandType::Scratch, 3},
-                        Operand{OperandType::Scratch, 5}}},
-    Instruction{Compare{Operand{OperandType::Evaluation, 3}, Operand{OperandType::Scratch, 1},
-                        Operand{OperandType::Scratch, 4}}},
-    Instruction{Swap{Operand{OperandType::Evaluation, 0}, Operand{OperandType::Evaluation, 4}}},
-    Instruction{
-        MoveImmediateToEvaluation{Operand{OperandType::Evaluation, 5}, MoveImmediateToEvaluation::ImmediateType{0xFF}}},
-    Instruction{
-        MoveImmediateToEvaluation{Operand{OperandType::Evaluation, 6}, ComparisonEvaluation{true, false, false, true}}},
-    Instruction{Leap{Operand{OperandType::Scratch, 0}, Leap::ImmediateType{0x2}, true}},
-    Instruction{Load{Operand{OperandType::Scratch, 2}, Operand{OperandType::Scratch, 0}, Load::ImmediateType{0x10},
-                     true, false}},
-    Instruction{Save{Operand{OperandType::Scratch, 2}, Operand{OperandType::Scratch, 0}, Save::ImmediateType{0x20},
-                     true, false}},
-    Instruction{Halt{}},
+    Zero{Op{M, imm<16>{0xFFFFU}}, RegisterType::Scratch},
+    Zero{Op{M, imm<16>{0xFFFFU}}, RegisterType::Evaluation},
+    NoOp{},
+    MoveImmediate{Op{S, 0}, imm<16>{0xAAAA}},
+    MoveImmediate{Op{S, 1}, imm<16>{0xAAAA}, true},
+    Bitwise2::Or(Op{S, 0}, Op{S, 0}, Op{S, 1}),
+    Move{Op{S, 1}, Op{S, 0}, true, Move::ImmediateType{4}},
+    MoveImmediate{Op{S, 0}, imm<16>{0x3333}},
+    MoveImmediate{Op{S, 3}, imm<16>{0x5555}},
+    MoveImmediate{Op{S, 5}, imm<16>{0xCCCC}},
+    Bitwise1::Count(Op{S, 7}, Op{S, 0}),
+    Bitwise2::And(Op{S, 7}, Op{S, 1}, Op{S, 3}),
+    Bitwise2::Or(Op{S, 8}, Op{S, 1}, Op{S, 3}),
+    Bitwise2::Xor(Op{S, 9}, Op{S, 1}, Op{S, 3}),
+    Swap{Op{S, 0}, Op{S, 4}},
+    Compare{Op{E, 0}, Op{S, 0}, Op{S, 3}},
+    Compare{Op{E, 1}, Op{S, 1}, Op{S, 3}},
+    Compare{Op{E, 2}, Op{S, 3}, Op{S, 5}},
+    Compare{Op{E, 3}, Op{S, 1}, Op{S, 4}},
+    Swap{Op{E, 0}, Op{E, 4}},
+    MoveImmediate{Op{E, 5}, imm<16>{0xFF}},
+    MoveImmediate{Op{E, 6}, ComparisonEvaluation{true, false, false, true}},
+    Leap{Op{S, 0}, Leap::ImmediateType{0x2}, true},
+    Load{Op{S, 2}, Op{S, 0}, Load::ImmediateType{0x10}, true, false},
+    Save{Op{S, 2}, Op{S, 0}, Save::ImmediateType{0x20}, true, false},
+    Halt{},
 };
 
 }  // namespace isa

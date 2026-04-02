@@ -385,6 +385,14 @@ void Processor::Cycle() {
             break;
         }
         case isa::Operator::Leap: {
+            if ((instruction.raw & isa::ImmediateLeapBitMask) != 0U) {
+                if ((instruction.raw & isa::ImmediateLeapSaveBitMask) != 0U) {
+                    special_.return_address_ = special_.program_address_ + sizeof(instructions::Instruction);
+                }
+                special_.program_address_ = Address{instruction.raw & isa::ImmediateLeapAddressMask};
+                break;
+            }
+
             const auto& leap = instruction.leap;
             bool allowed = true;  // default to allowed
             if (leap.cond) {

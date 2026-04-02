@@ -14,70 +14,74 @@ namespace isa {
 enum class Operator : uint32_t {
     None = 0,  ///< noop
     // === Movement within Files ===
-    Copy,           ///< copy scratchDestination, scratchSource
-    Move,           ///< move scratchDestination, scratchSource, Source = 0
-    MoveImmediate,  ///< move immediate to scratch/evaluation register
-    Swap,           ///< swap scratchRegisterA, scratchRegisterB; reg_type (0=scratch, 1=evaluation)
-    Zero,           ///< clear registers using mask; reg_type (0=scratch, 1=evaluation)
+    Copy = 0x04U,           ///< copy scratchDestination, scratchSource
+    Move = 0x08U,           ///< move scratchDestination, scratchSource, Source = 0
+    MoveImmediate = 0x0CU,  ///< move immediate to scratch/evaluation register
+    Swap = 0x10U,           ///< swap scratchRegisterA, scratchRegisterB; reg_type (0=scratch, 1=evaluation)
+    Zero = 0x14U,           ///< clear registers using mask; reg_type (0=scratch, 1=evaluation)
     // === Special Register Manipulation ===
-    Leap,  ///< leap to address in scratch with optional immediate offset and condition
-    Back,  ///< back from subroutine to address in Return Address Special Register
-    Grow,  ///< grow #imm<16> (mask of scratch)
-    Undo,  ///< undo #imm<16> (mask of scratch)
-    Call,  ///< call #imm<16> (System Call Number)
-    Trip,  ///< Trip #imm<16> (Trip an exception with the given exception type encoded in the immediate value. This can
-           ///< be used to test triggering interrupts)
+    Leap = 0x18U,  ///< leap to address in scratch with optional immediate offset and condition
+    Back = 0x1CU,  ///< back from subroutine to address in Return Address Special Register
+    Grow = 0x20U,  ///< grow #imm<16> (mask of scratch)
+    Undo = 0x24U,  ///< undo #imm<16> (mask of scratch)
+    Call = 0x28U,  ///< call #imm<16> (System Call Number)
+    Trip = 0x2CU,  ///< Trip #imm<16> (Trip an exception with the given exception type encoded in the immediate value.
+                   ///< This can be used to test triggering interrupts)
     // === Memory Operations ===
-    Load,  ///< load scratchDestination, scratchAddress
-    Save,  ///< store scratchSource, scratchAddress
+    Load = 0x30U,  ///< load scratchDestination, scratchAddress
+    Save = 0x34U,  ///< store scratchSource, scratchAddress
     // === Comparison ===
-    Compare,  ///< Compare scratchA, scratchB
+    Compare = 0x38U,  ///< Compare scratchA, scratchB
     // === Bit Operators ===
     // 1 arg
-    Complement,  ///< bcmpl scratchDestination, scratchSource
-    Rsh,         ///< brsh scratchDestination, scratchSource, #imm<5>
-    Asr,         ///< basr scratchDestination, scratchSource, #imm<5>
-    Lsh,         ///< blsh scratchDestination, scratchSource, #imm<5>
-    Rotate,      ///< brot scratchDestination, scratchSource, #imm<5>
-    Count1s,     ///< bcnt scratchDestination, scratchSource
-    CountL0s,    ///< bcnz scratchDestination, scratchSource
-    Not,         ///< bnot scratchDestination, scratchSource
-    SetBit,      ///< bset scratchDestination, scratchSource, #imm<5>
-    ClearBit,    ///< bclr scratchDestination, scratchSource, #imm<5>
-    ToggleBit,   ///< btgl scratchDestination, scratchSource, #imm<5>
-    Reverse,  ///< brev scratchDestination, scratchSource, #imm<5> (but limited to 0 = bytes, 1 = half-words, 2 = words)
+    Complement = 0x3CU,  ///< bcmpl scratchDestination, scratchSource
+    Rsh = 0x40U,         ///< brsh scratchDestination, scratchSource, #imm<5>
+    Asr = 0x44U,         ///< basr scratchDestination, scratchSource, #imm<5>
+    Lsh = 0x48U,         ///< blsh scratchDestination, scratchSource, #imm<5>
+    Rotate = 0x4CU,      ///< brot scratchDestination, scratchSource, #imm<5>
+    Count1s = 0x50U,     ///< bcnt scratchDestination, scratchSource
+    CountL0s = 0x54U,    ///< bcnz scratchDestination, scratchSource
+    Not = 0x58U,         ///< bnot scratchDestination, scratchSource
+    SetBit = 0x5CU,      ///< bset scratchDestination, scratchSource, #imm<5>
+    ClearBit = 0x60U,    ///< bclr scratchDestination, scratchSource, #imm<5>
+    ToggleBit = 0x64U,   ///< btgl scratchDestination, scratchSource, #imm<5>
+    Reverse = 0x68U,  ///< brev scratchDestination, scratchSource, #imm<5> (but limited to 0 = bytes, 1 = half-words, 2
+                      ///< = words)
     // 2 arg
-    And,  ///< band scratchDestination, scratchSource, scratchSource
-    Or,   ///< borr scratchDestination, scratchSource, scratchSource
-    Xor,  ///< bxor scratchDestination, scratchSource, scratchSource
+    And = 0x6CU,  ///< band scratchDestination, scratchSource, scratchSource
+    Or = 0x70U,   ///< borr scratchDestination, scratchSource, scratchSource
+    Xor = 0x74U,  ///< bxor scratchDestination, scratchSource, scratchSource
 
     // === Arithmetic (Integer) ===
-    Addition,  ///< add{s/u}.{type}{size} Sd, Sa, Sb : Es
-    Subtract,  ///< sub{s/u}.{type}{size} Sd, Sa, Sb : Es
-    Multiply,  ///< mul{s/u}.{type}{size} Sd, Sa, Sb : Es
-    Divide,    ///< div{s/u}.{type}{size} Sd, Sa, Sb : Es
-    Modulo,    ///< mod{s/u}.{type}{size} Sd, Sa, Sb : Es
+    Addition = 0x78U,  ///< add{s/u}.{type}{size} Sd, Sa, Sb : Es
+    Subtract = 0x7CU,  ///< sub{s/u}.{type}{size} Sd, Sa, Sb : Es
+    Multiply = 0x80U,  ///< mul{s/u}.{type}{size} Sd, Sa, Sb : Es
+    Divide = 0x84U,    ///< div{s/u}.{type}{size} Sd, Sa, Sb : Es
+    Modulo = 0x88U,    ///< mod{s/u}.{type}{size} Sd, Sa, Sb : Es
 
     // === ALU (Precision) ===
     // 1 arg
-    FloatingFloor,       ///< fflr scratchDestination, scratchSource
-    FloatingCeil,        ///< fcel scratchDestination, scratchSource
-    FloatingAbs,         ///< fabs scratchDestination, scratchSource
-    FloatingNegate,      ///< fneg scratchDestination, scratchSource
-    FloatingFractional,  ///< ffrc scratchDestination, scratchSource
-    FloatingConvert,     ///< fcvts{type}{size} scratchDestination, scratchSource
+    FloatingFloor = 0x8CU,       ///< fflr scratchDestination, scratchSource
+    FloatingCeil = 0x90U,        ///< fcel scratchDestination, scratchSource
+    FloatingAbs = 0x94U,         ///< fabs scratchDestination, scratchSource
+    FloatingNegate = 0x98U,      ///< fneg scratchDestination, scratchSource
+    FloatingFractional = 0x9CU,  ///< ffrc scratchDestination, scratchSource
+    FloatingConvert = 0xA0U,     ///< fcvts{type}{size} scratchDestination, scratchSource
     // 2 arg
-    FloatingAddition,        ///< fadd scratchDestination, scratchSource, scratchSource -> Overflow or Underflow
-    FloatingSubtraction,     ///< fsub scratchDestination, scratchSource, scratchSource -> Overflow or Underflow
-    FloatingMultiplication,  ///< fmul scratchDestination, scratchSource, scratchSource -> Overflow or Underflow
-    FloatingDivision,        ///< fdiv scratchDestination, scratchSource, scratchSource -> Fault if scratchSource == 0
+    FloatingAddition = 0xA4U,        ///< fadd scratchDestination, scratchSource, scratchSource -> Overflow or Underflow
+    FloatingSubtraction = 0xA8U,     ///< fsub scratchDestination, scratchSource, scratchSource -> Overflow or Underflow
+    FloatingMultiplication = 0xACU,  ///< fmul scratchDestination, scratchSource, scratchSource -> Overflow or Underflow
+    FloatingDivision = 0xB0U,  ///< fdiv scratchDestination, scratchSource, scratchSource -> Fault if scratchSource == 0
 
     // === ALU (SIMD) ===
 
-    Halt = 0xFFU  ///< Halts the processor.
+    Halt = 0xFCU  ///< Halts the processor.
     // === NO INSTRUCTIONS PAST THIS POINT ===
 };
 constexpr size_t CountOfOperatorBits{8u};
+constexpr uint32_t ImmediateLeapBitMask{0x1U};
+constexpr uint32_t ImmediateLeapSaveBitMask{0x2U};
+constexpr uint32_t ImmediateLeapAddressMask{0xFFFF'FFFCU};
 
 enum class Size : uint32_t {
     Byte = 0,
@@ -137,6 +141,9 @@ public:
     Base& operator=(Base&&) = default;
 
     Operator operator()() const {
+        if ((to_underlying(op) & ImmediateLeapBitMask) != 0U) {
+            return Operator::Leap;
+        }
         return op;
     }
 
@@ -271,7 +278,8 @@ struct Move {
             os << (m.dir ? " >> " : " << ") << m.shift;
         }
         if (m.cond) {
-            os << " : " << Operand{Operand::Type::Evaluation, m.eval} << ", " << Operand{Operand::Type::Evaluation, m.mask};
+            os << " : " << Operand{Operand::Type::Evaluation, m.eval} << ", "
+               << Operand{Operand::Type::Evaluation, m.mask};
         }
         return os;
     }
@@ -314,15 +322,16 @@ struct MoveImmediate {
         basal::exception::throw_unless(dst.type == to_underlying(Operand::Type::Evaluation), __FILE__, __LINE__,
                                        "MoveImmediate instruction with ComparisonEvaluation value requires the "
                                        "destination operand to be an Evaluation register");
-        basal::exception::throw_if(dst.type == to_underlying(Operand::Type::Evaluation) and eval.value > 0xFFU, __FILE__,
-                                   __LINE__,
+        basal::exception::throw_if(dst.type == to_underlying(Operand::Type::Evaluation) and eval.value > 0xFFU,
+                                   __FILE__, __LINE__,
                                    "When moving a ComparisonEvaluation to an Evaluation register, the value must fit "
                                    "within 8 bits since Evaluation registers are only 8 bits");
     }
 
     friend std::ostream& operator<<(std::ostream& os, MoveImmediate mi) {
-        os << "move " << (mi.eval ? Operand{Operand::Type::Evaluation, mi.dst} : Operand{Operand::Type::Scratch, mi.dst})
-           << ", " << ImmediateType{mi.imm};
+        os << "move "
+           << (mi.eval ? Operand{Operand::Type::Evaluation, mi.dst} : Operand{Operand::Type::Scratch, mi.dst}) << ", "
+           << ImmediateType{mi.imm};
         if (mi.upper) {
             os << " << 16U";
         }
@@ -354,7 +363,8 @@ struct Swap {
     }
 
     friend std::ostream& operator<<(std::ostream& os, Swap s) {
-        Operand::Type register_type = s.type == RegisterType::Scratch ? Operand::Type::Scratch : Operand::Type::Evaluation;
+        Operand::Type register_type
+            = s.type == RegisterType::Scratch ? Operand::Type::Scratch : Operand::Type::Evaluation;
         os << "swap " << Operand{register_type, s.a} << ", " << Operand{register_type, s.b};
         return os;
     }
@@ -390,15 +400,18 @@ public:
     using ImmediateType = isa::Immediate<10>;
     Load() = delete;
 
-    constexpr static Load Byte(Operand src, Operand base, uint32_t shift, ImmediateType imm = ImmediateType{0}, bool inc_or_off = false) {
+    constexpr static Load Byte(Operand src, Operand base, uint32_t shift, ImmediateType imm = ImmediateType{0},
+                               bool inc_or_off = false) {
         return Load(src, base, shift, Size::Byte, imm, inc_or_off);
     }
 
-    constexpr static Load HalfWord(Operand src, Operand base, uint32_t shift, ImmediateType imm = ImmediateType{0}, bool inc_or_off = false) {
+    constexpr static Load HalfWord(Operand src, Operand base, uint32_t shift, ImmediateType imm = ImmediateType{0},
+                                   bool inc_or_off = false) {
         return Load(src, base, shift, Size::HalfWord, imm, inc_or_off);
     }
 
-    constexpr static Load Word(Operand src, Operand base, ImmediateType imm = ImmediateType{0}, bool inc_or_off = false) {
+    constexpr static Load Word(Operand src, Operand base, ImmediateType imm = ImmediateType{0},
+                               bool inc_or_off = false) {
         return Load(src, base, 0, Size::Word, imm, inc_or_off);
     }
 
@@ -435,20 +448,27 @@ public:
     Operator op : CountOfOperatorBits;
     uint32_t dst : CountOfScratchIndexBits;   ///< Destination Scratch Register
     uint32_t base : CountOfScratchIndexBits;  ///< Base Scratch Register containing the address
-    uint32_t : 1;  ///< Unused
+    uint32_t : 1;                             ///< Unused
     uint32_t off : 1;  ///< If set, the base scratch register will be used as an offset from a base address in a special
                        ///< register instead of an absolute address.
-    uint32_t shift: 2;
-    Size size : 2; ///< Size of the load (0 = byte, 1 = half-word, 2 = word)
+    uint32_t shift : 2;
+    Size size : 2;                       ///< Size of the load (0 = byte, 1 = half-word, 2 = word)
     uint32_t imm : ImmediateType::Bits;  ///< The immediate value of the offset or increment in bytes.
 protected:
-    constexpr Load(Operand dst, Operand base, uint32_t shift = 0, Size size = Size::Word, ImmediateType imm = ImmediateType{0}, bool inc_or_off = false)
-        : op{Operator::Load}, dst{dst.index}, base{base.index}, off{inc_or_off ? 0U : 1U}, shift{shift}, size{size}, imm{imm.value} {
+    constexpr Load(Operand dst, Operand base, uint32_t shift = 0, Size size = Size::Word,
+                   ImmediateType imm = ImmediateType{0}, bool inc_or_off = false)
+        : op{Operator::Load}
+        , dst{dst.index}
+        , base{base.index}
+        , off{inc_or_off ? 0U : 1U}
+        , shift{shift}
+        , size{size}
+        , imm{imm.value} {
         if (imm.value == 0U) {
             off = 0U;
         }
         basal::exception::throw_if(shift > 0 and size == Size::Word, __FILE__, __LINE__,
-                        "Shift values greater than 0 are only allowed for byte and half-word stores");
+                                   "Shift values greater than 0 are only allowed for byte and half-word stores");
         basal::exception::throw_if(shift > 1 and size == Size::HalfWord, __FILE__, __LINE__,
                                    "Shift values greater than 1 are only allowed for byte");
     }
@@ -459,15 +479,18 @@ public:
     using ImmediateType = isa::Immediate<10>;
     Save() = delete;
 
-    constexpr static Save Byte(Operand src, Operand base, uint32_t shift, ImmediateType imm = ImmediateType{0}, bool inc_or_off = false) {
+    constexpr static Save Byte(Operand src, Operand base, uint32_t shift, ImmediateType imm = ImmediateType{0},
+                               bool inc_or_off = false) {
         return Save(src, base, shift, Size::Byte, imm, inc_or_off);
     }
 
-    constexpr static Save HalfWord(Operand src, Operand base, uint32_t shift, ImmediateType imm = ImmediateType{0}, bool inc_or_off = false) {
+    constexpr static Save HalfWord(Operand src, Operand base, uint32_t shift, ImmediateType imm = ImmediateType{0},
+                                   bool inc_or_off = false) {
         return Save(src, base, shift, Size::HalfWord, imm, inc_or_off);
     }
 
-    constexpr static Save Word(Operand src, Operand base, ImmediateType imm = ImmediateType{0}, bool inc_or_off = false) {
+    constexpr static Save Word(Operand src, Operand base, ImmediateType imm = ImmediateType{0},
+                               bool inc_or_off = false) {
         return Save(src, base, 0, Size::Word, imm, inc_or_off);
     }
 
@@ -505,15 +528,22 @@ public:
     Operator op : CountOfOperatorBits;
     uint32_t src : CountOfScratchIndexBits;   ///< Source Scratch Register
     uint32_t base : CountOfScratchIndexBits;  ///< Base Scratch Register containing the address
-    uint32_t : 1; ///< Unused bit to allow for symmetry with Load instruction encoding
+    uint32_t : 1;                             ///< Unused bit to allow for symmetry with Load instruction encoding
     uint32_t off : 1;  ///< If set, the base scratch register will be used as an offset from a base address in a special
                        ///< register instead of an absolute address.
-    uint32_t shift: 2;
-    Size size : 2; ///< Size of the load (0 = byte, 1 = half-word, 2 = word)
+    uint32_t shift : 2;
+    Size size : 2;                       ///< Size of the load (0 = byte, 1 = half-word, 2 = word)
     uint32_t imm : ImmediateType::Bits;  ///< The immediate value of the offset or increment in bytes
 protected:
-    constexpr Save(Operand src, Operand base, uint32_t shift = 0, Size size = Size::Word, ImmediateType imm = ImmediateType{0}, bool inc_or_off = false)
-        : op{Operator::Save}, src{src.index}, base{base.index}, off{inc_or_off ? 0U : 1U}, shift{shift}, size{size}, imm{imm.value} {
+    constexpr Save(Operand src, Operand base, uint32_t shift = 0, Size size = Size::Word,
+                   ImmediateType imm = ImmediateType{0}, bool inc_or_off = false)
+        : op{Operator::Save}
+        , src{src.index}
+        , base{base.index}
+        , off{inc_or_off ? 0U : 1U}
+        , shift{shift}
+        , size{size}
+        , imm{imm.value} {
         if (imm.value == 0U) {
             off = 0U;
         }
@@ -522,7 +552,6 @@ protected:
         basal::exception::throw_if(shift > 1 and size == Size::HalfWord, __FILE__, __LINE__,
                                    "Shift values greater than 1 are only allowed for byte");
     }
-
 };
 
 /// The Leap Instruction
@@ -546,7 +575,8 @@ struct Leap {
         os << "leap ";
         os << Operand{Operand::Type::Scratch, j.dst} << " + (" << ImmediateType{j.imm} << " * 4)";
         if (j.cond) {
-            os << " : " << Operand{Operand::Type::Evaluation, j.eval} << ", " << Operand{Operand::Type::Evaluation, j.mask};
+            os << " : " << Operand{Operand::Type::Evaluation, j.eval} << ", "
+               << Operand{Operand::Type::Evaluation, j.mask};
         }
         return os;
     }
@@ -561,6 +591,28 @@ struct Leap {
     /// get a byte offset, since instructions are 4 bytes. This means that the relative leap range is +/- 2^12
     /// instructions, which should be sufficient for most use cases.
     int32_t imm : ImmediateType::Bits;
+};
+
+/// An absolute immediate leap encoded as a 30-bit aligned address and two LSB control bits.
+struct LeapImmediate {
+    LeapImmediate() = delete;
+    constexpr LeapImmediate(Address target, bool save = false)
+        : mode{save ? (ImmediateLeapBitMask | ImmediateLeapSaveBitMask) : ImmediateLeapBitMask}
+        , imm{target.value >> 2U} {
+        basal::exception::throw_if((target.value & 0x3U) != 0U, __FILE__, __LINE__,
+                                   "Immediate leap target address must be 4-byte aligned");
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, LeapImmediate j) {
+        os << "leap #" << Address{static_cast<Address::StorageType>(j.imm) << 2U};
+        if ((j.mode & ImmediateLeapSaveBitMask) != 0U) {
+            os << " (save)";
+        }
+        return os;
+    }
+
+    uint32_t mode : 2;  ///< b0=1 indicates immediate leap mode, b1=1 saves PA+4 into RA.
+    uint32_t imm : 30;  ///< Absolute aligned address, stored as address >> 2.
 };
 
 struct Back {
@@ -595,7 +647,8 @@ struct Grow {
     friend std::ostream& operator<<(std::ostream& os, Grow g) {
         os << "grow " << ImmediateType{g.imm};
         if (g.cond) {
-            os << " : " << Operand{Operand::Type::Evaluation, g.eval} << ", " << Operand{Operand::Type::Evaluation, g.mask};
+            os << " : " << Operand{Operand::Type::Evaluation, g.eval} << ", "
+               << Operand{Operand::Type::Evaluation, g.mask};
         }
         return os;
     }
@@ -624,7 +677,8 @@ struct Undo {
     friend std::ostream& operator<<(std::ostream& os, Undo u) {
         os << "undo " << ImmediateType{u.imm};
         if (u.cond) {
-            os << " : " << Operand{Operand::Type::Evaluation, u.eval} << ", " << Operand{Operand::Type::Evaluation, u.mask};
+            os << " : " << Operand{Operand::Type::Evaluation, u.eval} << ", "
+               << Operand{Operand::Type::Evaluation, u.mask};
         }
         return os;
     }
@@ -653,7 +707,8 @@ struct Call {
     friend std::ostream& operator<<(std::ostream& os, Call c) {
         os << "call " << ImmediateType{c.imm};
         if (c.cond) {
-            os << " : " << Operand{Operand::Type::Evaluation, c.eval} << ", " << Operand{Operand::Type::Evaluation, c.mask};
+            os << " : " << Operand{Operand::Type::Evaluation, c.eval} << ", "
+               << Operand{Operand::Type::Evaluation, c.mask};
         }
         return os;
     }
@@ -681,7 +736,8 @@ struct Trip {
     friend std::ostream& operator<<(std::ostream& os, Trip t) {
         os << "trip " << ImmediateType{t.imm};
         if (t.cond) {
-            os << " : " << Operand{Operand::Type::Evaluation, t.eval} << ", " << Operand{Operand::Type::Evaluation, t.mask};
+            os << " : " << Operand{Operand::Type::Evaluation, t.eval} << ", "
+               << Operand{Operand::Type::Evaluation, t.mask};
         }
         return os;
     }
@@ -1274,6 +1330,9 @@ union Instruction {
     /// Typed Constructor for Leap
     constexpr Instruction(Leap j) : leap{j} {
     }
+    /// Typed Constructor for Immediate Leap
+    constexpr Instruction(LeapImmediate j) : leapi{j} {
+    }
     /// Typed Constructor for Back
     constexpr Instruction(Back b) : back{b} {
     }
@@ -1320,6 +1379,7 @@ union Instruction {
     Load loads;             ///< Load from memory to scratch register
     Save save;              ///< Saves a value from scratch register to memory
     Leap leap;              ///< Leap to an address based on an evaluation and mask
+    LeapImmediate leapi;    ///< Absolute immediate leap with optional return address save
     Back back;              ///< Returns from a Leap
     Grow grow;              ///< Grow the memory by a number of pages specified in an evaluation register
     Undo undo;              ///< Undo the last memory growth
@@ -1352,7 +1412,11 @@ union Instruction {
         } else if (instr.base() == Operator::Save) {
             os << instr.save;
         } else if (instr.base() == Operator::Leap) {
-            os << instr.leap;
+            if ((instr.raw & ImmediateLeapBitMask) != 0U) {
+                os << instr.leapi;
+            } else {
+                os << instr.leap;
+            }
         } else if (instr.base() == Operator::Back) {
             os << instr.back;
         } else if (instr.base() == Operator::Grow) {

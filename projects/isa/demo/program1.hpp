@@ -16,6 +16,9 @@ constexpr static auto M = Operand::Type::Mask;
 template <size_t BITS>
 using imm = Immediate<BITS>;
 
+constexpr Address kProgramEntry = DefaultVectorTableAddress + sizeof(VectorTable);
+constexpr Address kImmediateLeapTarget = kProgramEntry + (30U * sizeof(Instruction));
+
 // === Example Program ===
 
 program program1 = {
@@ -26,9 +29,9 @@ program program1 = {
     MoveImmediate{Op{S, 0}, imm<16>{0xCCDD}},
     MoveImmediate{Op{S, 0}, imm<16>{0xAABB}, true},
     Move{Op{S, 1}, Op{S, 0}, true, Move::ImmediateType{4}},
-    MoveImmediate{Op{S, 0}, imm<16>{0x3333}},
+    MoveImmediate{Op{S, 0}, imm<16>{0x00D0}},
     MoveImmediate{Op{S, 1}, imm<16>{0x0010}, true},
-    Save::Word(Op{S, 1}, Op{S, 2}, Save::ImmediateType{0x00}),
+    Save::Word(Op{S, 0}, Op{S, 1}, Save::ImmediateType{0x10}),
     MoveImmediate{Op{S, 3}, imm<16>{0x5555}},
     MoveImmediate{Op{S, 5}, imm<16>{0xCCCC}},
     Bitwise1::Count(Op{S, 7}, Op{S, 0}),
@@ -49,6 +52,7 @@ program program1 = {
     Leap{Op{S, 9}, Leap::ImmediateType{0x2}, true},
     Load::Word(Op{S, 2}, Op{S, 0}, Load::ImmediateType{0x10}, true),
     Save::Word(Op{S, 2}, Op{S, 0}, Save::ImmediateType{0x20}, true),
+    LeapImmediate{kImmediateLeapTarget, false},
     Halt{},
 };
 

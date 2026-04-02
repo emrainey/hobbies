@@ -47,10 +47,19 @@ leap Es, Em, Sa                     - PA = Sa if (Es & Em) != 0, RA unchanged
 leap Sa                             - PA = Sa, RA = PA + 4 (todo: special case of copy?)
 leap Sa, #imm<16>                   - PA = Sa + offset (todo: special case of copy?)
 leap Es, Em, Sa                     - PA = Sa, RA = PA + 4 if (Es & Em) != 0
+leap #imm<30:2>                     - PA = #imm<30:2> << 2 (absolute immediate leap)
+leap.s #imm<30:2>                   - RA = PA + 4, PA = #imm<30:2> << 2 (save return address)
 back                                - PA = RA, RA = SAFE
 call #imm<16>                       - system call with code #imm<16>
 ```
 
+All non-immediate instructions reserve the two least-significant bits as `00`. Immediate leap uses those bits as mode
+flags:
+
+```cpp
+0bxxxx'xxxx'xxxx'xxxx'xxxx'xxxx'xxxx'xx01 - immediate leap
+0bxxxx'xxxx'xxxx'xxxx'xxxx'xxxx'xxxx'xx11 - immediate leap + save RA
+```
 
 ### Data Movement
 
@@ -70,7 +79,6 @@ Load and Save can both read/write to sub-word registers and specify an immediate
 load.b/h/w Sd <- Sa << #0,1,2,3, #imm<10>               - d = *(a + imm<10>)
 save.b/h/w Ss << #0,1,2,3 -> Ss, #imm<10>               - *(a + imm<10>) = s
 ```
-
 
 ### Stack Address
 
@@ -149,19 +157,3 @@ cmp.f Sa, Sb : Ex                        - Floating Point compare a and b, set f
 ```
 
 ### Future Instructions
-
-#### Absolute Leap
-
-```asm
-leap #imm<32>                       - PA = #imm<32>
-```
-
-With the limitation that the least two bits must be zero!
-
-This translates to an instruction word of:
-
-```c++
-0bxxxx'xxxx'xxxx'xxxx'xxxx'xxxx'xxxx'xx01 - leap #imm<32> (last 2 bits of imm must be zero)
-0bxxxx'xxxx'xxxx'xxxx'xxxx'xxxx'xxxx'xx11 = leap #imm<32> (last 2 bits of imm must be zero)
-//-------------------------------------^ set RA or not
-```

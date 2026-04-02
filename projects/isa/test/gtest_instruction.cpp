@@ -116,11 +116,10 @@ TEST_F(InstructionTest, MoveImmediateToScratchWritesDestination2) {
     EXPECT_EQ(0xABCD0000U, cpu.ViewScratch()[1].as_u32[0]);
 }
 
-
 TEST_F(InstructionTest, MoveImmediateToScratchWritesDestination3) {
     RunSingleInstruction(isa::instructions::Instruction{isa::instructions::MoveImmediate{
         isa::Operand{isa::Operand::Type::Scratch, 1}, isa::Immediate<16>{0xABCDU}, true}});
-   RunSingleInstruction(isa::instructions::Instruction{
+    RunSingleInstruction(isa::instructions::Instruction{
         isa::instructions::MoveImmediate{isa::Operand{isa::Operand::Type::Scratch, 1}, isa::Immediate<16>{0xEF89U}}});
 
     EXPECT_EQ(0xABCDEF89U, cpu.ViewScratch()[1].as_u32[0]);
@@ -263,6 +262,28 @@ TEST_F(InstructionTest, LeapJumpsToTargetAddress) {
         isa::instructions::Leap{isa::Operand{isa::Operand::Type::Scratch, 1}, isa::SignedImmediate<10>{0}}});
 
     EXPECT_EQ(0x10000184U, cpu.ViewSpecial().program_address_.value);
+}
+
+TEST_F(InstructionTest, StandardInstructionEncodingsReserveBottomTwoBits) {
+    const isa::instructions::Instruction instr{isa::instructions::Move{isa::Operand{isa::Operand::Type::Scratch, 1},
+                                                                       isa::Operand{isa::Operand::Type::Scratch, 2}}};
+    EXPECT_EQ(0U, instr.raw & 0x3U);
+}
+
+TEST_F(InstructionTest, ImmediateLeapJumpsToAbsoluteAddress) {
+    RunSingleInstruction(
+        isa::instructions::Instruction{isa::instructions::LeapImmediate{isa::Address{0x10000180U}, false}});
+
+    EXPECT_EQ(0x10000184U, cpu.ViewSpecial().program_address_.value);
+    EXPECT_EQ(kCodeAddress + 0x40U, cpu.ViewSpecial().return_address_.value);
+}
+
+TEST_F(InstructionTest, ImmediateLeapWithSaveStoresReturnAddress) {
+    RunSingleInstruction(
+        isa::instructions::Instruction{isa::instructions::LeapImmediate{isa::Address{0x100001C0U}, true}});
+
+    EXPECT_EQ(kCodeAddress + 4U, cpu.ViewSpecial().return_address_.value);
+    EXPECT_EQ(0x100001C4U, cpu.ViewSpecial().program_address_.value);
 }
 
 TEST_F(InstructionTest, BackJumpsToReturnAddress) {

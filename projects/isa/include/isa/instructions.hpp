@@ -79,9 +79,12 @@ enum class Operator : uint32_t {
 };
 constexpr size_t CountOfOperatorBits{8u};
 
-/// @section Calling_Convention Calling Conventions for Instructions
-/// A call
-
+enum class Size : uint32_t {
+    Byte = 0,
+    HalfWord = 1,
+    Word = 2,
+    DoubleWord = 3,
+};
 
 struct Operand {
     /// The type of the Operand
@@ -382,19 +385,49 @@ struct Zero {
     uint32_t : 7;
 };
 
-struct Load {
-    using ImmediateType = isa::Immediate<14>;
+class Load {
+public:
+    using ImmediateType = isa::Immediate<10>;
     Load() = delete;
-    constexpr Load(Operand dst, Operand base, ImmediateType imm, bool inc = false, bool off = false)
-        : op{Operator::Load}, dst{dst.index}, base{base.index}, inc{inc ? 1U : 0U}, off{off ? 1U : 0U}, imm{imm.value} {
+
+    constexpr static Load Byte(Operand src, Operand base, uint32_t shift, ImmediateType imm = ImmediateType{0}, bool inc_or_off = false) {
+        return Load(src, base, shift, Size::Byte, imm, inc_or_off);
     }
+
+    constexpr static Load HalfWord(Operand src, Operand base, uint32_t shift, ImmediateType imm = ImmediateType{0}, bool inc_or_off = false) {
+        return Load(src, base, shift, Size::HalfWord, imm, inc_or_off);
+    }
+
+    constexpr static Load Word(Operand src, Operand base, ImmediateType imm = ImmediateType{0}, bool inc_or_off = false) {
+        return Load(src, base, 0, Size::Word, imm, inc_or_off);
+    }
+
     friend std::ostream& operator<<(std::ostream& os, Load l) {
-        os << "load " << Operand{Operand::Type::Scratch, l.dst} << ", " << Operand{Operand::Type::Scratch, l.base};
-        if (l.inc) {
-            os << " += " << l.imm;
+        os << "load";
+        switch (Size(l.size)) {
+            case Size::Byte:
+                os << ".b ";
+                break;
+            case Size::HalfWord:
+                os << ".h ";
+                break;
+            case Size::Word:
+                os << ".w ";
+                break;
+            default:
+                os << ".? ";
+                break;
         }
-        if (l.off) {
-            os << " + " << l.imm;
+        os << Operand{Operand::Type::Scratch, l.dst} << " <- " << Operand{Operand::Type::Scratch, l.base};
+        if (l.shift > 0) {
+            os << " << " << l.shift;
+        }
+        if (l.imm > 0) {
+            if (l.off) {
+                os << " + " << l.imm;
+            } else {
+                os << " += " << l.imm;
+            }
         }
         return os;
     }
@@ -402,31 +435,69 @@ struct Load {
     Operator op : CountOfOperatorBits;
     uint32_t dst : CountOfScratchIndexBits;   ///< Destination Scratch Register
     uint32_t base : CountOfScratchIndexBits;  ///< Base Scratch Register containing the address
-    uint32_t inc : 1;  ///< If set, the base scratch register will be incremented by the size of the load after the load
-                       ///< is performed.
+    uint32_t : 1;  ///< Unused
     uint32_t off : 1;  ///< If set, the base scratch register will be used as an offset from a base address in a special
                        ///< register instead of an absolute address.
+    uint32_t shift: 2;
+    Size size : 2; ///< Size of the load (0 = byte, 1 = half-word, 2 = word)
     uint32_t imm : ImmediateType::Bits;  ///< The immediate value of the offset or increment in bytes.
-};
-
-struct Save {
-    using ImmediateType = isa::Immediate<14>;
-    Save() = delete;
-    constexpr Save(Operand src, Operand base, ImmediateType imm = ImmediateType{0}, bool inc_or_off = false)
-        : op{Operator::Save}, src{src.index}, base{base.index}, inc{inc_or_off ? 1U : 0U}, off{inc_or_off ? 0U : 1U}, imm{imm.value} {
+protected:
+    constexpr Load(Operand dst, Operand base, uint32_t shift = 0, Size size = Size::Word, ImmediateType imm = ImmediateType{0}, bool inc_or_off = false)
+        : op{Operator::Load}, dst{dst.index}, base{base.index}, off{inc_or_off ? 0U : 1U}, shift{shift}, size{size}, imm{imm.value} {
         if (imm.value == 0U) {
-            inc = 0U;
             off = 0U;
         }
+        basal::exception::throw_if(shift > 0 and size == Size::Word, __FILE__, __LINE__,
+                        "Shift values greater than 0 are only allowed for byte and half-word stores");
+        basal::exception::throw_if(shift > 1 and size == Size::HalfWord, __FILE__, __LINE__,
+                                   "Shift values greater than 1 are only allowed for byte");
+    }
+};
+
+class Save {
+public:
+    using ImmediateType = isa::Immediate<10>;
+    Save() = delete;
+
+    constexpr static Save Byte(Operand src, Operand base, uint32_t shift, ImmediateType imm = ImmediateType{0}, bool inc_or_off = false) {
+        return Save(src, base, shift, Size::Byte, imm, inc_or_off);
+    }
+
+    constexpr static Save HalfWord(Operand src, Operand base, uint32_t shift, ImmediateType imm = ImmediateType{0}, bool inc_or_off = false) {
+        return Save(src, base, shift, Size::HalfWord, imm, inc_or_off);
+    }
+
+    constexpr static Save Word(Operand src, Operand base, ImmediateType imm = ImmediateType{0}, bool inc_or_off = false) {
+        return Save(src, base, 0, Size::Word, imm, inc_or_off);
     }
 
     friend std::ostream& operator<<(std::ostream& os, Save s) {
-        os << "save " << Operand{Operand::Type::Scratch, s.src} << ", " << Operand{Operand::Type::Scratch, s.base};
-        if (s.inc) {
-            os << " += " << s.imm;
+        os << "save";
+        switch (Size(s.size)) {
+            case Size::Byte:
+                os << ".b ";
+                break;
+            case Size::HalfWord:
+                os << ".h ";
+                break;
+            case Size::Word:
+                os << ".w ";
+                break;
+            default:
+                os << ".? ";
+                break;
         }
-        if (s.off) {
-            os << " + " << s.imm;
+        os << Operand{Operand::Type::Scratch, s.src};
+        if (s.shift > 0) {
+            os << " << " << s.shift;
+        }
+        os << " -> " << Operand{Operand::Type::Scratch, s.base};
+        if (s.imm > 0) {
+            if (s.off) {
+                os << " + " << s.imm;
+            } else {
+                os << " += " << s.imm;
+            }
         }
         return os;
     }
@@ -434,11 +505,24 @@ struct Save {
     Operator op : CountOfOperatorBits;
     uint32_t src : CountOfScratchIndexBits;   ///< Source Scratch Register
     uint32_t base : CountOfScratchIndexBits;  ///< Base Scratch Register containing the address
-    uint32_t inc : 1;                         ///< If set, the base scratch register will
-                                              ///< be incremented by the size of the store after the store is performed.
+    uint32_t : 1; ///< Unused bit to allow for symmetry with Load instruction encoding
     uint32_t off : 1;  ///< If set, the base scratch register will be used as an offset from a base address in a special
                        ///< register instead of an absolute address.
+    uint32_t shift: 2;
+    Size size : 2; ///< Size of the load (0 = byte, 1 = half-word, 2 = word)
     uint32_t imm : ImmediateType::Bits;  ///< The immediate value of the offset or increment in bytes
+protected:
+    constexpr Save(Operand src, Operand base, uint32_t shift = 0, Size size = Size::Word, ImmediateType imm = ImmediateType{0}, bool inc_or_off = false)
+        : op{Operator::Save}, src{src.index}, base{base.index}, off{inc_or_off ? 0U : 1U}, shift{shift}, size{size}, imm{imm.value} {
+        if (imm.value == 0U) {
+            off = 0U;
+        }
+        basal::exception::throw_if(shift > 0 and size == Size::Word, __FILE__, __LINE__,
+                                   "Shift values greater than 0 are only allowed for byte and half-word stores");
+        basal::exception::throw_if(shift > 1 and size == Size::HalfWord, __FILE__, __LINE__,
+                                   "Shift values greater than 1 are only allowed for byte");
+    }
+
 };
 
 /// The Leap Instruction
@@ -1156,6 +1240,9 @@ union Instruction {
     Instruction& operator=(Instruction&& other) {
         base = std::move(other.base);
         return *this;
+    }
+    /// Raw Value Constructor (DATA in instruction streams)
+    constexpr Instruction(uint32_t raw) : raw{raw} {
     }
     /// Typed Constructor
     constexpr Instruction(NoOp) : noop{} {

@@ -281,7 +281,8 @@ void Processor::Cycle() {
             if (instruction.movi.eval) {
                 evaluation_[instruction.movi.dst].value = instruction.movi.imm & 0xFFU;
             } else {
-                scratch_[instruction.movi.dst] = instruction.movi.imm << (instruction.movi.upper ? 16U : 0U);
+                size_t index = instruction.movi.upper ? 1U : 0U;
+                scratch_[instruction.movi.dst].as_u16[index] = instruction.movi.imm;
             }
             break;
         case isa::Operator::Swap:
@@ -309,10 +310,30 @@ void Processor::Cycle() {
         case isa::Operator::Load: {
             const auto& load = instruction.loads;
             const Address address = scratch_[load.base].as_address + (load.off ? Address{load.imm} : Address{0});
-            uint32_t value = 0U;
-            if (Peek(address, value)) {
+            uint32_t word = 0U;
+            if (Peek(address, word)) {
+                uint32_t value = word;
+                if (load.size == isa::Size::Byte) {
+                    const uint32_t shift = static_cast<uint32_t>(load.shift) * 8U;
+                    value = (word >> shift) & 0xFFU;
+                } else if (load.size == isa::Size::HalfWord) {
+                    if (load.shift > 1U) {
+                        special_.exception_.instruction_fault = 1;
+                        break;
+                    }
+                    const uint32_t shift = static_cast<uint32_t>(load.shift) * 16U;
+                    value = (word >> shift) & 0xFFFFU;
+                } else if (load.size == isa::Size::Word) {
+                    if (load.shift != 0U) {
+                        special_.exception_.instruction_fault = 1;
+                        break;
+                    }
+                } else {
+                    special_.exception_.instruction_fault = 1;
+                    break;
+                }
                 scratch_[load.dst].as_u32[0] = value;
-                if (load.inc) {
+                if (load.off == 0U) {
                     scratch_[load.base].as_address += load.imm;
                 }
             } else {
@@ -323,9 +344,39 @@ void Processor::Cycle() {
         case isa::Operator::Save: {
             const auto& save = instruction.save;
             const Address address = scratch_[save.base].as_address + (save.off ? Address{save.imm} : Address{0});
-            uint32_t value = scratch_[save.src].as_u32[0];
+            uint32_t word = 0U;
+            if (not Peek(address, word)) {
+                special_.exception_.bus_fault = 1;
+                break;
+            }
+
+            const uint32_t src = scratch_[save.src].as_u32[0];
+            uint32_t value = word;
+            if (save.size == isa::Size::Byte) {
+                const uint32_t shift = static_cast<uint32_t>(save.shift) * 8U;
+                value &= ~(0xFFU << shift);
+                value |= ((src & 0xFFU) << shift);
+            } else if (save.size == isa::Size::HalfWord) {
+                if (save.shift > 1U) {
+                    special_.exception_.instruction_fault = 1;
+                    break;
+                }
+                const uint32_t shift = static_cast<uint32_t>(save.shift) * 16U;
+                value &= ~(0xFFFFU << shift);
+                value |= ((src & 0xFFFFU) << shift);
+            } else if (save.size == isa::Size::Word) {
+                if (save.shift != 0U) {
+                    special_.exception_.instruction_fault = 1;
+                    break;
+                }
+                value = src;
+            } else {
+                special_.exception_.instruction_fault = 1;
+                break;
+            }
+
             if (Poke(address, value)) {
-                if (save.inc) {
+                if (save.off == 0U) {
                     scratch_[save.base].as_address += save.imm;
                 }
             } else {

@@ -19,16 +19,16 @@ using imm = Immediate<BITS>;
 // === Example Program ===
 
 program program1 = {
+    // clear the registers to known values
     Zero{Op{M, imm<16>{0xFFFFU}}, RegisterType::Scratch},
     Zero{Op{M, imm<16>{0xFFFFU}}, RegisterType::Evaluation},
     NoOp{},
     MoveImmediate{Op{S, 0}, imm<16>{0xCCDD}},
-    MoveImmediate{Op{S, 1}, imm<16>{0xAABB}, true},
-    Bitwise2::Or(Op{S, 0}, Op{S, 0}, Op{S, 1}),
+    MoveImmediate{Op{S, 0}, imm<16>{0xAABB}, true},
     Move{Op{S, 1}, Op{S, 0}, true, Move::ImmediateType{4}},
     MoveImmediate{Op{S, 0}, imm<16>{0x3333}},
-    MoveImmediate{Op{S, 2}, imm<16>{0x0010}, true},
-    Save{Op{S, 1}, Op{S, 2}, Save::ImmediateType{0x00}},
+    MoveImmediate{Op{S, 1}, imm<16>{0x0010}, true},
+    Save::Word(Op{S, 1}, Op{S, 2}, Save::ImmediateType{0x00}),
     MoveImmediate{Op{S, 3}, imm<16>{0x5555}},
     MoveImmediate{Op{S, 5}, imm<16>{0xCCCC}},
     Bitwise1::Count(Op{S, 7}, Op{S, 0}),
@@ -43,11 +43,12 @@ program program1 = {
     Swap{Op{E, 0}, Op{E, 4}},
     MoveImmediate{Op{E, 5}, imm<16>{0xFF}},
     MoveImmediate{Op{E, 6}, ComparisonEvaluation{true, false, false, true}},
-    MoveImmediate{Op{S, 9}, imm<16>{0x1000}, true},
-    MoveImmediate{Op{S, 9}, imm<16>{0x0048 + (25 * 4)}, false},
+    MoveImmediate{Op{S, 9}, imm<16>{0x0010}, true},
+    MoveImmediate{Op{S, 10}, imm<16>{0x0048 + (25 * 4)}, false},
+    Bitwise2::Or(Op{S, 9}, Op{S, 9}, Op{S, 10}),
     Leap{Op{S, 9}, Leap::ImmediateType{0x2}, true},
-    Load{Op{S, 2}, Op{S, 0}, Load::ImmediateType{0x10}, true, false},
-    Save{Op{S, 2}, Op{S, 0}, Save::ImmediateType{0x20}, true},
+    Load::Word(Op{S, 2}, Op{S, 0}, Load::ImmediateType{0x10}, true),
+    Save::Word(Op{S, 2}, Op{S, 0}, Save::ImmediateType{0x20}, true),
     Halt{},
 };
 

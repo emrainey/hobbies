@@ -110,10 +110,20 @@ TEST_F(InstructionTest, MoveImmediateToScratchWritesDestination) {
 }
 
 TEST_F(InstructionTest, MoveImmediateToScratchWritesDestination2) {
-    RunSingleInstruction(isa::instructions::Instruction{
-        isa::instructions::MoveImmediate{isa::Operand{isa::Operand::Type::Scratch, 1}, isa::Immediate<16>{0xABCDU}, true}});
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::MoveImmediate{
+        isa::Operand{isa::Operand::Type::Scratch, 1}, isa::Immediate<16>{0xABCDU}, true}});
 
     EXPECT_EQ(0xABCD0000U, cpu.ViewScratch()[1].as_u32[0]);
+}
+
+
+TEST_F(InstructionTest, MoveImmediateToScratchWritesDestination3) {
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::MoveImmediate{
+        isa::Operand{isa::Operand::Type::Scratch, 1}, isa::Immediate<16>{0xABCDU}, true}});
+   RunSingleInstruction(isa::instructions::Instruction{
+        isa::instructions::MoveImmediate{isa::Operand{isa::Operand::Type::Scratch, 1}, isa::Immediate<16>{0xEF89U}}});
+
+    EXPECT_EQ(0xABCDEF89U, cpu.ViewScratch()[1].as_u32[0]);
 }
 
 TEST_F(InstructionTest, MoveImmediateToEvaluationWritesLowByte) {
@@ -151,9 +161,8 @@ TEST_F(InstructionTest, LoadReadsMemoryIntoScratch) {
     ASSERT_TRUE(cpu.Poke(kDataAddress, 0xCAFEBABEU));
     cpu.GetScratch()[1].as_address = isa::Address{kDataAddress};
 
-    RunSingleInstruction(isa::instructions::Instruction{
-        isa::instructions::Load{isa::Operand{isa::Operand::Type::Scratch, 2}, isa::Operand{isa::Operand::Type::Scratch, 1},
-                                isa::Immediate<14>{0U}}});
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Load::Word(
+        isa::Operand{isa::Operand::Type::Scratch, 2}, isa::Operand{isa::Operand::Type::Scratch, 1})});
 
     EXPECT_EQ(0xCAFEBABEU, cpu.ViewScratch()[2].as_u32[0]);
 }
@@ -162,13 +171,89 @@ TEST_F(InstructionTest, SaveWritesScratchToMemory) {
     cpu.GetScratch()[1].as_address = isa::Address{kDataAddress};
     cpu.GetScratch()[2].as_u32[0] = 0xDEADBEEFU;
 
-    RunSingleInstruction(isa::instructions::Instruction{
-        isa::instructions::Save{isa::Operand{isa::Operand::Type::Scratch, 2}, isa::Operand{isa::Operand::Type::Scratch, 1},
-                                isa::Immediate<14>{0U}}});
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Save::Word(
+        isa::Operand{isa::Operand::Type::Scratch, 2}, isa::Operand{isa::Operand::Type::Scratch, 1})});
 
     uint32_t saved = 0U;
     ASSERT_TRUE(cpu.Peek(kDataAddress, saved));
     EXPECT_EQ(0xDEADBEEFU, saved);
+}
+
+TEST_F(InstructionTest, LoadByteReadsSelectedByteLane) {
+    ASSERT_TRUE(cpu.Poke(kDataAddress, 0xAABBCCDDU));
+    cpu.GetScratch()[1].as_address = isa::Address{kDataAddress};
+
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Load::Byte(
+        isa::Operand{isa::Operand::Type::Scratch, 2}, isa::Operand{isa::Operand::Type::Scratch, 1}, 2U)});
+
+    EXPECT_EQ(0xBBU, cpu.ViewScratch()[2].as_u32[0]);
+}
+
+TEST_F(InstructionTest, LoadHalfWordReadsSelectedHalfWordLane) {
+    ASSERT_TRUE(cpu.Poke(kDataAddress, 0xAABBCCDDU));
+    cpu.GetScratch()[1].as_address = isa::Address{kDataAddress};
+
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Load::HalfWord(
+        isa::Operand{isa::Operand::Type::Scratch, 2}, isa::Operand{isa::Operand::Type::Scratch, 1}, 1U)});
+
+    EXPECT_EQ(0xAABBU, cpu.ViewScratch()[2].as_u32[0]);
+}
+
+TEST_F(InstructionTest, LoadWordIncrementUpdatesBaseRegister) {
+    ASSERT_TRUE(cpu.Poke(kDataAddress, 0x11223344U));
+    cpu.GetScratch()[1].as_address = isa::Address{kDataAddress};
+
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Load::Word(
+        isa::Operand{isa::Operand::Type::Scratch, 2}, isa::Operand{isa::Operand::Type::Scratch, 1},
+        isa::instructions::Load::ImmediateType{4U}, true)});
+
+    EXPECT_EQ(0x11223344U, cpu.ViewScratch()[2].as_u32[0]);
+    EXPECT_EQ(kDataAddress + 4U, cpu.ViewScratch()[1].as_address.value);
+}
+
+TEST_F(InstructionTest, SaveByteWritesSelectedByteLane) {
+    ASSERT_TRUE(cpu.Poke(kDataAddress, 0x11223344U));
+    cpu.GetScratch()[1].as_address = isa::Address{kDataAddress};
+    cpu.GetScratch()[2].as_u32[0] = 0xAAU;
+
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Save::Byte(
+        isa::Operand{isa::Operand::Type::Scratch, 2}, isa::Operand{isa::Operand::Type::Scratch, 1}, 2U)});
+
+    uint32_t saved = 0U;
+    ASSERT_TRUE(cpu.Peek(kDataAddress, saved));
+    EXPECT_EQ(0x11AA3344U, saved);
+}
+
+TEST_F(InstructionTest, SaveHalfWordWritesSelectedHalfWordLane) {
+    ASSERT_TRUE(cpu.Poke(kDataAddress, 0x11223344U));
+    cpu.GetScratch()[1].as_address = isa::Address{kDataAddress};
+    cpu.GetScratch()[2].as_u32[0] = 0xBEEFU;
+
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Save::HalfWord(
+        isa::Operand{isa::Operand::Type::Scratch, 2}, isa::Operand{isa::Operand::Type::Scratch, 1}, 1U)});
+
+    uint32_t saved = 0U;
+    ASSERT_TRUE(cpu.Peek(kDataAddress, saved));
+    EXPECT_EQ(0xBEEF3344U, saved);
+}
+
+TEST_F(InstructionTest, SaveWordOffsetWritesAtBasePlusImmediateWithoutIncrementingBase) {
+    ASSERT_TRUE(cpu.Poke(kDataAddress, 0x11223344U));
+    ASSERT_TRUE(cpu.Poke(kDataAddress + 4U, 0x55667788U));
+    cpu.GetScratch()[1].as_address = isa::Address{kDataAddress};
+    cpu.GetScratch()[2].as_u32[0] = 0xDEADBEEFU;
+
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Save::Word(
+        isa::Operand{isa::Operand::Type::Scratch, 2}, isa::Operand{isa::Operand::Type::Scratch, 1},
+        isa::instructions::Save::ImmediateType{4U}, false)});
+
+    uint32_t saved_base = 0U;
+    uint32_t saved_offset = 0U;
+    ASSERT_TRUE(cpu.Peek(kDataAddress, saved_base));
+    ASSERT_TRUE(cpu.Peek(kDataAddress + 4U, saved_offset));
+    EXPECT_EQ(0x11223344U, saved_base);
+    EXPECT_EQ(0xDEADBEEFU, saved_offset);
+    EXPECT_EQ(kDataAddress, cpu.ViewScratch()[1].as_address.value);
 }
 
 TEST_F(InstructionTest, LeapJumpsToTargetAddress) {

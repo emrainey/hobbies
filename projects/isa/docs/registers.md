@@ -53,24 +53,4 @@ Each register index in an instruction only takes up 4 bits then to index 0-15 in
 
 The evaluation registers are used to hold intermediate results of comparison results which can then be used to make conditional logic from. Instead of a CPU needing to have _one_ carry bit, _one_ zero bit, _one_ etc, _each_ evaluation register contains one.
 
-Each bit is named to indicate the presence of something, a zero does not imply the absence of something, it simply means that the condition is not met.
-
-```cpp
-namespace registers {
-/// Evaluation Register contains bits which indicate the results of comparisons and arithmetic/precision problems
-struct Evaluation {
-    // ---
-    uint32_t less_than    : 1; ///< a < b
-    uint32_t equal_to     : 1; ///< a == b
-    uint32_t not_equal_to : 1; ///< a != b
-    uint32_t greater_than : 1; ///< a > b
-    // ---
-    uint32_t undefined    : 1; ///< x / 0 (integer or float)
-    uint32_t rollover     : 1; ///< x > UINT_MAX
-    uint32_t overflow     : 1; ///< x > INT_MAX
-    uint32_t underflow    : 1; ///< x < -INT_MAX
-    // ---
-    uint32_t reserved     : 24;
-};
-}  // namespace registers
-```
+@ref Evaluation

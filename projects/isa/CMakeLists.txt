@@ -99,6 +99,7 @@ endif(SDL2_FOUND)
 if (BUILD_UNIT_TESTS AND Threads_FOUND AND GTest_FOUND)
     add_executable(gtest_isa
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_bus.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_breakpoint.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_cpu_persistence.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_memory_view.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_register_view.cpp

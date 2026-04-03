@@ -32,6 +32,7 @@ namespace {
 constexpr size_t kMemoryPageRows = 8U;
 constexpr size_t kConsoleMaxLines = 128U;
 constexpr size_t kInstructionSize = sizeof(Instruction);
+constexpr size_t kBreakPointSlots = 16U;
 
 template <typename RegisterRows>
 Elements BuildRegisterColumn(RegisterRows const& rows) {
@@ -393,6 +394,34 @@ int main(int argc, char* argv[]) {
         return window(text(" Console "), vbox(std::move(rows)) | flex);
     };
 
+    const auto breakpoints_panel = [&](int panel_height) {
+        Elements rows;
+        rows.push_back(text("Configured Breakpoints"));
+        rows.push_back(separator());
+
+        size_t count = 0U;
+        for (size_t i = 0; i < kBreakPointSlots; ++i) {
+            Address const bp = cpu.GetBreakPoint(i);
+            if (bp == invalid) {
+                continue;
+            }
+
+            rows.push_back(text(FormatAddressHex(bp)));
+            ++count;
+        }
+
+        if (count == 0U) {
+            rows.push_back(text("(none)"));
+        }
+
+        const int visible_rows = std::max(1, panel_height - static_cast<int>(rows.size()) - 1);
+        for (int row = 0; row < visible_rows; ++row) {
+            rows.push_back(text(""));
+        }
+
+        return window(text(" Breakpoints "), vbox(std::move(rows)) | flex);
+    };
+
     auto app = Renderer(controls, [&] {
         const auto dimensions = Terminal::Size();
         const int container_height = std::max(8, dimensions.dimy - 2);
@@ -408,6 +437,8 @@ int main(int argc, char* argv[]) {
 
         const auto bottom_row = hbox({
                                     memory_panel(memory_height) | flex,
+                                    separator(),
+                                    breakpoints_panel(memory_height) | size(WIDTH, GREATER_THAN, 20) | flex,
                                     separator(),
                                     console_panel(memory_height) | size(WIDTH, GREATER_THAN, 28) | flex,
                                 })

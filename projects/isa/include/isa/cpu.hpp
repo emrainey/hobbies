@@ -363,6 +363,22 @@ public:
     /// Performs a single cycle of the CPU which will execute each stage of the pipeline.
     void Cycle();
 
+    /// Indicates if a breakpoint has been hit, which can be used for debugging and tooling purposes to determine whether to halt the CPU or not.
+    bool HasBreakPoint() const;
+
+    /// Sets a break point at the given address, which will cause the CPU to halt when the program counter reaches that address.
+    bool SetBreakPoint(Address address);
+
+    /// Clears the break point at the given address.
+    bool ClearBreakPoint(Address address);
+
+    /// Returns the address of the current break point that has been hit, if any.
+    /// Note: This function should only be called when HasBreakPoint() returns true, otherwise the return value is undefined.
+    Address GetBreakPoint() const;
+
+    /// Returns the address of the break point at the given index, which can be used for debugging and tooling purposes to inspect the set break points.
+    Address GetBreakPoint(size_t index) const;
+
 protected:
     /// Returns the handler which corresponds to the current exception being handled, if any, by looking it up in the
     /// vector table. If no exception is being handled, returns the reset handler.
@@ -382,6 +398,11 @@ protected:
 
     // === Control Variables for Pipeline Stages ===
     bool halted_;
+
+    // === Debugging and Tooling Aids ===
+    bool break_point_hit_;
+    constexpr static size_t kMaxBreakPoints{16U};
+    std::array<Address, kMaxBreakPoints> break_points_;
 };
 
 namespace operations {

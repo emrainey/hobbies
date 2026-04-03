@@ -1322,6 +1322,9 @@ union Instruction {
     /// Typed Constructor
     constexpr Instruction(Halt) : halt{} {
     }
+    /// Typed Constructor
+    constexpr Instruction(Breakpoint b) : breakpoint{b} {
+    }
     /// Typed Constructor for Copy
     constexpr Instruction(Copy c) : copy{c} {
     }
@@ -1387,6 +1390,7 @@ union Instruction {
     Base base;              ///< The base instruction for decoding the operator
     NoOp noop;              ///< No Operation
     Halt halt;              ///< Halt the processor
+    Breakpoint breakpoint;    ///< Breakpoint for debugging (not a real instruction, used for tooling)
     Copy copy;              ///< Copy from one evaluation register to another
     Move move;              ///< Move from scratch to scratch
     MoveImmediate movi;     ///< Move immediate to scratch/evaluation register
@@ -1413,6 +1417,8 @@ union Instruction {
             os << instr.noop;
         } else if (instr.base() == Operator::Halt) {
             os << instr.halt;
+        } else if (instr.base() == Operator::Breakpoint) {
+            os << instr.breakpoint;
         } else if (instr.base() == Operator::Copy) {
             os << instr.copy;
         } else if (instr.base() == Operator::Move) {

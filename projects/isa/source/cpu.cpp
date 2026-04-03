@@ -10,7 +10,11 @@
 namespace isa {
 
 Processor::Processor()
-    : flash_bus_{0, isa::memory::Map[1].range}, sram_bus_{0, isa::memory::Map[3].range}, halted_{false} {
+    : flash_bus_{0, isa::memory::Map[1].range}, sram_bus_{0, isa::memory::Map[3].range}, halted_{false}, break_point_hit_{false}, break_points_{} {
+    // fill the break points w/ invalid addresses
+    for (size_t i = 0; i < break_points_.size(); ++i) {
+        break_points_[i] = invalid;
+    }
 }
 
 void Processor::Reset() {
@@ -78,6 +82,49 @@ bool Processor::Poke(Address address, uint32_t value) {
         return sram_bus_.Poke(address, value);
     }
     return false;
+}
+
+bool Processor::HasBreakPoint() const {
+    return break_point_hit_;
+}
+
+bool Processor::SetBreakPoint(Address address) {
+    for (size_t i = 0; i < break_points_.size(); ++i) {
+        if (break_points_[i] == address) {
+            return true;  // already set
+        }
+        if (break_points_[i] == invalid) {
+            break_points_[i] = address;
+            return true;
+        }
+    }
+    return false;  // no space to set new break point
+}
+
+bool Processor::ClearBreakPoint(Address address) {
+    for (size_t i = 0; i < break_points_.size(); ++i) {
+        if (break_points_[i] == address) {
+            break_points_[i] = invalid;
+            return true;
+        }
+    }
+    return false;  // break point not found
+}
+
+Address Processor::GetBreakPoint() const {
+    for (size_t i = 0; i < break_points_.size(); ++i) {
+        if (break_points_[i] != invalid) {
+            return break_points_[i];
+        }
+    }
+    return invalid;  // no break point found
+}
+
+Address Processor::GetBreakPoint(size_t index) const {
+    if (index >= break_points_.size()) {
+        return invalid;  // index out of bounds
+    }
+    return break_points_[index];
 }
 
 PersistenceReport Processor::Save(std::string const& folder) const {

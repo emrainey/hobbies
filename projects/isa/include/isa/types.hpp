@@ -44,6 +44,8 @@ struct Address {
     /// The storage of addresses
     StorageType value{0};
 
+    constexpr Address() = default;
+
     /// Truncating Constructor!
     /// @warning This constructor will truncate the input value to 32 bits, which may cause loss of information if the
     /// input value exceeds 32 bits. Use with caution!
@@ -154,6 +156,9 @@ struct Address {
     }
 };
 static_assert(sizeof(Address) == 4, "Address type must be 32 bits to support 32-bit address space");
+
+/// An invalid address (but not nullptr) that can be used to represent the absence of an address.
+constexpr Address invalid{0xFFFFFFFFU};
 
 /// The Evaluation Storage Unit is a byte.
 using EvaluationUnit = uint8_t;

@@ -1,7 +1,6 @@
 #include <basal/basal.hpp>
 #include <basal/options.hpp>
 #include <isa/isa.hpp>
-#include <isa/register_view.hpp>
 
 #include <ftxui/component/component.hpp>
 #include <ftxui/component/screen_interactive.hpp>
@@ -19,19 +18,20 @@
 #include <string>
 #include <vector>
 
+#include "demo_memory_view.hpp"
 #include "program1.hpp"
+#include "demo_register_view.hpp"
 
 using namespace ftxui;
 using namespace isa;
 using namespace instructions;
+namespace isa_demo = isa::demo;
 
 namespace {
 
-constexpr size_t kMemoryBytesPerRow = 16U;
 constexpr size_t kMemoryPageRows = 8U;
 constexpr size_t kConsoleMaxLines = 128U;
 constexpr size_t kInstructionSize = sizeof(Instruction);
-constexpr char kUnavailableMemoryCells[] = "-- -- -- --  -- -- -- --  -- -- -- --  -- -- -- --";
 
 template <typename RegisterRows>
 Elements BuildRegisterColumn(RegisterRows const& rows) {
@@ -127,42 +127,6 @@ bool TryParseAddress(std::string input, Address& out) {
     }
 }
 
-std::string FormatMemoryByte(Processor const& cpu, Address address) {
-    uint32_t value = 0U;
-    if (not cpu.Peek(address, value)) {
-        return "--";
-    }
-
-    // Memory is word-addressable internally; select the requested byte within that word.
-    constexpr uint32_t kBytesPerWord = sizeof(uint32_t);
-    const uint32_t byte_lane = static_cast<uint32_t>(address.value % kBytesPerWord);
-    const uint32_t byte_value = (value >> (byte_lane * 8U)) & 0xFFU;
-
-    std::ostringstream stream;
-    stream << std::uppercase << std::hex << std::setfill('0') << std::setw(2) << byte_value;
-    return stream.str();
-}
-
-std::string FormatMemoryRow(Processor const& cpu, Address row_base_address) {
-    std::ostringstream stream;
-    stream << FormatAddressHex(row_base_address) << ": ";
-
-    for (size_t i = 0; i < kMemoryBytesPerRow; ++i) {
-        Address address{0};
-        if (TryAddAddress(row_base_address, i, address)) {
-            stream << FormatMemoryByte(cpu, address);
-        } else {
-            stream << "--";
-        }
-
-        if (i + 1U < kMemoryBytesPerRow) {
-            stream << ((i % 4U == 3U) ? "  " : " ");
-        }
-    }
-
-    return stream.str();
-}
-
 }  // namespace
 
 int main(int argc, char* argv[]) {
@@ -220,12 +184,13 @@ int main(int argc, char* argv[]) {
     // End "Loader"
 
     Address memory_base_address = DefaultVectorTableAddress;
+    isa_demo::MemoryViewMode memory_view_mode = isa_demo::MemoryViewMode::Byte;
     std::string memory_base_input = FormatAddressHex(memory_base_address);
     std::string memory_view_status = "Enter base address (hex) and press Enter";
     std::vector<std::string> console_lines = {
         "Console ready",
         "State directory: " + state_directory.string(),
-        "Press s to save, l to load",
+        "Press F1 for help",
     };
 
     const auto push_console_line = [&](std::string const& line) {
@@ -242,11 +207,45 @@ int main(int argc, char* argv[]) {
         memory_view_status = "Viewing from " + memory_base_input;
     };
 
+    const auto set_memory_view_mode = [&](isa_demo::MemoryViewMode mode) {
+        if (memory_view_mode == mode) {
+            return;
+        }
+
+        memory_view_mode = mode;
+        push_console_line("Memory view: " + std::string(isa_demo::MemoryViewModeLabel(memory_view_mode)));
+    };
+
+    const auto cycle_memory_view_mode = [&] {
+        isa_demo::MemoryViewMode next_mode = isa_demo::MemoryViewMode::Byte;
+        if (memory_view_mode == isa_demo::MemoryViewMode::Byte) {
+            next_mode = isa_demo::MemoryViewMode::HalfWord;
+        } else if (memory_view_mode == isa_demo::MemoryViewMode::HalfWord) {
+            next_mode = isa_demo::MemoryViewMode::Word;
+        }
+        set_memory_view_mode(next_mode);
+    };
+
     const auto update_persistence_status = [&](PersistenceReport const& report) {
         push_console_line(report.summary);
         for (auto const& file_name : report.files) {
             push_console_line("  " + file_name);
         }
+    };
+
+    const auto show_help = [&] {
+        push_console_line("Keys:");
+        push_console_line("  Enter apply base address");
+        push_console_line("  Up/Down move by row");
+        push_console_line("  PageUp/PageDown move by page");
+        push_console_line("  Home jump to SRAM");
+        push_console_line("  F6 cycle memory view (byte/short/word)");
+        push_console_line("  F1 show help");
+        push_console_line("  F2 save state");
+        push_console_line("  F3 load state");
+        push_console_line("  F4 execute cycle");
+        push_console_line("  F5 reset CPU");
+        push_console_line("  Esc quit");
     };
 
     const auto save_cpu_state = [&] {
@@ -333,9 +332,9 @@ int main(int argc, char* argv[]) {
     };
 
     const auto registers_panel = [&cpu] {
-        const auto scratch_rows = FormatScratchRegisterRows(cpu);
-        const auto special_rows = FormatSpecialRegisterRows(cpu);
-        const auto eval_rows = FormatEvaluationRegisterRows(cpu);
+        const auto scratch_rows = isa_demo::FormatScratchRegisterRows(cpu);
+        const auto special_rows = isa_demo::FormatSpecialRegisterRows(cpu);
+        const auto eval_rows = isa_demo::FormatEvaluationRegisterRows(cpu);
         return window(text(" Registers "), hbox({
                                                vbox({
                                                    text("Scratch"),
@@ -361,18 +360,19 @@ int main(int argc, char* argv[]) {
         Elements rows;
         rows.push_back(hbox({text("Base: "), memory_base_input_component->Render() | flex}));
         rows.push_back(text(memory_view_status));
-        rows.push_back(text("Keys: Up/Down/PageUp/PageDown/Home move view"));
+        rows.push_back(text("Mode: " + std::string(isa_demo::MemoryViewModeLabel(memory_view_mode))));
+        rows.push_back(text("Keys: Up/Down/PageUp/PageDown/Home move, F6 cycle view, F1 help"));
         rows.push_back(separator());
 
         const int visible_rows = std::max(1, memory_height - static_cast<int>(rows.size()) - 1);
         for (int row = 0; row < visible_rows; ++row) {
             Address row_address{0};
-            const size_t row_offset = static_cast<size_t>(row) * kMemoryBytesPerRow;
+            const size_t row_offset = static_cast<size_t>(row) * isa_demo::MemoryViewBytesPerRow;
             if (TryAddAddress(memory_base_address, row_offset, row_address)) {
-                rows.push_back(text(FormatMemoryRow(cpu, row_address)));
+                rows.push_back(text(isa_demo::FormatMemoryRow(cpu, row_address, memory_view_mode)));
             } else {
-                rows.push_back(text(FormatAddressHex(Address{std::numeric_limits<Address::StorageType>::max()}) + ": "
-                                    + kUnavailableMemoryCells));
+                rows.push_back(text(isa_demo::FormatUnavailableMemoryRow(
+                    Address{std::numeric_limits<Address::StorageType>::max()}, memory_view_mode)));
             }
         }
 
@@ -381,7 +381,7 @@ int main(int argc, char* argv[]) {
 
     const auto console_panel = [&](int panel_height) {
         Elements rows;
-        rows.push_back(text("Keys: s save, l load, e execute cycle, q quit"));
+        rows.push_back(text("Keys: F2 save, F3 load, F4 execute cycle, F5 reset, Esc quit"));
         rows.push_back(separator());
 
         const int visible_rows = std::max(1, panel_height - static_cast<int>(rows.size()) - 1);
@@ -435,37 +435,47 @@ int main(int argc, char* argv[]) {
             return true;
         }
 
-        if (event == Event::Character("s") || event == Event::Character("S")) {
+        if (event == Event::F2) {
             save_cpu_state();
             return true;
         }
-        if (event == Event::Character("l") || event == Event::Character("L")) {
+        if (event == Event::F3) {
             load_cpu_state();
             return true;
         }
-        if (event == Event::Character("e") || event == Event::Character("E")) {
+        if (event == Event::F4) {
             cpu.Cycle();
             push_console_line("Executed cycle");
             if (cpu.ViewSpecial().exception_.HasException()) {
                 push_console_line(">>>Exception occurred!<<<");
             }
             if (cpu.IsHalted()) {
-                push_console_line("CPU is halted. Press r to reset.");
+                push_console_line("CPU is halted. Press F5 to reset.");
             }
             return true;
         }
-        if (event == Event::Character("r") || event == Event::Character("R")) {
+        if (event == Event::F5) {
             cpu.Reset();
             push_console_line("CPU Reset");
             return true;
         }
-        if (event == Event::Character("q") || event == Event::Character("Q")) {
+        if (event == Event::Escape) {
             screen.Exit();
             return true;
         }
 
-        const size_t row_step = kMemoryBytesPerRow;
-        const size_t page_step = kMemoryBytesPerRow * kMemoryPageRows;
+        if (event == Event::F1) {
+            show_help();
+            return true;
+        }
+
+        if (event == Event::F6) {
+            cycle_memory_view_mode();
+            return true;
+        }
+
+        const size_t row_step = isa_demo::MemoryViewBytesPerRow;
+        const size_t page_step = isa_demo::MemoryViewBytesPerRow * kMemoryPageRows;
 
         if (event == Event::ArrowUp) {
             memory_base_address = SaturatingAddressSub(memory_base_address, row_step);

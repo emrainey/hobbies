@@ -27,51 +27,53 @@ enum class Operator : uint32_t {
     Call = 0x28U,  ///< call #imm<16> (System Call Number)
     Trip = 0x2CU,  ///< Trip #imm<16> (Trip an exception with the given exception type encoded in the immediate value.
                    ///< This can be used to test triggering interrupts)
+    Breakpoint = 0x30U,  ///< Breakpoint #imm<16> (Trigger a breakpoint exception with the given immediate value. This can be
+                      ///< used to set breakpoints in software for debugging)
     // === Memory Operations ===
-    Load = 0x30U,  ///< load scratchDestination, scratchAddress
-    Save = 0x34U,  ///< store scratchSource, scratchAddress
+    Load = 0x34U,  ///< load scratchDestination, scratchAddress
+    Save = 0x38U,  ///< store scratchSource, scratchAddress
     // === Comparison ===
-    Compare = 0x38U,  ///< Compare scratchA, scratchB
+    Compare = 0x3CU,  ///< Compare scratchA, scratchB
     // === Bit Operators ===
     // 1 arg
-    Complement = 0x3CU,  ///< bcmpl scratchDestination, scratchSource
-    Rsh = 0x40U,         ///< brsh scratchDestination, scratchSource, #imm<5>
-    Asr = 0x44U,         ///< basr scratchDestination, scratchSource, #imm<5>
-    Lsh = 0x48U,         ///< blsh scratchDestination, scratchSource, #imm<5>
-    Rotate = 0x4CU,      ///< brot scratchDestination, scratchSource, #imm<5>
-    Count1s = 0x50U,     ///< bcnt scratchDestination, scratchSource
-    CountL0s = 0x54U,    ///< bcnz scratchDestination, scratchSource
-    Not = 0x58U,         ///< bnot scratchDestination, scratchSource
-    SetBit = 0x5CU,      ///< bset scratchDestination, scratchSource, #imm<5>
-    ClearBit = 0x60U,    ///< bclr scratchDestination, scratchSource, #imm<5>
-    ToggleBit = 0x64U,   ///< btgl scratchDestination, scratchSource, #imm<5>
-    Reverse = 0x68U,  ///< brev scratchDestination, scratchSource, #imm<5> (but limited to 0 = bytes, 1 = half-words, 2
+    Complement = 0x40U,  ///< bcmpl scratchDestination, scratchSource
+    Rsh = 0x44U,         ///< brsh scratchDestination, scratchSource, #imm<5>
+    Asr = 0x48U,         ///< basr scratchDestination, scratchSource, #imm<5>
+    Lsh = 0x4CU,         ///< blsh scratchDestination, scratchSource, #imm<5>
+    Rotate = 0x50U,      ///< brot scratchDestination, scratchSource, #imm<5>
+    Count1s = 0x54U,     ///< bcnt scratchDestination, scratchSource
+    CountL0s = 0x58U,    ///< bcnz scratchDestination, scratchSource
+    Not = 0x5CU,         ///< bnot scratchDestination, scratchSource
+    SetBit = 0x60U,      ///< bset scratchDestination, scratchSource, #imm<5>
+    ClearBit = 0x64U,    ///< bclr scratchDestination, scratchSource, #imm<5>
+    ToggleBit = 0x68U,   ///< btgl scratchDestination, scratchSource, #imm<5>
+    Reverse = 0x6CU,  ///< brev scratchDestination, scratchSource, #imm<5> (but limited to 0 = bytes, 1 = half-words, 2
                       ///< = words)
     // 2 arg
-    And = 0x6CU,  ///< band scratchDestination, scratchSource, scratchSource
-    Or = 0x70U,   ///< borr scratchDestination, scratchSource, scratchSource
-    Xor = 0x74U,  ///< bxor scratchDestination, scratchSource, scratchSource
+    And = 0x70U,  ///< band scratchDestination, scratchSource, scratchSource
+    Or = 0x74U,   ///< borr scratchDestination, scratchSource, scratchSource
+    Xor = 0x78U,  ///< bxor scratchDestination, scratchSource, scratchSource
 
     // === Arithmetic (Integer) ===
-    Addition = 0x78U,  ///< add{s/u}.{type}{size} Sd, Sa, Sb : Es
-    Subtract = 0x7CU,  ///< sub{s/u}.{type}{size} Sd, Sa, Sb : Es
-    Multiply = 0x80U,  ///< mul{s/u}.{type}{size} Sd, Sa, Sb : Es
-    Divide = 0x84U,    ///< div{s/u}.{type}{size} Sd, Sa, Sb : Es
-    Modulo = 0x88U,    ///< mod{s/u}.{type}{size} Sd, Sa, Sb : Es
+    Addition = 0x7CU,  ///< add{s/u}.{type}{size} Sd, Sa, Sb : Es
+    Subtract = 0x80U,  ///< sub{s/u}.{type}{size} Sd, Sa, Sb : Es
+    Multiply = 0x84U,  ///< mul{s/u}.{type}{size} Sd, Sa, Sb : Es
+    Divide = 0x88U,    ///< div{s/u}.{type}{size} Sd, Sa, Sb : Es
+    Modulo = 0x8CU,    ///< mod{s/u}.{type}{size} Sd, Sa, Sb : Es
 
     // === ALU (Precision) ===
     // 1 arg
-    FloatingFloor = 0x8CU,       ///< fflr scratchDestination, scratchSource
-    FloatingCeil = 0x90U,        ///< fcel scratchDestination, scratchSource
-    FloatingAbs = 0x94U,         ///< fabs scratchDestination, scratchSource
-    FloatingNegate = 0x98U,      ///< fneg scratchDestination, scratchSource
-    FloatingFractional = 0x9CU,  ///< ffrc scratchDestination, scratchSource
-    FloatingConvert = 0xA0U,     ///< fcvts{type}{size} scratchDestination, scratchSource
+    FloatingFloor = 0x90U,       ///< fflr scratchDestination, scratchSource
+    FloatingCeil = 0x94U,        ///< fcel scratchDestination, scratchSource
+    FloatingAbs = 0x98U,         ///< fabs scratchDestination, scratchSource
+    FloatingNegate = 0x9CU,      ///< fneg scratchDestination, scratchSource
+    FloatingFractional = 0xA0U,  ///< ffrc scratchDestination, scratchSource
+    FloatingConvert = 0xA4U,     ///< fcvts{type}{size} scratchDestination, scratchSource
     // 2 arg
-    FloatingAddition = 0xA4U,        ///< fadd scratchDestination, scratchSource, scratchSource -> Overflow or Underflow
-    FloatingSubtraction = 0xA8U,     ///< fsub scratchDestination, scratchSource, scratchSource -> Overflow or Underflow
-    FloatingMultiplication = 0xACU,  ///< fmul scratchDestination, scratchSource, scratchSource -> Overflow or Underflow
-    FloatingDivision = 0xB0U,  ///< fdiv scratchDestination, scratchSource, scratchSource -> Fault if scratchSource == 0
+    FloatingAddition = 0xA8U,        ///< fadd scratchDestination, scratchSource, scratchSource -> Overflow or Underflow
+    FloatingSubtraction = 0xACU,     ///< fsub scratchDestination, scratchSource, scratchSource -> Overflow or Underflow
+    FloatingMultiplication = 0xB0U,  ///< fmul scratchDestination, scratchSource, scratchSource -> Overflow or Underflow
+    FloatingDivision = 0xB4U,  ///< fdiv scratchDestination, scratchSource, scratchSource -> Fault if scratchSource == 0
 
     // === ALU (SIMD) ===
 
@@ -178,6 +180,20 @@ public:
 protected:
     Operator op : CountOfOperatorBits;
     uint32_t : CountOfDataBits - CountOfOperatorBits;
+};
+
+struct Breakpoint {
+    using ImmediateType = isa::Immediate<16>;
+    constexpr Breakpoint(ImmediateType imm) : op{Operator::Breakpoint}, imm{imm.value} {
+    }
+    friend std::ostream& operator<<(std::ostream& os, Breakpoint b) {
+        os << "bkpt " << Operand{Operand::Type::Mask, b.imm};
+        return os;
+    }
+
+    Operator op : CountOfOperatorBits;
+    uint32_t : CountOfDataBits - CountOfOperatorBits - ImmediateType::Bits;
+    uint32_t imm : ImmediateType::Bits;
 };
 
 struct Copy {

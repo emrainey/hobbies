@@ -1,12 +1,9 @@
-#include <isa/register_view.hpp>
+#include "demo_register_view.hpp"
 
-#include <isa/cpu.hpp>
-
-#include <cstring>
 #include <iomanip>
 #include <sstream>
 
-namespace isa {
+namespace isa::demo {
 
 namespace {
 
@@ -27,8 +24,8 @@ std::string FormatRegisterRow(std::string const& name, int name_width, std::stri
 ScratchRegisterRows FormatScratchRegisterRows(Processor const& cpu) {
     ScratchRegisterRows rows{};
     auto const& scratch = cpu.ViewScratch();
-    constexpr int scratch_name_width = 3;    // S15
-    constexpr int scratch_value_width = 10;  // 0x + 8 hex digits
+    constexpr int scratch_name_width = 3;
+    constexpr int scratch_value_width = 10;
 
     for (size_t index = 0; index < rows.size(); ++index) {
         std::ostringstream name_stream;
@@ -43,9 +40,9 @@ ScratchRegisterRows FormatScratchRegisterRows(Processor const& cpu) {
 SpecialRegisterRows FormatSpecialRegisterRows(Processor const& cpu) {
     SpecialRegisterRows rows{};
     auto const& special = cpu.ViewSpecial();
-    constexpr int special_name_width = 4;                                       // like ESBA
-    constexpr int special_hex_digits = static_cast<int>(sizeof(Address) * 2U);  // 2 hex digits per byte
-    constexpr int special_value_width = special_hex_digits + 2;                 // 0x + digits
+    constexpr int special_name_width = 4;
+    constexpr int special_hex_digits = static_cast<int>(sizeof(Address) * 2U);
+    constexpr int special_value_width = special_hex_digits + 2;
     std::ostringstream register_stream;
 
     rows[0]
@@ -65,17 +62,14 @@ SpecialRegisterRows FormatSpecialRegisterRows(Processor const& cpu) {
 
     register_stream << special.exception_;
     rows[9] = FormatRegisterRow("EXC", special_name_width, register_stream.str(), special_value_width);
-    // clear the stream for reuse
     register_stream.str("");
     register_stream.clear();
     register_stream << special.mode_;
     rows[10] = FormatRegisterRow("MODE", special_name_width, register_stream.str(), special_value_width);
-    // clear the stream for reuse
     register_stream.str("");
     register_stream.clear();
     register_stream << special.call_number_;
     rows[11] = FormatRegisterRow("CALL", special_name_width, register_stream.str(), special_value_width);
-    // clear the stream for reuse
     register_stream.str("");
     register_stream.clear();
     rows[12] = FormatRegisterRow("PERF", special_name_width, FormatHexValue(special.performance_counter_),
@@ -86,8 +80,8 @@ SpecialRegisterRows FormatSpecialRegisterRows(Processor const& cpu) {
 EvaluationRegisterRows FormatEvaluationRegisterRows(Processor const& cpu) {
     EvaluationRegisterRows rows{};
     auto const& evals = cpu.ViewEvaluations();
-    constexpr int eval_name_width = 3;    // E15
-    constexpr int eval_value_width = 10;  // 0x + 2 hex digits
+    constexpr int eval_name_width = 3;
+    constexpr int eval_value_width = 10;
 
     for (size_t index = 0; index < rows.size(); ++index) {
         Evaluation eval = evals[index];
@@ -101,4 +95,4 @@ EvaluationRegisterRows FormatEvaluationRegisterRows(Processor const& cpu) {
     return rows;
 }
 
-}  // namespace isa
+}  // namespace isa::demo

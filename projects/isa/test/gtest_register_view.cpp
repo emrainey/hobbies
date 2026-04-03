@@ -1,7 +1,8 @@
 #include <gtest/gtest.h>
 
 #include <isa/cpu.hpp>
-#include <isa/register_view.hpp>
+
+#include "../demo/demo_register_view.hpp"
 
 #include <iomanip>
 #include <sstream>
@@ -40,7 +41,7 @@ TEST(RegisterViewTest, ScratchRowsReflectProcessorScratchRegisters) {
     scratch[7] = isa::word<32>{0x1234ABCDU};
     scratch[15] = isa::word<32>{0xFFFFFFFFU};
 
-    auto const rows = isa::FormatScratchRegisterRows(cpu);
+    auto const rows = isa::demo::FormatScratchRegisterRows(cpu);
 
     EXPECT_EQ(ScratchRow("S0", 0x00000001U), rows[0]);
     EXPECT_EQ(ScratchRow("S7", 0x1234ABCDU), rows[7]);
@@ -61,7 +62,7 @@ TEST(RegisterViewTest, SpecialRowsReflectProcessorSpecialRegisters) {
     special.exception_stack_.current = 0x7770UL;
     special.exception_stack_.base = 0x8880UL;
 
-    auto const rows = isa::FormatSpecialRegisterRows(cpu);
+    auto const rows = isa::demo::FormatSpecialRegisterRows(cpu);
 
     EXPECT_EQ(AddressRow("PA", special.program_address_), rows[0]);
     EXPECT_EQ(AddressRow("RA", special.return_address_), rows[1]);

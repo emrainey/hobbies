@@ -5,9 +5,7 @@
 
 #include <isa/cpu.hpp>
 
-namespace isa {
-
-class Processor;
+namespace isa::demo {
 
 using ScratchRegisterRows = std::array<std::string, CountOfScratchRegisters>;
 using SpecialRegisterRows = std::array<std::string, CountOfSpecialRegisters>;
@@ -17,4 +15,4 @@ ScratchRegisterRows FormatScratchRegisterRows(Processor const& cpu);
 SpecialRegisterRows FormatSpecialRegisterRows(Processor const& cpu);
 EvaluationRegisterRows FormatEvaluationRegisterRows(Processor const& cpu);
 
-}  // namespace isa
+}  // namespace isa::demo

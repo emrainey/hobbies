@@ -10,7 +10,11 @@
 namespace isa {
 
 Processor::Processor()
-    : flash_bus_{0, isa::memory::Map[1].range}, sram_bus_{0, isa::memory::Map[3].range}, halted_{false}, break_point_hit_{false}, break_points_{} {
+    : flash_bus_{0, isa::memory::Map[1].range}
+    , sram_bus_{0, isa::memory::Map[3].range}
+    , halted_{false}
+    , break_point_hit_{false}
+    , break_points_{} {
     // fill the break points w/ invalid addresses
     for (size_t i = 0; i < break_points_.size(); ++i) {
         break_points_[i] = invalid;
@@ -356,7 +360,19 @@ void Processor::Cycle() {
             break;
         case isa::Operator::Load: {
             const auto& load = instruction.loads;
-            const Address address = scratch_[load.base].as_address + (load.off ? Address{load.imm} : Address{0});
+            Address address;
+            if (load.special == 0U) {
+                address = scratch_[load.base].as_address + (load.off ? Address{load.imm} : Address{0});
+            } else {
+                if (load.base == 4U) {
+                    address = special_.stack_.current;
+                } else if (load.base == 0U) {
+                    address = special_.program_address_;
+                } else {
+                    special_.exception_.instruction_fault = 1;
+                    break;
+                }
+            }
             uint32_t word = 0U;
             if (Peek(address, word)) {
                 uint32_t value = word;
@@ -390,7 +406,19 @@ void Processor::Cycle() {
         }
         case isa::Operator::Save: {
             const auto& save = instruction.save;
-            const Address address = scratch_[save.base].as_address + (save.off ? Address{save.imm} : Address{0});
+            Address address;
+            if (save.special == 0U) {
+                address = scratch_[save.base].as_address + (save.off ? Address{save.imm} : Address{0});
+            } else {
+                if (save.base == 4U) {
+                    address = special_.stack_.current;
+                } else if (save.base == 0U) {
+                    address = special_.program_address_;
+                } else {
+                    special_.exception_.instruction_fault = 1;
+                    break;
+                }
+            }
             uint32_t word = 0U;
             if (not Peek(address, word)) {
                 special_.exception_.bus_fault = 1;
@@ -527,6 +555,58 @@ void Processor::Cycle() {
             }
             break;
         }
+        case Operator::Push: {
+            const auto& push = instruction.push;
+            // Push the registers specified in the mask to the stack. We need to check for stack overflow by ensuring
+            // that we don't push beyond the stack limit.
+            auto count = __builtin_popcount(push.imm);
+            Address next
+                = special_.stack_.current - Address{sizeof(word<CountOfDataBits>) * static_cast<uint32_t>(count)};
+            if (special_.stack_.Contained(next)) {
+                // We can push the registers to the stack
+                Address address = next;
+                for (size_t i = 0; i < scratch_.size(); ++i) {
+                    if ((push.imm & (1U << i)) != 0U) {
+                        if (not Poke(address, scratch_[i].as_u32[0])) {
+                            special_.exception_.bus_fault = 1;
+                        } else {
+                            address -= sizeof(word<CountOfDataBits>);
+                        }
+                    }
+                }
+                special_.stack_.current = next;
+            } else {
+                special_.exception_.stack_fault = 1;
+            }
+            break;
+        }
+        case Operator::Pull: {
+            const auto& pull = instruction.pull;
+            // Pull the registers specified in the mask from the stack. We need to check for stack underflow by ensuring
+            // that we don't pull beyond the initial stack pointer.
+            auto count = __builtin_popcount(pull.imm);
+            Address next
+                = special_.stack_.current + Address{sizeof(word<CountOfDataBits>) * static_cast<uint32_t>(count)};
+            if (special_.stack_.Contained(next)) {
+                // We can pull the registers from the stack
+                Address address = special_.stack_.current;
+                for (size_t i = 0; i < scratch_.size(); ++i) {
+                    if ((pull.imm & (1U << i)) != 0U) {
+                        uint32_t value = 0U;
+                        if (Peek(address, value)) {
+                            scratch_[i].as_u32[0] = value;
+                        } else {
+                            special_.exception_.bus_fault = 1;
+                        }
+                        address += sizeof(word<CountOfDataBits>);
+                    }
+                }
+                special_.stack_.current = next;
+            } else {
+                special_.exception_.stack_fault = 1;
+            }
+            break;
+        }
         case Operator::Call: {
             const auto& call = instruction.call;
             bool allowed = true;  // default to allowed
@@ -542,11 +622,11 @@ void Processor::Cycle() {
                 // target instruction.
                 special_.return_address_ = special_.program_address_ + sizeof(instructions::Instruction);
                 Address handler{0};
-                // read the vector tabke to get the address of the system call handler corresponding to the system call
+                // read the vector table to get the address of the system call handler corresponding to the system call
                 // number in the immediate value of the instruction
                 uint32_t offset = offsetof(VectorTable, system_call_handler);
                 if (Peek(special_.vector_table_address_ + offset, handler.value)) {
-                    special_.call_number_ = call.imm;
+                    special_.numeral_.call = call.imm;
                     special_.program_address_ = handler;
                 } else {
                     special_.exception_.bus_fault = 1;
@@ -564,7 +644,8 @@ void Processor::Cycle() {
                 allowed = (eval & mask) != 0U;
             }
             if (allowed) {
-                special_.exception_.type = static_cast<ExceptionType>(trip.imm);
+                special_.numeral_.trip = trip.imm;
+                // special_.exception_.type = static_cast<ExceptionType>(trip.imm);
                 special_.exception_.tripped = 1;
             }
             break;

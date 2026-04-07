@@ -255,6 +255,57 @@ TEST_F(InstructionTest, SaveWordOffsetWritesAtBasePlusImmediateWithoutIncrementi
     EXPECT_EQ(kDataAddress, cpu.ViewScratch()[1].as_address.value);
 }
 
+TEST_F(InstructionTest, LoadFromStackReadsWordAtStackCurrentAddress) {
+    cpu.GetSpecial().stack_.current = isa::Address{kDataAddress};
+    ASSERT_TRUE(cpu.Poke(kDataAddress, 0xCAFED00DU));
+
+    RunSingleInstruction(isa::instructions::Instruction{
+        isa::instructions::Load::FromStack(isa::Operand{isa::Operand::Type::Scratch, 2})});
+
+    EXPECT_EQ(0xCAFED00DU, cpu.ViewScratch()[2].as_u32[0]);
+    EXPECT_FALSE(cpu.ViewSpecial().exception_.bus_fault);
+    EXPECT_FALSE(cpu.ViewSpecial().exception_.instruction_fault);
+}
+
+TEST_F(InstructionTest, SaveToStackWritesWordAtStackCurrentAddress) {
+    cpu.GetSpecial().stack_.current = isa::Address{kDataAddress};
+    cpu.GetScratch()[2].as_u32[0] = 0xDEADC0DEU;
+
+    RunSingleInstruction(
+        isa::instructions::Instruction{isa::instructions::Save::ToStack(isa::Operand{isa::Operand::Type::Scratch, 2})});
+
+    uint32_t saved = 0U;
+    ASSERT_TRUE(cpu.Peek(kDataAddress, saved));
+    EXPECT_EQ(0xDEADC0DEU, saved);
+    EXPECT_FALSE(cpu.ViewSpecial().exception_.bus_fault);
+    EXPECT_FALSE(cpu.ViewSpecial().exception_.instruction_fault);
+}
+
+TEST_F(InstructionTest, LoadFromProgramAddressReadsCurrentInstructionWord) {
+    const isa::instructions::Instruction load_from_pa{
+        isa::instructions::Load::FromProgramAddress(isa::Operand{isa::Operand::Type::Scratch, 2})};
+
+    RunSingleInstruction(load_from_pa);
+
+    EXPECT_EQ(load_from_pa.raw, cpu.ViewScratch()[2].as_u32[0]);
+    EXPECT_FALSE(cpu.ViewSpecial().exception_.bus_fault);
+    EXPECT_FALSE(cpu.ViewSpecial().exception_.instruction_fault);
+}
+
+TEST_F(InstructionTest, SaveToProgramAddressOverwritesCurrentInstructionWord) {
+    cpu.GetScratch()[2].as_u32[0] = 0xA5A5F00DU;
+    const isa::instructions::Instruction save_to_pa{
+        isa::instructions::Save::ToProgramAddress(isa::Operand{isa::Operand::Type::Scratch, 2})};
+
+    RunSingleInstruction(save_to_pa);
+
+    uint32_t saved = 0U;
+    ASSERT_TRUE(cpu.Peek(kCodeAddress, saved));
+    EXPECT_EQ(0xA5A5F00DU, saved);
+    EXPECT_FALSE(cpu.ViewSpecial().exception_.bus_fault);
+    EXPECT_FALSE(cpu.ViewSpecial().exception_.instruction_fault);
+}
+
 TEST_F(InstructionTest, LeapJumpsToTargetAddress) {
     cpu.GetScratch()[1].as_address = isa::Address{0x10000180U};
 
@@ -307,7 +358,7 @@ TEST_F(InstructionTest, BackWithZeroSetsReturnAddressToSafeHandler) {
 TEST_F(InstructionTest, SafeExceptionRoutesToSafeHandlerAboveExternalPriority) {
     cpu.GetSpecial().exception_.safe = 1;
     cpu.GetSpecial().exception_.external = 1;
-    cpu.GetSpecial().exception_.type = isa::ExceptionType::Safe;
+    cpu.GetSpecial().numeral_.trip = isa::to_underlying(isa::ExceptionType::Safe);
 
     RunSingleInstruction(isa::instructions::Instruction{isa::instructions::NoOp{}});
 
@@ -318,7 +369,7 @@ TEST_F(InstructionTest, PrivilegeExceptionRoutesAboveSafeAndExternalPriority) {
     cpu.GetSpecial().exception_.privilege_fault = 1;
     cpu.GetSpecial().exception_.safe = 1;
     cpu.GetSpecial().exception_.external = 1;
-    cpu.GetSpecial().exception_.type = isa::ExceptionType::Privilege;
+    cpu.GetSpecial().numeral_.trip = isa::to_underlying(isa::ExceptionType::Privilege);
 
     RunSingleInstruction(isa::instructions::Instruction{isa::instructions::NoOp{}});
 
@@ -339,20 +390,117 @@ TEST_F(InstructionTest, UndoMovesStackPointerUpByImmediateWords) {
     EXPECT_EQ(0x10001000U, cpu.ViewSpecial().stack_.current.value);
 }
 
+TEST_F(InstructionTest, PushStoresSelectedRegistersAndMovesStackPointer) {
+    auto& stack = cpu.GetSpecial().stack_;
+    stack.base = isa::Address{0x10000000U};
+    stack.current = isa::Address{0x10001000U};
+    stack.limit = isa::Address{0x10002000U};
+
+    cpu.GetScratch()[0].as_u32[0] = 0xAAAABBBBU;
+    cpu.GetScratch()[3].as_u32[0] = 0xCCCCDDDDU;
+
+    RunSingleInstruction(isa::instructions::Instruction{
+        isa::instructions::Push{isa::instructions::Push::ImmediateType{0b0000'0000'0000'1001U}}});
+
+    EXPECT_EQ(0x10000FF8U, cpu.ViewSpecial().stack_.current.value);
+
+    uint32_t first = 0U;
+    uint32_t second = 0U;
+    ASSERT_TRUE(cpu.Peek(isa::Address{0x10000FF8U}, first));
+    ASSERT_TRUE(cpu.Peek(isa::Address{0x10000FF4U}, second));
+    EXPECT_EQ(0xAAAABBBBU, first);
+    EXPECT_EQ(0xCCCCDDDDU, second);
+    EXPECT_FALSE(cpu.ViewSpecial().exception_.stack_fault);
+    EXPECT_FALSE(cpu.ViewSpecial().exception_.bus_fault);
+}
+
+TEST_F(InstructionTest, PullLoadsSelectedRegistersAndMovesStackPointer) {
+    auto& stack = cpu.GetSpecial().stack_;
+    stack.base = isa::Address{0x10000000U};
+    stack.current = isa::Address{0x10001000U};
+    stack.limit = isa::Address{0x10002000U};
+
+    ASSERT_TRUE(cpu.Poke(isa::Address{0x10001000U}, 0x11111111U));
+    ASSERT_TRUE(cpu.Poke(isa::Address{0x10001004U}, 0x44444444U));
+    cpu.GetScratch()[1].as_u32[0] = 0U;
+    cpu.GetScratch()[4].as_u32[0] = 0U;
+
+    RunSingleInstruction(isa::instructions::Instruction{
+        isa::instructions::Pull{isa::instructions::Pull::ImmediateType{0b0000'0000'0001'0010U}}});
+
+    EXPECT_EQ(0x10001008U, cpu.ViewSpecial().stack_.current.value);
+    EXPECT_EQ(0x11111111U, cpu.ViewScratch()[1].as_u32[0]);
+    EXPECT_EQ(0x44444444U, cpu.ViewScratch()[4].as_u32[0]);
+    EXPECT_FALSE(cpu.ViewSpecial().exception_.stack_fault);
+    EXPECT_FALSE(cpu.ViewSpecial().exception_.bus_fault);
+}
+
+TEST_F(InstructionTest, PushSetsStackFaultWhenStackRangeWouldBeExceeded) {
+    auto& stack = cpu.GetSpecial().stack_;
+    stack.base = isa::Address{0x10000FFCU};
+    stack.current = isa::Address{0x10001000U};
+    stack.limit = isa::Address{0x10002000U};
+
+    RunSingleInstruction(isa::instructions::Instruction{
+        isa::instructions::Push{isa::instructions::Push::ImmediateType{0b0000'0000'0000'0011U}}});
+
+    EXPECT_TRUE(cpu.ViewSpecial().exception_.stack_fault);
+    EXPECT_EQ(0x10001000U, cpu.ViewSpecial().stack_.current.value);
+}
+
+TEST_F(InstructionTest, PullSetsStackFaultWhenStackRangeWouldBeExceeded) {
+    auto& stack = cpu.GetSpecial().stack_;
+    stack.base = isa::Address{0x10000000U};
+    stack.current = isa::Address{0x10001FFCU};
+    stack.limit = isa::Address{0x10002000U};
+
+    RunSingleInstruction(isa::instructions::Instruction{
+        isa::instructions::Pull{isa::instructions::Pull::ImmediateType{0b0000'0000'0000'0011U}}});
+
+    EXPECT_TRUE(cpu.ViewSpecial().exception_.stack_fault);
+    EXPECT_EQ(0x10001FFCU, cpu.ViewSpecial().stack_.current.value);
+}
+
+TEST_F(InstructionTest, PushSetsBusFaultWhenStackAddressesAreUnmapped) {
+    auto& stack = cpu.GetSpecial().stack_;
+    stack.base = isa::Address{0x20000000U};
+    stack.current = isa::Address{0x20000100U};
+    stack.limit = isa::Address{0x20001000U};
+
+    RunSingleInstruction(isa::instructions::Instruction{
+        isa::instructions::Push{isa::instructions::Push::ImmediateType{0b0000'0000'0000'0001U}}});
+
+    EXPECT_TRUE(cpu.ViewSpecial().exception_.bus_fault);
+    EXPECT_EQ(0x200000FCU, cpu.ViewSpecial().stack_.current.value);
+}
+
+TEST_F(InstructionTest, PullSetsBusFaultWhenStackAddressesAreUnmapped) {
+    auto& stack = cpu.GetSpecial().stack_;
+    stack.base = isa::Address{0x20000000U};
+    stack.current = isa::Address{0x20000100U};
+    stack.limit = isa::Address{0x20001000U};
+
+    RunSingleInstruction(isa::instructions::Instruction{
+        isa::instructions::Pull{isa::instructions::Pull::ImmediateType{0b0000'0000'0000'0001U}}});
+
+    EXPECT_TRUE(cpu.ViewSpecial().exception_.bus_fault);
+    EXPECT_EQ(0x20000104U, cpu.ViewSpecial().stack_.current.value);
+}
+
 TEST_F(InstructionTest, CallJumpsToSystemCallHandlerAndStoresCallNumber) {
     RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Call{isa::Immediate<10>{7U}}});
 
-    EXPECT_EQ(7U, cpu.ViewSpecial().call_number_);
+    EXPECT_EQ(7U, cpu.ViewSpecial().numeral_.call);
     EXPECT_EQ(kCodeAddress + 4U, cpu.ViewSpecial().return_address_.value);
     EXPECT_EQ(kSystemCallHandler + 4U, cpu.ViewSpecial().program_address_.value);
 }
 
 TEST_F(InstructionTest, TripSetsExceptionAndJumpsToTripHandler) {
     RunSingleInstruction(isa::instructions::Instruction{
-        isa::instructions::Trip{isa::Immediate<10>{static_cast<uint32_t>(isa::ExceptionType::Triggered)}}});
+        isa::instructions::Trip{isa::Immediate<10>{static_cast<uint32_t>(isa::ExceptionType::Tripped)}}});
 
     EXPECT_TRUE(cpu.ViewSpecial().exception_.tripped);
-    EXPECT_EQ(isa::ExceptionType::Triggered, cpu.ViewSpecial().exception_.type);
+    EXPECT_EQ(isa::ExceptionType::Tripped, static_cast<isa::ExceptionType>(cpu.ViewSpecial().numeral_.trip));
     EXPECT_EQ(kTripHandler, cpu.ViewSpecial().program_address_.value);
 }
 

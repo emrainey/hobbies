@@ -63,6 +63,8 @@ flags:
 
 ### Data Movement
 
+Instruction related to manipulation of data within a register file set.
+
 ```asm
 copy Sd, Ss                         - d = s
 move Sd, #imm<16>                   - d = #imm<16>
@@ -85,8 +87,10 @@ save.b/h/w Ss << #0,1,2,3 -> Ss, #imm<10>               - *(a + imm<10>) = s
 Implies SCA inc/dec, _can cause Hardware Faults_!
 
 ```asm
-grow #imm<16>                       - SCA -= #imm<16> * word_size
-undo #imm<16>                       - SCA += #imm<16> * word_size
+grow #imm<16>                       - SCA -= #imm<16> * sizeof(word)
+undo #imm<16>                       - SCA += #imm<16> * sizeof(word)
+push {mask}                         - SCA -= sizeof(word) * popcount(mask), store registers in mask to stack
+pull {mask}                         - load registers in mask from stack, SCA += sizeof(word) * popcount(mask)
 ```
 
 ### Bitwise1 Operators

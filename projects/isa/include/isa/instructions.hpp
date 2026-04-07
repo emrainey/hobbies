@@ -24,56 +24,59 @@ enum class Operator : uint32_t {
     Back = 0x1CU,  ///< back from subroutine to address in Return Address Special Register
     Grow = 0x20U,  ///< grow #imm<16> (mask of scratch)
     Undo = 0x24U,  ///< undo #imm<16> (mask of scratch)
-    Call = 0x28U,  ///< call #imm<16> (System Call Number)
-    Trip = 0x2CU,  ///< Trip #imm<16> (Trip an exception with the given exception type encoded in the immediate value.
-                   ///< This can be used to test triggering interrupts)
-    Breakpoint = 0x30U,  ///< Breakpoint #imm<16> (Trigger a breakpoint exception with the given immediate value. This can be
-                      ///< used to set breakpoints in software for debugging)
+    Push = 0x28U,  ///< push {mask} (mask of scratch)
+    Pull = 0x2CU,  ///< pull {mask} (mask of scratch)
+    Call = 0x30U,  ///< call #imm<16> (System Call Number) This is the entry from User mode to Privileged Mode.
+    Trip = 0x34U,  ///< Trip #imm<16> (Trip an exception with the given exception type encoded in the immediate value.
+                   ///< This can be used to test triggering interrupts but must be called from privileged mode,
+                   ///< otherwise a privileged instruction exception will be raised)
+    Breakpoint = 0x38U,  ///< Breakpoint #imm<16> (Trigger a breakpoint exception with the given immediate value. This
+                         ///< can be used to set breakpoints in software for debugging)
     // === Memory Operations ===
-    Load = 0x34U,  ///< load scratchDestination, scratchAddress
-    Save = 0x38U,  ///< store scratchSource, scratchAddress
+    Load = 0x3CU,  ///< load scratchDestination, scratchAddress
+    Save = 0x40U,  ///< store scratchSource, scratchAddress
     // === Comparison ===
-    Compare = 0x3CU,  ///< Compare scratchA, scratchB
+    Compare = 0x44U,  ///< Compare scratchA, scratchB
     // === Bit Operators ===
     // 1 arg
-    Complement = 0x40U,  ///< bcmpl scratchDestination, scratchSource
-    Rsh = 0x44U,         ///< brsh scratchDestination, scratchSource, #imm<5>
-    Asr = 0x48U,         ///< basr scratchDestination, scratchSource, #imm<5>
-    Lsh = 0x4CU,         ///< blsh scratchDestination, scratchSource, #imm<5>
-    Rotate = 0x50U,      ///< brot scratchDestination, scratchSource, #imm<5>
-    Count1s = 0x54U,     ///< bcnt scratchDestination, scratchSource
-    CountL0s = 0x58U,    ///< bcnz scratchDestination, scratchSource
-    Not = 0x5CU,         ///< bnot scratchDestination, scratchSource
-    SetBit = 0x60U,      ///< bset scratchDestination, scratchSource, #imm<5>
-    ClearBit = 0x64U,    ///< bclr scratchDestination, scratchSource, #imm<5>
-    ToggleBit = 0x68U,   ///< btgl scratchDestination, scratchSource, #imm<5>
-    Reverse = 0x6CU,  ///< brev scratchDestination, scratchSource, #imm<5> (but limited to 0 = bytes, 1 = half-words, 2
+    Complement = 0x48U,  ///< bcpl scratchDestination, scratchSource
+    Rsh = 0x4CU,         ///< brsh scratchDestination, scratchSource, #imm<5>
+    Asr = 0x50U,         ///< basr scratchDestination, scratchSource, #imm<5>
+    Lsh = 0x54U,         ///< blsh scratchDestination, scratchSource, #imm<5>
+    Rotate = 0x58U,      ///< brot scratchDestination, scratchSource, #imm<5>
+    Count1s = 0x5CU,     ///< bcnt scratchDestination, scratchSource
+    CountL0s = 0x60U,    ///< bcnz scratchDestination, scratchSource
+    Not = 0x64U,         ///< bnot scratchDestination, scratchSource
+    SetBit = 0x68U,      ///< bset scratchDestination, scratchSource, #imm<5>
+    ClearBit = 0x6CU,    ///< bclr scratchDestination, scratchSource, #imm<5>
+    ToggleBit = 0x70U,   ///< btgl scratchDestination, scratchSource, #imm<5>
+    Reverse = 0x74U,  ///< brev scratchDestination, scratchSource, #imm<5> (but limited to 0 = bytes, 1 = half-words, 2
                       ///< = words)
     // 2 arg
-    And = 0x70U,  ///< band scratchDestination, scratchSource, scratchSource
-    Or = 0x74U,   ///< borr scratchDestination, scratchSource, scratchSource
-    Xor = 0x78U,  ///< bxor scratchDestination, scratchSource, scratchSource
+    And = 0x78U,  ///< band scratchDestination, scratchSource, scratchSource
+    Or = 0x7CU,   ///< borr scratchDestination, scratchSource, scratchSource
+    Xor = 0x80U,  ///< bxor scratchDestination, scratchSource, scratchSource
 
     // === Arithmetic (Integer) ===
-    Addition = 0x7CU,  ///< add{s/u}.{type}{size} Sd, Sa, Sb : Es
-    Subtract = 0x80U,  ///< sub{s/u}.{type}{size} Sd, Sa, Sb : Es
-    Multiply = 0x84U,  ///< mul{s/u}.{type}{size} Sd, Sa, Sb : Es
-    Divide = 0x88U,    ///< div{s/u}.{type}{size} Sd, Sa, Sb : Es
-    Modulo = 0x8CU,    ///< mod{s/u}.{type}{size} Sd, Sa, Sb : Es
+    Addition = 0x84U,  ///< add{s/u}.{type}{size} Sd, Sa, Sb : Es
+    Subtract = 0x88U,  ///< sub{s/u}.{type}{size} Sd, Sa, Sb : Es
+    Multiply = 0x8CU,  ///< mul{s/u}.{type}{size} Sd, Sa, Sb : Es
+    Divide = 0x90U,    ///< div{s/u}.{type}{size} Sd, Sa, Sb : Es
+    Modulo = 0x94U,    ///< mod{s/u}.{type}{size} Sd, Sa, Sb : Es
 
     // === ALU (Precision) ===
     // 1 arg
-    FloatingFloor = 0x90U,       ///< fflr scratchDestination, scratchSource
-    FloatingCeil = 0x94U,        ///< fcel scratchDestination, scratchSource
-    FloatingAbs = 0x98U,         ///< fabs scratchDestination, scratchSource
-    FloatingNegate = 0x9CU,      ///< fneg scratchDestination, scratchSource
-    FloatingFractional = 0xA0U,  ///< ffrc scratchDestination, scratchSource
-    FloatingConvert = 0xA4U,     ///< fcvts{type}{size} scratchDestination, scratchSource
+    FloatingFloor = 0x98U,       ///< fflr scratchDestination, scratchSource
+    FloatingCeil = 0x9CU,        ///< fcel scratchDestination, scratchSource
+    FloatingAbs = 0xA0U,         ///< fabs scratchDestination, scratchSource
+    FloatingNegate = 0xA4U,      ///< fneg scratchDestination, scratchSource
+    FloatingFractional = 0xA8U,  ///< ffrc scratchDestination, scratchSource
+    FloatingConvert = 0xACU,     ///< fcvts{type}{size} scratchDestination, scratchSource
     // 2 arg
-    FloatingAddition = 0xA8U,        ///< fadd scratchDestination, scratchSource, scratchSource -> Overflow or Underflow
-    FloatingSubtraction = 0xACU,     ///< fsub scratchDestination, scratchSource, scratchSource -> Overflow or Underflow
-    FloatingMultiplication = 0xB0U,  ///< fmul scratchDestination, scratchSource, scratchSource -> Overflow or Underflow
-    FloatingDivision = 0xB4U,  ///< fdiv scratchDestination, scratchSource, scratchSource -> Fault if scratchSource == 0
+    FloatingAddition = 0xB0U,        ///< fadd scratchDestination, scratchSource, scratchSource -> Overflow or Underflow
+    FloatingSubtraction = 0xB4U,     ///< fsub scratchDestination, scratchSource, scratchSource -> Overflow or Underflow
+    FloatingMultiplication = 0xB8U,  ///< fmul scratchDestination, scratchSource, scratchSource -> Overflow or Underflow
+    FloatingDivision = 0xBCU,  ///< fdiv scratchDestination, scratchSource, scratchSource -> Fault if scratchSource == 0
 
     // === ALU (SIMD) ===
 
@@ -92,6 +95,7 @@ enum class Size : uint32_t {
     DoubleWord = 3,
 };
 
+/// The way to index either the Scratch or Evaluation registers for an instruction. This also supports immediate Masks
 struct Operand {
     /// The type of the Operand
     enum class Type : uint32_t {
@@ -399,7 +403,7 @@ struct Zero {
         : op{Operator::Zero}, mask{mask.imm}, type{to_underlying(evaluation)} {
     }
     friend std::ostream& operator<<(std::ostream& os, Zero c) {
-        os << "clear " << (c.type == RegisterType::Scratch ? 'S' : 'E') << ", "
+        os << "zero " << (c.type == RegisterType::Scratch ? 'S' : 'E') << ", "
            << Operand{Operand::Type::Mask, ImmediateType{c.mask}};
         return os;
     }
@@ -416,19 +420,31 @@ public:
     using ImmediateType = isa::Immediate<10>;
     Load() = delete;
 
-    constexpr static Load Byte(Operand src, Operand base, uint32_t shift, ImmediateType imm = ImmediateType{0},
+    constexpr static Load Byte(Operand dst, Operand base, uint32_t shift, ImmediateType imm = ImmediateType{0},
                                bool inc_or_off = false) {
-        return Load(src, base, shift, Size::Byte, imm, inc_or_off);
+        return Load(dst, base, shift, Size::Byte, imm, inc_or_off);
     }
 
-    constexpr static Load HalfWord(Operand src, Operand base, uint32_t shift, ImmediateType imm = ImmediateType{0},
+    constexpr static Load HalfWord(Operand dst, Operand base, uint32_t shift, ImmediateType imm = ImmediateType{0},
                                    bool inc_or_off = false) {
-        return Load(src, base, shift, Size::HalfWord, imm, inc_or_off);
+        return Load(dst, base, shift, Size::HalfWord, imm, inc_or_off);
     }
 
-    constexpr static Load Word(Operand src, Operand base, ImmediateType imm = ImmediateType{0},
+    constexpr static Load Word(Operand dst, Operand base, ImmediateType imm = ImmediateType{0},
                                bool inc_or_off = false) {
-        return Load(src, base, 0, Size::Word, imm, inc_or_off);
+        return Load(dst, base, 0, Size::Word, imm, inc_or_off);
+    }
+
+    constexpr static Load FromStack(Operand dst, uint32_t shift = 0, ImmediateType imm = ImmediateType{0}) {
+        Load l(dst, Operand{Operand::Type::Scratch, 4U}, shift, Size::Word, imm, false);
+        l.special = 1U;
+        return l;
+    }
+
+    constexpr static Load FromProgramAddress(Operand dst, uint32_t shift = 0, ImmediateType imm = ImmediateType{0}) {
+        Load l(dst, Operand{Operand::Type::Scratch, 0U}, shift, Size::Word, imm, false);
+        l.special = 1U;
+        return l;
     }
 
     friend std::ostream& operator<<(std::ostream& os, Load l) {
@@ -464,7 +480,8 @@ public:
     Operator op : CountOfOperatorBits;
     uint32_t dst : CountOfScratchIndexBits;   ///< Destination Scratch Register
     uint32_t base : CountOfScratchIndexBits;  ///< Base Scratch Register containing the address
-    uint32_t : 1;                             ///< Unused
+    uint32_t special : 1;  ///< Indicates if the load should use the special register as the base address instead of the
+                           ///< scratch register
     uint32_t off : 1;  ///< If set, the base scratch register will be used as an offset from a base address in a special
                        ///< register instead of an absolute address.
     uint32_t shift : 2;
@@ -476,6 +493,7 @@ protected:
         : op{Operator::Load}
         , dst{dst.index}
         , base{base.index}
+        , special{0}
         , off{inc_or_off ? 0U : 1U}
         , shift{shift}
         , size{size}
@@ -508,6 +526,18 @@ public:
     constexpr static Save Word(Operand src, Operand base, ImmediateType imm = ImmediateType{0},
                                bool inc_or_off = false) {
         return Save(src, base, 0, Size::Word, imm, inc_or_off);
+    }
+
+    constexpr static Save ToStack(Operand src, uint32_t shift = 0, ImmediateType imm = ImmediateType{0}) {
+        Save s(src, Operand{Operand::Type::Scratch, 4U}, shift, Size::Word, imm, false);
+        s.special = 1U;
+        return s;
+    }
+
+    constexpr static Save ToProgramAddress(Operand src, uint32_t shift = 0, ImmediateType imm = ImmediateType{0}) {
+        Save s(src, Operand{Operand::Type::Scratch, 0U}, shift, Size::Word, imm, false);
+        s.special = 1U;
+        return s;
     }
 
     friend std::ostream& operator<<(std::ostream& os, Save s) {
@@ -544,7 +574,8 @@ public:
     Operator op : CountOfOperatorBits;
     uint32_t src : CountOfScratchIndexBits;   ///< Source Scratch Register
     uint32_t base : CountOfScratchIndexBits;  ///< Base Scratch Register containing the address
-    uint32_t : 1;                             ///< Unused bit to allow for symmetry with Load instruction encoding
+    uint32_t special : 1;  ///< Indicates if the save should use the special register as the base address instead of the
+                           ///< scratch register
     uint32_t off : 1;  ///< If set, the base scratch register will be used as an offset from a base address in a special
                        ///< register instead of an absolute address.
     uint32_t shift : 2;
@@ -556,6 +587,7 @@ protected:
         : op{Operator::Save}
         , src{src.index}
         , base{base.index}
+        , special{0}
         , off{inc_or_off ? 0U : 1U}
         , shift{shift}
         , size{size}
@@ -676,6 +708,38 @@ struct Grow {
     uint32_t : CountOfDataBits - CountOfOperatorBits - (2 * CountOfEvalIndexBits) - ImmediateType::Bits - 1;
     uint32_t imm : ImmediateType::Bits;  ///< Each bit corresponds to a scratch register. If the bit is set, the
                                          ///< corresponding scratch register will be grown.
+};
+
+struct Push {
+    using ImmediateType = isa::Immediate<CountOfScratchRegisters>;
+    Push() = delete;
+    constexpr Push(ImmediateType imm) : op{Operator::Push}, imm{imm.value} {
+    }
+    friend std::ostream& operator<<(std::ostream& os, Push p) {
+        os << "push " << "#" << ImmediateType{p.imm};
+        return os;
+    }
+
+    Operator op : CountOfOperatorBits;
+    uint32_t : CountOfDataBits - CountOfOperatorBits - ImmediateType::Bits;
+    uint32_t imm : ImmediateType::Bits;  ///< Each bit corresponds to a scratch register. If the bit is set, the
+                                         ///< corresponding scratch register will be pushed (saved).
+};
+
+struct Pull {
+    using ImmediateType = isa::Immediate<CountOfScratchRegisters>;
+    Pull() = delete;
+    constexpr Pull(ImmediateType imm) : op{Operator::Pull}, imm{imm.value} {
+    }
+    friend std::ostream& operator<<(std::ostream& os, Pull p) {
+        os << "pull " << "#" << ImmediateType{p.imm};
+        return os;
+    }
+
+    Operator op : CountOfOperatorBits;
+    uint32_t : CountOfDataBits - CountOfOperatorBits - ImmediateType::Bits;
+    uint32_t imm : ImmediateType::Bits;  ///< Each bit corresponds to a scratch register. If the bit is set, the
+                                         ///< corresponding scratch register will be pulled (restored).
 };
 
 struct Undo {
@@ -1361,6 +1425,12 @@ union Instruction {
     /// Typed Constructor for Undo
     constexpr Instruction(Undo u) : undo{u} {
     }
+    /// Typed Constructor for Push
+    constexpr Instruction(Push p) : push{p} {
+    }
+    /// Typed Constructor for Pull
+    constexpr Instruction(Pull p) : pull{p} {
+    }
     /// Typed Constructor for Call
     constexpr Instruction(Call c) : call{c} {
     }
@@ -1390,7 +1460,7 @@ union Instruction {
     Base base;              ///< The base instruction for decoding the operator
     NoOp noop;              ///< No Operation
     Halt halt;              ///< Halt the processor
-    Breakpoint breakpoint;    ///< Breakpoint for debugging (not a real instruction, used for tooling)
+    Breakpoint breakpoint;  ///< Breakpoint for debugging (not a real instruction, used for tooling)
     Copy copy;              ///< Copy from one evaluation register to another
     Move move;              ///< Move from scratch to scratch
     MoveImmediate movi;     ///< Move immediate to scratch/evaluation register
@@ -1403,6 +1473,8 @@ union Instruction {
     Back back;              ///< Returns from a Leap
     Grow grow;              ///< Grow the memory by a number of pages specified in an evaluation register
     Undo undo;              ///< Undo the last memory growth
+    Push push;              ///< Push a scratch register to the call stack
+    Pull pull;              ///< Pull a scratch register from the call stack
     Call call;              ///< Call a subroutine at an address specified in an evaluation register
     Trip trip;              ///< Trip to an address specified in an evaluation register and save the return
     Compare compare;        ///< Compare two scratch registers and set flags in an evaluation register
@@ -1445,6 +1517,10 @@ union Instruction {
             os << instr.grow;
         } else if (instr.base() == Operator::Undo) {
             os << instr.undo;
+        } else if (instr.base() == Operator::Push) {
+            os << instr.push;
+        } else if (instr.base() == Operator::Pull) {
+            os << instr.pull;
         } else if (instr.base() == Operator::Call) {
             os << instr.call;
         } else if (instr.base() == Operator::Trip) {
@@ -1519,7 +1595,7 @@ static_assert(sizeof(Instruction) == sizeof(uint32_t), "Must be this size");
 
 }  // namespace instructions
 
-/// A program is an ordered sequence of instructions
+/// A program is an ordered sequence of instructions but can contain many functions, etc.
 using program = std::vector<instructions::Instruction>;
 
 }  // namespace isa

@@ -65,15 +65,19 @@ SpecialRegisterRows FormatSpecialRegisterRows(Processor const& cpu) {
     register_stream.str("");
     register_stream.clear();
     register_stream << special.mode_;
-    rows[10] = FormatRegisterRow("MODE", special_name_width, register_stream.str(), special_value_width);
+    rows[10] = FormatRegisterRow("MASK", special_name_width, register_stream.str(), special_value_width);
     register_stream.str("");
     register_stream.clear();
-    register_stream << special.call_number_;
-    rows[11] = FormatRegisterRow("CALL", special_name_width, register_stream.str(), special_value_width);
+    register_stream << special.mode_;
+    rows[11] = FormatRegisterRow("MODE", special_name_width, register_stream.str(), special_value_width);
     register_stream.str("");
     register_stream.clear();
-    rows[12] = FormatRegisterRow("PERF", special_name_width, FormatHexValue(special.performance_counter_),
-                                 special_value_width);
+    register_stream << special.numeral_.call;
+    rows[12] = FormatRegisterRow("NUML", special_name_width, register_stream.str(), special_value_width);
+    register_stream.str("");
+    register_stream.clear();
+    register_stream << special.numeral_.trip;
+    rows[13] = FormatRegisterRow("TRIP", special_name_width, register_stream.str(), special_value_width);
     return rows;
 }
 

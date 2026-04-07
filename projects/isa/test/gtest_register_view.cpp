@@ -73,4 +73,8 @@ TEST(RegisterViewTest, SpecialRowsReflectProcessorSpecialRegisters) {
     EXPECT_EQ(AddressRow("ESLA", special.exception_stack_.limit), rows[6]);
     EXPECT_EQ(AddressRow("ESCA", special.exception_stack_.current), rows[7]);
     EXPECT_EQ(AddressRow("ESBA", special.exception_stack_.base), rows[8]);
+    // EXPECT_EQ(ScratchRow("EXC", special.exception_.as_word().as_u32[0]), rows[9]);
+    // EXPECT_EQ(ScratchRow("MASK", special.exception_mask_.as_word().as_u32[0]), rows[10]);
+    // EXPECT_EQ(ScratchRow("NUML", special.numeral_.call), rows[11]);
+    // EXPECT_EQ(ScratchRow("PERF", special.performance_counter_), rows[12]);
 }

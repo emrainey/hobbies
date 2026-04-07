@@ -360,17 +360,38 @@ union word {
     uint8_t as_u08[SizeInBytes / sizeof(uint8_t)];
     uint16_t as_u16[SizeInBytes / sizeof(uint16_t)];
     uint32_t as_u32[SizeInBytes / sizeof(uint32_t)];
+    // uint64_t as_u64[SizeInBytes / sizeof(uint64_t)];
     int8_t as_s08[SizeInBytes / sizeof(int8_t)];
     int16_t as_s16[SizeInBytes / sizeof(int16_t)];
     int32_t as_s32[SizeInBytes / sizeof(int32_t)];
+    // int64_t as_s64[SizeInBytes / sizeof(int64_t)];
     float as_float[SizeInBytes / sizeof(float)];
+    // double as_double[SizeInBytes / sizeof(double)];
     Address as_address;  ///< Can only be 1 address in a word
+
+    template <typename UNIT, size_t INDEX>
+    UNIT as() const {
+        if (INDEX < SizeInBytes / sizeof(UNIT)) {
+            const UNIT* ptr = reinterpret_cast<const UNIT*>(this);
+            return ptr[INDEX];
+        } else {
+            throw std::out_of_range("Word index out of range");
+        }
+    }
 };
-static_assert(sizeof(word<32>) == sizeof(Address), "Must be the same size");
+
+/// The word is a basic unit of data on the processor and can be used to represent addresses, integers, floats, etc.
+/// The word union allows for different interpretations of the same 32 bits of data, which is useful for instructions
+/// that operate on different types
+using Word = word<CountOfDataBits>;
+
+static_assert(sizeof(Word) == sizeof(Address), "Must be the same size");
 
 /// The number of bits needed to index a Scratch Register or Evaluation Register
 constexpr static size_t CountOfScratchIndexBits{log2(CountOfScratchRegisters)};
+/// The number of bits needed to index an Evaluation Register
 constexpr static size_t CountOfEvalIndexBits{log2(CountOfEvaluationRegisters)};
+/// The number of bits needed to encode a shift within the for the data unit of the processor
 constexpr static size_t CountOfDataShiftBits{log2(CountOfDataBits)};
 
 /// An index over a COUNT of items.

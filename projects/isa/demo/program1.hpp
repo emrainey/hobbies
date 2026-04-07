@@ -17,43 +17,29 @@ template <size_t BITS>
 using imm = Immediate<BITS>;
 
 constexpr Address kProgramEntry = DefaultVectorTableAddress + sizeof(VectorTable);
-constexpr Address kImmediateLeapTarget = kProgramEntry + (30U * sizeof(Instruction));
+constexpr Address kImmediateLeapTarget = kProgramEntry + (32U * sizeof(Instruction));
 
 // === Example Program ===
 
 program program1 = {
     // clear the registers to known values
-    Zero{Op{M, imm<16>{0xFFFFU}}, RegisterType::Scratch},
-    Zero{Op{M, imm<16>{0xFFFFU}}, RegisterType::Evaluation},
-    NoOp{},
-    MoveImmediate{Op{S, 0}, imm<16>{0xCCDD}},
-    MoveImmediate{Op{S, 0}, imm<16>{0xAABB}, true},
-    Move{Op{S, 1}, Op{S, 0}, true, Move::ImmediateType{4}},
-    MoveImmediate{Op{S, 0}, imm<16>{0x00D0}},
-    MoveImmediate{Op{S, 1}, imm<16>{0x0010}, true},
-    Save::Word(Op{S, 0}, Op{S, 1}, Save::ImmediateType{0x10}),
-    MoveImmediate{Op{S, 3}, imm<16>{0x5555}},
-    MoveImmediate{Op{S, 5}, imm<16>{0xCCCC}},
-    Bitwise1::Count(Op{S, 7}, Op{S, 0}),
-    Bitwise2::And(Op{S, 7}, Op{S, 1}, Op{S, 3}),
-    Bitwise2::Or(Op{S, 8}, Op{S, 1}, Op{S, 3}),
-    Bitwise2::Xor(Op{S, 9}, Op{S, 1}, Op{S, 3}),
-    Swap{Op{S, 0}, Op{S, 4}},
-    Compare{Op{E, 0}, Op{S, 0}, Op{S, 3}},
-    Compare{Op{E, 1}, Op{S, 1}, Op{S, 3}},
-    Compare{Op{E, 2}, Op{S, 3}, Op{S, 5}},
-    Compare{Op{E, 3}, Op{S, 1}, Op{S, 4}},
-    Swap{Op{E, 0}, Op{E, 4}},
-    MoveImmediate{Op{E, 5}, imm<16>{0xFF}},
+    Zero{Op{M, imm<16>{0xFFFFU}}, RegisterType::Scratch}, Zero{Op{M, imm<16>{0xFFFFU}}, RegisterType::Evaluation},
+    NoOp{}, MoveImmediate{Op{S, 0}, imm<16>{0xCCDD}}, MoveImmediate{Op{S, 0}, imm<16>{0xAABB}, true},
+    Move{Op{S, 1}, Op{S, 0}, true, Move::ImmediateType{4}}, MoveImmediate{Op{S, 0}, imm<16>{0x00D0}},
+    MoveImmediate{Op{S, 1}, imm<16>{0x0010}, true}, Save::Word(Op{S, 0}, Op{S, 1}, Save::ImmediateType{0x10}),
+    MoveImmediate{Op{S, 3}, imm<16>{0x5555}}, MoveImmediate{Op{S, 5}, imm<16>{0xCCCC}},
+    Push{Push::ImmediateType{0b10101}}, Bitwise1::Count(Op{S, 7}, Op{S, 0}),
+    Bitwise2::And(Op{S, 7}, Op{S, 1}, Op{S, 3}), Bitwise2::Or(Op{S, 8}, Op{S, 1}, Op{S, 3}),
+    Bitwise2::Xor(Op{S, 9}, Op{S, 1}, Op{S, 3}), Swap{Op{S, 0}, Op{S, 4}}, Compare{Op{E, 0}, Op{S, 0}, Op{S, 3}},
+    Compare{Op{E, 1}, Op{S, 1}, Op{S, 3}}, Compare{Op{E, 2}, Op{S, 3}, Op{S, 5}}, Compare{Op{E, 3}, Op{S, 1}, Op{S, 4}},
+    Swap{Op{E, 0}, Op{E, 4}}, MoveImmediate{Op{E, 5}, imm<16>{0xFF}},
     MoveImmediate{Op{E, 6}, ComparisonEvaluation{true, false, false, true}},
-    MoveImmediate{Op{S, 9}, imm<16>{0x0010}, true},
-    MoveImmediate{Op{S, 10}, imm<16>{0x0048 + (25 * 4)}, false},
-    Bitwise2::Or(Op{S, 9}, Op{S, 9}, Op{S, 10}),
-    Leap{Op{S, 9}, Leap::ImmediateType{0x2}, true},
+    MoveImmediate{Op{S, 9}, imm<16>{0x0010}, true}, MoveImmediate{Op{S, 10}, imm<16>{0x0048 + (25 * 4)}, false},
+    Bitwise2::Or(Op{S, 9}, Op{S, 9}, Op{S, 10}), Leap{Op{S, 9}, Leap::ImmediateType{0x2}, true},
     Load::Word(Op{S, 2}, Op{S, 0}, Load::ImmediateType{0x10}, true),
-    Save::Word(Op{S, 2}, Op{S, 0}, Save::ImmediateType{0x20}, true),
-    LeapImmediate{kImmediateLeapTarget, false},
-    Halt{},
-};
+    Save::Word(Op{S, 2}, Op{S, 0}, Save::ImmediateType{0x20}, true), LeapImmediate{kImmediateLeapTarget, true}, Halt{},
+    Push{Push::ImmediateType{0b11111}}, Grow{Grow::ImmediateType{4}},
+    // function at kImmediateLeapTarget
+    Undo{Undo::ImmediateType{4}}, Pull{Pull::ImmediateType{0b11111}}, Back{true}};
 
 }  // namespace isa

@@ -3,25 +3,20 @@
 /// This is an auto-generated source for iso::newtons.
 /// A measure of force
 /// @note See README on re-generation.
-/// @copyright Copyright 2025.
+/// @copyright Copyright 2026.
 ///
 #include "iso/newtons.hpp"
 
 namespace iso {
 char const* const suffix_type_N::suffix;
-// default
 newtons::newtons() : measurement{} {
 }
-// explicit value
 newtons::newtons(precision a) : measurement{a} {
 }
-// copy constructor
 newtons::newtons(newtons const& other) : measurement{other} {
 }
-// move constructor
 newtons::newtons(newtons&& other) : measurement{std::move(other)} {
 }
-
 newtons& newtons::operator=(newtons const& other) noexcept {
     _value = other.value;
     return (*this);
@@ -32,13 +27,14 @@ newtons& newtons::operator=(newtons& other) noexcept {
 }
 newtons& newtons::operator=(newtons&& other) noexcept {
     _value = other.value;
+    other._value = static_cast<precision>(0);
     return (*this);
 }
 bool newtons::operator==(newtons const& other) const {
     return basal::equivalent(value, other.value);
 }
 bool newtons::operator!=(newtons const& other) const {
-    return !operator==(other);
+    return not operator==(other);
 }
 newtons& newtons::operator+=(newtons const& other) {
     _value += other.value;
@@ -104,3 +100,4 @@ iso::newtons operator""_N(char const a[]) {
 }
 }  // namespace literals
 }  // namespace iso
+

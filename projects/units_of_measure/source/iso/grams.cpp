@@ -3,25 +3,20 @@
 /// This is an auto-generated source for iso::grams.
 /// A measurement of mass
 /// @note See README on re-generation.
-/// @copyright Copyright 2025.
+/// @copyright Copyright 2026.
 ///
 #include "iso/grams.hpp"
 
 namespace iso {
 char const* const suffix_type_g::suffix;
-// default
 grams::grams() : measurement{} {
 }
-// explicit value
 grams::grams(precision a) : measurement{a} {
 }
-// copy constructor
 grams::grams(grams const& other) : measurement{other} {
 }
-// move constructor
 grams::grams(grams&& other) : measurement{std::move(other)} {
 }
-
 grams& grams::operator=(grams const& other) noexcept {
     _value = other.value;
     return (*this);
@@ -32,13 +27,14 @@ grams& grams::operator=(grams& other) noexcept {
 }
 grams& grams::operator=(grams&& other) noexcept {
     _value = other.value;
+    other._value = static_cast<precision>(0);
     return (*this);
 }
 bool grams::operator==(grams const& other) const {
     return basal::equivalent(value, other.value);
 }
 bool grams::operator!=(grams const& other) const {
-    return !operator==(other);
+    return not operator==(other);
 }
 grams& grams::operator+=(grams const& other) {
     _value += other.value;
@@ -104,3 +100,4 @@ iso::grams operator""_g(char const a[]) {
 }
 }  // namespace literals
 }  // namespace iso
+

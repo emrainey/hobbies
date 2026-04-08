@@ -3,25 +3,20 @@
 /// This is an auto-generated source for iso::joules.
 /// A measure of energy
 /// @note See README on re-generation.
-/// @copyright Copyright 2025.
+/// @copyright Copyright 2026.
 ///
 #include "iso/joules.hpp"
 
 namespace iso {
 char const* const suffix_type_J::suffix;
-// default
 joules::joules() : measurement{} {
 }
-// explicit value
 joules::joules(precision a) : measurement{a} {
 }
-// copy constructor
 joules::joules(joules const& other) : measurement{other} {
 }
-// move constructor
 joules::joules(joules&& other) : measurement{std::move(other)} {
 }
-
 joules& joules::operator=(joules const& other) noexcept {
     _value = other.value;
     return (*this);
@@ -32,13 +27,14 @@ joules& joules::operator=(joules& other) noexcept {
 }
 joules& joules::operator=(joules&& other) noexcept {
     _value = other.value;
+    other._value = static_cast<precision>(0);
     return (*this);
 }
 bool joules::operator==(joules const& other) const {
     return basal::equivalent(value, other.value);
 }
 bool joules::operator!=(joules const& other) const {
-    return !operator==(other);
+    return not operator==(other);
 }
 joules& joules::operator+=(joules const& other) {
     _value += other.value;
@@ -104,3 +100,4 @@ iso::joules operator""_J(char const a[]) {
 }
 }  // namespace literals
 }  // namespace iso
+

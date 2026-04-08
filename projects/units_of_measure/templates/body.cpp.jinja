@@ -9,19 +9,14 @@
 
 namespace {{namespace}} {
 char const* const suffix_type_{{postfix}}::suffix;
-// default
 {{classname}}::{{classname}}() : measurement{} {
 }
-// explicit value
 {{classname}}::{{classname}}({{typename}} a) : measurement{a} {
 }
-// copy constructor
 {{classname}}::{{classname}}({{classname}} const& other) : measurement{other} {
 }
-// move constructor
 {{classname}}::{{classname}}({{classname}}&& other) : measurement{std::move(other)} {
 }
-
 {{classname}}& {{classname}}::operator=({{classname}} const& other) noexcept {
     _value = other.value;
     return (*this);
@@ -32,13 +27,14 @@ char const* const suffix_type_{{postfix}}::suffix;
 }
 {{classname}}& {{classname}}::operator=({{classname}}&& other) noexcept {
     _value = other.value;
+    other._value = static_cast<{{typename}}>(0);
     return (*this);
 }
 bool {{classname}}::operator==({{classname}} const& other) const {
     return basal::equivalent(value, other.value);
 }
 bool {{classname}}::operator!=({{classname}} const& other) const {
-    return !operator==(other);
+    return not operator==(other);
 }
 {{classname}}& {{classname}}::operator+=({{classname}} const& other) {
     _value += other.value;

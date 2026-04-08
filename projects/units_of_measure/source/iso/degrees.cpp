@@ -3,25 +3,20 @@
 /// This is an auto-generated source for iso::degrees.
 /// A measure of an angle
 /// @note See README on re-generation.
-/// @copyright Copyright 2025.
+/// @copyright Copyright 2026.
 ///
 #include "iso/degrees.hpp"
 
 namespace iso {
 char const* const suffix_type_deg::suffix;
-// default
 degrees::degrees() : measurement{} {
 }
-// explicit value
 degrees::degrees(precision a) : measurement{a} {
 }
-// copy constructor
 degrees::degrees(degrees const& other) : measurement{other} {
 }
-// move constructor
 degrees::degrees(degrees&& other) : measurement{std::move(other)} {
 }
-
 degrees& degrees::operator=(degrees const& other) noexcept {
     _value = other.value;
     return (*this);
@@ -32,13 +27,14 @@ degrees& degrees::operator=(degrees& other) noexcept {
 }
 degrees& degrees::operator=(degrees&& other) noexcept {
     _value = other.value;
+    other._value = static_cast<precision>(0);
     return (*this);
 }
 bool degrees::operator==(degrees const& other) const {
     return basal::equivalent(value, other.value);
 }
 bool degrees::operator!=(degrees const& other) const {
-    return !operator==(other);
+    return not operator==(other);
 }
 degrees& degrees::operator+=(degrees const& other) {
     _value += other.value;
@@ -104,3 +100,4 @@ iso::degrees operator""_deg(char const a[]) {
 }
 }  // namespace literals
 }  // namespace iso
+

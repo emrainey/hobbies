@@ -3,25 +3,20 @@
 /// This is an auto-generated source for iso::seconds.
 /// A measure of time
 /// @note See README on re-generation.
-/// @copyright Copyright 2025.
+/// @copyright Copyright 2026.
 ///
 #include "iso/seconds.hpp"
 
 namespace iso {
 char const* const suffix_type_sec::suffix;
-// default
 seconds::seconds() : measurement{} {
 }
-// explicit value
 seconds::seconds(precision a) : measurement{a} {
 }
-// copy constructor
 seconds::seconds(seconds const& other) : measurement{other} {
 }
-// move constructor
 seconds::seconds(seconds&& other) : measurement{std::move(other)} {
 }
-
 seconds& seconds::operator=(seconds const& other) noexcept {
     _value = other.value;
     return (*this);
@@ -32,13 +27,14 @@ seconds& seconds::operator=(seconds& other) noexcept {
 }
 seconds& seconds::operator=(seconds&& other) noexcept {
     _value = other.value;
+    other._value = static_cast<precision>(0);
     return (*this);
 }
 bool seconds::operator==(seconds const& other) const {
     return basal::equivalent(value, other.value);
 }
 bool seconds::operator!=(seconds const& other) const {
-    return !operator==(other);
+    return not operator==(other);
 }
 seconds& seconds::operator+=(seconds const& other) {
     _value += other.value;
@@ -104,3 +100,4 @@ iso::seconds operator""_sec(char const a[]) {
 }
 }  // namespace literals
 }  // namespace iso
+

@@ -3,25 +3,20 @@
 /// This is an auto-generated source for iso::volts.
 /// A measure of the electrical potential
 /// @note See README on re-generation.
-/// @copyright Copyright 2025.
+/// @copyright Copyright 2026.
 ///
 #include "iso/volts.hpp"
 
 namespace iso {
 char const* const suffix_type_V::suffix;
-// default
 volts::volts() : measurement{} {
 }
-// explicit value
 volts::volts(precision a) : measurement{a} {
 }
-// copy constructor
 volts::volts(volts const& other) : measurement{other} {
 }
-// move constructor
 volts::volts(volts&& other) : measurement{std::move(other)} {
 }
-
 volts& volts::operator=(volts const& other) noexcept {
     _value = other.value;
     return (*this);
@@ -32,13 +27,14 @@ volts& volts::operator=(volts& other) noexcept {
 }
 volts& volts::operator=(volts&& other) noexcept {
     _value = other.value;
+    other._value = static_cast<precision>(0);
     return (*this);
 }
 bool volts::operator==(volts const& other) const {
     return basal::equivalent(value, other.value);
 }
 bool volts::operator!=(volts const& other) const {
-    return !operator==(other);
+    return not operator==(other);
 }
 volts& volts::operator+=(volts const& other) {
     _value += other.value;
@@ -104,3 +100,4 @@ iso::volts operator""_V(char const a[]) {
 }
 }  // namespace literals
 }  // namespace iso
+

@@ -3,25 +3,20 @@
 /// This is an auto-generated source for iso::turns.
 /// A measure of an angle
 /// @note See README on re-generation.
-/// @copyright Copyright 2025.
+/// @copyright Copyright 2026.
 ///
 #include "iso/turns.hpp"
 
 namespace iso {
 char const* const suffix_type_Tau::suffix;
-// default
 turns::turns() : measurement{} {
 }
-// explicit value
 turns::turns(precision a) : measurement{a} {
 }
-// copy constructor
 turns::turns(turns const& other) : measurement{other} {
 }
-// move constructor
 turns::turns(turns&& other) : measurement{std::move(other)} {
 }
-
 turns& turns::operator=(turns const& other) noexcept {
     _value = other.value;
     return (*this);
@@ -32,13 +27,14 @@ turns& turns::operator=(turns& other) noexcept {
 }
 turns& turns::operator=(turns&& other) noexcept {
     _value = other.value;
+    other._value = static_cast<precision>(0);
     return (*this);
 }
 bool turns::operator==(turns const& other) const {
     return basal::equivalent(value, other.value);
 }
 bool turns::operator!=(turns const& other) const {
-    return !operator==(other);
+    return not operator==(other);
 }
 turns& turns::operator+=(turns const& other) {
     _value += other.value;
@@ -104,3 +100,4 @@ iso::turns operator""_Tau(char const a[]) {
 }
 }  // namespace literals
 }  // namespace iso
+

@@ -3,25 +3,20 @@
 /// This is an auto-generated source for iso::amperes.
 /// A measure of current in electricity
 /// @note See README on re-generation.
-/// @copyright Copyright 2025.
+/// @copyright Copyright 2026.
 ///
 #include "iso/amperes.hpp"
 
 namespace iso {
 char const* const suffix_type_A::suffix;
-// default
 amperes::amperes() : measurement{} {
 }
-// explicit value
 amperes::amperes(precision a) : measurement{a} {
 }
-// copy constructor
 amperes::amperes(amperes const& other) : measurement{other} {
 }
-// move constructor
 amperes::amperes(amperes&& other) : measurement{std::move(other)} {
 }
-
 amperes& amperes::operator=(amperes const& other) noexcept {
     _value = other.value;
     return (*this);
@@ -32,13 +27,14 @@ amperes& amperes::operator=(amperes& other) noexcept {
 }
 amperes& amperes::operator=(amperes&& other) noexcept {
     _value = other.value;
+    other._value = static_cast<precision>(0);
     return (*this);
 }
 bool amperes::operator==(amperes const& other) const {
     return basal::equivalent(value, other.value);
 }
 bool amperes::operator!=(amperes const& other) const {
-    return !operator==(other);
+    return not operator==(other);
 }
 amperes& amperes::operator+=(amperes const& other) {
     _value += other.value;
@@ -104,3 +100,4 @@ iso::amperes operator""_A(char const a[]) {
 }
 }  // namespace literals
 }  // namespace iso
+

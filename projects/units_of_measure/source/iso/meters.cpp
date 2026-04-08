@@ -3,25 +3,20 @@
 /// This is an auto-generated source for iso::meters.
 /// A measure of distance
 /// @note See README on re-generation.
-/// @copyright Copyright 2025.
+/// @copyright Copyright 2026.
 ///
 #include "iso/meters.hpp"
 
 namespace iso {
 char const* const suffix_type_m::suffix;
-// default
 meters::meters() : measurement{} {
 }
-// explicit value
 meters::meters(precision a) : measurement{a} {
 }
-// copy constructor
 meters::meters(meters const& other) : measurement{other} {
 }
-// move constructor
 meters::meters(meters&& other) : measurement{std::move(other)} {
 }
-
 meters& meters::operator=(meters const& other) noexcept {
     _value = other.value;
     return (*this);
@@ -32,13 +27,14 @@ meters& meters::operator=(meters& other) noexcept {
 }
 meters& meters::operator=(meters&& other) noexcept {
     _value = other.value;
+    other._value = static_cast<precision>(0);
     return (*this);
 }
 bool meters::operator==(meters const& other) const {
     return basal::equivalent(value, other.value);
 }
 bool meters::operator!=(meters const& other) const {
-    return !operator==(other);
+    return not operator==(other);
 }
 meters& meters::operator+=(meters const& other) {
     _value += other.value;
@@ -104,3 +100,4 @@ iso::meters operator""_m(char const a[]) {
 }
 }  // namespace literals
 }  // namespace iso
+

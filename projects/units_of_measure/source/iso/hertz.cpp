@@ -3,25 +3,20 @@
 /// This is an auto-generated source for iso::hertz.
 /// A measure of frequency
 /// @note See README on re-generation.
-/// @copyright Copyright 2025.
+/// @copyright Copyright 2026.
 ///
 #include "iso/hertz.hpp"
 
 namespace iso {
 char const* const suffix_type_Hz::suffix;
-// default
 hertz::hertz() : measurement{} {
 }
-// explicit value
 hertz::hertz(precision a) : measurement{a} {
 }
-// copy constructor
 hertz::hertz(hertz const& other) : measurement{other} {
 }
-// move constructor
 hertz::hertz(hertz&& other) : measurement{std::move(other)} {
 }
-
 hertz& hertz::operator=(hertz const& other) noexcept {
     _value = other.value;
     return (*this);
@@ -32,13 +27,14 @@ hertz& hertz::operator=(hertz& other) noexcept {
 }
 hertz& hertz::operator=(hertz&& other) noexcept {
     _value = other.value;
+    other._value = static_cast<precision>(0);
     return (*this);
 }
 bool hertz::operator==(hertz const& other) const {
     return basal::equivalent(value, other.value);
 }
 bool hertz::operator!=(hertz const& other) const {
-    return !operator==(other);
+    return not operator==(other);
 }
 hertz& hertz::operator+=(hertz const& other) {
     _value += other.value;
@@ -104,3 +100,4 @@ iso::hertz operator""_Hz(char const a[]) {
 }
 }  // namespace literals
 }  // namespace iso
+

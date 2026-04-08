@@ -3,25 +3,20 @@
 /// This is an auto-generated source for iso::pascals.
 /// A measure of pressure
 /// @note See README on re-generation.
-/// @copyright Copyright 2025.
+/// @copyright Copyright 2026.
 ///
 #include "iso/pascals.hpp"
 
 namespace iso {
 char const* const suffix_type_Pa::suffix;
-// default
 pascals::pascals() : measurement{} {
 }
-// explicit value
 pascals::pascals(precision a) : measurement{a} {
 }
-// copy constructor
 pascals::pascals(pascals const& other) : measurement{other} {
 }
-// move constructor
 pascals::pascals(pascals&& other) : measurement{std::move(other)} {
 }
-
 pascals& pascals::operator=(pascals const& other) noexcept {
     _value = other.value;
     return (*this);
@@ -32,13 +27,14 @@ pascals& pascals::operator=(pascals& other) noexcept {
 }
 pascals& pascals::operator=(pascals&& other) noexcept {
     _value = other.value;
+    other._value = static_cast<precision>(0);
     return (*this);
 }
 bool pascals::operator==(pascals const& other) const {
     return basal::equivalent(value, other.value);
 }
 bool pascals::operator!=(pascals const& other) const {
-    return !operator==(other);
+    return not operator==(other);
 }
 pascals& pascals::operator+=(pascals const& other) {
     _value += other.value;
@@ -104,3 +100,4 @@ iso::pascals operator""_Pa(char const a[]) {
 }
 }  // namespace literals
 }  // namespace iso
+

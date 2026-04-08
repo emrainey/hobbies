@@ -3,25 +3,20 @@
 /// This is an auto-generated source for iso::radians.
 /// A measure of an angle
 /// @note See README on re-generation.
-/// @copyright Copyright 2025.
+/// @copyright Copyright 2026.
 ///
 #include "iso/radians.hpp"
 
 namespace iso {
 char const* const suffix_type_rad::suffix;
-// default
 radians::radians() : measurement{} {
 }
-// explicit value
 radians::radians(precision a) : measurement{a} {
 }
-// copy constructor
 radians::radians(radians const& other) : measurement{other} {
 }
-// move constructor
 radians::radians(radians&& other) : measurement{std::move(other)} {
 }
-
 radians& radians::operator=(radians const& other) noexcept {
     _value = other.value;
     return (*this);
@@ -32,13 +27,14 @@ radians& radians::operator=(radians& other) noexcept {
 }
 radians& radians::operator=(radians&& other) noexcept {
     _value = other.value;
+    other._value = static_cast<precision>(0);
     return (*this);
 }
 bool radians::operator==(radians const& other) const {
     return basal::equivalent(value, other.value);
 }
 bool radians::operator!=(radians const& other) const {
-    return !operator==(other);
+    return not operator==(other);
 }
 radians& radians::operator+=(radians const& other) {
     _value += other.value;
@@ -104,3 +100,4 @@ iso::radians operator""_rad(char const a[]) {
 }
 }  // namespace literals
 }  // namespace iso
+

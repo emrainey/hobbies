@@ -10,7 +10,7 @@
 
 namespace geometry {
 
-using namespace geometry::operators;
+using namespace operators;
 using namespace linalg;
 using namespace linalg::operators;
 

@@ -6,7 +6,7 @@
 
 namespace geometry {
 
-using namespace geometry::operators;
+using namespace operators;
 
 precision coefficients_t::x() const {
     return -d / a;
@@ -194,7 +194,7 @@ bool plane::operator==(plane const& other) const {
 }
 
 bool plane::operator!=(plane const& other) const {
-    return !operator==(other);
+    return not operator==(other);
 }
 
 precision plane::angle(plane const& P) const {

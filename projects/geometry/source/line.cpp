@@ -2,13 +2,12 @@
 #include "geometry/line.hpp"
 
 #include <cassert>
-#include <cmath>
 
 namespace geometry {
 
 namespace R3 {
 
-using namespace geometry::operators;
+using namespace operators;
 
 line::line(R3::vector const& ov, R3::point const& op) : m_udir{ov}, m_zero{op} {
     basal::exception::throw_if(m_udir.is_zero(), __FILE__, __LINE__, "Vector can not be zero length");
@@ -61,12 +60,10 @@ R3::point line::distance_along(precision t) const {
 }
 
 R3::point line::solve(precision t) const {
-    using namespace geometry::operators;
     return position() + (t * direction());
 }
 
 bool line::solve(R3::point const& P, precision& t) const {
-    using namespace geometry::operators;
     // This no longer requires R3 lines.
     // Example:
     // x = x0 + t*a, t = (x - x0)/a
@@ -74,8 +71,7 @@ bool line::solve(R3::point const& P, precision& t) const {
     // z = z0 + t*c, t = (z - z0)/c
 
     // if the point is the start of the vector
-    if (geometry::operators::operator==(P, position())) {  // HACK (operators) why does this work, but not just ==?
-                                                           // if (P == position()) {
+    if (P == position()) {
         //  this just helps eliminate math problems later
         t = 0.0_p;
         return true;
@@ -119,9 +115,8 @@ R3::point line::closest(R3::point const& p) const {
 }
 
 bool operator==(line const& a, line const& b) {
-    using namespace operators;
     // shortcut (are they literally the same?)
-    if ((a.direction() == b.direction()) and (geometry::operators::operator==(a.position(), b.position()))) {
+    if ((a.direction() == b.direction()) and (a.position() == b.position())) {
         return true;
     }
     // equal lines means
@@ -134,7 +129,7 @@ bool operator==(line const& a, line const& b) {
 }
 
 bool operator!=(line const& a, line const& b) {
-    return not(operator==(a, b));
+    return not operator==(a, b);
 }
 
 bool parallel(line const& a, line const& b) {

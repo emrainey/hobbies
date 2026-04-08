@@ -8,7 +8,7 @@
 
 namespace geometry {
 
-using namespace geometry::operators;
+using namespace operators;
 
 /// This ray is assumed to be a 3D ray
 template <size_t DIMS>

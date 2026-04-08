@@ -229,6 +229,8 @@ template <size_t DIM>
 point_<DIM> as_point(vector_<DIM> const& v);
 
 using geometry::operators::operator<;  // This has to be promoted to allow usage in std::set and std::map
+using geometry::operators::operator==;
+using geometry::operators::operator!=;
 
 namespace R2 {
 using point = point_<2>;

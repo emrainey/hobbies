@@ -50,7 +50,6 @@ public:
     /// @param incoming The incoming light color
     virtual color bounced(raytrace::point const& volumetric_point, color const& incoming) const;
 
-    /// HACK "Smoothness"
     /// Determines the proportion of reflected light which is coherently reflected from the surface like a mirror
     /// 0.0_p means no coherent reflected light, it's all too diffuse.
     /// 1.0_p means like a perfect mirror. No diffuse surface colors at all.

@@ -12,7 +12,7 @@
 
 namespace doorgame {
 
-using Inventory = std::vector<Item>;  // FIXME should be a bit more complex
+using Inventory = std::vector<Item>;
 
 class Storage {
 public:

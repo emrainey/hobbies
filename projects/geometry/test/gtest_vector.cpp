@@ -371,9 +371,7 @@ TEST(VectorTest, Rodrigues) {
     iso::radians theta(iso::tau / 2.0_p);
     R3::vector ground_truth{{-1, 0, 1}};
     R3::vector rod = R3::rodrigues(k, v, theta);
-    // print_this(rod);
-    ASSERT_VECTOR_EQ(ground_truth, R3::rodrigues(k, v, theta));
-    // TODO (Gtest) Add more test cases here
+    ASSERT_VECTOR_EQ(ground_truth, rod);
 }
 
 TEST(VectorTest, Projection) {

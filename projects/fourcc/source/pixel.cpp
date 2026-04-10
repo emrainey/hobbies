@@ -64,7 +64,6 @@ color random() {
 /// a = (x - p) / q
 /// c = e^-(a*a)
 /// @endcode
-// TODO Candidate to move to linalg extra math functions
 static precision gaussian_peak(precision x, precision low, precision high) {
     precision p = (low + high) / 2.0_p;
     precision q = (high - low) / 2.0_p;

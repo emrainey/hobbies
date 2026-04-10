@@ -392,10 +392,10 @@ TEST(MatrixTest, SingularRules) {
     ASSERT_THROW(F.inverse(), basal::exception);
 }
 
-TEST(MatrixTest, Orthgonal) {
+TEST(MatrixTest, Orthogonal) {
     using namespace linalg;
     matrix I = matrix::identity(3, 3);
-    ASSERT_TRUE(I.orthagonal());
+    ASSERT_TRUE(I.orthogonal());
 }
 
 TEST(MatrixTest, FileWriting) {
@@ -583,6 +583,63 @@ TEST(MatrixTest, Triangular) {
     ASSERT_TRUE(E.T().upper_triangular());
     ASSERT_TRUE(E.inverse().lower_triangular());
     ASSERT_TRUE(E.T().inverse().upper_triangular());
+}
+
+TEST(MatrixTest, Elementary) {
+    using namespace linalg;
+    using namespace linalg::operators;
+
+    // Identity matrix is elementary (identity operation)
+    matrix I = matrix::identity(3, 3);
+    ASSERT_TRUE(I.elementary());
+
+    // Row scaling: multiply row 1 by 2
+    matrix row_scale{{{1, 0, 0}, {0, 2, 0}, {0, 0, 1}}};
+    ASSERT_TRUE(row_scale.elementary());
+
+    // Row swap: swap rows 0 and 1
+    matrix row_swap{{{0, 1, 0}, {1, 0, 0}, {0, 0, 1}}};
+    ASSERT_TRUE(row_swap.elementary());
+
+    // Row addition: add 3 times row 1 to row 0
+    matrix row_add{{{1, 3, 0}, {0, 1, 0}, {0, 0, 1}}};
+    ASSERT_TRUE(row_add.elementary());
+
+    // Another row addition: add -2 times row 0 to row 2
+    matrix row_add2{{{1, 0, 0}, {0, 1, 0}, {-2, 0, 1}}};
+    ASSERT_TRUE(row_add2.elementary());
+
+    // Non-square matrix should not be elementary
+    matrix non_square{{{1, 0, 0}, {0, 1, 0}}};
+    ASSERT_FALSE(non_square.elementary());
+
+    // Regular matrix (not elementary) - multiple operations
+    matrix regular{{{1, 2, 3}, {0, 4, 5}, {0, 0, 6}}};
+    ASSERT_FALSE(regular.elementary());
+
+    // 2x2 identity is elementary
+    matrix I2 = matrix::identity(2, 2);
+    ASSERT_TRUE(I2.elementary());
+
+    // 2x2 row swap
+    matrix swap2{{{0, 1}, {1, 0}}};
+    ASSERT_TRUE(swap2.elementary());
+
+    // 2x2 row scale
+    matrix scale2{{{3, 0}, {0, 1}}};
+    ASSERT_TRUE(scale2.elementary());
+
+    // 2x2 row addition
+    matrix add2{{{1, 5}, {0, 1}}};
+    ASSERT_TRUE(add2.elementary());
+
+    // 1x1 identity is elementary
+    matrix I1 = matrix::identity(1, 1);
+    ASSERT_TRUE(I1.elementary());
+
+    // 1x1 scaling
+    matrix scale1{{{2}}};
+    ASSERT_TRUE(scale1.elementary());
 }
 
 TEST(MatrixTest, SVD) {

@@ -216,7 +216,7 @@ public:
     /// Determines if the matrix is degenerate
     bool degenerate() const;
     /// Determines if the matrix is orthogonal
-    bool orthagonal() const;
+    bool orthogonal() const;
     /// Determines if a matrix has an inverse.
     bool invertible() const;
     /// Determines if a matrix is symmetric
@@ -224,10 +224,8 @@ public:
     /// Determines if a matrix is skew-symmetric
     bool skew_symmetric() const;
 
-#if 0
     /// Determines if the matrix is elementary
-    /// TODO (Linalg) implement bool elementary();
-#endif
+    bool elementary() const;
     /// Determines if the matrix is diagonal
     bool diagonal() const;
     /// Determines if a matrix is lower or upper triangular

@@ -467,7 +467,7 @@ bool matrix::degenerate() const {
     return singular();
 }
 
-bool matrix::orthagonal() const {
+bool matrix::orthogonal() const {
     if (rows != cols) {
         return false;
     }
@@ -530,6 +530,112 @@ bool matrix::upper_triangular() const {
     };
     for_each(iter);
     return ret;
+}
+
+bool matrix::elementary() const {
+    // Must be square
+    if (rows != cols) {
+        return false;
+    }
+
+    // Create identity matrix for comparison
+    matrix I = identity(rows, cols);
+
+    // Collect rows that differ from identity
+    std::vector<size_t> differing_rows;
+    for (size_t r = 0; r < rows; r++) {
+        bool row_differs = false;
+        for (size_t c = 0; c < cols; c++) {
+            if (!basal::nearly_equals(array[r][c], I[r][c])) {
+                row_differs = true;
+                break;
+            }
+        }
+        if (row_differs) {
+            differing_rows.push_back(r);
+        }
+    }
+
+    // Elementary matrices can have at most 2 differing rows (for row swap)
+    // or 1 differing row (for row scale or row addition)
+    if (differing_rows.size() == 0) {
+        // The matrix is the identity - which is elementary (row operation: identity)
+        return true;
+    } else if (differing_rows.size() == 1) {
+        // One row differs: could be row scaling or row addition
+        size_t r = differing_rows[0];
+
+        // Check if this is row scaling: entire row is scaled by a non-zero constant
+        // (except the off-diagonal elements should still be zero)
+        bool is_row_scale = true;
+        precision scale_factor = 0.0_p;
+        for (size_t c = 0; c < cols; c++) {
+            if (c == r) {
+                // Diagonal element should be non-zero and consistent with scaling
+                if (basal::nearly_zero(array[r][c])) {
+                    is_row_scale = false;
+                    break;
+                }
+                if (basal::nearly_zero(scale_factor)) {
+                    scale_factor = array[r][c];
+                }
+            } else {
+                // Off-diagonal elements should match I[r][c] * scale_factor
+                precision expected = I[r][c] * scale_factor;
+                if (!basal::nearly_equals(array[r][c], expected)) {
+                    is_row_scale = false;
+                    break;
+                }
+            }
+        }
+        if (is_row_scale && !basal::nearly_zero(scale_factor)) {
+            return true;
+        }
+
+        // Check if this is row addition: one row is identity row + scalar * other row
+        for (size_t source_row = 0; source_row < rows; source_row++) {
+            if (source_row == r)
+                continue;
+
+            bool is_row_addition = true;
+            precision multiplier = 0.0_p;
+            bool first_nonzero = true;
+
+            for (size_t c = 0; c < cols; c++) {
+                precision expected = I[r][c] + multiplier * I[source_row][c];
+                if (first_nonzero && !basal::nearly_zero(I[source_row][c])) {
+                    multiplier = (array[r][c] - I[r][c]) / I[source_row][c];
+                    first_nonzero = false;
+                    expected = I[r][c] + multiplier * I[source_row][c];
+                }
+                if (!basal::nearly_equals(array[r][c], expected)) {
+                    is_row_addition = false;
+                    break;
+                }
+            }
+            if (is_row_addition && !basal::nearly_zero(multiplier)) {
+                return true;
+            }
+        }
+
+        return false;
+    } else if (differing_rows.size() == 2) {
+        // Exactly two rows differ: check if this is a row swap
+        size_t r1 = differing_rows[0];
+        size_t r2 = differing_rows[1];
+
+        // For a row swap, row r1 should equal I[r2] and row r2 should equal I[r1]
+        bool is_swap = true;
+        for (size_t c = 0; c < cols; c++) {
+            if (!basal::nearly_equals(array[r1][c], I[r2][c]) || !basal::nearly_equals(array[r2][c], I[r1][c])) {
+                is_swap = false;
+                break;
+            }
+        }
+        return is_swap;
+    }
+
+    return false;
 }
 
 bool matrix::eigenvalue(precision lambda) const {

@@ -61,29 +61,26 @@ TEST(ImageTest, SingleColors) {
     img3.save("allblue.ppm");
 }
 
-TEST(ImageTest, DISABLED_SubsamplerTest) {
-    // since the image has 3 subsamples,
-    // the averaging should make a dark grey.
+TEST(ImageTest, SubsamplerTest) {
+    // Since the image has 3 subsamples (red/green/blue),
+    // linear averaging should produce one-third in each channel.
     image img4(2, 2);
-    precision g = 0.61250591370193386_p;  //  -> ~156
+    precision g = 1.0_p / 3.0_p;
     color tmp0(g, g, g);
-    fourcc::rgb8 dark_grey = tmp0.to_<fourcc::PixelFormat::RGB8>();
-    EXPECT_EQ(156u, dark_grey.components.r);
-    EXPECT_EQ(156u, dark_grey.components.g);
-    EXPECT_EQ(156u, dark_grey.components.b);
-    int i = 0;
+    fourcc::rgbid dark_grey = tmp0.to_<fourcc::PixelFormat::RGBId>();
     std::array<color, 3> samples = {colors::red, colors::green, colors::blue};
-    /// FIXME the lambda so that it will produce the same answers deterministically
-    // this will fail if you don't block the multiple render threads from competing to
-    // increment i. If it's single threaded it will pass.
-    auto lock = std::mutex{};
+    // Deterministic per-point mapping for the fixed 3-sample pattern:
+    // center -> red, lower-right -> green, upper-right -> blue.
     auto subsampler = [&](image::point const& pnt) -> color {
-        lock.lock();
-        auto tmp = samples[i];
-        i = (i + 1) % samples.size();
-        lock.unlock();
-        std::cout << "returning " << tmp << " for " << pnt << std::endl;
-        return tmp;
+        precision fx = pnt.x() - std::floor(pnt.x());
+        precision fy = pnt.y() - std::floor(pnt.y());
+        if (std::abs(fx - 0.5_p) < basal::epsilon and std::abs(fy - 0.5_p) < basal::epsilon) {
+            return samples[0];
+        }
+        if (fy > 0.5_p) {
+            return samples[1];
+        }
+        return samples[2];
     };
     auto renderer = [&](size_t row_index, bool is_completed) -> void {
         image::point pnt(row_index, 0);

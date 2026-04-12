@@ -3,6 +3,8 @@
 /// @file
 /// The fractals main header
 
+#include <optional>
+
 #include "geometry/geometry.hpp"
 #include "fourcc/fourcc.hpp"
 

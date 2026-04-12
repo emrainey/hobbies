@@ -5,6 +5,8 @@
 #include <type_traits>
 #include <iostream>
 #include <iomanip>
+#include <bitset>
+#include <vector>
 #include <sstream>
 #include <span>
 
@@ -65,11 +67,13 @@ struct Address {
         return static_cast<uint64_t>(value);
     }
 
+#if SIZE_MAX != UINT64_MAX || !defined(__SIZEOF_SIZE_T__)
     constexpr explicit operator size_t() const {
         // this may upcast to a 64 bit value on 64 bit platforms, but
         // that's fine since it's only used for calculations and comparisons, not for actual memory access.
         return static_cast<size_t>(value);
     }
+#endif
 
     /// @warning This may truncate the input value to 32 bits on 64 bit systems, which may cause loss of information if
     /// the input value exceeds 32 bits. Use with caution!

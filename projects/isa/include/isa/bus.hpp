@@ -64,13 +64,15 @@ public:
 
     /// Accesses the data at the given address, returning the minimum addressable unit set
     typename Attributes::AddressableUnitType& operator[](Address address) {
-        size_t index = static_cast<size_t>(address - range_.start) / sizeof(typename Attributes::AddressableUnitType);
+        ptrdiff_t diff = static_cast<ptrdiff_t>(address) - static_cast<ptrdiff_t>(range_.start());
+        size_t index = static_cast<size_t>(diff) / sizeof(typename Attributes::AddressableUnitType);
         return data_[index];
     }
 
     /// Read-only access to the data at the given address, returning the const minimum addressable unit set
     typename Attributes::AddressableUnitType const& operator[](Address address) const {
-        size_t index = static_cast<size_t>(address - range_.start) / sizeof(typename Attributes::AddressableUnitType);
+        ptrdiff_t diff = static_cast<ptrdiff_t>(address) - static_cast<ptrdiff_t>(range_.start());
+        size_t index = static_cast<size_t>(diff) / sizeof(typename Attributes::AddressableUnitType);
         return data_[index];
     }
 

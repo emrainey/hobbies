@@ -75,6 +75,12 @@ struct Address {
     }
 #endif
 
+    constexpr explicit operator ptrdiff_t() const {
+        // this may upcast to a 64 bit value on 64 bit platforms, but
+        // that's fine since it's only used for calculations and comparisons, not for actual memory access.
+        return static_cast<ptrdiff_t>(value);
+    }
+
     /// @warning This may truncate the input value to 32 bits on 64 bit systems, which may cause loss of information if
     /// the input value exceeds 32 bits. Use with caution!
     constexpr Address& operator=(size_t v) {
@@ -486,7 +492,8 @@ struct Range {
 
     /// Returns the minimum type-addressable unit count of this range (i.e. bytes).
     constexpr size_t Size() const {
-        return static_cast<size_t>(limit - start + 1U);
+        ptrdiff_t diff = static_cast<ptrdiff_t>(limit()) - static_cast<ptrdiff_t>(start()) + 1U;
+        return static_cast<size_t>(diff);
     }
 };
 

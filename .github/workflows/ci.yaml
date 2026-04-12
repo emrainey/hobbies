@@ -1,0 +1,28 @@
+name: CI Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  clang-build:
+    name: Clang Build
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/${{ github.repository_owner }}/docker-hobbies-builder:latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Configure
+        run: cmake -G Ninja -B build -S . -DCMAKE_TOOLCHAIN_FILE=build-support/lib/cmake/native-llvm.cmake -DUSE_PROFILING:BOOL=OFF -DUSE_COVERAGE:BOOL=OFF -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBUILD_SHARED_LIBS:BOOL=OFF
+
+      - name: Build
+        run: cmake --build build --target all
+

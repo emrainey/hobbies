@@ -931,20 +931,7 @@ void Processor::Cycle() {
         }
         case Operator::Divide: {
             const auto& arithmetic = instruction.arithmetic;
-            isa: add Division and Modulo arithmetic templates with CPU integration and tests
-
-            - Add Division<OPERAND_TYPE> template: divide-by-zero sets undefined flag,
-              signed min/-1 saturates to max and sets overflow flag
-            - Add Modulo<OPERAND_TYPE> template: divide-by-zero sets undefined flag,
-              signed b==-1 short-circuits to 0 to avoid UB from minval/−1 promotion
-            - Add Doxygen comments to Addition, Subtraction, and Multiply templates
-            - Replace hardcoded int32-only Divide/Modulo blocks in cpu.cpp with full
-              byte/halfword/word × signed/unsigned switches using the new templates
-            - Add gtest_arithmetic.cpp with edge-case coverage for all six type sizes
-              across Addition, Subtraction, Multiply, Division, and Modulo
-            - Register gtest_arithmetic.cpp in CMakeLists.txt for the gtest_isa target
-
-            All 92 ISA unit tests pass.            switch (static_cast<instructions::Arithmetic::Size>(arithmetic.size)) {
+            switch (static_cast<instructions::Arithmetic::Size>(arithmetic.size)) {
                 case instructions::Arithmetic::Size::Byte:
                     if (arithmetic.sign) {
                         auto [result, eval] = operations::Division<int8_t>(scratch_[arithmetic.src1].as_s08[0],

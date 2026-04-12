@@ -6,6 +6,7 @@
 #include <isa/map.hpp>
 #include <isa/cache.hpp>
 #include <isa/persistence.hpp>
+#include <isa/arithmetic.hpp>
 
 #include <string>
 #include <vector>
@@ -595,56 +596,5 @@ protected:
     constexpr static size_t kMaxBreakPoints{16U};
     std::array<Address, kMaxBreakPoints> break_points_;
 };
-
-namespace operations {
-template <typename OPERAND_TYPE, typename INTERMEDIATE_TYPE>
-constexpr OPERAND_TYPE Addition(OPERAND_TYPE a, OPERAND_TYPE b, bool& overflow) {
-    constexpr auto pos_med = static_cast<INTERMEDIATE_TYPE>(std::numeric_limits<OPERAND_TYPE>::max() / 2);
-    constexpr auto neg_med = static_cast<INTERMEDIATE_TYPE>(std::numeric_limits<OPERAND_TYPE>::min() / 2);
-    overflow = false;
-    if (static_cast<INTERMEDIATE_TYPE>(a) < neg_med and static_cast<INTERMEDIATE_TYPE>(b) < neg_med) {
-        overflow = true;
-        return std::numeric_limits<OPERAND_TYPE>::min();
-    }
-    if (static_cast<INTERMEDIATE_TYPE>(a) > pos_med and static_cast<INTERMEDIATE_TYPE>(b) > pos_med) {
-        overflow = true;
-        return std::numeric_limits<OPERAND_TYPE>::max();
-    }
-    return a + b;
-}
-
-template <typename OPERAND_TYPE, typename INTERMEDIATE_TYPE>
-constexpr OPERAND_TYPE Subtraction(OPERAND_TYPE a, OPERAND_TYPE b, bool& overflow) {
-    constexpr auto pos_med = static_cast<INTERMEDIATE_TYPE>(std::numeric_limits<OPERAND_TYPE>::max() / 2);
-    constexpr auto neg_med = static_cast<INTERMEDIATE_TYPE>(std::numeric_limits<OPERAND_TYPE>::min() / 2);
-    overflow = false;
-    if (static_cast<INTERMEDIATE_TYPE>(a) < neg_med and static_cast<INTERMEDIATE_TYPE>(b) < neg_med) {
-        overflow = true;
-        return std::numeric_limits<OPERAND_TYPE>::min();
-    }
-    if (static_cast<INTERMEDIATE_TYPE>(a) > pos_med and static_cast<INTERMEDIATE_TYPE>(b) > pos_med) {
-        overflow = true;
-        return std::numeric_limits<OPERAND_TYPE>::max();
-    }
-    return a - b;
-}
-
-template <typename OPERAND_TYPE, typename INTERMEDIATE_TYPE>
-constexpr OPERAND_TYPE Multiply(OPERAND_TYPE a, OPERAND_TYPE b, bool& overflow) {
-    constexpr auto pos_med = static_cast<INTERMEDIATE_TYPE>(std::numeric_limits<OPERAND_TYPE>::max() / 2);
-    constexpr auto neg_med = static_cast<INTERMEDIATE_TYPE>(std::numeric_limits<OPERAND_TYPE>::min() / 2);
-    overflow = false;
-    if (static_cast<INTERMEDIATE_TYPE>(a) < neg_med and static_cast<INTERMEDIATE_TYPE>(b) < neg_med) {
-        overflow = true;
-        return std::numeric_limits<OPERAND_TYPE>::min();
-    }
-    if (static_cast<INTERMEDIATE_TYPE>(a) > pos_med and static_cast<INTERMEDIATE_TYPE>(b) > pos_med) {
-        overflow = true;
-        return std::numeric_limits<OPERAND_TYPE>::max();
-    }
-    return a * b;
-}
-
-}  // namespace operations
 
 }  // namespace isa

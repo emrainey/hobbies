@@ -742,33 +742,56 @@ void Processor::Cycle() {
         }
         case Operator::Addition: {
             const auto& arithmetic = instruction.arithmetic;
-            bool overflow = false;
             switch (static_cast<instructions::Arithmetic::Size>(arithmetic.size)) {
                 case instructions::Arithmetic::Size::Byte:  // 8-bit
                     if (arithmetic.sign) {
-                        scratch_[arithmetic.dst].as_s08[0] = operations::Addition<int8_t, int32_t>(
-                            scratch_[arithmetic.src1].as_s08[0], scratch_[arithmetic.src2].as_s08[0], overflow);
+                        auto [result, eval] = operations::Addition<int8_t, int16_t>(
+                            scratch_[arithmetic.src1].as_s08[0], scratch_[arithmetic.src2].as_s08[0], arithmetic.sat);
+                        scratch_[arithmetic.dst].as_s08[0] = result;
+                        if (arithmetic.cond) {
+                            evaluation_[arithmetic.eval] = eval;
+                        }
                     } else {
-                        scratch_[arithmetic.dst].as_u08[0] = operations::Addition<uint8_t, uint32_t>(
-                            scratch_[arithmetic.src1].as_u08[0], scratch_[arithmetic.src2].as_u08[0], overflow);
+                        auto [result, eval] = operations::Addition<uint8_t, uint16_t>(
+                            scratch_[arithmetic.src1].as_u08[0], scratch_[arithmetic.src2].as_u08[0], arithmetic.sat);
+                        scratch_[arithmetic.dst].as_u08[0] = result;
+                        if (arithmetic.cond) {
+                            evaluation_[arithmetic.eval] = eval;
+                        }
                     }
                     break;
                 case instructions::Arithmetic::Size::HalfWord:  // 16-bit
                     if (arithmetic.sign) {
-                        scratch_[arithmetic.dst].as_s16[0] = operations::Addition<int16_t, int32_t>(
-                            scratch_[arithmetic.src1].as_s16[0], scratch_[arithmetic.src2].as_s16[0], overflow);
+                        auto [result, eval] = operations::Addition<int16_t, int32_t>(
+                            scratch_[arithmetic.src1].as_s16[0], scratch_[arithmetic.src2].as_s16[0], arithmetic.sat);
+                        scratch_[arithmetic.dst].as_s16[0] = result;
+                        if (arithmetic.cond) {
+                            evaluation_[arithmetic.eval] = eval;
+                        }
                     } else {
-                        scratch_[arithmetic.dst].as_u16[0] = operations::Addition<uint16_t, uint32_t>(
-                            scratch_[arithmetic.src1].as_u16[0], scratch_[arithmetic.src2].as_u16[0], overflow);
+                        auto [result, eval] = operations::Addition<uint16_t, uint32_t>(
+                            scratch_[arithmetic.src1].as_u16[0], scratch_[arithmetic.src2].as_u16[0], arithmetic.sat);
+                        scratch_[arithmetic.dst].as_u16[0] = result;
+                        if (arithmetic.cond) {
+                            evaluation_[arithmetic.eval] = eval;
+                        }
                     }
                     break;
                 case instructions::Arithmetic::Size::Word:  // 32-bit
                     if (arithmetic.sign) {
-                        scratch_[arithmetic.dst].as_s32[0] = operations::Addition<int32_t, int64_t>(
-                            scratch_[arithmetic.src1].as_s32[0], scratch_[arithmetic.src2].as_s32[0], overflow);
+                        auto [result, eval] = operations::Addition<int32_t, int64_t>(
+                            scratch_[arithmetic.src1].as_s32[0], scratch_[arithmetic.src2].as_s32[0], arithmetic.sat);
+                        scratch_[arithmetic.dst].as_s32[0] = result;
+                        if (arithmetic.cond) {
+                            evaluation_[arithmetic.eval] = eval;
+                        }
                     } else {
-                        scratch_[arithmetic.dst].as_u32[0] = operations::Addition<uint32_t, uint64_t>(
-                            scratch_[arithmetic.src1].as_u32[0], scratch_[arithmetic.src2].as_u32[0], overflow);
+                        auto [result, eval] = operations::Addition<uint32_t, uint64_t>(
+                            scratch_[arithmetic.src1].as_u32[0], scratch_[arithmetic.src2].as_u32[0], arithmetic.sat);
+                        scratch_[arithmetic.dst].as_u32[0] = result;
+                        if (arithmetic.cond) {
+                            evaluation_[arithmetic.eval] = eval;
+                        }
                     }
                     break;
                 default: {
@@ -781,33 +804,56 @@ void Processor::Cycle() {
         }
         case Operator::Subtract: {
             const auto& arithmetic = instruction.arithmetic;
-            bool overflow = false;
             switch (static_cast<instructions::Arithmetic::Size>(arithmetic.size)) {
                 case instructions::Arithmetic::Size::Byte:  // 8-bit
                     if (arithmetic.sign) {
-                        scratch_[arithmetic.dst].as_s08[0] = operations::Addition<int8_t, int32_t>(
-                            scratch_[arithmetic.src1].as_s08[0], -scratch_[arithmetic.src2].as_s08[0], overflow);
+                        auto [result, eval] = operations::Subtraction<int8_t, int16_t>(
+                            scratch_[arithmetic.src1].as_s08[0], scratch_[arithmetic.src2].as_s08[0], arithmetic.sat);
+                        scratch_[arithmetic.dst].as_s08[0] = result;
+                        if (arithmetic.cond) {
+                            evaluation_[arithmetic.eval] = eval;
+                        }
                     } else {
-                        scratch_[arithmetic.dst].as_u08[0] = operations::Addition<uint8_t, uint32_t>(
-                            scratch_[arithmetic.src1].as_u08[0], -scratch_[arithmetic.src2].as_u08[0], overflow);
+                        auto [result, eval] = operations::Subtraction<uint8_t, uint16_t>(
+                            scratch_[arithmetic.src1].as_u08[0], scratch_[arithmetic.src2].as_u08[0], arithmetic.sat);
+                        scratch_[arithmetic.dst].as_u08[0] = result;
+                        if (arithmetic.cond) {
+                            evaluation_[arithmetic.eval] = eval;
+                        }
                     }
                     break;
                 case instructions::Arithmetic::Size::HalfWord:  // 16-bit
                     if (arithmetic.sign) {
-                        scratch_[arithmetic.dst].as_s16[0] = operations::Addition<int16_t, int32_t>(
-                            scratch_[arithmetic.src1].as_s16[0], -scratch_[arithmetic.src2].as_s16[0], overflow);
+                        auto [result, eval] = operations::Subtraction<int16_t, int32_t>(
+                            scratch_[arithmetic.src1].as_s16[0], scratch_[arithmetic.src2].as_s16[0], arithmetic.sat);
+                        scratch_[arithmetic.dst].as_s16[0] = result;
+                        if (arithmetic.cond) {
+                            evaluation_[arithmetic.eval] = eval;
+                        }
                     } else {
-                        scratch_[arithmetic.dst].as_u16[0] = operations::Addition<uint16_t, uint32_t>(
-                            scratch_[arithmetic.src1].as_u16[0], -scratch_[arithmetic.src2].as_u16[0], overflow);
+                        auto [result, eval] = operations::Subtraction<uint16_t, uint32_t>(
+                            scratch_[arithmetic.src1].as_u16[0], scratch_[arithmetic.src2].as_u16[0], arithmetic.sat);
+                        scratch_[arithmetic.dst].as_u16[0] = result;
+                        if (arithmetic.cond) {
+                            evaluation_[arithmetic.eval] = eval;
+                        }
                     }
                     break;
                 case instructions::Arithmetic::Size::Word:  // 32-bit
                     if (arithmetic.sign) {
-                        scratch_[arithmetic.dst].as_s32[0] = operations::Addition<int32_t, int64_t>(
-                            scratch_[arithmetic.src1].as_s32[0], -scratch_[arithmetic.src2].as_s32[0], overflow);
+                        auto [result, eval] = operations::Subtraction<int32_t, int64_t>(
+                            scratch_[arithmetic.src1].as_s32[0], scratch_[arithmetic.src2].as_s32[0], arithmetic.sat);
+                        scratch_[arithmetic.dst].as_s32[0] = result;
+                        if (arithmetic.cond) {
+                            evaluation_[arithmetic.eval] = eval;
+                        }
                     } else {
-                        scratch_[arithmetic.dst].as_u32[0] = operations::Addition<uint32_t, uint64_t>(
-                            scratch_[arithmetic.src1].as_u32[0], -scratch_[arithmetic.src2].as_u32[0], overflow);
+                        auto [result, eval] = operations::Subtraction<uint32_t, uint64_t>(
+                            scratch_[arithmetic.src1].as_u32[0], scratch_[arithmetic.src2].as_u32[0], arithmetic.sat);
+                        scratch_[arithmetic.dst].as_u32[0] = result;
+                        if (arithmetic.cond) {
+                            evaluation_[arithmetic.eval] = eval;
+                        }
                     }
                     break;
                 default: {
@@ -820,10 +866,67 @@ void Processor::Cycle() {
         }
         case Operator::Multiply: {
             const auto& arithmetic = instruction.arithmetic;
-            int64_t result = static_cast<int64_t>(scratch_[arithmetic.src1].as_s32[0])
-                             * static_cast<int64_t>(scratch_[arithmetic.src2].as_s32[0]);
-            // TODO saturation and overflow detection
-            scratch_[arithmetic.dst].as_u32[0] = static_cast<uint32_t>(result & 0xFFFF'FFFFU);
+            switch (static_cast<instructions::Arithmetic::Size>(arithmetic.size)) {
+                case instructions::Arithmetic::Size::Byte:  // 8-bit
+                    if (arithmetic.sign) {
+                        auto [result, evaluation] = operations::Multiply<int8_t, int16_t>(
+                            scratch_[arithmetic.src1].as_s08[0], scratch_[arithmetic.src2].as_s08[0], arithmetic.sat);
+                        if (arithmetic.cond) {
+                            // set the evaluation flag for arithmetic overflow if it occurred during the multiplication
+                            evaluation_[arithmetic.eval] = evaluation;
+                        }
+                        scratch_[arithmetic.dst].as_s08[0] = result;
+                    } else {
+                        auto [result, evaluation] = operations::Multiply<uint8_t, uint16_t>(
+                            scratch_[arithmetic.src1].as_u08[0], scratch_[arithmetic.src2].as_u08[0], arithmetic.sat);
+                        if (arithmetic.cond) {
+                            // set the evaluation flag for arithmetic overflow if it occurred during the multiplication
+                            evaluation_[arithmetic.eval] = evaluation;
+                        }
+                        scratch_[arithmetic.dst].as_u08[0] = result;
+                    }
+                    break;
+                case instructions::Arithmetic::Size::HalfWord:  // 16-bit
+                    if (arithmetic.sign) {
+                        auto [result, evaluation] = operations::Multiply<int16_t, int32_t>(
+                            scratch_[arithmetic.src1].as_s16[0], scratch_[arithmetic.src2].as_s16[0], arithmetic.sat);
+                        if (arithmetic.cond) {
+                            // set the evaluation flag for arithmetic overflow if it occurred during the multiplication
+                            evaluation_[arithmetic.eval] = evaluation;
+                        }
+                        scratch_[arithmetic.dst].as_s16[0] = result;
+                    } else {
+                        auto [result, evaluation] = operations::Multiply<uint16_t, uint32_t>(
+                            scratch_[arithmetic.src1].as_u16[0], scratch_[arithmetic.src2].as_u16[0], arithmetic.sat);
+                        if (arithmetic.cond) {
+                            // set the evaluation flag for arithmetic overflow if it occurred during the multiplication
+                            evaluation_[arithmetic.eval] = evaluation;
+                        }
+                        scratch_[arithmetic.dst].as_u16[0] = result;
+                    }
+                    break;
+                case instructions::Arithmetic::Size::Word:  // 32-bit
+                    if (arithmetic.sign) {
+                        auto [result, evaluation] = operations::Multiply<int32_t, int64_t>(
+                            scratch_[arithmetic.src1].as_s32[0], scratch_[arithmetic.src2].as_s32[0], arithmetic.sat);
+                        if (arithmetic.cond) {
+                            // set the evaluation flag for arithmetic overflow if it occurred during the multiplication
+                            evaluation_[arithmetic.eval] = evaluation;
+                        }
+                        scratch_[arithmetic.dst].as_s32[0] = result;
+                    } else {
+                        auto [result, evaluation] = operations::Multiply<uint32_t, uint64_t>(
+                            scratch_[arithmetic.src1].as_u32[0], scratch_[arithmetic.src2].as_u32[0], arithmetic.sat);
+                        if (arithmetic.cond) {
+                            // set the evaluation flag for arithmetic overflow if it occurred during the multiplication
+                            evaluation_[arithmetic.eval] = evaluation;
+                        }
+                        scratch_[arithmetic.dst].as_u32[0] = result;
+                    }
+                    break;
+                default:
+                    break;
+            }
             break;
         }
         case Operator::Divide: {

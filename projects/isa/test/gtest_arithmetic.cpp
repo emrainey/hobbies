@@ -139,4 +139,139 @@ TEST(ArithmeticTest, MultiplyUnsignedWithoutSaturationWrapsAndFlagsOverflow) {
     ExpectArithmeticResult<uint8_t, uint16_t>(value, evaluation, static_cast<uint8_t>(300U), true, true, false);
 }
 
+// ===== Division =====
+
+template <typename OPERAND_TYPE>
+void ExpectDivisionEdgesForSize() {
+    const auto max_value = std::numeric_limits<OPERAND_TYPE>::max();
+    const auto min_value = std::numeric_limits<OPERAND_TYPE>::min();
+
+    // Normal quotient
+    {
+        auto [result, eval] = Division<OPERAND_TYPE>(OPERAND_TYPE{42}, OPERAND_TYPE{7});
+        EXPECT_EQ(isa::EvaluationType::Arithmetic, eval.Type());
+        EXPECT_EQ(0U, static_cast<unsigned>(eval.arithmetic.undefined));
+        EXPECT_EQ(0U, static_cast<unsigned>(eval.arithmetic.overflow));
+        EXPECT_EQ(OPERAND_TYPE{6}, result);
+        EXPECT_EQ(1U, static_cast<unsigned>(eval.arithmetic.positive));
+        EXPECT_EQ(0U, static_cast<unsigned>(eval.arithmetic.zero));
+    }
+
+    // Result is zero
+    {
+        auto [result, eval] = Division<OPERAND_TYPE>(OPERAND_TYPE{0}, OPERAND_TYPE{7});
+        EXPECT_EQ(isa::EvaluationType::Arithmetic, eval.Type());
+        EXPECT_EQ(0U, static_cast<unsigned>(eval.arithmetic.undefined));
+        EXPECT_EQ(0U, static_cast<unsigned>(eval.arithmetic.overflow));
+        EXPECT_EQ(OPERAND_TYPE{0}, result);
+        EXPECT_EQ(0U, static_cast<unsigned>(eval.arithmetic.positive));
+        EXPECT_EQ(1U, static_cast<unsigned>(eval.arithmetic.zero));
+    }
+
+    // Divide by zero → undefined flag, result 0
+    {
+        auto [result, eval] = Division<OPERAND_TYPE>(OPERAND_TYPE{10}, OPERAND_TYPE{0});
+        EXPECT_EQ(isa::EvaluationType::Arithmetic, eval.Type());
+        EXPECT_EQ(1U, static_cast<unsigned>(eval.arithmetic.undefined));
+        EXPECT_EQ(OPERAND_TYPE{0}, result);
+    }
+
+    if constexpr (std::is_signed_v<OPERAND_TYPE>) {
+        // Negative dividend
+        {
+            auto [result, eval] = Division<OPERAND_TYPE>(OPERAND_TYPE{-14}, OPERAND_TYPE{7});
+            EXPECT_EQ(isa::EvaluationType::Arithmetic, eval.Type());
+            EXPECT_EQ(0U, static_cast<unsigned>(eval.arithmetic.undefined));
+            EXPECT_EQ(0U, static_cast<unsigned>(eval.arithmetic.overflow));
+            EXPECT_EQ(OPERAND_TYPE{-2}, result);
+            EXPECT_EQ(0U, static_cast<unsigned>(eval.arithmetic.positive));
+            EXPECT_EQ(0U, static_cast<unsigned>(eval.arithmetic.zero));
+        }
+
+        // Signed overflow: min / -1 saturates to max
+        {
+            auto [result, eval] = Division<OPERAND_TYPE>(min_value, OPERAND_TYPE{-1});
+            EXPECT_EQ(isa::EvaluationType::Arithmetic, eval.Type());
+            EXPECT_EQ(1U, static_cast<unsigned>(eval.arithmetic.overflow));
+            EXPECT_EQ(0U, static_cast<unsigned>(eval.arithmetic.undefined));
+            EXPECT_EQ(max_value, result);
+            EXPECT_EQ(1U, static_cast<unsigned>(eval.arithmetic.positive));
+        }
+    }
+}
+
+TEST(ArithmeticTest, DivisionEdgeCasesCoverByteHalfWordAndWord) {
+    ExpectDivisionEdgesForSize<int8_t>();
+    ExpectDivisionEdgesForSize<uint8_t>();
+    ExpectDivisionEdgesForSize<int16_t>();
+    ExpectDivisionEdgesForSize<uint16_t>();
+    ExpectDivisionEdgesForSize<int32_t>();
+    ExpectDivisionEdgesForSize<uint32_t>();
+}
+
+// ===== Modulo =====
+
+template <typename OPERAND_TYPE>
+void ExpectModuloEdgesForSize() {
+    // Normal remainder
+    {
+        auto [result, eval] = Modulo<OPERAND_TYPE>(OPERAND_TYPE{17}, OPERAND_TYPE{5});
+        EXPECT_EQ(isa::EvaluationType::Arithmetic, eval.Type());
+        EXPECT_EQ(0U, static_cast<unsigned>(eval.arithmetic.undefined));
+        EXPECT_EQ(0U, static_cast<unsigned>(eval.arithmetic.overflow));
+        EXPECT_EQ(OPERAND_TYPE{2}, result);
+        EXPECT_EQ(1U, static_cast<unsigned>(eval.arithmetic.positive));
+        EXPECT_EQ(0U, static_cast<unsigned>(eval.arithmetic.zero));
+    }
+
+    // Remainder is zero (exact multiple)
+    {
+        auto [result, eval] = Modulo<OPERAND_TYPE>(OPERAND_TYPE{12}, OPERAND_TYPE{4});
+        EXPECT_EQ(isa::EvaluationType::Arithmetic, eval.Type());
+        EXPECT_EQ(0U, static_cast<unsigned>(eval.arithmetic.undefined));
+        EXPECT_EQ(OPERAND_TYPE{0}, result);
+        EXPECT_EQ(0U, static_cast<unsigned>(eval.arithmetic.positive));
+        EXPECT_EQ(1U, static_cast<unsigned>(eval.arithmetic.zero));
+    }
+
+    // Divide by zero -> undefined flag, result 0
+    {
+        auto [result, eval] = Modulo<OPERAND_TYPE>(OPERAND_TYPE{10}, OPERAND_TYPE{0});
+        EXPECT_EQ(isa::EvaluationType::Arithmetic, eval.Type());
+        EXPECT_EQ(1U, static_cast<unsigned>(eval.arithmetic.undefined));
+        EXPECT_EQ(OPERAND_TYPE{0}, result);
+    }
+
+    if constexpr (std::is_signed_v<OPERAND_TYPE>) {
+        // Negative dividend: remainder retains dividend sign in C++
+        {
+            auto [result, eval] = Modulo<OPERAND_TYPE>(OPERAND_TYPE{-17}, OPERAND_TYPE{5});
+            EXPECT_EQ(isa::EvaluationType::Arithmetic, eval.Type());
+            EXPECT_EQ(0U, static_cast<unsigned>(eval.arithmetic.undefined));
+            EXPECT_EQ(OPERAND_TYPE{-2}, result);
+            EXPECT_EQ(0U, static_cast<unsigned>(eval.arithmetic.positive));
+            EXPECT_EQ(0U, static_cast<unsigned>(eval.arithmetic.zero));
+        }
+
+        // Modulo by -1: always 0, no overflow (unlike division)
+        {
+            auto [result, eval] = Modulo<OPERAND_TYPE>(std::numeric_limits<OPERAND_TYPE>::min(), OPERAND_TYPE{-1});
+            EXPECT_EQ(isa::EvaluationType::Arithmetic, eval.Type());
+            EXPECT_EQ(0U, static_cast<unsigned>(eval.arithmetic.undefined));
+            EXPECT_EQ(0U, static_cast<unsigned>(eval.arithmetic.overflow));
+            EXPECT_EQ(OPERAND_TYPE{0}, result);
+            EXPECT_EQ(1U, static_cast<unsigned>(eval.arithmetic.zero));
+        }
+    }
+}
+
+TEST(ArithmeticTest, ModuloEdgeCasesCoverByteHalfWordAndWord) {
+    ExpectModuloEdgesForSize<int8_t>();
+    ExpectModuloEdgesForSize<uint8_t>();
+    ExpectModuloEdgesForSize<int16_t>();
+    ExpectModuloEdgesForSize<uint16_t>();
+    ExpectModuloEdgesForSize<int32_t>();
+    ExpectModuloEdgesForSize<uint32_t>();
+}
+
 }  // namespace

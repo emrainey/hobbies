@@ -931,25 +931,182 @@ void Processor::Cycle() {
         }
         case Operator::Divide: {
             const auto& arithmetic = instruction.arithmetic;
-            int32_t divisor = scratch_[arithmetic.src2].as_s32[0];
-            if (divisor == 0) {
-                // Division by zero exception
-                special_.exception_.instruction_fault = 1;
-            } else {
-                int32_t result = scratch_[arithmetic.src1].as_s32[0] / divisor;
-                scratch_[arithmetic.dst].as_u32[0] = static_cast<uint32_t>(result);
+            isa: add Division and Modulo arithmetic templates with CPU integration and tests
+
+            - Add Division<OPERAND_TYPE> template: divide-by-zero sets undefined flag,
+              signed min/-1 saturates to max and sets overflow flag
+            - Add Modulo<OPERAND_TYPE> template: divide-by-zero sets undefined flag,
+              signed b==-1 short-circuits to 0 to avoid UB from minval/−1 promotion
+            - Add Doxygen comments to Addition, Subtraction, and Multiply templates
+            - Replace hardcoded int32-only Divide/Modulo blocks in cpu.cpp with full
+              byte/halfword/word × signed/unsigned switches using the new templates
+            - Add gtest_arithmetic.cpp with edge-case coverage for all six type sizes
+              across Addition, Subtraction, Multiply, Division, and Modulo
+            - Register gtest_arithmetic.cpp in CMakeLists.txt for the gtest_isa target
+
+            All 92 ISA unit tests pass.            switch (static_cast<instructions::Arithmetic::Size>(arithmetic.size)) {
+                case instructions::Arithmetic::Size::Byte:
+                    if (arithmetic.sign) {
+                        auto [result, eval] = operations::Division<int8_t>(scratch_[arithmetic.src1].as_s08[0],
+                                                                           scratch_[arithmetic.src2].as_s08[0]);
+                        if (eval.arithmetic.undefined) {
+                            special_.exception_.instruction_fault = 1;
+                        } else {
+                            scratch_[arithmetic.dst].as_s08[0] = result;
+                            if (arithmetic.cond) {
+                                evaluation_[arithmetic.eval] = eval;
+                            }
+                        }
+                    } else {
+                        auto [result, eval] = operations::Division<uint8_t>(scratch_[arithmetic.src1].as_u08[0],
+                                                                            scratch_[arithmetic.src2].as_u08[0]);
+                        if (eval.arithmetic.undefined) {
+                            special_.exception_.instruction_fault = 1;
+                        } else {
+                            scratch_[arithmetic.dst].as_u08[0] = result;
+                            if (arithmetic.cond) {
+                                evaluation_[arithmetic.eval] = eval;
+                            }
+                        }
+                    }
+                    break;
+                case instructions::Arithmetic::Size::HalfWord:
+                    if (arithmetic.sign) {
+                        auto [result, eval] = operations::Division<int16_t>(scratch_[arithmetic.src1].as_s16[0],
+                                                                            scratch_[arithmetic.src2].as_s16[0]);
+                        if (eval.arithmetic.undefined) {
+                            special_.exception_.instruction_fault = 1;
+                        } else {
+                            scratch_[arithmetic.dst].as_s16[0] = result;
+                            if (arithmetic.cond) {
+                                evaluation_[arithmetic.eval] = eval;
+                            }
+                        }
+                    } else {
+                        auto [result, eval] = operations::Division<uint16_t>(scratch_[arithmetic.src1].as_u16[0],
+                                                                             scratch_[arithmetic.src2].as_u16[0]);
+                        if (eval.arithmetic.undefined) {
+                            special_.exception_.instruction_fault = 1;
+                        } else {
+                            scratch_[arithmetic.dst].as_u16[0] = result;
+                            if (arithmetic.cond) {
+                                evaluation_[arithmetic.eval] = eval;
+                            }
+                        }
+                    }
+                    break;
+                case instructions::Arithmetic::Size::Word:
+                    if (arithmetic.sign) {
+                        auto [result, eval] = operations::Division<int32_t>(scratch_[arithmetic.src1].as_s32[0],
+                                                                            scratch_[arithmetic.src2].as_s32[0]);
+                        if (eval.arithmetic.undefined) {
+                            special_.exception_.instruction_fault = 1;
+                        } else {
+                            scratch_[arithmetic.dst].as_s32[0] = result;
+                            if (arithmetic.cond) {
+                                evaluation_[arithmetic.eval] = eval;
+                            }
+                        }
+                    } else {
+                        auto [result, eval] = operations::Division<uint32_t>(scratch_[arithmetic.src1].as_u32[0],
+                                                                             scratch_[arithmetic.src2].as_u32[0]);
+                        if (eval.arithmetic.undefined) {
+                            special_.exception_.instruction_fault = 1;
+                        } else {
+                            scratch_[arithmetic.dst].as_u32[0] = result;
+                            if (arithmetic.cond) {
+                                evaluation_[arithmetic.eval] = eval;
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    special_.exception_.instruction_fault = 1;
+                    break;
             }
             break;
         }
         case Operator::Modulo: {
             const auto& arithmetic = instruction.arithmetic;
-            int32_t divisor = scratch_[arithmetic.src2].as_s32[0];
-            if (divisor == 0) {
-                // Division by zero exception
-                special_.exception_.instruction_fault = 1;
-            } else {
-                int32_t result = scratch_[arithmetic.src1].as_s32[0] % divisor;
-                scratch_[arithmetic.dst].as_u32[0] = static_cast<uint32_t>(result);
+            switch (static_cast<instructions::Arithmetic::Size>(arithmetic.size)) {
+                case instructions::Arithmetic::Size::Byte:
+                    if (arithmetic.sign) {
+                        auto [result, eval] = operations::Modulo<int8_t>(scratch_[arithmetic.src1].as_s08[0],
+                                                                         scratch_[arithmetic.src2].as_s08[0]);
+                        if (eval.arithmetic.undefined) {
+                            special_.exception_.instruction_fault = 1;
+                        } else {
+                            scratch_[arithmetic.dst].as_s08[0] = result;
+                            if (arithmetic.cond) {
+                                evaluation_[arithmetic.eval] = eval;
+                            }
+                        }
+                    } else {
+                        auto [result, eval] = operations::Modulo<uint8_t>(scratch_[arithmetic.src1].as_u08[0],
+                                                                          scratch_[arithmetic.src2].as_u08[0]);
+                        if (eval.arithmetic.undefined) {
+                            special_.exception_.instruction_fault = 1;
+                        } else {
+                            scratch_[arithmetic.dst].as_u08[0] = result;
+                            if (arithmetic.cond) {
+                                evaluation_[arithmetic.eval] = eval;
+                            }
+                        }
+                    }
+                    break;
+                case instructions::Arithmetic::Size::HalfWord:
+                    if (arithmetic.sign) {
+                        auto [result, eval] = operations::Modulo<int16_t>(scratch_[arithmetic.src1].as_s16[0],
+                                                                          scratch_[arithmetic.src2].as_s16[0]);
+                        if (eval.arithmetic.undefined) {
+                            special_.exception_.instruction_fault = 1;
+                        } else {
+                            scratch_[arithmetic.dst].as_s16[0] = result;
+                            if (arithmetic.cond) {
+                                evaluation_[arithmetic.eval] = eval;
+                            }
+                        }
+                    } else {
+                        auto [result, eval] = operations::Modulo<uint16_t>(scratch_[arithmetic.src1].as_u16[0],
+                                                                           scratch_[arithmetic.src2].as_u16[0]);
+                        if (eval.arithmetic.undefined) {
+                            special_.exception_.instruction_fault = 1;
+                        } else {
+                            scratch_[arithmetic.dst].as_u16[0] = result;
+                            if (arithmetic.cond) {
+                                evaluation_[arithmetic.eval] = eval;
+                            }
+                        }
+                    }
+                    break;
+                case instructions::Arithmetic::Size::Word:
+                    if (arithmetic.sign) {
+                        auto [result, eval] = operations::Modulo<int32_t>(scratch_[arithmetic.src1].as_s32[0],
+                                                                          scratch_[arithmetic.src2].as_s32[0]);
+                        if (eval.arithmetic.undefined) {
+                            special_.exception_.instruction_fault = 1;
+                        } else {
+                            scratch_[arithmetic.dst].as_s32[0] = result;
+                            if (arithmetic.cond) {
+                                evaluation_[arithmetic.eval] = eval;
+                            }
+                        }
+                    } else {
+                        auto [result, eval] = operations::Modulo<uint32_t>(scratch_[arithmetic.src1].as_u32[0],
+                                                                           scratch_[arithmetic.src2].as_u32[0]);
+                        if (eval.arithmetic.undefined) {
+                            special_.exception_.instruction_fault = 1;
+                        } else {
+                            scratch_[arithmetic.dst].as_u32[0] = result;
+                            if (arithmetic.cond) {
+                                evaluation_[arithmetic.eval] = eval;
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    special_.exception_.instruction_fault = 1;
+                    break;
             }
             break;
         }

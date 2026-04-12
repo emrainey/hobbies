@@ -29,21 +29,28 @@ exception::exception(std::string desc, std::string loc, std::size_t line)
                 }
                 char *funcname = static_cast<char *>(malloc(function_name_size));
                 if (funcname) {
-                    char *depth = std::strtok(stack_strings[s], " \t");
-                    char *module = std::strtok(NULL, " \t");
-                    char *pc = std::strtok(NULL, " \t");
-                    char *begin_name = std::strtok(NULL, " \t");
-                    char *sign = std::strtok(NULL, " \t");
-                    char *begin_offset = std::strtok(NULL, " \t");
+                    std::string raw_frame
+                        = (stack_strings[s] != nullptr) ? std::string{stack_strings[s]} : std::string{};
+                    char *save_ptr = nullptr;
+                    char *depth = ::strtok_r(stack_strings[s], " \t", &save_ptr);
+                    char *module = ::strtok_r(nullptr, " \t", &save_ptr);
+                    char *pc = ::strtok_r(nullptr, " \t", &save_ptr);
+                    char *begin_name = ::strtok_r(nullptr, " \t", &save_ptr);
+                    char *sign = ::strtok_r(nullptr, " \t", &save_ptr);
+                    char *begin_offset = ::strtok_r(nullptr, " \t", &save_ptr);
 
                     // mangled name is now in [begin_name, begin_offset) and caller
                     // offset in [begin_offset, end_offset). now apply
                     // __cxa_demangle():
-                    depth[0] |= 0;
-                    module[0] |= 0;
-                    pc[0] |= 0;
-                    sign[0] |= 0;
-                    begin_offset[0] |= 0;
+                    if (depth == nullptr || module == nullptr || pc == nullptr || begin_name == nullptr
+                        || sign == nullptr || begin_offset == nullptr) {
+                        description.append("\t");
+                        description.append(raw_frame);
+                        description.append(" (unparsed)\n");
+                        free(funcname);
+                        funcname = nullptr;
+                        continue;
+                    }
 
                     int status;
                     char *ret = abi::__cxa_demangle(begin_name, funcname, &function_name_size, &status);

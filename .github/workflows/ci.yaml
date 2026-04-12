@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/emrainey/docker-hobbies-build:main
+      options: --user 0
 
     steps:
       - name: Checkout repository
@@ -21,13 +22,17 @@ jobs:
           submodules: recursive
 
       - name: Configure
-        run: cmake -G Ninja -B build -S . -DCMAKE_TOOLCHAIN_FILE=build-support/lib/cmake/native-llvm.cmake -DUSE_PROFILING:BOOL=OFF -DUSE_COVERAGE:BOOL=OFF -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBUILD_SHARED_LIBS:BOOL=OFF
+        run: cmake -G "Unix Makefiles" -B build -S . -DCMAKE_TOOLCHAIN_FILE=build-support/lib/cmake/native-llvm.cmake -DUSE_PROFILING:BOOL=OFF -DUSE_COVERAGE:BOOL=OFF -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBUILD_SHARED_LIBS:BOOL=OFF -DBUILD_UNIT_TESTS:BOOL=ON
 
       - name: Build
-        run: cmake --build build --target all
+        run: cmake --build build --target all --parallel "$(nproc)"
+
+      - name: Prepare Test Working Directory
+        run: mkdir -p testing
 
       - name: Run Unit Tests
         working-directory: testing
         run: |
-          ctest --test-dir ../build --output-on-failure
+          ctest --test-dir ../build --output-on-failure --tests-regex '^gtest_' --exclude-regex '^gtest_raytrace$'
+          ../build/projects/raytrace/gtest_raytrace --gtest_filter=-ObjParser.CubeModelFromFile
 

@@ -40,6 +40,8 @@ __pycache__
 
 # build output and the test install folder
 /build
+/build-ci
+/build-debug-ci
 /**/build
 /install
 /.conan

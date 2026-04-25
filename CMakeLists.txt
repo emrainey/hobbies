@@ -6,16 +6,17 @@ project(hobbies
 )
 include(CMakeDependentOption)
 
+# === System Info ===
+message(STATUS "=== SYSTEM INFO ===")
+message(STATUS "System Name: ${CMAKE_SYSTEM_NAME}")
+message(STATUS "System Processor: ${CMAKE_SYSTEM_PROCESSOR}")
+
 # === Options ===
 option(BUILD_SHARED_LIBS "Builds libraries as dynamic objects" OFF)
 option(BUILD_UNIT_TESTS "Build unit tests" OFF)
 option(USE_COVERAGE "Enable Coverage" OFF)
 cmake_dependent_option(USE_PROFILING "Enable Profiling" OFF "USE_COVERAGE" OFF)
 option(USE_XMMT "Use XMMT for SIMD" OFF)
-
-if (NOT CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
-set(USE_XMMT OFF)
-endif()
 
 # Build Everything with C++17 and full native optimizations (Apple doesn't like C++20 yet)
 set(CMAKE_CXX_STANDARD 17)

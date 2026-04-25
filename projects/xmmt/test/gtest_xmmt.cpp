@@ -1,7 +1,7 @@
 #include "gtest_helper.hpp"
 
 TYPED_TEST(XMMContainer4, VectorFromPoints) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::point a{1.0_p, 5.8_p, 9.2_p, -10.0_p};
     typename TypeParam::point b{14.0_p, 3.6_p, 7.8_p, 3.33_p};
     typename TypeParam::vector c = a - b;
@@ -13,7 +13,7 @@ TYPED_TEST(XMMContainer4, VectorFromPoints) {
 }
 
 TYPED_TEST(XMMContainer4, PointPlusVector) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::point a{1.0_p, 5.8_p, 9.2_p, -10.0_p};
     typename TypeParam::vector b{14.0_p, 3.6_p, 7.8_p, 3.33_p};
     typename TypeParam::point c = a + b;
@@ -25,7 +25,7 @@ TYPED_TEST(XMMContainer4, PointPlusVector) {
 }
 
 TYPED_TEST(XMMContainer4, PointAccumVector) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::point a{1.0_p, 5.8_p, 9.2_p, -10.0_p};
     typename TypeParam::vector b{14.0_p, 3.6_p, 7.8_p, 3.33_p};
     a += b;
@@ -37,7 +37,7 @@ TYPED_TEST(XMMContainer4, PointAccumVector) {
 }
 
 TYPED_TEST(XMMContainer4, PointDeaccumVector) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::point a{1.0_p, 5.8_p, 9.2_p, -10.0_p};
     typename TypeParam::vector b{14.0_p, 3.6_p, 7.8_p, 3.33_p};
     a -= b;

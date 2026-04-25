@@ -45,6 +45,23 @@ FetchContent_Declare(ftxui
 )
 FetchContent_MakeAvailable(ftxui)
 
+# --- Fetch SIMDe --------------------------------------------------------------
+FetchContent_Declare(simde
+    DOWNLOAD_EXTRACT_TIMESTAMP ON
+    GIT_REPOSITORY https://github.com/simd-everywhere/simde.git
+    GIT_TAG        v0.8.2
+    GIT_PROGRESS   TRUE
+    GIT_SHALLOW    TRUE
+    EXCLUDE_FROM_ALL
+)
+FetchContent_MakeAvailable(simde)
+
+# SIMDe is header-only; provide a stable interface target for downstream links.
+if(NOT TARGET simde)
+    add_library(simde INTERFACE)
+endif()
+target_include_directories(simde INTERFACE ${simde_SOURCE_DIR})
+
 # # ------------------------------------------------------------------------------
 # # Googletest now is called gtest and gmock
 # FetchContent_Declare(

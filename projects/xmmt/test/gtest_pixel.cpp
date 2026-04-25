@@ -1,7 +1,7 @@
 #include "gtest_helper.hpp"
 
 TYPED_TEST(XMMContainer3, PixelDefaultConstruction) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::pixel v{};
     EXPECT_PRECISION_EQ(zero, v.c.x);
     EXPECT_PRECISION_EQ(zero, v.c.y);
@@ -9,7 +9,7 @@ TYPED_TEST(XMMContainer3, PixelDefaultConstruction) {
 }
 
 TYPED_TEST(XMMContainer4, PixelDefaultConstruction) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::pixel v{};
     EXPECT_PRECISION_EQ(zero, v.c.x);
     EXPECT_PRECISION_EQ(zero, v.c.y);
@@ -18,7 +18,7 @@ TYPED_TEST(XMMContainer4, PixelDefaultConstruction) {
 }
 
 TYPED_TEST(XMMContainer3, PixelParameterConstructor) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::pixel v{one, two, half};
     EXPECT_PRECISION_EQ(one, v.c.x);
     EXPECT_PRECISION_EQ(two, v.c.y);
@@ -26,7 +26,7 @@ TYPED_TEST(XMMContainer3, PixelParameterConstructor) {
 }
 
 TYPED_TEST(XMMContainer4, PixelParameterConstructor) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::pixel v{one, two, half, quarter};
     EXPECT_PRECISION_EQ(one, v.c.x);
     EXPECT_PRECISION_EQ(two, v.c.y);
@@ -35,7 +35,7 @@ TYPED_TEST(XMMContainer4, PixelParameterConstructor) {
 }
 
 TYPED_TEST(XMMContainer4, PixelCopyConstruct) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::pixel a{eighth, quarter, half, two};
     typename TypeParam::pixel b{a};
     EXPECT_PRECISION_EQ(eighth, b[0]);
@@ -45,7 +45,7 @@ TYPED_TEST(XMMContainer4, PixelCopyConstruct) {
 }
 
 TYPED_TEST(XMMContainer4, PixelCopyAssign) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::pixel a{eighth, quarter, half, two};
     typename TypeParam::pixel b = a;
     EXPECT_PRECISION_EQ(eighth, b[0]);
@@ -55,7 +55,7 @@ TYPED_TEST(XMMContainer4, PixelCopyAssign) {
 }
 
 TYPED_TEST(XMMContainer4, PixelMoveAssign) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::pixel a{eighth, quarter, half, two};
     typename TypeParam::pixel b = std::move(a);
     EXPECT_PRECISION_EQ(eighth, b[0]);
@@ -65,7 +65,7 @@ TYPED_TEST(XMMContainer4, PixelMoveAssign) {
 }
 
 TYPED_TEST(XMMContainer3, PixelIndexing) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::pixel v{one, half, -eighth};
     EXPECT_PRECISION_EQ(one, v.c.x);
     EXPECT_PRECISION_EQ(half, v.c.y);
@@ -77,7 +77,7 @@ TYPED_TEST(XMMContainer3, PixelIndexing) {
 }
 
 TYPED_TEST(XMMContainer4, PixelIndexing) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::pixel v{one, half, -eighth, two};
     EXPECT_PRECISION_EQ(one, v.c.x);
     EXPECT_PRECISION_EQ(half, v.c.y);
@@ -91,7 +91,7 @@ TYPED_TEST(XMMContainer4, PixelIndexing) {
 }
 
 TYPED_TEST(XMMContainer3, PixelParallelMult) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::pixel a{half, quarter, two};
     typename TypeParam::pixel b{quarter, quarter, zero};
     typename TypeParam::pixel c = a * b;  // hamard || add
@@ -102,7 +102,7 @@ TYPED_TEST(XMMContainer3, PixelParallelMult) {
 }
 
 TYPED_TEST(XMMContainer4, PixelParallelMult) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::pixel a{half, quarter, two, eighth};
     typename TypeParam::pixel b{quarter, quarter, zero, two};
     typename TypeParam::pixel c = a * b;  // hamard || add
@@ -114,7 +114,7 @@ TYPED_TEST(XMMContainer4, PixelParallelMult) {
 }
 
 TYPED_TEST(XMMContainer3, PixelAccumulate) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::pixel a{half, quarter, two};
     typename TypeParam::pixel b{quarter, quarter, zero};
     a += b;
@@ -125,7 +125,7 @@ TYPED_TEST(XMMContainer3, PixelAccumulate) {
 }
 
 TYPED_TEST(XMMContainer4, PixelAccumulate) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::pixel a{half, quarter, two, eighth};
     typename TypeParam::pixel b{quarter, quarter, zero, two};
     a += b;
@@ -141,7 +141,7 @@ TYPED_TEST(XMMContainer4, PixelAccumulate) {
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 TYPED_TEST(XMMContainer4, PixelBlend) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::pixel a{0.75_p, 0.25_p, 0.5_p, 0.0625_p};
     typename TypeParam::pixel b{0.25_p, 0.75_p, 0.0_p, 0.0625_p};
     typename TypeParam::pixel c = interpolate(a, b, 0.5_p);
@@ -152,7 +152,7 @@ TYPED_TEST(XMMContainer4, PixelBlend) {
 }
 
 TYPED_TEST(XMMContainer3, PixelClamp) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::pixel a{1.75_p, 0.25_p, -0.5_p};
     a.clamp();
     EXPECT_PRECISION_EQ(1.0_p, a[0]);
@@ -161,7 +161,7 @@ TYPED_TEST(XMMContainer3, PixelClamp) {
 }
 
 TYPED_TEST(XMMContainer4, PixelClamp) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::pixel a{1.75_p, 0.25_p, 0.5_p, -0.0625_p};
     a.clamp();
     EXPECT_PRECISION_EQ(1.0_p, a[0]);

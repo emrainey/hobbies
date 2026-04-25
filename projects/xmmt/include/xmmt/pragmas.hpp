@@ -1,46 +1,13 @@
 #pragma once
 
-// Requires __SSE2__ and __AVX__ in the least for intel intrinsics
+/// @file
+/// Common SIMD include and compatibility aliases for xmmt.
 
-#if defined(__x86_64__)
-#include <emmintrin.h>
-#include <immintrin.h>
-#elif defined(__arm__) or defined(__aarch64__) or defined(__arm64__)
-#include "sse2neon.h"
-#endif
-
-#if defined(__AVX512F__) and (__AVX512F__ == 1)
-#pragma message("AVX512 Enabled")
-#else
-#pragma message("AVX512 Disabled")
-#endif
-
-#if defined(__AVX2__) and (__AVX2__ == 1)
-#pragma message("AVX2 Enabled")
-#else
-#pragma message("AVX2 Disabled")
-#endif
-
-#if defined(__AVX__) and (__AVX__ == 1)
-#pragma message("AVX Enabled")
-#else
-#pragma message("AVX Disabled")
-#endif
-
-#if defined(__SSE3__) and (__SSE3__ == 1)
-#pragma message("SSE3 Enabled")
-#else
-#pragma message("SSE3 Disabled")
-#endif
-
-#if defined(__SSE2__) and (__SSE2__ == 1)
-#pragma message("SSE2 Enabled")
-#else
-#pragma message("SSE2 Disabled")
-#endif
-
-#if defined(__SSE__) and (__SSE__ == 1)
-#pragma message("SSE Enabled")
-#else
-#pragma message("SSE Disabled")
-#endif
+// SIMDe provides portable SIMD APIs across architectures.
+#include <simde/x86/sse.h>
+#include <simde/x86/sse2.h>
+#include <simde/x86/sse3.h>
+#include <simde/x86/sse4.1.h>
+#include <simde/x86/avx.h>
+#include <simde/x86/avx2.h>
+#include <simde/x86/avx512.h>

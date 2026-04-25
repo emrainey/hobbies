@@ -5,6 +5,7 @@
 #include <fourcc/fourcc.hpp>
 #include "raytrace/configuration.hpp"
 #include "raytrace/types.hpp"
+#include <xmmt/xmmt.hpp>
 
 namespace raytrace {
 
@@ -23,9 +24,9 @@ inline color wavelength_to_color(iso::meters lambda) noexcept(false) {
 
 #if defined(USE_XMMT)
 #if defined(USE_PRECISION_AS_FLOAT)
-using precision4 = intel::float4;
+using precision4 = xmmt::float4;
 #else
-using precision4 = intel::double4;
+using precision4 = xmmt::double4;
 #endif
 #endif
 

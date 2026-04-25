@@ -85,22 +85,15 @@ precision random(vector const& vec, vector const& seeds, precision gain) {
 void cell_flows(point const& image_point, precision scale, vector const& seed, precision gain, point& uv,
                 vector (&flows)[4]) {
     // converts the image point to the cell top left corner this will be the same for all points in the cell
-    noise::point flr = floor(image_point * (1.0_p / scale));
+    noise::point flr = noise::floor(image_point * (1.0_p / scale));
     // the fractional part of the point from the top left corner which is unique for all points in the cell
-    uv = fract(image_point * (1.0_p / scale));
-    // the distance from the uv point to the corners of the cell
-    noise::vector displacement[] = {
-        uv - corners[0],
-        uv - corners[1],
-        uv - corners[2],
-        uv - corners[3],
-    };
+    uv = noise::fract(image_point * (1.0_p / scale));
     // the feed vectors to index the randomness
     noise::vector feed[] = {
-        flr + corners[0],
-        flr + corners[1],
-        flr + corners[2],
-        flr + corners[3],
+        noise::vector{flr[0] + corners[0][0], flr[1] + corners[0][1]},
+        noise::vector{flr[0] + corners[1][0], flr[1] + corners[1][1]},
+        noise::vector{flr[0] + corners[2][0], flr[1] + corners[2][1]},
+        noise::vector{flr[0] + corners[3][0], flr[1] + corners[3][1]},
     };
     // generate 4 random number between 0.0_p and 1.0_p which will be the "turns" around the unit circle for each corner
     // of the cell then use those to make vectors
@@ -130,8 +123,8 @@ precision perlin(point const& pnt, precision scale, vector const& seeds, precisi
 }
 
 precision smooth(point const& pnt, pad const& map) {
-    point base = floor(pnt);
-    point frat = fract(pnt);
+    point base = noise::floor(pnt);
+    point frat = noise::fract(pnt);
 
     // base value
     size_t x1 = static_cast<size_t>(base.x()) % map.dimensions;
@@ -160,7 +153,7 @@ precision turbulence(point const& pnt, precision size, precision scale, pad cons
     precision value = 0.0_p, initialSize = size;
     while (size >= 1.0_p) {
         point pnt2{pnt};  // copy
-        pnt2 *= 1.0_p / size;
+        pnt2 = pnt2 * (1.0_p / size);
         if constexpr (debug::turbulence) {
             printf("pnt={%lf, %lf}, pnt2={%lf, %lf} scale=%lf\n", pnt.x(), pnt.y(), pnt2.x(), pnt2.y(), 1.0_p / size);
         }
@@ -195,8 +188,8 @@ static precision mix(precision value1, precision value2, precision mixer) {
 // }
 
 static precision fractal_noise(point const& pnt, vector const& seed, precision rand_gain = 1.0_p) {
-    noise::point fl = floor(pnt);
-    noise::point uv = fract(pnt);
+    noise::point fl = noise::floor(pnt);
+    noise::point uv = noise::fract(pnt);
     // the feed vectors
     noise::vector feed[4] = {
         fl + corners[0],

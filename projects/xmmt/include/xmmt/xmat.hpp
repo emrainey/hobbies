@@ -5,7 +5,7 @@
 #include <initializer_list>
 
 #include <xmmt/pragmas.hpp>
-namespace intel {
+namespace xmmt {
 
 template <size_t ROWS, size_t COLS>
 class xmat_ {
@@ -19,9 +19,9 @@ public:
 private:
     /// Each row is a 8 element, so it will have the required alignment (32) at least
     union {
-        __m512d m512[1];
-        __m256d m256[2];
-        __m128d m128[4];
+        simde__m512d m512[1];
+        simde__m256d m256[2];
+        simde__m128d m128[4];
         double m064[8];
     } data[rows];
 
@@ -49,10 +49,10 @@ public:
     inline void zero() {
         for (size_t j = 0; j < rows; j++) {
 #if defined(__AVX2__) and defined(__AVX512F__)
-            data[j].m512[0] = _mm512_setzero_pd();
+            data[j].m512[0] = simde_mm512_setzero_pd();
 #elif defined(__AVX__)
-            data[j].m256[0] = _mm256_setzero_pd();
-            data[j].m256[1] = _mm256_setzero_pd();
+            data[j].m256[0] = simde_mm256_setzero_pd();
+            data[j].m256[1] = simde_mm256_setzero_pd();
 #endif
         }
     }
@@ -119,11 +119,11 @@ public:
     inline xmat_& operator+=(xmat_ const& B) {
         for (size_t j = 0; j < rows; j++) {
             if constexpr (cols == 2) {
-                data[j].m128[0] = _mm_add_pd(data[j].m128[0], B.data[j].m128[0]);
+                data[j].m128[0] = simde_mm_add_pd(data[j].m128[0], B.data[j].m128[0]);
             } else if constexpr (cols <= 4) {
-                data[j].m256[0] = _mm256_add_pd(data[j].m256[0], B.data[j].m256[0]);
+                data[j].m256[0] = simde_mm256_add_pd(data[j].m256[0], B.data[j].m256[0]);
             } else {
-                data[j].m512[0] = _mm512_add_pd(data[j].m512[0], B.data[j].m512[0]);
+                data[j].m512[0] = simde_mm512_add_pd(data[j].m512[0], B.data[j].m512[0]);
             }
         }
         return (*this);
@@ -132,11 +132,11 @@ public:
     inline xmat_& operator-=(xmat_ const& B) {
         for (size_t j = 0; j < rows; j++) {
             if constexpr (cols == 2) {
-                data[j].m128[0] = _mm_sub_pd(data[j].m128[0], B.data[j].m128[0]);
+                data[j].m128[0] = simde_mm_sub_pd(data[j].m128[0], B.data[j].m128[0]);
             } else if constexpr (cols <= 4) {
-                data[j].m256[0] = _mm256_sub_pd(data[j].m256[0], B.data[j].m256[0]);
+                data[j].m256[0] = simde_mm256_sub_pd(data[j].m256[0], B.data[j].m256[0]);
             } else {
-                data[j].m512[0] = _mm512_sub_pd(data[j].m512[0], B.data[j].m512[0]);
+                data[j].m512[0] = simde_mm512_sub_pd(data[j].m512[0], B.data[j].m512[0]);
             }
         }
         return (*this);
@@ -149,14 +149,14 @@ public:
     inline xmat_& operator+=(double const value) {
         for (size_t j = 0; j < rows; j++) {
             if constexpr (cols == 2) {
-                __m128d v = _mm_set1_pd(value);
-                data[j].m128[0] = _mm_add_pd(data[j].m128[0], v);
+                simde__m128d v = simde_mm_set1_pd(value);
+                data[j].m128[0] = simde_mm_add_pd(data[j].m128[0], v);
             } else if constexpr (cols <= 4) {
-                __m256d v = _mm256_set1_pd(value);
-                data[j].m256[0] = _mm256_add_pd(data[j].m256[0], v);
+                simde__m256d v = simde_mm256_set1_pd(value);
+                data[j].m256[0] = simde_mm256_add_pd(data[j].m256[0], v);
             } else {
-                __m512d v = _mm512_set1_pd(value);
-                data[j].m512[0] = _mm512_add_pd(data[j].m512[0], v);
+                simde__m512d v = simde_mm512_set1_pd(value);
+                data[j].m512[0] = simde_mm512_add_pd(data[j].m512[0], v);
             }
         }
         return (*this);
@@ -166,14 +166,14 @@ public:
     inline xmat_& operator-=(double const value) {
         for (size_t j = 0; j < rows; j++) {
             if constexpr (cols == 2) {
-                __m128d v = _mm_set1_pd(value);
-                data[j].m128[0] = _mm_sub_pd(data[j].m128[0], v);
+                simde__m128d v = simde_mm_set1_pd(value);
+                data[j].m128[0] = simde_mm_sub_pd(data[j].m128[0], v);
             } else if constexpr (cols <= 4) {
-                __m256d v = _mm256_set1_pd(value);
-                data[j].m256[0] = _mm256_sub_pd(data[j].m256[0], v);
+                simde__m256d v = simde_mm256_set1_pd(value);
+                data[j].m256[0] = simde_mm256_sub_pd(data[j].m256[0], v);
             } else {
-                __m512d v = _mm512_set1_pd(value);
-                data[j].m512[0] = _mm512_sub_pd(data[j].m512[0], v);
+                simde__m512d v = simde_mm512_set1_pd(value);
+                data[j].m512[0] = simde_mm512_sub_pd(data[j].m512[0], v);
             }
         }
         return (*this);
@@ -183,14 +183,14 @@ public:
     inline xmat_& operator*=(double const value) {
         for (size_t j = 0; j < rows; j++) {
             if constexpr (cols == 2) {
-                __m128d v = _mm_set1_pd(value);
-                data[j].m128[0] = _mm_mul_pd(data[j].m128[0], v);
+                simde__m128d v = simde_mm_set1_pd(value);
+                data[j].m128[0] = simde_mm_mul_pd(data[j].m128[0], v);
             } else if constexpr (cols <= 4) {
-                __m256d v = _mm256_set1_pd(value);
-                data[j].m256[0] = _mm256_mul_pd(data[j].m256[0], v);
+                simde__m256d v = simde_mm256_set1_pd(value);
+                data[j].m256[0] = simde_mm256_mul_pd(data[j].m256[0], v);
             } else {
-                __m512d v = _mm512_set1_pd(value);
-                data[j].m512[0] = _mm512_mul_pd(data[j].m512[0], v);
+                simde__m512d v = simde_mm512_set1_pd(value);
+                data[j].m512[0] = simde_mm512_mul_pd(data[j].m512[0], v);
             }
         }
         return (*this);
@@ -200,14 +200,14 @@ public:
     inline xmat_& operator/=(double const value) {
         for (size_t j = 0; j < rows; j++) {
             if constexpr (cols == 2) {
-                __m128d v = _mm_set1_pd(value);
-                data[j].m128[0] = _mm_div_pd(data[j].m128[0], v);
+                simde__m128d v = simde_mm_set1_pd(value);
+                data[j].m128[0] = simde_mm_div_pd(data[j].m128[0], v);
             } else if constexpr (cols <= 4) {
-                __m256d v = _mm256_set1_pd(value);
-                data[j].m256[0] = _mm256_div_pd(data[j].m256[0], v);
+                simde__m256d v = simde_mm256_set1_pd(value);
+                data[j].m256[0] = simde_mm256_div_pd(data[j].m256[0], v);
             } else {
-                __m512d v = _mm512_set1_pd(value);
-                data[j].m512[0] = _mm512_div_pd(data[j].m512[0], v);
+                simde__m512d v = simde_mm512_set1_pd(value);
+                data[j].m512[0] = simde_mm512_div_pd(data[j].m512[0], v);
             }
         }
         return (*this);
@@ -244,13 +244,13 @@ xmat_<ROWS0, COLS1> operator*(xmat_<ROWS0, COLS0> const& a, xmat_<COLS0, COLS1> 
         for (size_t i = 0; i < C.cols; i++) {
             if constexpr (a.cols == 2) {
                 alignas(16) union {
-                    __m128d m128;
+                    simde__m128d m128;
                     double m064[2];
                 } c;
                 // take from b's columns not rows
                 c.m064[0] = b.data[0].m064[i];
                 c.m064[1] = b.data[1].m064[i];
-                c.m128 = _mm_mul_pd(a.data[j].m128[0], c.m128);
+                c.m128 = simde_mm_mul_pd(a.data[j].m128[0], c.m128);
                 C.data[j].m064[i] = c.m064[0] + c.m064[1];
             }
         }
@@ -265,11 +265,11 @@ xmat_<ROWS, COLS> operator+(xmat_<ROWS, COLS> const& a, xmat_<ROWS, COLS> const&
     xmat_<ROWS, COLS> C;
     for (size_t j = 0; j < C.rows; j++) {
         if constexpr (C.cols == 2) {
-            C.data[j].m128[0] = _mm_add_pd(a.data[j].m128[0], b.data[j].m128[0]);
+            C.data[j].m128[0] = simde_mm_add_pd(a.data[j].m128[0], b.data[j].m128[0]);
         } else if constexpr (C.cols <= 4) {
-            C.data[j].m256[0] = _mm256_add_pd(a.data[j].m256[0], b.data[j].m256[0]);
+            C.data[j].m256[0] = simde_mm256_add_pd(a.data[j].m256[0], b.data[j].m256[0]);
         } else {
-            C.data[j].m512[0] = _mm512_add_pd(a.data[j].m512[0], b.data[j].m512[0]);
+            C.data[j].m512[0] = simde_mm512_add_pd(a.data[j].m512[0], b.data[j].m512[0]);
         }
     }
     return C;
@@ -280,14 +280,14 @@ xmat_<ROWS, COLS> operator-(xmat_<ROWS, COLS> const& a, xmat_<ROWS, COLS> const&
     xmat_<ROWS, COLS> C;
     for (size_t j = 0; j < C.rows; j++) {
         if constexpr (C.cols == 2) {
-            C.data[j].m128[0] = _mm_sub_pd(a.data[j].m128[0], b.data[j].m128[0]);
+            C.data[j].m128[0] = simde_mm_sub_pd(a.data[j].m128[0], b.data[j].m128[0]);
         } else if constexpr (C.cols <= 4) {
-            C.data[j].m256[0] = _mm256_sub_pd(a.data[j].m256[0], b.data[j].m256[0]);
+            C.data[j].m256[0] = simde_mm256_sub_pd(a.data[j].m256[0], b.data[j].m256[0]);
         } else {
-            C.data[j].m512[0] = _mm512_sub_pd(a.data[j].m512[0], b.data[j].m512[0]);
+            C.data[j].m512[0] = simde_mm512_sub_pd(a.data[j].m512[0], b.data[j].m512[0]);
         }
     }
     return C;
 }
 
-}  // namespace intel
+}  // namespace xmmt

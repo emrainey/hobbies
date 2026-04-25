@@ -6,7 +6,7 @@
 #include "xmmt/packs.hpp"
 #include "xmmt/vector.hpp"
 
-namespace intel {
+namespace xmmt {
 
 /// An ordered set of values for a pixel of multiple channels which can be operator-ed on in-bulk.
 /// @tparam pack_type The packing structure definition.
@@ -84,15 +84,15 @@ public:
     /// Scales each value
     inline pixel_& operator*=(element_type a) {
         if constexpr (pack_type::number_of_elements == 2) {
-            __m128d tmp = _mm_setr_pd(a, a);
-            pack_type::data = _mm_mul_pd(pack_type::data, tmp);
+            simde__m128d tmp = simde_mm_setr_pd(a, a);
+            pack_type::data = simde_mm_mul_pd(pack_type::data, tmp);
         } else {
             if constexpr (std::is_same_v<element_type, float>) {
-                __m128 tmp = _mm_setr_ps(a, a, a, a);
-                pack_type::data = _mm_mul_ps(pack_type::data, tmp);
+                simde__m128 tmp = simde_mm_setr_ps(a, a, a, a);
+                pack_type::data = simde_mm_mul_ps(pack_type::data, tmp);
             } else {
-                __m256d tmp = _mm256_setr_pd(a, a, a, a);
-                pack_type::data = _mm256_mul_pd(pack_type::data, tmp);
+                simde__m256d tmp = simde_mm256_setr_pd(a, a, a, a);
+                pack_type::data = simde_mm256_mul_pd(pack_type::data, tmp);
             }
         }
         return (*this);
@@ -101,12 +101,12 @@ public:
     /// Accumulate value
     inline pixel_& operator+=(pixel_ const& a) {
         if constexpr (pack_type::number_of_elements == 2) {
-            pack_type::data = _mm_add_pd(pack_type::data, a.data);
+            pack_type::data = simde_mm_add_pd(pack_type::data, a.data);
         } else {
             if constexpr (std::is_same_v<element_type, float>) {
-                pack_type::data = _mm_add_ps(pack_type::data, a.data);
+                pack_type::data = simde_mm_add_ps(pack_type::data, a.data);
             } else {
-                pack_type::data = _mm256_add_pd(pack_type::data, a.data);
+                pack_type::data = simde_mm256_add_pd(pack_type::data, a.data);
             }
         }
         return (*this);
@@ -132,21 +132,21 @@ public:
 
     inline void clamp(void) {
         if constexpr (pack_type::number_of_elements == 2) {
-            parallel_type imm = _mm_set1_pd(1.0_p);
-            parallel_type tmp = _mm_min_pd(imm, pack_type::data);
-            imm = _mm_setzero_pd();
-            pack_type::data = _mm_max_pd(imm, tmp);
+            parallel_type imm = simde_mm_set1_pd(1.0_p);
+            parallel_type tmp = simde_mm_min_pd(imm, pack_type::data);
+            imm = simde_mm_setzero_pd();
+            pack_type::data = simde_mm_max_pd(imm, tmp);
         } else {
             if constexpr (std::is_same_v<element_type, float>) {
-                parallel_type imm = _mm_set1_ps(1.0_p);
-                parallel_type tmp = _mm_min_ps(imm, pack_type::data);
-                imm = _mm_setzero_ps();
-                pack_type::data = _mm_max_ps(imm, tmp);
+                parallel_type imm = simde_mm_set1_ps(1.0_p);
+                parallel_type tmp = simde_mm_min_ps(imm, pack_type::data);
+                imm = simde_mm_setzero_ps();
+                pack_type::data = simde_mm_max_ps(imm, tmp);
             } else {
-                parallel_type imm = _mm256_set1_pd(1.0_p);
-                parallel_type tmp = _mm256_min_pd(imm, pack_type::data);
-                imm = _mm256_setzero_pd();
-                pack_type::data = _mm256_max_pd(imm, tmp);
+                parallel_type imm = simde_mm256_set1_pd(1.0_p);
+                parallel_type tmp = simde_mm256_min_pd(imm, pack_type::data);
+                imm = simde_mm256_setzero_pd();
+                pack_type::data = simde_mm256_max_pd(imm, tmp);
             }
         }
     }
@@ -157,12 +157,12 @@ public:
     friend inline pixel_ operator*(pixel_ const& a, element_type const& b) {
         pixel_ c{};
         if constexpr (pack_type::number_of_elements == 2) {
-            c.data = _mm_mul_pd(a.data, _mm_set1_pd(b));
+            c.data = simde_mm_mul_pd(a.data, simde_mm_set1_pd(b));
         } else {
             if constexpr (std::is_same_v<element_type, float>) {
-                c.data = _mm_mul_ps(a.data, _mm_set1_ps(b));
+                c.data = simde_mm_mul_ps(a.data, simde_mm_set1_ps(b));
             } else {
-                c.data = _mm256_mul_pd(a.data, _mm256_set1_pd(b));
+                c.data = simde_mm256_mul_pd(a.data, simde_mm256_set1_pd(b));
             }
         }
         return c;
@@ -172,12 +172,12 @@ public:
     friend inline pixel_ operator*(pixel_ const& a, pixel_ const& b) {
         pixel_ c{};
         if constexpr (pack_type::number_of_elements == 2) {
-            c.data = _mm_mul_pd(a.data, b.data);
+            c.data = simde_mm_mul_pd(a.data, b.data);
         } else {
             if constexpr (std::is_same_v<element_type, float>) {
-                c.data = _mm_mul_ps(a.data, b.data);
+                c.data = simde_mm_mul_ps(a.data, b.data);
             } else {
-                c.data = _mm256_mul_pd(a.data, b.data);
+                c.data = simde_mm256_mul_pd(a.data, b.data);
             }
         }
         return c;
@@ -194,12 +194,12 @@ public:
         pixel_ d = b * (1.0 - ratio);
         pixel_ e;
         if constexpr (pack_type::number_of_elements == 2) {
-            e.data = _mm_add_pd(c.data, d.data);
+            e.data = simde_mm_add_pd(c.data, d.data);
         } else {
             if constexpr (std::is_same_v<element_type, float>) {
-                e.data = _mm_add_ps(c.data, d.data);
+                e.data = simde_mm_add_ps(c.data, d.data);
             } else {
-                e.data = _mm256_add_pd(c.data, d.data);
+                e.data = simde_mm256_add_pd(c.data, d.data);
             }
         }
         return e;
@@ -212,4 +212,4 @@ public:
     }
 };
 
-}  // namespace intel
+}  // namespace xmmt

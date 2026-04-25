@@ -20,7 +20,10 @@ target_include_directories(hobbies-xmmt INTERFACE
     # Install Tree
     $<INSTALL_INTERFACE:include>
 )
-target_link_libraries(hobbies-xmmt INTERFACE hobbies-basal native-optimized)
+target_link_libraries(hobbies-xmmt INTERFACE hobbies-basal native-optimized simde)
+target_compile_definitions(hobbies-xmmt INTERFACE
+    $<$<BOOL:${USE_XMMT}>:USE_XMMT>
+)
 install(TARGETS hobbies-xmmt
     EXPORT xmmt-targets
     ARCHIVE DESTINATION lib
@@ -43,6 +46,15 @@ if (USE_XMMT AND BUILD_UNIT_TESTS AND Threads_FOUND AND GTest_FOUND)
     )
     target_link_libraries(gtest_xmmt PRIVATE hobbies-xmmt enabled-debugging GTest::gtest GTest::gmock GTest::gtest_main Threads::Threads)
     add_test(NAME gtest_xmmt COMMAND gtest_xmmt)
+endif()
+
+if (USE_XMMT AND BUILD_UNIT_TESTS AND Threads_FOUND)
+    find_package(benchmark)
+    add_executable(gbench_xmmt
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/gbench_xmmt.cpp
+    )
+    target_link_libraries(gbench_xmmt PRIVATE hobbies-xmmt enabled-debugging benchmark::benchmark Threads::Threads)
+    add_test(NAME gbench_xmmt COMMAND gbench_xmmt)
 endif()
 
 # === Doxygen ===

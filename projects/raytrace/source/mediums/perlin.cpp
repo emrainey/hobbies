@@ -15,12 +15,13 @@ perlin::perlin(precision seed, precision scale, precision gain, color dark, colo
 
 color perlin::diffuse(raytrace::point const& volumetric_point) const {
     if (m_reducing_map) {
-        image::point pnt = m_reducing_map(volumetric_point);
+        auto map_pnt = m_reducing_map(volumetric_point);
+        noise::point pnt = noise::point{map_pnt.x(), map_pnt.y()};  // convert to noise point
         precision alpha = noise::perlin(pnt, m_scale, m_seed, m_gain);
         return fourcc::linear::interpolate(m_dark, m_light, alpha);
     } else {
         // FIXME implement a real volumetric perlin noise function.
-        image::point pnt(volumetric_point.x(), volumetric_point.y());
+        noise::point pnt(volumetric_point.x(), volumetric_point.y());
         precision alpha = noise::perlin(pnt, m_scale, m_seed, m_gain);
         return fourcc::linear::interpolate(m_dark, m_light, alpha);
     }

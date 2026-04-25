@@ -1,7 +1,7 @@
 #include "gtest_helper.hpp"
 
 TEST(XMATTest, ConstructionAndIndexing) {
-    using namespace intel;
+    using namespace xmmt;
     xmat_<3, 3> m3 = {1, 2, 3, 4, 5, 6, 7, 8, 9};
     EXPECT_PRECISION_EQ(1, m3.at(0, 0));
     EXPECT_PRECISION_EQ(2, m3.at(0, 1));
@@ -28,7 +28,7 @@ TEST(XMATTest, ConstructionAndIndexing) {
 }
 
 TEST(XMATTest, Operators2x2) {
-    using namespace intel;
+    using namespace xmmt;
     xmat_<2, 2> m0 = {1, 2, 3, 4};
     xmat_<2, 2> m1 = {1, 2, 3, 4};
 
@@ -41,7 +41,7 @@ TEST(XMATTest, Operators2x2) {
 }
 
 TEST(XMATTest, Operators3x3) {
-    using namespace intel;
+    using namespace xmmt;
     xmat_<3, 3> m0 = {1, 2, 3, 4, 5, 6, 7, 8, 9};
     xmat_<3, 3> m1 = {1, 2, 3, 4, 5, 6, 7, 8, 9};
 
@@ -62,7 +62,7 @@ TEST(XMATTest, Operators3x3) {
 }
 
 TEST(XMATTest, Operators4x4) {
-    using namespace intel;
+    using namespace xmmt;
     xmat_<4, 4> m0 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
     xmat_<4, 4> m1 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
 

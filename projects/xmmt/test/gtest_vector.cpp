@@ -1,14 +1,14 @@
 #include "gtest_helper.hpp"
 
 TYPED_TEST(XMMContainer2, VectorDefaultConstruction) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::vector v{};
     EXPECT_PRECISION_EQ(zero, v.c.x);
     EXPECT_PRECISION_EQ(zero, v.c.y);
 }
 
 TYPED_TEST(XMMContainer3, VectorDefaultConstruction) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::vector v{};
     EXPECT_PRECISION_EQ(zero, v.c.x);
     EXPECT_PRECISION_EQ(zero, v.c.y);
@@ -16,7 +16,7 @@ TYPED_TEST(XMMContainer3, VectorDefaultConstruction) {
 }
 
 TYPED_TEST(XMMContainer4, VectorDefaultConstruction) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::vector v{};
     EXPECT_PRECISION_EQ(zero, v.c.x);
     EXPECT_PRECISION_EQ(zero, v.c.y);
@@ -25,14 +25,14 @@ TYPED_TEST(XMMContainer4, VectorDefaultConstruction) {
 }
 
 TYPED_TEST(XMMContainer2, VectorParameterConstructor) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::vector v{one, two};
     EXPECT_PRECISION_EQ(one, v.c.x);
     EXPECT_PRECISION_EQ(two, v.c.y);
 }
 
 TYPED_TEST(XMMContainer3, VectorParameterConstructor) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::vector v{one, two, half};
     EXPECT_PRECISION_EQ(one, v.c.x);
     EXPECT_PRECISION_EQ(two, v.c.y);
@@ -40,7 +40,7 @@ TYPED_TEST(XMMContainer3, VectorParameterConstructor) {
 }
 
 TYPED_TEST(XMMContainer4, VectorParameterConstructor) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::vector v{one, two, half, quarter};
     EXPECT_PRECISION_EQ(one, v.c.x);
     EXPECT_PRECISION_EQ(two, v.c.y);
@@ -49,7 +49,7 @@ TYPED_TEST(XMMContainer4, VectorParameterConstructor) {
 }
 
 TYPED_TEST(XMMContainer4, VectorCopyConstruct) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::vector a{eighth, quarter, half, two};
     typename TypeParam::vector b{a};
     EXPECT_PRECISION_EQ(eighth, b[0]);
@@ -59,7 +59,7 @@ TYPED_TEST(XMMContainer4, VectorCopyConstruct) {
 }
 
 TYPED_TEST(XMMContainer4, VectorCopyAssign) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::vector a{eighth, quarter, half, two};
     typename TypeParam::vector b = a;
     EXPECT_PRECISION_EQ(eighth, b[0]);
@@ -69,7 +69,7 @@ TYPED_TEST(XMMContainer4, VectorCopyAssign) {
 }
 
 TYPED_TEST(XMMContainer4, VectorMoveAssign) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::vector a{eighth, quarter, half, two};
     typename TypeParam::vector b = std::move(a);
     EXPECT_PRECISION_EQ(eighth, b[0]);
@@ -79,14 +79,14 @@ TYPED_TEST(XMMContainer4, VectorMoveAssign) {
 }
 
 TYPED_TEST(XMMContainer2, VectorInitializerConstructor) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::vector v{{one, two, half, quarter, eighth}};
     EXPECT_PRECISION_EQ(one, v.c.x);
     EXPECT_PRECISION_EQ(two, v.c.y);
 }
 
 TYPED_TEST(XMMContainer3, VectorInitializerConstructor) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::vector v{{one, two, half, quarter, eighth}};
     EXPECT_PRECISION_EQ(one, v.c.x);
     EXPECT_PRECISION_EQ(two, v.c.y);
@@ -94,7 +94,7 @@ TYPED_TEST(XMMContainer3, VectorInitializerConstructor) {
 }
 
 TYPED_TEST(XMMContainer4, VectorInitializerConstructor) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::vector v{{one, two, half, quarter, eighth}};
     EXPECT_PRECISION_EQ(one, v.c.x);
     EXPECT_PRECISION_EQ(two, v.c.y);
@@ -103,7 +103,7 @@ TYPED_TEST(XMMContainer4, VectorInitializerConstructor) {
 }
 
 TYPED_TEST(XMMContainer2, VectorIndexing) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::vector v{one, -eighth};
     EXPECT_PRECISION_EQ(one, v.c.x);
     EXPECT_PRECISION_EQ(-eighth, v.c.y);
@@ -113,7 +113,7 @@ TYPED_TEST(XMMContainer2, VectorIndexing) {
 }
 
 TYPED_TEST(XMMContainer3, VectorIndexing) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::vector v{one, half, -eighth};
     EXPECT_PRECISION_EQ(one, v.c.x);
     EXPECT_PRECISION_EQ(half, v.c.y);
@@ -125,7 +125,7 @@ TYPED_TEST(XMMContainer3, VectorIndexing) {
 }
 
 TYPED_TEST(XMMContainer4, VectorIndexing) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::vector v{one, half, -eighth, two};
     EXPECT_PRECISION_EQ(one, v.c.x);
     EXPECT_PRECISION_EQ(half, v.c.y);
@@ -139,7 +139,7 @@ TYPED_TEST(XMMContainer4, VectorIndexing) {
 }
 
 TYPED_TEST(XMMContainer3, VectorParallelMult) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::vector a{1.0_p, 5.8_p, 9.2_p};
     typename TypeParam::vector b{14.0_p, 3.6_p, 7.8_p};
     typename TypeParam::vector c = a * b;  // hamard || add
@@ -150,7 +150,7 @@ TYPED_TEST(XMMContainer3, VectorParallelMult) {
 }
 
 TYPED_TEST(XMMContainer4, VectorParallelMult) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::vector a{1.0_p, 5.8_p, 9.2_p, -10.0_p};
     typename TypeParam::vector b{14.0_p, 3.6_p, 7.8_p, 3.33_p};
     typename TypeParam::vector c = a * b;  // hamard || add
@@ -166,7 +166,7 @@ TYPED_TEST(XMMContainer4, VectorParallelMult) {
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 TYPED_TEST(XMMContainer4, InvertVector) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::vector a{1.0_p, 5.8_p, 9.2_p, -10.0_p};
     typename TypeParam::vector c = -a;
     std::cout << a << std::endl;
@@ -177,7 +177,7 @@ TYPED_TEST(XMMContainer4, InvertVector) {
 }
 
 TYPED_TEST(XMMContainer4, VectorParallelAdd) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::vector a{1.0_p, 5.8_p, 9.2_p, -10.0_p};
     typename TypeParam::vector b{14.0_p, 3.6_p, 7.8_p, 3.33_p};
     typename TypeParam::vector c = a + b;
@@ -189,28 +189,28 @@ TYPED_TEST(XMMContainer4, VectorParallelAdd) {
 }
 
 TYPED_TEST(XMMContainer2, Dot) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::vector v{one, half + quarter};
     typename TypeParam::vector u{half, two};
     EXPECT_PRECISION_EQ(two, dot(u, v));
 }
 
 TYPED_TEST(XMMContainer3, Dot) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::vector v{two, half, half + quarter};
     typename TypeParam::vector u{half, one, two};
     EXPECT_PRECISION_EQ(two + one, dot(u, v));
 }
 
 TYPED_TEST(XMMContainer4, Dot) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::vector v{one, half, half + quarter, zero};
     typename TypeParam::vector u{half, one, two, one};
     EXPECT_PRECISION_EQ(two + half, dot(u, v));
 }
 
 TYPED_TEST(XMMContainer4, DotPerf) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::vector v{1.0_p, 0.4_p, 0.8_p, 0.0_p};
     typename TypeParam::vector u{0.5_p, 1.0_p, 0.4_p, 1.0_p};
     constexpr size_t number_of_ops = 100'000'000;
@@ -229,7 +229,7 @@ TYPED_TEST(XMMContainer4, DotPerf) {
 }
 
 TYPED_TEST(XMMContainer3, Cross) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::vector a{1.0_p, 3.0_p, 7.2_p};
     typename TypeParam::vector b{-4.0_p, 0.9_p, 12};
     typename TypeParam::vector uv = cross(a, b);
@@ -247,7 +247,7 @@ TYPED_TEST(XMMContainer3, Cross) {
 }
 
 TYPED_TEST(XMMContainer3, CrossPerf) {
-    using namespace intel;
+    using namespace xmmt;
     typename TypeParam::vector a{1.0_p, 3.0_p, 7.2_p};
     typename TypeParam::vector b{-4.0_p, 0.9_p, 12};
     constexpr size_t number_of_ops = 100'000'000;

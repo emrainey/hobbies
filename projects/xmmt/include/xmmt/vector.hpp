@@ -5,7 +5,7 @@
 
 #include "xmmt/packs.hpp"
 
-namespace intel {
+namespace xmmt {
 
 /// An ordered set of values which can be operator-ed on in-bulk.
 /// Classically, this is a vector and this is used as such.
@@ -84,17 +84,17 @@ public:
     /// Scales each value
     inline vector_& operator*=(element_type a) {
         if constexpr (pack_type::number_of_elements == 2) {
-            __m128d tmp = _mm_setr_pd(a, a);
-            pack_type::data = _mm_mul_pd(pack_type::data, tmp);
+            simde__m128d tmp = simde_mm_setr_pd(a, a);
+            pack_type::data = simde_mm_mul_pd(pack_type::data, tmp);
             static_cast<void>(tmp);
         } else {
             if constexpr (std::is_same_v<element_type, float>) {
-                __m128 tmp = _mm_setr_ps(a, a, a, a);
-                pack_type::data = _mm_mul_ps(pack_type::data, tmp);
+                simde__m128 tmp = simde_mm_setr_ps(a, a, a, a);
+                pack_type::data = simde_mm_mul_ps(pack_type::data, tmp);
                 static_cast<void>(tmp);
             } else {
-                __m256d tmp = _mm256_setr_pd(a, a, a, a);
-                pack_type::data = _mm256_mul_pd(pack_type::data, tmp);
+                simde__m256d tmp = simde_mm256_setr_pd(a, a, a, a);
+                pack_type::data = simde_mm256_mul_pd(pack_type::data, tmp);
                 static_cast<void>(tmp);
             }
         }
@@ -104,12 +104,12 @@ public:
     /// Scales each value
     inline vector_& operator/=(element_type a) {
         if constexpr (pack_type::number_of_elements == 2) {
-            pack_type::data = _mm_div_pd(pack_type::data, a.data);
+            pack_type::data = simde_mm_div_pd(pack_type::data, a.data);
         } else {
             if constexpr (std::is_same_v<element_type, float>) {
-                pack_type::data = _mm_div_ps(pack_type::data, a.data);
+                pack_type::data = simde_mm_div_ps(pack_type::data, a.data);
             } else {
-                pack_type::data = _mm256_div_pd(pack_type::data, a.data);
+                pack_type::data = simde_mm256_div_pd(pack_type::data, a.data);
             }
         }
         return (*this);
@@ -120,9 +120,9 @@ public:
         double2 tmp;                 // we'll use this for union access only
         tmp.datum[0] = quadrance();  // put it in the bottom
         if constexpr (std::is_same_v<element_type, float>) {
-            tmp.data = _mm_rsqrt_ps(tmp.data);  // get the inv sqrt approx
+            tmp.data = simde_mm_rsqrt_ps(tmp.data);  // get the inv sqrt approx
         } else {
-            tmp.data = _mm_rsqrt14_pd(tmp.data);  // get the inv sqrt approx
+            tmp.data = simde_mm_div_pd(simde_mm_set1_pd(1.0_p), simde_mm_sqrt_pd(tmp.data));
         }
         return operator*=(tmp.datum[0]);
     }
@@ -141,12 +141,12 @@ public:
     /// Accumulate value
     inline vector_& operator+=(vector_ const& a) {
         if constexpr (pack_type::number_of_elements == 2) {
-            pack_type::data = _mm_add_pd(pack_type::data, a.data);
+            pack_type::data = simde_mm_add_pd(pack_type::data, a.data);
         } else {
             if constexpr (std::is_same_v<element_type, float>) {
-                pack_type::data = _mm_add_ps(pack_type::data, a.data);
+                pack_type::data = simde_mm_add_ps(pack_type::data, a.data);
             } else {
-                pack_type::data = _mm256_add_pd(pack_type::data, a.data);
+                pack_type::data = simde_mm256_add_pd(pack_type::data, a.data);
             }
         }
         return (*this);
@@ -154,12 +154,12 @@ public:
 
     inline vector_& operator-=(vector_ const& a) {
         if constexpr (pack_type::number_of_elements == 2) {
-            pack_type::data = _mm_sub_pd(pack_type::data, a.data);
+            pack_type::data = simde_mm_sub_pd(pack_type::data, a.data);
         } else {
             if constexpr (std::is_same_v<element_type, float>) {
-                pack_type::data = _mm_sub_ps(pack_type::data, a.data);
+                pack_type::data = simde_mm_sub_ps(pack_type::data, a.data);
             } else {
-                pack_type::data = _mm256_sub_pd(pack_type::data, a.data);
+                pack_type::data = simde_mm256_sub_pd(pack_type::data, a.data);
             }
         }
         return (*this);
@@ -194,12 +194,12 @@ public:
     friend inline vector_ operator+(vector_ const& a, vector_ const& b) {
         vector_ c{};
         if constexpr (pack_type::number_of_elements == 2) {
-            c.data = _mm_add_pd(a.data, b.data);
+            c.data = simde_mm_add_pd(a.data, b.data);
         } else {
             if constexpr (std::is_same_v<element_type, float>) {
-                c.data = _mm_add_ps(a.data, b.data);
+                c.data = simde_mm_add_ps(a.data, b.data);
             } else {
-                c.data = _mm256_add_pd(a.data, b.data);
+                c.data = simde_mm256_add_pd(a.data, b.data);
             }
         }
         return c;
@@ -208,12 +208,12 @@ public:
     friend inline vector_ operator-(vector_ const& a, vector_ const& b) {
         vector_ c{};
         if constexpr (pack_type::number_of_elements == 2) {
-            c.data = _mm_sub_pd(a.data, b.data);
+            c.data = simde_mm_sub_pd(a.data, b.data);
         } else {
             if constexpr (std::is_same_v<element_type, float>) {
-                c.data = _mm_sub_ps(a.data, b.data);
+                c.data = simde_mm_sub_ps(a.data, b.data);
             } else {
-                c.data = _mm256_sub_pd(a.data, b.data);
+                c.data = simde_mm256_sub_pd(a.data, b.data);
             }
         }
         return c;
@@ -223,12 +223,12 @@ public:
     friend inline vector_ operator*(vector_ const& a, vector_ const& b) {
         vector_ c{};
         if constexpr (pack_type::number_of_elements == 2) {
-            c.data = _mm_mul_pd(a.data, b.data);
+            c.data = simde_mm_mul_pd(a.data, b.data);
         } else {
             if constexpr (std::is_same_v<element_type, float>) {
-                c.data = _mm_mul_ps(a.data, b.data);
+                c.data = simde_mm_mul_ps(a.data, b.data);
             } else {
-                c.data = _mm256_mul_pd(a.data, b.data);
+                c.data = simde_mm256_mul_pd(a.data, b.data);
             }
         }
         return c;
@@ -240,26 +240,26 @@ public:
             if constexpr (std::is_same_v<element_type, float>) {
                 d = (a.datum[0] * b.datum[0]) + (a.datum[1] * b.datum[1]);
             } else {
-                __m128d tmp = _mm_mul_pd(a.data, b.data);
-                tmp = _mm_hadd_pd(tmp, tmp);
+                simde__m128d tmp = simde_mm_mul_pd(a.data, b.data);
+                tmp = simde_mm_hadd_pd(tmp, tmp);
                 vector_ c{tmp};
                 d = c[0];
             }
         } else {  // 3 or 4 elements
             if constexpr (std::is_same_v<element_type, float>) {
-                __m128 t = _mm_mul_ps(a.data, b.data);
-                __m128 z = _mm_setzero_ps();
-                __m128 h = _mm_hadd_ps(t, z);
-                // t = _mm_permute_ps(h, 0xD8);
-                h = _mm_hadd_ps(h, z);
+                simde__m128 t = simde_mm_mul_ps(a.data, b.data);
+                simde__m128 z = simde_mm_setzero_ps();
+                simde__m128 h = simde_mm_hadd_ps(t, z);
+                // t = simde_mm_permute_ps(h, 0xD8);
+                h = simde_mm_hadd_ps(h, z);
                 vector_ c{h};
                 d = c[0];
             } else {
-                __m256d t = _mm256_mul_pd(a.data, b.data);
-                __m256d z = _mm256_setzero_pd();
-                __m256d h = _mm256_hadd_pd(t, z);
-                t = _mm256_permute4x64_pd(h, 0xD8);
-                h = _mm256_hadd_pd(t, z);
+                simde__m256d t = simde_mm256_mul_pd(a.data, b.data);
+                simde__m256d z = simde_mm256_setzero_pd();
+                simde__m256d h = simde_mm256_hadd_pd(t, z);
+                t = simde_mm256_permute4x64_pd(h, 0xD8);
+                h = simde_mm256_hadd_pd(t, z);
                 vector_ c{h};
                 d = c[0];
             }
@@ -275,20 +275,20 @@ public:
         vector_ c{};
         if constexpr (dimensions == 3) {
             if constexpr (std::is_same_v<element_type, float>) {
-                __m128 e = _mm_permute_ps(a.data, 0xC9);
-                __m128 f = _mm_permute_ps(b.data, 0xC9);
-                e = _mm_mul_ps(e, b.data);
-                f = _mm_mul_ps(f, a.data);
-                __m128 g = _mm_sub_ps(f, e);
-                c.data = _mm_permute_ps(g, 0xC9);
+                simde__m128 e = simde_mm_permute_ps(a.data, 0xC9);
+                simde__m128 f = simde_mm_permute_ps(b.data, 0xC9);
+                e = simde_mm_mul_ps(e, b.data);
+                f = simde_mm_mul_ps(f, a.data);
+                simde__m128 g = simde_mm_sub_ps(f, e);
+                c.data = simde_mm_permute_ps(g, 0xC9);
                 c[3] = 0.0_p;
             } else {
-                __m256d e = _mm256_permute4x64_pd(a.data, 0xC9);
-                __m256d f = _mm256_permute4x64_pd(b.data, 0xC9);
-                e = _mm256_mul_pd(e, b.data);
-                f = _mm256_mul_pd(f, a.data);
-                __m256d g = _mm256_sub_pd(f, e);
-                c.data = _mm256_permute4x64_pd(g, 0xC9);
+                simde__m256d e = simde_mm256_permute4x64_pd(a.data, 0xC9);
+                simde__m256d f = simde_mm256_permute4x64_pd(b.data, 0xC9);
+                e = simde_mm256_mul_pd(e, b.data);
+                f = simde_mm256_mul_pd(f, a.data);
+                simde__m256d g = simde_mm256_sub_pd(f, e);
+                c.data = simde_mm256_permute4x64_pd(g, 0xC9);
                 c[3] = 0.0_p;
             }
         }
@@ -302,4 +302,4 @@ public:
     }
 };
 
-}  // namespace intel
+}  // namespace xmmt

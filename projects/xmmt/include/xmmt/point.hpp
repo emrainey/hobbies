@@ -6,7 +6,7 @@
 #include "xmmt/packs.hpp"
 #include "xmmt/vector.hpp"
 
-namespace intel {
+namespace xmmt {
 
 /// An ordered set of values for a geometric point which can be operator-ed on in-bulk.
 /// @tparam pack_type The packing structure definition.
@@ -51,11 +51,13 @@ public:
     /// Copy Assignment
     point_& operator=(point_ const& other) {
         pack_type::data = other.data;
+        return (*this);
     }
 
     /// Move Assignment is Copy Assignment
     point_& operator=(point_&& other) {
         pack_type::data = other.data;
+        return (*this);
     }
 
     /// Destructor
@@ -77,6 +79,77 @@ public:
     /// The non-const index operator
     element_type& operator[](size_t index) {
         return pack_type::datum[index];
+    }
+
+    /// Named accessor for x component.
+    element_type& x() {
+        static_assert(dimensions >= 2, "x() requires at least 2 dimensions");
+        return pack_type::datum[0];
+    }
+
+    /// Named accessor for x component.
+    element_type const& x() const {
+        static_assert(dimensions >= 2, "x() requires at least 2 dimensions");
+        return pack_type::datum[0];
+    }
+
+    /// Named accessor for y component.
+    element_type& y() {
+        static_assert(dimensions >= 2, "y() requires at least 2 dimensions");
+        return pack_type::datum[1];
+    }
+
+    /// Named accessor for y component.
+    element_type const& y() const {
+        static_assert(dimensions >= 2, "y() requires at least 2 dimensions");
+        return pack_type::datum[1];
+    }
+
+    /// Uniformly scales each point element.
+    inline point_& operator*=(element_type s) {
+        if constexpr (pack_type::number_of_elements == 2) {
+            pack_type::data = simde_mm_mul_pd(pack_type::data, simde_mm_set1_pd(static_cast<double>(s)));
+        } else {
+            if constexpr (std::is_same_v<element_type, float>) {
+                pack_type::data = simde_mm_mul_ps(pack_type::data, simde_mm_set1_ps(s));
+            } else {
+                pack_type::data = simde_mm256_mul_pd(pack_type::data, simde_mm256_set1_pd(static_cast<double>(s)));
+            }
+        }
+        return (*this);
+    }
+
+    /// Returns the floored point.
+    inline point_ floor() const {
+        point_ c{};
+        if constexpr (pack_type::number_of_elements == 2) {
+            c.data = simde_mm_floor_pd(pack_type::data);
+        } else {
+            if constexpr (std::is_same_v<element_type, float>) {
+                c.data = simde_mm_floor_ps(pack_type::data);
+            } else {
+                c.data = simde_mm256_floor_pd(pack_type::data);
+            }
+        }
+        return c;
+    }
+
+    /// Returns the fractional component of the point.
+    inline point_ fract() const {
+        point_ c{};
+        if constexpr (pack_type::number_of_elements == 2) {
+            parallel_type tmp = simde_mm_floor_pd(pack_type::data);
+            c.data = simde_mm_sub_pd(pack_type::data, tmp);
+        } else {
+            if constexpr (std::is_same_v<element_type, float>) {
+                parallel_type tmp = simde_mm_floor_ps(pack_type::data);
+                c.data = simde_mm_sub_ps(pack_type::data, tmp);
+            } else {
+                parallel_type tmp = simde_mm256_floor_pd(pack_type::data);
+                c.data = simde_mm256_sub_pd(pack_type::data, tmp);
+            }
+        }
+        return c;
     }
 
     // /// Allows each element to be changed
@@ -121,12 +194,12 @@ public:
     /// A point plus a vector is a moved point
     inline point_& operator+=(vector_<pack_type, dimensions> const& a) {
         if constexpr (pack_type::number_of_elements == 2) {
-            pack_type::data = _mm_add_pd(pack_type::data, a.data);
+            pack_type::data = simde_mm_add_pd(pack_type::data, a.data);
         } else {
             if constexpr (std::is_same_v<element_type, float>) {
-                pack_type::data = _mm_add_ps(pack_type::data, a.data);
+                pack_type::data = simde_mm_add_ps(pack_type::data, a.data);
             } else {
-                pack_type::data = _mm256_add_pd(pack_type::data, a.data);
+                pack_type::data = simde_mm256_add_pd(pack_type::data, a.data);
             }
         }
         return (*this);
@@ -135,12 +208,12 @@ public:
     /// A point minus a vector is a moved point
     inline point_& operator-=(vector_<pack_type, dimensions> const& a) {
         if constexpr (pack_type::number_of_elements == 2) {
-            pack_type::data = _mm_sub_pd(pack_type::data, a.data);
+            pack_type::data = simde_mm_sub_pd(pack_type::data, a.data);
         } else {
             if constexpr (std::is_same_v<element_type, float>) {
-                pack_type::data = _mm_sub_ps(pack_type::data, a.data);
+                pack_type::data = simde_mm_sub_ps(pack_type::data, a.data);
             } else {
-                pack_type::data = _mm256_sub_pd(pack_type::data, a.data);
+                pack_type::data = simde_mm256_sub_pd(pack_type::data, a.data);
             }
         }
         return (*this);
@@ -149,46 +222,23 @@ public:
     /****** FRIENDS **************************************************************/
 
     friend inline point_ floor(point_ const& a) {
-        point_ c{};
-        if constexpr (pack_type::number_of_elements == 2) {
-            c.data = _mm_floor_pd(a.data);
-        } else {
-            if constexpr (std::is_same_v<element_type, float>) {
-                c.data = _mm_floor_ps(a.data);
-            } else {
-                c.data = _mm256_floor_pd(a.data);
-            }
-        }
-        return c;
+        return a.floor();
     }
 
     friend inline point_ fract(point_ const& a) {
-        point_ c{};
-        if constexpr (pack_type::number_of_elements == 2) {
-            parallel_type tmp = _mm_floor_pd(a.data);
-            c.data = _mm_sub_pd(a.data, tmp);
-        } else {
-            if constexpr (std::is_same_v<element_type, float>) {
-                parallel_type tmp = _mm_floor_ps(a.data);
-                c.data = _mm_sub_ps(a.data, tmp);
-            } else {
-                parallel_type tmp = _mm256_floor_pd(a.data);
-                c.data = _mm256_sub_pd(a.data, tmp);
-            }
-        }
-        return c;
+        return a.fract();
     }
 
     /// A Point minus a point is a vector from the last to the first.
     // friend vector_ operator-(point_ const& a, point_ const& b) {
     //     vector_ c{};
     //     if constexpr (point_::number_of_elements == 2) {
-    //         c.data = _mm_sub_pd(a.data, b.data);
+    //         c.data = simde_mm_sub_pd(a.data, b.data);
     //     } else {
     //         if constexpr (std::is_same_v<typename pack_type::element_type, float>) {
-    //             c.data = _mm_sub_ps(a.data, b.data);
+    //             c.data = simde_mm_sub_ps(a.data, b.data);
     //         } else {
-    //             c.data = _mm256_sub_pd(a.data, b.data);
+    //             c.data = simde_mm256_sub_pd(a.data, b.data);
     //         }
     //     }
     //     return c;
@@ -198,15 +248,27 @@ public:
     friend point_ operator+(point_ const& a, const vector_<pack_type, dimensions>& b) {
         point_ c{};
         if constexpr (point_::number_of_elements == 2) {
-            c.data = _mm_add_pd(a.data, b.data);
+            c.data = simde_mm_add_pd(a.data, b.data);
         } else {
             if constexpr (std::is_same_v<typename pack_type::element_type, float>) {
-                c.data = _mm_add_ps(a.data, b.data);
+                c.data = simde_mm_add_ps(a.data, b.data);
             } else {
-                c.data = _mm256_add_pd(a.data, b.data);
+                c.data = simde_mm256_add_pd(a.data, b.data);
             }
         }
         return c;
+    }
+
+    /// Scales all point elements uniformly.
+    friend point_ operator*(point_ const& a, element_type s) {
+        point_ c{a};
+        c *= s;
+        return c;
+    }
+
+    /// Scales all point elements uniformly.
+    friend point_ operator*(element_type s, point_ const& a) {
+        return a * s;
     }
 
     friend std::ostream& operator<<(std::ostream& os, point_ const& a) {
@@ -231,4 +293,4 @@ public:
 // }  // namespace R4
 // }  // namespace constants
 
-}  // namespace intel
+}  // namespace xmmt

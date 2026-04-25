@@ -14,14 +14,13 @@
 #include <basal/ieee754.hpp>
 using namespace basal::literals;
 
-namespace intel {
+namespace xmmt {
 
-#if defined(__SSE__)
 /// A triplet of floats
 struct float3 {
 public:
     /// The parallel data type used
-    using parallel_type = __m128;
+    using parallel_type = simde__m128;
     /// The element data type used
     using element_type = float;
     /// The other element type not used
@@ -65,7 +64,7 @@ public:
     }
     /// Sets data to zero
     inline void zero(void) {
-        data = _mm_setzero_ps();
+        data = simde_mm_setzero_ps();
     }
 
     /// Indexing into the datums
@@ -102,14 +101,12 @@ inline std::ostream& operator<<(std::ostream& os, float3 const& a) {
     os << " x=" << a.c.x << ", y=" << a.c.y << ", z=" << a.c.z;
     return os;
 }
-#endif
 
-#if defined(__SSE__)
 /// A quad of floats
 struct float4 {
 public:
     /// The parallel data type used
-    using parallel_type = __m128;
+    using parallel_type = simde__m128;
     /// The element data type used
     using element_type = float;
     /// The other element type not used
@@ -125,7 +122,7 @@ public:
     }
     /// Forwarding Element Parameter Constructor
     constexpr explicit float4(element_type a, element_type b, element_type d, element_type e) : datum{a, b, d, e} {
-        // _mm_set_ps(a, b, d, e);
+        // simde_mm_set_ps(a, b, d, e);
     }
     /// Forwarding Element Parameter Constructor
     constexpr explicit float4(other_type a, other_type b, other_type d, other_type e)
@@ -155,7 +152,7 @@ public:
     }
     /// Sets data to zero
     inline void zero(void) {
-        data = _mm_setzero_ps();
+        data = simde_mm_setzero_ps();
     }
 
     union {
@@ -174,14 +171,12 @@ inline std::ostream& operator<<(std::ostream& os, float4 const& a) {
     os << " x=" << a.c.x << ", y=" << a.c.y << ", z=" << a.c.z << ", w=" << a.c.w;
     return os;
 }
-#endif
 
-#if defined(__SSE__)
 /// A pair of doubles
 struct double2 {
 public:
     /// The parallel data type used
-    using parallel_type = __m128d;
+    using parallel_type = simde__m128d;
     /// The element data type used
     using element_type = double;
     /// The other element type not used
@@ -225,7 +220,7 @@ public:
     }
     /// Sets data to zero
     inline void zero(void) {
-        data = _mm_setzero_pd();
+        data = simde_mm_setzero_pd();
     }
     /// Indexing into the datums
     inline element_type& operator[](size_t const& index) {
@@ -251,14 +246,12 @@ inline std::ostream& operator<<(std::ostream& os, double2 const& a) {
     os << " x=" << a.c.x << ", y=" << a.c.y;
     return os;
 }
-#endif
 
-#if defined(__AVX2__)
 /// A triplet of doubles
 struct double3 {
 public:
     /// The parallel data type used
-    using parallel_type = __m256d;
+    using parallel_type = simde__m256d;
     /// The element data type used
     using element_type = double;
     /// The other element type not used
@@ -274,7 +267,7 @@ public:
     }
     /// Forwarding Element Parameter Constructor
     constexpr explicit double3(element_type a, element_type b, element_type d) : datum{a, b, d, 1.0_p} {
-        // _mm256_set_pd(a, b, d, 1.0_p);
+        // simde_mm256_set_pd(a, b, d, 1.0_p);
     }
     /// Forwarding Element Parameter Constructor
     constexpr explicit double3(other_type a, other_type b, other_type d)
@@ -304,7 +297,7 @@ public:
     }
     /// Sets data to zero
     inline void zero(void) {
-        data = _mm256_setzero_pd();
+        data = simde_mm256_setzero_pd();
     }
 
     union {
@@ -323,14 +316,12 @@ inline std::ostream& operator<<(std::ostream& os, double3 const& a) {
     os << " x=" << a.c.x << ", y=" << a.c.y << ", z=" << a.c.z;
     return os;
 }
-#endif
 
-#if defined(__AVX2__)
 /// A quad of doubles
 struct double4 {
 public:
     /// The parallel data type used
-    using parallel_type = __m256d;
+    using parallel_type = simde__m256d;
     /// The element data type used
     using element_type = double;
     /// The other element type not used
@@ -376,7 +367,7 @@ public:
 
     /// Sets data to zero
     inline void zero(void) {
-        data = _mm256_setzero_pd();
+        data = simde_mm256_setzero_pd();
     }
 
     union {
@@ -395,5 +386,4 @@ inline std::ostream& operator<<(std::ostream& os, double4 const& a) {
     os << " x=" << a.c.x << ", y=" << a.c.y << ", z=" << a.c.z << ", w=" << a.c.w;
     return os;
 }
-#endif
-}  // namespace intel
+}  // namespace xmmt

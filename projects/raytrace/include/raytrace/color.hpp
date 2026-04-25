@@ -5,7 +5,9 @@
 #include <fourcc/fourcc.hpp>
 #include "raytrace/configuration.hpp"
 #include "raytrace/types.hpp"
+#if defined(USE_XMMT)
 #include <xmmt/xmmt.hpp>
+#endif
 
 namespace raytrace {
 

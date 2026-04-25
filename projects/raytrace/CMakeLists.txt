@@ -94,9 +94,6 @@ target_link_libraries(hobbies-raytrace
         $<$<BOOL:${USE_COVERAGE}>:enabled-coverage>
         native-optimized
 )
-target_compile_definitions(hobbies-raytrace PUBLIC
-    $<$<BOOL:${USE_XMMT}>:USE_XMMT>
-)
 target_include_directories(hobbies-raytrace
     PUBLIC
        # Generated Tree

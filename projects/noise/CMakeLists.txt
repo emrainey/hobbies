@@ -34,9 +34,6 @@ target_include_directories(hobbies-noise
         # Install Tree
         $<INSTALL_INTERFACE:include>
 )
-target_compile_definitions(hobbies-noise PUBLIC
-    $<$<BOOL:${USE_XMMT}>:USE_XMMT>
-)
 set_target_properties(hobbies-noise PROPERTIES
     VERSION ${PROJECT_VERSION}
     SOVERSION ${PROJECT_VERSION_MAJOR}

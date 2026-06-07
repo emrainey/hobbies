@@ -1,0 +1,9 @@
+[submodule "third-party/ftxui"]
+	path = third-party/ftxui
+	url = https://github.com/arthursonzogni/ftxui.git
+[submodule "third-party/simde"]
+	path = third-party/simde
+	url = https://github.com/simd-everywhere/simde.git
+[submodule "googletest"]
+	path = third-party/googletest
+	url = https://github.com/google/googletest.git

@@ -18,7 +18,9 @@
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
                 "CMAKE_PREFIX_PATH": "${sourceDir}/build-support/",
                 "BUILD_UNIT_TESTS": "ON",
-                "USE_XMMT": "ON"
+                "USE_PROFILING": "OFF",
+                "USE_COVERAGE": "OFF",
+                "USE_XMMT": "OFF"
             }
         },
         {
@@ -36,16 +38,24 @@
             }
         },
         {
-            "name": "Homebrew",
+            "name": "debug",
             "hidden": true,
-            "condition": {
-                "type": "equals",
-                "lhs": "${hostSystemName}",
-                "rhs": "Darwin"
-            },
-            "environment": {
-                "HOMEBREW_ROOT": "/opt/homebrew",
-                "HOMEBREW_PATH": "$env{HOMEBREW_ROOT}/bin:$env{HOMEBREW_ROOT}/sbin"
+            "inherits": "common",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+                "BUILD_SHARED_LIBS": "OFF",
+            }
+        },
+        {
+            "name": "profiling",
+            "hidden": true,
+            "inherits": [
+                "debug",
+                "strict"
+            ],
+            "cacheVariables": {
+                "USE_PROFILING": "ON",
+                "USE_COVERAGE": "ON"
             }
         },
         {
@@ -61,7 +71,7 @@
             "inherits": "common",
             "displayName": "Native Clang Toolchain",
             "description": "Uses the default clang in your path",
-            "toolchainFile": "${sourceDir}/build-support/lib/cmake/native-clang.cmake"
+            "toolchainFile": "${sourceDir}/build-support/lib/cmake/native-clang.cmake",
         },
         {
             "name": "native-llvm",

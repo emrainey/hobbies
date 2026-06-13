@@ -2,6 +2,26 @@ message("======== CALLED FROM ${CMAKE_CURRENT_LIST_FILE} from ${CMAKE_PARENT_LIS
 set(CMAKE_SYSTEM_NAME ${CMAKE_HOST_SYSTEM_NAME})
 set(CMAKE_SYSTEM_PROCESSOR ${CMAKE_HOST_SYSTEM_PROCESSOR})
 
+if(APPLE)
+    if(DEFINED ENV{MACOSX_DEPLOYMENT_TARGET} AND NOT "$ENV{MACOSX_DEPLOYMENT_TARGET}" STREQUAL "")
+        set(CMAKE_OSX_DEPLOYMENT_TARGET "$ENV{MACOSX_DEPLOYMENT_TARGET}" CACHE STRING "Minimum macOS version for deployment" FORCE)
+        message(STATUS "Setting CMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET} (from MACOSX_DEPLOYMENT_TARGET)")
+    else()
+        # Track the host OS major.minor instead of compiler defaults.
+        execute_process(
+            COMMAND /usr/bin/sw_vers -productVersion
+            OUTPUT_VARIABLE _host_macos_version
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+            ERROR_QUIET
+        )
+        string(REGEX MATCH "^[0-9]+\\.[0-9]+" _host_macos_version_mm "${_host_macos_version}")
+        if(_host_macos_version_mm)
+            set(CMAKE_OSX_DEPLOYMENT_TARGET "${_host_macos_version_mm}" CACHE STRING "Minimum macOS version for deployment" FORCE)
+            message(STATUS "Setting CMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET} (detected from host)")
+        endif()
+    endif()
+endif()
+
 find_program(CMAKE_C_COMPILER NAMES clang REQUIRED)
 find_program(CMAKE_CXX_COMPILER NAMES clang++ REQUIRED)
 find_program(CMAKE_OBJDUMP NAMES llvm-objdump REQUIRED)

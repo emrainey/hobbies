@@ -43,7 +43,7 @@
             "inherits": "common",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo",
-                "BUILD_SHARED_LIBS": "OFF",
+                "BUILD_SHARED_LIBS": "OFF"
             }
         },
         {
@@ -71,7 +71,7 @@
             "inherits": "common",
             "displayName": "Native Clang Toolchain",
             "description": "Uses the default clang in your path",
-            "toolchainFile": "${sourceDir}/build-support/lib/cmake/native-clang.cmake",
+            "toolchainFile": "${sourceDir}/build-support/lib/cmake/native-clang.cmake"
         },
         {
             "name": "native-llvm",

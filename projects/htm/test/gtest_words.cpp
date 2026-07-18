@@ -2,11 +2,42 @@
 
 #include <htm/htm.hpp>
 
-TEST(DenseWords, Constructors) {
-    htm::dense_word<256> dense = 0b100000101000001010;
+TEST(DenseWords, DefaultConstructor) {
+    htm::dense_word<128> dense;
+    ASSERT_EQ(128U, dense.size());
+    ASSERT_FALSE(dense.any());
+    ASSERT_EQ(0U, dense.count());
+}
+
+TEST(DenseWords, AssignOperator) {
+    htm::dense_word<256> dense = 137U;
     ASSERT_EQ(256u, dense.size());
     ASSERT_TRUE(dense.any());
     ASSERT_EQ(5u, dense.count());
+    ASSERT_EQ(dense.count(), htm::dense_word<256>::Width);
+}
+
+TEST(DenseWords, ParameterContructor) {
+    htm::dense_word<256> dense{137U};
+    ASSERT_FALSE(dense.test(134));
+    ASSERT_TRUE(dense.test(135));
+    ASSERT_TRUE(dense.test(136));
+    ASSERT_TRUE(dense.test(137));
+    ASSERT_TRUE(dense.test(138));
+    ASSERT_TRUE(dense.test(139));
+    ASSERT_FALSE(dense.test(140));
+    ASSERT_NE(135U, static_cast<uint16_t>(dense));
+    ASSERT_NE(136U, static_cast<uint16_t>(dense));
+    ASSERT_EQ(137U, static_cast<uint16_t>(dense));
+    ASSERT_NE(138U, static_cast<uint16_t>(dense));
+    ASSERT_NE(139U, static_cast<uint16_t>(dense));
+}
+
+TEST(DenseWords, ExplicitCast) {
+    using word = htm::dense_word<128>;
+    word v;
+    word::Type o = static_cast<word::Type>(v);
+    ASSERT_EQ(word::None, o);
 }
 
 TEST(SparseWords, Constructors) {
@@ -18,32 +49,33 @@ TEST(SparseWords, Constructors) {
 
 TEST(SparseWords, CopyConstructors) {
     {
-        htm::dense_word<256> dense = 0b100000101000001010;
+        htm::dense_word<256> dense = 137U;
         htm::sparse_word<256> sparse{dense};
         std::cout << "sparse: " << sparse << std::endl;
         ASSERT_EQ(5u, sparse.count());
+        ASSERT_EQ(sparse.count(), htm::dense_word<256>::Width);
         ASSERT_TRUE(sparse.any());
-        ASSERT_TRUE(sparse.test(1));
+        ASSERT_TRUE(sparse.test(137));
     }
     {
-        std::vector<uint16_t> vec = {4, 6, 8};
+        std::vector<uint16_t> vec = {5, 6, 7};
         htm::sparse_word<256> sparse{vec};
         std::cout << "sparse: " << sparse << std::endl;
         ASSERT_EQ(3u, sparse.count());
         ASSERT_TRUE(sparse.any());
-        ASSERT_TRUE(sparse.test(4));
+        ASSERT_TRUE(sparse.test(6));
     }
 }
 
 TEST(SparseWords, CopyAssign) {
     {
-        htm::dense_word<256> dense = 0b100000101000001010;
+        htm::dense_word<256> dense = 137U;
         htm::sparse_word<256> sparse;
         sparse = dense;
         std::cout << "sparse: " << sparse << std::endl;
         ASSERT_EQ(5u, sparse.count());
         ASSERT_TRUE(sparse.any());
-        ASSERT_TRUE(sparse.test(1));
+        ASSERT_TRUE(sparse.test(137U));
     }
 }
 

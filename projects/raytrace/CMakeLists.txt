@@ -204,7 +204,7 @@ list(APPEND DEMOS world_monochrome world_monochrome2 world_monochrome3 world_mon
 list(APPEND DEMOS world_outrun)
 list(APPEND DEMOS world_planet)
 list(APPEND DEMOS world_snowman)
-list(APPEND DEMOS world_spheres world_spheres2 world_spheres3 world_spheres4)
+list(APPEND DEMOS world_spheres world_spheres2 world_spheres3 world_spheres4 world_haze)
 
 foreach(demo IN LISTS DEMOS)
     add_library(${demo} SHARED ${CMAKE_CURRENT_SOURCE_DIR}/demo/${demo}.cpp)

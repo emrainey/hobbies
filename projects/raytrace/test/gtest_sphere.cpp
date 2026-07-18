@@ -157,7 +157,7 @@ TEST(SphereTest, Refraction) {
         precision entry_y = std::cos(param.entry_exterior_angle.value);
         precision entry_z = std::sin(param.entry_exterior_angle.value);
         raytrace::objects::sphere shape(R3::origin, 1.0_p);
-        raytrace::mediums::transparent med(eta, 0.0_p, colors::white);
+        raytrace::mediums::transparent med(eta, colors::black, colors::white);
         shape.material(&med);
         raytrace::vector incident{0, -1, 0};
         raytrace::ray shot{raytrace::point{0, 2, entry_z}, incident};

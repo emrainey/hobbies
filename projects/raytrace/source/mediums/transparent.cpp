@@ -6,8 +6,8 @@ namespace raytrace {
 
 namespace mediums {
 
-transparent::transparent(precision eta, precision fade, color const& diffuse)
-    : dielectric{}, m_fade{basal::clamp(0.0_p, fade, 1.0_p)} {
+transparent::transparent(precision eta, color const& extinction, color const& diffuse)
+    : dielectric{}, m_extinction{extinction} {
     m_diffuse = diffuse;
     m_smoothness = mediums::smoothness::perfect_mirror;  // no "surface colors"
     m_refractive_index = eta;
@@ -24,10 +24,13 @@ void transparent::radiosity(raytrace::point const& volumetric_point __attribute_
 color transparent::absorbance(precision distance, color const& given_color) const {
     using namespace operators;
     if (std::isinf(distance)) {
-        return given_color * m_diffuse;
+        return m_diffuse;
     }
-    precision dropoff = std::exp(-distance * m_fade);
-    return given_color * fourcc::linear::interpolate(colors::white, m_diffuse, dropoff);
+    color T(std::exp(-m_extinction.red() * distance), std::exp(-m_extinction.green() * distance),
+            std::exp(-m_extinction.blue() * distance));
+    return color(given_color.red() * T.red() + m_diffuse.red() * (1.0_p - T.red()),
+                 given_color.green() * T.green() + m_diffuse.green() * (1.0_p - T.green()),
+                 given_color.blue() * T.blue() + m_diffuse.blue() * (1.0_p - T.blue()));
 }
 
 }  // namespace mediums

@@ -555,8 +555,8 @@ int main(int argc, char* argv[]) {
     std::cout << "Final camera for module '" << params.module << "'" << std::endl;
     std::cout << "  looking_from = " << FormatPoint(world.looking_from()) << std::endl;
     std::cout << "  looking_at   = " << FormatPoint(world.looking_at()) << std::endl;
-    std::cout << "  yaw/pitch    = " << FormatDouble(pose.yaw, 3) << "/" << FormatDouble(pose.pitch, 3)
-              << " deg" << std::endl;
+    std::cout << "  yaw/pitch    = " << FormatDouble(pose.yaw, 3) << "/" << FormatDouble(pose.pitch, 3) << " deg"
+              << std::endl;
     std::cout << "  fov          = " << FormatDouble(params.fov, 3) << " deg" << std::endl;
 
     return 0;

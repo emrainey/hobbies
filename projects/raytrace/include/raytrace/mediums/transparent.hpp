@@ -9,8 +9,8 @@ namespace mediums {
 /// A class of mediums which are dominated by largely transmitted rays, like glass, etc
 class transparent : public dielectric {
 public:
-    /// The medium's refractive index and fade factor
-    transparent(precision eta, precision fade, color const& diffuse);
+    /// The medium's refractive index and per-channel extinction coefficient (fade)
+    transparent(precision eta, color const& extinction, color const& diffuse);
     virtual ~transparent() = default;
 
     void radiosity(raytrace::point const& volumetric_point, precision refractive_index,
@@ -19,7 +19,7 @@ public:
     color absorbance(precision distance, color const& given_color) const override;
 
 protected:
-    precision m_fade;
+    color m_extinction;
 };
 
 /// These are all measured for 589nm light
@@ -49,11 +49,11 @@ inline precision dispersion(precision a1, precision a2, precision b1, precision 
 
 }  // namespace refractive_index
 
-/// The common vaccum, perfectly transparent with no fade
-transparent const vacuum(refractive_index::vaccum, 0.0_p, colors::white);
+/// The common vaccum, perfectly transparent with no extinction
+transparent const vacuum(refractive_index::vaccum, colors::black, colors::white);
 
-/// The normal atmosphere on earth
-transparent const earth_atmosphere(refractive_index::air, 0.004_p, colors::light_blue);
+/// The normal atmosphere on earth with Rayleigh-proportional extinction (red ~0.002, green ~0.004, blue ~0.008)
+transparent const earth_atmosphere(refractive_index::air, color(0.002_p, 0.004_p, 0.008_p), colors::light_sky_blue);
 
 }  // namespace mediums
 

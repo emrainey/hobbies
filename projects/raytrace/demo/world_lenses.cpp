@@ -18,7 +18,7 @@ public:
     LensWorld()
         : world{raytrace::point{30, 0, 22}, raytrace::point{0, 0, 0}, "Lenses on a Grid", "world_lenses.tga"}
         , grid{1.0_p, colors::dark_olive_green, colors::black}
-        , glass{mediums::refractive_index::glass, 0.22_p, colors::dark_gray}
+        , glass{mediums::refractive_index::glass, color(0.22_p, 0.22_p, 0.22_p), colors::dark_gray}
         , info{10.0_p, iso::radians(iso::pi / 4)}
         , x0{raytrace::point{info.separation, 0, 0}, info.radius}
         , x1{raytrace::point{-info.separation, 0, 0}, info.radius}

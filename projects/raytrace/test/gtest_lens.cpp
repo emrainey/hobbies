@@ -19,7 +19,8 @@ TEST(LensTest, Raycast) {
     raytrace::objects::sphere x0{raytrace::point{info.separation, 0, 0}, info.radius};
     raytrace::objects::sphere x1{raytrace::point{-info.separation, 0, 0}, info.radius};
     raytrace::objects::overlap convex_lens{x0, x1, objects::overlap::type::inclusive};
-    raytrace::mediums::transparent glass{mediums::refractive_index::glass, 0.22_p, colors::dark_gray};
+    raytrace::mediums::transparent glass{mediums::refractive_index::glass, color(0.22_p, 0.22_p, 0.22_p),
+                                         colors::dark_gray};
     convex_lens.material(&glass);
     EXPECT_POINT_EQ(raytrace::point(0, 0, 0), convex_lens.position());
     convex_lens.position(raytrace::point{0, 0, 5});

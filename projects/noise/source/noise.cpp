@@ -90,8 +90,19 @@ point fract(noise::point const& pnt) {
 precision random(vector const& vec, vector const& seeds, precision gain) {
     int32_t ix = static_cast<int32_t>(std::floor(vec[0]));
     int32_t iy = static_cast<int32_t>(std::floor(vec[1]));
+    precision fx = vec[0] - std::floor(vec[0]);
+    precision fy = vec[1] - std::floor(vec[1]);
     uint32_t hseed = derive_seed(seeds, gain);
-    return hash_2d(ix, iy, hseed);
+    // Value-noise bilinear interpolation between four lattice hashes.
+    precision v00 = hash_2d(ix, iy, hseed);
+    precision v10 = hash_2d(ix + 1, iy, hseed);
+    precision v01 = hash_2d(ix, iy + 1, hseed);
+    precision v11 = hash_2d(ix + 1, iy + 1, hseed);
+    precision ux = fx * fx * (3.0_p - 2.0_p * fx);
+    precision uy = fy * fy * (3.0_p - 2.0_p * fy);
+    precision top = interpolate(v00, v10, ux);
+    precision bot = interpolate(v01, v11, ux);
+    return interpolate(top, bot, uy);
 }
 
 void cell_flows(point const& image_point, precision scale, vector const& seed, precision gain, point& uv,

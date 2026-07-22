@@ -97,6 +97,32 @@ constexpr precision fade(precision t) {
 ///
 precision perlin(point const& pnt, precision scale, vector const& seeds, precision gain);
 
+///
+/// 2D Simplex Noise (Ken Perlin, 2001).
+/// Replaces the square grid with a simplicial (triangular) tiling so there
+/// are no axis-aligned artifacts.  Uses the same hash_2d function as perlin()
+/// for gradient selection.
+/// @param pnt A point in 2d space.
+/// @param scale The scale of the cells.
+/// @param seeds The seed values to shape the noise.
+/// @param gain The gain to apply.
+/// @see https://weber.itn.liu.se/~stegu/simplexnoise/simplexnoise.pdf
+///
+precision simplex(point const& pnt, precision scale, vector const& seeds, precision gain);
+
+///
+/// 2D Worley (Cellular) Noise.
+/// Returns the Euclidean distance to the nearest feature point in a 3x3
+/// cell neighbourhood.  Each cell contains one feature point whose position
+/// is derived from a hash of the cell's integer coordinates.
+/// @param pnt A point in 2d space.
+/// @param scale The scale of the cells.
+/// @param seeds The seed values to shape the noise.
+/// @param gain The gain to apply.
+/// @see https://en.wikipedia.org/wiki/Worley_noise
+///
+precision worley(point const& pnt, precision scale, vector const& seeds, precision gain);
+
 /// Builds an internal 2D map of random values between 0.0_p and 1.0_p.
 template <typename T, size_t DIM>
 class pad_ {

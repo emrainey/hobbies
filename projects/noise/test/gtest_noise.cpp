@@ -288,3 +288,31 @@ TEST_F(NoiseImageTest, FractalBrownian) {
     });
     image_name = "noise_image_fractal_brownian.ppm";
 }
+
+TEST_F(NoiseImageTest, SimplexNoiseImage) {
+    noise::vector seeds = noise::convert_to_seed(iso::turns{sqrt(5)});
+    noise::precision scale = 32.0_p;
+    noise::precision gain = 245.4993546_p;
+    image.for_each([&](size_t y, size_t x, fourcc::rgb8& pixel) {
+        noise::point pnt{(noise::precision)x, (noise::precision)y};
+        noise::precision p = noise::simplex(pnt, scale, seeds, gain);
+        pixel.components.r = 255u * p;
+        pixel.components.g = 255u * p;
+        pixel.components.b = 255u * p;
+    });
+    image_name = "noise_image_simplex.ppm";
+}
+
+TEST_F(NoiseImageTest, WorleyNoiseImage) {
+    noise::vector seeds = noise::convert_to_seed(iso::turns{sqrt(5)});
+    noise::precision scale = 32.0_p;
+    noise::precision gain = 245.4993546_p;
+    image.for_each([&](size_t y, size_t x, fourcc::rgb8& pixel) {
+        noise::point pnt{(noise::precision)x, (noise::precision)y};
+        noise::precision p = noise::worley(pnt, scale, seeds, gain);
+        pixel.components.r = 255u * p;
+        pixel.components.g = 255u * p;
+        pixel.components.b = 255u * p;
+    });
+    image_name = "noise_image_worley.ppm";
+}

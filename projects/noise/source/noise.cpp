@@ -10,6 +10,28 @@ namespace {  // in an anonymous namespace for testing
 // static_assert(fade(0.5_p) == 0.5_p, "Must be equal");
 // static_assert(fade(1.0_p) == 1.0_p, "Must be equal");
 // static_assert(fade(2.0_p) == 32.0_p, "Must be equal");
+
+/// Deterministically maps a 2D lattice coordinate and a seed to a value in [0, 1).
+///
+/// All arithmetic is on uint32_t, which wraps modulo 2^32 on overflow per the
+/// C++ standard regardless of platform width. The large constants are odd primes
+/// chosen to produce good bit-avalanche: each multiplication spreads bits from
+/// the low end into the high bits, and the XOR-shift steps mix those back down.
+/// The final division uses only the low 31 bits to guarantee a result in [0, 1).
+/// @note Written by Deepseek V4 Flash
+precision hash_2d(int32_t x, int32_t y, uint32_t seed) {
+    uint32_t h = static_cast<uint32_t>(x) * 374761393u;
+    h += static_cast<uint32_t>(y) * 668265263u;
+    h += seed * 1274126177u;
+    h = (h ^ (h >> 13)) * 1274126177u;
+    h = h ^ (h >> 16);
+    return static_cast<precision>(h & 0x7FFFFFFF) / 2147483648.0_p;
+}
+/// Derive a uint32_t seed from the user-supplied seed vector and gain.
+uint32_t derive_seed(vector const& seed, precision gain) {
+    return (static_cast<uint32_t>((seed[0] + 1.0_p) * 1073741824.0_p)
+            ^ static_cast<uint32_t>((seed[1] + 1.0_p) * 1073741824.0_p) ^ static_cast<uint32_t>(gain * 16777216.0_p));
+}
 }  // namespace
 
 noise::point const corners[] = {
@@ -18,9 +40,6 @@ noise::point const corners[] = {
     noise::point{0.0_p, 1.0_p},  // btm left
     noise::point{1.0_p, 1.0_p},  // btm right
 };
-
-// The set of 2d perlin noise gradients
-vector gradients[] = {vector{{-1, -1}}, vector{{1, -1}}, vector{{-1, 1}}, vector{{1, 1}}};
 
 precision sequence_pseudorandom1(uint32_t x) {
     x = (x << 13) ^ x;  // XOR with shifted version of itself
@@ -84,24 +103,18 @@ precision random(vector const& vec, vector const& seeds, precision gain) {
 
 void cell_flows(point const& image_point, precision scale, vector const& seed, precision gain, point& uv,
                 vector (&flows)[4]) {
-    // converts the image point to the cell top left corner this will be the same for all points in the cell
     noise::point flr = noise::floor(image_point * (1.0_p / scale));
-    // the fractional part of the point from the top left corner which is unique for all points in the cell
     uv = noise::fract(image_point * (1.0_p / scale));
-    // the feed vectors to index the randomness
-    noise::vector feed[] = {
-        noise::vector{flr[0] + corners[0][0], flr[1] + corners[0][1]},
-        noise::vector{flr[0] + corners[1][0], flr[1] + corners[1][1]},
-        noise::vector{flr[0] + corners[2][0], flr[1] + corners[2][1]},
-        noise::vector{flr[0] + corners[3][0], flr[1] + corners[3][1]},
-    };
-    // generate 4 random number between 0.0_p and 1.0_p which will be the "turns" around the unit circle for each corner
-    // of the cell then use those to make vectors
-    flows[0] = noise::convert_to_seed(iso::turns{random(feed[0], seed, gain)});
-    flows[1] = noise::convert_to_seed(iso::turns{random(feed[1], seed, gain)});
-    flows[2] = noise::convert_to_seed(iso::turns{random(feed[2], seed, gain)});
-    flows[3] = noise::convert_to_seed(iso::turns{random(feed[3], seed, gain)});
-    return;
+    // Derive a hash seed from the seed vector and gain so the user can still shift the pattern
+    uint32_t hseed
+        = (static_cast<uint32_t>((seed[0] + 1.0_p) * 1073741824.0_p)
+           ^ static_cast<uint32_t>((seed[1] + 1.0_p) * 1073741824.0_p) ^ static_cast<uint32_t>(gain * 16777216.0_p));
+    // Hash each corner's integer lattice coordinates independently
+    for (int i = 0; i < 4; i++) {
+        int32_t cx = static_cast<int32_t>(flr.x() + corners[i][0]);
+        int32_t cy = static_cast<int32_t>(flr.y() + corners[i][1]);
+        flows[i] = noise::convert_to_seed(iso::turns{hash_2d(cx, cy, hseed)});
+    }
 }
 
 precision perlin(point const& pnt, precision scale, vector const& seeds, precision gain) {
@@ -119,7 +132,93 @@ precision perlin(point const& pnt, precision scale, vector const& seeds, precisi
     precision top = noise::interpolate(weights[0], weights[1], fade(uv.x()));
     precision bot = noise::interpolate(weights[2], weights[3], fade(uv.x()));
     precision mid = noise::interpolate(top, bot, fade(uv.y()));
-    return fade(map(mid, -1.0_p, 1.0_p, 0.0_p, 1.0_p));
+    return map(mid, -1.0_p, 1.0_p, 0.0_p, 1.0_p);
+}
+
+precision simplex(point const& pnt, precision scale, vector const& seed, precision gain) {
+    // Skew factors to map a square grid to a triangular (simplicial) grid.
+    constexpr precision F2 = 0.5_p * (1.7320508075688772935274463415059_p - 1.0_p);  // (sqrt(3)-1)/2
+    constexpr precision G2 = (3.0_p - 1.7320508075688772935274463415059_p) / 6.0_p;  // (3-sqrt(3))/6
+    // 8 gradient directions (edge-midpoints of a square).
+    static const int grad[8][2] = {
+        {1, 0}, {-1, 0}, {0, 1}, {0, -1}, {1, 1}, {-1, 1}, {1, -1}, {-1, -1},
+    };
+
+    precision xs = pnt.x() / scale;
+    precision ys = pnt.y() / scale;
+    precision s = (xs + ys) * F2;
+    int32_t i = static_cast<int32_t>(std::floor(xs + s));
+    int32_t j = static_cast<int32_t>(std::floor(ys + s));
+    precision t = static_cast<precision>(i + j) * G2;
+
+    // Relative coordinates within the simplex cell.
+    precision x0 = xs - (static_cast<precision>(i) - t);
+    precision y0 = ys - (static_cast<precision>(j) - t);
+
+    // Determine which triangle (upper or lower) the point lies in.
+    int32_t i1 = (x0 > y0) ? 1 : 0;
+    int32_t j1 = (x0 > y0) ? 0 : 1;
+
+    // Offsets for the second and third vertices.
+    precision x1 = x0 - i1 + G2;
+    precision y1 = y0 - j1 + G2;
+    precision x2 = x0 - 1.0_p + 2.0_p * G2;
+    precision y2 = y0 - 1.0_p + 2.0_p * G2;
+
+    uint32_t hseed = derive_seed(seed, gain);
+
+    auto contrib = [&](int32_t ix, int32_t iy, precision dx, precision dy) -> precision {
+        int gi = static_cast<int>(hash_2d(ix, iy, hseed) * 8.0_p) & 7;
+        precision d2 = dx * dx + dy * dy;
+        if (d2 >= 0.5_p)
+            return 0.0_p;
+        precision t2 = 0.5_p - d2;
+        t2 *= t2;
+        return t2 * t2 * (grad[gi][0] * dx + grad[gi][1] * dy);
+    };
+
+    precision n0 = contrib(i, j, x0, y0);
+    precision n1 = contrib(i + i1, j + j1, x1, y1);
+    precision n2 = contrib(i + 1, j + 1, x2, y2);
+
+    // Scale the sum to approximately [-1, 1] (factor ~70 is conventional).
+    return map((n0 + n1 + n2) * 70.0_p, -1.0_p, 1.0_p, 0.0_p, 1.0_p);
+}
+
+precision worley(point const& pnt, precision scale, vector const& seed, precision gain) {
+    precision xs = pnt.x() / scale;
+    precision ys = pnt.y() / scale;
+
+    int32_t ix = static_cast<int32_t>(std::floor(xs));
+    int32_t iy = static_cast<int32_t>(std::floor(ys));
+
+    uint32_t hseed = derive_seed(seed, gain);
+
+    precision min_dist = std::numeric_limits<precision>::max();
+
+    // Search the 3x3 neighbourhood of cells for the nearest feature point.
+    for (int32_t dx = -1; dx <= 1; dx++) {
+        for (int32_t dy = -1; dy <= 1; dy++) {
+            int32_t cx = ix + dx;
+            int32_t cy = iy + dy;
+
+            // Generate two independent offsets in [0, 1) for the feature
+            // point inside this cell.
+            precision fx = static_cast<precision>(cx) + hash_2d(cx, cy, hseed);
+            precision fy = static_cast<precision>(cy) + hash_2d(cx, cy, hseed ^ 0x9E3779B9u);
+
+            precision ddx = fx - xs;
+            precision ddy = fy - ys;
+            precision dist = ddx * ddx + ddy * ddy;
+
+            if (dist < min_dist) {
+                min_dist = dist;
+            }
+        }
+    }
+
+    // Normalise by sqrt(2) so the result fits in [0, 1].
+    return std::sqrt(min_dist) / 1.4142135623730951_p;
 }
 
 precision smooth(point const& pnt, pad const& map) {

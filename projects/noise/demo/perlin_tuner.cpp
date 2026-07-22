@@ -127,7 +127,7 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
 
     // the gain is a linear factor from 0.0_p to 1024.0_p by 0.125_p
     gain_fraction = gain / 0.125_p;
-    linalg::Trackbar<size_t> trackbar_gain(gainName, windowName, 0, gain_fraction, 128, 1, &gain_fraction);
+    linalg::Trackbar<size_t> trackbar_gain(gainName, windowName, 0, gain_fraction, 1024, 1, &gain_fraction);
     // default_value = static_cast<size_t>(std::floor((seed[0] * 1E2) / iso::pi + 500));
     //  first convert from -1.0_p to 1.0_p by div by pi
     //  then + 1.0_p to get 0.0_p - 2.0_p then by 512 and floor

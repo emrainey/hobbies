@@ -88,17 +88,10 @@ point fract(noise::point const& pnt) {
 }
 
 precision random(vector const& vec, vector const& seeds, precision gain) {
-    // use a dot product to create a ratio of how much a particular point
-    // is projected unto a set of scalars in a repeatable way.
-    // the smaller magnitude vector will control the scale of the value
-    // if smaller is normalized, the value should be -1.0_p to +1.0_p since
-    // the vectors could be pointing in opposite directions.
-    precision value = dot(vec, seeds);
-    // use this value as an input into the sine wave (which is -1.0_p to +1.0_p)
-    // the gain will be the amplitude which can extend back over |-1.0_p to 1.0| or any other range
-    precision scaled_value = std::sin(value * (iso::pi / 2.0_p)) * gain;
-    // and only return the fractional component between 0.0_p and 1.0
-    return (scaled_value - std::floor(scaled_value));
+    int32_t ix = static_cast<int32_t>(std::floor(vec[0]));
+    int32_t iy = static_cast<int32_t>(std::floor(vec[1]));
+    uint32_t hseed = derive_seed(seeds, gain);
+    return hash_2d(ix, iy, hseed);
 }
 
 void cell_flows(point const& image_point, precision scale, vector const& seed, precision gain, point& uv,

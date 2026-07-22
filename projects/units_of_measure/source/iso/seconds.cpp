@@ -100,4 +100,3 @@ iso::seconds operator""_sec(char const a[]) {
 }
 }  // namespace literals
 }  // namespace iso
-

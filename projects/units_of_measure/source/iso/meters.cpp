@@ -100,4 +100,3 @@ iso::meters operator""_m(char const a[]) {
 }
 }  // namespace literals
 }  // namespace iso
-

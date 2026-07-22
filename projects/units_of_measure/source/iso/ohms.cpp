@@ -100,4 +100,3 @@ iso::ohms operator""_Ohm(char const a[]) {
 }
 }  // namespace literals
 }  // namespace iso
-

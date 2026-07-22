@@ -71,7 +71,8 @@ enum class ExceptionType : ExceptionUnit {
     /// A fault occurred while trying to handle another exception, which can be used to detect faults in
     /// exception handlers and prevent infinite exception loops.
     Nested = 2,
-    /// A bus fault occurred, such as accessing an invalid address, accessing a protected memory region, or violating access permissions.
+    /// A bus fault occurred, such as accessing an invalid address, accessing a protected memory region, or violating
+    /// access permissions.
     BusFault = 3,
     /// An instruction fault occurred, such as executing an invalid or undefined instruction.
     InstructionFault = 4,
@@ -81,17 +82,22 @@ enum class ExceptionType : ExceptionUnit {
     StackFault = 6,
     /// A trip instruction was issued in privileged mode, and the processor should transfer control to the trip handler.
     Tripped = 7,
-    /// A system call instruction was issued in non-privileged mode, and the processor should transfer control to the system call handler.
+    /// A system call instruction was issued in non-privileged mode, and the processor should transfer control to the
+    /// system call handler.
     SystemCall = 8,
-    /// A deferred system call instruction was issued, and the processor should transfer control to the deferred system call handler after higher priority exceptions are handled and the next instruction is executed.
+    /// A deferred system call instruction was issued, and the processor should transfer control to the deferred system
+    /// call handler after higher priority exceptions are handled and the next instruction is executed.
     Deferred = 9,
     /// The tick interrupt fired.
     Ticker = 10,
-    /// A privileged instruction was attempted in non-privileged mode, and the processor should transfer control to the privilege exception handler.
+    /// A privileged instruction was attempted in non-privileged mode, and the processor should transfer control to the
+    /// privilege exception handler.
     Privilege = 11,
     /// A safe instruction was attempted, and the processor should transfer control to the safe exception handler.
     Safe = 12,
-    /// Used by a top level peripheral handler to indicate that an external exception has occurred, and the processor should look up the appropriate handler in the external handler table using the external exception number as an index.
+    /// Used by a top level peripheral handler to indicate that an external exception has occurred, and the processor
+    /// should look up the appropriate handler in the external handler table using the external exception number as an
+    /// index.
     External = 13,
 
     /// No Exception
@@ -106,10 +112,12 @@ struct Numeral {
     Numeral() : call{0}, trip{0} {
     }
     uint32_t call : 16;  ///< The system call number for system calls, or the trigger number for triggered exceptions.
-    uint32_t trip : 16;  ///< The exception type to trip for a trip instruction, or the trigger number for triggered exceptions.
+    uint32_t trip
+        : 16;  ///< The exception type to trip for a trip instruction, or the trigger number for triggered exceptions.
 };
 
-/// The Exception struct contains information about the current exception that occurred, which can be used by the exception handler to determine how to handle the exception and what actions to take.
+/// The Exception struct contains information about the current exception that occurred, which can be used by the
+/// exception handler to determine how to handle the exception and what actions to take.
 struct Exception {
     /// 1 when the exception is a reset exception, meaning it is triggered by a reset signal and
     /// causes the processor to reset. 0 when the exception is a non-reset exception, meaning it
@@ -210,7 +218,8 @@ static_assert(sizeof(Exception) == sizeof(word<CountOfDataBits>),
 /// This is used for checking whether an exception should be handled or not based on the exception mask.
 /// @note Each bit should be in the same position as Exception.
 struct ExceptionMask {
-    uint32_t : 2;  ///< Inaccessible bits for reset and unmaskable exceptions, which cannot be masked and will always cause the processor to enter an exception state when they occur.
+    uint32_t : 2;  ///< Inaccessible bits for reset and unmaskable exceptions, which cannot be masked and will always
+                   ///< cause the processor to enter an exception state when they occur.
 
     /// 1 when the exception is nested, meaning it is triggered while the processor is already handling another
     /// exception, and can be used to detect faults in exception handlers and prevent infinite exception loops. 0 when
@@ -274,7 +283,8 @@ struct ExceptionMask {
     /// it is triggered by other events such as interrupts or faults.
     uint32_t external : 1;
 
-    uint32_t : 18; ///< Unused bits for the type, which is not used in the mask since the type of the exception should not affect whether it is masked or not.
+    uint32_t : 18;  ///< Unused bits for the type, which is not used in the mask since the type of the exception should
+                    ///< not affect whether it is masked or not.
 
     Word as_word() const {
         return *reinterpret_cast<const Word*>(this);
@@ -282,7 +292,8 @@ struct ExceptionMask {
 };
 
 // struct StackInitializer {
-//     /// The top most address of the stack. The current address will start here and grow downwards as data is pushed onto the stack. This can be used to detect stack underflow when the current address exceeds the initial address.
+//     /// The top most address of the stack. The current address will start here and grow downwards as data is pushed
+//     onto the stack. This can be used to detect stack underflow when the current address exceeds the initial address.
 //     Address initial{0};
 //     /// The boundary address of the stack, which can be used to detect stack overflow.
 //     Address boundary{0};
@@ -300,14 +311,16 @@ struct ExceptionMask {
 //     /// The address of the instruction fault handler, which is the entry point for handling instruction fault
 //     /// exceptions.
 //     Address instruction_fault_handler{0};
-//     /// The address of the arithmetic fault handler, which is the entry point for handling arithmetic fault exceptions.
-//     Address arithmetic_fault_handler{0};
+//     /// The address of the arithmetic fault handler, which is the entry point for handling arithmetic fault
+//     exceptions. Address arithmetic_fault_handler{0};
 //     /// The address of the stack fault handler, which is the entry point for handling stack fault exceptions.
 //     Address stack_fault_handler{0};
 //     /// The address of the software trip handler, which is the entry point for handling software trip exceptions
 //     Address trip_handler{0};
-//     /// The address of the system call handler, which is the entry point for handling functions which rely on elevated
-//     /// privileges, such as I/O operations, memory management, etc. This can be used for implementing system calls in an
+//     /// The address of the system call handler, which is the entry point for handling functions which rely on
+//     elevated
+//     /// privileges, such as I/O operations, memory management, etc. This can be used for implementing system calls in
+//     an
 //     /// operating system.
 //     Address system_call_handler{0};
 //     /// The address of the deferred handler, which is the entry point for handling deferred exceptions.

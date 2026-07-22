@@ -16,7 +16,7 @@ namespace iso {
 
 /// A structure used to hold the postfix for volts
 struct suffix_type_V {
-    constexpr static char const *suffix = "V";
+    constexpr static char const* suffix = "V";
 };
 
 ///
@@ -72,27 +72,27 @@ public:
 };
 
 namespace operators {
-    /// Addition operator
-    volts operator+(volts const& A, volts const& B);
-    /// Subtraction operator
-    volts operator-(volts const& A, volts const& B);
-    /// Left Scaling Operator
-    volts operator*(volts const& A, precision factor);
-    /// Right Scaling Operator
-    volts operator*(precision factor, volts const& A);
-    /// Inverse Scaling Operator
-    volts operator/(volts const& A, precision factor);
-    /// Scale factor
-    precision operator/(volts const& A, volts const& B);
-}
+/// Addition operator
+volts operator+(volts const& A, volts const& B);
+/// Subtraction operator
+volts operator-(volts const& A, volts const& B);
+/// Left Scaling Operator
+volts operator*(volts const& A, precision factor);
+/// Right Scaling Operator
+volts operator*(precision factor, volts const& A);
+/// Inverse Scaling Operator
+volts operator/(volts const& A, precision factor);
+/// Scale factor
+precision operator/(volts const& A, volts const& B);
+}  // namespace operators
 
 namespace literals {
-    /// Literal Double, Quote Operator
-    volts operator""_V(long double value);
-    /// Literal Int, Quote Operator
-    volts operator""_V(unsigned long long value);
-    /// Literal String, Quote Operator
-    iso::volts operator""_V(char const a[]);
-}
+/// Literal Double, Quote Operator
+volts operator""_V(long double value);
+/// Literal Int, Quote Operator
+volts operator""_V(unsigned long long value);
+/// Literal String, Quote Operator
+iso::volts operator""_V(char const a[]);
+}  // namespace literals
 
-}
+}  // namespace iso

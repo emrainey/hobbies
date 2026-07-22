@@ -100,4 +100,3 @@ iso::joules operator""_J(char const a[]) {
 }
 }  // namespace literals
 }  // namespace iso
-

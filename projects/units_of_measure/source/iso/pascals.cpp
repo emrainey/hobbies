@@ -100,4 +100,3 @@ iso::pascals operator""_Pa(char const a[]) {
 }
 }  // namespace literals
 }  // namespace iso
-

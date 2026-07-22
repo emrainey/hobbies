@@ -28,7 +28,7 @@ public:
         , rubber{colors::grey, mediums::ambient::none, colors::grey, mediums::smoothness::none, roughness::tight}
         , steel{colors::grey, mediums::smoothness::polished, roughness::tight}
         , polka{13, colors::cyan, colors::blue}
-        , beam_of_light{raytrace::vector{-20, 0, -21}, colors::white, lights::intensities::full * 3.0_p}
+        , beam_of_light{raytrace::vector{-20, 0, -21}, colors::white, lights::intensities::full}
         , inner_light{raytrace::point{0, 0, 10}, colors::white, lights::intensities::moderate}
         , look_at{0, 0, 10}
         , plane0{}
@@ -57,7 +57,7 @@ public:
             views[i]->move_to(look_froms[i], camera_principal);
             scenes[i]->add_light(&beam_of_light);
             scenes[i]->add_object(&plane0);
-            scenes[i]->set_ambient_light(color{1.0_p, 1.0_p, 1.0_p, 0.5_p});
+            scenes[i]->set_ambient_light(color{1.0_p, 1.0_p, 1.0_p, 0.25_p});
         }
     }
 
@@ -184,7 +184,7 @@ TEST_F(RenderTest, DISABLED_Cone) {
 TEST_F(RenderTest, DISABLED_Ring) {
     auto M = R3::yaw(0.125) * R3::pitch(-0.125) * R3::roll(0.125);
     raytrace::objects::ring shape1(look_at, M, 5, 10);
-    raytrace::objects::ring shape2(look_at, M.inverse(), 5, 10);
+    raytrace::objects::ring shape2(look_at, M * R3::roll(0.5), 5, 10);
     checkers2.mapper(std::bind(&raytrace::objects::ring::map, &shape2, std::placeholders::_1));
     shape1.material(&checkers2);
     shape2.material(&checkers2);
@@ -209,13 +209,10 @@ TEST_F(RenderTest, DISABLED_Triangle) {
 }
 
 TEST_F(RenderTest, DISABLED_Square) {
-    square shape1(look_at, R3::identity, 32);
-    square shape2(look_at, R3::roll(0.5), 32);
-    checkers2.mapper(std::bind(&raytrace::objects::square::map, &shape1, std::placeholders::_1));
-    shape1.material(&checkers2);
-    shape2.material(&checkers2);
-    add_object(&shape1);
-    add_object(&shape2);
+    square shape(look_at, R3::identity, 32);
+    checkers2.mapper(std::bind(&raytrace::objects::square::map, &shape, std::placeholders::_1));
+    shape.material(&checkers2);
+    add_object(&shape);
     render_all("square");
 }
 

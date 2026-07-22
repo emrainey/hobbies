@@ -28,4 +28,3 @@ vector_<pack_type, dimensions> operator-(point_<pack_type, dimensions> const& a,
 }
 
 }  // namespace xmmt
-

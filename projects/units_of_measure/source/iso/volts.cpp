@@ -100,4 +100,3 @@ iso::volts operator""_V(char const a[]) {
 }
 }  // namespace literals
 }  // namespace iso
-

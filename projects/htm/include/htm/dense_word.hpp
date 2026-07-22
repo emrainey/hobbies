@@ -71,10 +71,12 @@ public:
     constexpr static Type None = static_cast<Type>(BITS);
 
     /// Default constructor
-    dense_word() : bits_{} {}
+    dense_word() : bits_{} {
+    }
 
     /// Copy
-    dense_word(dense_word const& other) : bits_{other.bits_} {}
+    dense_word(dense_word const& other) : bits_{other.bits_} {
+    }
 
     /// Assign
     dense_word& operator=(dense_word const& other) {
@@ -84,7 +86,8 @@ public:
 
     /// Assign via integer
     dense_word& operator=(size_t value) {
-        basal::exception::throw_if(value > (Bits - (2U*Underhalf)), __FILE__, __LINE__, "Can't represent %z in %z bits\r\n", value, BITS);
+        basal::exception::throw_if(value > (Bits - (2U * Underhalf)), __FILE__, __LINE__,
+                                   "Can't represent %z in %z bits\r\n", value, BITS);
         for (size_t i = (value - Underhalf); i <= (value + Underhalf); i++) {
             bits_.set(i);
         }
@@ -93,7 +96,8 @@ public:
 
     /// Parameter Constructor
     dense_word(size_t value) : bits_{} {
-        basal::exception::throw_if(value > (Bits - (2U*Underhalf)), __FILE__, __LINE__, "Can't represent %zu in %zu bits\r\n", value, BITS);
+        basal::exception::throw_if(value > (Bits - (2U * Underhalf)), __FILE__, __LINE__,
+                                   "Can't represent %zu in %zu bits\r\n", value, BITS);
         for (size_t i = (value - Underhalf); i <= (value + Underhalf); i++) {
             bits_.set(i);
         }

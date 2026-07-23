@@ -646,21 +646,48 @@ bool matrix::eigenvalue(precision lambda) const {
 
 matrix matrix::eigenvalues() const noexcept(false) {
     basal::exception::throw_unless(rows == cols, g_filename, __LINE__, "Must be a square matrix");
-    if (rows == 2 or rows == 3) {
-        // solve the determinant
-        // (a - L)*(d - L) - b*c = 0
-        // a*d - d*L - a*L +L*L - b*c = 0
+    if (rows == 1) {
+        return matrix{{{array[0][0]}}};
+    } else if (rows == 2) {
+        // p(λ) = λ² - tr(A)·λ + det(A)
         precision a = 1.0_p;
         precision b = -trace();
         precision c = determinant();
         auto roots = quadratic_roots(a, b, c);
         return matrix{{{std::get<0>(roots)}, {std::get<1>(roots)}}};
-    } else {  // if (rows == 3) {
-        // solve the determinant
-
-        // fail for now
-        // TODO (Linalg) implement eigenvalues() for 3x3 or largers
-        basal::exception::throw_if(true, g_filename, __LINE__, "TODO Implement for 3x3 or larger");
+    } else if (rows == 3) {
+        // p(λ) = λ³ - tr(A)·λ² + (sum of 2x2 principal minors)·λ - det(A)
+        precision sum_pm = minor(0, 0) + minor(1, 1) + minor(2, 2);
+        auto roots = cubic_roots(1.0_p, -trace(), sum_pm, -determinant());
+        matrix result{3, 1};
+        result[0][0] = std::get<0>(roots);
+        result[1][0] = std::get<1>(roots);
+        result[2][0] = std::get<2>(roots);
+        return result;
+    } else if (rows == 4) {
+        // p(λ) = λ⁴ - tr(A)·λ³ + c₂·λ² - c₃·λ + c₄
+        // c₂ = sum of all 2x2 principal minors
+        // c₃ = sum of all 3x3 principal minors = minor(0,0) + minor(1,1) + minor(2,2) + minor(3,3)
+        // c₄ = det(A)
+        precision c1 = trace();
+        precision c2 = 0.0_p;
+        for (size_t i = 0; i < 4; i++) {
+            for (size_t j = i + 1; j < 4; j++) {
+                c2 += array[i][i] * array[j][j] - array[i][j] * array[j][i];
+            }
+        }
+        precision c3 = minor(0, 0) + minor(1, 1) + minor(2, 2) + minor(3, 3);
+        precision c4 = determinant();
+        auto roots = quartic_roots(1.0_p, -c1, c2, -c3, c4);
+        matrix result{4, 1};
+        result[0][0] = std::get<0>(roots);
+        result[1][0] = std::get<1>(roots);
+        result[2][0] = std::get<2>(roots);
+        result[3][0] = std::get<3>(roots);
+        return result;
+    } else {
+        // TODO (Linalg) implement eigenvalues() for 5x5 or larger (needs iterative method)
+        basal::exception::throw_if(true, g_filename, __LINE__, "TODO Implement for 5x5 or larger");
     }
     return matrix::col(rows);
 }

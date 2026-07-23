@@ -642,6 +642,142 @@ TEST(MatrixTest, Elementary) {
     ASSERT_TRUE(scale1.elementary());
 }
 
+TEST(MatrixTest, Eigenvalues) {
+    using namespace linalg;
+    using namespace linalg::operators;
+
+    // 1x1
+    {
+        matrix m1{{{7}}};
+        matrix ev1 = m1.eigenvalues();
+        ASSERT_EQ(1, ev1.rows);
+        ASSERT_EQ(1, ev1.cols);
+        ASSERT_PRECISION_EQ(7.0_p, ev1[0][0]);
+    }
+
+    // 2x2 — known eigenvalues for {{17, 8}, {8, 17}} are 25 and 9
+    {
+        matrix m2{{{17, 8}, {8, 17}}};
+        matrix ev2 = m2.eigenvalues();
+        ASSERT_EQ(2, ev2.rows);
+        ASSERT_EQ(1, ev2.cols);
+        bool has_25 = false, has_9 = false;
+        for (size_t i = 0; i < 2; i++) {
+            if (basal::nearly_equals(ev2[i][0], 25.0_p))
+                has_25 = true;
+            if (basal::nearly_equals(ev2[i][0], 9.0_p))
+                has_9 = true;
+        }
+        ASSERT_TRUE(has_25) << "Expected eigenvalue 25 not found in " << ev2;
+        ASSERT_TRUE(has_9) << "Expected eigenvalue 9 not found in " << ev2;
+    }
+
+    // 2x2 with zero eigenvalue: {{1, 2}, {2, 4}} — rank-deficient, det=0
+    {
+        matrix m2z{{{1, 2}, {2, 4}}};
+        matrix ev2z = m2z.eigenvalues();
+        ASSERT_EQ(2, ev2z.rows);
+        ASSERT_EQ(1, ev2z.cols);
+        // eigenvalues: trace=5, det=0 → λ² - 5λ = 0 → λ = 0, 5
+        bool has_5 = false, has_0 = false;
+        for (size_t i = 0; i < 2; i++) {
+            if (basal::nearly_equals(ev2z[i][0], 5.0_p))
+                has_5 = true;
+            if (basal::nearly_equals(ev2z[i][0], 0.0_p))
+                has_0 = true;
+        }
+        ASSERT_TRUE(has_5) << "Expected eigenvalue 5 not found in " << ev2z;
+        ASSERT_TRUE(has_0) << "Expected eigenvalue 0 not found in " << ev2z;
+    }
+
+    // 3x3 diagonal — eigenvalues are the diagonal entries
+    {
+        matrix m3{{{1, 0, 0}, {0, 2, 0}, {0, 0, 3}}};
+        matrix ev3 = m3.eigenvalues();
+        ASSERT_EQ(3, ev3.rows);
+        ASSERT_EQ(1, ev3.cols);
+        bool has_1 = false, has_2 = false, has_3 = false;
+        for (size_t i = 0; i < 3; i++) {
+            if (basal::nearly_equals(ev3[i][0], 1.0_p))
+                has_1 = true;
+            if (basal::nearly_equals(ev3[i][0], 2.0_p))
+                has_2 = true;
+            if (basal::nearly_equals(ev3[i][0], 3.0_p))
+                has_3 = true;
+        }
+        ASSERT_TRUE(has_1) << "Expected eigenvalue 1 not found in " << ev3;
+        ASSERT_TRUE(has_2) << "Expected eigenvalue 2 not found in " << ev3;
+        ASSERT_TRUE(has_3) << "Expected eigenvalue 3 not found in " << ev3;
+    }
+
+    // 3x3 rank-deficient: A^T*A from the SVD example
+    {
+        matrix A{{{3, 2, 2}, {2, 3, -2}}};
+        matrix ATA = A.T() * A;
+        matrix ev3 = ATA.eigenvalues();
+        ASSERT_EQ(3, ev3.rows);
+        ASSERT_EQ(1, ev3.cols);
+        bool has_25 = false, has_9 = false, has_0 = false;
+        for (size_t i = 0; i < 3; i++) {
+            if (basal::nearly_equals(ev3[i][0], 25.0_p))
+                has_25 = true;
+            if (basal::nearly_equals(ev3[i][0], 9.0_p))
+                has_9 = true;
+            if (basal::nearly_equals(ev3[i][0], 0.0_p))
+                has_0 = true;
+        }
+        ASSERT_TRUE(has_25) << "Expected eigenvalue 25 not found in " << ev3;
+        ASSERT_TRUE(has_9) << "Expected eigenvalue 9 not found in " << ev3;
+        ASSERT_TRUE(has_0) << "Expected eigenvalue 0 not found in " << ev3;
+    }
+
+    // 4x4 diagonal — eigenvalues are the diagonal entries
+    {
+        matrix m4{{{1, 0, 0, 0}, {0, 2, 0, 0}, {0, 0, 3, 0}, {0, 0, 0, 4}}};
+        matrix ev4 = m4.eigenvalues();
+        ASSERT_EQ(4, ev4.rows);
+        ASSERT_EQ(1, ev4.cols);
+        bool has_1 = false, has_2 = false, has_3 = false, has_4 = false;
+        for (size_t i = 0; i < 4; i++) {
+            if (basal::nearly_equals(ev4[i][0], 1.0_p))
+                has_1 = true;
+            if (basal::nearly_equals(ev4[i][0], 2.0_p))
+                has_2 = true;
+            if (basal::nearly_equals(ev4[i][0], 3.0_p))
+                has_3 = true;
+            if (basal::nearly_equals(ev4[i][0], 4.0_p))
+                has_4 = true;
+        }
+        ASSERT_TRUE(has_1) << "Expected eigenvalue 1 not found in " << ev4;
+        ASSERT_TRUE(has_2) << "Expected eigenvalue 2 not found in " << ev4;
+        ASSERT_TRUE(has_3) << "Expected eigenvalue 3 not found in " << ev4;
+        ASSERT_TRUE(has_4) << "Expected eigenvalue 4 not found in " << ev4;
+    }
+
+    // 4x4 with a repeated eigenvalue: identity
+    {
+        matrix I4 = matrix::identity(4, 4);
+        matrix evI4 = I4.eigenvalues();
+        ASSERT_EQ(4, evI4.rows);
+        ASSERT_EQ(1, evI4.cols);
+        for (size_t i = 0; i < 4; i++) {
+            ASSERT_PRECISION_EQ(1.0_p, evI4[i][0]);
+        }
+    }
+
+    // 5x5+ should throw
+    {
+        matrix I5 = matrix::identity(5, 5);
+        ASSERT_THROW(I5.eigenvalues(), basal::exception);
+    }
+
+    // non-square should throw
+    {
+        matrix rect{2, 3};
+        ASSERT_THROW(rect.eigenvalues(), basal::exception);
+    }
+}
+
 TEST(MatrixTest, SVD) {
     /// @internal This uses data from:
     /// <ul>
@@ -670,6 +806,20 @@ TEST(MatrixTest, SVD) {
     matrix D{{{-12, 12, 2}, {12, -12, -2}, {2, -2, -17}}};
     ASSERT_MATRIX_EQ(ATA_I25, D);
     matrix e2 = ATA.eigenvalues();
+    matrix eg3{{{25}, {9}, {0}}};
+    // eigenvalues may be returned in any order; verify they match the set
+    bool has_25 = false, has_9 = false, has_0 = false;
+    for (size_t i = 0; i < 3; i++) {
+        if (basal::nearly_equals(e2[i][0], 25.0_p))
+            has_25 = true;
+        if (basal::nearly_equals(e2[i][0], 9.0_p))
+            has_9 = true;
+        if (basal::nearly_equals(e2[i][0], 0.0_p))
+            has_0 = true;
+    }
+    ASSERT_TRUE(has_25) << "Expected eigenvalue 25 not found in " << e2;
+    ASSERT_TRUE(has_9) << "Expected eigenvalue 9 not found in " << e2;
+    ASSERT_TRUE(has_0) << "Expected eigenvalue 0 not found in " << e2;
 }
 
 TEST(MatrixTest, PLU) {

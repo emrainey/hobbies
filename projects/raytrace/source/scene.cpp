@@ -1,6 +1,7 @@
 #include "raytrace/scene.hpp"
 
 #include <cassert>
+#include <map>
 
 namespace raytrace {
 
@@ -225,7 +226,8 @@ color scene::emissive_illumination(point const& world_surface_point, vector cons
 color scene::direct_light(lights::light const& scene_light, mediums::medium const& medium,
                           point const& world_surface_point, point const& object_surface_point,
                           vector const& world_surface_normal, ray const& world_reflection, size_t sample_index,
-                          size_t reflection_depth, precision recursive_contribution) {
+                          size_t reflection_depth __attribute__((unused)),
+                          precision recursive_contribution __attribute__((unused))) {
     using namespace raytrace::operators;
     color direct_color;  // defaults to black
     statistics::get().sampled_rays++;
@@ -237,33 +239,74 @@ color scene::direct_light(lights::light const& scene_light, mediums::medium cons
     vector normalized_light_direction = light_direction.normalized();
     // construct a world ray from that point and normalized vector
     ray world_ray(world_surface_point, normalized_light_direction);
-    // is the light blocked by anything?
-    objects::hits blockers = find_intersections(world_ray);
-    // find the nearest object in the light path, which may include P (at/near zero)
-    // if the current object is blocking the light.
-    objects::hit blocker = nearest_object(world_ray, blockers);
-    // is this point in a shadow of this light?
-    // either there's no intersection to the light, or
-    // there is one but it's farther away than the light itself.
-    bool no_intersection = (get_type(blocker.intersect) == IntersectionType::None);
-    bool point_farther_than_light = false;
-    bool object_is_transparent = false;
-    bool object_is_emissive = false;
-    if (get_type(blocker.intersect) == IntersectionType::Point) {
-        point_farther_than_light = (blocker.distance > light_direction.norm());
-        if (blocker.object != nullptr) {
-            auto other_world_point = as_point(blocker.intersect);
-            // FIXME is a refractive object so it must be transparent?
-            // object_is_transparent =
-            // (blocker.object->material().refractive_index(other_world_point) > 0.0_p);
-            // object_is_emissive = (blocker.object->material().emissive(other_world_point) > 0.0_p);
+    // --- Transparent Shadow Ray Handling ---
+    // Collect all collision points along the ray (entry + exit per object)
+    struct HitPoint {
+        precision distance;
+        point world_point;
+        vector normal;
+        objects::object const* object;
+    };
+    std::vector<HitPoint> hits;
+    for (auto objptr : m_objects) {
+        ray object_ray = objptr->reverse_transform(world_ray);
+        auto collisions = objptr->collisions_along(object_ray);
+        for (auto const& col : collisions) {
+            if (basal::is_nan(col.distance))
+                continue;
+            if (col.normal.is_zero())
+                continue;
+            if (col.distance < basal::epsilon)
+                continue;
+            HitPoint ph;
+            ph.distance = col.distance;
+            ph.world_point = objptr->forward_transform(as_point(col.intersect));
+            ph.normal = objptr->forward_transform(col.normal);
+            ph.object = col.object;
+            hits.push_back(ph);
         }
     }
-    bool not_in_shadow = (no_intersection or point_farther_than_light or object_is_transparent or object_is_emissive);
-    if (not_in_shadow) {
+    // Sort by distance along the ray
+    std::sort(hits.begin(), hits.end(), [](HitPoint const& a, HitPoint const& b) { return a.distance < b.distance; });
+    // Walk through hits, attenuating light through transparent objects
+    color light_transmission = colors::white;
+    bool occluded = false;
+    precision light_distance = light_direction.norm();
+    std::map<objects::object const*, precision> entries;
+    for (auto const& ph : hits) {
+        if (ph.distance > light_distance)
+            break;
+        auto const& mat = ph.object->material();
+        precision ri = mat.refractive_index(ph.world_point);
+        if (ri > 0.0_p) {
+            // Transparent material — track entry/exit pairs
+            auto it = entries.find(ph.object);
+            if (it == entries.end()) {
+                // Entering the object
+                entries[ph.object] = ph.distance;
+            } else {
+                // Exiting the object — apply absorbance over the thickness
+                precision thickness = ph.distance - it->second;
+                if (thickness > 0.0_p) {
+                    light_transmission = mat.absorbance(thickness, light_transmission);
+                }
+                entries.erase(it);
+            }
+        } else {
+            // Opaque material — light is blocked
+            occluded = true;
+            break;
+        }
+    }
+    // Stale entries (no matching exit before light) are ignored:
+    // they represent either the source object itself or an object
+    // that extends past the light source — neither should attenuate.
+    if (not occluded) {
         statistics::get().color_sampled_rays++;
         // get the light color at this distance
         color raw_light_color = scene_light.color_at(world_surface_point);
+        // apply attenuation through transparent blockers
+        raw_light_color = raw_light_color * light_transmission;
         // the scaling at this point due to this light source's
         // relationship with the normal of the medium this will be
         // some fractional component from -1.0_p to 1.0_p since both input vectors are normalized.
@@ -284,17 +327,6 @@ color scene::direct_light(lights::light const& scene_light, mediums::medium cons
         direct_color = (diffuse_light * incident_light);
         // don't use color + color as that "blends", use accumulate for specular light.
         direct_color += specular_light;
-        // now add the transmitted light if the object was transparent
-        // FIXME this is incorrect as we're only considering if the object is inline with the light,
-        // not if it's out of line!
-        if (object_is_transparent) {
-            // // convenience reference
-            // raytrace::objects::object const& obj = *nearest.object;
-            // // convenience reference
-            // raytrace::mediums::medium const& mat = obj.material();
-            // trace another ray through the object
-            direct_color += trace(world_ray, medium, reflection_depth - 1, recursive_contribution);
-        }
     } else {
         statistics::get().point_in_shadow++;
     }
@@ -376,7 +408,8 @@ color scene::reflected_light(precision reflectivity, mediums::medium const& medi
 }
 
 color scene::transmitted_light(precision transparency, mediums::medium const& medium, ray const& world_refraction,
-                               size_t reflection_depth, precision recursive_contribution) {
+                               size_t reflection_depth __attribute__((unused)),
+                               precision recursive_contribution __attribute__((unused))) {
     if (reflection_depth > 0 and transparency > 0.0_p and not world_refraction.direction().is_zero()) {
         // this ray was transmitted through the new medium
         statistics::get().transmitted_rays++;

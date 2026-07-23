@@ -320,3 +320,80 @@ TEST(SceneTest, NoEmissiveIlluminationWhenBlocked) {
     ASSERT_PRECISION_EQ(0.0_p, illumination.green());
     ASSERT_PRECISION_EQ(0.0_p, illumination.blue());
 }
+
+TEST(SceneTest, TransparentShadow) {
+    using namespace raytrace;
+    using namespace raytrace::lights;
+    using namespace raytrace::mediums;
+    using namespace raytrace::colors;
+    using namespace geometry::operators;
+
+    // Perfectly transparent glass (zero extinction)
+    transparent glass(refractive_index::glass, colors::black, colors::white);
+
+    // Matte white surface
+    plain white_surface(colors::white, 0.0_p, colors::white, mediums::smoothness::none, roughness::medium);
+
+    // Beam light shining in -Z direction (incident rays go +Z toward the light source)
+    beam sunlight(raytrace::vector{0, 0, -1}, colors::white, lights::intensities::full);
+
+    // Transparent glass sphere at z=5, radius 2 — between the plane and the light
+    raytrace::objects::sphere glass_sphere(raytrace::point{0, 0, 5}, 2.0_p);
+    glass_sphere.material(&glass);
+
+    // Ground plane at z=0
+    raytrace::objects::plane ground;
+    ground.material(&white_surface);
+
+    scene test_scene;
+    test_scene.add_light(&sunlight);
+    test_scene.add_object(&glass_sphere);
+    test_scene.add_object(&ground);
+    test_scene.set_ambient_light(colors::black);
+
+    // Camera ray from (0, 0, -10) in +Z direction, hits the plane at (0, 0, 0)
+    ray camera_ray(raytrace::point{0, 0, -10}, vector{{0, 0, 1}});
+    color result = test_scene.trace(camera_ray, mediums::vacuum, 3);
+
+    // The plane should receive light through the transparent sphere
+    EXPECT_PRECISION_EQ(0.5_p, result.red());
+    EXPECT_PRECISION_EQ(0.5_p, result.green());
+    EXPECT_PRECISION_EQ(0.5_p, result.blue());
+}
+
+TEST(SceneTest, OpaqueBlockedShadow) {
+    using namespace raytrace;
+    using namespace raytrace::lights;
+    using namespace raytrace::mediums;
+    using namespace raytrace::colors;
+    using namespace geometry::operators;
+
+    // Opaque material for the blocker
+    plain dull_surface(colors::white, 0.0_p, colors::white, mediums::smoothness::none, roughness::medium);
+
+    // Beam light shining in -Z direction
+    beam sunlight(raytrace::vector{0, 0, -1}, colors::white, lights::intensities::full);
+
+    // Opaque sphere at z=5, radius 2 — between the plane and the light
+    raytrace::objects::sphere blocker(raytrace::point{0, 0, 5}, 2.0_p);
+    blocker.material(&dull_surface);
+
+    // Ground plane at z=0
+    raytrace::objects::plane ground;
+    ground.material(&dull_surface);
+
+    scene test_scene;
+    test_scene.add_light(&sunlight);
+    test_scene.add_object(&blocker);
+    test_scene.add_object(&ground);
+    test_scene.set_ambient_light(colors::black);
+
+    // Camera ray from (0, 0, -10) in +Z direction, hits the plane at (0, 0, 0)
+    ray camera_ray(raytrace::point{0, 0, -10}, vector{{0, 0, 1}});
+    color result = test_scene.trace(camera_ray, mediums::vacuum, 3);
+
+    // The plane should be in shadow — all channels black
+    ASSERT_PRECISION_EQ(0.0_p, result.red());
+    ASSERT_PRECISION_EQ(0.0_p, result.green());
+    ASSERT_PRECISION_EQ(0.0_p, result.blue());
+}

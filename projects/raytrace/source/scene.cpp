@@ -368,9 +368,8 @@ color scene::reflected_light(precision reflectivity, mediums::medium const& medi
                 reflected_color = surface_properties_color;
             }
         } else {
-            // no more reflections so it's only surface properties!
-            // FIXME for metals this seems wrong as the color should be altering the light.
-            reflected_color = surface_properties_color;
+            // apply medium tint (e.g. metals color the light) even at the last depth
+            reflected_color = medium.bounced(world_surface_point, surface_properties_color);
         }
     }
     return fourcc::linear::blend(reflected_color, m_ambient_light);

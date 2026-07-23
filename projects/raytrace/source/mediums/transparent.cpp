@@ -24,7 +24,11 @@ void transparent::radiosity(raytrace::point const& volumetric_point __attribute_
 color transparent::absorbance(precision distance, color const& given_color) const {
     using namespace operators;
     if (std::isinf(distance)) {
-        return m_diffuse;
+        // At infinite distance (background rays), return the background color directly.
+        // For extinction=0 (vacuum), the Beer-Lambert formula would produce NaN (0 * inf).
+        // For extinction>0 (haze), T→0 would blend toward m_diffuse, but the world's
+        // background() already provides the correct sky color.
+        return given_color;
     }
     color T(std::exp(-m_extinction.red() * distance), std::exp(-m_extinction.green() * distance),
             std::exp(-m_extinction.blue() * distance));

@@ -792,36 +792,118 @@ TEST(MatrixTest, SVD) {
     using namespace linalg;
     using namespace linalg::operators;
 
-    matrix A{{{3, 2, 2}, {2, 3, -2}}};
-    matrix AAT = A * A.T();
-    matrix B{{{17, 8}, {8, 17}}};
-    ASSERT_MATRIX_EQ(AAT, B);
-    matrix e1 = AAT.eigenvalues();
-    matrix eg{{{25}, {9}}};
-    ASSERT_MATRIX_EQ(e1, eg);
+    // helper to build Sigma from S column
+    auto make_sigma = [](matrix const& S, size_t m, size_t n) {
+        matrix Sigma = matrix::zeros(m, n);
+        for (size_t i = 0; i < S.rows; i++) {
+            Sigma[i][i] = S[i][0];
+        }
+        return Sigma;
+    };
 
-    matrix ATA = A.T() * A;
-    matrix C{{{13, 12, 2}, {12, 13, -2}, {2, -2, 8}}};
-    ASSERT_MATRIX_EQ(ATA, C);
-    matrix I25 = matrix::identity(3, 3) * 25.0;
-    matrix ATA_I25 = ATA - I25;
-    matrix D{{{-12, 12, 2}, {12, -12, -2}, {2, -2, -17}}};
-    ASSERT_MATRIX_EQ(ATA_I25, D);
-    matrix e2 = ATA.eigenvalues();
-    matrix eg3{{{25}, {9}, {0}}};
-    // eigenvalues may be returned in any order; verify they match the set
-    bool has_25 = false, has_9 = false, has_0 = false;
-    for (size_t i = 0; i < 3; i++) {
-        if (basal::nearly_equals(e2[i][0], 25.0_p))
-            has_25 = true;
-        if (basal::nearly_equals(e2[i][0], 9.0_p))
-            has_9 = true;
-        if (basal::nearly_equals(e2[i][0], 0.0_p))
-            has_0 = true;
+    // ----- 2×3 wide matrix from textbook -----
+    {
+        matrix A{{{3, 2, 2}, {2, 3, -2}}};
+        size_t m = 2, n = 3;
+        auto tup = A.SVD();
+        matrix U = std::get<0>(tup);
+        matrix S = std::get<1>(tup);
+        matrix V = std::get<2>(tup);
+
+        ASSERT_EQ(m, U.rows);
+        ASSERT_EQ(m, U.cols);
+        ASSERT_EQ(std::min(m, n), S.rows);
+        ASSERT_EQ(size_t{1}, S.cols);
+        ASSERT_EQ(n, V.rows);
+        ASSERT_EQ(n, V.cols);
+
+        ASSERT_PRECISION_EQ(5.0_p, S[0][0]);
+        ASSERT_PRECISION_EQ(3.0_p, S[1][0]);
+
+        matrix UtU = U.T() * U;
+        ASSERT_MATRIX_EQ(matrix::identity(m, m), UtU);
+
+        matrix VtV = V.T() * V;
+        ASSERT_MATRIX_EQ(matrix::identity(n, n), VtV);
+
+        matrix Sigma = make_sigma(S, m, n);
+        matrix recon = U * Sigma * V.T();
+        ASSERT_MATRIX_EQ(A, recon);
     }
-    ASSERT_TRUE(has_25) << "Expected eigenvalue 25 not found in " << e2;
-    ASSERT_TRUE(has_9) << "Expected eigenvalue 9 not found in " << e2;
-    ASSERT_TRUE(has_0) << "Expected eigenvalue 0 not found in " << e2;
+
+    // ----- 3×2 tall matrix (transpose of the above) -----
+    {
+        matrix A{{{3, 2}, {2, 3}, {2, -2}}};
+        size_t m = 3, n = 2;
+        auto tup = A.SVD();
+        matrix U = std::get<0>(tup);
+        matrix S = std::get<1>(tup);
+        matrix V = std::get<2>(tup);
+
+        ASSERT_EQ(m, U.rows);
+        ASSERT_EQ(m, U.cols);
+        ASSERT_EQ(std::min(m, n), S.rows);
+        ASSERT_EQ(size_t{1}, S.cols);
+        ASSERT_EQ(n, V.rows);
+        ASSERT_EQ(n, V.cols);
+
+        matrix UtU = U.T() * U;
+        ASSERT_MATRIX_EQ(matrix::identity(m, m), UtU);
+
+        matrix VtV = V.T() * V;
+        ASSERT_MATRIX_EQ(matrix::identity(n, n), VtV);
+
+        matrix Sigma = make_sigma(S, m, n);
+        matrix recon = U * Sigma * V.T();
+        ASSERT_MATRIX_EQ(A, recon);
+    }
+
+    // ----- 2×2 square matrix -----
+    {
+        matrix A{{{1, 2}, {3, 4}}};
+        size_t m = 2, n = 2;
+        auto tup = A.SVD();
+        matrix U = std::get<0>(tup);
+        matrix S = std::get<1>(tup);
+        matrix V = std::get<2>(tup);
+
+        ASSERT_EQ(m, U.rows);
+        ASSERT_EQ(m, U.cols);
+        ASSERT_EQ(std::min(m, n), S.rows);
+        ASSERT_EQ(size_t{1}, S.cols);
+        ASSERT_EQ(n, V.rows);
+        ASSERT_EQ(n, V.cols);
+
+        matrix UtU = U.T() * U;
+        ASSERT_MATRIX_EQ(matrix::identity(m, m), UtU);
+
+        matrix VtV = V.T() * V;
+        ASSERT_MATRIX_EQ(matrix::identity(n, n), VtV);
+
+        matrix Sigma = make_sigma(S, m, n);
+        matrix recon = U * Sigma * V.T();
+        ASSERT_MATRIX_EQ(A, recon);
+    }
+
+    // ----- zero matrix -----
+    {
+        matrix Z = matrix::zeros(2, 3);
+        auto tup = Z.SVD();
+        matrix U = std::get<0>(tup);
+        matrix S = std::get<1>(tup);
+        matrix V = std::get<2>(tup);
+        ASSERT_EQ(size_t{2}, U.rows);
+        ASSERT_EQ(size_t{2}, U.cols);
+        ASSERT_EQ(size_t{2}, S.rows);
+        ASSERT_EQ(size_t{1}, S.cols);
+        ASSERT_EQ(size_t{3}, V.rows);
+        ASSERT_EQ(size_t{3}, V.cols);
+        ASSERT_PRECISION_EQ(0.0_p, S[0][0]);
+        ASSERT_PRECISION_EQ(0.0_p, S[1][0]);
+        matrix Sigma = make_sigma(S, 2, 3);
+        matrix recon = U * Sigma * V.T();
+        ASSERT_MATRIX_EQ(Z, recon);
+    }
 }
 
 TEST(MatrixTest, PLU) {

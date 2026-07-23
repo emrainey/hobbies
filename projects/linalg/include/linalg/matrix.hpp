@@ -264,6 +264,16 @@ public:
     ///
     std::tuple<matrix, matrix, matrix> PLU() const noexcept(false);
 
+    /// Computes the Singular Value Decomposition of the matrix.
+    /// Returns the U, S, and V matrices through the reference parameters.
+    /// A = U * diag(S) * V^T
+    void SVD(matrix &U, matrix &S, matrix &V) const noexcept(false);
+
+    /// Computes the Singular Value Decomposition of the matrix.
+    /// \return tuple of (U, S, V) where S is a column matrix of singular values.
+    ///
+    std::tuple<matrix, matrix, matrix> SVD() const noexcept(false);
+
     /// For use with const methods
     typedef std::function<void(size_t, size_t, precision const &)> const_coord_iterator;
 

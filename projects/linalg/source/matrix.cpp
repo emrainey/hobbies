@@ -711,6 +711,93 @@ matrix matrix::eigenvectors() const noexcept(false) {
     return evects;
 }
 
+void matrix::SVD(matrix& U, matrix& S, matrix& V) const noexcept(false) {
+    auto svd = SVD();
+    U = std::get<0>(svd);
+    S = std::get<1>(svd);
+    V = std::get<2>(svd);
+}
+
+std::tuple<matrix, matrix, matrix> matrix::SVD() const noexcept(false) {
+    using namespace operators;
+
+    size_t m = rows;
+    size_t n = cols;
+    size_t k = std::min(m, n);
+
+    // Step 1: Compute A^T*A and its eigensystem
+    matrix ATA = this->T() * (*this);    // n×n
+    matrix evals = ATA.eigenvalues();    // n×1
+    matrix evects = ATA.eigenvectors();  // n×n
+
+    // Step 2: Create sorted index list (descending by eigenvalue)
+    std::vector<size_t> order(n);
+    for (size_t i = 0; i < n; i++) {
+        order[i] = i;
+    }
+    std::sort(order.begin(), order.end(), [&](size_t a, size_t b) { return evals[a][0] > evals[b][0]; });
+
+    // Step 3: Build V (n×n) with sorted eigenvectors as columns (normalized)
+    matrix V{n, n};
+    for (size_t j = 0; j < n; j++) {
+        precision norm = 0.0_p;
+        for (size_t i = 0; i < n; i++) {
+            V[i][j] = evects[i][order[j]];
+            norm += V[i][j] * V[i][j];
+        }
+        norm = sqrt(norm);
+        if (norm > basal::epsilon) {
+            for (size_t i = 0; i < n; i++) {
+                V[i][j] /= norm;
+            }
+        }
+    }
+
+    // Step 4: Build S (k×1) — singular values = sqrt of eigenvalues
+    matrix S{k, 1};
+    for (size_t j = 0; j < k; j++) {
+        precision val = evals[order[j]][0];
+        S[j][0] = (val > basal::epsilon) ? sqrt(val) : 0.0_p;
+    }
+
+    // Step 5: Build U (m×m)
+    matrix U{m, m};
+    // First k columns from A·V/σ
+    for (size_t j = 0; j < k; j++) {
+        precision sigma = S[j][0];
+        if (sigma > basal::epsilon) {
+            matrix col = (*this) * V.col(j);
+            col = col / sigma;
+            precision norm = sqrt((col.T() * col)[0][0]);
+            if (norm > basal::epsilon) {
+                col = col / norm;
+            }
+            for (size_t i = 0; i < m; i++) {
+                U[i][j] = col[i][0];
+            }
+        }
+    }
+    // Remaining columns (if m > n, extend with orthonormal basis)
+    for (size_t j = k; j < m; j++) {
+        matrix col = matrix::zeros(m, 1);
+        col[j][0] = 1.0_p;
+        for (size_t p = 0; p < j; p++) {
+            matrix up = U.col(p);
+            precision proj = (up.T() * col)[0][0];
+            col = col - (proj * up);
+        }
+        precision norm = sqrt((col.T() * col)[0][0]);
+        if (norm > basal::epsilon) {
+            col = col / norm;
+        }
+        for (size_t i = 0; i < m; i++) {
+            U[i][j] = col[i][0];
+        }
+    }
+
+    return std::make_tuple(U, S, V);
+}
+
 matrix matrix::inverse() const noexcept(false) {
     basal::exception::throw_unless(rows == cols, g_filename, __LINE__,
                                    "Must be a square matrix");  // no inverses for non square matrix

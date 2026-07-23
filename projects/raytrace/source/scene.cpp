@@ -255,8 +255,8 @@ color scene::direct_light(lights::light const& scene_light, mediums::medium cons
             auto other_world_point = as_point(blocker.intersect);
             // FIXME is a refractive object so it must be transparent?
             // object_is_transparent =
-            // (nearest.objptr->material().refractive_index(other_world_point) > 0.0_p);
-            // object_is_emissive = (nearest.objptr->material().emissive(other_world_point) > 0.0_p);
+            // (blocker.object->material().refractive_index(other_world_point) > 0.0_p);
+            // object_is_emissive = (blocker.object->material().emissive(other_world_point) > 0.0_p);
         }
     }
     bool not_in_shadow = (no_intersection or point_farther_than_light or object_is_transparent or object_is_emissive);

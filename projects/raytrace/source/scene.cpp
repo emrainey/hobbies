@@ -407,7 +407,7 @@ color scene::reflected_light(precision reflectivity, mediums::medium const& medi
     return fourcc::linear::blend(reflected_color, m_ambient_light);
 }
 
-color scene::transmitted_light(precision transparency, mediums::medium const& medium, ray const& world_refraction,
+color scene::transmitted_light(precision transparency, mediums::medium const& media_after, ray const& world_refraction,
                                size_t reflection_depth __attribute__((unused)),
                                precision recursive_contribution __attribute__((unused))) {
     if (reflection_depth > 0 and transparency > 0.0_p and not world_refraction.direction().is_zero()) {
@@ -416,7 +416,7 @@ color scene::transmitted_light(precision transparency, mediums::medium const& me
         // get the colors from the transmitted light
         // diminish the recursive contribution by the transparency (similar to smoothness for reflections)
         // TODO improve this mechanism to account for more realistic effects.
-        return trace(world_refraction, medium, reflection_depth - 1, recursive_contribution * transparency);
+        return trace(world_refraction, media_after, reflection_depth - 1, recursive_contribution * transparency);
     }
     return colors::black;
 }
@@ -458,9 +458,11 @@ color scene::trace(ray const& world_ray, mediums::medium const& media, size_t re
         // compute the reflection vector
         ray world_reflection = obj.reflection(world_ray, world_surface_normal, world_surface_point);
         // compute the refracted vector
-        ray world_refraction = obj.refraction(world_ray, world_surface_normal, world_surface_point,
-                                              media.refractive_index(object_surface_point),
-                                              medium.refractive_index(object_surface_point));
+        // When exiting an object (inside_out), nu2 should be the external medium's RI (scene media).
+        precision nu1 = media.refractive_index(object_surface_point);
+        precision nu2 = (inside_out) ? m_media->refractive_index(object_surface_point)
+                                     : medium.refractive_index(object_surface_point);
+        ray world_refraction = obj.refraction(world_ray, world_surface_normal, world_surface_point, nu1, nu2);
         if constexpr (enforce_contracts) {
             basal::exception::throw_if(dot(world_ray.direction(), world_refraction.direction()) < 0, __FILE__, __LINE__,
                                        "Refracted ray should not be opposites");
@@ -496,8 +498,11 @@ color scene::trace(ray const& world_ray, mediums::medium const& media, size_t re
             = reflected_light(reflectivity, medium, media, world_surface_point, object_surface_point,
                               world_surface_normal, world_reflection, reflection_depth, recursive_contribution);
         // ======================================================
+        // After transmission, the ray either enters the object (new media = object's material)
+        // or exits it (new media = scene's default media).
+        mediums::medium const& media_after = (inside_out ? *m_media : medium);
         transmitted_color
-            = transmitted_light(transparency, medium, world_refraction, reflection_depth, recursive_contribution);
+            = transmitted_light(transparency, media_after, world_refraction, reflection_depth, recursive_contribution);
         // ======================================================
         // blend that reflected color with the transmitted color
         surface_color = fourcc::linear::interpolate(transmitted_color, reflected_color, transparency);

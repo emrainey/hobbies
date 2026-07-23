@@ -23,7 +23,7 @@ public:
         , floor{200.0_p}
         , ikea_checkers{0.1_p,         colors::blue, colors::yellow, colors::red,  colors::magenta,
                         colors::green, colors::cyan, colors::black,  colors::white}
-        , schott_glass{mediums::refractive_index::glass, color(0.04_p, 0.04_p, 0.04_p), colors::red}
+        , schott_glass{mediums::refractive_index::glass, colors::black, colors::white}
         , red_plastic{colors::white, mediums::ambient::dim, colors::red, mediums::smoothness::barely,
                       mediums::roughness::tight}
         , back_light{raytrace::point{-10, -10, 12}, colors::white, 2 * lights::intensities::intense}

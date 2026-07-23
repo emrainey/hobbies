@@ -113,14 +113,14 @@ public:
 
     /// Computes the transmitted light color through the medium at the point in the scene
     /// @param transparency The transparency of the medium at the point (0.0_p = opaque, 1.0_p = fully transparent)
-    /// @param medium The medium being transmitted through
+    /// @param media_after The medium the ray will be in after transmission
     /// @param world_refraction The refraction ray in world coordinates
     /// @param reflection_depth The current recursive depth of reflections.
     /// @param recursive_contribution The amount of contribution from this level of recursion to the top level color.
     ///                               When it falls below a global limit, the transmission will not be considered.
     ///                               @see adaptive_reflection_threshold
     /// @return The color resulting from the transmitted light through the medium
-    color transmitted_light(precision transparency, mediums::medium const& medium, ray const& world_refraction,
+    color transmitted_light(precision transparency, mediums::medium const& media_after, ray const& world_refraction,
                             size_t reflection_depth, precision recursive_contribution = 1.0_p);
 
     ///

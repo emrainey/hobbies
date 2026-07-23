@@ -28,6 +28,7 @@
 #include "raytrace/mediums/checkerboard.hpp"
 #include "raytrace/mediums/conductor.hpp"
 #include "raytrace/mediums/dots.hpp"
+#include "raytrace/mediums/glowy.hpp"
 #include "raytrace/mediums/grid.hpp"
 #include "raytrace/mediums/medium.hpp"
 #include "raytrace/mediums/metal.hpp"

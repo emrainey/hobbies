@@ -12,6 +12,7 @@ medium::medium()
     , m_reflectivity{0.5_p}  // start semi gloss
     , m_transmissivity{0.0_p}
     , m_refractive_index{0.0_p}
+    , m_emissive_color{colors::black}
     , m_reducing_map{nullptr} {
 }
 
@@ -39,7 +40,11 @@ precision medium::specular_tightness(raytrace::point const& volumetric_point __a
 }
 
 color medium::emissive(raytrace::point const& volumetric_point __attribute__((unused))) const {
-    return colors::black;
+    return m_emissive_color;
+}
+
+bool medium::is_emissive() const {
+    return not(m_emissive_color == colors::black);
 }
 
 color medium::bounced(raytrace::point const& volumetric_point __attribute__((unused)), color const& incoming) const {
@@ -56,7 +61,7 @@ void medium::radiosity(raytrace::point const& volumetric_point __attribute__((un
                        iso::radians const& incident_angle __attribute__((unused)),
                        iso::radians const& transmitted_angle __attribute__((unused)), precision& emitted,
                        precision& reflected, precision& transmitted) const {
-    emitted = 0;  // FIXME when adding luminescence, do it here.
+    emitted = (is_emissive() ? 1.0_p : 0.0_p);
     reflected = m_reflectivity;
     transmitted = 1.0_p - m_reflectivity;
 }

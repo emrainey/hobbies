@@ -10,7 +10,7 @@ scene::scene(double art)
     , m_lights{}
     , m_background{[](raytrace::ray const&) { return colors::black; }}
     , m_media{&mediums::vacuum}  // default to a vacuum
-{
+    , m_has_emissive_objects{false} {
 }
 
 scene::~scene() {
@@ -26,6 +26,9 @@ void scene::add_group(objects::group const* grp) {
 
 void scene::add_object(objects::object const* obj) {
     m_objects.push_back(obj);
+    if (obj->material().is_emissive()) {
+        m_has_emissive_objects = true;
+    }
     // compute the bounding box for the scene
     auto object_bounds = obj->get_world_bounds();
     if constexpr (debug::scene) {
@@ -67,6 +70,10 @@ size_t scene::number_of_objects(void) const {
 
 size_t scene::number_of_lights(void) const {
     return m_lights.size();
+}
+
+bool scene::has_emissive_objects(void) const {
+    return m_has_emissive_objects;
 }
 
 objects::hits scene::find_intersections(ray const& world_ray) {
@@ -182,6 +189,39 @@ color scene::emissive_light(precision emissivity, mediums::medium const& medium,
     return glow * emissivity;
 }
 
+color scene::emissive_illumination(point const& world_surface_point, vector const& world_surface_normal) {
+    using namespace raytrace::operators;
+    color accumulated_light{colors::black};
+
+    for (auto& obj_ptr : m_objects) {
+        objects::object const& obj = *obj_ptr;
+        mediums::medium const& obj_medium = obj.material();
+        if (not obj_medium.is_emissive()) {
+            continue;
+        }
+        vector to_light = obj.position() - world_surface_point;
+        precision dist = to_light.norm();
+        if (dist <= 0.0_p) {
+            continue;
+        }
+        vector dir_to_light = to_light / dist;
+        ray shadow_ray(world_surface_point, dir_to_light);
+        objects::hits blockers = find_intersections(shadow_ray);
+        objects::hit blocker = nearest_object(shadow_ray, blockers);
+        if (blocker.object == &obj) {
+            point other_world_point = as_point(blocker.intersect);
+            point other_object_point = obj.reverse_transform(other_world_point);
+            color emit_color = obj_medium.emissive(other_object_point);
+            precision incident_scaling = dot(world_surface_normal, dir_to_light);
+            if (incident_scaling > 0.0_p) {
+                precision attenuation = 1.0_p / (dist * dist);
+                accumulated_light += emit_color * incident_scaling * attenuation;
+            }
+        }
+    }
+    return accumulated_light;
+}
+
 color scene::direct_light(lights::light const& scene_light, mediums::medium const& medium,
                           point const& world_surface_point, point const& object_surface_point,
                           vector const& world_surface_normal, ray const& world_reflection, size_t sample_index,
@@ -295,6 +335,11 @@ color scene::reflected_light(precision reflectivity, mediums::medium const& medi
         }
         // now accumulate all the light sources together (including ambient)
         color surface_properties_color = fourcc::accumulate_samples(surface_colors);
+
+        // add emissive illumination from other objects in the scene
+        if (m_has_emissive_objects) {
+            surface_properties_color += emissive_illumination(world_surface_point, world_surface_normal);
+        }
 
         if (reflection_depth > 0) {
             // mix how much local surface color versus reflected surface there should be

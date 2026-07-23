@@ -89,22 +89,6 @@ TEST(SceneTest, LowResSpheres) {
     scene.render(view, "low_res_sphere.ppm");
 }
 
-namespace raytrace::mediums {
-class glowy : public raytrace::mediums::medium {
-public:
-    glowy(raytrace::color const& ambient, raytrace::color const& emissive) : medium() {
-        m_ambient = ambient;
-        m_emissive_color = emissive;
-    }
-    raytrace::color emissive(raytrace::point const& volumetric_point __attribute__((unused))) const override {
-        return m_emissive_color;
-    }
-
-protected:
-    raytrace::color m_emissive_color;
-};
-}  // namespace raytrace::mediums
-
 TEST(SceneTest, GlowingMaterialEmitsLight) {
     using namespace raytrace;
     using namespace raytrace::objects;
@@ -223,4 +207,116 @@ TEST(SceneTest, MultipleEmissiveObjectsContributeLight) {
     ASSERT_PRECISION_EQ(0.0_p, blue_emitted.red());
     ASSERT_PRECISION_EQ(0.0_p, blue_emitted.green());
     ASSERT_PRECISION_EQ(0.625_p, blue_emitted.blue());
+}
+
+TEST(SceneTest, HasEmissiveObjectsFlag) {
+    using namespace raytrace;
+    using namespace raytrace::objects;
+    using namespace raytrace::mediums;
+
+    raytrace::scene test_scene;
+    ASSERT_FALSE(test_scene.has_emissive_objects());
+
+    raytrace::objects::sphere s{raytrace::point{0, 0, 0}, 1.0_p};
+    ASSERT_FALSE(test_scene.has_emissive_objects());
+
+    test_scene.add_object(&s);
+    ASSERT_FALSE(test_scene.has_emissive_objects());
+
+    raytrace::objects::sphere glow_sphere{raytrace::point{2, 0, 0}, 0.5_p};
+    auto glow_mat = raytrace::mediums::glowy{raytrace::colors::black, raytrace::colors::yellow};
+    glow_sphere.material(&glow_mat);
+    test_scene.add_object(&glow_sphere);
+    ASSERT_TRUE(test_scene.has_emissive_objects());
+}
+
+TEST(SceneTest, EmissiveIlluminationFromObject) {
+    using namespace raytrace;
+    using namespace raytrace::objects;
+    using namespace raytrace::mediums;
+    using namespace geometry::operators;
+
+    // Create an emissive sphere (red glowing) placed to the right
+    raytrace::objects::sphere emissive_sphere{raytrace::point{3, 0, 0}, 0.5_p};
+    auto emissive_mat = raytrace::mediums::glowy{raytrace::colors::black, raytrace::colors::red};
+    emissive_sphere.material(&emissive_mat);
+
+    // Create a dull sphere at the origin (the surface we'll test illumination on)
+    raytrace::objects::sphere nearby_sphere{raytrace::point{0, 0, 0}, 0.5_p};
+    nearby_sphere.material(&mediums::dull);
+
+    // Create scene
+    raytrace::scene test_scene;
+    test_scene.add_object(&emissive_sphere);
+    test_scene.add_object(&nearby_sphere);
+    ASSERT_TRUE(test_scene.has_emissive_objects());
+
+    // The rightmost point of the dull sphere at (0,0,0) radius 0.5 is (0.5, 0, 0)
+    // The normal at that point faces right: (1, 0, 0)
+    // The emissive sphere center is at (3, 0, 0), so direction to light = (2.5, 0, 0)
+    // Cast a ray from the left side to find the entry point on the dull sphere
+    raytrace::ray entry_ray{raytrace::point{-5, 0, 0}, raytrace::vector{1, 0, 0}};
+    raytrace::objects::hits hits = test_scene.find_intersections(entry_ray);
+    raytrace::objects::hit nearest = test_scene.nearest_object(entry_ray, hits);
+    ASSERT_EQ(&nearby_sphere, nearest.object);
+
+    // The entry point is (-0.5, 0, 0) with normal (-1, 0, 0) — facing LEFT
+    raytrace::point entry_world_point = raytrace::as_point(nearest.intersect);
+    raytrace::vector entry_normal = nearest.normal.normalized();
+    // Direction from entry point to emissive sphere: (3.5, 0, 0)
+    // Dot with normal (-1, 0, 0) = -3.5 < 0 → this point faces away from emissive
+
+    // The exit point is (0.5, 0, 0) with normal (1, 0, 0) — facing RIGHT
+    // We need to use the exit point which faces the emissive sphere.
+    // Assert we got the entry point
+    ASSERT_PRECISION_EQ(-0.5_p, entry_world_point.x());
+
+    // Compute emissive illumination from the entry point (should face away, but
+    // the emissive sphere is still visible, just the normal dot product limits it)
+    color illumination = test_scene.emissive_illumination(entry_world_point, entry_normal);
+    // The emissive sphere IS along the line of sight from entry point to (3,0,0),
+    // but the normal faces away, so Lambert's law gives 0 contribution
+    ASSERT_PRECISION_EQ(0.0_p, illumination.red());
+
+    // Now construct the exit point directly: (0.5, 0, 0) with normal (1, 0, 0)
+    raytrace::point exit_world_point{0.5_p, 0.0_p, 0.0_p};
+    raytrace::vector exit_normal{1.0_p, 0.0_p, 0.0_p};
+    // For a normal facing right, the emissive sphere contributes
+    illumination = test_scene.emissive_illumination(exit_world_point, exit_normal);
+    ASSERT_PRECISION_NE(0.0_p, illumination.red());
+    ASSERT_PRECISION_EQ(0.0_p, illumination.green());
+    ASSERT_PRECISION_EQ(0.0_p, illumination.blue());
+}
+
+TEST(SceneTest, NoEmissiveIlluminationWhenBlocked) {
+    using namespace raytrace;
+    using namespace raytrace::objects;
+    using namespace raytrace::mediums;
+    using namespace geometry::operators;
+
+    // Create an emissive sphere at (4, 0, 0)
+    raytrace::objects::sphere emissive_sphere{raytrace::point{4, 0, 0}, 0.5_p};
+    auto emissive_mat = raytrace::mediums::glowy{raytrace::colors::black, raytrace::colors::red};
+    emissive_sphere.material(&emissive_mat);
+
+    // Create a blocking sphere at (2, 0, 0) between the surface point and the emissive
+    raytrace::objects::sphere blocker_sphere{raytrace::point{2, 0, 0}, 0.5_p};
+    blocker_sphere.material(&mediums::dull);
+
+    raytrace::scene test_scene;
+    test_scene.add_object(&emissive_sphere);
+    test_scene.add_object(&blocker_sphere);
+    ASSERT_TRUE(test_scene.has_emissive_objects());
+
+    // Surface point at (1, 0, 0), normal facing right (1, 0, 0)
+    // Direction to emissive: (3, 0, 0), dot with normal = 3 > 0
+    // But the blocker at (2, 0, 0) radius 0.5 blocks the ray toward (4, 0, 0)
+    raytrace::point world_surface_point{1.0_p, 0.0_p, 0.0_p};
+    raytrace::vector world_surface_normal{1.0_p, 0.0_p, 0.0_p};
+
+    color illumination = test_scene.emissive_illumination(world_surface_point, world_surface_normal);
+    // The blocker sphere is in the way, so no illumination
+    ASSERT_PRECISION_EQ(0.0_p, illumination.red());
+    ASSERT_PRECISION_EQ(0.0_p, illumination.green());
+    ASSERT_PRECISION_EQ(0.0_p, illumination.blue());
 }

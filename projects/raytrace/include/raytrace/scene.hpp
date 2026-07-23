@@ -87,6 +87,12 @@ public:
     color emissive_light(precision emissivity, mediums::medium const& medium,
                          raytrace::point const& object_surface_point) const;
 
+    /// Computes the illumination from emissive objects in the scene onto the surface point
+    /// @param world_surface_point The point on the surface in world coordinates
+    /// @param world_surface_normal The normal vector on the surface at the point in world coordinates
+    /// @return The accumulated emissive color from all visible emissive objects
+    color emissive_illumination(point const& world_surface_point, vector const& world_surface_normal);
+
     /// Computes the reflected light color from the medium at the point in the scene
     /// @param reflectivity The reflectivity of the medium at the point (0.0_p = non-reflective, 1.0_p = fully
     /// reflective)
@@ -174,6 +180,9 @@ public:
     /// Returns the number of lights in the scene
     size_t number_of_lights(void) const;
 
+    /// Returns true if the scene contains any emissive objects
+    bool has_emissive_objects(void) const;
+
 protected:
     /// The list of objects in the scene.
     object_list m_objects;
@@ -198,6 +207,9 @@ protected:
 
     /// The finite bounds object list sorted into nodes
     std::vector<tree::Node> m_nodes;
+
+    /// Flag indicating if any object in the scene has an emissive medium
+    bool m_has_emissive_objects;
 };
 
 }  // namespace raytrace

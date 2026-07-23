@@ -45,6 +45,9 @@ public:
     /// @param volumetric_point A point on the surface in object space (not world space)
     virtual color emissive(raytrace::point const& volumetric_point) const;
 
+    /// Returns true if the emissive color is non-black
+    bool is_emissive() const;
+
     /// Returns the color bounced from the medium at a point, given an input color
     /// @param volumetric_point A point on the surface in object space (not world space)
     /// @param incoming The incoming light color
@@ -110,6 +113,9 @@ protected:
     precision m_transmissivity;
     /// This material's refractive index
     precision m_refractive_index;
+
+    /// The color of emitted light from this medium (defaults to black)
+    color m_emissive_color;
 
     // Electrical Permissivity
     // precision m_permissivity;

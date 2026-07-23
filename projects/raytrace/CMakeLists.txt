@@ -49,6 +49,7 @@ add_library(hobbies-raytrace
     ${CMAKE_CURRENT_SOURCE_DIR}/source/mediums/transparent.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/mediums/metal.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/mediums/plain.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/mediums/glowy.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/mediums/dots.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/mediums/stripes.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/mediums/happy_face.cpp
@@ -193,6 +194,7 @@ endif()
 list(APPEND DEMOS world_art1)
 list(APPEND DEMOS world_cornell)
 list(APPEND DEMOS world_desktoy)
+list(APPEND DEMOS world_emissive)
 list(APPEND DEMOS world_example)
 list(APPEND DEMOS world_glass)
 list(APPEND DEMOS world_gap)

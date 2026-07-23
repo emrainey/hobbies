@@ -692,6 +692,25 @@ matrix matrix::eigenvalues() const noexcept(false) {
     return matrix::col(rows);
 }
 
+matrix matrix::eigenvectors() const noexcept(false) {
+    using namespace operators;
+    basal::exception::throw_unless(rows == cols, g_filename, __LINE__, "Must be a square matrix");
+    matrix evals = eigenvalues();
+    matrix evects{rows, rows};
+    for (size_t i = 0; i < rows; i++) {
+        precision lambda = evals[i][0];
+        if (basal::is_nan(lambda)) {
+            continue;
+        }
+        matrix AlambdaI = (*this) - (lambda * matrix::identity(rows, cols));
+        matrix ns = AlambdaI.nullspace();
+        for (size_t r = 0; r < rows; r++) {
+            evects[r][i] = ns[r][0];
+        }
+    }
+    return evects;
+}
+
 matrix matrix::inverse() const noexcept(false) {
     basal::exception::throw_unless(rows == cols, g_filename, __LINE__,
                                    "Must be a square matrix");  // no inverses for non square matrix

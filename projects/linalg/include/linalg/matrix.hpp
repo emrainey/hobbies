@@ -241,6 +241,9 @@ public:
     /// Returns the eigenvalues of the matrix
     matrix eigenvalues() const noexcept(false);
 
+    /// Returns the eigenvectors as column vectors, in the same order as eigenvalues().
+    matrix eigenvectors() const noexcept(false);
+
     /// Returns a new matrix from a square matrix which is extended by the Rule of Sarrus
     matrix rule_of_sarrus() noexcept(false);
 

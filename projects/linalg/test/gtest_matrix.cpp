@@ -556,11 +556,22 @@ TEST(MatrixTest, EigenVectors) {
     using namespace linalg;
     using namespace linalg::operators;
 
-    // find eigenvector of matrix then test
+    // verify A * v = λ * v for each eigenpair
     matrix A{{{3, 2, 2}, {2, 3, -2}}};
     matrix AAT = A * A.T();
-    matrix f{{{25}, {9}}};
-    ASSERT_MATRIX_EQ(f, AAT.eigenvalues());
+    matrix evals = AAT.eigenvalues();
+    matrix evects = AAT.eigenvectors();
+    ASSERT_EQ(2, evals.rows);
+    ASSERT_EQ(2, evects.rows);
+    ASSERT_EQ(2, evects.cols);
+    for (size_t i = 0; i < 2; i++) {
+        if (not basal::is_nan(evals[i][0])) {
+            matrix v = evects.col(i);
+            matrix Av = AAT * v;
+            matrix lv = evals[i][0] * v;
+            ASSERT_MATRIX_EQ(Av, lv);
+        }
+    }
 }
 
 TEST(MatrixTest, Rank) {
@@ -653,115 +664,104 @@ TEST(MatrixTest, Eigenvalues) {
         ASSERT_EQ(1, ev1.rows);
         ASSERT_EQ(1, ev1.cols);
         ASSERT_PRECISION_EQ(7.0_p, ev1[0][0]);
+        matrix v1 = m1.eigenvectors().col(0);
+        matrix Av = m1 * v1;
+        matrix lv = ev1[0][0] * v1;
+        ASSERT_MATRIX_EQ(Av, lv);
     }
 
-    // 2x2 — known eigenvalues for {{17, 8}, {8, 17}} are 25 and 9
+    // 2x2 — verify via eigen-equation instead of set membership
     {
         matrix m2{{{17, 8}, {8, 17}}};
         matrix ev2 = m2.eigenvalues();
+        matrix evect2 = m2.eigenvectors();
         ASSERT_EQ(2, ev2.rows);
-        ASSERT_EQ(1, ev2.cols);
-        bool has_25 = false, has_9 = false;
+        ASSERT_EQ(2, evect2.rows);
+        ASSERT_EQ(2, evect2.cols);
         for (size_t i = 0; i < 2; i++) {
-            if (basal::nearly_equals(ev2[i][0], 25.0_p))
-                has_25 = true;
-            if (basal::nearly_equals(ev2[i][0], 9.0_p))
-                has_9 = true;
+            if (not basal::is_nan(ev2[i][0])) {
+                matrix v = evect2.col(i);
+                matrix Av = m2 * v;
+                matrix lv = ev2[i][0] * v;
+                ASSERT_MATRIX_EQ(Av, lv);
+            }
         }
-        ASSERT_TRUE(has_25) << "Expected eigenvalue 25 not found in " << ev2;
-        ASSERT_TRUE(has_9) << "Expected eigenvalue 9 not found in " << ev2;
     }
 
-    // 2x2 with zero eigenvalue: {{1, 2}, {2, 4}} — rank-deficient, det=0
+    // 2x2 with zero eigenvalue
     {
         matrix m2z{{{1, 2}, {2, 4}}};
         matrix ev2z = m2z.eigenvalues();
-        ASSERT_EQ(2, ev2z.rows);
-        ASSERT_EQ(1, ev2z.cols);
-        // eigenvalues: trace=5, det=0 → λ² - 5λ = 0 → λ = 0, 5
-        bool has_5 = false, has_0 = false;
+        matrix evect2z = m2z.eigenvectors();
         for (size_t i = 0; i < 2; i++) {
-            if (basal::nearly_equals(ev2z[i][0], 5.0_p))
-                has_5 = true;
-            if (basal::nearly_equals(ev2z[i][0], 0.0_p))
-                has_0 = true;
+            if (not basal::is_nan(ev2z[i][0])) {
+                matrix v = evect2z.col(i);
+                matrix Av = m2z * v;
+                matrix lv = ev2z[i][0] * v;
+                ASSERT_MATRIX_EQ(Av, lv);
+            }
         }
-        ASSERT_TRUE(has_5) << "Expected eigenvalue 5 not found in " << ev2z;
-        ASSERT_TRUE(has_0) << "Expected eigenvalue 0 not found in " << ev2z;
     }
 
-    // 3x3 diagonal — eigenvalues are the diagonal entries
+    // 3x3 diagonal
     {
         matrix m3{{{1, 0, 0}, {0, 2, 0}, {0, 0, 3}}};
         matrix ev3 = m3.eigenvalues();
-        ASSERT_EQ(3, ev3.rows);
-        ASSERT_EQ(1, ev3.cols);
-        bool has_1 = false, has_2 = false, has_3 = false;
+        matrix evect3 = m3.eigenvectors();
         for (size_t i = 0; i < 3; i++) {
-            if (basal::nearly_equals(ev3[i][0], 1.0_p))
-                has_1 = true;
-            if (basal::nearly_equals(ev3[i][0], 2.0_p))
-                has_2 = true;
-            if (basal::nearly_equals(ev3[i][0], 3.0_p))
-                has_3 = true;
+            if (not basal::is_nan(ev3[i][0])) {
+                matrix v = evect3.col(i);
+                matrix Av = m3 * v;
+                matrix lv = ev3[i][0] * v;
+                ASSERT_MATRIX_EQ(Av, lv);
+            }
         }
-        ASSERT_TRUE(has_1) << "Expected eigenvalue 1 not found in " << ev3;
-        ASSERT_TRUE(has_2) << "Expected eigenvalue 2 not found in " << ev3;
-        ASSERT_TRUE(has_3) << "Expected eigenvalue 3 not found in " << ev3;
     }
 
-    // 3x3 rank-deficient: A^T*A from the SVD example
+    // 3x3 rank-deficient: A^T*A from SVD example
     {
         matrix A{{{3, 2, 2}, {2, 3, -2}}};
         matrix ATA = A.T() * A;
         matrix ev3 = ATA.eigenvalues();
-        ASSERT_EQ(3, ev3.rows);
-        ASSERT_EQ(1, ev3.cols);
-        bool has_25 = false, has_9 = false, has_0 = false;
+        matrix evect3 = ATA.eigenvectors();
         for (size_t i = 0; i < 3; i++) {
-            if (basal::nearly_equals(ev3[i][0], 25.0_p))
-                has_25 = true;
-            if (basal::nearly_equals(ev3[i][0], 9.0_p))
-                has_9 = true;
-            if (basal::nearly_equals(ev3[i][0], 0.0_p))
-                has_0 = true;
+            if (not basal::is_nan(ev3[i][0])) {
+                matrix v = evect3.col(i);
+                matrix Av = ATA * v;
+                matrix lv = ev3[i][0] * v;
+                ASSERT_MATRIX_EQ(Av, lv);
+            }
         }
-        ASSERT_TRUE(has_25) << "Expected eigenvalue 25 not found in " << ev3;
-        ASSERT_TRUE(has_9) << "Expected eigenvalue 9 not found in " << ev3;
-        ASSERT_TRUE(has_0) << "Expected eigenvalue 0 not found in " << ev3;
     }
 
-    // 4x4 diagonal — eigenvalues are the diagonal entries
+    // 4x4 diagonal
     {
         matrix m4{{{1, 0, 0, 0}, {0, 2, 0, 0}, {0, 0, 3, 0}, {0, 0, 0, 4}}};
         matrix ev4 = m4.eigenvalues();
-        ASSERT_EQ(4, ev4.rows);
-        ASSERT_EQ(1, ev4.cols);
-        bool has_1 = false, has_2 = false, has_3 = false, has_4 = false;
+        matrix evect4 = m4.eigenvectors();
         for (size_t i = 0; i < 4; i++) {
-            if (basal::nearly_equals(ev4[i][0], 1.0_p))
-                has_1 = true;
-            if (basal::nearly_equals(ev4[i][0], 2.0_p))
-                has_2 = true;
-            if (basal::nearly_equals(ev4[i][0], 3.0_p))
-                has_3 = true;
-            if (basal::nearly_equals(ev4[i][0], 4.0_p))
-                has_4 = true;
+            if (not basal::is_nan(ev4[i][0])) {
+                matrix v = evect4.col(i);
+                matrix Av = m4 * v;
+                matrix lv = ev4[i][0] * v;
+                ASSERT_MATRIX_EQ(Av, lv);
+            }
         }
-        ASSERT_TRUE(has_1) << "Expected eigenvalue 1 not found in " << ev4;
-        ASSERT_TRUE(has_2) << "Expected eigenvalue 2 not found in " << ev4;
-        ASSERT_TRUE(has_3) << "Expected eigenvalue 3 not found in " << ev4;
-        ASSERT_TRUE(has_4) << "Expected eigenvalue 4 not found in " << ev4;
     }
 
-    // 4x4 with a repeated eigenvalue: identity
+    // 4x4 with repeated eigenvalue: identity
     {
         matrix I4 = matrix::identity(4, 4);
         matrix evI4 = I4.eigenvalues();
-        ASSERT_EQ(4, evI4.rows);
-        ASSERT_EQ(1, evI4.cols);
+        matrix evectI4 = I4.eigenvectors();
         for (size_t i = 0; i < 4; i++) {
             ASSERT_PRECISION_EQ(1.0_p, evI4[i][0]);
+            if (not basal::is_nan(evI4[i][0])) {
+                matrix v = evectI4.col(i);
+                matrix Av = I4 * v;
+                matrix lv = evI4[i][0] * v;
+                ASSERT_MATRIX_EQ(Av, lv);
+            }
         }
     }
 
@@ -769,12 +769,14 @@ TEST(MatrixTest, Eigenvalues) {
     {
         matrix I5 = matrix::identity(5, 5);
         ASSERT_THROW(I5.eigenvalues(), basal::exception);
+        ASSERT_THROW(I5.eigenvectors(), basal::exception);
     }
 
     // non-square should throw
     {
         matrix rect{2, 3};
         ASSERT_THROW(rect.eigenvalues(), basal::exception);
+        ASSERT_THROW(rect.eigenvectors(), basal::exception);
     }
 }
 

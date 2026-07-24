@@ -25,8 +25,8 @@ public:
         , convex_lens{x0, x1, objects::overlap::type::inclusive}
         , glass_donut{raytrace::point{10, -10, 3.5_p}, 5.0_p, 2.5_p}
         , ground{200.0_p}
-        , sunlight{raytrace::vector{-2, 2, -1}, colors::white, lights::intensities::bright * 1.3_p}
-        , prick{raytrace::point{-7, 0, 10}, colors::white, lights::intensities::intense} {
+        , sunlight{raytrace::vector{-2, 2, -1}, colors::white, lights::intensities::dim}
+        , prick{raytrace::point{-7, 0, 10}, colors::white, lights::intensities::radiant * 2.0_p} {
         convex_lens.position(raytrace::point{0, 0, 5});
         // reduce the volumetric point to a planar point
         grid.mapper(std::bind(&raytrace::objects::square::map, &ground, std::placeholders::_1));

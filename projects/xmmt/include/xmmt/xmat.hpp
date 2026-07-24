@@ -232,6 +232,22 @@ public:
         }
         return T;
     }
+
+    /// Equality Operator
+    bool operator==(xmat_ const& other) {
+        bool ret = true;
+        for (size_t j = 0; j < rows && ret; j++) {
+            for (size_t i = 0; i < cols && ret; i++) {
+                ret = (data[j].m064[i] == other.data[j].m064[i]);
+            }
+        }
+        return ret;
+    }
+
+    /// Inequality Operator
+    bool operator!=(xmat_ const& other) {
+        return not operator==(other);
+    }
 };
 
 template <size_t ROWS0, size_t COLS0, size_t COLS1>

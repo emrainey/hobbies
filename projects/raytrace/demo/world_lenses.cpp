@@ -23,24 +23,17 @@ public:
         , x0{raytrace::point{info.separation, 0, 0}, info.radius}
         , x1{raytrace::point{-info.separation, 0, 0}, info.radius}
         , convex_lens{x0, x1, objects::overlap::type::inclusive}
-        // , pyramid_center{10, 10, 10.1_p}
-        // , pyramid_core{pyramid_center, 10.1_p}
-        // , pyramid_bounds{pyramid_center, 5, 5, 10}
-        // , pyramid_overlap{pyramid_core, pyramid_bounds, objects::overlap::type::inclusive}
         , glass_donut{raytrace::point{10, -10, 3.5_p}, 5.0_p, 2.5_p}
         , ground{200.0_p}
-        , sunlight{raytrace::vector{-2, 2, -1}, colors::white, lights::intensities::full}
-        , prick{raytrace::point{0, 0, 22}, colors::white, 1E6} {
+        , sunlight{raytrace::vector{-2, 2, -1}, colors::white, lights::intensities::bright * 1.3_p}
+        , prick{raytrace::point{-7, 0, 10}, colors::white, lights::intensities::intense} {
         convex_lens.position(raytrace::point{0, 0, 5});
         // reduce the volumetric point to a planar point
         grid.mapper(std::bind(&raytrace::objects::square::map, &ground, std::placeholders::_1));
         looking_at_ = raytrace::point{0, 0, info.radius};
         x0.material(&glass);
         x1.material(&glass);
-        convex_lens.material(&glass);  // should assign all submaterials too? we assume const refs so it can't.
-        // pyramid_core.material(&mediums::metals::chrome);
-        // pyramid_bounds.material(&mediums::metals::chrome);
-        // pyramid_overlap.material(&glass);
+        convex_lens.material(&glass);
         glass_donut.material(&glass);
         ground.material(&grid);
     }
@@ -48,13 +41,7 @@ public:
     ~LensWorld() = default;
 
     void add_to(scene& scene) override {
-        // scene.add_object(&base);
         scene.add_object(&convex_lens);
-        // scene.add_object(&x0);
-        // scene.add_object(&x1);
-        // scene.add_object(&pyramid_core);
-        // scene.add_object(&pyramid_bounds);
-        // scene.add_object(&pyramid_overlap);
         scene.add_object(&glass_donut);
         scene.add_object(&ground);
         scene.add_light(&sunlight);
@@ -79,11 +66,6 @@ protected:
     raytrace::objects::sphere x0;
     raytrace::objects::sphere x1;
     raytrace::objects::overlap convex_lens;
-
-    // raytrace::point pyramid_center;
-    // raytrace::objects::pyramid pyramid_core;
-    // raytrace::objects::cuboid pyramid_bounds;
-    // raytrace::objects::overlap pyramid_overlap;
 
     raytrace::objects::torus glass_donut;
 

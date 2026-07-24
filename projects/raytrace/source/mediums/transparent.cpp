@@ -17,7 +17,11 @@ void transparent::radiosity(raytrace::point const& volumetric_point __attribute_
                             iso::radians const& incident_angle, iso::radians const& transmitted_angle,
                             precision& emitted, precision& reflected, precision& transmitted) const {
     emitted = 0.0_p;
-    reflected = laws::fresnel(refractive_index, m_refractive_index, incident_angle, transmitted_angle);
+    if (basal::is_nan(transmitted_angle.value)) {
+        reflected = 1.0_p;
+    } else {
+        reflected = laws::fresnel(refractive_index, m_refractive_index, incident_angle, transmitted_angle);
+    }
     transmitted = 1.0_p - reflected;
 }
 
@@ -32,9 +36,13 @@ color transparent::absorbance(precision distance, color const& given_color) cons
     }
     color T(std::exp(-m_extinction.red() * distance), std::exp(-m_extinction.green() * distance),
             std::exp(-m_extinction.blue() * distance));
-    return color(given_color.red() * T.red() + m_diffuse.red() * (1.0_p - T.red()),
-                 given_color.green() * T.green() + m_diffuse.green() * (1.0_p - T.green()),
-                 given_color.blue() * T.blue() + m_diffuse.blue() * (1.0_p - T.blue()));
+    color result(given_color.red() * T.red(), given_color.green() * T.green(), given_color.blue() * T.blue());
+    // Only add inscatter when there is actual light to scatter (prevents self-lit appearance)
+    if (given_color.intensity() > basal::epsilon) {
+        result += color(m_diffuse.red() * (1.0_p - T.red()), m_diffuse.green() * (1.0_p - T.green()),
+                        m_diffuse.blue() * (1.0_p - T.blue()));
+    }
+    return result;
 }
 
 }  // namespace mediums

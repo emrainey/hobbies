@@ -61,6 +61,24 @@ TEST(LawsTest, Reflection) {
     ASSERT_VECTOR_EQ(R2, R);
 }
 
+TEST(LawsTest, FresnelTotalInternalReflection) {
+    // When transmitted_angle is NaN (TIR), Fresnel must return 1.0, not NaN.
+    vector N{0, 0, 1};
+    vector I{0, -1, -1};
+    I.normalize();
+    precision n1 = 2.0_p;
+    precision n2 = 1.0_p;
+    // Verify this setup produces TIR
+    vector R = laws::snell(N, I, n1, n2);
+    ASSERT_VECTOR_EQ(geometry::R3::null, R);
+    iso::radians incident_angle = geometry::angle(N, -I);
+    // The transmitted_angle is NaN (TIR) — this is what happens at runtime
+    iso::radians transmitted_angle{std::numeric_limits<precision>::quiet_NaN()};
+    precision Rf = laws::fresnel(n1, n2, incident_angle, transmitted_angle);
+    ASSERT_FALSE(std::isnan(Rf));
+    ASSERT_PRECISION_EQ(1.0_p, Rf);
+}
+
 TEST(LawsTest, Fresnel) {
     /// @internal used calculator at @see https://www.calctool.org/CALC/phys/optics/reflec_refrac
     vector N{0, 0, 1};

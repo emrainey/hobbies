@@ -6,7 +6,7 @@ namespace raytrace {
 
 namespace mediums {
 
-/// A perlin noise generated is used to simulate (poorly) a perlin pattern
+/// A turbulent sin based texture
 class turbsin : public opaque {
 public:
     /// @brief The turbulent sin constructor

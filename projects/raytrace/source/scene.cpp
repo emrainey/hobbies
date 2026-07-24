@@ -1,6 +1,7 @@
 #include "raytrace/scene.hpp"
 
 #include <cassert>
+#include <cstdio>
 #include <map>
 
 namespace raytrace {
@@ -490,6 +491,18 @@ color scene::trace(ray const& world_ray, mediums::medium const& media, size_t re
         /// @internal (diffraction, phosphorescence and fluorescence are not computed, yet)
         medium.radiosity(object_surface_point, media.refractive_index(object_surface_point), incident_angle,
                          transmitted_angle, emissivity, reflectivity, transparency);
+        if (inside_out) {
+            // When exiting an object, n1 should be the object's RI and n2 the external media's RI.
+            // radiosity() uses media RI as n1 and object RI as n2, which is wrong for exit.
+            if (basal::is_nan(transmitted_angle.value)) {
+                reflectivity = 1.0_p;
+            } else {
+                reflectivity
+                    = laws::fresnel(medium.refractive_index(object_surface_point),
+                                    m_media->refractive_index(object_surface_point), incident_angle, transmitted_angle);
+            }
+            transparency = 1.0_p - reflectivity;
+        }
 
         // ======================================================
         emitted_color = emissive_light(emissivity, medium, object_surface_point);

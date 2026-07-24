@@ -397,3 +397,236 @@ TEST(SceneTest, OpaqueBlockedShadow) {
     ASSERT_PRECISION_EQ(0.0_p, result.green());
     ASSERT_PRECISION_EQ(0.0_p, result.blue());
 }
+
+TEST(SceneTest, TransparentCuboidShadow) {
+    using namespace raytrace;
+    using namespace raytrace::lights;
+    using namespace raytrace::mediums;
+    using namespace raytrace::colors;
+    using namespace geometry::operators;
+
+    // Perfectly transparent glass (zero extinction)
+    transparent glass(refractive_index::glass, colors::black, colors::white);
+
+    // Matte white surface
+    plain white_surface(colors::white, 0.0_p, colors::white, mediums::smoothness::none, roughness::medium);
+
+    // Beam light shining in -Z direction (incident rays go +Z toward the light source)
+    beam sunlight(raytrace::vector{0, 0, -1}, colors::white, lights::intensities::full);
+
+    // Transparent glass cuboid at z=5 — between the plane and the light
+    raytrace::objects::cuboid glass_cuboid(raytrace::point{0, 0, 5}, 2, 2, 2);
+    glass_cuboid.material(&glass);
+
+    // Ground plane at z=0
+    raytrace::objects::plane ground;
+    ground.material(&white_surface);
+
+    scene test_scene;
+    test_scene.add_light(&sunlight);
+    test_scene.add_object(&glass_cuboid);
+    test_scene.add_object(&ground);
+    test_scene.set_ambient_light(colors::black);
+
+    // Camera ray from (0, 0, -10) in +Z direction, hits the plane at (0, 0, 0)
+    ray camera_ray(raytrace::point{0, 0, -10}, vector{{0, 0, 1}});
+    color result = test_scene.trace(camera_ray, mediums::vacuum, 3);
+
+    // The plane should receive light through the transparent cuboid (same as sphere)
+    EXPECT_PRECISION_EQ(0.5_p, result.red());
+    EXPECT_PRECISION_EQ(0.5_p, result.green());
+    EXPECT_PRECISION_EQ(0.5_p, result.blue());
+}
+
+TEST(SceneTest, TransparentCuboidVisual) {
+    using namespace raytrace;
+    using namespace raytrace::lights;
+    using namespace raytrace::mediums;
+    using namespace raytrace::colors;
+    using namespace geometry::operators;
+
+    // Perfectly transparent glass (zero extinction), white diffuse
+    transparent glass(refractive_index::glass, colors::black, colors::white);
+
+    // Matte white surface for the ground
+    plain white_surface(colors::white, 0.0_p, colors::white, mediums::smoothness::none, roughness::medium);
+
+    // Beam light shining in +Z direction so the ground behind the cuboid is lit
+    beam sunlight(raytrace::vector{0, 0, 1}, colors::white, lights::intensities::full);
+
+    // Transparent glass cuboid centered at (0, 0, -5), spans z=[-7, -3]
+    raytrace::objects::cuboid glass_cuboid(raytrace::point{0, 0, -5}, 4, 4, 4);
+    glass_cuboid.material(&glass);
+
+    // Ground plane at z=0 (behind the cuboid)
+    raytrace::objects::plane ground;
+    ground.material(&white_surface);
+
+    scene test_scene;
+    test_scene.add_light(&sunlight);
+    test_scene.add_object(&glass_cuboid);
+    test_scene.add_object(&ground);
+    test_scene.set_ambient_light(colors::black);
+
+    // Camera ray from (0, 0, -15) in +Z direction
+    // Hits cuboid at z=-7 (entry), exits at z=-3, then hits plane at z=0
+    ray camera_ray(raytrace::point{0, 0, -15}, vector{{0, 0, 1}});
+    color result = test_scene.trace(camera_ray, mediums::vacuum, 3);
+
+    // The cuboid should transmit most light — the result should be non-black
+    EXPECT_PRECISION_NE(0.0_p, result.red());
+    EXPECT_PRECISION_NE(0.0_p, result.green());
+    EXPECT_PRECISION_NE(0.0_p, result.blue());
+}
+
+TEST(SceneTest, TransparentCuboidRotated) {
+    using namespace raytrace;
+    using namespace raytrace::lights;
+    using namespace raytrace::mediums;
+    using namespace raytrace::colors;
+    using namespace geometry::operators;
+
+    transparent glass(refractive_index::glass, colors::black, colors::white);
+    plain white_surface(colors::white, 0.0_p, colors::white, mediums::smoothness::none, roughness::medium);
+    beam sunlight(raytrace::vector{0, 0, 1}, colors::white, lights::intensities::full);
+
+    // Cuboid rotated 35° around Z (same as cornell box), centered at (0, 0, -5)
+    raytrace::objects::cuboid glass_cuboid(raytrace::point{0, 0, -5}, 4, 4, 4);
+    glass_cuboid.rotation(iso::degrees(0), iso::degrees(0), iso::degrees(35));
+    glass_cuboid.material(&glass);
+
+    raytrace::objects::plane ground;
+    ground.material(&white_surface);
+
+    scene test_scene;
+    test_scene.add_light(&sunlight);
+    test_scene.add_object(&glass_cuboid);
+    test_scene.add_object(&ground);
+    test_scene.set_ambient_light(colors::black);
+
+    // Camera ray from (0, 0, -15) in +Z direction
+    // Hits cuboid, passes through, then hits plane at z=0
+    ray camera_ray(raytrace::point{0, 0, -15}, vector{{0, 0, 1}});
+    color result = test_scene.trace(camera_ray, mediums::vacuum, 3);
+
+    // Should still be non-black through the rotated cuboid
+    EXPECT_PRECISION_NE(0.0_p, result.red());
+    EXPECT_PRECISION_NE(0.0_p, result.green());
+    EXPECT_PRECISION_NE(0.0_p, result.blue());
+}
+
+TEST(SceneTest, TransparentCuboidCornellConfig) {
+    using namespace raytrace;
+    using namespace raytrace::lights;
+    using namespace raytrace::mediums;
+    using namespace raytrace::colors;
+    using namespace geometry::operators;
+
+    transparent glass(refractive_index::glass, colors::black, colors::white);
+    plain white_surface(colors::white, 0.0_p, colors::white, mediums::smoothness::none, roughness::medium);
+    bulb light{raytrace::point{-50, -50, 120}, 10.0_p, colors::white, lights::intensities::full, 1};
+
+    // Match cornell box: cuboid at (0, -30, 60), size 20×20×60, rotated 35° Z
+    raytrace::objects::cuboid glass_cuboid(raytrace::point{0, -30.0_p, 60}, 10, 10, 30);
+    glass_cuboid.rotation(iso::degrees(0), iso::degrees(0), iso::degrees(35));
+    glass_cuboid.material(&glass);
+
+    // Ground plane at z=0 (below the cuboid)
+    raytrace::objects::plane ground;
+    ground.material(&white_surface);
+
+    scene test_scene;
+    test_scene.add_light(&light);
+    test_scene.add_object(&glass_cuboid);
+    test_scene.add_object(&ground);
+    test_scene.set_ambient_light(colors::black);
+
+    // Camera ray aimed at the cuboid center (0, -30, 60)
+    raytrace::point cuboid_center{0, -30, 60};
+    raytrace::vector dir = (cuboid_center - raytrace::point{-220, 0, 80}).normalized();
+    ray camera_ray(raytrace::point{-220, 0, 80}, dir);
+    color result = test_scene.trace(camera_ray, mediums::vacuum, 3);
+
+    // The cuboid and plane should render — result should be non-black
+    EXPECT_PRECISION_NE(0.0_p, result.red());
+    EXPECT_PRECISION_NE(0.0_p, result.green());
+    EXPECT_PRECISION_NE(0.0_p, result.blue());
+}
+
+TEST(SceneTest, CornellBoxFullRay) {
+    using namespace raytrace;
+    using namespace raytrace::lights;
+    using namespace raytrace::mediums;
+    using namespace raytrace::colors;
+    using namespace geometry::operators;
+
+    // Replicate the full cornell box scene
+    mediums::plain plain_white(colors::white, mediums::ambient::none, colors::white, mediums::smoothness::none,
+                               mediums::roughness::tight);
+    mediums::plain plain_red(colors::red, mediums::ambient::none, colors::red, mediums::smoothness::none,
+                             mediums::roughness::tight);
+    mediums::plain plain_blue(colors::blue, mediums::ambient::none, colors::blue, mediums::smoothness::none,
+                              mediums::roughness::tight);
+    mediums::transparent glass(mediums::refractive_index::glass, colors::black, colors::white);
+
+    // walls
+    objects::plane wall0{raytrace::point{0, 80, 80}, R3::roll(iso::radians{iso::pi / 2})};    // left (blue)
+    objects::plane wall1{raytrace::point{0, -80, 80}, R3::roll(iso::radians{-iso::pi / 2})};  // right (red)
+    objects::plane wall2{raytrace::point{80, 0, 80}, R3::pitch(iso::radians{-iso::pi / 2})};  // back
+    objects::plane wall3{};                                                                   // floor
+    objects::plane wall4{raytrace::point{0, 0, 160}, R3::pitch(iso::radians{iso::pi})};       // ceiling
+    objects::cuboid box{raytrace::point{0, -30, 60}, 20, 20, 60};                             // glass cuboid
+    objects::sphere ball{raytrace::point{0, 30, 30}, 30};                                     // stainless ball
+    objects::cuboid marble_cube{raytrace::point{0, -25, 20}, 10, 10, 10};                     // marble cube
+
+    wall0.material(&plain_blue);
+    wall1.material(&plain_red);
+    wall2.material(&plain_white);
+    wall3.material(&plain_white);
+    wall4.material(&plain_white);
+    box.rotation(iso::degrees(0), iso::degrees(0), iso::degrees(35));
+    box.material(&glass);
+    ball.material(&mediums::metals::stainless);
+    marble_cube.material(&mediums::metals::stainless);
+
+    speck top_light{raytrace::point{0, 0, 150}, colors::white, lights::intensities::radiant * 8.0_p};
+
+    scene test_scene;
+    test_scene.add_light(&top_light);
+    test_scene.add_object(&wall0);
+    test_scene.add_object(&wall1);
+    test_scene.add_object(&wall2);
+    test_scene.add_object(&wall3);
+    test_scene.add_object(&wall4);
+    test_scene.add_object(&box);
+    test_scene.add_object(&ball);
+    test_scene.add_object(&marble_cube);
+    test_scene.set_ambient_light(colors::black);
+
+    // Ray toward the ball center (0, 30, 30) — should hit the ball
+    raytrace::vector dir_to_ball = (raytrace::point{0, 30, 30} - raytrace::point{-220, 0, 80}).normalized();
+    ray ball_ray(raytrace::point{-220, 0, 80}, dir_to_ball);
+    color ball_result = test_scene.trace(ball_ray, mediums::vacuum, 3);
+    // The ball should reflect light — should be non-black
+    EXPECT_PRECISION_NE(0.0_p, ball_result.red());
+    EXPECT_PRECISION_NE(0.0_p, ball_result.green());
+    EXPECT_PRECISION_NE(0.0_p, ball_result.blue());
+
+    // Ray toward the cuboid center (0, -30, 60) — should pass through glass
+    raytrace::vector dir_to_cuboid = (raytrace::point{0, -30, 60} - raytrace::point{-220, 0, 80}).normalized();
+    ray cuboid_ray(raytrace::point{-220, 0, 80}, dir_to_cuboid);
+    color cuboid_result = test_scene.trace(cuboid_ray, mediums::vacuum, 3);
+    // Should see through the glass to the back wall
+    EXPECT_PRECISION_NE(0.0_p, cuboid_result.red());
+    EXPECT_PRECISION_NE(0.0_p, cuboid_result.green());
+    EXPECT_PRECISION_NE(0.0_p, cuboid_result.blue());
+
+    // Ray toward the marble cube center (0, -25, 20)
+    raytrace::vector dir_to_cube = (raytrace::point{0, -25, 20} - raytrace::point{-220, 0, 80}).normalized();
+    ray cube_ray(raytrace::point{-220, 0, 80}, dir_to_cube);
+    color cube_result = test_scene.trace(cube_ray, mediums::vacuum, 3);
+    // Should see the marble cube
+    EXPECT_PRECISION_NE(0.0_p, cube_result.red());
+    EXPECT_PRECISION_NE(0.0_p, cube_result.green());
+    EXPECT_PRECISION_NE(0.0_p, cube_result.blue());
+}

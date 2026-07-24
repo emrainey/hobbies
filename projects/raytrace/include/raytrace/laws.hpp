@@ -80,6 +80,9 @@ inline vector reflection(vector const& N, vector const& I) {
 /// @return The coefficient of reflectance. The coefficient of refraction is 1 - reflectance.
 ///
 inline precision fresnel(precision n1, precision n2, iso::radians const& theta_i, iso::radians const& theta_tr) {
+    if (basal::is_nan(theta_tr.value)) {
+        return 1.0_p;
+    }
     precision cos_theta_i = std::cos(theta_i.value);
     precision cos_theta_t = std::cos(theta_tr.value);
     precision Rs = (n1 * cos_theta_i - n2 * cos_theta_t) / (n1 * cos_theta_i + n2 * cos_theta_t);

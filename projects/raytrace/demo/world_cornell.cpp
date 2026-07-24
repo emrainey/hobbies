@@ -23,7 +23,7 @@ public:
         , plain_blue(colors::blue, mediums::ambient::none, colors::blue, mediums::smoothness::none,
                      mediums::roughness::tight)
         , marble0{0.128283_p, 0.2_p, 32.0_p, colors::black, colors::yellow}
-        , glass{mediums::refractive_index::glass, color(0.02_p, 0.02_p, 0.02_p), colors::gray}
+        , glass{mediums::refractive_index::glass, colors::black, colors::white}
         , wall0{raytrace::point{0, 80, 80}, R3::roll(iso::radians{iso::pi / 2})}    // left
         , wall1{raytrace::point{0, -80, 80}, R3::roll(iso::radians{-iso::pi / 2})}  // right
         , wall2{raytrace::point{80, 0, 80}, R3::pitch(iso::radians{-iso::pi / 2})}  // back
@@ -31,6 +31,7 @@ public:
         , wall4{raytrace::point{0, 0, 160}, R3::pitch(iso::radians{iso::pi})}       // ceiling
         , box{raytrace::point{0, -30, 60}, 20, 20, 60}
         , ball{raytrace::point{0, 30, 30}, 30}
+        , marble_cube{raytrace::point{0, -25, 20}, 10, 10, 10}
         , top_light{raytrace::point{0, 0, 150}, colors::white, lights::intensities::radiant * 8.0_p} {
         wall0.material(&plain_blue);
         wall1.material(&plain_red);
@@ -38,9 +39,9 @@ public:
         wall3.material(&plain_white);
         wall4.material(&plain_white);
         box.rotation(iso::degrees(0), iso::degrees(0), iso::degrees(35));
-        marble0.mapper(std::bind(&objects::cuboid::map, &box, std::placeholders::_1));  // allows 2D mapping on the cube
-        // box.material(&marble0);
         box.material(&glass);
+        marble0.mapper(std::bind(&objects::cuboid::map, &marble_cube, std::placeholders::_1));
+        marble_cube.material(&marble0);
         ball.material(&mediums::metals::stainless);
     }
 
@@ -55,6 +56,7 @@ public:
         scene.add_object(&wall4);
         scene.add_object(&box);
         scene.add_object(&ball);
+        scene.add_object(&marble_cube);
         scene.add_light(&top_light);
     }
 
@@ -70,7 +72,7 @@ protected:
     mediums::plain plain_white;
     mediums::plain plain_red;
     mediums::plain plain_blue;
-    mediums::perlin marble0;
+    mediums::marble marble0;
     mediums::transparent glass;
     objects::plane wall0;
     objects::plane wall1;
@@ -79,6 +81,7 @@ protected:
     objects::plane wall4;
     objects::cuboid box;
     objects::sphere ball;
+    objects::cuboid marble_cube;
     lights::speck top_light;
 };
 

@@ -36,15 +36,15 @@ TEST(SurfaceTest, CheckerboardDiffuse) {
     img.save("checkerboard_diffuse.ppm");
 }
 
-TEST(SurfaceTest, MarbleWeirdSurface) {
+TEST(SurfaceTest, MarbleSurface) {
     using namespace raytrace;
     image img(512, 512);
-    mediums::perlin weird(13 * iso::pi / 19, 0.032_p, 72.9828302_p, colors::black, colors::white);
+    mediums::marble marble(42.0_p, 2.0_p, 3.0_p, colors::black, colors::white);
     img.generate_each([&](image::point const& p1) {
         raytrace::point p3{p1.x() / img.width, p1.y() / img.height, 0.0_p};
-        return weird.diffuse(p3);
+        return marble.diffuse(p3);
     });
-    img.save("marble_weird.ppm");
+    img.save("marble.ppm");
 }
 
 TEST(FunctionTest, CheckerboardFunction) {

@@ -20,48 +20,68 @@ using line = geometry::R3::line;
 /// Reusing other matrix
 using matrix = linalg::matrix;
 
+/// A counter with relaxed memory ordering.
+/// Statistics are only read at the end of rendering (after all OpenMP threads join),
+/// so we never need sequential consistency — relaxed is correct and avoids barrier overhead.
+struct relaxed_counter {
+    std::atomic<size_t> value{0u};
+    relaxed_counter& operator+=(size_t n) {
+        value.fetch_add(n, std::memory_order_relaxed);
+        return *this;
+    }
+    size_t operator++(int) {
+        return value.fetch_add(1, std::memory_order_relaxed);
+    }
+    size_t load() const {
+        return value.load(std::memory_order_relaxed);
+    }
+    operator size_t() const {
+        return load();
+    }
+};
+
 /// Collects the statistics from the raytracing library
 struct statistics {
 public:
     /// The number of rays cast from the camera
-    std::atomic<size_t> cast_rays_from_camera{0u};
+    relaxed_counter cast_rays_from_camera;
     /// Intersections with objects
-    std::atomic<size_t> intersections_with_objects{0u};
+    relaxed_counter intersections_with_objects;
     /// Intersections with Single Point
-    std::atomic<size_t> intersections_with_point{0u};
+    relaxed_counter intersections_with_point;
     /// Intersections with multiple points
-    std::atomic<size_t> intersections_with_points{0u};
+    relaxed_counter intersections_with_points;
     /// Intersections with Lines
-    std::atomic<size_t> intersections_with_line{0u};
+    relaxed_counter intersections_with_line;
     /// Intersections with bounding boxes
-    std::atomic<size_t> intersections_with_bounds{0u};
+    relaxed_counter intersections_with_bounds;
     /// Intersection from the back side of an object (inside outwards or on the side away from the normal)
-    std::atomic<size_t> inside_out_intersections{0u};
+    relaxed_counter inside_out_intersections;
     /// No intersections with objects
-    std::atomic<size_t> missed_rays{0u};
+    relaxed_counter missed_rays;
     /// The count of rays reflected off objects
-    std::atomic<size_t> bounced_rays{0u};
+    relaxed_counter bounced_rays;
     /// The count of rays transmitted through mediums via refraction
-    std::atomic<size_t> transmitted_rays{0u};
+    relaxed_counter transmitted_rays;
     /// Saved Bounces from adaptive threshold
-    std::atomic<size_t> saved_ray_traces{0u};
+    relaxed_counter saved_ray_traces;
     /// The count of shadow rays used to determine lighting
-    std::atomic<size_t> shadow_rays{0u};
+    relaxed_counter shadow_rays;
     /// The count of rays added due to multiple samples from light sources
-    std::atomic<size_t> sampled_rays{0u};
+    relaxed_counter sampled_rays;
     /// The count of sampled rays which actually contribute to the color of the scene.
-    std::atomic<size_t> color_sampled_rays{0u};
+    relaxed_counter color_sampled_rays;
     /// The count of the points in the shadow which don't have a color contribution
-    std::atomic<size_t> point_in_shadow{0u};
+    relaxed_counter point_in_shadow;
     /// The count of rays absorbed into a media
     /// this will not be an accurate count until the per-frequency method is done.
-    std::atomic<size_t> absorbed_rays{0u};
+    relaxed_counter absorbed_rays;
     /// The number of rays emitted from light sources
-    std::atomic<size_t> emitted_rays{0u};
+    relaxed_counter emitted_rays;
     /// The number of tree nodes visited during intersection testing
-    std::atomic<size_t> tree_nodes_visited{0u};
+    relaxed_counter tree_nodes_visited;
     /// The number of object intersection checks saved by pruning tree branches
-    std::atomic<size_t> tree_checks_saved{0u};
+    relaxed_counter tree_checks_saved;
 
     static statistics& get() {
         static statistics s;

@@ -37,7 +37,12 @@ TEST(FaceTest, Texture) {
     f.print(std::cout, "Face");
     EXPECT_EQ(f.points().size(), 3u);
     EXPECT_VECTOR_EQ(R3::basis::Z, f.normal(D));
-    image::point p = f.map(D);
+    // map() expects object-space point, so reverse-transform from world space
+    point D_obj = f.reverse_transform(D);
+    image::point p = f.map(D_obj);
+    // independently verified: a = dot(AB, DB)/|AB| = 1/sqrt(5), b = dot(CB, DB)/|CB| = 2/sqrt(13)
+    ASSERT_NEAR(1.0_p / sqrt(5.0_p), p[0], basal::epsilon);
+    ASSERT_NEAR(2.0_p / sqrt(13.0_p), p[1], basal::epsilon);
 }
 
 TEST(FaceTest, Normals) {

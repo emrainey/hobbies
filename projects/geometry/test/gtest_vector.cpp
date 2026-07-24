@@ -338,7 +338,10 @@ TEST(VectorTest, DotMagAndAngle) {
     iso::radians angle_ab = angle(a, b);
     ASSERT_NEAR(std::acos(56.0_p / (sqrt(29.0_p) * sqrt(110.0_p))), angle_ab.value, basal::epsilon);
 
-    ASSERT_PRECISION_EQ(1.0_p - ((56.0_p * 56.0_p) / (Q(a) * Q(b))), spread(a, b));
+    // independent verification: spread = |a × b|² / (|a|² · |b|²)
+    // uses cross product instead of dot product — different rounding path
+    precision cross_quadrance = R3::cross(a, b).quadrance();
+    ASSERT_NEAR(cross_quadrance / (Q(a) * Q(b)), spread(a, b), basal::epsilon);
 }
 
 TEST(VectorTest, AdditionSubtraction) {

@@ -222,9 +222,6 @@ public:
         }
     }
 
-    // TODO bool operator!=(xmat_ const& o);
-    // TODO xmat_ inverse();
-
     /// Returns the transpose matrix
     xmat_<COLS, ROWS> transpose() {
         xmat_<COLS, ROWS> T;
@@ -257,8 +254,6 @@ xmat_<ROWS0, COLS1> operator*(xmat_<ROWS0, COLS0> const& a, xmat_<COLS0, COLS1> 
     }
     return C;
 }
-
-// TODO xmat_ operator/(xmat_ const& b); // same as multiply by inverse
 
 template <size_t ROWS, size_t COLS>
 xmat_<ROWS, COLS> operator+(xmat_<ROWS, COLS> const& a, xmat_<ROWS, COLS> const& b) {

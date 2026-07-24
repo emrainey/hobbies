@@ -63,12 +63,12 @@
 		// "python.linting.enabled": true,
 		"todo-tree.general.debug": true,
 		"todo-tree.filtering.excludeGlobs": [
-			"**/googletest/*",
-			"**/googlemock/*",
-			"**/*.cc",
-			"**/*.html",
-			"**/*.js",
-			"**/*.xml"
+			"**/third-party",
+			"**/third-party/**",
+			"**/build",
+			"**/build/**",
+			"**/.git",
+			"**/.git/**",
 		],
 		"todo-tree.general.rootFolder": "${workspaceFolder}",
 		"todo-tree.general.showActivityBarBadge": true,
@@ -85,13 +85,18 @@
 			"@FIXME",
 			"@FUTURE"
 		],
-		"todo-tree.filtering.useBuiltInExcludes": "file and search excludes",
+		"todo-tree.filtering.useBuiltInExcludes": "none",
 		"testExplorer.showOnRun": true,
 		"testExplorer.codeLens": true,
 		"testMate.cpp.test.workingDirectory": "${workspaceFolder}/testing",
 		"testMate.cpp.test.runtimeLimit": 600,
-		"testMate.cpp.test.executables": "${command:cmake.buildDirectory}/projects/*/*test_*",
-		"testMate.cpp.test.parallelExecutionOfExecutableLimit": 12,
+		"testMate.cpp.test.advancedExecutables": [
+			{
+				"pattern": "${command:cmake.buildDirectory}/projects/*/*test_*",
+				"cwd": "${workspaceFolder}/testing",
+				"parallelizationLimit": 12,
+			}
+		],
 		"testMate.cpp.discovery.strictPattern": true,
 		"testMate.cpp.discovery.loadOnStartup": true,
 		"testMate.cpp.discovery.runtimeLimit": 15,

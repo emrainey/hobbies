@@ -136,7 +136,6 @@ TEST(ObjParser, SingleTriangle) {
     EXPECT_CALL(mock, addVertex(5.0_p, 4.0_p, 6.0_p)).Times(1);
     EXPECT_CALL(mock, addVertex(7.0_p, 8.0_p, 9.0_p)).Times(1);
     EXPECT_CALL(mock, addNormal(0.0_p, 0.0_p, 1.0_p)).Times(1);
-    // TODO add texture at some point
     EXPECT_CALL(mock, addFace(1, 2, 3)).Times(1);
     parser.Parse(literal);
     ASSERT_EQ(9u, parser.GetNumberOfLines());
@@ -241,7 +240,6 @@ TEST(ObjParser, DISABLED_CubeModelAsObject) {
     {
         raytrace::ray r0{raytrace::point{10.5_p, 8.0_p, 10.5_p}, R3::basis::Y};
         auto hit = model.intersect(r0);
-        // FIXME these are failing, probably due to assuming world or object space
         EXPECT_EQ(geometry::IntersectionType::Point, get_type(hit.intersect));
         EXPECT_POINT_EQ(raytrace::point(10.5_p, 9.0_p, 10.5_p), as_point(hit.intersect));
         EXPECT_VECTOR_EQ(raytrace::vector({0, -1, 0}), hit.normal);

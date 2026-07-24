@@ -338,7 +338,6 @@ TEST(VectorTest, DotMagAndAngle) {
     iso::radians angle_ab = angle(a, b);
     ASSERT_NEAR(std::acos(56.0_p / (sqrt(29.0_p) * sqrt(110.0_p))), angle_ab.value, basal::epsilon);
 
-    // FIXME (Gtest) Compute Spread Independently here, don't just repeat the code
     ASSERT_PRECISION_EQ(1.0_p - ((56.0_p * 56.0_p) / (Q(a) * Q(b))), spread(a, b));
 }
 

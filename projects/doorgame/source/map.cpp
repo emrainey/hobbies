@@ -52,7 +52,6 @@ bool Map::move(Animate& object, Direction dir) {
 
 bool Map::load(Doors doors, Stuff stuff) noexcept(false) {
     bool problem = false;
-    // FUTURE find the maximum door index
     // allocate the right number of rooms
 
     // attach all the rooms to each other.

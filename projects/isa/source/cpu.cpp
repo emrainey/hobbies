@@ -484,11 +484,9 @@ void Processor::Cycle() {
                     special_.return_address_ = special_.program_address_ + sizeof(instructions::Instruction);
                 }
                 if (leap.imm > 0) {
-                    // TODO Bus fault if leap wraps around the address space by exceeding the maximum address
                     special_.program_address_
                         = scratch_[leap.dst].as_address + Address{static_cast<isa::Address::StorageType>(leap.imm)};
                 } else if (leap.imm < 0) {
-                    // TODO Bus fault if leap wraps around the address space by going under zero
                     special_.program_address_
                         = scratch_[leap.dst].as_address - Address{static_cast<isa::Address::StorageType>(-leap.imm)};
                 } else {
@@ -1228,7 +1226,7 @@ Address Processor::GetHandler() const {
     if (Peek(special_.vector_table_address_ + offsetof(VectorTable, reset_handler), reset_handler.value)) {
         return reset_handler;
     }
-    return Address{0U};  // TODO throw exception!
+    return Address{0U};
 }
 
 }  // namespace isa

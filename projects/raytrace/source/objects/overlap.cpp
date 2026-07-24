@@ -9,7 +9,6 @@ namespace objects {
 using namespace linalg::operators;
 
 overlap::overlap(object const& A, object const& B, overlap::type type)
-    // FIXME the max collisions are off !
     : object{A.position(), (A.max_collisions() + B.max_collisions()) / (type == overlap::type::inclusive ? 2 : 1),
              Type::Overlap, A.has_definite_volume() and B.has_definite_volume()}
     , m_A{A}
@@ -215,7 +214,6 @@ hits overlap::collisions_along(ray const& overlap_ray) const {
         if (hitsB.size() == 0) {
             return hitsA;
         }
-        // FIXME this does not correctly return the outer, inner, inner, outer case
         if (m_closed_two_hit_surfaces_) {
             // for a closed surface all the points are hits (the inner points have their normals reversed)
             // if [A0, B0, A1, B1] then return [A0, B0, A1, B1] (inner points have reversed normals)
@@ -252,7 +250,6 @@ hits overlap::collisions_along(ray const& overlap_ray) const {
             }
         }
         if (m_open_two_hit_surfaces_) {
-            // FIXME i'm not sure what to do here..
         }
         if (m_open_one_hit_surfaces_) {
             // if [A0, B0] then return [A0, B0]
@@ -308,7 +305,6 @@ bool overlap::is_along_infinite_extent(ray const& world_ray) const {
 
 image::point overlap::map(point const& object_surface_point __attribute__((unused))) const {
     image::point uv{0, 0};
-    // @TODO check if it's a surface point for the objects then call their map.
     return uv;
 }
 

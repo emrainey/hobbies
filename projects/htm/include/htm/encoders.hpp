@@ -30,7 +30,6 @@ sparse_word<N> scalar(size_t value, size_t W) {
     }
     return o;
 }
-// TODO fix for leapyears, see leap year rules 4th, 100th, 400th, etc
 sparse_word<365> dayofyear();
 sparse_word<31> dayofmonth();
 sparse_word<7> dayofweek();

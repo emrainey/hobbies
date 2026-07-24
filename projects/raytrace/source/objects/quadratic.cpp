@@ -90,7 +90,6 @@ image::point quadratic::map(point const& object_surface_point __attribute__((unu
     // map some range of object 3D points to some 2D u,v pair
     // isolate which axis this is on and return the forward_transformed normal
     precision u = 0.0_p, v = 0.0_p;
-    // TODO implement mapping for quadratic surface... how??
     return image::point(u, v);
 }
 

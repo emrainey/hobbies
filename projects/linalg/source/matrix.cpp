@@ -686,8 +686,7 @@ matrix matrix::eigenvalues() const noexcept(false) {
         result[3][0] = std::get<3>(roots);
         return result;
     } else {
-        // TODO (Linalg) implement eigenvalues() for 5x5 or larger (needs iterative method)
-        basal::exception::throw_if(true, g_filename, __LINE__, "TODO Implement for 5x5 or larger");
+        basal::exception::throw_if(true, g_filename, __LINE__, "Not implemented for 5x5 or larger");
     }
     return matrix::col(rows);
 }

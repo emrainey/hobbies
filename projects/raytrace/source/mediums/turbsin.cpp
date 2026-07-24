@@ -32,7 +32,6 @@ color turbsin::diffuse(raytrace::point const& volumetric_point) const {
         precision alpha = noise::turbulentsin(pnt, m_xs, m_ys, m_power, m_size, m_scale, m_pad);
         return fourcc::linear::interpolate(m_light, m_dark, alpha);
     } else {
-        // FIXME implement a real volumetric turbulentsin noise function.
         noise::point pnt(volumetric_point.x(), volumetric_point.y());
         precision alpha = noise::turbulentsin(pnt, m_xs, m_ys, m_power, m_size, m_scale, m_pad);
         return fourcc::linear::interpolate(m_light, m_dark, alpha);

@@ -143,7 +143,7 @@ public:
     /// @param P The surface point
     /// @note Maintains the space the inputs were in.
     vector reflection(vector const& I, vector const& N, point const& P) const {
-        vector nI = I.normalized();  // MAYBE (Optimization) shouldn't this already be normalized?
+        vector nI = I.normalized();
         vector R = laws::reflection(N, nI);
         if (m_medium) {
             R = R + m_medium->perturbation(P);
@@ -168,7 +168,7 @@ public:
     /// @param nu2 Material Refractivity Index
     ///
     vector refraction(vector const& I, vector const& N, precision nu1, precision nu2) const {
-        vector nI = I.normalized();  // MAYBE (Optimization) shouldn't this already be normalized?
+        vector nI = I.normalized();
         // if the Incident and the Normal have a positive dot then they are not arranged properly
         if (dot(N, I) > 0) {
             return laws::snell(-N, nI, nu1, nu2);

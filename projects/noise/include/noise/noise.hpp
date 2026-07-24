@@ -80,8 +80,6 @@ constexpr precision fade(precision t) {
     return 6.0_p * t5 - 15.0_p * t4 + 10.0_p * t3;
 }
 
-/// @todo The set of 3d perlin noise gradients
-
 ///
 /// Uses the improved perlin noise generation method.
 /// @param pnt A point in 2d space. Does not have to have a fractional component.

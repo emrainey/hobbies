@@ -80,7 +80,6 @@ void Game::process(Event event) {
                         // Direction dir = std::get<1>(param);
                         // break a door down?
                     } else if (object == Target::Monster) {
-                        // FIXME is there a monster in this room?
                     }
                     break;
                 }

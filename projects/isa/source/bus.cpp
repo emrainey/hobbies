@@ -58,7 +58,6 @@ void Bus<BUS_ATTRIBUTES>::Read(Address address) {
         listener_->OnEvent(*this, address, State::Fault, Events::UnalignedFault);
     } else {
         listener_->OnEvent(*this, address, State::Fetch, Events::ReadStarted);
-        // todo read data from active memory
         listener_->OnEvent(*this, address, State::Idle, Events::ReadCompleted);
     }
     return;

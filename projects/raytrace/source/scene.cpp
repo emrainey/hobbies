@@ -416,7 +416,6 @@ color scene::transmitted_light(precision transparency, mediums::medium const& me
         statistics::get().transmitted_rays++;
         // get the colors from the transmitted light
         // diminish the recursive contribution by the transparency (similar to smoothness for reflections)
-        // TODO improve this mechanism to account for more realistic effects.
         return trace(world_refraction, media_after, reflection_depth - 1, recursive_contribution * transparency);
     }
     return colors::black;

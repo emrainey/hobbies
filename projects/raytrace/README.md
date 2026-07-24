@@ -265,15 +265,6 @@ This is also a useful project to understand how to optimize with SSE2/AVX as wel
   * The ray points into the surface - this is a collision (`dot(R,N) < 0`)
   * The ray points away (or tangent) from the surface - this is not a collision (`dot(R, N) > -basal::epsilon`)
 
-## Todos
-
-* TODO Shadow Rays traced through transparent objects
-* TODO implement diffraction (a special case of which is refraction and reflection)
-* TODO Polygon (N polygons or does the polygon cross trick work for more than 3 points (as long as it is convex and coplanar?)
-* TODO Cap the end of cylinders so they can be used in `overlap`s. Does that mean the cap has to be in the equation so they can be used in `overlaps`?
-* TODO Create a world of a grid of spheres with different roughnesses to demonstrate the values.
-* TODO Create a world of a grid of spheres with different phong value to demonstrate the values.
-
 ## References
 
 ### Links

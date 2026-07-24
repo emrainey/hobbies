@@ -323,14 +323,12 @@ TEST(AudioTest, Simple8FFT) {
     ASSERT_COMPLEX_NEAR(input[7], std::complex<basal::precision>(-0.707_p, 0.0_p));
 }
 
-/// @todo Enable this test!
-TEST(AudioTest, DISABLED_WhenComputingFFTonA440) {
+TEST(AudioTest, WhenComputingFFTonA440) {
     basal::precision sample_rate = audio::specification::cd_sample_rate;
     basal::precision period = 1.0_p;
     size_t number_of_samples = static_cast<size_t>(period * sample_rate);
     audio::MonoPCM seq{sample_rate, number_of_samples};
     seq.for_each([period](size_t, size_t, basal::precision offset) -> audio::MonoPCM::sample {
-        precision ratio = offset / period;
         iso::seconds t{offset};
         basal::precision v = audio::waveform(ToFrequency(audio::Tone::A, 4), t);
         return std::round(v * INT16_MAX);
@@ -347,24 +345,20 @@ TEST(AudioTest, DISABLED_WhenComputingFFTonA440) {
     });
     ASSERT_EQ(N, data.size());
     fft(data);
-    std::cout << "FFT Result:" << std::endl;
+
+    size_t peak_index = 0;
+    precision peak_magnitude = 0.0_p;
     for (size_t i = 0; i < data.size(); ++i) {
-        std::cout << "Index: " << i << " Value: " << data[i] << std::endl;
+        ASSERT_FALSE(std::isnan(data[i].real())) << "Index " << i << " has NaN real part";
+        ASSERT_FALSE(std::isnan(data[i].imag())) << "Index " << i << " has NaN imag part";
+        precision mag = std::abs(data[i]);
+        if (mag > peak_magnitude) {
+            peak_magnitude = mag;
+            peak_index = i;
+        }
     }
-    std::vector<precision> power_density;
-    for (size_t i = 0; i < data.size(); ++i) {
-        // Compute the power density
-        precision re = data[i].real();
-        precision im = data[i].imag();
-        precision v = 20.0_p * log10(sqrt(re * re + im * im));
-        power_density.push_back(v);
-    }
-    std::cout << "Power Density Result:" << std::endl;
-    for (size_t i = 0; i < power_density.size(); ++i) {
-        std::cout << "Index: " << i << " Value: " << power_density[i] << std::endl;
-    }
-    for (size_t i = 0; i < data.size(); ++i) {
-        ASSERT_LE(data[i].real(), 1.0_p) << "Index is " << i;
-        ASSERT_LE(data[i].imag(), 1.0_p) << "Index is " << i;
-    }
+    // Expected bin for 440 Hz at 44100 sample rate with 1024 points: 440 * 1024 / 44100 ≈ 10.2
+    EXPECT_NEAR(10.0_p, static_cast<precision>(peak_index), 2) << "FFT peak bin " << peak_index << " too far from expected bin 10";
+    // The peak should be well above the noise floor (N/2 ≈ 512 for a unit-amplitude sine)
+    EXPECT_GT(peak_magnitude, 100.0_p) << "Peak magnitude " << peak_magnitude << " too low";
 }

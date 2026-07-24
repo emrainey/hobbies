@@ -30,9 +30,6 @@ Not sure I see a lot of point in doing this right now... as I'm not doing space 
 
 * Point - (Homogenized 3D points)
 * Vectors
-* TODO R4::Lines
-* TODO R4::Quaternions
-
 ## Plan
 
 * Use specialized `__m512d` where needed for 3/4 element storage.

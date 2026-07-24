@@ -61,10 +61,4 @@ There's 3 special cases:
 3. `D < 0`
     There's 3 y=0 solutions, 1 real and 2 complex. The cube root pairs need to be summed as conjugate pairs.
 
-## What to Add Next
 
-A list of the features I would like to add.
-
-* TODO (Linalg) Tensor implementation (more than just `precision[D][R][C]`)
-* TODO (Linalg) EKF
-* TODO (Linalg) SLAM

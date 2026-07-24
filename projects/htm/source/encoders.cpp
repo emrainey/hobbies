@@ -10,7 +10,6 @@ static std::tm const* now() {
 namespace htm {
 
 namespace encoders {
-// TODO fix for leapyears, see leap year rules 4th, 100th, 400th, etc
 sparse_word<365> dayofyear() {
     std::tm const* const tm = now();
     uint32_t yday = static_cast<uint32_t>(tm->tm_yday);

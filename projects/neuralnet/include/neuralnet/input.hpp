@@ -15,7 +15,6 @@ public:
     input(size_t num);
     /// Destructor
     virtual ~input();
-    // TODO (NN) add encoders from fourcc::image and others
     virtual void encode(mnist& db, size_t index);
 };
 }  // namespace nn

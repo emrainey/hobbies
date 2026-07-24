@@ -328,7 +328,6 @@ void StreamView::complete(Event event, bool result) noexcept(false) {
         case Target::Item:
         case Target::Room:
         case Target::Monster:
-            // FIXME Monsters can Pickup/Use/Attack/Move
         default:
             break;
     }
@@ -439,7 +438,6 @@ Damage StreamView::choose(Damages const& damages) {
     std::cin >> str_value;
     size_t value = std::stoul(str_value, nullptr, 10);
     Damage d = static_cast<Damage>(value);
-    // FIXME round up or down to nearest enum?
     return (is_valid(d) ? d : Damage::None);
 }
 

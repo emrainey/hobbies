@@ -38,9 +38,6 @@ TEST(FaceTest, Texture) {
     EXPECT_EQ(f.points().size(), 3u);
     EXPECT_VECTOR_EQ(R3::basis::Z, f.normal(D));
     image::point p = f.map(D);
-    // FIXME uv mapping needs to be verified, but this is not helpful
-    // EXPECT_PRECISION_EQ(p[0], 0.44721359549995793_p);
-    // EXPECT_PRECISION_EQ(p[1], 0.55470019622522915_p);
 }
 
 TEST(FaceTest, Normals) {

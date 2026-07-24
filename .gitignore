@@ -6,6 +6,9 @@
 *.lo
 *.o
 *.obj
+# but keep Wavefront .obj 3D model files used in tests
+!projects/**/test/**/*.obj
+!projects/**/tests/**/*.obj
 
 # Precompiled Headers
 *.gch

@@ -8,11 +8,9 @@
 #include <limits>
 
 namespace geometry {
-/// Determines if points are on surfaces, thus having a normal
-static constexpr bool check_on_surface{true};
-
-/// Determines if the check_on_surface should print a warning when the point is not on the surface.
-static constexpr bool surface_check_debug{false};
+/// When true, surface normal checks are strict — off-surface points return R3::null and print a warning.
+/// When false, a best-effort normal is returned (tolerant of floating-point accumulation).
+static constexpr bool strict_surface_checks{false};
 }  // namespace geometry
 
 // clang-format off

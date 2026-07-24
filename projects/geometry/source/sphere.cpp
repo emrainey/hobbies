@@ -41,19 +41,16 @@ bool sphere::on_surface(R3::point const& object_point) const {
 
 R3::vector sphere::normal_at(R3::point const& object_point) const {
     R3::vector n = object_point - R3::origin;
-    if constexpr (geometry::check_on_surface) {
+    if constexpr (geometry::strict_surface_checks) {
         precision r = n.norm();
         if (not basal::nearly_equals(r, radius)) {
-            if constexpr (geometry::surface_check_debug) {
-                std::cerr << "Warning: sphere::normal_at() called with point not on surface: " << object_point
-                          << " radius=" << std::setprecision(20) << radius << " r=" << r << std::endl;
-            }
-            // not on the sphere.
+            std::cerr << "Warning: sphere::normal_at() called with point not on surface: " << object_point
+                      << " radius=" << std::setprecision(20) << radius << " r=" << r << std::endl;
             return R3::null;
         }
     }
-    // is on the sphere
-    return R3::vector(n.normalize());
+    n.normalize();
+    return R3::vector(n);
 }
 
 R3::point sphere::cart_to_polar(R3::point const& object_point) const {

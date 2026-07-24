@@ -38,15 +38,17 @@ TEST(SphereTest, Normals) {
     R3::point p1 = R3::origin + R3::basis::X;
     R3::point p2 = R3::origin + R3::basis::Y;
     R3::point p3 = R3::origin + R3::basis::Z;
-    R3::point p4{1, 1, 1};
     R3::sphere s1{1};
     R3::vector v1{s1.normal_at(p1)};
     R3::vector v2{s1.normal_at(p2)};
     R3::vector v3{s1.normal_at(p3)};
-    ASSERT_VECTOR_EQ(R3::null, s1.normal_at(p4));
     ASSERT_VECTOR_EQ(R3::basis::X, v1);
     ASSERT_VECTOR_EQ(R3::basis::Y, v2);
     ASSERT_VECTOR_EQ(R3::basis::Z, v3);
+    // off-surface point returns the approximate normal when strict_surface_checks is false
+    R3::point p4{1, 1, 1};
+    R3::vector v4{s1.normal_at(p4)};
+    ASSERT_PRECISION_EQ(1.0_p, v4.magnitude());
 }
 
 TEST(SphereTest, CartesianToPolar) {

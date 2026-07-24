@@ -55,7 +55,7 @@ static constexpr bool use_specular_scaling{true};
 static constexpr bool use_grayscale_distance{false};
 
 /// Determines if points are on surfaces, thus having a normal
-static constexpr bool check_on_surface = geometry::check_on_surface;
+static constexpr bool strict_surface_checks = geometry::strict_surface_checks;
 
 /// Determine the number of objects in the scene to switch from brute force to a bounding box search
 static constexpr size_t brute_force_to_bounding_box{10U};

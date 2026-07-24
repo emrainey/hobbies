@@ -33,7 +33,10 @@ vector cone::normal_(point const& object_surface_point) const {
         radius = std::tan(m_angle.value);
     }
     if (basal::nearly_zero(object_surface_point.x()) and basal::nearly_zero(object_surface_point.y())) {
-        return R3::null;
+        if constexpr (geometry::strict_surface_checks) {
+            return R3::null;
+        }
+        return vector{{0, 0, object_surface_point.z() >= 0 ? 1.0_p : -1.0_p}};
     }
     vector N{{object_surface_point.x(), object_surface_point.y(), 0}};
     N.normalize();

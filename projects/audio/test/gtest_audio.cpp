@@ -358,7 +358,8 @@ TEST(AudioTest, WhenComputingFFTonA440) {
         }
     }
     // Expected bin for 440 Hz at 44100 sample rate with 1024 points: 440 * 1024 / 44100 ≈ 10.2
-    EXPECT_NEAR(10.0_p, static_cast<precision>(peak_index), 2) << "FFT peak bin " << peak_index << " too far from expected bin 10";
+    EXPECT_NEAR(10.0_p, static_cast<precision>(peak_index), 2)
+        << "FFT peak bin " << peak_index << " too far from expected bin 10";
     // The peak should be well above the noise floor (N/2 ≈ 512 for a unit-amplitude sine)
     EXPECT_GT(peak_magnitude, 100.0_p) << "Peak magnitude " << peak_magnitude << " too low";
 }

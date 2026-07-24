@@ -82,6 +82,10 @@ public:
     /// Returns the number of instances of the object that are in this node tree.
     size_t count_of(objects::object const* object) const;
 
+    /// Computes and caches the total object count for this node and all subnodes.
+    /// Must be called once after tree construction, before concurrent rendering.
+    void compute_total_objects() const;
+
     friend std::ostream& operator<<(std::ostream& os, Node const& node);
 
 protected:
@@ -93,6 +97,8 @@ protected:
     std::vector<objects::object const*> objects_;
     /// the subnodes of the node. Always in the order of the octants and nullptr if the octant is empty
     std::vector<Node> nodes_;
+    /// Cached total object count for this node and all subnodes (set by compute_total_objects).
+    mutable size_t total_objects_{0};
 };
 }  // namespace tree
 }  // namespace raytrace

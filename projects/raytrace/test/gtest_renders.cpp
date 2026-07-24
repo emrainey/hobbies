@@ -91,10 +91,10 @@ public:
             scenes[i]->print(std::cout, buffer);
             scenes[i]->render(*views[i], buffer, 1, 2);
             fprintf(stdout, "Intersections %zu (Point/Points/Line) %zu %zu %zu\n",
-                    raytrace::statistics::get().intersections_with_objects,
-                    raytrace::statistics::get().intersections_with_point,
-                    raytrace::statistics::get().intersections_with_points,
-                    raytrace::statistics::get().intersections_with_line);
+                    raytrace::statistics::get().intersections_with_objects.load(),
+                    raytrace::statistics::get().intersections_with_point.load(),
+                    raytrace::statistics::get().intersections_with_points.load(),
+                    raytrace::statistics::get().intersections_with_line.load());
         }
     }
 

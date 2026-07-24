@@ -222,18 +222,18 @@ int main(int argc, char* argv[]) {
                 console.print(17, 2, " QUART: %zu", linalg::statistics::get().quartic_roots);
                 size_t w = console.get_width() / 2;
                 console.print(9, w, "RAYS");
-                console.print(10, w, "  CAST: %zu", raytrace::statistics::get().cast_rays_from_camera);
-                console.print(11, w, "  INTR: %zu", raytrace::statistics::get().intersections_with_objects);
-                console.print(12, w, "BOUNCE: %zu", raytrace::statistics::get().bounced_rays);
-                console.print(13, w, "  XMIT: %zu", raytrace::statistics::get().transmitted_rays);
-                console.print(14, w, " SAVED: %zu", raytrace::statistics::get().saved_ray_traces);
-                console.print(15, w, "SHADOW: %zu", raytrace::statistics::get().shadow_rays);
-                console.print(16, w, "SAMPLE: %zu", raytrace::statistics::get().sampled_rays);
-                console.print(17, w, " S.CLR: %zu", raytrace::statistics::get().color_sampled_rays);
-                console.print(18, w, "ABSORB: %zu", raytrace::statistics::get().absorbed_rays);
-                console.print(19, w, "MISSED: %zu", raytrace::statistics::get().missed_rays);
-                console.print(20, w, "INSIDE: %zu", raytrace::statistics::get().inside_out_intersections);
-                console.print(21, w, "BOUNDS: %zu", raytrace::statistics::get().intersections_with_bounds);
+                console.print(10, w, "  CAST: %zu", raytrace::statistics::get().cast_rays_from_camera.load());
+                console.print(11, w, "  INTR: %zu", raytrace::statistics::get().intersections_with_objects.load());
+                console.print(12, w, "BOUNCE: %zu", raytrace::statistics::get().bounced_rays.load());
+                console.print(13, w, "  XMIT: %zu", raytrace::statistics::get().transmitted_rays.load());
+                console.print(14, w, " SAVED: %zu", raytrace::statistics::get().saved_ray_traces.load());
+                console.print(15, w, "SHADOW: %zu", raytrace::statistics::get().shadow_rays.load());
+                console.print(16, w, "SAMPLE: %zu", raytrace::statistics::get().sampled_rays.load());
+                console.print(17, w, " S.CLR: %zu", raytrace::statistics::get().color_sampled_rays.load());
+                console.print(18, w, "ABSORB: %zu", raytrace::statistics::get().absorbed_rays.load());
+                console.print(19, w, "MISSED: %zu", raytrace::statistics::get().missed_rays.load());
+                console.print(20, w, "INSIDE: %zu", raytrace::statistics::get().inside_out_intersections.load());
+                console.print(21, w, "BOUNDS: %zu", raytrace::statistics::get().intersections_with_bounds.load());
                 console.refresh();
             }
             // sleep for a bit

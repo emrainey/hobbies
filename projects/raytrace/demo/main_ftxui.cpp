@@ -445,12 +445,12 @@ int main(int argc, char* argv[]) {
         add_info("Yaw/Pitch: ", FormatDouble(pose_snapshot.yaw, 1) + "/" + FormatDouble(pose_snapshot.pitch, 1));
         add_info("Objects/Lights: ",
                  std::to_string(scene.number_of_objects()) + "/" + std::to_string(scene.number_of_lights()));
-        add_info("Rays Cast: ", std::to_string(raytrace::statistics::get().cast_rays_from_camera));
-        add_info("Intersections: ", std::to_string(raytrace::statistics::get().intersections_with_objects));
-        add_info("Bounced/Xmit: ", std::to_string(raytrace::statistics::get().bounced_rays) + "/"
-                                       + std::to_string(raytrace::statistics::get().transmitted_rays));
-        add_info("Missed/Bounds: ", std::to_string(raytrace::statistics::get().missed_rays) + "/"
-                                        + std::to_string(raytrace::statistics::get().intersections_with_bounds));
+        add_info("Rays Cast: ", std::to_string(raytrace::statistics::get().cast_rays_from_camera.load()));
+        add_info("Intersections: ", std::to_string(raytrace::statistics::get().intersections_with_objects.load()));
+        add_info("Bounced/Xmit: ", std::to_string(raytrace::statistics::get().bounced_rays.load()) + "/"
+                                       + std::to_string(raytrace::statistics::get().transmitted_rays.load()));
+        add_info("Missed/Bounds: ", std::to_string(raytrace::statistics::get().missed_rays.load()) + "/"
+                                        + std::to_string(raytrace::statistics::get().intersections_with_bounds.load()));
         add_info("Geometry: ", std::to_string(geometry::statistics::get().dot_operations) + " dot, "
                                    + std::to_string(geometry::statistics::get().cross_products) + " cross");
         if (not snapshot.started_at.empty()) {

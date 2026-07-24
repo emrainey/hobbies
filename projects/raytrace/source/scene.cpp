@@ -558,6 +558,7 @@ void scene::render(camera& view, std::string filename, size_t number_of_samples,
             std::cout << "Added " << items << " items" << std::endl;
             std::cout << "Nodes think there are " << m_nodes.back().all_object_count() << " items" << std::endl;
         }
+        m_nodes.back().compute_total_objects();
     }
 
     if constexpr (debug::render) {

@@ -172,11 +172,12 @@ int main(int argc, char* argv[]) {
                         fprintf(stdout,
                                 "\r[ %0.3lf %%] rays cast: %zu dots: %zu cross: %zu intersects: %zu bounced: %zu "
                                 "transmitted: %zu missed: %zu %s ",
-                                done ? 100.0_p : percentage, raytrace::statistics::get().cast_rays_from_camera,
+                                done ? 100.0_p : percentage, raytrace::statistics::get().cast_rays_from_camera.load(),
                                 geometry::statistics::get().dot_operations, geometry::statistics::get().cross_products,
-                                raytrace::statistics::get().intersections_with_objects,
-                                raytrace::statistics::get().bounced_rays, raytrace::statistics::get().transmitted_rays,
-                                raytrace::statistics::get().missed_rays, done ? "\r\n" : "");
+                                raytrace::statistics::get().intersections_with_objects.load(),
+                                raytrace::statistics::get().bounced_rays.load(),
+                                raytrace::statistics::get().transmitted_rays.load(),
+                                raytrace::statistics::get().missed_rays.load(), done ? "\r\n" : "");
                         // if (done) return;
                     }
                     fflush(stdout);

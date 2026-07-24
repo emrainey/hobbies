@@ -1,5 +1,6 @@
 #pragma once
 
+#include <atomic>
 #include <geometry/geometry.hpp>
 
 namespace raytrace {
@@ -23,40 +24,44 @@ using matrix = linalg::matrix;
 struct statistics {
 public:
     /// The number of rays cast from the camera
-    size_t cast_rays_from_camera{0u};
+    std::atomic<size_t> cast_rays_from_camera{0u};
     /// Intersections with objects
-    size_t intersections_with_objects{0u};
+    std::atomic<size_t> intersections_with_objects{0u};
     /// Intersections with Single Point
-    size_t intersections_with_point{0u};
+    std::atomic<size_t> intersections_with_point{0u};
     /// Intersections with multiple points
-    size_t intersections_with_points{0u};
+    std::atomic<size_t> intersections_with_points{0u};
     /// Intersections with Lines
-    size_t intersections_with_line{0u};
+    std::atomic<size_t> intersections_with_line{0u};
     /// Intersections with bounding boxes
-    size_t intersections_with_bounds{0u};
+    std::atomic<size_t> intersections_with_bounds{0u};
     /// Intersection from the back side of an object (inside outwards or on the side away from the normal)
-    size_t inside_out_intersections{0u};
+    std::atomic<size_t> inside_out_intersections{0u};
     /// No intersections with objects
-    size_t missed_rays{0u};
+    std::atomic<size_t> missed_rays{0u};
     /// The count of rays reflected off objects
-    size_t bounced_rays{0u};
+    std::atomic<size_t> bounced_rays{0u};
     /// The count of rays transmitted through mediums via refraction
-    size_t transmitted_rays{0u};
+    std::atomic<size_t> transmitted_rays{0u};
     /// Saved Bounces from adaptive threshold
-    size_t saved_ray_traces{0u};
+    std::atomic<size_t> saved_ray_traces{0u};
     /// The count of shadow rays used to determine lighting
-    size_t shadow_rays{0u};
+    std::atomic<size_t> shadow_rays{0u};
     /// The count of rays added due to multiple samples from light sources
-    size_t sampled_rays{0u};
+    std::atomic<size_t> sampled_rays{0u};
     /// The count of sampled rays which actually contribute to the color of the scene.
-    size_t color_sampled_rays{0u};
+    std::atomic<size_t> color_sampled_rays{0u};
     /// The count of the points in the shadow which don't have a color contribution
-    size_t point_in_shadow{0u};
+    std::atomic<size_t> point_in_shadow{0u};
     /// The count of rays absorbed into a media
     /// this will not be an accurate count until the per-frequency method is done.
-    size_t absorbed_rays{0u};
+    std::atomic<size_t> absorbed_rays{0u};
     /// The number of rays emitted from light sources
-    size_t emitted_rays{0u};
+    std::atomic<size_t> emitted_rays{0u};
+    /// The number of tree nodes visited during intersection testing
+    std::atomic<size_t> tree_nodes_visited{0u};
+    /// The number of object intersection checks saved by pruning tree branches
+    std::atomic<size_t> tree_checks_saved{0u};
 
     static statistics& get() {
         static statistics s;

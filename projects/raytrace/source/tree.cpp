@@ -1,4 +1,5 @@
 #include "raytrace/tree.hpp"
+#include "raytrace/types.hpp"
 
 namespace raytrace {
 
@@ -61,6 +62,14 @@ size_t Node::all_object_count() const {
     return count;
 }
 
+void Node::compute_total_objects() const {
+    total_objects_ = direct_object_count();
+    for (auto const& node : nodes_) {
+        node.compute_total_objects();
+        total_objects_ += node.total_objects_;
+    }
+}
+
 bool Node::intersects(objects::object const* object) const {
     return bounds_.intersects(object->get_world_bounds());
 }
@@ -70,6 +79,7 @@ objects::object::hits Node::intersects(raytrace::ray const& ray) const {
     // if there's no objects and no subnodes, then it doesn't matter if it intersects?
     // we still want to know if it could have intersected. So leave it this way.
     if (bounds_.intersects(ray)) {
+        statistics::get().tree_nodes_visited++;
         for (auto const& object : objects_) {
             auto hit = object->intersect(ray);
             if (get_type(hit.intersect) == IntersectionType::Point) {
@@ -80,6 +90,8 @@ objects::object::hits Node::intersects(raytrace::ray const& ray) const {
             if (subnode.bounds().intersects(ray)) {
                 auto subhits = subnode.intersects(ray);
                 hits.insert(hits.end(), subhits.begin(), subhits.end());
+            } else {
+                statistics::get().tree_checks_saved += subnode.total_objects_;
             }
         }
     }

@@ -165,17 +165,18 @@ int main(int argc, char *argv[]) {
                                 "\r[ %0.3lf %%] rays cast: %zu dots: %zu cross: %zu 2r: %zu 3r: %zu 4r: %zu "
                                 "intersects: %zu (%zu/%zu/%zu) bounced: %zu "
                                 "transmitted: %zu missed: %zu bounds: %zu %s",
-                                done ? 100.0_p : percentage, raytrace::statistics::get().cast_rays_from_camera,
+                                done ? 100.0_p : percentage, raytrace::statistics::get().cast_rays_from_camera.load(),
                                 geometry::statistics::get().dot_operations, geometry::statistics::get().cross_products,
                                 linalg::statistics::get().quadratic_roots, linalg::statistics::get().cubic_roots,
                                 linalg::statistics::get().quartic_roots,
-                                raytrace::statistics::get().intersections_with_objects,
-                                raytrace::statistics::get().intersections_with_point,
-                                raytrace::statistics::get().intersections_with_points,
-                                raytrace::statistics::get().intersections_with_line,
-                                raytrace::statistics::get().bounced_rays, raytrace::statistics::get().transmitted_rays,
-                                raytrace::statistics::get().missed_rays,
-                                raytrace::statistics::get().intersections_with_bounds, done ? "\r\n" : "");
+                                raytrace::statistics::get().intersections_with_objects.load(),
+                                raytrace::statistics::get().intersections_with_point.load(),
+                                raytrace::statistics::get().intersections_with_points.load(),
+                                raytrace::statistics::get().intersections_with_line.load(),
+                                raytrace::statistics::get().bounced_rays.load(),
+                                raytrace::statistics::get().transmitted_rays.load(),
+                                raytrace::statistics::get().missed_rays.load(),
+                                raytrace::statistics::get().intersections_with_bounds.load(), done ? "\r\n" : "");
                             // if (done) return;
                         }
                         fflush(stdout);

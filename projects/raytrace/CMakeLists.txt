@@ -64,6 +64,7 @@ add_library(hobbies-raytrace
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/cone.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/cuboid.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/cylinder.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/capped_cylinder.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/ellipsoid.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/ellipticalcone.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/ellipticalcylinder.cpp

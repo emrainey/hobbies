@@ -9,6 +9,8 @@
 #include <raytrace/raytrace.hpp>
 
 #include "world.hpp"
+#include <raytrace/objects/capped_cylinder.hpp>
+#include <raytrace/mediums/marble.hpp>
 
 using namespace raytrace;
 using namespace raytrace::objects;
@@ -26,13 +28,14 @@ public:
                      mediums::roughness::tight}
         , plain_red{colors::white, mediums::ambient::none, colors::red, mediums::smoothness::small,
                     mediums::roughness::tight}
-        , plain_cyan{colors::white, mediums::ambient::none, colors::cyan, mediums::smoothness::small,
-                     mediums::roughness::tight}
+, plain_cyan{colors::white, mediums::ambient::none, colors::cyan, mediums::smoothness::small,
+                        mediums::roughness::tight}
         , grey_checkers{3, colors::grey, colors::red}
         , ikea_checkers{5, colors::yellow, colors::blue}
         , polka_dots{3.0_p, colors::black, colors::white}
         , bw_marble{1024.0_p, 1.675_p, 1.0_p, 6.0_p, 256.0_p, 4.75_p, colors::black, colors::white}
         , candy_stripes{1.0_p, colors::red, colors::white}
+        , real_marble{123.0_p, 0.5_p, 0.7_p, colors::dark_slate_gray, colors::light_gray}
         , grid1{10.0_p, colors::green, colors::black}
         , checker_ball_radius{7.5_p}
         , checker_ball_ring_radius_inner{checker_ball_radius + 2.0_p}
@@ -65,9 +68,9 @@ public:
         checker_ball_ring0.material(&plain_blue);
         checker_ball_ring1.material(&plain_yellow);
         // 2d mapping instead of 3d
-        candy_stripes.mapper(std::bind(&raytrace::objects::cylinder::map, &column, std::placeholders::_1));
-        column.material(&candy_stripes);
-        cap.material(&candy_stripes);
+        real_marble.mapper(std::bind(&raytrace::objects::capped_cylinder::map, &column, std::placeholders::_1));
+        column.material(&real_marble);
+        cap.material(&real_marble);
 
         // 2d mapping instead of 3d
         polka_dots.mapper(std::bind(&raytrace::objects::cuboid::map, &polka_dot_cube, std::placeholders::_1));
@@ -138,6 +141,7 @@ protected:
     turbsin bw_marble;
     stripes candy_stripes;
     grid grid1;
+    raytrace::mediums::marble real_marble;
 
     // sphere w/ ring
     precision checker_ball_radius;
@@ -151,7 +155,7 @@ protected:
     raytrace::point cyl_position;
     raytrace::point top;
     ring cap;
-    cylinder column;
+    capped_cylinder column;
 
     cuboid polka_dot_cube;
     raytrace::objects::plane ground;

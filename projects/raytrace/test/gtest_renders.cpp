@@ -3,6 +3,7 @@
 #include <raytrace/raytrace.hpp>
 #include <raytrace/objparser.hpp>
 #include <raytrace/objects/model.hpp>
+#include <raytrace/objects/capped_cylinder.hpp>
 
 #include "geometry/gtest_helper.hpp"
 #include "linalg/gtest_helper.hpp"
@@ -307,13 +308,32 @@ TEST_F(RenderTest, DISABLED_SubtractiveOverlapCubes) {
 
 TEST_F(RenderTest, DISABLED_SubtractiveOverlapCubes2) {
     raytrace::objects::cuboid larger_box(R3::point(0, 0, 10), 10, 10, 10);
-    raytrace::objects::cuboid smaller_box(R3::point(10, 10, 20), 5, 5, 5);
-    smaller_box.rotation(iso::degrees(0), iso::degrees(0), iso::degrees(45));
+    raytrace::objects::cuboid smaller_box(R3::point(0, 0, 10), 5, 5, 5);
     raytrace::objects::overlap shape(larger_box, smaller_box, overlap::type::subtractive);
     larger_box.material(&steel);
     smaller_box.material(&steel);
+    shape.material(&steel);
     add_object(&shape);
-    render_all("subtractive_corner_cubes");
+    add_light(&inner_light);
+    render_all("subtractive_cubes2");
+}
+
+TEST_F(RenderTest, CappedCylinderInclusiveOverlap) {
+    // Create two capped cylinders that intersect with an inclusive overlap
+    raytrace::objects::capped_cylinder cyl1(R3::point(0, 0, 10), 5, 10);  // Vertical cylinder
+    raytrace::objects::capped_cylinder cyl2(R3::point(5, 0, 10), 5, 10);  // Vertical cylinder offset
+    
+    // Make them overlap with an inclusive operation - we should see only the overlapping region
+    raytrace::objects::overlap shape(cyl1, cyl2, overlap::type::inclusive);
+    
+    // Apply materials
+    cyl1.material(&plastic);
+    cyl2.material(&plastic);
+    shape.material(&plastic);
+    
+    add_object(&shape);
+    add_light(&inner_light);
+    render_all("capped_cylinder_inclusive_overlap");
 }
 
 TEST_F(RenderTest, DISABLED_SphereSpotLight) {

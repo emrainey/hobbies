@@ -419,6 +419,25 @@ TEST(VectorTest, Angles) {
     ASSERT_PRECISION_EQ(iso::pi / 4, A4.value);
 }
 
+TEST(VectorTest, Normalized) {
+    // normalized() on a temporary from initializer_list
+    R3::vector v1 = R3::vector{{1, 1, 1}}.normalized();
+    // normalized() on a named object
+    R3::vector v2{{1, 1, 1}};
+    R3::vector v3 = v2.normalized();
+    // normalize() in-place
+    v2.normalize();
+    // all three should be unit vectors
+    ASSERT_PRECISION_EQ(1.0_p, v1.magnitude());
+    ASSERT_PRECISION_EQ(1.0_p, v3.magnitude());
+    ASSERT_PRECISION_EQ(1.0_p, v2.magnitude());
+    // all three should be equal to each other
+    ASSERT_VECTOR_EQ(v1, v3);
+    ASSERT_VECTOR_EQ(v1, v2);
+    // the zero vector should throw
+    ASSERT_THROW(R3::null.normalized(), basal::exception);
+}
+
 TEST(VectorTest, NearlyOrthogonal) {
     R3::vector a{{1, 2, 3}};
     R3::vector b = R3::nearly_orthogonal(a.normalized());

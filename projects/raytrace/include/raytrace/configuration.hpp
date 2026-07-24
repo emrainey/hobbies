@@ -37,6 +37,9 @@ static constexpr bool tree{false};
 /// Enforces range checking on some calls
 static constexpr bool enforce_contracts{false};
 
+/// When true, normalizes the incident vector in reflection/refraction (redundant but defensive)
+static constexpr bool normalize_incident_vector{false};
+
 /// Enables using true intensity for lights or a clamped intensity
 static constexpr bool use_true_intensity{true};
 

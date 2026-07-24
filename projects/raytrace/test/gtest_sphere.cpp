@@ -26,6 +26,7 @@ TEST(SphereTest, NormalReflection) {
     vector nx = -R3::basis::X;
     ASSERT_VECTOR_EQ(nx, N);
     vector F{{1, 1, 0}};
+    F.normalize();
     // reflect F at P using N inside
     vector G{s0.reflection(F, N, P)};
     vector H{{-1, 1, 0}};

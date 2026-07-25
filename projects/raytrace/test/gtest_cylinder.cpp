@@ -193,11 +193,12 @@ TEST(CappedCylinderTest, Normals) {
 
     vector nx = -R3::basis::X;
     vector ny = -R3::basis::Y;
+    vector nz = -R3::basis::Z;
 
     ASSERT_VECTOR_EQ(R3::basis::Z, cyl1.normal(p0));
     ASSERT_VECTOR_EQ(R3::basis::Z, cyl1.normal(p1));
-    ASSERT_VECTOR_EQ(-R3::basis::Z, cyl1.normal(p2));
-    ASSERT_VECTOR_EQ(-R3::basis::Z, cyl1.normal(p3));
+    ASSERT_VECTOR_EQ(nz, cyl1.normal(p2));
+    ASSERT_VECTOR_EQ(nz, cyl1.normal(p3));
     ASSERT_VECTOR_EQ(R3::basis::X, cyl1.normal(p4));
 }
 

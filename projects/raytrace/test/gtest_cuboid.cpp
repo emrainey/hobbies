@@ -9,6 +9,36 @@
 #include "linalg/gtest_helper.hpp"
 #include "raytrace/gtest_helper.hpp"
 
+namespace {
+
+std::vector<raytrace::precision> unique_positive_distances(raytrace::objects::hits const& hits) {
+    using namespace raytrace;
+    std::vector<precision> distances;
+    distances.reserve(hits.size());
+    for (auto const& h : hits) {
+        if (basal::is_nan(h.distance)) {
+            continue;
+        }
+        if (h.distance < basal::epsilon) {
+            continue;
+        }
+        bool exists = false;
+        for (auto const& d : distances) {
+            if (basal::nearly_equals(d, h.distance)) {
+                exists = true;
+                break;
+            }
+        }
+        if (not exists) {
+            distances.push_back(h.distance);
+        }
+    }
+    std::sort(distances.begin(), distances.end());
+    return distances;
+}
+
+}  // namespace
+
 TEST(CuboidTest, Type) {
     using namespace raytrace;
     using namespace raytrace::objects;
@@ -212,4 +242,49 @@ TEST(CuboidTest, IsSurfacePoint) {
     EXPECT_FALSE(c0.is_surface_point(H));
     EXPECT_FALSE(c0.is_surface_point(I));
     EXPECT_FALSE(c0.is_surface_point(J));
+}
+
+TEST(CuboidTest, PedanticEdgeCrackRay) {
+    using namespace raytrace;
+    using namespace raytrace::objects;
+
+    // Trace exactly along the edge line y=z=+1 through x=-1..+1.
+    cuboid c0{R3::origin, 1.0_p, 1.0_p, 1.0_p};
+    ray edge_ray{point{-2.0_p, 1.0_p, 1.0_p}, vector{1.0_p, 0.0_p, 0.0_p}};
+
+    auto all_hits = c0.collisions_along(edge_ray);
+    auto unique_distances = unique_positive_distances(all_hits);
+
+    ASSERT_EQ(2U, unique_distances.size()) << "Edge crack ray should have entry and exit distances";
+    EXPECT_PRECISION_EQ(1.0_p, unique_distances[0]);
+    EXPECT_PRECISION_EQ(3.0_p, unique_distances[1]);
+
+    auto closest = c0.intersect(edge_ray);
+    ASSERT_EQ(geometry::IntersectionType::Point, get_type(closest.intersect));
+    point expected_edge_entry{-1.0_p, 1.0_p, 1.0_p};
+    EXPECT_POINT_EQ(expected_edge_entry, as_point(closest.intersect));
+}
+
+TEST(CuboidTest, PedanticCornerToCornerRay) {
+    using namespace raytrace;
+    using namespace raytrace::objects;
+
+    cuboid c0{R3::origin, 1.0_p, 1.0_p, 1.0_p};
+    vector diagonal{1.0_p, 1.0_p, 1.0_p};
+    ray corner_ray{point{-2.0_p, -2.0_p, -2.0_p}, diagonal.normalized()};
+
+    auto all_hits = c0.collisions_along(corner_ray);
+    auto unique_distances = unique_positive_distances(all_hits);
+
+    ASSERT_EQ(2U, unique_distances.size()) << "Corner-to-corner ray should have one entry and one exit";
+
+    precision expected_entry = std::sqrt(3.0_p);
+    precision expected_exit = 3.0_p * expected_entry;
+    EXPECT_PRECISION_EQ(expected_entry, unique_distances[0]);
+    EXPECT_PRECISION_EQ(expected_exit, unique_distances[1]);
+
+    auto closest = c0.intersect(corner_ray);
+    ASSERT_EQ(geometry::IntersectionType::Point, get_type(closest.intersect));
+    point expected_corner_entry{-1.0_p, -1.0_p, -1.0_p};
+    EXPECT_POINT_EQ(expected_corner_entry, as_point(closest.intersect));
 }

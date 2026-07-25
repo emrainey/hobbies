@@ -430,7 +430,15 @@ Action StreamView::choose(Actions const& actions) {
     char c;
     std::cin >> c;
     Action a = static_cast<Action>(c);
-    return (is_valid(a) ? a : Action::Nothing);
+    if (not is_valid(a)) {
+        return Action::Nothing;
+    }
+    for (auto const& allowed : actions) {
+        if (allowed == a) {
+            return a;
+        }
+    }
+    return Action::Nothing;
 }
 
 Damage StreamView::choose(Damages const& damages) {

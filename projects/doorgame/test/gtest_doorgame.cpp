@@ -36,6 +36,7 @@ public:
 
     std::optional<Event> last_attempt{};
     std::optional<Event> last_complete{};
+    Actions last_actions_prompted{};
     bool last_complete_result{false};
     bool displayed_room_investigated{false};
 
@@ -73,7 +74,8 @@ public:
     void display(Monster const&) override {
     }
 
-    Action choose(Actions const&) override {
+    Action choose(Actions const& actions) override {
+        last_actions_prompted = actions;
         auto value = action_choices.front();
         action_choices.pop_front();
         return value;
@@ -181,6 +183,7 @@ TEST(DoorgameMapTest, LoadAndMoveFollowDoors) {
 
 TEST(DoorgameGameTest, AskEventForMoveUsesChosenDirection) {
     MockView view{};
+    view.target_choices.push_back(Target::Room);
     view.action_choices.push_back(Action::Move);
     view.direction_choices.push_back(Direction::North);
 
@@ -193,8 +196,86 @@ TEST(DoorgameGameTest, AskEventForMoveUsesChosenDirection) {
 
     EXPECT_EQ(std::get<0>(event), Target::Player);
     EXPECT_EQ(std::get<1>(event), Action::Move);
-    EXPECT_EQ(std::get<2>(event), Target::Player);
+    EXPECT_EQ(std::get<2>(event), Target::Room);
     EXPECT_EQ(std::get<Direction>(std::get<3>(event)), Direction::North);
+}
+
+TEST(DoorgameGameTest, MonsterTargetOnlyOffersAttackAndLookActions) {
+    MockView view{};
+    view.target_choices.push_back(Target::Monster);
+    view.action_choices.push_back(Action::Attack);
+    view.damage_choices.push_back(Damage::Cut);
+
+    Doors doors{};
+    Stuff stuff{};
+    MonsterList monsters{0};
+    Game game{view, 0, 1, 2, doors, stuff, monsters};
+
+    Event event = game.ask_event();
+
+    EXPECT_EQ(std::get<2>(event), Target::Monster);
+    EXPECT_EQ(std::get<1>(event), Action::Attack);
+    EXPECT_TRUE(std::find(view.last_actions_prompted.begin(), view.last_actions_prompted.end(), Action::Attack)
+                != view.last_actions_prompted.end());
+    EXPECT_TRUE(std::find(view.last_actions_prompted.begin(), view.last_actions_prompted.end(), Action::Look)
+                != view.last_actions_prompted.end());
+    EXPECT_FALSE(std::find(view.last_actions_prompted.begin(), view.last_actions_prompted.end(), Action::Pickup)
+                 != view.last_actions_prompted.end());
+    EXPECT_FALSE(std::find(view.last_actions_prompted.begin(), view.last_actions_prompted.end(), Action::Use)
+                 != view.last_actions_prompted.end());
+    EXPECT_FALSE(std::find(view.last_actions_prompted.begin(), view.last_actions_prompted.end(), Action::Move)
+                 != view.last_actions_prompted.end());
+}
+
+TEST(DoorgameGameTest, ItemTargetOnlyOffersPickupUseAndLookActions) {
+    MockView view{};
+    view.target_choices.push_back(Target::Item);
+    view.action_choices.push_back(Action::Use);
+    view.item_choices.push_back(Item::Torch);
+
+    Doors doors{};
+    Stuff stuff{};
+    MonsterList monsters{};
+    Game game{view, 0, 1, 2, doors, stuff, monsters};
+
+    Event event = game.ask_event();
+
+    EXPECT_EQ(std::get<2>(event), Target::Item);
+    EXPECT_EQ(std::get<1>(event), Action::Use);
+    EXPECT_TRUE(std::find(view.last_actions_prompted.begin(), view.last_actions_prompted.end(), Action::Pickup)
+                != view.last_actions_prompted.end());
+    EXPECT_TRUE(std::find(view.last_actions_prompted.begin(), view.last_actions_prompted.end(), Action::Use)
+                != view.last_actions_prompted.end());
+    EXPECT_TRUE(std::find(view.last_actions_prompted.begin(), view.last_actions_prompted.end(), Action::Look)
+                != view.last_actions_prompted.end());
+    EXPECT_FALSE(std::find(view.last_actions_prompted.begin(), view.last_actions_prompted.end(), Action::Move)
+                 != view.last_actions_prompted.end());
+    EXPECT_FALSE(std::find(view.last_actions_prompted.begin(), view.last_actions_prompted.end(), Action::Attack)
+                 != view.last_actions_prompted.end());
+}
+
+TEST(DoorgameGameTest, RoomTargetOnlyOffersMoveAndLookActions) {
+    MockView view{};
+    view.target_choices.push_back(Target::Room);
+    view.action_choices.push_back(Action::Look);
+
+    Doors doors{};
+    Stuff stuff{};
+    MonsterList monsters{};
+    Game game{view, 0, 1, 2, doors, stuff, monsters};
+
+    Event event = game.ask_event();
+
+    EXPECT_EQ(std::get<2>(event), Target::Room);
+    EXPECT_EQ(std::get<1>(event), Action::Look);
+    EXPECT_TRUE(std::find(view.last_actions_prompted.begin(), view.last_actions_prompted.end(), Action::Move)
+                != view.last_actions_prompted.end());
+    EXPECT_TRUE(std::find(view.last_actions_prompted.begin(), view.last_actions_prompted.end(), Action::Look)
+                != view.last_actions_prompted.end());
+    EXPECT_FALSE(std::find(view.last_actions_prompted.begin(), view.last_actions_prompted.end(), Action::Pickup)
+                 != view.last_actions_prompted.end());
+    EXPECT_FALSE(std::find(view.last_actions_prompted.begin(), view.last_actions_prompted.end(), Action::Use)
+                 != view.last_actions_prompted.end());
 }
 
 TEST(DoorgameGameTest, ProcessLookHereInvestigatesAndDisplaysRoom) {

@@ -7,6 +7,26 @@
 #include <basal/basal.hpp>
 namespace doorgame {
 
+namespace {
+
+Actions actions_for_target(Target target) {
+    switch (target) {
+        case Target::Monster:
+            return Actions{Action::Attack, Action::Look, Action::Nothing, Action::Quit};
+        case Target::Item:
+            return Actions{Action::Pickup, Action::Use, Action::Look, Action::Nothing, Action::Quit};
+        case Target::Room:
+            return Actions{Action::Move, Action::Look, Action::Nothing, Action::Quit};
+        case Target::Player:
+            return Actions{Action::Look, Action::Attack, Action::Nothing, Action::Quit};
+        case Target::None:
+        default:
+            return Actions{Action::Nothing, Action::Quit};
+    }
+}
+
+}  // namespace
+
 Game::Game(View& view, size_t start, size_t end, size_t num_rooms, Doors doors, Stuff stuff, MonsterList monsterlist)
     : view{view}, start{start}, player{start}, monsters{}, map{num_rooms, start, end}, is_playing{true} {
     for (auto& ml : monsterlist) {
@@ -27,7 +47,7 @@ void Game::process(Event event) {
         case Target::Player: {
             switch (action) {
                 case Action::Move: {
-                    if (object == Target::Player) {
+                    if (object == Target::Player or object == Target::Room) {
                         Direction dir = std::get<1>(param);
                         if (dir == Direction::Here) {
                             succeeded = true;
@@ -67,6 +87,19 @@ void Game::process(Event event) {
                     }
                     if (object == Target::Player) {
                         view.display(player);
+                        succeeded = true;
+                    }
+                    if (object == Target::Monster) {
+                        for (auto& monster : monsters) {
+                            if (monster.is_alive() and monster.location() == player.location()) {
+                                view.display(monster);
+                                succeeded = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (object == Target::Item) {
+                        succeeded = true;
                     }
                     break;
                 }
@@ -125,16 +158,18 @@ void Game::process(Event event) {
 }
 
 Event Game::ask_event() {
-    Action action = view.choose(valid_actions);
-    Target object = Target::None;
+    Target object = view.choose(get_targets());
+    Actions available_actions = actions_for_target(object);
+    Action action = view.choose(available_actions);
     Parameter param;  // starts empty
     switch (action) {
         case Action::Move:
-            object = Target::Player;
+            if (object != Target::Room and object != Target::Player) {
+                object = Target::Room;
+            }
             param = view.choose(map.get_room(player).get_directions());
             break;
         case Action::Look:
-            object = view.choose(get_targets());
             if (object == Target::Room) {
                 if (map.get_room(player).is_investigated()) {
                     param = view.choose(map.get_room(player).get_directions());
@@ -151,7 +186,6 @@ Event Game::ask_event() {
             param = view.choose(map.get_room(player).get_inventory());
             break;
         case Action::Attack:
-            object = view.choose(get_targets());
             param = view.choose(valid_damages);
             break;
         case Action::Use:

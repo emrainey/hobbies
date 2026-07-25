@@ -74,12 +74,25 @@ void Game::process(Event event) {
                     if (object == Target::Player) {
                         Damage dmg = std::get<3>(param);
                         player.take(dmg);
+                        succeeded = true;
                     } else if (object == Target::Item) {
                         // break an object
                     } else if (object == Target::Room) {
                         // Direction dir = std::get<1>(param);
                         // break a door down?
                     } else if (object == Target::Monster) {
+                        Damage dmg = std::get<3>(param);
+                        Monster* attacked = nullptr;
+                        for (auto& monster : monsters) {
+                            if (monster.is_alive() and monster.location() == player.location()) {
+                                attacked = &monster;
+                                break;
+                            }
+                        }
+                        if (attacked != nullptr) {
+                            attacked->take(dmg);
+                            succeeded = true;
+                        }
                     }
                     break;
                 }
@@ -162,7 +175,7 @@ Targets Game::get_targets() {
         targets.push_back(Target::Item);
     }
     for (auto& monster : monsters) {
-        if (monster.location() == player.location()) {
+        if (monster.is_alive() and monster.location() == player.location()) {
             targets.push_back(Target::Monster);
         }
     }

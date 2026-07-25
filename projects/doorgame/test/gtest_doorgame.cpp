@@ -9,6 +9,23 @@
 namespace doorgame {
 namespace {
 
+class TestGame final : public Game {
+public:
+    using Game::Game;
+
+    Health player_health() const {
+        return player.get_health();
+    }
+
+    Health monster_health(size_t index) const {
+        return monsters.at(index).get_health();
+    }
+
+    bool monster_alive(size_t index) const {
+        return monsters.at(index).is_alive();
+    }
+};
+
 class MockView final : public View {
 public:
     std::deque<Action> action_choices{};
@@ -211,6 +228,44 @@ TEST(DoorgameGameTest, PickupConsumesItemAndSecondPickupFails) {
 
     game.process(pickup);
     EXPECT_FALSE(view.last_complete_result);
+}
+
+TEST(DoorgameGameTest, AttackMonsterAppliesDamageWithoutRetaliation) {
+    MockView view{};
+    Doors doors{};
+    Stuff stuff{};
+    MonsterList monsters{0};
+    TestGame game{view, 0, 1, 2, doors, stuff, monsters};
+
+    Event attack{Target::Player, Action::Attack, Target::Monster, Parameter{Damage::Cut}};
+    game.process(attack);
+
+    EXPECT_TRUE(view.last_complete_result);
+    EXPECT_TRUE(game.monster_alive(0));
+    EXPECT_EQ(static_cast<size_t>(game.monster_health(0)), static_cast<size_t>(Health::Normal) - static_cast<size_t>(Damage::Cut));
+    EXPECT_EQ(game.player_health(), Health::Normal);
+}
+
+TEST(DoorgameGameTest, FatalAttackKillsMonsterAndHidesMonsterTarget) {
+    MockView view{};
+    Doors doors{};
+    Stuff stuff{};
+    MonsterList monsters{0};
+    TestGame game{view, 0, 1, 2, doors, stuff, monsters};
+
+    auto targets_before = game.get_targets();
+    EXPECT_TRUE(std::find(targets_before.begin(), targets_before.end(), Target::Monster) != targets_before.end());
+
+    Event attack{Target::Player, Action::Attack, Target::Monster, Parameter{Damage::Fatal}};
+    game.process(attack);
+
+    EXPECT_TRUE(view.last_complete_result);
+    EXPECT_FALSE(game.monster_alive(0));
+    EXPECT_EQ(game.monster_health(0), Health::Dead);
+    EXPECT_EQ(game.player_health(), Health::Normal);
+
+    auto targets_after = game.get_targets();
+    EXPECT_FALSE(std::find(targets_after.begin(), targets_after.end(), Target::Monster) != targets_after.end());
 }
 
 }  // namespace

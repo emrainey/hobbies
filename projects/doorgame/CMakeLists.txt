@@ -3,6 +3,9 @@ cmake_minimum_required(VERSION 3.31.0)
 project(doorgame LANGUAGES CXX VERSION 0.1.0)  # This must match the conanfile.py!
 
 # === Dependencies ===
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads)
+find_package(GTest)
 find_package(Curses)
 find_package(Doxygen)
 
@@ -71,6 +74,16 @@ install(TARGETS hobbies-doorgame
     RUNTIME DESTINATION bin
 )
 endif(Curses_FOUND)
+
+# === Unit Tests ===
+if (BUILD_UNIT_TESTS AND Threads_FOUND AND GTest_FOUND)
+    add_executable(gtest_doorgame
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_doorgame.cpp
+    )
+    target_link_libraries(gtest_doorgame PRIVATE hobbies-doorgame GTest::gtest GTest::gmock GTest::gtest_main
+                                               Threads::Threads)
+    add_test(NAME gtest_doorgame COMMAND gtest_doorgame)
+endif()
 
 # === Doxygen ===
 if (Doxygen_FOUND)

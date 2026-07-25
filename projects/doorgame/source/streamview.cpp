@@ -2,6 +2,7 @@
 #include "doorgame/streamview.hpp"
 
 #include <basal/basal.hpp>
+#include <limits>
 
 namespace doorgame {
 
@@ -437,8 +438,20 @@ Damage StreamView::choose(Damages const& damages) {
     std::string str_value;
     std::cin >> str_value;
     size_t value = std::stoul(str_value, nullptr, 10);
-    Damage d = static_cast<Damage>(value);
-    return (is_valid(d) ? d : Damage::None);
+    
+    // Find the closest valid damage value
+    Damage closest_damage = Damage::None;
+    size_t min_diff = std::numeric_limits<size_t>::max();
+    
+    for (auto d : damages) {
+        size_t diff = (value > static_cast<size_t>(d)) ? (value - static_cast<size_t>(d)) : (static_cast<size_t>(d) - value);
+        if (diff < min_diff) {
+            min_diff = diff;
+            closest_damage = d;
+        }
+    }
+    
+    return closest_damage;
 }
 
 Direction StreamView::choose(Directions const& directions) {

@@ -5,8 +5,8 @@ project(vision LANGUAGES CXX VERSION 0.1.0)  # This must match the conanfile.py!
 # === Dependencies ===
 # set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(OpenCV)
-# find_package(Threads)
-# find_package(GTest)
+find_package(Threads)
+find_package(GTest)
 # find_package(Doxygen)
 
 # === Targets ===
@@ -56,6 +56,26 @@ target_link_libraries(demo_artsy
         native-optimized
 )
 
+add_executable(chroma-replace
+    ${CMAKE_CURRENT_SOURCE_DIR}/demo/main_chroma_replace.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/chroma_replace.cpp
+)
+target_include_directories(chroma-replace
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+)
+target_link_libraries(chroma-replace
+    PUBLIC
+        ${OpenCV_LIBS}
+        hobbies-basal
+    PRIVATE
+        enabled-warnings
+        enabled-debugging
+        $<$<BOOL:${USE_PROFILING}>:enabled-profiling>
+        native-optimized
+)
+
+
 add_executable(demo_evm ${CMAKE_CURRENT_SOURCE_DIR}/demo/main_evm.cpp)
 target_link_libraries(demo_evm
     PUBLIC
@@ -70,13 +90,27 @@ target_link_libraries(demo_evm
 )
 
 # === Googletests ===
-# if (BUILD_UNIT_TESTS AND Threads_FOUND AND GTest_FOUND)
-#     add_executable(gtest_vision
-#         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_vision.cpp
-#     )
-#     target_link_libraries(gtest_vision PRIVATE hobbies-vision hobbies-fourcc enabled-debugging GTest::gtest GTest::gmock GTest::gtest_main Threads::Threads)
-#     add_test(NAME gtest_vision COMMAND gtest_vision)
-# endif()
+if (BUILD_UNIT_TESTS AND Threads_FOUND AND GTest_FOUND)
+    add_executable(gtest_vision
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_vision.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/chroma_replace.cpp
+    )
+    target_include_directories(gtest_vision
+        PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/include
+    )
+    target_link_libraries(gtest_vision
+        PRIVATE
+            ${OpenCV_LIBS}
+            hobbies-basal
+            enabled-debugging
+            GTest::gtest
+            GTest::gmock
+            GTest::gtest_main
+            Threads::Threads
+    )
+    add_test(NAME gtest_vision COMMAND gtest_vision)
+endif()
 
 # === Doxygen ===
 # if (Doxygen_FOUND)

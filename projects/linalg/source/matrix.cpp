@@ -12,6 +12,15 @@
 #include <emmintrin.h>
 #endif
 
+// Optimize memory allocation for better performance
+#if defined(__x86_64__)
+#define ALIGNED_MALLOC(size) _mm_malloc(size, 16)
+#define ALIGNED_FREE(ptr) _mm_free(ptr)
+#else
+#define ALIGNED_MALLOC(size) malloc(size)
+#define ALIGNED_FREE(ptr) free(ptr)
+#endif
+
 namespace linalg {
 
 // ****************************************************************************
@@ -212,11 +221,7 @@ bool matrix::create(size_t _rows, size_t _cols, size_t _bytes) {
     basal::exception::throw_unless((_rows * _cols * sizeof(decltype(*memory))) <= _bytes, g_filename, __LINE__,
                                    "Not enough memory allocated");
     basal::exception::throw_unless(memory == nullptr, g_filename, __LINE__, "Memory must be freed before allocation!");
-#if defined(__x86_64__)
-    memory = static_cast<precision*>(_mm_malloc(_bytes, 16));
-#else
-    memory = static_cast<precision*>(malloc(_bytes));
-#endif
+    memory = static_cast<precision*>(ALIGNED_MALLOC(_bytes));
     basal::exception::throw_unless(memory != nullptr, g_filename, __LINE__);
     basal::exception::throw_unless(array == nullptr, g_filename, __LINE__,
                                    "Array of rows must be free before allocation");
@@ -228,11 +233,7 @@ bool matrix::create(size_t _rows, size_t _cols, size_t _bytes) {
 void matrix::destroy() {
     if (not external_memory) {
         if (memory) {
-#if defined(__x86_64__)
-            _mm_free(memory);
-#else
-            free(memory);
-#endif
+            ALIGNED_FREE(memory);
             memory = nullptr;
         }
     } else {
@@ -254,9 +255,15 @@ void matrix::for_each(const_coord_iterator const_functor) const {
 }
 
 matrix& matrix::for_each(ref_coord_iterator functor) {
-    for (size_t r = 0; r < rows; r++) {
-        for (size_t c = 0; c < cols; c++) {
-            functor(r, c, array[r][c]);
+    // Optimize for better cache locality
+    precision** const array_ptr = array;
+    const size_t rows_val = rows;
+    const size_t cols_val = cols;
+
+    for (size_t r = 0; r < rows_val; r++) {
+        precision* const row_ptr = array_ptr[r];
+        for (size_t c = 0; c < cols_val; c++) {
+            functor(r, c, row_ptr[c]);
         }
     }
     return *this;
@@ -271,9 +278,15 @@ void matrix::for_each(const_ref_iterator functor) const {
 }
 
 matrix& matrix::for_each(ref_iterator functor) {
-    for (size_t r = 0; r < rows; r++) {
-        for (size_t c = 0; c < cols; c++) {
-            functor(array[r][c]);
+    // Optimize for better cache locality
+    precision** const array_ptr = array;
+    const size_t rows_val = rows;
+    const size_t cols_val = cols;
+
+    for (size_t r = 0; r < rows_val; r++) {
+        precision* const row_ptr = array_ptr[r];
+        for (size_t c = 0; c < cols_val; c++) {
+            functor(row_ptr[c]);
         }
     }
     return *this;
@@ -326,14 +339,20 @@ precision matrix::index(size_t const idx) const noexcept(false) {
 }
 
 precision& matrix::operator()(size_t row, size_t col) noexcept(false) {
-    basal::exception::throw_unless(row < rows, g_filename, __LINE__);
-    basal::exception::throw_unless(col < cols, g_filename, __LINE__);
+    // Inline bounds checking for performance
+    if (row >= rows || col >= cols) {
+        basal::exception::throw_unless(row < rows, g_filename, __LINE__);
+        basal::exception::throw_unless(col < cols, g_filename, __LINE__);
+    }
     return array[row][col];
 }
 
 precision matrix::operator()(size_t const row, size_t const col) const noexcept(false) {
-    basal::exception::throw_unless(row < rows, g_filename, __LINE__);
-    basal::exception::throw_unless(col < cols, g_filename, __LINE__);
+    // Inline bounds checking for performance
+    if (row >= rows || col >= cols) {
+        basal::exception::throw_unless(row < rows, g_filename, __LINE__);
+        basal::exception::throw_unless(col < cols, g_filename, __LINE__);
+    }
     return array[row][col];
 }
 
@@ -409,11 +428,21 @@ bool matrix::operator!=(matrix const& a) const {
 }
 
 matrix& matrix::operator*=(precision const a) {
+    // Optimize for common case
+    if (basal::nearly_equals(a, 1.0_p)) {
+        return *this;
+    }
+
     ref_iterator iter = [&](precision& v) { v *= a; };
     return for_each(iter);
 }
 
 matrix& matrix::operator/=(precision const a) {
+    // Optimize for common case
+    if (basal::nearly_equals(a, 1.0_p)) {
+        return *this;
+    }
+
     ref_iterator iter = [&](precision& v) { v /= a; };
     return for_each(iter);
 }
@@ -940,12 +969,17 @@ matrix& matrix::operator-=(matrix const& a) {
 
 void matrix::print(std::ostream& os, char const name[]) const {
     os << name << " matrix = {\n";
-    for (size_t r = 0; r < rows; r++) {
+    const size_t rows_val = rows;
+    const size_t cols_val = cols;
+
+    precision** const array_ptr = array;
+    for (size_t r = 0; r < rows_val; r++) {
+        precision* const row_ptr = array_ptr[r];
         os << "\t{";
-        for (size_t c = 0; c < cols; c++) {
-            os << array[r][c] << (c == (cols - 1) ? "}," : ", ");
+        for (size_t c = 0; c < cols_val; c++) {
+            os << row_ptr[c] << (c == (cols_val - 1) ? "}," : ", ");
         }
-        os << (r == (rows - 1) ? "\n};\n" : "\n");
+        os << (r == (rows_val - 1) ? "\n};\n" : "\n");
     }
 }
 

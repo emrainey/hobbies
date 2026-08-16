@@ -17,8 +17,14 @@ namespace vision {
 
 /// Selects which chroma key algorithm to use
 enum class ChromaType {
-    Vlahos,   ///< alpha = key channel - max(other channels), clamped to [0,1]
-    Mishima,  ///< Two-state hidden Markov model estimated with forward-backward along each scanline
+    Vlahos,             ///< alpha = key channel - max(other channels), clamped to [0,1]
+    Mishima,            ///< Two-state hidden Markov model estimated with forward-backward along each scanline
+    ClosedFormMatting,  ///< Matting: solve the matting Laplacian (Levin et al. 2008) on a rough trimap
+    BayesianMatting,    ///< Matting: per-pixel Bayesian color-line estimate on a rough trimap (Chuang et al. 2001)
+    KnnMatting,         ///< Matting: nonlocal KNN affinities solved as a graph-Laplacian matte (Chen et al. 2013)
+    GlobalMatting,      ///< Matting: OpenCV alphamat information-flow global matting on a rough trimap
+    FusedMatting,  ///< Keying + closed-form matting fusion: keying pins what is not the screen, matting soft-keys the
+                   ///< rest
 };
 
 /// Parses the --type string into a ChromaType
@@ -34,7 +40,15 @@ cv::Mat vlahos_alpha(cv::Mat const& image, cv::Vec3b key);
 cv::Mat mishima_alpha(cv::Mat const& image, cv::Vec3b key);
 
 /// Computes the alpha matte for the selected algorithm
-cv::Mat compute_alpha(ChromaType type, cv::Mat const& image, cv::Vec3b key);
+///
+/// @param type Selected algorithm
+/// @param image 8UC3 input image
+/// @param key Key color in BGR
+/// @param fg_keep FusedMatting only: green excess at or below this is definite foreground, default 0.01
+/// @param bg_keep FusedMatting only: green excess at or above this is definite background, default 0.05
+/// @param protect FusedMatting only: optional CV_8UC1 mask where non-zero forces the pixel foreground
+cv::Mat compute_alpha(ChromaType type, cv::Mat const& image, cv::Vec3b key, float fg_keep = 0.01f,
+                      float bg_keep = 0.05f, cv::Mat const& protect = cv::Mat());
 
 /// Remaps an alpha matte in place using clip black/white (Keylight style).
 ///
@@ -57,8 +71,12 @@ void remap_alpha(cv::Mat& alpha, float clip_black = 0.0f, float clip_white = 1.0
 /// @param result Filled with the CV_8UC3 composited output
 /// @param clip_black Lower alpha clip threshold (see remap_alpha), default 0.0
 /// @param clip_white Upper alpha clip threshold (see remap_alpha), default 1.0
+/// @param fg_keep FusedMatting only: green excess at or below this is definite foreground, default 0.01
+/// @param bg_keep FusedMatting only: green excess at or above this is definite background, default 0.05
+/// @param protect FusedMatting only: optional CV_8UC1 mask where non-zero forces the pixel foreground
 void chroma_replace(cv::Mat const& image, cv::Mat const& background, std::string const& type, cv::Vec3b key,
-                    cv::Mat& result, float clip_black = 0.0f, float clip_white = 1.0f);
+                    cv::Mat& result, float clip_black = 0.0f, float clip_white = 1.0f, float fg_keep = 0.01f,
+                    float bg_keep = 0.05f, cv::Mat const& protect = cv::Mat());
 
 /// "Keys out" the subject: replaces the key color with a solid, pure version of the
 /// key color itself. A flat pure key color is brighter and more consistent than a
@@ -70,7 +88,10 @@ void chroma_replace(cv::Mat const& image, cv::Mat const& background, std::string
 /// @param result Filled with the CV_8UC3 keyed-out output
 /// @param clip_black Lower alpha clip threshold (see remap_alpha), default 0.0
 /// @param clip_white Upper alpha clip threshold (see remap_alpha), default 1.0
+/// @param fg_keep FusedMatting only: green excess at or below this is definite foreground, default 0.01
+/// @param bg_keep FusedMatting only: green excess at or above this is definite background, default 0.05
+/// @param protect FusedMatting only: optional CV_8UC1 mask where non-zero forces the pixel foreground
 void key_out(cv::Mat const& image, std::string const& type, cv::Vec3b key, cv::Mat& result, float clip_black = 0.0f,
-             float clip_white = 1.0f);
+             float clip_white = 1.0f, float fg_keep = 0.01f, float bg_keep = 0.05f, cv::Mat const& protect = cv::Mat());
 
 }  // namespace vision

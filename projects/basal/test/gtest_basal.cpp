@@ -2,6 +2,7 @@
 
 #include <basal/basal.hpp>
 #include <basal/gtest_helper.hpp>
+#include <basal/options.hpp>
 
 using namespace basal::literals;
 
@@ -205,4 +206,27 @@ TEST_F(DebuggableFixture, Mask) {
 TEST_F(DebuggableFixture, Emit) {
     // emit a message
     emit("Hello World");
+}
+
+TEST(Options, LongStringValueNotTruncated) {
+    // A value longer than the historical 40-char sscanf buffer must survive intact.
+    char const* argv[] = {"prog", "--protect", "1600,140,280,520;1250,180,300,700;1000,600,320,460"};
+    basal::options::config opts[] = {
+        {"-p", "--protect", std::string(""), "protect rects"},
+    };
+    basal::options::process(basal::dimof(opts), opts, 3, const_cast<char**>(argv));
+    std::string value;
+    ASSERT_TRUE(basal::options::find(opts, "--protect", value));
+    EXPECT_EQ(value, "1600,140,280,520;1250,180,300,700;1000,600,320,460");
+}
+
+TEST(Options, MissingStringValueKeepsDefault) {
+    char const* argv[] = {"prog", "--protect"};
+    basal::options::config opts[] = {
+        {"-p", "--protect", std::string("default"), "protect rects"},
+    };
+    basal::options::process(basal::dimof(opts), opts, 2, const_cast<char**>(argv));
+    std::string value;
+    ASSERT_TRUE(basal::options::find(opts, "--protect", value));
+    EXPECT_EQ(value, "default");
 }

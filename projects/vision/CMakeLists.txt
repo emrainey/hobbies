@@ -2,6 +2,16 @@
 cmake_minimum_required(VERSION 3.31.0)
 project(vision LANGUAGES CXX VERSION 0.1.0)  # This must match the conanfile.py!
 
+# Apple Vision subject segmentation (source/subject_mask.mm) is Objective-C++ and links
+# the system Vision/CoreGraphics/Foundation frameworks on macOS 14+.
+if (APPLE AND NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    enable_language(OBJCXX)
+    find_library(VISION_FRAMEWORK Vision REQUIRED)
+    find_library(COREGRAPHICS_FRAMEWORK CoreGraphics REQUIRED)
+    find_library(COREVIDEO_FRAMEWORK CoreVideo REQUIRED)
+    find_library(FOUNDATION_FRAMEWORK Foundation REQUIRED)
+endif()
+
 # === Dependencies ===
 # set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(OpenCV)
@@ -59,7 +69,12 @@ target_link_libraries(demo_artsy
 add_executable(chroma-replace
     ${CMAKE_CURRENT_SOURCE_DIR}/demo/main_chroma_replace.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/chroma_replace.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/frame_spec.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/matting.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/protect_spec.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/subject_mask.mm
 )
+set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/source/subject_mask.mm PROPERTIES COMPILE_OPTIONS "-fobjc-arc;-Wno-error;-Wno-deprecated-declarations")
 target_include_directories(chroma-replace
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -74,6 +89,10 @@ target_link_libraries(chroma-replace
         $<$<BOOL:${USE_PROFILING}>:enabled-profiling>
         native-optimized
 )
+if (APPLE AND NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    target_link_libraries(chroma-replace PRIVATE ${VISION_FRAMEWORK} ${COREGRAPHICS_FRAMEWORK} ${COREVIDEO_FRAMEWORK}
+                                                 ${FOUNDATION_FRAMEWORK})
+endif()
 
 
 add_executable(demo_evm ${CMAKE_CURRENT_SOURCE_DIR}/demo/main_evm.cpp)
@@ -94,7 +113,12 @@ if (BUILD_UNIT_TESTS AND Threads_FOUND AND GTest_FOUND)
     add_executable(gtest_vision
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_vision.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/chroma_replace.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/frame_spec.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/matting.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/protect_spec.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/subject_mask.mm
     )
+set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/source/subject_mask.mm PROPERTIES COMPILE_OPTIONS "-fobjc-arc;-Wno-error;-Wno-deprecated-declarations")
     target_include_directories(gtest_vision
         PRIVATE
             ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -109,6 +133,10 @@ if (BUILD_UNIT_TESTS AND Threads_FOUND AND GTest_FOUND)
             GTest::gtest_main
             Threads::Threads
     )
+    if (APPLE AND NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
+        target_link_libraries(gtest_vision PRIVATE ${VISION_FRAMEWORK} ${COREGRAPHICS_FRAMEWORK} ${COREVIDEO_FRAMEWORK}
+                                                    ${FOUNDATION_FRAMEWORK})
+    endif()
     add_test(NAME gtest_vision COMMAND gtest_vision)
 endif()
 

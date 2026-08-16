@@ -1,4 +1,5 @@
 #include "vision/chroma_replace.hpp"
+#include "vision/matting.hpp"
 
 #include <opencv2/opencv.hpp>
 
@@ -128,12 +129,50 @@ inline void validate_image(cv::Mat const& image, std::string const& name) {
     return alpha;
 }
 
-cv::Mat compute_alpha(ChromaType type, cv::Mat const& image, cv::Vec3b key) {
+cv::Mat compute_alpha(ChromaType type, cv::Mat const& image, cv::Vec3b key, float fg_keep, float bg_keep,
+                      cv::Mat const& protect) {
     switch (type) {
         case ChromaType::Vlahos:
             return vlahos_alpha(image, key);
         case ChromaType::Mishima:
             return mishima_alpha(image, key);
+        case ChromaType::ClosedFormMatting:
+        case ChromaType::BayesianMatting:
+        case ChromaType::KnnMatting:
+        case ChromaType::GlobalMatting:
+        case ChromaType::FusedMatting: {
+            // Matting solves for the *foreground* alpha; the chroma key convention
+            // (1.0 = replace with background) is the complement.
+            cv::Mat foreground;
+            if (type == ChromaType::FusedMatting) {
+                // Fuse keying with matting: the per-pixel keying signal (green excess)
+                // pins definite subject pixels so the solver cannot bleed key alpha
+                // into them, while the genuine spill/shadow band is solved softly by
+                // the matting Laplacian. No HSV trimap is involved.
+                foreground = matting::fused_matting(image, key, fg_keep, bg_keep, protect);
+            } else {
+                cv::Mat const trimap = matting::build_trimap(image, key);
+                switch (type) {
+                    case ChromaType::ClosedFormMatting:
+                        foreground = matting::closed_form_matting(image, trimap);
+                        break;
+                    case ChromaType::BayesianMatting:
+                        foreground = matting::bayesian_matting(image, trimap);
+                        break;
+                    case ChromaType::KnnMatting:
+                        foreground = matting::knn_matting(image, trimap);
+                        break;
+                    case ChromaType::GlobalMatting:
+                        foreground = matting::global_matting(image, trimap);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            cv::Mat key_alpha;
+            cv::subtract(cv::Scalar::all(1.0), foreground, key_alpha);
+            return key_alpha;
+        }
     }
     basal::exception::throw_unless(false, __FILE__, __LINE__, "Unknown chroma type");
     return {};  // unreachable
@@ -155,7 +194,8 @@ void remap_alpha(cv::Mat& alpha, float clip_black, float clip_white) {
 }
 
 void chroma_replace(cv::Mat const& image, cv::Mat const& background, std::string const& type, cv::Vec3b key,
-                    cv::Mat& result, float clip_black, float clip_white) {
+                    cv::Mat& result, float clip_black, float clip_white, float fg_keep, float bg_keep,
+                    cv::Mat const& protect) {
     basal::exception::throw_unless(!image.empty() && image.type() == CV_8UC3, __FILE__, __LINE__,
                                    "chroma_replace: input image must be a non-empty 8UC3 image");
     basal::exception::throw_unless(!background.empty() && background.type() == CV_8UC3, __FILE__, __LINE__,
@@ -163,7 +203,7 @@ void chroma_replace(cv::Mat const& image, cv::Mat const& background, std::string
     cv::Mat bg = background;
     if (bg.size() != image.size())
         cv::resize(bg, bg, image.size());
-    cv::Mat alpha = compute_alpha(parse_chroma_type(type), image, key);
+    cv::Mat alpha = compute_alpha(parse_chroma_type(type), image, key, fg_keep, bg_keep, protect);
     remap_alpha(alpha, clip_black, clip_white);
 
     cv::Mat bgf, imgf;
@@ -181,12 +221,12 @@ void chroma_replace(cv::Mat const& image, cv::Mat const& background, std::string
 }
 
 void key_out(cv::Mat const& image, std::string const& type, cv::Vec3b key, cv::Mat& result, float clip_black,
-             float clip_white) {
+             float clip_white, float fg_keep, float bg_keep, cv::Mat const& protect) {
     // A solid fill of the pure key color is brighter and more consistent than a
     // physical key screen, which is usually darker and tinted with the other channels.
     cv::Mat solid(image.size(), CV_8UC3,
                   cv::Scalar(static_cast<double>(key[0U]), static_cast<double>(key[1U]), static_cast<double>(key[2U])));
-    chroma_replace(image, solid, type, key, result, clip_black, clip_white);
+    chroma_replace(image, solid, type, key, result, clip_black, clip_white, fg_keep, bg_keep, protect);
 }
 
 std::string to_lower(std::string const& s) {
@@ -197,12 +237,29 @@ std::string to_lower(std::string const& s) {
 }
 
 ChromaType parse_chroma_type(std::string const& type) {
-    std::string const t = to_lower(type);
+    // Normalize separators so that "closed-form", "closed_form" and "closedform" all work.
+    std::string t = to_lower(type);
+    std::replace(t.begin(), t.end(), '-', '\0');
+    t.erase(std::remove(t.begin(), t.end(), '\0'), t.end());
+    std::replace(t.begin(), t.end(), '_', '\0');
+    t.erase(std::remove(t.begin(), t.end(), '\0'), t.end());
     if (t == "vlahos")
         return ChromaType::Vlahos;
     if (t == "mishima")
         return ChromaType::Mishima;
-    basal::exception::throw_unless(false, __FILE__, __LINE__, "Unknown --type: %s (expected vlahos or mishima)",
+    if (t == "closedform" || t == "levin")
+        return ChromaType::ClosedFormMatting;
+    if (t == "bayesian" || t == "chuang")
+        return ChromaType::BayesianMatting;
+    if (t == "knn" || t == "chen")
+        return ChromaType::KnnMatting;
+    if (t == "global" || t == "opencv" || t == "infoflow")
+        return ChromaType::GlobalMatting;
+    if (t == "fused" || t == "hybrid")
+        return ChromaType::FusedMatting;
+    basal::exception::throw_unless(false, __FILE__, __LINE__,
+                                   "Unknown --type: %s (expected vlahos, mishima, closedform, bayesian, knn, global "
+                                   "or fused)",
                                    type.c_str());
     return ChromaType::Vlahos;
 }

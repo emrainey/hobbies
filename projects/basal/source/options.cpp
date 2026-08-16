@@ -28,10 +28,8 @@ void process(size_t num_opts, config options[], int argc, char* argv[]) {
                     precision v;
                     sscanf(argv[i + 1], "%lf", &v);
                     options[j].value = v;
-                } else if (std::holds_alternative<std::string>(options[j].value)) {
-                    char input[41];
-                    sscanf(argv[i + 1], "%40s", input);
-                    options[j].value = std::string(input);
+                } else if (std::holds_alternative<std::string>(options[j].value) and (i + 1) < argc) {
+                    options[j].value = argv[i + 1];
                 }
             }
         }

@@ -41,7 +41,7 @@ inline void validate_image(cv::Mat const& image, std::string const& name) {
     for (int c = 0; c < 3; ++c) {
         channels[c] = &split_channels[c];
     }
-    int const other[2] = { (dominant + 1) % 3, (dominant + 2) % 3 };
+    int const other[2] = {(dominant + 1) % 3, (dominant + 2) % 3};
     cv::Mat other_max = cv::max(*channels[other[0]], *channels[other[1U]]);
     cv::Mat alpha;
     cv::subtract(*channels[dominant], other_max, alpha);  // 8-bit saturates at zero
@@ -51,11 +51,11 @@ inline void validate_image(cv::Mat const& image, std::string const& name) {
 
 [[nodiscard]] cv::Mat mishima_alpha(cv::Mat const& image, cv::Vec3b key) {
     basal::exception::throw_unless(!image.empty() && image.type() == CV_8UC3, __FILE__, __LINE__,
-                                    "mishima_alpha: image must be a non-empty 8UC3 image");
+                                   "mishima_alpha: image must be a non-empty 8UC3 image");
     // Two hidden states: 0 = key (replace), 1 = foreground (keep)
-    float const sigma = 48.0f;   // Per-channel observation Gaussian sigma
+    float const sigma = 48.0f;  // Per-channel observation Gaussian sigma
     float const inv_2s2 = 1.0f / (2.0f * sigma * sigma);
-    float const stay = 0.98f;    // P(state_{t+1} = state_t)
+    float const stay = 0.98f;  // P(state_{t+1} = state_t)
     float const change = 1.0f - stay;
 
     cv::Mat alpha(image.size(), CV_32F, cv::Scalar::all(0.0));
@@ -88,8 +88,13 @@ inline void validate_image(cv::Mat const& image, std::string const& name) {
                 f1 = (fwd_key[x_ - 1U] * change + fwd_fg[x_ - 1U] * stay) * emit_fg[x_];
             }
             float const sum = f0 + f1;
-            if (sum <= 0.0f) { f0 = 0.5f; f1 = 0.5f; }
-            else { f0 /= sum; f1 /= sum; }
+            if (sum <= 0.0f) {
+                f0 = 0.5f;
+                f1 = 0.5f;
+            } else {
+                f0 /= sum;
+                f1 /= sum;
+            }
             fwd_key[x_] = f0;
             fwd_fg[x_] = f1;
         }
@@ -101,8 +106,13 @@ inline void validate_image(cv::Mat const& image, std::string const& name) {
             float n0 = stay * emit_key[x_ + 1U] * bwd_key[x_ + 1U] + change * emit_fg[x_ + 1U] * bwd_fg[x_ + 1U];
             float n1 = change * emit_key[x_ + 1U] * bwd_key[x_ + 1U] + stay * emit_fg[x_ + 1U] * bwd_fg[x_ + 1U];
             float const sum = n0 + n1;
-            if (sum <= 0.0f) { n0 = 0.5f; n1 = 0.5f; }
-            else { n0 /= sum; n1 /= sum; }
+            if (sum <= 0.0f) {
+                n0 = 0.5f;
+                n1 = 0.5f;
+            } else {
+                n0 /= sum;
+                n1 /= sum;
+            }
             bwd_key[x_] = n0;
             bwd_fg[x_] = n1;
         }
@@ -120,21 +130,41 @@ inline void validate_image(cv::Mat const& image, std::string const& name) {
 
 cv::Mat compute_alpha(ChromaType type, cv::Mat const& image, cv::Vec3b key) {
     switch (type) {
-        case ChromaType::Vlahos: return vlahos_alpha(image, key);
-        case ChromaType::Mishima: return mishima_alpha(image, key);
+        case ChromaType::Vlahos:
+            return vlahos_alpha(image, key);
+        case ChromaType::Mishima:
+            return mishima_alpha(image, key);
     }
     basal::exception::throw_unless(false, __FILE__, __LINE__, "Unknown chroma type");
     return {};  // unreachable
 }
 
-void chroma_replace(cv::Mat const& image, cv::Mat const& background, std::string const& type, cv::Vec3b key, cv::Mat& result) {
+void remap_alpha(cv::Mat& alpha, float clip_black, float clip_white) {
+    basal::exception::throw_unless(!alpha.empty() && alpha.type() == CV_32FC1, __FILE__, __LINE__,
+                                   "remap_alpha: alpha must be a non-empty 32FC1 matte");
+    float const lo = std::clamp(clip_black, 0.0f, 1.0f);
+    float const hi = std::clamp(clip_white, 0.0f, 1.0f);
+    if (hi <= lo) {
+        alpha.setTo(0.0);
+        return;
+    }
+    cv::subtract(alpha, cv::Scalar(static_cast<double>(lo)), alpha);
+    cv::multiply(alpha, cv::Scalar(1.0 / (static_cast<double>(hi) - static_cast<double>(lo))), alpha);
+    cv::max(alpha, cv::Scalar::all(0.0), alpha);
+    cv::min(alpha, cv::Scalar::all(1.0), alpha);
+}
+
+void chroma_replace(cv::Mat const& image, cv::Mat const& background, std::string const& type, cv::Vec3b key,
+                    cv::Mat& result, float clip_black, float clip_white) {
     basal::exception::throw_unless(!image.empty() && image.type() == CV_8UC3, __FILE__, __LINE__,
-                                    "chroma_replace: input image must be a non-empty 8UC3 image");
+                                   "chroma_replace: input image must be a non-empty 8UC3 image");
     basal::exception::throw_unless(!background.empty() && background.type() == CV_8UC3, __FILE__, __LINE__,
-                                    "chroma_replace: background image must be a non-empty 8UC3 image");
+                                   "chroma_replace: background image must be a non-empty 8UC3 image");
     cv::Mat bg = background;
-    if (bg.size() != image.size()) cv::resize(bg, bg, image.size());
-    cv::Mat const alpha = compute_alpha(parse_chroma_type(type), image, key);
+    if (bg.size() != image.size())
+        cv::resize(bg, bg, image.size());
+    cv::Mat alpha = compute_alpha(parse_chroma_type(type), image, key);
+    remap_alpha(alpha, clip_black, clip_white);
 
     cv::Mat bgf, imgf;
     bg.convertTo(bgf, CV_32F);
@@ -150,37 +180,48 @@ void chroma_replace(cv::Mat const& image, cv::Mat const& background, std::string
     sum.convertTo(result, CV_8U);
 }
 
+void key_out(cv::Mat const& image, std::string const& type, cv::Vec3b key, cv::Mat& result, float clip_black,
+             float clip_white) {
+    // A solid fill of the pure key color is brighter and more consistent than a
+    // physical key screen, which is usually darker and tinted with the other channels.
+    cv::Mat solid(image.size(), CV_8UC3,
+                  cv::Scalar(static_cast<double>(key[0U]), static_cast<double>(key[1U]), static_cast<double>(key[2U])));
+    chroma_replace(image, solid, type, key, result, clip_black, clip_white);
+}
+
 std::string to_lower(std::string const& s) {
     std::string out = s;
-    std::transform(out.begin(), out.end(), out.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+    std::transform(out.begin(), out.end(), out.begin(),
+                   [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
     return out;
 }
 
 ChromaType parse_chroma_type(std::string const& type) {
     std::string const t = to_lower(type);
-    if (t == "vlahos") return ChromaType::Vlahos;
-    if (t == "mishima") return ChromaType::Mishima;
-    basal::exception::throw_unless(false, __FILE__, __LINE__, "Unknown --type: %s (expected vlahos or mishima)", type.c_str());
+    if (t == "vlahos")
+        return ChromaType::Vlahos;
+    if (t == "mishima")
+        return ChromaType::Mishima;
+    basal::exception::throw_unless(false, __FILE__, __LINE__, "Unknown --type: %s (expected vlahos or mishima)",
+                                   type.c_str());
     return ChromaType::Vlahos;
 }
 
 cv::Vec3b named_color(std::string const& name) {
     std::string const n = to_lower(name);
-    struct { char const* name; cv::Vec3b bgr; } const colors[] = {
-        {"green", cv::Vec3b{0, 255, 0}},
-        {"blue", cv::Vec3b{255, 0, 0}},
-        {"red", cv::Vec3b{0, 0, 255}},
-        {"cyan", cv::Vec3b{255, 255, 0}},
-        {"magenta", cv::Vec3b{255, 0, 255}},
-        {"yellow", cv::Vec3b{0, 255, 255}},
-        {"white", cv::Vec3b{255, 255, 255}},
-        {"black", cv::Vec3b{0, 0, 0}},
+    struct {
+        char const* name;
+        cv::Vec3b bgr;
+    } const colors[] = {
+        {"green", cv::Vec3b{0, 255, 0}},     {"blue", cv::Vec3b{255, 0, 0}},      {"red", cv::Vec3b{0, 0, 255}},
+        {"cyan", cv::Vec3b{255, 255, 0}},    {"magenta", cv::Vec3b{255, 0, 255}}, {"yellow", cv::Vec3b{0, 255, 255}},
+        {"white", cv::Vec3b{255, 255, 255}}, {"black", cv::Vec3b{0, 0, 0}},
     };
     for (auto const& c : colors)
-        if (n == c.name) return c.bgr;
+        if (n == c.name)
+            return c.bgr;
     basal::exception::throw_unless(false, __FILE__, __LINE__, "Unknown --color: %s", name.c_str());
     return cv::Vec3b{0, 0, 0};
 }
-
 
 }  // namespace vision

@@ -16,6 +16,12 @@
 ///        rectangles as known subject (e.g. a reflective suit that reflects the key
 ///        screen) so they can never be keyed, and `--protect-auto` to auto-detect the
 ///        cast per frame with Apple Vision and pin them as subject (both combine).
+///        Use `--despill <strength>` to remove excess key color (spill/fringe) from the
+///        kept foreground (Ultimatte/Keylight style), `--refine <radius>` to snap the
+///        alpha matte onto the color edges of the input with a guided filter, and
+///        `-D/--screen-estimate` to key against the actual per-frame screen color
+///        (histogram peak of the confident screen region) instead of the pure named
+///        `--color`, which fixes gradient/vignetted/unevenly-lit screens.
 /// @copyright Copyright (c) 2026
 ///
 
@@ -91,6 +97,9 @@ int main(int argc, char* argv[]) {
     std::string frames_spec, protect_spec;
     bool protect_auto = false;
     int protect_feather = 3;
+    basal::precision despill = 0.0;
+    int refine_radius = 0;
+    bool screen_estimate = false;
 
     basal::options::config opts[] = {
         {"-i", "--input", std::string(""), "Input image or video file path containing the key color"},
@@ -117,6 +126,17 @@ int main(int argc, char* argv[]) {
         {"-e", "--protect-feather", int(3),
          "fused only: blur radius in pixels applied to the protect mask edge, making the matte blend smoothly "
          "instead of stepping on a hard boundary; 0 disables"},
+        {"-d", "--despill", basal::precision(0.0),
+         "Spill suppression in [0,1]; removes excess key color from foreground fringe (e.g. green cast on a subject's "
+         "hair/shoulders) after keying, weighted by how much each pixel is kept as subject. 0 disables, 1 fully pulls "
+         "the excess key channel down to the level of the other two"},
+        {"-R", "--refine", int(0),
+         "Guided-filter alpha refinement radius in pixels (e.g. 3): snaps matte edges onto the color edges of the "
+         "input, sharpening soft/hard boundaries and removing speckle. 0 disables"},
+        {"-D", "--screen-estimate", bool(false),
+         "Estimate the actual screen color from the input (histogram-peak of the confident screen region) each frame "
+         "and key against that instead of the pure named --color, which fixes gradient/vignetted/illumination-uneven "
+         "screens"},
         {"-k", "--clip-black", basal::precision(0.0),
          "Alpha clip black in [0,1]: pixels at or below this keep the foreground"},
         {"-w", "--clip-white", basal::precision(1.0),
@@ -144,6 +164,9 @@ int main(int argc, char* argv[]) {
     basal::options::find(opts, "--protect", protect_spec);             // Optional (fused only)
     basal::options::find(opts, "--protect-auto", protect_auto);        // Optional (fused only)
     basal::options::find(opts, "--protect-feather", protect_feather);  // Optional (fused only)
+    basal::options::find(opts, "--despill", despill);                  // Optional
+    basal::options::find(opts, "--refine", refine_radius);             // Optional
+    basal::options::find(opts, "--screen-estimate", screen_estimate);  // Optional
 
     basal::options::print(basal::dimof(opts), opts);
 
@@ -226,6 +249,13 @@ int main(int argc, char* argv[]) {
                 }
             }
         }
+        // Per-frame screen color estimate: real key screens are gradient, vignetted and
+        // unevenly lit, so key against the actual dominant screen hue rather than the
+        // pure named color. Falls back to the named color when no confident screen is found.
+        cv::Vec3b active_key = key;
+        if (screen_estimate) {
+            active_key = vision::estimate_screen_color(frame, key);
+        }
         // Feather the combined protect mask so the matte blends at its edges; grey fringe
         // pixels become an unknown band that the solver soft-keys instead of a hard step.
         if (!active_protect.empty() && protect_feather > 0) {
@@ -254,14 +284,16 @@ int main(int argc, char* argv[]) {
             if (background_frame.type() != CV_8UC3) {
                 background_frame.convertTo(background_frame, CV_8UC3);
             }
-            vision::chroma_replace(frame, background_frame, type, key, result, static_cast<float>(clip_black),
+            vision::chroma_replace(frame, background_frame, type, active_key, result, static_cast<float>(clip_black),
                                    static_cast<float>(clip_white), static_cast<float>(fg_keep),
-                                   static_cast<float>(bg_keep), active_protect);
+                                   static_cast<float>(bg_keep), active_protect, static_cast<float>(despill),
+                                   refine_radius);
         } else {
             // No background: replace the key color with a solid, pure (brighter,
             // more consistent) version of the key color itself.
-            vision::key_out(frame, type, key, result, static_cast<float>(clip_black), static_cast<float>(clip_white),
-                            static_cast<float>(fg_keep), static_cast<float>(bg_keep), active_protect);
+            vision::key_out(frame, type, active_key, result, static_cast<float>(clip_black),
+                            static_cast<float>(clip_white), static_cast<float>(fg_keep), static_cast<float>(bg_keep),
+                            active_protect, static_cast<float>(despill), refine_radius);
         }
 
         if (stills_mode) {

@@ -173,6 +173,100 @@ TEST(ChromaKeyOut, BlueScreenBecomesPureBlue) {
     EXPECT_EQ(result.at<cv::Vec3b>(8, 8U), foreground);
 }
 
+TEST(ChromaReplace, DespillFringeLoosesExcessKeyChannelButKeysObeyMatte) {
+    // A kept (alpha 0) subject pixel with a green fringe has the excess green pulled
+    // down toward the other two channels; a fully-keyed (alpha 1) pixel is untouched.
+    cv::Mat img(1, 3, CV_8UC3);
+    img.at<cv::Vec3b>(0, 0U) = cv::Vec3b(20, 200, 20);  // fringe, kept as subject
+    img.at<cv::Vec3b>(0, 1U) = cv::Vec3b(20, 200, 20);  // fully keyed screen
+    img.at<cv::Vec3b>(0, 2U) = cv::Vec3b(20, 20, 40);   // key channel not dominant: nothing to remove
+    cv::Mat alpha(1, 3, CV_32FC1);
+    alpha.at<float>(0, 0U) = 0.0f;  // fully subject
+    alpha.at<float>(0, 1U) = 1.0f;  // fully keyed
+    alpha.at<float>(0, 2U) = 0.0f;
+    cv::Mat out = despill(img, alpha, named_color("green"), 1.0f);
+    EXPECT_EQ(out.at<cv::Vec3b>(0, 0U)[1U], 20);                 // fringe: green dropped to other-channel level
+    EXPECT_EQ(out.at<cv::Vec3b>(0, 1U)[1U], 200);                // keyed screen: untouched
+    EXPECT_EQ(out.at<cv::Vec3b>(0, 2U), cv::Vec3b(20, 20, 40));  // no excess: unchanged
+}
+
+TEST(ChromaReplace, DespillZeroStrengthIsNoOp) {
+    cv::Mat img(1, 2, CV_8UC3);
+    img.at<cv::Vec3b>(0, 0U) = cv::Vec3b(20, 180, 30);
+    img.at<cv::Vec3b>(0, 1U) = cv::Vec3b(10, 250, 40);
+    cv::Mat alpha(1, 2, CV_32FC1);
+    alpha.at<float>(0, 0U) = 0.2f;
+    alpha.at<float>(0, 1U) = 0.9f;
+    cv::Mat out = despill(img, alpha, named_color("green"), 0.0f);
+    EXPECT_EQ(out.at<cv::Vec3b>(0, 0U), cv::Vec3b(20, 180, 30));
+    EXPECT_EQ(out.at<cv::Vec3b>(0, 1U), cv::Vec3b(10, 250, 40));
+}
+
+TEST(Despill, EstimatesDominantScreenColorFromConfidentScreen) {
+    // A bright but impure green screen plus a small red subject box: the histogram peak
+    // lands on the screen region, so the estimate tracks the screen, not the subject.
+    cv::Mat img = solid(16, 16, impure_screen);  // {10, 255, 10}
+    img(cv::Rect(6, 6, 4, 4)) = cv::Scalar(foreground[0], foreground[1U], foreground[2U]);
+    cv::Vec3b const est = estimate_screen_color(img, named_color("green"));
+    EXPECT_GT(est[1U], 200);  // green channel dominant
+    EXPECT_LT(est[0U], 40);   // little blue cast
+    EXPECT_LT(est[2U], 40);   // little red cast
+}
+
+TEST(Despill, EstimatesScreenFallsBackToNamedKey) {
+    // A grey, green-free image has no confident screen, so the estimate falls back.
+    cv::Mat img = solid(8, 8, cv::Vec3b(128, 128, 128));
+    EXPECT_EQ(estimate_screen_color(img, named_color("green")), named_color("green"));
+}
+
+TEST(Despill, RefineAlphaKeepsBoundsAndSoftenHardEdge) {
+    // A hard 0->1 matte step guided by a flat image: with no edge to snap to, the box
+    // filter averages across the boundary, opening a soft transition while staying in
+    // [0,1] (it would stay hard if the guide had an edge exactly there).
+    cv::Mat alpha(1, 24, CV_32FC1);
+    cv::Mat img = solid(1, 24, cv::Vec3b(128, 128, 128));
+    for (int x = 0; x < 24; ++x) {
+        alpha.at<float>(0, x) = (x < 12) ? 0.0f : 1.0f;
+    }
+    refine_alpha(alpha, img, 4);
+    int soft = 0;
+    for (int x = 0; x < 24; ++x) {
+        float const a = alpha.at<float>(0, x);
+        EXPECT_GE(a, 0.0f);
+        EXPECT_LE(a, 1.0f);
+        if (a > 0.05f && a < 0.95f) {
+            ++soft;
+        }
+    }
+    EXPECT_GT(soft, 0);
+    // Far from the edge the hard values are preserved.
+    EXPECT_EQ(alpha.at<float>(0, 2U), 0.0f);
+    EXPECT_EQ(alpha.at<float>(0, 22), 1.0f);
+}
+
+TEST(ChromaReplace, ZeroDespillKeepsKeyOutResultUnchanged) {
+    cv::Mat img = solid(16, 16, impure_screen);
+    img(cv::Rect(6, 6, 4, 4)) = cv::Scalar(foreground[0], foreground[1U], foreground[2U]);
+    cv::Mat a, b;
+    key_out(img, "vlahos", named_color("green"), a);
+    key_out(img, "vlahos", named_color("green"), b, 0.0f, 1.0f, 0.01f, 0.05f, cv::Mat(), 0.0f, 0);
+    EXPECT_DOUBLE_EQ(cv::norm(a, b, cv::NORM_INF), 0.0);
+}
+
+TEST(ChromaKeyOut, DespillReducesGreenOnFringeButNotPureScreen) {
+    // Left half: a bright green screen. Right half: a green-fringed subject edge
+    // (weakly keyed, so kept). A positive despill strength lowers the green cast on the
+    // fringe while the fully-replaced screen is unaffected.
+    cv::Mat img = solid(16, 32, cv::Vec3b(10, 255, 10));
+    for (int y = 0; y < 16; ++y)
+        for (int x = 24; x < 32; ++x) img.at<cv::Vec3b>(y, x) = cv::Vec3b(20, 140, 60);
+    cv::Mat plain, spilled;
+    key_out(img, "vlahos", named_color("green"), plain);
+    key_out(img, "vlahos", named_color("green"), spilled, 0.0f, 1.0f, 0.01f, 0.05f, cv::Mat(), 1.0f, 0);
+    EXPECT_EQ(spilled.at<cv::Vec3b>(8, 4U), plain.at<cv::Vec3b>(8, 4U));          // pure screen: identical
+    EXPECT_GT(plain.at<cv::Vec3b>(8, 28)[1U], spilled.at<cv::Vec3b>(8, 28)[1U]);  // fringe: greened down
+}
+
 namespace {
 
 using matting::TrimapClass;

@@ -178,6 +178,136 @@ cv::Mat compute_alpha(ChromaType type, cv::Mat const& image, cv::Vec3b key, floa
     return {};  // unreachable
 }
 
+cv::Mat despill(cv::Mat const& image, cv::Mat const& alpha, cv::Vec3b key, float strength) {
+    detail::validate_image(image, "image");
+    if (alpha.empty() || alpha.type() != CV_32FC1 || alpha.size() != image.size()) {
+        throw std::invalid_argument("despill: alpha must be a CV_32FC1 matte matching the image size");
+    }
+    int const dominant = detail::dominant_channel(key);
+    int const other[2] = {(dominant + 1) % 3, (dominant + 2) % 3};
+    float const s = std::max(0.0f, strength);
+    cv::Mat out = image.clone();
+    for (int y = 0; y < image.rows; ++y) {
+        auto const* px = image.ptr<cv::Vec3b>(y);
+        auto* dst = out.ptr<cv::Vec3b>(y);
+        auto const* a = alpha.ptr<float>(y);
+        for (int x = 0; x < image.cols; ++x) {
+            float const k = static_cast<float>(px[x][dominant]);
+            float const o0 = static_cast<float>(px[x][other[0]]);
+            float const o1 = static_cast<float>(px[x][other[1]]);
+            float const excess = k - std::max(o0, o1);
+            if (excess <= 0.0f) {
+                continue;
+            }
+            // Only despill pixels that are kept as subject (alpha 1.0 = replaced screen is untouched).
+            float mix = 1.0f - a[x];
+            mix = mix < 0.0f ? 0.0f : (mix > 1.0f ? 1.0f : mix);
+            float const reduce = excess * mix * s;
+            dst[x][dominant] = static_cast<uchar>(std::max(0.0f, k - reduce));
+        }
+    }
+    return out;
+}
+
+cv::Vec3b estimate_screen_color(cv::Mat const& image, cv::Vec3b key) {
+    detail::validate_image(image, "image");
+    int const dominant = detail::dominant_channel(key);
+    int const other[2] = {(dominant + 1) % 3, (dominant + 2) % 3};
+    // Quantize colors of confident screen pixels and histogram them; the dominant bin's
+    // mean is the estimated screen color (robust to outlier spill/edges).
+    constexpr int bins = 32;
+    size_t const bin_stride = bins * bins;
+    std::vector<size_t> hist(bins * bins * bins, 0);
+    size_t count = 0;
+    for (int y = 0; y < image.rows; ++y) {
+        auto const* px = image.ptr<cv::Vec3b>(y);
+        for (int x = 0; x < image.cols; ++x) {
+            float const k = static_cast<float>(px[x][dominant]);
+            float const o0 = static_cast<float>(px[x][other[0]]);
+            float const o1 = static_cast<float>(px[x][other[1]]);
+            float const excess = k - std::max(o0, o1);
+            if (excess < 40.0f || k < 64.0f) {
+                continue;  // not confident screen
+            }
+            int bi = static_cast<int>(k * bins / 256.0f);
+            int b0 = static_cast<int>(o0 * bins / 256.0f);
+            int b1 = static_cast<int>(o1 * bins / 256.0f);
+            bi = std::min(static_cast<int>(bins) - 1, std::max(0, bi));
+            b0 = std::min(static_cast<int>(bins) - 1, std::max(0, b0));
+            b1 = std::min(static_cast<int>(bins) - 1, std::max(0, b1));
+            ++hist[static_cast<size_t>(bi) * bin_stride + static_cast<size_t>(b0) * bins + static_cast<size_t>(b1)];
+            ++count;
+        }
+    }
+    if (count == 0) {
+        return key;
+    }
+    size_t const peak = static_cast<size_t>(std::distance(hist.begin(), std::max_element(hist.begin(), hist.end())));
+    int const peak_b0 = static_cast<int>((peak % bin_stride) / bins);
+    int const peak_b1 = static_cast<int>(peak % static_cast<size_t>(bins));
+    size_t const peak_bi = peak / bin_stride;
+    // Mean of the actual pixels landing in the peak bin.
+    double sum[3] = {0.0, 0.0, 0.0};
+    size_t n = 0;
+    for (int y = 0; y < image.rows; ++y) {
+        auto const* px = image.ptr<cv::Vec3b>(y);
+        for (int x = 0; x < image.cols; ++x) {
+            float const k = static_cast<float>(px[x][dominant]);
+            float const o0 = static_cast<float>(px[x][other[0]]);
+            float const o1 = static_cast<float>(px[x][other[1]]);
+            float const excess = k - std::max(o0, o1);
+            if (excess < 40.0f || k < 64.0f) {
+                continue;
+            }
+            int const bi = static_cast<int>(k * bins / 256.0f);
+            int const b0 = static_cast<int>(o0 * bins / 256.0f);
+            int const b1 = static_cast<int>(o1 * bins / 256.0f);
+            if (std::min(bins - 1, std::max(0, b0)) == peak_b0 && std::min(bins - 1, std::max(0, b1)) == peak_b1
+                && std::min(bins - 1, std::max(0, bi)) == static_cast<int>(peak_bi)) {
+                sum[0] += static_cast<double>(px[x][0]);
+                sum[1] += static_cast<double>(px[x][1]);
+                sum[2] += static_cast<double>(px[x][2]);
+                ++n;
+            }
+        }
+    }
+    if (n == 0) {
+        return key;
+    }
+    return cv::Vec3b{static_cast<uchar>(std::lround(sum[0] / static_cast<double>(n))),
+                     static_cast<uchar>(std::lround(sum[1] / static_cast<double>(n))),
+                     static_cast<uchar>(std::lround(sum[2] / static_cast<double>(n)))};
+}
+
+void refine_alpha(cv::Mat& alpha, cv::Mat const& image, int radius, float eps) {
+    if (alpha.empty() || alpha.type() != CV_32FC1 || image.empty() || image.type() != CV_8UC3
+        || image.size() != alpha.size()) {
+        throw std::invalid_argument("refine_alpha: alpha must be a CV_32FC1 matte matching the CV_8UC3 image size");
+    }
+    int const r = std::max(1, radius);
+    // Guided filter (He, Sun & Tang 2010) on the alpha, guided by the image luminance.
+    cv::Mat I, p;
+    cv::cvtColor(image, I, cv::COLOR_BGR2GRAY);
+    I.convertTo(I, CV_32F, 1.0 / 255.0);
+    alpha.convertTo(p, CV_32F);
+    cv::Mat mean_I, mean_p, corr_I, corr_Ip;
+    cv::boxFilter(I, mean_I, CV_32F, cv::Size(r, r));
+    cv::boxFilter(p, mean_p, CV_32F, cv::Size(r, r));
+    cv::boxFilter(I.mul(I), corr_I, CV_32F, cv::Size(r, r));
+    cv::boxFilter(I.mul(p), corr_Ip, CV_32F, cv::Size(r, r));
+    cv::Mat const var_I = corr_I - mean_I.mul(mean_I);
+    cv::Mat const cov_Ip = corr_Ip - mean_I.mul(mean_p);
+    cv::Mat const a = cov_Ip / (var_I + static_cast<double>(eps));
+    cv::Mat const b = mean_p - a.mul(mean_I);
+    cv::Mat mean_a, mean_b, q;
+    cv::boxFilter(a, mean_a, CV_32F, cv::Size(r, r));
+    cv::boxFilter(b, mean_b, CV_32F, cv::Size(r, r));
+    q = mean_a.mul(I) + mean_b;
+    cv::max(q, cv::Scalar::all(0.0), q);
+    cv::min(q, cv::Scalar::all(1.0), q);
+    q.copyTo(alpha);
+}
+
 void remap_alpha(cv::Mat& alpha, float clip_black, float clip_white) {
     basal::exception::throw_unless(!alpha.empty() && alpha.type() == CV_32FC1, __FILE__, __LINE__,
                                    "remap_alpha: alpha must be a non-empty 32FC1 matte");
@@ -195,7 +325,7 @@ void remap_alpha(cv::Mat& alpha, float clip_black, float clip_white) {
 
 void chroma_replace(cv::Mat const& image, cv::Mat const& background, std::string const& type, cv::Vec3b key,
                     cv::Mat& result, float clip_black, float clip_white, float fg_keep, float bg_keep,
-                    cv::Mat const& protect) {
+                    cv::Mat const& protect, float despill_strength, int refine_radius) {
     basal::exception::throw_unless(!image.empty() && image.type() == CV_8UC3, __FILE__, __LINE__,
                                    "chroma_replace: input image must be a non-empty 8UC3 image");
     basal::exception::throw_unless(!background.empty() && background.type() == CV_8UC3, __FILE__, __LINE__,
@@ -205,10 +335,20 @@ void chroma_replace(cv::Mat const& image, cv::Mat const& background, std::string
         cv::resize(bg, bg, image.size());
     cv::Mat alpha = compute_alpha(parse_chroma_type(type), image, key, fg_keep, bg_keep, protect);
     remap_alpha(alpha, clip_black, clip_white);
+    if (refine_radius > 0) {
+        refine_alpha(alpha, image, refine_radius);
+    }
+
+    // Despill the kept foreground before compositing so spill suppression is baked into
+    // the output even when keying out (no background). Despill keys on the keyed matte.
+    cv::Mat src = image;
+    if (despill_strength > 0.0f) {
+        src = despill(image, alpha, key, despill_strength);
+    }
 
     cv::Mat bgf, imgf;
     bg.convertTo(bgf, CV_32F);
-    image.convertTo(imgf, CV_32F);
+    src.convertTo(imgf, CV_32F);
     cv::Mat alpha3;
     cv::merge(std::vector<cv::Mat>{alpha, alpha, alpha}, alpha3);
     cv::Mat term_bg, term_fg, one_minus;
@@ -221,12 +361,14 @@ void chroma_replace(cv::Mat const& image, cv::Mat const& background, std::string
 }
 
 void key_out(cv::Mat const& image, std::string const& type, cv::Vec3b key, cv::Mat& result, float clip_black,
-             float clip_white, float fg_keep, float bg_keep, cv::Mat const& protect) {
+             float clip_white, float fg_keep, float bg_keep, cv::Mat const& protect, float despill_strength,
+             int refine_radius) {
     // A solid fill of the pure key color is brighter and more consistent than a
     // physical key screen, which is usually darker and tinted with the other channels.
     cv::Mat solid(image.size(), CV_8UC3,
                   cv::Scalar(static_cast<double>(key[0U]), static_cast<double>(key[1U]), static_cast<double>(key[2U])));
-    chroma_replace(image, solid, type, key, result, clip_black, clip_white, fg_keep, bg_keep, protect);
+    chroma_replace(image, solid, type, key, result, clip_black, clip_white, fg_keep, bg_keep, protect, despill_strength,
+                   refine_radius);
 }
 
 std::string to_lower(std::string const& s) {

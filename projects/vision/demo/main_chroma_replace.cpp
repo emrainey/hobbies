@@ -100,11 +100,13 @@ int main(int argc, char* argv[]) {
     basal::precision despill = 0.0;
     int refine_radius = 0;
     bool screen_estimate = false;
+    basal::precision softness = -1.0;
+    basal::precision despill_floor = 0.2;
 
     basal::options::config opts[] = {
         {"-i", "--input", std::string(""), "Input image or video file path containing the key color"},
         {"-t", "--type", std::string("vlahos"),
-         "Chroma key algorithm: vlahos, mishima, closedform, bayesian, knn, global or fused"},
+         "Chroma key algorithm: vlahos, keylight, mishima, closedform, bayesian, knn, global or fused"},
         {"-o", "--output", std::string("chroma_replaced.mov"), "Output image or video file path"},
         {"-f", "--frames", std::string(""),
          "Only process the given 1-based frame indices, written as stills; a spec is a comma-separated list of "
@@ -141,6 +143,14 @@ int main(int argc, char* argv[]) {
          "Alpha clip black in [0,1]: pixels at or below this keep the foreground"},
         {"-w", "--clip-white", basal::precision(1.0),
          "Alpha clip white in [0,1]: pixels at or above this are fully replaced (e.g. 0.6 brightens shadows)"},
+        {"-S", "--softness", basal::precision(-1.0),
+         "keylight only: matte of softness in [0,1]; lower values key screen pixels more aggressively (fewer splotches "
+         "in the background), higher values keep a wider soft fringe. -1 uses the algorithm default (0.1)"},
+        {"-F", "--despill-floor", basal::precision(0.2),
+         "Despill floor: the minimum subject fraction (1 - alpha) a pixel must have before spill is removed, in [0,1]. "
+         "Slightly-under-1 alpha pixels from a soft solver matte (e.g. fused, shadowed screens) are left strictly "
+         "untouched, which stops despill from wobbling the composite background. Lower (e.g. 0) for maximum spill "
+         "removal, higher (e.g. 0.3) for a calmer background"},
         {"-b", "--background", std::string(""),
          "Background image/video file path; when omitted, the key color is replaced with a solid, pure version of the "
          "key color"},
@@ -150,7 +160,8 @@ int main(int argc, char* argv[]) {
 
     basal::exit_unless(basal::options::find(opts, "--input", input), __FILE__, __LINE__, "--input must be a file path");
     basal::exit_unless(basal::options::find(opts, "--type", type), __FILE__, __LINE__,
-                       "--type must be a short string: vlahos, mishima, closedform, bayesian, knn, global or fused");
+                       "--type must be a short string: vlahos, keylight, mishima, closedform, bayesian, knn, global or "
+                       "fused");
     basal::exit_unless(basal::options::find(opts, "--output", output), __FILE__, __LINE__,
                        "--output must be a file path");
     basal::options::find(opts, "--color", color);
@@ -167,6 +178,8 @@ int main(int argc, char* argv[]) {
     basal::options::find(opts, "--despill", despill);                  // Optional
     basal::options::find(opts, "--refine", refine_radius);             // Optional
     basal::options::find(opts, "--screen-estimate", screen_estimate);  // Optional
+    basal::options::find(opts, "--softness", softness);                // Optional
+    basal::options::find(opts, "--despill-floor", despill_floor);      // Optional
 
     basal::options::print(basal::dimof(opts), opts);
 
@@ -287,13 +300,14 @@ int main(int argc, char* argv[]) {
             vision::chroma_replace(frame, background_frame, type, active_key, result, static_cast<float>(clip_black),
                                    static_cast<float>(clip_white), static_cast<float>(fg_keep),
                                    static_cast<float>(bg_keep), active_protect, static_cast<float>(despill),
-                                   refine_radius);
+                                   refine_radius, static_cast<float>(softness), static_cast<float>(despill_floor));
         } else {
             // No background: replace the key color with a solid, pure (brighter,
             // more consistent) version of the key color itself.
             vision::key_out(frame, type, active_key, result, static_cast<float>(clip_black),
                             static_cast<float>(clip_white), static_cast<float>(fg_keep), static_cast<float>(bg_keep),
-                            active_protect, static_cast<float>(despill), refine_radius);
+                            active_protect, static_cast<float>(despill), refine_radius, static_cast<float>(softness),
+                            static_cast<float>(despill_floor));
         }
 
         if (stills_mode) {

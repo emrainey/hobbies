@@ -32,6 +32,9 @@ cv::Mat solid(int rows, int cols, cv::Vec3b color) {
 TEST(ChromaType, ParsesVlahos) {
     EXPECT_EQ(parse_chroma_type("vlahos"), ChromaType::Vlahos);
 }
+TEST(ChromaType, ParsesKeylight) {
+    EXPECT_EQ(parse_chroma_type("keylight"), ChromaType::Keylight);
+}
 TEST(ChromaType, ParsesMishima) {
     EXPECT_EQ(parse_chroma_type("mishima"), ChromaType::Mishima);
 }
@@ -125,12 +128,57 @@ TEST(ChromaReplace, MishimaSolidGreenMakesImpureScreenPure) {
 TEST(ChromaKeyOut, MatchesSolidBackgroundCompositing) {
     cv::Mat img = solid(16, 16, impure_screen);
     img(cv::Rect(6, 6, 4, 4)) = cv::Scalar(foreground[0], foreground[1U], foreground[2U]);
-    for (std::string const& type : {"vlahos", "mishima"}) {
+    for (std::string const& type : {"vlahos", "keylight", "mishima"}) {
         cv::Mat a, b;
         key_out(img, type, named_color("green"), a);
         chroma_replace(img, solid(16, 16, cv::Vec3b{0, 255, 0}), type, named_color("green"), b);
         EXPECT_DOUBLE_EQ(cv::norm(a, b, cv::NORM_INF), 0.0) << "mismatch for type: " << type;
     }
+}
+
+TEST(ChromaReplace, KeylightBalancesOffHueScreenToPureKey) {
+    // A greenish-teal (off-hue) screen must key out to the pure key just like an
+    // on-hue one; screen balance normalizes the slight off-hue cast.
+    cv::Mat img = solid(16, 16, cv::Vec3b{40, 240, 90});  // off-hue green
+    cv::Mat result;
+    chroma_replace(img, solid(16, 16, cv::Vec3b{0, 255, 0}), "keylight", named_color("green"), result);
+    cv::Vec3b const px = result.at<cv::Vec3b>(8, 8U);
+    EXPECT_GE(px[1U], 200);  // green preserved
+    EXPECT_LT(px[0U], 80);   // blue cast removed
+}
+
+TEST(ChromaReplace, KeylightKeepsSubjectWithoutKeyDominance) {
+    // A genuine subject pixel whose key channel does not dominate is preserved whole:
+    // its excess is zero (or negative), so the matte stays at 0.
+    cv::Mat img(1, 2, CV_8UC3);
+    img.at<cv::Vec3b>(0, 0U) = cv::Vec3b(0, 0, 0);      // black subject
+    img.at<cv::Vec3b>(0, 1U) = cv::Vec3b(10, 10, 200);  // red subject (green not dominant)
+    cv::Mat result;
+    key_out(img, "keylight", named_color("green"), result, 0.0f, 1.0f, 0.01f, 0.05f, cv::Mat(), 0.0f, 0);
+    EXPECT_EQ(result.at<cv::Vec3b>(0, 0U), cv::Vec3b(0, 0, 0));
+    EXPECT_EQ(result.at<cv::Vec3b>(0, 1U), cv::Vec3b(10, 10, 200));
+}
+
+TEST(ChromaReplace, KeylightKeysVignettedScreenUniformly) {
+    // A gradient screen (same hue, different brightness) keys at every luminance: the
+    // matte is driven by key-channel dominance, not absolute level.
+    cv::Mat img = solid(16, 16, cv::Vec3b{40, 255, 40});
+    img(cv::Rect(8, 8, 8, 8)) = cv::Scalar(40, 130, 40);  // darker centre (vignette)
+    cv::Mat result;
+    chroma_replace(img, solid(16, 16, cv::Vec3b{0, 255, 0}), "keylight", named_color("green"), result);
+    EXPECT_GE(result.at<cv::Vec3b>(4, 4U)[1U], 250);   // bright rim: full key
+    EXPECT_GE(result.at<cv::Vec3b>(12, 12)[1U], 250);  // dark centre: also full key
+}
+
+TEST(ChromaReplace, KeylightLowerSoftnessKeysFaintSpillHarder) {
+    // A faint green fringe (small excess) is partially keyed; a smaller softness window
+    // snaps it harder (higher alpha) than a larger one because the matte is the excess
+    // divided by the softness-scaled window.
+    cv::Mat img = solid(16, 16, cv::Vec3b{40, 90, 40});  // weak green excess
+    float const softer = keylight_alpha(img, named_color("green"), 0.5f).at<float>(8, 8U);
+    float const harder = keylight_alpha(img, named_color("green"), 0.02f).at<float>(8, 8U);
+    EXPECT_GT(softer, 0.0f);
+    EXPECT_GT(harder, softer);  // lower softness = more aggressive key
 }
 
 TEST(ChromaKeyOut, GreenScreenBecomesPureGreenAndForegroundPreserved) {
@@ -200,6 +248,34 @@ TEST(ChromaReplace, DespillZeroStrengthIsNoOp) {
     cv::Mat out = despill(img, alpha, named_color("green"), 0.0f);
     EXPECT_EQ(out.at<cv::Vec3b>(0, 0U), cv::Vec3b(20, 180, 30));
     EXPECT_EQ(out.at<cv::Vec3b>(0, 1U), cv::Vec3b(10, 250, 40));
+}
+
+TEST(ChromaReplace, DespillFloorLeavesBackgroundLeaningPixelsUntouched) {
+    // A soft matte pixel leaning toward background (alpha 0.95, subject fraction 0.05)
+    // with a high green fringe. Without a floor it would have a little green removed;
+    // with the floor (default 0.2) it must be untouched so a soft solver matte cannot
+    // wobble the composite background. A definite-subject pixel (alpha 0) is still
+    // despilled fully.
+    cv::Mat img(1, 2, CV_8UC3);
+    img.at<cv::Vec3b>(0, 0U) = cv::Vec3b(20, 220, 20);  // green fringe, background-leaning
+    img.at<cv::Vec3b>(0, 1U) = cv::Vec3b(20, 220, 20);  // same fringe, definite subject
+    cv::Mat alpha(1, 2, CV_32FC1);
+    alpha.at<float>(0, 0U) = 0.9f;                                  // mostly background
+    alpha.at<float>(0, 1U) = 0.0f;                                  // definite subject
+    cv::Mat out = despill(img, alpha, named_color("green"), 1.0f);  // default floor 0.2
+    EXPECT_EQ(out.at<cv::Vec3b>(0, 0U)[1U], 220);                   // untouched: floor protects it
+    EXPECT_EQ(out.at<cv::Vec3b>(0, 1U)[1U], 20);                    // subject: green pulled to other-channel level
+}
+
+TEST(ChromaReplace, DespillFloorZeroBehavesLikeBefore) {
+    // A floor of 0 removes the protection entirely, so even a background-leaning pixel
+    // with any green excess is reduced by its (1-alpha) weight.
+    cv::Mat img(1, 1, CV_8UC3);
+    img.at<cv::Vec3b>(0, 0U) = cv::Vec3b(20, 220, 20);
+    cv::Mat alpha(1, 1, CV_32FC1);
+    alpha.at<float>(0, 0U) = 0.9f;
+    cv::Mat out = despill(img, alpha, named_color("green"), 1.0f, 0.0f);
+    EXPECT_LT(out.at<cv::Vec3b>(0, 0U)[1U], 220);  // some green removed when floor is 0
 }
 
 TEST(Despill, EstimatesDominantScreenColorFromConfidentScreen) {

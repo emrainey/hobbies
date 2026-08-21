@@ -129,11 +129,60 @@ inline void validate_image(cv::Mat const& image, std::string const& name) {
     return alpha;
 }
 
+cv::Mat keylight_alpha(cv::Mat const& image, cv::Vec3b key, float softness) {
+    detail::validate_image(image, "image");
+    int const dominant = detail::dominant_channel(key);
+    int const other0 = (dominant + 1) % 3;
+    int const other1 = (dominant + 2) % 3;
+    float const s = std::clamp(softness, 0.01f, 1.0f);
+
+    // Keylight-style screen balance. Real screens are low in the non-key channels and
+    // slightly tinted there; gradient/vignetted illumination makes the same screen
+    // pixel a different colour at every location. We rescale the two non-key channels
+    // toward the key channel so a pixel whose ratio of other-channels to key channel
+    // matches the key reads neutral, which makes an uneven screen key uniformly. The
+    // ratios are protected against a zero key component (pure named keys like green
+    // have zero blue/red, so a plain divide would blow up).
+    float const kd = static_cast<float>(key[dominant]);
+    float const bg0 = (key[other0] <= 0) ? 1.0f : kd / static_cast<float>(key[other0]);
+    float const bg1 = (key[other1] <= 0) ? 1.0f : kd / static_cast<float>(key[other1]);
+
+    cv::Mat alpha(image.size(), CV_32F, cv::Scalar::all(0.0));
+    for (int y = 0; y < image.rows; ++y) {
+        auto const* px = image.ptr<cv::Vec3b>(y);
+        float* out = alpha.ptr<float>(y);
+        for (int x = 0; x < image.cols; ++x) {
+            float const v[3]
+                = {static_cast<float>(px[x][0]), static_cast<float>(px[x][1U]), static_cast<float>(px[x][2])};
+            float const kch = v[dominant];
+            // Screen-balanced non-key channels: a pure-key pixel maps these up to kch.
+            float const ob0 = std::min(v[other0] * bg0, kch);
+            float const ob1 = std::min(v[other1] * bg1, kch);
+            // Excess of the key channel over the surrounding colour in balanced space;
+            // positive only when the key channel really dominates.
+            float const excess = kch - 0.5f * (ob0 + ob1);
+            // Soft matte: ramp from 0 (no excess) to 1 as the excess crosses a window
+            // scaled to the key level, so faint spill is only partially keyed. Dim
+            // pixels never reach full alpha because their key channel is low and the
+            // window is key-level relative.
+            float const window = s * std::max(kd, 1.0f);
+            float const key_amt
+                = (window <= 0.0f) ? (excess > 0.0f ? 1.0f : 0.0f) : std::clamp(excess / window, 0.0f, 1.0f);
+            out[x] = key_amt;
+        }
+    }
+    return alpha;
+}
+
 cv::Mat compute_alpha(ChromaType type, cv::Mat const& image, cv::Vec3b key, float fg_keep, float bg_keep,
-                      cv::Mat const& protect) {
+                      cv::Mat const& protect, float softness) {
     switch (type) {
         case ChromaType::Vlahos:
             return vlahos_alpha(image, key);
+        case ChromaType::Keylight:
+            // A negative softness selects the algorithm default; otherwise pass the
+            // user's value straight through so the matte transition can be dialed.
+            return keylight_alpha(image, key, softness < 0.0f ? 0.1f : softness);
         case ChromaType::Mishima:
             return mishima_alpha(image, key);
         case ChromaType::ClosedFormMatting:
@@ -178,7 +227,7 @@ cv::Mat compute_alpha(ChromaType type, cv::Mat const& image, cv::Vec3b key, floa
     return {};  // unreachable
 }
 
-cv::Mat despill(cv::Mat const& image, cv::Mat const& alpha, cv::Vec3b key, float strength) {
+cv::Mat despill(cv::Mat const& image, cv::Mat const& alpha, cv::Vec3b key, float strength, float floor) {
     detail::validate_image(image, "image");
     if (alpha.empty() || alpha.type() != CV_32FC1 || alpha.size() != image.size()) {
         throw std::invalid_argument("despill: alpha must be a CV_32FC1 matte matching the image size");
@@ -186,6 +235,12 @@ cv::Mat despill(cv::Mat const& image, cv::Mat const& alpha, cv::Vec3b key, float
     int const dominant = detail::dominant_channel(key);
     int const other[2] = {(dominant + 1) % 3, (dominant + 2) % 3};
     float const s = std::max(0.0f, strength);
+    // Despill floor: the minimum subject fraction (1 - alpha) at which spill is
+    // removed. Pixels the solving matte leans strongly toward background (alpha near
+    // 1) are left strictly untouched. Without this, a soft matte with alpha slightly
+    // under 1 across the screen ring would have a little green removed and wobble the
+    // composite background.
+    float const f = std::clamp(floor, 0.0f, 1.0f);
     cv::Mat out = image.clone();
     for (int y = 0; y < image.rows; ++y) {
         auto const* px = image.ptr<cv::Vec3b>(y);
@@ -199,11 +254,14 @@ cv::Mat despill(cv::Mat const& image, cv::Mat const& alpha, cv::Vec3b key, float
             if (excess <= 0.0f) {
                 continue;
             }
-            // Only despill pixels that are kept as subject (alpha 1.0 = replaced screen is untouched).
-            float mix = 1.0f - a[x];
-            mix = mix < 0.0f ? 0.0f : (mix > 1.0f ? 1.0f : mix);
-            float const reduce = excess * mix * s;
-            dst[x][dominant] = static_cast<uchar>(std::max(0.0f, k - reduce));
+            // Ramp the subject fraction from 0 at the floor to 1 for a fully-kept
+            // pixel, so despill fades in smoothly instead of stepping.
+            float const subject = std::clamp(1.0f - a[x], 0.0f, 1.0f);
+            float const effective = (f >= 1.0f) ? 0.0f : (subject - f) / (1.0f - f);
+            if (effective <= 0.0f) {
+                continue;
+            }
+            dst[x][dominant] = static_cast<uchar>(std::max(0.0f, k - excess * effective * s));
         }
     }
     return out;
@@ -325,7 +383,8 @@ void remap_alpha(cv::Mat& alpha, float clip_black, float clip_white) {
 
 void chroma_replace(cv::Mat const& image, cv::Mat const& background, std::string const& type, cv::Vec3b key,
                     cv::Mat& result, float clip_black, float clip_white, float fg_keep, float bg_keep,
-                    cv::Mat const& protect, float despill_strength, int refine_radius) {
+                    cv::Mat const& protect, float despill_strength, int refine_radius, float softness,
+                    float despill_floor) {
     basal::exception::throw_unless(!image.empty() && image.type() == CV_8UC3, __FILE__, __LINE__,
                                    "chroma_replace: input image must be a non-empty 8UC3 image");
     basal::exception::throw_unless(!background.empty() && background.type() == CV_8UC3, __FILE__, __LINE__,
@@ -333,17 +392,18 @@ void chroma_replace(cv::Mat const& image, cv::Mat const& background, std::string
     cv::Mat bg = background;
     if (bg.size() != image.size())
         cv::resize(bg, bg, image.size());
-    cv::Mat alpha = compute_alpha(parse_chroma_type(type), image, key, fg_keep, bg_keep, protect);
+    cv::Mat alpha = compute_alpha(parse_chroma_type(type), image, key, fg_keep, bg_keep, protect, softness);
     remap_alpha(alpha, clip_black, clip_white);
     if (refine_radius > 0) {
         refine_alpha(alpha, image, refine_radius);
     }
 
     // Despill the kept foreground before compositing so spill suppression is baked into
-    // the output even when keying out (no background). Despill keys on the keyed matte.
+    // the output even when keying out (no background). Despill keys on the keyed matte
+    // and leaves background-leaning pixels untouched via the despill floor.
     cv::Mat src = image;
     if (despill_strength > 0.0f) {
-        src = despill(image, alpha, key, despill_strength);
+        src = despill(image, alpha, key, despill_strength, despill_floor);
     }
 
     cv::Mat bgf, imgf;
@@ -362,13 +422,13 @@ void chroma_replace(cv::Mat const& image, cv::Mat const& background, std::string
 
 void key_out(cv::Mat const& image, std::string const& type, cv::Vec3b key, cv::Mat& result, float clip_black,
              float clip_white, float fg_keep, float bg_keep, cv::Mat const& protect, float despill_strength,
-             int refine_radius) {
+             int refine_radius, float softness, float despill_floor) {
     // A solid fill of the pure key color is brighter and more consistent than a
     // physical key screen, which is usually darker and tinted with the other channels.
     cv::Mat solid(image.size(), CV_8UC3,
                   cv::Scalar(static_cast<double>(key[0U]), static_cast<double>(key[1U]), static_cast<double>(key[2U])));
     chroma_replace(image, solid, type, key, result, clip_black, clip_white, fg_keep, bg_keep, protect, despill_strength,
-                   refine_radius);
+                   refine_radius, softness, despill_floor);
 }
 
 std::string to_lower(std::string const& s) {
@@ -387,6 +447,8 @@ ChromaType parse_chroma_type(std::string const& type) {
     t.erase(std::remove(t.begin(), t.end(), '\0'), t.end());
     if (t == "vlahos")
         return ChromaType::Vlahos;
+    if (t == "keylight")
+        return ChromaType::Keylight;
     if (t == "mishima")
         return ChromaType::Mishima;
     if (t == "closedform" || t == "levin")
@@ -400,8 +462,8 @@ ChromaType parse_chroma_type(std::string const& type) {
     if (t == "fused" || t == "hybrid")
         return ChromaType::FusedMatting;
     basal::exception::throw_unless(false, __FILE__, __LINE__,
-                                   "Unknown --type: %s (expected vlahos, mishima, closedform, bayesian, knn, global "
-                                   "or fused)",
+                                   "Unknown --type: %s (expected vlahos, keylight, mishima, closedform, bayesian, "
+                                   "knn, global or fused)",
                                    type.c_str());
     return ChromaType::Vlahos;
 }

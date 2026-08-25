@@ -180,6 +180,31 @@ cv::Mat build_trimap(cv::Mat const& image, cv::Vec3b key, float bg_hue_tol, floa
     return trimap;
 }
 
+cv::Mat clean_trimap(cv::Mat const& trimap, int radius) {
+    detail::validate_trimap(trimap, trimap);  // size checks against itself; type 8UC1
+    if (radius <= 0) {
+        return trimap.clone();
+    }
+    int const r = std::max(1, radius);
+    cv::Mat kernel = cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(2 * r + 1, 2 * r + 1));
+    // Treat the definite foreground/background as two 1-bit maps and erode each by the
+    // kernel. Erosion removes definite regions too small to hold the kernel (isolated
+    // single-pixel specks of either class buried in the other), letting those pixels
+    // fall into the Unknown band for the solver to soft-key. Erosion (not opening) is
+    // used so a removed speckle is not re-marked by the neighboring class's dilation.
+    cv::Mat fg, bg;
+    cv::inRange(trimap, cv::Scalar(static_cast<double>(TrimapClass::Foreground)),
+                cv::Scalar(static_cast<double>(TrimapClass::Foreground)), fg);
+    cv::inRange(trimap, cv::Scalar(static_cast<double>(TrimapClass::Background)),
+                cv::Scalar(static_cast<double>(TrimapClass::Background)), bg);
+    cv::erode(fg, fg, kernel);
+    cv::erode(bg, bg, kernel);
+    cv::Mat out(trimap.size(), CV_8UC1, cv::Scalar(static_cast<double>(TrimapClass::Unknown), 0.0, 0.0, 0.0));
+    out.setTo(static_cast<double>(TrimapClass::Foreground), fg);
+    out.setTo(static_cast<double>(TrimapClass::Background), bg);
+    return out;
+}
+
 cv::Mat build_trimap_from_keying(cv::Mat const& image, cv::Vec3b key, float fg_keep, float bg_keep,
                                  cv::Mat const& protect) {
     detail::validate(image, "image");
@@ -240,9 +265,14 @@ cv::Mat build_trimap_from_keying(cv::Mat const& image, cv::Vec3b key, float fg_k
     return trimap;
 }
 
-cv::Mat fused_matting(cv::Mat const& image, cv::Vec3b key, float fg_keep, float bg_keep, cv::Mat const& protect) {
+cv::Mat fused_matting(cv::Mat const& image, cv::Vec3b key, float fg_keep, float bg_keep, cv::Mat const& protect,
+                      int trimap_clean) {
     detail::validate(image, "image");
-    return closed_form_matting(image, build_trimap_from_keying(image, key, fg_keep, bg_keep, protect));
+    cv::Mat trimap = build_trimap_from_keying(image, key, fg_keep, bg_keep, protect);
+    if (trimap_clean > 0) {
+        trimap = clean_trimap(trimap, trimap_clean);
+    }
+    return closed_form_matting(image, trimap);
 }
 
 cv::Mat closed_form_matting(cv::Mat const& image, cv::Mat const& trimap, float lambda) {

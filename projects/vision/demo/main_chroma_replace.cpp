@@ -21,7 +21,8 @@
 ///        alpha matte onto the color edges of the input with a guided filter, and
 ///        `-D/--screen-estimate` to key against the actual per-frame screen color
 ///        (histogram peak of the confident screen region) instead of the pure named
-///        `--color`, which fixes gradient/vignetted/unevenly-lit screens.
+///        `--color`, which fixes gradient/vignetted/unevenly-lit screens. `-T` renders
+///        the matting trimaps clean of speckle (morphological open/close) before solving.
 /// @copyright Copyright (c) 2026
 ///
 
@@ -102,6 +103,7 @@ int main(int argc, char* argv[]) {
     bool screen_estimate = false;
     basal::precision softness = -1.0;
     basal::precision despill_floor = 0.2;
+    int trimap_clean = 0;
 
     basal::options::config opts[] = {
         {"-i", "--input", std::string(""), "Input image or video file path containing the key color"},
@@ -151,6 +153,9 @@ int main(int argc, char* argv[]) {
          "Slightly-under-1 alpha pixels from a soft solver matte (e.g. fused, shadowed screens) are left strictly "
          "untouched, which stops despill from wobbling the composite background. Lower (e.g. 0) for maximum spill "
          "removal, higher (e.g. 0.3) for a calmer background"},
+        {"-T", "--trimap-clean", int(0),
+         "matting only: trimap morphological cleanup radius in pixels (e.g. 1-2); erode/dilate the trimap before "
+         "solving to remove speckle / stray single-pixel foreground or background islands. 0 disables"},
         {"-b", "--background", std::string(""),
          "Background image/video file path; when omitted, the key color is replaced with a solid, pure version of the "
          "key color"},
@@ -180,6 +185,7 @@ int main(int argc, char* argv[]) {
     basal::options::find(opts, "--screen-estimate", screen_estimate);  // Optional
     basal::options::find(opts, "--softness", softness);                // Optional
     basal::options::find(opts, "--despill-floor", despill_floor);      // Optional
+    basal::options::find(opts, "--trimap-clean", trimap_clean);        // Optional (matting)
 
     basal::options::print(basal::dimof(opts), opts);
 
@@ -300,14 +306,15 @@ int main(int argc, char* argv[]) {
             vision::chroma_replace(frame, background_frame, type, active_key, result, static_cast<float>(clip_black),
                                    static_cast<float>(clip_white), static_cast<float>(fg_keep),
                                    static_cast<float>(bg_keep), active_protect, static_cast<float>(despill),
-                                   refine_radius, static_cast<float>(softness), static_cast<float>(despill_floor));
+                                   refine_radius, static_cast<float>(softness), static_cast<float>(despill_floor),
+                                   trimap_clean);
         } else {
             // No background: replace the key color with a solid, pure (brighter,
             // more consistent) version of the key color itself.
             vision::key_out(frame, type, active_key, result, static_cast<float>(clip_black),
                             static_cast<float>(clip_white), static_cast<float>(fg_keep), static_cast<float>(bg_keep),
                             active_protect, static_cast<float>(despill), refine_radius, static_cast<float>(softness),
-                            static_cast<float>(despill_floor));
+                            static_cast<float>(despill_floor), trimap_clean);
         }
 
         if (stills_mode) {

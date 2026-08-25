@@ -400,6 +400,26 @@ TEST(ChromaType, ParsesGlobalMatting) {
     EXPECT_EQ(parse_chroma_type("infoflow"), ChromaType::GlobalMatting);
 }
 
+TEST(Matting, CleanTrimapRemovesIsolatedForegroundSpeckle) {
+    // A trimap that is all background except one isolated foreground pixel (speckle) and
+    // one large foreground block. Cleaning must drop the speckle back to unknown while
+    // keeping the large block as foreground.
+    cv::Mat trimap(16, 16, CV_8UC1, cv::Scalar(static_cast<int>(TrimapClass::Background)));
+    trimap.at<uchar>(4, 4) = static_cast<uchar>(TrimapClass::Foreground);                  // isolated speckle
+    trimap(cv::Rect(8, 8, 6, 6)) = cv::Scalar(static_cast<int>(TrimapClass::Foreground));  // large block
+    cv::Mat const clean = matting::clean_trimap(trimap, 1);
+    EXPECT_EQ(trimap_at(clean, 4, 4), TrimapClass::Unknown);       // speckle smoothed to unknown
+    EXPECT_EQ(trimap_at(clean, 11, 11), TrimapClass::Foreground);  // large block preserved
+}
+
+TEST(Matting, CleanTrimapZeroRadiusIsNoOp) {
+    cv::Mat trimap(8, 8, CV_8UC1, cv::Scalar(static_cast<int>(TrimapClass::Background)));
+    trimap.at<uchar>(2, 2) = static_cast<uchar>(TrimapClass::Foreground);
+    cv::Mat const clean = matting::clean_trimap(trimap, 0);
+    EXPECT_EQ(trimap_at(clean, 2, 2), TrimapClass::Foreground);  // untouched
+    EXPECT_DOUBLE_EQ(cv::norm(clean, trimap, cv::NORM_INF), 0.0);
+}
+
 TEST(BuildTrimap, MarksDefiniteRegionsFromHsv) {
     cv::Mat img = gradient(16, 32, 8, 6);
     cv::Mat trimap = matting::build_trimap(img, named_color("green"));

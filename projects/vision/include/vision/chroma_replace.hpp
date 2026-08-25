@@ -54,7 +54,8 @@ cv::Mat mishima_alpha(cv::Mat const& image, cv::Vec3b key);
 
 /// Computes the key-convention alpha matte for a given ChromaType (1.0 = replace)
 cv::Mat compute_alpha(ChromaType type, cv::Mat const& image, cv::Vec3b key, float fg_keep = 0.01f,
-                      float bg_keep = 0.05f, cv::Mat const& protect = cv::Mat(), float softness = -1.0f);
+                      float bg_keep = 0.05f, cv::Mat const& protect = cv::Mat(), float softness = -1.0f,
+                      int trimap_clean = 0);
 
 /// Removes key-color spill from foreground pixels (Ultimatte/Keylight style).
 cv::Mat despill(cv::Mat const& image, cv::Mat const& alpha, cv::Vec3b key, float strength = 1.0f, float floor = 0.2f);
@@ -72,12 +73,13 @@ void remap_alpha(cv::Mat& alpha, float clip_black = 0.0f, float clip_white = 1.0
 void chroma_replace(cv::Mat const& image, cv::Mat const& background, std::string const& type, cv::Vec3b key,
                     cv::Mat& result, float clip_black = 0.0f, float clip_white = 1.0f, float fg_keep = 0.01f,
                     float bg_keep = 0.05f, cv::Mat const& protect = cv::Mat(), float despill_strength = 0.0f,
-                    int refine_radius = 0, float softness = -1.0f, float despill_floor = 0.2f);
+                    int refine_radius = 0, float softness = -1.0f, float despill_floor = 0.2f, int trimap_clean = 0);
 
 /// "Keys out" the subject: replaces the key color with a solid, pure version of the key
 /// color itself.
 void key_out(cv::Mat const& image, std::string const& type, cv::Vec3b key, cv::Mat& result, float clip_black = 0.0f,
              float clip_white = 1.0f, float fg_keep = 0.01f, float bg_keep = 0.05f, cv::Mat const& protect = cv::Mat(),
-             float despill_strength = 0.0f, int refine_radius = 0, float softness = -1.0f, float despill_floor = 0.2f);
+             float despill_strength = 0.0f, int refine_radius = 0, float softness = -1.0f, float despill_floor = 0.2f,
+             int trimap_clean = 0);
 
 }  // namespace vision

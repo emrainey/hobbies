@@ -51,6 +51,17 @@ enum class TrimapClass : std::uint8_t {
 cv::Mat build_trimap(cv::Mat const& image, cv::Vec3b key, float bg_hue_tol = 0.12f, float sat_min = 0.25f,
                      float fg_hue_tol = 0.30f);
 
+/// Removes speckle from a trimap by eroding the definite foreground/background
+/// regions. Isolated single pixels of one class buried in another region (e.g. a
+/// stray "foreground" speck in the key screen, or a sliver of "background" in the
+/// subject) are too small to survive the kernel and fall into the Unknown band, which
+/// the solver then soft-keys rather than snapping to a hard speckle.
+///
+/// @param trimap CV_8UC1 in TrimapClass encoding (0/128/255), not modified
+/// @param radius Morphological kernel radius in pixels; 0 returns a copy
+/// @return A cleaned CV_8UC1 trimap
+cv::Mat clean_trimap(cv::Mat const& trimap, int radius = 1);
+
 /// Closed-form matting (Levin, Lischinski and Weiss 2008).
 ///
 /// Builds the matting Laplacian from color-line statistics of every 3x3 window and
@@ -132,7 +143,7 @@ cv::Mat build_trimap_from_keying(cv::Mat const& image, cv::Vec3b key, float fg_k
 ///        softly instead of a hard step.
 /// @return CV_32FC1 foreground alpha in [0,1]
 cv::Mat fused_matting(cv::Mat const& image, cv::Vec3b key, float fg_keep = 0.01f, float bg_keep = 0.05f,
-                      cv::Mat const& protect = cv::Mat());
+                      cv::Mat const& protect = cv::Mat(), int trimap_clean = 0);
 
 }  // namespace matting
 }  // namespace vision

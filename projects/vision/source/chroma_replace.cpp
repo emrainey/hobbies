@@ -175,7 +175,7 @@ cv::Mat keylight_alpha(cv::Mat const& image, cv::Vec3b key, float softness) {
 }
 
 cv::Mat compute_alpha(ChromaType type, cv::Mat const& image, cv::Vec3b key, float fg_keep, float bg_keep,
-                      cv::Mat const& protect, float softness) {
+                      cv::Mat const& protect, float softness, int trimap_clean) {
     switch (type) {
         case ChromaType::Vlahos:
             return vlahos_alpha(image, key);
@@ -198,9 +198,12 @@ cv::Mat compute_alpha(ChromaType type, cv::Mat const& image, cv::Vec3b key, floa
                 // pins definite subject pixels so the solver cannot bleed key alpha
                 // into them, while the genuine spill/shadow band is solved softly by
                 // the matting Laplacian. No HSV trimap is involved.
-                foreground = matting::fused_matting(image, key, fg_keep, bg_keep, protect);
+                foreground = matting::fused_matting(image, key, fg_keep, bg_keep, protect, trimap_clean);
             } else {
-                cv::Mat const trimap = matting::build_trimap(image, key);
+                cv::Mat trimap = matting::build_trimap(image, key);
+                if (trimap_clean > 0) {
+                    trimap = matting::clean_trimap(trimap, trimap_clean);
+                }
                 switch (type) {
                     case ChromaType::ClosedFormMatting:
                         foreground = matting::closed_form_matting(image, trimap);
@@ -384,7 +387,7 @@ void remap_alpha(cv::Mat& alpha, float clip_black, float clip_white) {
 void chroma_replace(cv::Mat const& image, cv::Mat const& background, std::string const& type, cv::Vec3b key,
                     cv::Mat& result, float clip_black, float clip_white, float fg_keep, float bg_keep,
                     cv::Mat const& protect, float despill_strength, int refine_radius, float softness,
-                    float despill_floor) {
+                    float despill_floor, int trimap_clean) {
     basal::exception::throw_unless(!image.empty() && image.type() == CV_8UC3, __FILE__, __LINE__,
                                    "chroma_replace: input image must be a non-empty 8UC3 image");
     basal::exception::throw_unless(!background.empty() && background.type() == CV_8UC3, __FILE__, __LINE__,
@@ -392,7 +395,8 @@ void chroma_replace(cv::Mat const& image, cv::Mat const& background, std::string
     cv::Mat bg = background;
     if (bg.size() != image.size())
         cv::resize(bg, bg, image.size());
-    cv::Mat alpha = compute_alpha(parse_chroma_type(type), image, key, fg_keep, bg_keep, protect, softness);
+    cv::Mat alpha
+        = compute_alpha(parse_chroma_type(type), image, key, fg_keep, bg_keep, protect, softness, trimap_clean);
     remap_alpha(alpha, clip_black, clip_white);
     if (refine_radius > 0) {
         refine_alpha(alpha, image, refine_radius);
@@ -422,13 +426,13 @@ void chroma_replace(cv::Mat const& image, cv::Mat const& background, std::string
 
 void key_out(cv::Mat const& image, std::string const& type, cv::Vec3b key, cv::Mat& result, float clip_black,
              float clip_white, float fg_keep, float bg_keep, cv::Mat const& protect, float despill_strength,
-             int refine_radius, float softness, float despill_floor) {
+             int refine_radius, float softness, float despill_floor, int trimap_clean) {
     // A solid fill of the pure key color is brighter and more consistent than a
     // physical key screen, which is usually darker and tinted with the other channels.
     cv::Mat solid(image.size(), CV_8UC3,
                   cv::Scalar(static_cast<double>(key[0U]), static_cast<double>(key[1U]), static_cast<double>(key[2U])));
     chroma_replace(image, solid, type, key, result, clip_black, clip_white, fg_keep, bg_keep, protect, despill_strength,
-                   refine_radius, softness, despill_floor);
+                   refine_radius, softness, despill_floor, trimap_clean);
 }
 
 std::string to_lower(std::string const& s) {

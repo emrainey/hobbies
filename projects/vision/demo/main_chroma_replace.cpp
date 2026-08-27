@@ -110,7 +110,7 @@ int main(int argc, char* argv[]) {
     basal::options::config opts[] = {
         {"-i", "--input", std::string(""), "Input image or video file path containing the key color"},
         {"-t", "--type", std::string("vlahos"),
-         "Chroma key algorithm: vlahos, keylight, mishima, closedform, bayesian, knn, global or fused"},
+         "Chroma key algorithm: vlahos, keylight, mishima, closedform, bayesian, knn, global, shared or fused"},
         {"-o", "--output", std::string("chroma_replaced.mov"), "Output image or video file path"},
         {"-f", "--frames", std::string(""),
          "Only process the given 1-based frame indices, written as stills; a spec is a comma-separated list of "
@@ -170,8 +170,8 @@ int main(int argc, char* argv[]) {
 
     basal::exit_unless(basal::options::find(opts, "--input", input), __FILE__, __LINE__, "--input must be a file path");
     basal::exit_unless(basal::options::find(opts, "--type", type), __FILE__, __LINE__,
-                       "--type must be a short string: vlahos, keylight, mishima, closedform, bayesian, knn, global or "
-                       "fused");
+                       "--type must be a short string: vlahos, keylight, mishima, closedform, bayesian, knn, global, "
+                       "shared or fused");
     basal::exit_unless(basal::options::find(opts, "--output", output), __FILE__, __LINE__,
                        "--output must be a file path");
     basal::options::find(opts, "--color", color);

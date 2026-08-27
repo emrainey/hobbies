@@ -49,7 +49,7 @@ enum class TrimapClass : std::uint8_t {
 ///        foreground, default 0.30 (~54°)
 /// @return CV_8UC1 trimap in {0, 128, 255}
 cv::Mat build_trimap(cv::Mat const& image, cv::Vec3b key, float bg_hue_tol = 0.12f, float sat_min = 0.25f,
-                     float fg_hue_tol = 0.30f);
+                     float fg_hue_tol = 0.30f, cv::Mat const& protect = cv::Mat());
 
 /// Removes speckle from a trimap by eroding the definite foreground/background
 /// regions. Isolated single pixels of one class buried in another region (e.g. a
@@ -102,6 +102,19 @@ cv::Mat knn_matting(cv::Mat const& image, cv::Mat const& trimap);
 /// @throw std::runtime_error if the OpenCV build lacks the alphamat module
 /// @return CV_32FC1 foreground alpha in [0,1]
 cv::Mat global_matting(cv::Mat const& image, cv::Mat const& trimap);
+
+/// Items 5: shared-sampling matting (Gastal & Oliveira 2010).
+///
+/// Collects foreground and background color samples from the trimap's known regions,
+/// gathers candidate (foreground, background) pairs around each unknown pixel by ray
+/// sampling, and solves alpha per pixel with the compositing projection. No global
+/// solver iteration, so it is significantly cheaper than the graph-Laplacian solvers,
+/// which makes it the best value for video workflows.
+///
+/// @param image CV_8UC3 input
+/// @param trimap CV_8UC1 in TrimapClass encoding (0/128/255)
+/// @return CV_32FC1 foreground-alpha matte in [0,1] (1.0 = foreground)
+cv::Mat shared_sampling_matting(cv::Mat const& image, cv::Mat const& trimap);
 
 /// Builds a rough trimap from the *keying* decision instead of HSV hue windows.
 ///

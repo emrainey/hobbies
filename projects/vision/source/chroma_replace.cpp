@@ -189,6 +189,7 @@ cv::Mat compute_alpha(ChromaType type, cv::Mat const& image, cv::Vec3b key, floa
         case ChromaType::BayesianMatting:
         case ChromaType::KnnMatting:
         case ChromaType::GlobalMatting:
+        case ChromaType::SharedSampling:
         case ChromaType::FusedMatting: {
             // Matting solves for the *foreground* alpha; the chroma key convention
             // (1.0 = replace with background) is the complement.
@@ -200,7 +201,7 @@ cv::Mat compute_alpha(ChromaType type, cv::Mat const& image, cv::Vec3b key, floa
                 // the matting Laplacian. No HSV trimap is involved.
                 foreground = matting::fused_matting(image, key, fg_keep, bg_keep, protect, trimap_clean);
             } else {
-                cv::Mat trimap = matting::build_trimap(image, key);
+                cv::Mat trimap = matting::build_trimap(image, key, 0.12f, 0.25f, 0.30f, protect);
                 if (trimap_clean > 0) {
                     trimap = matting::clean_trimap(trimap, trimap_clean);
                 }
@@ -216,6 +217,9 @@ cv::Mat compute_alpha(ChromaType type, cv::Mat const& image, cv::Vec3b key, floa
                         break;
                     case ChromaType::GlobalMatting:
                         foreground = matting::global_matting(image, trimap);
+                        break;
+                    case ChromaType::SharedSampling:
+                        foreground = matting::shared_sampling_matting(image, trimap);
                         break;
                     default:
                         break;
@@ -504,11 +508,13 @@ ChromaType parse_chroma_type(std::string const& type) {
         return ChromaType::KnnMatting;
     if (t == "global" || t == "opencv" || t == "infoflow")
         return ChromaType::GlobalMatting;
+    if (t == "shared" || t == "sampling" || t == "sharedsampling")
+        return ChromaType::SharedSampling;
     if (t == "fused" || t == "hybrid")
         return ChromaType::FusedMatting;
     basal::exception::throw_unless(false, __FILE__, __LINE__,
                                    "Unknown --type: %s (expected vlahos, keylight, mishima, closedform, bayesian, "
-                                   "knn, global or fused)",
+                                   "knn, global, shared or fused)",
                                    type.c_str());
     return ChromaType::Vlahos;
 }

@@ -422,6 +422,11 @@ TEST(ChromaType, ParsesGlobalMatting) {
     EXPECT_EQ(parse_chroma_type("global"), ChromaType::GlobalMatting);
     EXPECT_EQ(parse_chroma_type("infoflow"), ChromaType::GlobalMatting);
 }
+TEST(ChromaType, ParsesSharedSampling) {
+    EXPECT_EQ(parse_chroma_type("shared"), ChromaType::SharedSampling);
+    EXPECT_EQ(parse_chroma_type("shared-sampling"), ChromaType::SharedSampling);
+    EXPECT_EQ(parse_chroma_type("sampling"), ChromaType::SharedSampling);
+}
 
 TEST(Matting, CleanTrimapRemovesIsolatedForegroundSpeckle) {
     // A trimap that is all background except one isolated foreground pixel (speckle) and
@@ -495,6 +500,44 @@ TEST(Matting, BayesianGivesSoftGradientAlpha) {
         }
     }
     EXPECT_GT(in_between, 0);
+}
+
+TEST(Matting, SharedSamplingGivesSoftGradientAlpha) {
+    cv::Mat img = gradient(16, 40, 12, 10);
+    cv::Mat const trimap = matting::build_trimap(img, named_color("green"));
+    cv::Mat alpha = matting::shared_sampling_matting(img, trimap);
+    ASSERT_EQ(alpha.type(), CV_32FC1);
+    ASSERT_EQ(alpha.size(), img.size());
+    // Definite screen is background (alpha 0), definite subject is 1.
+    EXPECT_NEAR(alpha_at(alpha, 8, 4), 0.0, 0.10);
+    EXPECT_NEAR(alpha_at(alpha, 8, 34), 1.0, 0.10);
+    // The unknown band yields a soft (in-between) alpha, not a hard binary jump.
+    int in_between = 0;
+    for (int x = 0; x < img.cols; ++x) {
+        float const a = alpha_at(alpha, 8, x);
+        EXPECT_LE(a, 1.0f);
+        EXPECT_GE(a, 0.0f);
+        if (a > 0.05f && a < 0.95f) {
+            ++in_between;
+        }
+    }
+    EXPECT_GT(in_between, 0);
+    // Monotonically increasing from screen to subject across the band.
+    EXPECT_LT(alpha_at(alpha, 8, 13), alpha_at(alpha, 8, 27));
+}
+
+TEST(Matting, ProtectMaskPinsDarkSubjectForSharedSampling) {
+    // A dark subject against a green screen falls to background/unknown in the bare hue
+    // trimap (dark + near-key), which would get erased. A protect mask over the subject
+    // must pin it as definite foreground in the shared-sampling path too (historically
+    // protect only reached the fused path).
+    cv::Mat img = solid(16, 40, cv::Vec3b(30, 220, 30));
+    img(cv::Rect(16, 4, 8, 12)) = cv::Scalar(20, 40, 30);  // dark subject
+    cv::Mat const bare = matting::build_trimap(img, named_color("green"));
+    cv::Mat const pinned = matting::build_trimap(img, named_color("green"), 0.12f, 0.25f, 0.30f,
+                                                 build_protect_mask(16, 40, {cv::Rect(16, 4, 8, 12)}));
+    EXPECT_NE(trimap_at(bare, 8, 20), TrimapClass::Foreground);    // unprotected: not hard fg
+    EXPECT_EQ(trimap_at(pinned, 8, 20), TrimapClass::Foreground);  // protected: pinned fg
 }
 
 TEST(Matting, KnnGivesSoftGradientAlpha) {

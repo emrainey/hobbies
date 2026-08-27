@@ -140,8 +140,12 @@ void symmetric3_regularized_inverse(double const A[][3], double eps, double out[
 
 }  // namespace detail
 
-cv::Mat build_trimap(cv::Mat const& image, cv::Vec3b key, float bg_hue_tol, float sat_min, float fg_hue_tol) {
+cv::Mat build_trimap(cv::Mat const& image, cv::Vec3b key, float bg_hue_tol, float sat_min, float fg_hue_tol,
+                     cv::Mat const& protect) {
     detail::validate(image, "image");
+    if (!protect.empty() && (protect.type() != CV_8UC1 || protect.size() != image.size())) {
+        throw std::invalid_argument("protect mask must be CV_8UC1 and match the input size");
+    }
     cv::Mat hsv;
     cv::cvtColor(image, hsv, cv::COLOR_BGR2HSV);
 
@@ -158,7 +162,18 @@ cv::Mat build_trimap(cv::Mat const& image, cv::Vec3b key, float bg_hue_tol, floa
     for (int y = 0; y < image.rows; ++y) {
         auto const* px = hsv.ptr<cv::Vec3b>(y);
         uchar* out = trimap.ptr<uchar>(y);
+        uchar const* pr = protect.empty() ? nullptr : protect.ptr<uchar>(y);
         for (int x = 0; x < image.cols; ++x) {
+            if (pr != nullptr) {
+                if (pr[x] >= 128) {
+                    out[x] = static_cast<uchar>(TrimapClass::Foreground);
+                    continue;
+                }
+                if (pr[x] > 0) {
+                    out[x] = static_cast<uchar>(TrimapClass::Unknown);
+                    continue;
+                }
+            }
             float const sat = static_cast<float>(px[x][1U]) / 255.0f;
             float const val = static_cast<float>(px[x][2]) / 255.0f;
             float hue_dist = std::fabs(static_cast<float>(px[x][0]) - key_hue);
@@ -168,7 +183,12 @@ cv::Mat build_trimap(cv::Mat const& image, cv::Vec3b key, float bg_hue_tol, floa
             hue_dist /= 180.0f;
             bool const near_key = hue_dist <= bg_tol;
             bool const far_from_key = hue_dist > fg_tol;
-            if (near_key && sat >= s_min && val >= 0.05f) {
+            // A key screen is bright and saturated; a dim pixel - even one near the key
+            // hue - is far more likely darkened/spill-dirt on a subject or a shadowed
+            // screen edge than the lit screen. A dim near-key pixel falls to Unknown
+            // (the rule below never hard-keys it Background because we set a higher
+            // value floor here), so a dark subject is never erased by the keying.
+            if (near_key && sat >= s_min && val >= 0.50f) {
                 out[x] = static_cast<uchar>(TrimapClass::Background);
             } else if (far_from_key || (sat < s_min && hue_dist > 2.0f * bg_tol)) {
                 out[x] = static_cast<uchar>(TrimapClass::Foreground);
@@ -706,6 +726,168 @@ cv::Mat knn_matting(cv::Mat const& image, cv::Mat const& trimap) {
         x[i] = std::clamp(x[i], 0.0f, 1.0f);
     }
     std::memcpy(alpha.data, x.data(), n * sizeof(float));
+    return alpha;
+}
+
+cv::Mat shared_sampling_matting(cv::Mat const& image, cv::Mat const& trimap) {
+    detail::validate(image, "image");
+    detail::validate_trimap(trimap, image);
+    int const rows = image.rows;
+    int const cols = image.cols;
+
+    // Collect the definite foreground and background sample colors (one per known pixel)
+    // so every unknown pixel can share candidates from the same known pool.
+    std::vector<float> fg_rgb, bg_rgb;
+    for (int y = 0; y < rows; ++y) {
+        auto const* px = image.ptr<cv::Vec3b>(y);
+        auto const* tm = trimap.ptr<uchar>(y);
+        for (int x = 0; x < cols; ++x) {
+            uchar const t = tm[x];
+            if (t != static_cast<uchar>(TrimapClass::Unknown)) {
+                float const r = static_cast<float>(px[x][2]) / 255.0f;
+                float const g = static_cast<float>(px[x][1U]) / 255.0f;
+                float const b = static_cast<float>(px[x][0]) / 255.0f;
+                if (t == static_cast<uchar>(TrimapClass::Foreground)) {
+                    fg_rgb.push_back(r);
+                    fg_rgb.push_back(g);
+                    fg_rgb.push_back(b);
+                } else {
+                    bg_rgb.push_back(r);
+                    bg_rgb.push_back(g);
+                    bg_rgb.push_back(b);
+                }
+            }
+        }
+    }
+    cv::Mat alpha(rows, cols, CV_32FC1, cv::Scalar::all(0.0));
+    if (fg_rgb.empty() || bg_rgb.empty()) {
+        // Degenerate trimap; pin known pixels, leave unknowns 0.
+        for (int y = 0; y < rows; ++y) {
+            float* a = alpha.ptr<float>(y);
+            auto const* tm = trimap.ptr<uchar>(y);
+            for (int x = 0; x < cols; ++x) {
+                a[x] = (tm[x] == static_cast<uchar>(TrimapClass::Foreground)) ? 1.0f : 0.0f;
+            }
+        }
+        return alpha;
+    }
+
+    // Candidate sampling rays (dx, dy) around each unknown pixel. Marching outward in
+    // these directions finds spatially-plausible foreground and background samples that
+    // are shared across all unknown pixels.
+    int constexpr rays = 16;
+    int constexpr max_step = 64;
+    std::vector<int> dir_x(rays), dir_y(rays);
+    for (size_t k = 0; k < static_cast<size_t>(rays); ++k) {
+        double const ang = 2.0 * 3.141592653589793 * static_cast<double>(k) / static_cast<double>(rays);
+        dir_x[k] = static_cast<int>(std::cos(ang) * 4096.0);
+        dir_y[k] = static_cast<int>(std::sin(ang) * 4096.0);
+    }
+
+    // March outward along each ray per unknown pixel; this shared-pool sampling keeps
+    // the per-frame cost well below the graph-Laplacian solvers.
+    for (int y = 0; y < rows; ++y) {
+        auto const* px = image.ptr<cv::Vec3b>(y);
+        float* a = alpha.ptr<float>(y);
+        auto const* tm = trimap.ptr<uchar>(y);
+        for (int x = 0; x < cols; ++x) {
+            if (tm[x] == static_cast<uchar>(TrimapClass::Background)) {
+                a[x] = 0.0f;
+                continue;
+            }
+            if (tm[x] == static_cast<uchar>(TrimapClass::Foreground)) {
+                a[x] = 1.0f;
+                continue;
+            }
+            float const Ir = static_cast<float>(px[x][2]) / 255.0f;
+            float const Ig = static_cast<float>(px[x][1U]) / 255.0f;
+            float const Ib = static_cast<float>(px[x][0]) / 255.0f;
+            // Collect the per-direction FG/BG sample colors by marching outward.
+            std::vector<float> fs, bs;
+            for (size_t k = 0; k < static_cast<size_t>(rays); ++k) {
+                float f[3] = {0.0f, 0.0f, 0.0f};
+                bool ffound = false;
+                for (int s = 1; s <= max_step; ++s) {
+                    int const nx = x + dir_x[k] * s / 4096;
+                    int const ny = y + dir_y[k] * s / 4096;
+                    if (nx < 0 || nx >= cols || ny < 0 || ny >= rows) {
+                        break;
+                    }
+                    if (trimap.at<uchar>(ny, nx) == static_cast<uchar>(TrimapClass::Foreground)) {
+                        f[0] = static_cast<float>(image.at<cv::Vec3b>(ny, nx)[2]) / 255.0f;
+                        f[1U] = static_cast<float>(image.at<cv::Vec3b>(ny, nx)[1U]) / 255.0f;
+                        f[2] = static_cast<float>(image.at<cv::Vec3b>(ny, nx)[0]) / 255.0f;
+                        ffound = true;
+                        break;
+                    }
+                }
+                float b[3] = {0.0f, 0.0f, 0.0f};
+                bool bfound = false;
+                for (int s = 1; s <= max_step; ++s) {
+                    int const nx = x - dir_x[k] * s / 4096;
+                    int const ny = y - dir_y[k] * s / 4096;
+                    if (nx < 0 || nx >= cols || ny < 0 || ny >= rows) {
+                        break;
+                    }
+                    if (trimap.at<uchar>(ny, nx) == static_cast<uchar>(TrimapClass::Background)) {
+                        b[0] = static_cast<float>(image.at<cv::Vec3b>(ny, nx)[2]) / 255.0f;
+                        b[1U] = static_cast<float>(image.at<cv::Vec3b>(ny, nx)[1U]) / 255.0f;
+                        b[2] = static_cast<float>(image.at<cv::Vec3b>(ny, nx)[0]) / 255.0f;
+                        bfound = true;
+                        break;
+                    }
+                }
+                if (ffound) {
+                    fs.push_back(f[0]);
+                    fs.push_back(f[1U]);
+                    fs.push_back(f[2]);
+                }
+                if (bfound) {
+                    bs.push_back(b[0]);
+                    bs.push_back(b[1U]);
+                    bs.push_back(b[2]);
+                }
+            }
+            // Fall back to the shared global sample pools when rays found nothing on a
+            // side, so an unknown pixel never collapses to a neutral and stays solvable.
+            if (fs.empty() && !fg_rgb.empty()) {
+                fs = fg_rgb;
+            }
+            if (bs.empty() && !bg_rgb.empty()) {
+                bs = bg_rgb;
+            }
+            if (fs.empty() || bs.empty()) {
+                a[x] = 0.5f;
+                continue;
+            }
+            // Best pair by the compositing projection: alpha = dot(I-B, F-B)/|F-B|^2.
+            float best_err = std::numeric_limits<float>::max();
+            float best_alpha = 0.5f;
+            for (size_t fi = 0; fi < fs.size(); fi += 3) {
+                float const Fr = fs[fi], Fg = fs[fi + 1U], Fb = fs[fi + 2];
+                for (size_t bi = 0; bi < bs.size(); bi += 3) {
+                    float const Br = bs[bi], Bg = bs[bi + 1U], Bb = bs[bi + 2];
+                    float const dr = Fr - Br, dg = Fg - Bg, db = Fb - Bb;
+                    float const denom = dr * dr + dg * dg + db * db;
+                    if (denom <= 1.0e-6f) {
+                        continue;
+                    }
+                    float const num = (Ir - Br) * dr + (Ig - Bg) * dg + (Ib - Bb) * db;
+                    float const cand = std::clamp(num / denom, 0.0f, 1.0f);
+                    // Reconstruction error (unnormalized channel delta magnitude).
+                    float const err
+                        = (Ir - (cand * Fr + (1.0f - cand) * Br)) * (Ir - (cand * Fr + (1.0f - cand) * Br))
+                          + (Ig - (cand * Fg + (1.0f - cand) * Bg)) * (Ig - (cand * Fg + (1.0f - cand) * Bg))
+                          + (Ib - (cand * Fb + (1.0f - cand) * Bb)) * (Ib - (cand * Fb + (1.0f - cand) * Bb));
+                    if (err < best_err) {
+                        best_err = err;
+                        best_alpha = cand;
+                    }
+                }
+            }
+            a[x] = best_alpha;
+        }
+    }
     return alpha;
 }
 

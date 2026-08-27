@@ -25,6 +25,7 @@ enum class ChromaType {
     BayesianMatting,    ///< Matting: per-pixel Bayesian color-line estimate on a rough trimap (Chuang et al. 2001)
     KnnMatting,         ///< Matting: nonlocal KNN affinities solved as a graph-Laplacian matte (Chen et al. 2013)
     GlobalMatting,      ///< Matting: OpenCV alphamat information-flow global matting on a rough trimap
+    SharedSampling,     ///< Matting: shared-sampling matting (Gastal & Oliveira 2010), per-pixel solve
     FusedMatting,       ///< Keying + closed-form matting fusion: keying pins what is not the screen, matting
                         ///< soft-keys the rest
 };

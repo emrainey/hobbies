@@ -22,7 +22,8 @@
 ///        `-D/--screen-estimate` to key against the actual per-frame screen color
 ///        (histogram peak of the confident screen region) instead of the pure named
 ///        `--color`, which fixes gradient/vignetted/unevenly-lit screens. `-T` renders
-///        the matting trimaps clean of speckle (morphological open/close) before solving.
+///        the matting trimaps clean of speckle (morphological open/close) before solving
+///        and `-M` EMAs the alpha matte across video frames to damp fringe flicker.
 /// @copyright Copyright (c) 2026
 ///
 
@@ -104,6 +105,7 @@ int main(int argc, char* argv[]) {
     basal::precision softness = -1.0;
     basal::precision despill_floor = 0.2;
     int trimap_clean = 0;
+    basal::precision matte_smooth = 0.0;
 
     basal::options::config opts[] = {
         {"-i", "--input", std::string(""), "Input image or video file path containing the key color"},
@@ -156,6 +158,9 @@ int main(int argc, char* argv[]) {
         {"-T", "--trimap-clean", int(0),
          "matting only: trimap morphological cleanup radius in pixels (e.g. 1-2); erode/dilate the trimap before "
          "solving to remove speckle / stray single-pixel foreground or background islands. 0 disables"},
+        {"-M", "--matte-smooth", basal::precision(0.0),
+         "Temporal EMA matte smoothing weight in [0,1] for video (e.g. 0.2-0.5): damp per-frame alpha flicker in the "
+         "soft fringe while keeping hard screen/subject edges crisp (no edge-lag on a moving subject). 0 disables"},
         {"-b", "--background", std::string(""),
          "Background image/video file path; when omitted, the key color is replaced with a solid, pure version of the "
          "key color"},
@@ -186,6 +191,7 @@ int main(int argc, char* argv[]) {
     basal::options::find(opts, "--softness", softness);                // Optional
     basal::options::find(opts, "--despill-floor", despill_floor);      // Optional
     basal::options::find(opts, "--trimap-clean", trimap_clean);        // Optional (matting)
+    basal::options::find(opts, "--matte-smooth", matte_smooth);        // Optional (temporal)
 
     basal::options::print(basal::dimof(opts), opts);
 
@@ -225,6 +231,7 @@ int main(int argc, char* argv[]) {
 
     cv::VideoWriter writer;
     cv::Mat frame, background_frame, result, protect_mask;
+    cv::Mat matte_state;  // persistent temporal-mat s-smoothing accumulator across frames
     bool background_exhausted = false;
     bool protect_built = false;
     int frame_index = 0;  // 1-based position in the source video
@@ -307,14 +314,15 @@ int main(int argc, char* argv[]) {
                                    static_cast<float>(clip_white), static_cast<float>(fg_keep),
                                    static_cast<float>(bg_keep), active_protect, static_cast<float>(despill),
                                    refine_radius, static_cast<float>(softness), static_cast<float>(despill_floor),
-                                   trimap_clean);
+                                   trimap_clean, static_cast<float>(matte_smooth), &matte_state);
         } else {
             // No background: replace the key color with a solid, pure (brighter,
             // more consistent) version of the key color itself.
             vision::key_out(frame, type, active_key, result, static_cast<float>(clip_black),
                             static_cast<float>(clip_white), static_cast<float>(fg_keep), static_cast<float>(bg_keep),
                             active_protect, static_cast<float>(despill), refine_radius, static_cast<float>(softness),
-                            static_cast<float>(despill_floor), trimap_clean);
+                            static_cast<float>(despill_floor), trimap_clean, static_cast<float>(matte_smooth),
+                            &matte_state);
         }
 
         if (stills_mode) {

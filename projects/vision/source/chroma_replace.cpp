@@ -384,10 +384,45 @@ void remap_alpha(cv::Mat& alpha, float clip_black, float clip_white) {
     cv::min(alpha, cv::Scalar::all(1.0), alpha);
 }
 
+// Temporal EMA matte smoothing for video. Damps per-pixel alpha flicker (a noisy
+// screen's matte wiggling frame to frame) without trailing a moving subject's hard
+// edge: the smoothing factor is scaled toward zero at near-solid pixels (alpha ~ 0 or
+// ~1) so definite screen/subject stays crisp, and reaches full strength only in the
+// soft fringe where flicker is visible.
+//
+// @param[in,out] alpha Current-frame key-convention matte (CV_32FC1, in [0,1]); on
+//                      return holds this frame's smoothed value
+// @param[in,out] state Persistent accumulator, may be empty on the first frame
+// @param smooth         EMA weight toward the previous frame in [0,1]; 0 disables
+void smooth_alpha(cv::Mat& alpha, cv::Mat& state, float smooth) {
+    if (smooth <= 0.0f) {
+        return;
+    }
+    if (state.empty() || state.size() != alpha.size()) {
+        state = alpha.clone();
+        return;
+    }
+    float const f = std::clamp(smooth, 0.0f, 1.0f);
+    for (int y = 0; y < alpha.rows; ++y) {
+        auto* a = alpha.ptr<float>(y);
+        auto const* p = state.ptr<float>(y);
+        for (int x = 0; x < alpha.cols; ++x) {
+            float const cur = std::clamp(a[x], 0.0f, 1.0f);
+            float const prev = std::clamp(p[x], 0.0f, 1.0f);
+            // Edge-lag guard: near-solid pixels (dist to 0 or 1 close to 0) get barely
+            // any temporal weight, so a hard subject edge does not smear or trail.
+            float const dist_solid = std::min(cur, 1.0f - cur);              // 0 at solid, 0.5 mid
+            float const smoothness = f * std::min(1.0f, 2.0f * dist_solid);  // 0 at solid, f mid
+            a[x] = prev * smoothness + cur * (1.0f - smoothness);
+        }
+    }
+    state = alpha.clone();
+}
+
 void chroma_replace(cv::Mat const& image, cv::Mat const& background, std::string const& type, cv::Vec3b key,
                     cv::Mat& result, float clip_black, float clip_white, float fg_keep, float bg_keep,
                     cv::Mat const& protect, float despill_strength, int refine_radius, float softness,
-                    float despill_floor, int trimap_clean) {
+                    float despill_floor, int trimap_clean, float matte_smooth, cv::Mat* matte_state) {
     basal::exception::throw_unless(!image.empty() && image.type() == CV_8UC3, __FILE__, __LINE__,
                                    "chroma_replace: input image must be a non-empty 8UC3 image");
     basal::exception::throw_unless(!background.empty() && background.type() == CV_8UC3, __FILE__, __LINE__,
@@ -400,6 +435,11 @@ void chroma_replace(cv::Mat const& image, cv::Mat const& background, std::string
     remap_alpha(alpha, clip_black, clip_white);
     if (refine_radius > 0) {
         refine_alpha(alpha, image, refine_radius);
+    }
+    // Temporal matte smoothing: collapse per-frame alpha flicker in the fringe band
+    // (hard edges stay crisp via the smoothing helper's edge-lag guard).
+    if (matte_smooth > 0.0f && matte_state != nullptr) {
+        smooth_alpha(alpha, *matte_state, matte_smooth);
     }
 
     // Despill the kept foreground before compositing so spill suppression is baked into
@@ -426,13 +466,14 @@ void chroma_replace(cv::Mat const& image, cv::Mat const& background, std::string
 
 void key_out(cv::Mat const& image, std::string const& type, cv::Vec3b key, cv::Mat& result, float clip_black,
              float clip_white, float fg_keep, float bg_keep, cv::Mat const& protect, float despill_strength,
-             int refine_radius, float softness, float despill_floor, int trimap_clean) {
+             int refine_radius, float softness, float despill_floor, int trimap_clean, float matte_smooth,
+             cv::Mat* matte_state) {
     // A solid fill of the pure key color is brighter and more consistent than a
     // physical key screen, which is usually darker and tinted with the other channels.
     cv::Mat solid(image.size(), CV_8UC3,
                   cv::Scalar(static_cast<double>(key[0U]), static_cast<double>(key[1U]), static_cast<double>(key[2U])));
     chroma_replace(image, solid, type, key, result, clip_black, clip_white, fg_keep, bg_keep, protect, despill_strength,
-                   refine_radius, softness, despill_floor, trimap_clean);
+                   refine_radius, softness, despill_floor, trimap_clean, matte_smooth, matte_state);
 }
 
 std::string to_lower(std::string const& s) {

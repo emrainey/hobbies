@@ -295,6 +295,29 @@ TEST(Despill, EstimatesScreenFallsBackToNamedKey) {
     EXPECT_EQ(estimate_screen_color(img, named_color("green")), named_color("green"));
 }
 
+TEST(Despill, SmoothAlphaDampsFringeButKeepsSolidEdges) {
+    // A matte with a solid background band (alpha 1) and a flickering fringe pixel.
+    // Smoothing across two frames must pull the fringe toward its previous value while
+    // leaving the near-solid (alpha ~1 or ~0) pixels essentially unchanged.
+    cv::Mat a1(1, 3, CV_32FC1), a2(1, 3, CV_32FC1), state;
+    a1.at<float>(0, 0U) = 1.0f;  // solid screen
+    a1.at<float>(0, 1U) = 0.0f;  // solid subject
+    a1.at<float>(0, 2U) = 0.5f;  // fringe
+    a2.at<float>(0, 0U) = 1.0f;
+    a2.at<float>(0, 1U) = 0.0f;
+    a2.at<float>(0, 2U) = 0.9f;  // fringe flicks up
+    // First frame: initializes state.
+    smooth_alpha(a1, state, 0.5f);
+    // Second frame: fringe is pulled back from 0.9 toward the previous 0.5.
+    smooth_alpha(a2, state, 0.5f);
+    // Solid edges are not moved by the edge-lag guard.
+    EXPECT_FLOAT_EQ(a2.at<float>(0, 0U), 1.0f);
+    EXPECT_FLOAT_EQ(a2.at<float>(0, 1U), 0.0f);
+    // Fringe is damped: above 0.5 (still.toward current), below 0.9 (pulled back).
+    EXPECT_GT(a2.at<float>(0, 2U), 0.5f);
+    EXPECT_LT(a2.at<float>(0, 2U), 0.9f);
+}
+
 TEST(Despill, RefineAlphaKeepsBoundsAndSoftenHardEdge) {
     // A hard 0->1 matte step guided by a flat image: with no edge to snap to, the box
     // filter averages across the boundary, opening a soft transition while staying in

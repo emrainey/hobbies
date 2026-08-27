@@ -69,17 +69,27 @@ void refine_alpha(cv::Mat& alpha, cv::Mat const& image, int radius = 3, float ep
 /// Remaps an alpha matte in place using clip black/white (Keylight style).
 void remap_alpha(cv::Mat& alpha, float clip_black = 0.0f, float clip_white = 1.0f);
 
+/// Temporal EMA matte smoothing. Blends the current frame's alpha toward the previous
+/// with a factor that fades out at near-solid pixels, so per-frame flicker in the soft
+/// fringe is damped without trailing a moving subject's hard edge.
+///
+/// @param[in,out] alpha Current-frame matte (CV_32FC1 in [0,1]); replaced in place
+/// @param[in,out] state Persistent accumulator, empty on the first frame
+/// @param smooth         EMA weight toward the previous frame in [0,1]; 0 disables
+void smooth_alpha(cv::Mat& alpha, cv::Mat& state, float smooth);
+
 /// Replaces the key color in an image with a background, producing a composited result.
 void chroma_replace(cv::Mat const& image, cv::Mat const& background, std::string const& type, cv::Vec3b key,
                     cv::Mat& result, float clip_black = 0.0f, float clip_white = 1.0f, float fg_keep = 0.01f,
                     float bg_keep = 0.05f, cv::Mat const& protect = cv::Mat(), float despill_strength = 0.0f,
-                    int refine_radius = 0, float softness = -1.0f, float despill_floor = 0.2f, int trimap_clean = 0);
+                    int refine_radius = 0, float softness = -1.0f, float despill_floor = 0.2f, int trimap_clean = 0,
+                    float matte_smooth = 0.0f, cv::Mat* matte_state = nullptr);
 
 /// "Keys out" the subject: replaces the key color with a solid, pure version of the key
 /// color itself.
 void key_out(cv::Mat const& image, std::string const& type, cv::Vec3b key, cv::Mat& result, float clip_black = 0.0f,
              float clip_white = 1.0f, float fg_keep = 0.01f, float bg_keep = 0.05f, cv::Mat const& protect = cv::Mat(),
              float despill_strength = 0.0f, int refine_radius = 0, float softness = -1.0f, float despill_floor = 0.2f,
-             int trimap_clean = 0);
+             int trimap_clean = 0, float matte_smooth = 0.0f, cv::Mat* matte_state = nullptr);
 
 }  // namespace vision

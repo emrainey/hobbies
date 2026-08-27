@@ -24,6 +24,8 @@
 ///        `--color`, which fixes gradient/vignetted/unevenly-lit screens. `-T` renders
 ///        the matting trimaps clean of speckle (morphological open/close) before solving
 ///        and `-M` EMAs the alpha matte across video frames to damp fringe flicker.
+///        `-V/--vision-prior` uses Apple Vision's raw segmentation confidence as a soft
+///        foreground matting prior (great for dark/low-contrast subjects).
 /// @copyright Copyright (c) 2026
 ///
 
@@ -102,6 +104,7 @@ int main(int argc, char* argv[]) {
     basal::precision despill = 0.0;
     int refine_radius = 0;
     bool screen_estimate = false;
+    bool vision_prior = false;
     basal::precision softness = -1.0;
     basal::precision despill_floor = 0.2;
     int trimap_clean = 0;
@@ -150,6 +153,12 @@ int main(int argc, char* argv[]) {
         {"-S", "--softness", basal::precision(-1.0),
          "keylight only: matte of softness in [0,1]; lower values key screen pixels more aggressively (fewer splotches "
          "in the background), higher values keep a wider soft fringe. -1 uses the algorithm default (0.1)"},
+        {"-V", "--vision-prior", bool(false),
+         "Use Apple Vision's raw foreground-segmentation confidence as a soft matting prior: high-confidence pixels "
+         "pin "
+         "as subject, the low-confidence silhouette fringe stays soft so the matting solver keys around the detected "
+         "person instead of erasing them (esp. dark or low-contrast subjects). Combines with --protect and "
+         "--protect-auto"},
         {"-F", "--despill-floor", basal::precision(0.2),
          "Despill floor: the minimum subject fraction (1 - alpha) a pixel must have before spill is removed, in [0,1]. "
          "Slightly-under-1 alpha pixels from a soft solver matte (e.g. fused, shadowed screens) are left strictly "
@@ -192,6 +201,7 @@ int main(int argc, char* argv[]) {
     basal::options::find(opts, "--despill-floor", despill_floor);      // Optional
     basal::options::find(opts, "--trimap-clean", trimap_clean);        // Optional (matting)
     basal::options::find(opts, "--matte-smooth", matte_smooth);        // Optional (temporal)
+    basal::options::find(opts, "--vision-prior", vision_prior);        // Optional
 
     basal::options::print(basal::dimof(opts), opts);
 
@@ -282,8 +292,19 @@ int main(int argc, char* argv[]) {
         if (screen_estimate) {
             active_key = vision::estimate_screen_color(frame, key);
         }
-        // Feather the combined protect mask so the matte blends at its edges; grey fringe
-        // pixels become an unknown band that the solver soft-keys instead of a hard step.
+        cv::Mat const soft_prior = vision::detect_subject_mask_float(frame, 3);
+        if (vision_prior && !soft_prior.empty()) {
+            // Convert the Vision confidence to a soft protect mask: confident pixels
+            // (>= 0.5) pin as subject (255), low-confidence silhouette fringe fills the
+            // 1..254 values that the trimap treats as a soft unknown band.
+            cv::Mat soft_protect;
+            soft_prior.convertTo(soft_protect, CV_8UC1, 255.0);
+            if (active_protect.empty()) {
+                active_protect = soft_protect;
+            } else {
+                cv::max(active_protect, soft_protect, active_protect);
+            }
+        }
         if (!active_protect.empty() && protect_feather > 0) {
             active_protect = vision::feather_protect_mask(active_protect, protect_feather);
         }

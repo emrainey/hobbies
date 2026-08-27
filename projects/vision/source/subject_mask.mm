@@ -21,10 +21,8 @@ namespace vision {
 namespace {
 
 /// Copies a CVPixelBuffer containing a single-channel mask into a cv::Mat, resizing to
-/// the input dimensions. Handles 8-bit labels and 32-bit float masks. When @p soft is
-/// true a 32-bit float buffer is returned as CV_32FC1 confidence (0..1) instead of being
-/// thresholded to a binary 0/255 mask.
-cv::Mat copy_mask_buffer(CVPixelBufferRef buffer, int target_rows, int target_cols, bool soft = false) {
+/// the input dimensions. Handles 8-bit labels and 32-bit float masks.
+cv::Mat copy_mask_buffer(CVPixelBufferRef buffer, int target_rows, int target_cols) {
     cv::Mat mask;
     if (buffer == nullptr) {
         return mask;
@@ -43,13 +41,9 @@ cv::Mat copy_mask_buffer(CVPixelBufferRef buffer, int target_rows, int target_co
         OSType const format = CVPixelBufferGetPixelFormatType(buffer);
         if (format == kCVPixelFormatType_OneComponent32Float) {
             cv::Mat raw(static_cast<int>(height), static_cast<int>(width), CV_32FC1, base, bytes);
-            if (soft) {
-                cv::threshold(raw, mask, 0.0f, 1.0f, cv::THRESH_TRUNC);
-            } else {
-                cv::Mat thr;
-                cv::threshold(raw, thr, 0.5f, 255.0, cv::THRESH_BINARY);
-                thr.convertTo(mask, CV_8UC1);
-            }
+            cv::Mat thr;
+            cv::threshold(raw, thr, 0.5f, 255.0, cv::THRESH_BINARY);
+            thr.convertTo(mask, CV_8UC1);
         } else {
             cv::Mat raw(static_cast<int>(height), static_cast<int>(width), CV_8UC1, base, bytes);
             cv::Mat thr;
@@ -66,20 +60,9 @@ cv::Mat copy_mask_buffer(CVPixelBufferRef buffer, int target_rows, int target_co
     return mask;
 }
 
-}  // anonymous namespace
+}  // namespace
 
 cv::Mat detect_subject_mask(cv::Mat const& bgr, int dilate_px) {
-    cv::Mat const float_mask = detect_subject_mask_float(bgr, dilate_px);
-    if (float_mask.empty()) {
-        return {};
-    }
-    // Threshold the soft confidence at 50% to yield the binary protection mask.
-    cv::Mat result;
-    cv::threshold(float_mask, result, 0.5f, 255.0, cv::THRESH_BINARY);
-    return result;
-}
-
-cv::Mat detect_subject_mask_float(cv::Mat const& bgr, int dilate_px) {
     if (bgr.empty() || bgr.type() != CV_8UC3) {
         return {};
     }
@@ -106,7 +89,7 @@ cv::Mat detect_subject_mask_float(cv::Mat const& bgr, int dilate_px) {
             VNImageRequestHandler* const handler = [[VNImageRequestHandler alloc] initWithCGImage:image options:@{}];
             NSError* error = nullptr;
             if ([handler performRequests:@[request] error:&error]) {
-                cv::Mat combined = cv::Mat::zeros(bgr.rows, bgr.cols, CV_32FC1);
+                cv::Mat combined = cv::Mat::zeros(bgr.rows, bgr.cols, CV_8UC1);
                 for (VNInstanceMaskObservation* const observation in request.results) {
                     CVPixelBufferRef mask_buffer = nullptr;
                     if ([observation respondsToSelector:@selector(generateScaledMaskForImageForInstances:
@@ -118,14 +101,13 @@ cv::Mat detect_subject_mask_float(cv::Mat const& bgr, int dilate_px) {
                     if (mask_buffer == nullptr) {
                         mask_buffer = observation.instanceMask;
                     }
-                    cv::Mat const instance = copy_mask_buffer(mask_buffer, bgr.rows, bgr.cols, true);
+                    cv::Mat const instance = copy_mask_buffer(mask_buffer, bgr.rows, bgr.cols);
                     if (mask_buffer != nullptr && [observation respondsToSelector:@selector(generateScaledMaskForImageForInstances:
                                                                                             fromRequestHandler:error:)]) {
                         CFRelease(mask_buffer);
                     }
                     if (!instance.empty()) {
-                        // Keep the max confidence across all detected instances.
-                        cv::max(combined, instance, combined);
+                        cv::bitwise_or(combined, instance, combined);
                     }
                 }
                 if (cv::countNonZero(combined) > 0) {

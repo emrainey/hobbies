@@ -30,16 +30,4 @@ namespace vision {
 ///         found (callers should treat an empty mask as "protect nothing")
 cv::Mat detect_subject_mask(cv::Mat const& bgr, int dilate_px = 3);
 
-/// Apple Vision foreground-instance segmentation returned as a soft confidence mask.
-/// Unlike @ref detect_subject_mask (binary), this keeps the raw per-pixel confidence in
-/// [0,1] as CV_32FC1. High-confidence pixels are definite subject; the low-confidence
-/// boundary around the silhouette forms a soft fringe that a matting solver can key
-/// softly. Pixels with zero confidence are 0. Empty on failure or non-8UC3 input.
-///
-/// @param bgr CV_8UC3 BGR input
-/// @param dilate_px Optional morphological dilation radius to grow the region (default 3);
-///                  0 disables
-/// @return CV_32FC1 confidence in [0,1], same size as @p bgr
-cv::Mat detect_subject_mask_float(cv::Mat const& bgr, int dilate_px = 3);
-
 }  // namespace vision

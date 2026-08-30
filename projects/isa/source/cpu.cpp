@@ -6,6 +6,8 @@
 
 #include <cstdio>
 #include <filesystem>
+#include <limits>
+#include <stdexcept>
 
 namespace isa {
 
@@ -484,11 +486,21 @@ void Processor::Cycle() {
                     special_.return_address_ = special_.program_address_ + sizeof(instructions::Instruction);
                 }
                 if (leap.imm > 0) {
-                    special_.program_address_
-                        = scratch_[leap.dst].as_address + Address{static_cast<isa::Address::StorageType>(leap.imm)};
+                    const Address base = scratch_[leap.dst].as_address;
+                    const auto offset = static_cast<isa::Address::StorageType>(leap.imm);
+                    if (base.value > std::numeric_limits<isa::Address::StorageType>::max() - offset) {
+                        special_.exception_.bus_fault = 1;
+                        break;
+                    }
+                    special_.program_address_ = base + Address{offset};
                 } else if (leap.imm < 0) {
-                    special_.program_address_
-                        = scratch_[leap.dst].as_address - Address{static_cast<isa::Address::StorageType>(-leap.imm)};
+                    const Address base = scratch_[leap.dst].as_address;
+                    const auto offset = static_cast<isa::Address::StorageType>(-leap.imm);
+                    if (base.value < offset) {
+                        special_.exception_.bus_fault = 1;
+                        break;
+                    }
+                    special_.program_address_ = base - Address{offset};
                 } else {
                     special_.program_address_ = scratch_[leap.dst].as_address;
                 }
@@ -1226,7 +1238,7 @@ Address Processor::GetHandler() const {
     if (Peek(special_.vector_table_address_ + offsetof(VectorTable, reset_handler), reset_handler.value)) {
         return reset_handler;
     }
-    return Address{0U};
+    throw std::runtime_error("Unable to fetch an exception handler or the reset vector from the vector table");
 }
 
 }  // namespace isa

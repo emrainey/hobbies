@@ -58,6 +58,20 @@ void Bus<BUS_ATTRIBUTES>::Read(Address address) {
         listener_->OnEvent(*this, address, State::Fault, Events::UnalignedFault);
     } else {
         listener_->OnEvent(*this, address, State::Fetch, Events::ReadStarted);
+
+        typename Attributes::AddressableUnitType data[Attributes::CountOfAddressableUnits] = {};
+        for (auto& memory : attached_memories_) {
+            if (memory->ViewRange().Contains(address)) {
+                for (size_t i = 0; i < Attributes::CountOfAddressableUnits; i++) {
+                    data[i] = (*memory)[address + i];
+                }
+                break;
+            }
+        }
+
+        if (listener_) {
+            listener_->OnData(*this, address, data);
+        }
         listener_->OnEvent(*this, address, State::Idle, Events::ReadCompleted);
     }
     return;

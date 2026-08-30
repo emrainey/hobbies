@@ -91,6 +91,44 @@ TEST(BusTest, AttachMemoryInitializeAndExerciseFaultCallbacks) {
     bus.Read(kUnassignedAddress);
 }
 
+TEST(BusTest, ReadReturnsDataFromAttachedMemoryThroughOnData) {
+    constexpr Address kBusStart{0x00001000U};
+    constexpr Address kBusEnd{0x0000100FU};
+    constexpr Address kAlignedAddress{0x00001008U};
+
+    TestBus bus{0xBEEFU, Range{kBusStart, kBusEnd}};
+    Memory<TestingAttributes> memory{Range{kAlignedAddress, kAlignedAddress}};
+    MockBusListener listener;
+
+    ASSERT_TRUE(bus.Attach(memory, memory.ViewRange()));
+    bus.Register(&listener);
+
+    constexpr TestBus::Attributes::AddressableUnitType kExpected = 0x9ABCDEF012345678ULL;
+    memory[kAlignedAddress] = kExpected;
+
+    TestBus::Attributes::AddressableUnitType captured = 0U;
+    {
+        testing::InSequence sequence;
+        EXPECT_CALL(listener,
+                    OnEvent(testing::Ref(bus), kAlignedAddress, TestBus::State::Fetch, TestBus::Events::ReadStarted))
+            .Times(1);
+        EXPECT_CALL(listener, OnData(testing::Ref(bus), kAlignedAddress, testing::_))
+            .WillOnce(testing::Invoke(
+                [&captured](
+                    TestBus&, Address,
+                    TestBus::Attributes::AddressableUnitType(&data)[TestBus::Attributes::CountOfAddressableUnits]) {
+                    captured = data[0];
+                }));
+        EXPECT_CALL(listener,
+                    OnEvent(testing::Ref(bus), kAlignedAddress, TestBus::State::Idle, TestBus::Events::ReadCompleted))
+            .Times(1);
+    }
+
+    bus.Read(kAlignedAddress);
+
+    EXPECT_EQ(kExpected, captured);
+}
+
 TEST(BusTest, PeekReflectsWhetherAddressIsBackedByAttachedMemory) {
     constexpr Address kBusStart{0x10000000U};
     constexpr Address kBusEnd{0x100000FFU};

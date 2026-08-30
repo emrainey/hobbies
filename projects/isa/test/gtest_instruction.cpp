@@ -1,4 +1,6 @@
 #include <cstddef>
+#include <limits>
+#include <stdexcept>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -313,6 +315,35 @@ TEST_F(InstructionTest, LeapJumpsToTargetAddress) {
         isa::instructions::Leap{isa::Operand{isa::Operand::Type::Scratch, 1}, isa::SignedImmediate<10>{0}}});
 
     EXPECT_EQ(0x10000184U, cpu.ViewSpecial().program_address_.value);
+}
+
+TEST_F(InstructionTest, LeapBeyondMaximumAddressRaisesBusFault) {
+    cpu.GetScratch()[1].as_address = isa::Address{std::numeric_limits<isa::Address::StorageType>::max()};
+
+    RunSingleInstruction(isa::instructions::Instruction{
+        isa::instructions::Leap{isa::Operand{isa::Operand::Type::Scratch, 1}, isa::SignedImmediate<10>{2}}});
+
+    EXPECT_TRUE(cpu.ViewSpecial().exception_.bus_fault);
+    EXPECT_NE(0x00000001U, cpu.ViewSpecial().program_address_.value);
+}
+
+TEST_F(InstructionTest, LeapBelowZeroUnderflowRaisesBusFault) {
+    cpu.GetScratch()[1].as_address = isa::Address{0U};
+
+    RunSingleInstruction(isa::instructions::Instruction{
+        isa::instructions::Leap{isa::Operand{isa::Operand::Type::Scratch, 1}, isa::SignedImmediate<10>{-2}}});
+
+    EXPECT_TRUE(cpu.ViewSpecial().exception_.bus_fault);
+    EXPECT_NE(0xFFFFFFFEU, cpu.ViewSpecial().program_address_.value);
+}
+
+TEST_F(InstructionTest, UnreadableVectorTableThrowsDuringHandlerLookup) {
+    // Point the vector table into the flash bus range where no memory is attached, so every handler
+    // lookup (including the reset vector) fails and GetHandler must surface the invalid state.
+    cpu.GetSpecial().vector_table_address_ = isa::Address{0x00100000U};
+    cpu.GetSpecial().exception_.bus_fault = 1;
+
+    EXPECT_THROW(cpu.Cycle(), std::runtime_error);
 }
 
 TEST_F(InstructionTest, StandardInstructionEncodingsReserveBottomTwoBits) {

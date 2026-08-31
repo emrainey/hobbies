@@ -3,13 +3,18 @@ cmake_minimum_required(VERSION 3.31.0)
 project(vision LANGUAGES CXX VERSION 0.1.0)  # This must match the conanfile.py!
 
 # Apple Vision subject segmentation (source/subject_mask.mm) is Objective-C++ and links
-# the system Vision/CoreGraphics/Foundation frameworks on macOS 14+.
+# the system Vision/CoreGraphics/Foundation frameworks on macOS 14+. Other platforms use a
+# portable fallback (source/subject_mask_fallback.cpp) that reports "protect nothing" so the
+# keyer demos and tests still build and run, just without auto-protect support.
+set(VISION_SUBJECT_MASK_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/source/subject_mask_fallback.cpp)
 if (APPLE AND NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    set(VISION_SUBJECT_MASK_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/source/subject_mask.mm)
     enable_language(OBJCXX)
     find_library(VISION_FRAMEWORK Vision REQUIRED)
     find_library(COREGRAPHICS_FRAMEWORK CoreGraphics REQUIRED)
     find_library(COREVIDEO_FRAMEWORK CoreVideo REQUIRED)
     find_library(FOUNDATION_FRAMEWORK Foundation REQUIRED)
+    set(VISION_SUBJECT_MASK_IS_APPLE ON)
 endif()
 
 # === Dependencies ===
@@ -72,9 +77,11 @@ add_executable(chroma-replace
     ${CMAKE_CURRENT_SOURCE_DIR}/source/frame_spec.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/matting.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/protect_spec.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/subject_mask.mm
+    ${VISION_SUBJECT_MASK_SOURCE}
 )
-set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/source/subject_mask.mm PROPERTIES COMPILE_OPTIONS "-fobjc-arc;-Wno-error;-Wno-deprecated-declarations")
+if (VISION_SUBJECT_MASK_IS_APPLE)
+set_source_files_properties(${VISION_SUBJECT_MASK_SOURCE} PROPERTIES COMPILE_OPTIONS "-fobjc-arc;-Wno-error;-Wno-deprecated-declarations")
+endif()
 target_include_directories(chroma-replace
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -116,9 +123,11 @@ if (BUILD_UNIT_TESTS AND Threads_FOUND AND GTest_FOUND)
         ${CMAKE_CURRENT_SOURCE_DIR}/source/frame_spec.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/matting.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/protect_spec.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/subject_mask.mm
+        ${VISION_SUBJECT_MASK_SOURCE}
     )
-set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/source/subject_mask.mm PROPERTIES COMPILE_OPTIONS "-fobjc-arc;-Wno-error;-Wno-deprecated-declarations")
+if (VISION_SUBJECT_MASK_IS_APPLE)
+set_source_files_properties(${VISION_SUBJECT_MASK_SOURCE} PROPERTIES COMPILE_OPTIONS "-fobjc-arc;-Wno-error;-Wno-deprecated-declarations")
+endif()
     target_include_directories(gtest_vision
         PRIVATE
             ${CMAKE_CURRENT_SOURCE_DIR}/include

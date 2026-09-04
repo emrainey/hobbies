@@ -117,7 +117,9 @@ TEST_F(PerfCounter, IntersectionsSphere) {
 }
 
 TEST_F(PerfCounter, IntersectionsPyramid) {
-    raytrace::ray r{raytrace::point{0, 0, 2}, -R3::basis::Z};
+    // A downward ray offset from the axis so it hits the middle of a face (an apex
+    // hit is a degenerate measure-zero point).
+    raytrace::ray r{raytrace::point{0.25_p, 0.25_p, 2}, -R3::basis::Z};
     raytrace::objects::pyramid obj(R3::origin, 1.0_p);
     activity = std::string("pyramid intersections");
     for (size_t count = 0; count < number_of_ops; count++) {

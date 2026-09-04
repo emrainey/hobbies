@@ -243,6 +243,7 @@ if (BUILD_UNIT_TESTS AND Threads_FOUND AND GTest_FOUND)
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_mapping.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_overlap.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_perf.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_pyramid.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_plane.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_renders.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_ring.cpp

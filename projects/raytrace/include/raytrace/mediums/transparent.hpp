@@ -52,8 +52,11 @@ inline precision dispersion(precision a1, precision a2, precision b1, precision 
 /// The common vaccum, perfectly transparent with no extinction
 transparent const vacuum(refractive_index::vaccum, colors::black, colors::white);
 
-/// The normal atmosphere on earth with Rayleigh-proportional extinction (red ~0.002, green ~0.004, blue ~0.008)
-transparent const earth_atmosphere(refractive_index::air, color(0.002_p, 0.004_p, 0.008_p), colors::light_sky_blue);
+/// The normal atmosphere on earth. Realistic sea-level Rayleigh scattering per meter,
+/// scaled as λ^-4 (red ~5.9e-6, green ~1.1e-5, blue ~2.5e-5). This is subtle: over a 3 km
+/// path only ~5% of blue is absorbed. Use a denser custom transparent for visible fog/haze.
+transparent const earth_atmosphere(refractive_index::air, color(0.0000059_p, 0.000011_p, 0.000025_p),
+                                   colors::light_sky_blue);
 
 }  // namespace mediums
 

@@ -17,13 +17,14 @@ pyramid::pyramid(point const& base, precision height) : object(base, 2, Type::Py
 }
 
 vector pyramid::normal_(point const& object_surface_point) const {
+    // Return the normal in object space. The callers (object::normal() and object::intersect())
+    // transform it to world space themselves, so transforming here would double-rotate.
     bool positive_x = (object_surface_point.x() > 0.0_p);
     bool positive_y = (object_surface_point.y() > 0.0_p);
     precision x = positive_x ? basal::inv_sqrt_3 : -basal::inv_sqrt_3;
     precision y = positive_y ? basal::inv_sqrt_3 : -basal::inv_sqrt_3;
     precision z = basal::inv_sqrt_3;
-    vector object_surface_normal{{x, y, z}};
-    return forward_transform(object_surface_normal);
+    return vector{{x, y, z}};
 }
 
 inline bool is_positive(precision p, precision d, precision t) {
@@ -81,7 +82,11 @@ hits pyramid::collisions_along(ray const& object_ray) const {
         if (not basal::is_nan(t[i])) {
             if (usable[i]) {
                 point R = object_ray.distance_along(t[i]);
-                ts.emplace_back(intersection{R}, t[i], normal_(R), this);
+                // The side planes extend infinitely downward; only keep hits within the
+                // pyramid's vertical extent (0, h).
+                if (linalg::within(0, R.z(), h)) {
+                    ts.emplace_back(intersection{R}, t[i], normal_(R), this);
+                }
             }
         }
     }
@@ -89,11 +94,15 @@ hits pyramid::collisions_along(ray const& object_ray) const {
 }
 
 bool pyramid::is_surface_point(point const& world_point) const {
-    // follow z = h - |x| - |y|
     point object_point = reverse_transform(world_point);
     precision x = object_point.x();
     precision y = object_point.y();
     precision z = object_point.z();
+    // The equation also holds on the infinite extensions of the side planes, so the
+    // point must additionally lie within the pyramid's vertical extent [0, h].
+    if (z < 0.0_p or z > m_height) {
+        return false;
+    }
     return basal::nearly_equals(z, m_height - std::abs(x) - std::abs(y));
 }
 
@@ -106,8 +115,9 @@ void pyramid::print(std::ostream& os, char const str[]) const {
 }
 
 precision pyramid::get_object_extent(void) const {
-    // the pyramid is a height above origin, but is infinite in the -z direction
-    return basal::pos_inf;
+    // The apex and all four base corners lie at distance m_height from the
+    // base center, so a sphere of radius m_height encloses the pyramid.
+    return m_height;
 }
 
 }  // namespace objects

@@ -8,6 +8,7 @@
 #include "geometry/gtest_helper.hpp"
 #include "linalg/gtest_helper.hpp"
 #include "raytrace/gtest_helper.hpp"
+#include "raytrace/mediums/checkerboard.hpp"
 
 using namespace raytrace;
 using namespace raytrace::objects;
@@ -25,6 +26,7 @@ public:
         , field_of_view{90}
         , checkers{4, colors::blue, colors::yellow}
         , checkers2{0.25_p, colors::blue, colors::white}
+        , checkers3{4, colors::blue, colors::yellow}
         , plastic{colors::cyan, mediums::ambient::none, colors::white, mediums::smoothness::small, roughness::tight}
         , rubber{colors::grey, mediums::ambient::none, colors::grey, mediums::smoothness::none, roughness::tight}
         , steel{colors::grey, mediums::smoothness::polished, roughness::tight}
@@ -107,6 +109,7 @@ protected:
     iso::degrees field_of_view;
     mediums::checkerboard checkers;
     mediums::checkerboard checkers2;
+    mediums::checkerboard checkers3;
     mediums::plain plastic;
     mediums::plain rubber;
     mediums::metal steel;
@@ -129,7 +132,9 @@ TEST_F(RenderTest, DISABLED_Sphere) {
 
 TEST_F(RenderTest, DISABLED_Pyramid) {
     raytrace::objects::pyramid shape(look_at, 10);
-    shape.material(&plastic);
+    // shape.material(&plastic);
+    checkers3.mapper(std::bind(&raytrace::objects::pyramid::map, &shape, std::placeholders::_1));
+    shape.material(&checkers3);
     add_object(&shape);
     render_all("pyramid");
 }
@@ -140,8 +145,6 @@ TEST_F(RenderTest, DISABLED_Cube) {
     iso::degrees ry{0};
     iso::degrees rz{45};
     shape.rotation(rx, ry, rz);
-    // shape.material(&checkers);
-    // shape.material(&rubber);
     shape.material(&polka);
     add_object(&shape);
     render_all("cuboid");
@@ -322,15 +325,15 @@ TEST_F(RenderTest, CappedCylinderInclusiveOverlap) {
     // Create two capped cylinders that intersect with an inclusive overlap
     raytrace::objects::capped_cylinder cyl1(R3::point(0, 0, 10), 5, 10);  // Vertical cylinder
     raytrace::objects::capped_cylinder cyl2(R3::point(5, 0, 10), 5, 10);  // Vertical cylinder offset
-    
+
     // Make them overlap with an inclusive operation - we should see only the overlapping region
     raytrace::objects::overlap shape(cyl1, cyl2, overlap::type::inclusive);
-    
+
     // Apply materials
     cyl1.material(&plastic);
     cyl2.material(&plastic);
     shape.material(&plastic);
-    
+
     add_object(&shape);
     add_light(&inner_light);
     render_all("capped_cylinder_inclusive_overlap");

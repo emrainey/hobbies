@@ -10,8 +10,9 @@ using namespace raytrace::operators;
 using namespace iso::literals;
 
 namespace outrun {
-constexpr color neon_orange(1.0_p, 108.0_p / 255, 17.0_p / 255);
-constexpr color neon_pink(246.0_p / 255, 1.0_p / 255, 157.0_p / 255);
+// linear-space values; sRGB display equivalents in comments
+constexpr color neon_orange(1.0_p, 0.149959790_p, 0.005605392_p);        // sRGB: (255, 108, 17)/255
+constexpr color neon_pink(0.921581856_p, 0.000303527_p, 0.337163615_p);  // sRGB: (246, 1, 157)/255
 
 class Sun : public raytrace::mediums::opaque {
 public:
@@ -36,13 +37,13 @@ public:
         iso::radians obj_angle = angle(R3::basis::Z, obj_vec);
         precision scalar = obj_angle.value / (iso::pi / 2.0_p);
         if (scalar < 1.0_p) {
-            return fourcc::gamma::interpolate(colors::orange_red, colors::yellow, scalar);
+            return fourcc::linear::interpolate(colors::orange_red, colors::yellow, scalar);
         } else {
             if ((1.0_p < scalar and scalar <= 1.05_p) or (1.1_p < scalar and scalar <= 1.15_p)
                 or (1.2_p < scalar and scalar <= 1.25_p) or (1.3_p < scalar and scalar <= 1.35_p)) {
                 return colors::black;
             } else {
-                return fourcc::gamma::interpolate(colors::red, colors::orange_red, 1.0_p - scalar);
+                return fourcc::linear::interpolate(colors::red, colors::orange_red, 1.0_p - scalar);
             }
         }
     }
@@ -62,9 +63,10 @@ class OutrunWorld : public world {
 public:
     OutrunWorld()
         : world{raytrace::point{0, 50, 10}, raytrace::point{0, 0, 10}, "Outrun World", "world_outrun.tga"}
-        , sun_center{raytrace::point{0, -3000, 200}}
+        , sun_center{raytrace::point{0, -6000, 400}}
         , sun_rays{raytrace::vector{0, 200, -200}, colors::white, 2 * lights::intensities::bright}
         , grid{10.0_p, outrun::neon_pink, colors::black}
+        , mountain_grid{20.0_p, outrun::neon_pink, colors::white}
         /* , schott_glass{mediums::refractive_index::glass, 0.04_p, outrun::neon_pink} */
         , floor{200.0_p}
         , sun_surface{}
@@ -85,8 +87,8 @@ public:
         // e0.material(&schott_glass);
         e0.material(&mediums::metals::bronze);
         e1.material(&mediums::metals::bronze);
-        pyramid0.material(&grid);
-        pyramid1.material(&grid);
+        pyramid0.material(&mountain_grid);
+        pyramid1.material(&mountain_grid);
         pyramid0.rotation(iso::degrees{0}, iso::degrees{0}, iso::degrees{90.0_p});
         pyramid1.rotation(iso::degrees{0}, iso::degrees{0}, iso::degrees{-90.0_p});
         ambient_ = outrun::neon_orange;
@@ -99,7 +101,7 @@ public:
         // this creates a gradient from top to bottom
         iso::radians sky_angle = angle(R3::basis::Z, world_ray.direction());
         precision scalar = sky_angle.value / (2 * iso::pi);
-        return fourcc::gamma::interpolate(outrun::neon_pink, colors::dark_slate_blue, scalar);
+        return fourcc::linear::interpolate(outrun::neon_pink, colors::dark_slate_blue, scalar);
     }
 
     void add_to(scene& scene) override {
@@ -129,6 +131,7 @@ protected:
     lights::beam sun_rays;
     raytrace::point center;
     raytrace::mediums::grid grid;
+    raytrace::mediums::grid mountain_grid;
     // mediums::transparent schott_glass;
     raytrace::objects::square floor;
     outrun::Sun sun_surface;

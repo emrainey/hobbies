@@ -32,7 +32,7 @@ public:
         , box{raytrace::point{0, -30, 60}, 20, 20, 60}
         , ball{raytrace::point{0, 30, 30}, 30}
         , marble_cube{raytrace::point{0, -25, 20}, 10, 10, 10}
-        , top_light{raytrace::point{0, 0, 150}, colors::white, lights::intensities::radiant * 8.0_p} {
+        , top_light{raytrace::point{0, 0, 150}, colors::white, lights::intensities::radiant * 4.0_p} {
         wall0.material(&plain_blue);
         wall1.material(&plain_red);
         wall2.material(&plain_white);

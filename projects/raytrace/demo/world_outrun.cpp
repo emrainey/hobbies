@@ -64,9 +64,9 @@ public:
     OutrunWorld()
         : world{raytrace::point{0, 50, 10}, raytrace::point{0, 0, 10}, "Outrun World", "world_outrun.tga"}
         , sun_center{raytrace::point{0, -6000, 400}}
-        , sun_rays{raytrace::vector{0, 200, -200}, colors::white, 2 * lights::intensities::bright}
+        , sun_rays{raytrace::vector{0, 200, -500}, colors::white, lights::intensities::bright}
         , grid{10.0_p, outrun::neon_pink, colors::black}
-        , mountain_grid{20.0_p, outrun::neon_pink, colors::white}
+        , mountain_grid{20.0_p, outrun::neon_pink, colors::black}
         /* , schott_glass{mediums::refractive_index::glass, 0.04_p, outrun::neon_pink} */
         , floor{200.0_p}
         , sun_surface{}

@@ -18,15 +18,15 @@ namespace lights {
 
 namespace intensities {
 /// @brief Used for dim lighting (under 1.0)
-constexpr static precision dark{0.1};
-constexpr static precision dim{0.25};
-constexpr static precision moderate{0.5};
-constexpr static precision full{1.0};
-constexpr static precision bright{1E1};
-constexpr static precision intense{1E2};
-constexpr static precision radiant{1E3};
-constexpr static precision blinding{1E11};
-constexpr static precision searing{1E20};
+constexpr static precision dark{0.25};
+constexpr static precision dim{0.5};
+constexpr static precision moderate{1.0};
+constexpr static precision full{2.0};
+constexpr static precision bright{2E1};
+constexpr static precision intense{2E2};
+constexpr static precision radiant{2E3};
+constexpr static precision blinding{2E11};
+constexpr static precision searing{2E20};
 }  // namespace intensities
 
 /// An interface to all light types in the system which is used to determine the color contribution at some surface

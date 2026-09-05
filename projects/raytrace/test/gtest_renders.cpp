@@ -131,7 +131,7 @@ TEST_F(RenderTest, DISABLED_Sphere) {
 }
 
 TEST_F(RenderTest, DISABLED_Pyramid) {
-    raytrace::objects::pyramid shape(look_at, 10);
+    raytrace::objects::pyramid shape(look_at, 20);
     // shape.material(&plastic);
     checkers3.mapper(std::bind(&raytrace::objects::pyramid::map, &shape, std::placeholders::_1));
     shape.material(&checkers3);

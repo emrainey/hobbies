@@ -335,7 +335,7 @@ TEST(SceneTest, TransparentShadow) {
     plain white_surface(colors::white, 0.0_p, colors::white, mediums::smoothness::none, roughness::medium);
 
     // Beam light shining in -Z direction (incident rays go +Z toward the light source)
-    beam sunlight(raytrace::vector{0, 0, -1}, colors::white, lights::intensities::full);
+    beam sunlight(raytrace::vector{0, 0, -1}, colors::white, 1.0_p);
 
     // Transparent glass sphere at z=5, radius 2 — between the plane and the light
     raytrace::objects::sphere glass_sphere(raytrace::point{0, 0, 5}, 2.0_p);
@@ -412,7 +412,7 @@ TEST(SceneTest, TransparentCuboidShadow) {
     plain white_surface(colors::white, 0.0_p, colors::white, mediums::smoothness::none, roughness::medium);
 
     // Beam light shining in -Z direction (incident rays go +Z toward the light source)
-    beam sunlight(raytrace::vector{0, 0, -1}, colors::white, lights::intensities::full);
+    beam sunlight(raytrace::vector{0, 0, -1}, colors::white, 1.0_p);
 
     // Transparent glass cuboid at z=5 — between the plane and the light
     raytrace::objects::cuboid glass_cuboid(raytrace::point{0, 0, 5}, 2, 2, 2);

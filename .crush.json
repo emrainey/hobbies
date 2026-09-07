@@ -1,0 +1,38 @@
+{
+    "$schema": "https://charm.land/crush.json",
+    "mcp": {},
+    "lsp": {
+        "clangd": {
+            "command": "clangd",
+            "args": [
+                "--log=verbose",
+                "--pretty",
+                "--background-index",
+                "--clang-tidy",
+                "--completion-style=detailed",
+                "--header-insertion=never",
+                "--header-insertion-decorators",
+                "--cross-file-rename",
+                "--compile-commands-dir=build/homebrew-llvm"
+            ]
+        },
+        "cmake": {
+            "command": "cmake-language-server",
+            "root_markers": ["CMakeLists.txt", "CMakePresets.json"]
+        },
+        "python": {
+            "command": "pyright-langserver",
+            "args": ["--stdio"],
+            "root_markers": ["pyhobbies"]
+        },
+        "bash": {
+            "command": "bash-language-server",
+            "args": ["start"]
+        },
+        "yaml": {
+            "command": "yaml-language-server",
+            "args": ["--stdio"],
+            "filetypes": ["yaml", "yml"]
+        }
+    }
+}

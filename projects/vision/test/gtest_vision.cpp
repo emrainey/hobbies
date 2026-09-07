@@ -13,6 +13,7 @@
 #include <vision/subject_mask.hpp>
 
 #include <opencv2/opencv.hpp>
+#include <chrono>
 #include <cmath>
 #include <cstring>
 #include <set>
@@ -524,6 +525,47 @@ TEST(Matting, SharedSamplingGivesSoftGradientAlpha) {
     EXPECT_GT(in_between, 0);
     // Monotonically increasing from screen to subject across the band.
     EXPECT_LT(alpha_at(alpha, 8, 13), alpha_at(alpha, 8, 27));
+}
+
+TEST(Matting, SharedSamplingBoundedFallbackHandlesDeepBand) {
+    // Regression: a wide unknown band wide enough that centermost pixels have NO
+    // definite foreground/background sample reachable within max_step pixels on any
+    // ray. Their fallback substitutes the entire known sample pool, which with large
+    // pools becomes O(unknowns * |fg| * |bg|) and effectively hangs a single frame at
+    // video scales (observed as >120s on a 480x270 frame). The bounded, strided pool
+    // substitution keeps it fast while preserving plausible output.
+    int const rows = 100;
+    int const cols = 400;
+    int const bg_cols = 100;                               // definite background band (pools here are large)
+    int const fg_cols = 100;                               // definite foreground tail
+    cv::Mat img = gradient(rows, cols, bg_cols, fg_cols);  // bg_cols bg, fg_cols tail, 200-wide soft band
+    cv::Mat trimap(rows, cols, CV_8UC1, cv::Scalar(static_cast<int>(TrimapClass::Unknown)));
+    trimap(cv::Rect(0, 0, bg_cols, rows)) = cv::Scalar(static_cast<int>(TrimapClass::Background));
+    trimap(cv::Rect(cols - fg_cols, 0, fg_cols, rows)) = cv::Scalar(static_cast<int>(TrimapClass::Foreground));
+
+    auto const started = std::chrono::steady_clock::now();
+    cv::Mat alpha = matting::shared_sampling_matting(img, trimap);
+    double const elapsed_s
+        = std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::steady_clock::now() - started).count();
+
+    ASSERT_EQ(alpha.type(), CV_32FC1);
+    ASSERT_EQ(alpha.size(), img.size());
+    // Definite bands preserved.
+    EXPECT_NEAR(alpha_at(alpha, rows / 2, 50), 0.0, 0.10);
+    EXPECT_NEAR(alpha_at(alpha, rows / 2, cols - 50), 1.0, 0.10);
+    // A genuinely-deep band pixel (center ~200px from either definite band) must still
+    // resolve to a soft in-between value, not collapse or overflow.
+    for (int x = cols / 2 - 8; x <= cols / 2 + 8; ++x) {
+        float const a = alpha_at(alpha, rows / 2, x);
+        EXPECT_TRUE(std::isfinite(a));
+        EXPECT_GE(a, 0.0f);
+        EXPECT_LE(a, 1.0f);
+    }
+    EXPECT_GT(alpha_at(alpha, rows / 2, cols / 2), 0.05f);
+    EXPECT_LT(alpha_at(alpha, rows / 2, cols / 2), 0.95f);
+    // Bounded pool substitution: this scenario blows up to minutes with the unbounded
+    // whole-pool fallback; require it to finish promptly.
+    EXPECT_LT(elapsed_s, 5.0);
 }
 
 TEST(Matting, ProtectMaskPinsDarkSubjectForSharedSampling) {

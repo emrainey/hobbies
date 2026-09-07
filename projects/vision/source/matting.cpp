@@ -140,6 +140,30 @@ void symmetric3_regularized_inverse(double const A[][3], double eps, double out[
 
 }  // namespace detail
 
+/// Appends at most `max_triples` RGB triples from `pool` to `out`, taken at evenly
+/// spaced strides so the subset spans the whole pool rather than always the first
+/// entries. The shared-sampling fallback can substitute the entire known sample pool
+/// (catastrophic: O(unknowns * |fg| * |bg|)); striding keeps colour/spatial diversity
+/// while bounding the per-pixel best-pair cost.
+void append_pool_subset(std::vector<float>& out, std::vector<float> const& pool, size_t max_triples) {
+    size_t const triples = pool.size() / 3;
+    if (triples == 0) {
+        return;
+    }
+    size_t const n = std::min(triples, max_triples);
+    if (n == triples) {
+        out.insert(out.end(), pool.begin(), pool.end());
+        return;
+    }
+    size_t const stride = triples / n;  // >= 1 since n <= triples
+    for (size_t i = 0; i < n; ++i) {
+        size_t const s = i * stride;
+        out.push_back(pool[3 * s]);
+        out.push_back(pool[3 * s + 1U]);
+        out.push_back(pool[3 * s + 2]);
+    }
+}
+
 cv::Mat build_trimap(cv::Mat const& image, cv::Vec3b key, float bg_hue_tol, float sat_min, float fg_hue_tol,
                      cv::Mat const& protect) {
     detail::validate(image, "image");
@@ -777,6 +801,11 @@ cv::Mat shared_sampling_matting(cv::Mat const& image, cv::Mat const& trimap) {
     // are shared across all unknown pixels.
     int constexpr rays = 16;
     int constexpr max_step = 64;
+    // Cap on the whole-pool fallback below: with the rays empty for a side on a deep
+    // soft band, substituting the full known pool makes the best-pair search
+    // O(unknowns * |fg| * |bg|), which explodes on wide green-screen bands at video
+    // scales. A small, strided subset bounds it to max_pool_samples^2 pairs per pixel.
+    size_t constexpr max_pool_samples = 64;
     std::vector<int> dir_x(rays), dir_y(rays);
     for (size_t k = 0; k < static_cast<size_t>(rays); ++k) {
         double const ang = 2.0 * 3.141592653589793 * static_cast<double>(k) / static_cast<double>(rays);
@@ -848,13 +877,15 @@ cv::Mat shared_sampling_matting(cv::Mat const& image, cv::Mat const& trimap) {
                     bs.push_back(b[2]);
                 }
             }
-            // Fall back to the shared global sample pools when rays found nothing on a
-            // side, so an unknown pixel never collapses to a neutral and stays solvable.
+            // Fall back to a bounded, strided subset of the shared global sample pools
+            // when rays found nothing on a side, so an unknown pixel never collapses to
+            // a neutral AND the best-pair cost stays bounded however large the known
+            // pools grow (a soft green-screen band can be arbitrarily wide at scale).
             if (fs.empty() && !fg_rgb.empty()) {
-                fs = fg_rgb;
+                append_pool_subset(fs, fg_rgb, max_pool_samples);
             }
             if (bs.empty() && !bg_rgb.empty()) {
-                bs = bg_rgb;
+                append_pool_subset(bs, bg_rgb, max_pool_samples);
             }
             if (fs.empty() || bs.empty()) {
                 a[x] = 0.5f;

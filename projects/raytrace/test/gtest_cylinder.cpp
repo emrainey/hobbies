@@ -185,11 +185,11 @@ TEST(CappedCylinderTest, Normals) {
 
     capped_cylinder cyl1(R3::origin, 1.0_p, 1.0_p);
 
-    raytrace::point p0{1, 0, 1};  // Top cap
-    raytrace::point p1{0, 1, 1};  // Top cap
-    raytrace::point p2{-1, 0, -1}; // Bottom cap
-    raytrace::point p3{0, -1, -1}; // Bottom cap
-    raytrace::point p4{1, 0, 0};  // Side surface
+    raytrace::point p0{1, 0, 1};    // Top cap
+    raytrace::point p1{0, 1, 1};    // Top cap
+    raytrace::point p2{-1, 0, -1};  // Bottom cap
+    raytrace::point p3{0, -1, -1};  // Bottom cap
+    raytrace::point p4{1, 0, 0};    // Side surface
 
     vector nx = -R3::basis::X;
     vector ny = -R3::basis::Y;

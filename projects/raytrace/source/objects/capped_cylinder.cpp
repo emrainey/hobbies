@@ -47,7 +47,7 @@ vector capped_cylinder::normal_(point const& object_surface_point) const {
     // 1. The curved surface (outer cylinder)
     // 2. The top cap
     // 3. The bottom cap
-    
+
     // Check if we're on the top or bottom cap
     precision z = object_surface_point.z();
     if (basal::nearly_equals(z, m_half_height)) {
@@ -65,7 +65,7 @@ vector capped_cylinder::normal_(point const& object_surface_point) const {
 
 hits capped_cylinder::collisions_along(ray const& object_ray) const {
     hits ts;
-    
+
     // Check for intersections with the cylindrical surface
     precision px = object_ray.location()[0];
     precision py = object_ray.location()[1];
@@ -77,7 +77,7 @@ hits capped_cylinder::collisions_along(ray const& object_ray) const {
     auto roots = linalg::quadratic_roots(a, b, c);
     precision t0 = std::get<0>(roots);
     precision t1 = std::get<1>(roots);
-    
+
     // Check the tube intersections
     if (not basal::is_nan(t0)) {
         point R = object_ray.distance_along(t0);
@@ -85,23 +85,23 @@ hits capped_cylinder::collisions_along(ray const& object_ray) const {
             ts.emplace_back(intersection{R}, t0, normal_(R), this);
         }
     }
-    
+
     if (not basal::is_nan(t1)) {
         point Q = object_ray.distance_along(t1);
         if (m_is_infinite || linalg::within(-m_half_height, Q.z(), m_half_height)) {
             ts.emplace_back(intersection{Q}, t1, normal_(Q), this);
         }
     }
-    
+
     // Check for intersections with the top cap
     if (not basal::is_nan(m_half_height) && m_half_height > 0) {
         precision tz = m_half_height - object_ray.location()[2];
         precision dz = object_ray.direction()[2];
-        
+
         if (not basal::is_exactly_zero(dz)) {
             precision t_cap = tz / dz;
             point cap_point = object_ray.distance_along(t_cap);
-            
+
             // Check if this intersection is within the radius of the cap
             precision distance_from_center = sqrt((cap_point.x() * cap_point.x()) + (cap_point.y() * cap_point.y()));
             if (distance_from_center <= m_radius) {
@@ -109,16 +109,16 @@ hits capped_cylinder::collisions_along(ray const& object_ray) const {
             }
         }
     }
-    
+
     // Check for intersections with the bottom cap
     if (not basal::is_nan(m_half_height) && m_half_height > 0) {
         precision tz = -m_half_height - object_ray.location()[2];
         precision dz = object_ray.direction()[2];
-        
+
         if (not basal::is_exactly_zero(dz)) {
             precision t_cap = tz / dz;
             point cap_point = object_ray.distance_along(t_cap);
-            
+
             // Check if this intersection is within the radius of the cap
             precision distance_from_center = sqrt((cap_point.x() * cap_point.x()) + (cap_point.y() * cap_point.y()));
             if (distance_from_center <= m_radius) {
@@ -126,10 +126,10 @@ hits capped_cylinder::collisions_along(ray const& object_ray) const {
             }
         }
     }
-    
+
     // Sort intersections by distance
     std::sort(ts.begin(), ts.end());
-    
+
     return ts;
 }
 
@@ -138,7 +138,7 @@ bool capped_cylinder::is_surface_point(point const& world_point) const {
     precision x = object_point.x();
     precision y = object_point.y();
     precision z = object_point.z();
-    
+
     if (m_is_infinite) {
         // Infinite cylinder - check if point is on the surface
         return basal::nearly_equals(m_radius * m_radius, (x * x) + (y * y));
@@ -161,8 +161,8 @@ image::point capped_cylinder::map(point const& object_surface_point) const {
 }
 
 void capped_cylinder::print(std::ostream& os, char const str[]) const {
-    os << "capped_cylinder @" << this << " " << str << " " << position() << " 1/2H" << m_half_height << " Radius:" << m_radius
-       << std::endl;
+    os << "capped_cylinder @" << this << " " << str << " " << position() << " 1/2H" << m_half_height
+       << " Radius:" << m_radius << std::endl;
 }
 
 precision capped_cylinder::get_object_extent(void) const {

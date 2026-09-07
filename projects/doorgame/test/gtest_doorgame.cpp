@@ -323,7 +323,8 @@ TEST(DoorgameGameTest, AttackMonsterAppliesDamageWithoutRetaliation) {
 
     EXPECT_TRUE(view.last_complete_result);
     EXPECT_TRUE(game.monster_alive(0));
-    EXPECT_EQ(static_cast<size_t>(game.monster_health(0)), static_cast<size_t>(Health::Normal) - static_cast<size_t>(Damage::Cut));
+    EXPECT_EQ(static_cast<size_t>(game.monster_health(0)),
+              static_cast<size_t>(Health::Normal) - static_cast<size_t>(Damage::Cut));
     EXPECT_EQ(game.player_health(), Health::Normal);
 }
 

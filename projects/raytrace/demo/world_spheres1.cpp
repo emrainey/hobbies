@@ -15,7 +15,8 @@ using namespace iso::literals;
 class Spheres1World : public world {
 public:
     Spheres1World()
-        : world{raytrace::point{0, -20, 20}, raytrace::point{0, 0, 0}, "Spheres 1 - Roughness/Phong Demo", "world_spheres1.tga"}
+        : world{raytrace::point{0, -20, 20}, raytrace::point{0, 0, 0}, "Spheres 1 - Roughness/Phong Demo",
+                "world_spheres1.tga"}
         , sunlight{raytrace::vector{-2, 3, -2}, colors::white, lights::intensities::full}
         , spheres{}
         , materials{} {
@@ -24,27 +25,27 @@ public:
         const size_t cols = 8;
         const precision spacing = 3.0_p;
         const precision radius = 1.2_p;
-        
+
         // Create spheres in a grid pattern
         for (size_t r = 0; r < rows; ++r) {
             for (size_t c = 0; c < cols; ++c) {
-                raytrace::point center{(c - (cols-1)/2.0_p) * spacing, (r - (rows-1)/2.0_p) * spacing, 0};
+                raytrace::point center{(c - (cols - 1) / 2.0_p) * spacing, (r - (rows - 1) / 2.0_p) * spacing, 0};
                 spheres.push_back(new raytrace::objects::sphere(center, radius));
             }
         }
-        
+
         // Create a base material and vary only the roughness and phong properties
         // Using the same material type with different parameters to show the range
         const color base_color = colors::blue;
         const precision base_reflectivity = 0.1_p;
         const precision base_diffuse = 0.8_p;
-        
+
         // Create materials with varying roughness values in steps of 0.125
         // Roughness goes from 0.0 (smooth) to 1.0 (rough) in 0.125 steps
         // Phong (smoothness) goes from 0.0 (matte) to 1.0 (shiny) in 0.125 steps
         precision roughness_step = 0.125_p;
         precision smoothness_step = 0.125_p;
-        
+
         for (size_t r = 0; r < rows; ++r) {
             for (size_t c = 0; c < cols; ++c) {
                 precision roughness = r * roughness_step;
@@ -52,11 +53,12 @@ public:
                 // Clamp values to valid range
                 roughness = std::clamp(roughness, 0.0_p, 1.0_p);
                 smoothness = std::clamp(smoothness, 0.0_p, 1.0_p);
-                
-                materials.push_back(new raytrace::mediums::plain(base_color, base_reflectivity, base_color, smoothness, roughness));
+
+                materials.push_back(
+                    new raytrace::mediums::plain(base_color, base_reflectivity, base_color, smoothness, roughness));
             }
         }
-        
+
         // Assign materials to spheres
         for (size_t i = 0; i < spheres.size(); ++i) {
             spheres[i]->material(materials[i]);

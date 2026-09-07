@@ -9,7 +9,7 @@
 
 namespace basal {
 
-module::module(char const name[]) :handle{nullptr} {
+module::module(char const name[]) : handle{nullptr} {
     static char const* const formats[] = {
         "%s",
 #if defined(__APPLE__)
@@ -36,7 +36,7 @@ module::module(char const name[]) :handle{nullptr} {
     printf("Loaded into %p handle\r\n", handle);
 }
 
-module::module(module&& other) :handle(std::move(other.handle)) {
+module::module(module&& other) : handle(std::move(other.handle)) {
 }
 
 module& module::operator=(module&& other) {

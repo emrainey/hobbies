@@ -446,19 +446,20 @@ Damage StreamView::choose(Damages const& damages) {
     std::string str_value;
     std::cin >> str_value;
     size_t value = std::stoul(str_value, nullptr, 10);
-    
+
     // Find the closest valid damage value
     Damage closest_damage = Damage::None;
     size_t min_diff = std::numeric_limits<size_t>::max();
-    
+
     for (auto d : damages) {
-        size_t diff = (value > static_cast<size_t>(d)) ? (value - static_cast<size_t>(d)) : (static_cast<size_t>(d) - value);
+        size_t diff
+            = (value > static_cast<size_t>(d)) ? (value - static_cast<size_t>(d)) : (static_cast<size_t>(d) - value);
         if (diff < min_diff) {
             min_diff = diff;
             closest_damage = d;
         }
     }
-    
+
     return closest_damage;
 }
 

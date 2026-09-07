@@ -28,8 +28,8 @@ public:
                      mediums::roughness::tight}
         , plain_red{colors::white, mediums::ambient::none, colors::red, mediums::smoothness::small,
                     mediums::roughness::tight}
-, plain_cyan{colors::white, mediums::ambient::none, colors::cyan, mediums::smoothness::small,
-                        mediums::roughness::tight}
+        , plain_cyan{colors::white, mediums::ambient::none, colors::cyan, mediums::smoothness::small,
+                     mediums::roughness::tight}
         , grey_checkers{3, colors::grey, colors::red}
         , ikea_checkers{5, colors::yellow, colors::blue}
         , polka_dots{3.0_p, colors::black, colors::white}

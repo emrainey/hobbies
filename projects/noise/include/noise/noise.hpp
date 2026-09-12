@@ -27,6 +27,14 @@ precision sequence_pseudorandom1(uint32_t x);
 /// Generates a random seed vector which is normalized
 vector generate_seed();
 
+/// Generates a random 3D seed vector which is normalized
+vector3 generate_seed3();
+
+/// Builds a normalized 3D seed vector from an azimuth and elevation angle
+/// @param azimuth The azimuth (horizontal) angle, measured from +X toward +Y
+/// @param elevation The elevation (vertical) angle, measured from the XY plane toward +Z
+vector3 convert_to_seed3(iso::radians azimuth, iso::radians elevation);
+
 /// Converts a radian value to a seed vector normalized
 vector convert_to_seed(iso::radians r);
 
@@ -96,6 +104,17 @@ constexpr precision fade(precision t) {
 precision perlin(point const& pnt, precision scale, vector const& seeds, precision gain);
 
 ///
+/// 3D Perlin Noise.
+/// Classic improved Perlin generalized to a 3D lattice with 8 corner gradients.
+/// @param pnt A point in 3d space.
+/// @param scale The scale of the cells.
+/// @param seeds The seed values to shape the noise.
+/// @param gain The gain to apply.
+/// @see https://mrl.nyu.edu/~perlin/noise/
+///
+precision perlin(point3 const& pnt, precision scale, vector3 const& seeds, precision gain);
+
+///
 /// 2D Simplex Noise (Ken Perlin, 2001).
 /// Replaces the square grid with a simplicial (triangular) tiling so there
 /// are no axis-aligned artifacts.  Uses the same hash_2d function as perlin()
@@ -107,6 +126,17 @@ precision perlin(point const& pnt, precision scale, vector const& seeds, precisi
 /// @see https://weber.itn.liu.se/~stegu/simplexnoise/simplexnoise.pdf
 ///
 precision simplex(point const& pnt, precision scale, vector const& seeds, precision gain);
+
+///
+/// 3D Simplex Noise (Ken Perlin, 2001).
+/// Tiles the 3D lattice with tetrahedra, one of the 6 cells each point falls in.
+/// @param pnt A point in 3d space.
+/// @param scale The scale of the cells.
+/// @param seeds The seed values to shape the noise.
+/// @param gain The gain to apply.
+/// @see https://weber.itn.liu.se/~stegu/simplexnoise/simplexnoise.pdf
+///
+precision simplex(point3 const& pnt, precision scale, vector3 const& seeds, precision gain);
 
 ///
 /// 2D Worley (Cellular) Noise.
@@ -211,6 +241,21 @@ constexpr precision yellow = 0.5_p;
 /// @param initial_frequency The initial starting frequency
 ///
 precision fractal_brownian(point const& pnt, vector const& seed, size_t octaves, precision lacunarity = 2.0_p,
+                           precision gain = 0.5_p, precision initial_amplitude = 1.0_p,
+                           precision initial_frequency = 1.0_p);
+
+///
+/// Fractal Brownian Motion in 3D.
+/// Shares the octave accumulation loop with the 2D version.
+/// @param pnt The point in the 3d space.
+/// @param seed The noise seed value
+/// @param octaves The number of iterative octaves
+/// @param lacunarity How the frequency is modified after every octave. Usually 2.0_p
+/// @param gain How the amplitude if modified after every octave. Usually 0.5_p or some value x where 2^-y
+/// @param initial_amplitude The initial amplitude
+/// @param initial_frequency The initial starting frequency
+///
+precision fractal_brownian(point3 const& pnt, vector3 const& seed, size_t octaves, precision lacunarity = 2.0_p,
                            precision gain = 0.5_p, precision initial_amplitude = 1.0_p,
                            precision initial_frequency = 1.0_p);
 

@@ -32,6 +32,31 @@ uint32_t derive_seed(vector const& seed, precision gain) {
     return (static_cast<uint32_t>((seed[0] + 1.0_p) * 1073741824.0_p)
             ^ static_cast<uint32_t>((seed[1] + 1.0_p) * 1073741824.0_p) ^ static_cast<uint32_t>(gain * 16777216.0_p));
 }
+
+/// Deterministically maps a 3D lattice coordinate and a seed to a value in [0, 1).
+/// @note Written by Deepseek V4 Flash
+precision hash_3d(int32_t x, int32_t y, int32_t z, uint32_t seed) {
+    uint32_t h = static_cast<uint32_t>(x) * 374761393u;
+    h += static_cast<uint32_t>(y) * 668265263u;
+    h += static_cast<uint32_t>(z) * 1274126177u;
+    h += seed * 1103515245u;
+    h = (h ^ (h >> 13)) * 1274126177u;
+    h = h ^ (h >> 16);
+    return static_cast<precision>(h & 0x7FFFFFFF) / 2147483648.0_p;
+}
+
+/// Derive a uint32_t seed from a user-supplied 3D seed vector and gain.
+uint32_t derive_seed3(vector3 const& seed, precision gain) {
+    return (static_cast<uint32_t>((seed[0] + 1.0_p) * 1073741824.0_p)
+            ^ static_cast<uint32_t>((seed[1] + 1.0_p) * 1073741824.0_p)
+            ^ static_cast<uint32_t>((seed[2] + 1.0_p) * 1073741824.0_p) ^ static_cast<uint32_t>(gain * 16777216.0_p));
+}
+
+/// The 12 mid-edge gradient directions of a cube used by improved perlin / simplex 3D.
+static const int8_t grad3[12][3] = {
+    {1, 1, 0},  {-1, 1, 0},  {1, -1, 0}, {-1, -1, 0}, {1, 0, 1},  {-1, 0, 1},
+    {1, 0, -1}, {-1, 0, -1}, {0, 1, 1},  {0, -1, 1},  {0, 1, -1}, {0, -1, -1},
+};
 }  // namespace
 
 noise::point const corners[] = {
@@ -67,6 +92,19 @@ vector generate_seed() {
     constexpr precision const C = 2.0_p;
     iso::radians r{(C * iso::pi * d) - iso::pi};  // -pi to +pi
     return convert_to_seed(r);
+}
+
+vector3 convert_to_seed3(iso::radians azimuth, iso::radians elevation) {
+    precision c = std::cos(elevation.value);
+    return vector3{{c * std::cos(azimuth.value), c * std::sin(azimuth.value), std::sin(elevation.value)}};
+}
+
+vector3 generate_seed3() {
+    precision az = (precision)rand() / RAND_MAX;                   // 0.0_p to 1.0
+    precision el = (precision)rand() / RAND_MAX;                   // 0.0_p to 1.0
+    iso::radians azimuth{(iso::tau * az) - iso::pi};               // -pi to +pi
+    iso::radians elevation{((iso::pi * el) - (iso::pi / 2.0_p))};  // -pi/2 to +pi/2
+    return convert_to_seed3(azimuth, elevation);
 }
 
 point floor(noise::point const& pnt) {
@@ -139,6 +177,46 @@ precision perlin(point const& pnt, precision scale, vector const& seeds, precisi
     return map(mid, -1.0_p, 1.0_p, 0.0_p, 1.0_p);
 }
 
+precision perlin(point3 const& pnt, precision scale, vector3 const& seeds, precision gain) {
+    // Classic improved Perlin generalized to 8 corner gradients in 3D.
+    precision x = pnt.x() / scale;
+    precision y = pnt.y() / scale;
+    precision z = pnt.z() / scale;
+
+    int32_t ix = static_cast<int32_t>(std::floor(x));
+    int32_t iy = static_cast<int32_t>(std::floor(y));
+    int32_t iz = static_cast<int32_t>(std::floor(z));
+    precision fx = x - std::floor(x);
+    precision fy = y - std::floor(y);
+    precision fz = z - std::floor(z);
+
+    precision u = fade(fx);
+    precision v = fade(fy);
+    precision w = fade(fz);
+
+    uint32_t hseed = derive_seed3(seeds, gain);
+
+    // N[z][y][x] contribution at each of the 8 cube corners.
+    precision n[2][2][2] = {};
+    for (int32_t dz = 0; dz < 2; dz++) {
+        for (int32_t dy = 0; dy < 2; dy++) {
+            for (int32_t dx = 0; dx < 2; dx++) {
+                int gi = static_cast<int>(hash_3d(ix + dx, iy + dy, iz + dz, hseed) * 12.0_p) & 11;
+                n[dz][dy][dx] = grad3[gi][0] * (fx - dx) + grad3[gi][1] * (fy - dy) + grad3[gi][2] * (fz - dz);
+            }
+        }
+    }
+
+    // Trilinear interpolation, x then y then z.
+    precision x00 = noise::interpolate(n[0][0][0], n[0][0][1], u);
+    precision x10 = noise::interpolate(n[0][1][0], n[0][1][1], u);
+    precision x01 = noise::interpolate(n[1][0][0], n[1][0][1], u);
+    precision x11 = noise::interpolate(n[1][1][0], n[1][1][1], u);
+    precision y00 = noise::interpolate(x00, x10, v);
+    precision y10 = noise::interpolate(x01, x11, v);
+    return map(noise::interpolate(y00, y10, w), -1.0_p, 1.0_p, 0.0_p, 1.0_p);
+}
+
 precision simplex(point const& pnt, precision scale, vector const& seed, precision gain) {
     // Skew factors to map a square grid to a triangular (simplicial) grid.
     constexpr precision F2 = 0.5_p * (1.7320508075688772935274463415059_p - 1.0_p);  // (sqrt(3)-1)/2
@@ -187,6 +265,106 @@ precision simplex(point const& pnt, precision scale, vector const& seed, precisi
 
     // Scale the sum to approximately [-1, 1] (factor ~70 is conventional).
     return map((n0 + n1 + n2) * 70.0_p, -1.0_p, 1.0_p, 0.0_p, 1.0_p);
+}
+
+precision simplex(point3 const& pnt, precision scale, vector3 const& seeds, precision gain) {
+    // Skew/unskew factors for a 3D (tetrahedral) simplicial tiling.
+    constexpr precision F3 = 1.0_p / 3.0_p;
+    constexpr precision G3 = 1.0_p / 6.0_p;
+
+    precision xs = pnt.x() / scale;
+    precision ys = pnt.y() / scale;
+    precision zs = pnt.z() / scale;
+
+    precision s = (xs + ys + zs) * F3;
+    int32_t i = static_cast<int32_t>(std::floor(xs + s));
+    int32_t j = static_cast<int32_t>(std::floor(ys + s));
+    int32_t k = static_cast<int32_t>(std::floor(zs + s));
+    precision t = static_cast<precision>(i + j + k) * G3;
+
+    precision x0 = xs - (static_cast<precision>(i) - t);
+    precision y0 = ys - (static_cast<precision>(j) - t);
+    precision z0 = zs - (static_cast<precision>(k) - t);
+
+    // Determine which of the 6 tetrahedra the point falls in.
+    int32_t i1, j1, k1, i2, j2, k2;
+    if (x0 >= y0) {
+        if (y0 >= z0) {
+            i1 = 1;
+            j1 = 0;
+            k1 = 0;
+            i2 = 1;
+            j2 = 1;
+            k2 = 0;
+        } else if (x0 >= z0) {
+            i1 = 1;
+            j1 = 0;
+            k1 = 0;
+            i2 = 1;
+            j2 = 0;
+            k2 = 1;
+        } else {
+            i1 = 0;
+            j1 = 0;
+            k1 = 1;
+            i2 = 1;
+            j2 = 0;
+            k2 = 1;
+        }
+    } else {
+        if (y0 < z0) {
+            i1 = 0;
+            j1 = 0;
+            k1 = 1;
+            i2 = 0;
+            j2 = 1;
+            k2 = 1;
+        } else if (x0 < z0) {
+            i1 = 0;
+            j1 = 1;
+            k1 = 0;
+            i2 = 0;
+            j2 = 1;
+            k2 = 1;
+        } else {
+            i1 = 0;
+            j1 = 1;
+            k1 = 0;
+            i2 = 1;
+            j2 = 1;
+            k2 = 0;
+        }
+    }
+
+    uint32_t hseed = derive_seed3(seeds, gain);
+
+    auto contrib = [&](int32_t ix, int32_t iy, int32_t iz, precision dx, precision dy, precision dz) -> precision {
+        int gi = static_cast<int>(hash_3d(ix, iy, iz, hseed) * 12.0_p) & 11;
+        precision d2 = dx * dx + dy * dy + dz * dz;
+        if (d2 >= 0.6_p)
+            return 0.0_p;
+        precision t2 = 0.6_p - d2;
+        t2 *= t2;
+        return t2 * t2 * (grad3[gi][0] * dx + grad3[gi][1] * dy + grad3[gi][2] * dz);
+    };
+
+    precision x1 = x0 - i1 + G3;
+    precision y1 = y0 - j1 + G3;
+    precision z1 = z0 - k1 + G3;
+    precision x2 = x0 - i2 + 2.0_p * G3;
+    precision y2 = y0 - j2 + 2.0_p * G3;
+    precision z2 = z0 - k2 + 2.0_p * G3;
+    precision x3 = x0 - 1.0_p + 3.0_p * G3;
+    precision y3 = y0 - 1.0_p + 3.0_p * G3;
+    precision z3 = z0 - 1.0_p + 3.0_p * G3;
+
+    precision n0 = contrib(i, j, k, x0, y0, z0);
+    precision n1 = contrib(i + i1, j + j1, k + k1, x1, y1, z1);
+    precision n2 = contrib(i + i2, j + j2, k + k2, x2, y2, z2);
+    precision n3 = contrib(i + 1, j + 1, k + 1, x3, y3, z3);
+
+    // Scale the tetrahedral sum to approximately [-1, 1] (factor ~32 is conventional).
+    return map((n0 + n1 + n2 + n3) * 32.0_p, -1.0_p, 1.0_p, 0.0_p, 1.0_p);
 }
 
 precision worley(point const& pnt, precision scale, vector const& seed, precision gain) {
@@ -314,18 +492,37 @@ static precision fractal_noise(point const& pnt, vector const& seed, precision r
     return mix(a, b, ux) + ((c - a) * uy * (1.0_p - ux)) + ((d - b) * ux * uy);
 }
 
-precision fractal_brownian(point const& pnt, vector const& seed, size_t octaves, precision lacunarity, precision gain,
-                           precision initial_amplitude, precision initial_frequency) {
+/// Shared octave accumulation loop for both the 2D and 3D fractal brownian motion.
+/// The octave function computes a single octave of noise at a pre-scaled point.
+/// @note Written by Deepseek V4 Flash
+template <typename PointT, typename VectorT, typename OctaveFn>
+precision fractal_brownian_loop(PointT const& pnt, VectorT const& seed, size_t octaves, precision lacunarity,
+                                precision gain, precision initial_amplitude, precision initial_frequency,
+                                OctaveFn octave) {
     precision value = 0.0_p;
     precision amplitude = initial_amplitude;
     precision frequency = initial_frequency;
     for (size_t o = 0; o < octaves; o++) {
-        point tmp = pnt * frequency;
-        value += amplitude * fractal_noise(tmp, seed, 43758.5453123_p);
+        PointT tmp = pnt * frequency;
+        value += amplitude * octave(tmp, seed);
         frequency *= lacunarity;
         amplitude *= gain;
     }
     return value;
+}
+
+precision fractal_brownian(point const& pnt, vector const& seed, size_t octaves, precision lacunarity, precision gain,
+                           precision initial_amplitude, precision initial_frequency) {
+    return fractal_brownian_loop(
+        pnt, seed, octaves, lacunarity, gain, initial_amplitude, initial_frequency,
+        [&](point const& p, vector const& s) -> precision { return fractal_noise(p, s, 43758.5453123_p); });
+}
+
+precision fractal_brownian(point3 const& pnt, vector3 const& seed, size_t octaves, precision lacunarity, precision gain,
+                           precision initial_amplitude, precision initial_frequency) {
+    return fractal_brownian_loop(
+        pnt, seed, octaves, lacunarity, gain, initial_amplitude, initial_frequency,
+        [&](point3 const& p, vector3 const& s) -> precision { return perlin(p, 1.0_p, s, 245.4993546_p); });
 }
 
 }  // namespace noise

@@ -67,7 +67,10 @@ target_link_libraries(demo_simplex_tuner ${OpenCV_LIBS} hobbies-noise hobbies-li
 add_executable(demo_worley_tuner ${CMAKE_CURRENT_SOURCE_DIR}/demo/worley_tuner.cpp)
 target_link_libraries(demo_worley_tuner ${OpenCV_LIBS} hobbies-noise hobbies-linalg-utils)
 
-install(TARGETS demo_turbulent_tuner demo_perlin_tuner demo_fbm_tuner demo_simplex_tuner demo_worley_tuner
+add_executable(demo_fbm3_tuner ${CMAKE_CURRENT_SOURCE_DIR}/demo/fbm3_tuner.cpp)
+target_link_libraries(demo_fbm3_tuner ${OpenCV_LIBS} hobbies-noise hobbies-linalg-utils)
+
+install(TARGETS demo_turbulent_tuner demo_perlin_tuner demo_fbm_tuner demo_simplex_tuner demo_worley_tuner demo_fbm3_tuner
     EXPORT noise-targets
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib

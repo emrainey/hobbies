@@ -316,3 +316,112 @@ TEST_F(NoiseImageTest, WorleyNoiseImage) {
     });
     image_name = "noise_image_worley.ppm";
 }
+
+TEST(NoiseTest, SeedGenerator3D) {
+    for (size_t i = 0U; i < 10'000; i++) {
+        noise::vector3 seed = noise::generate_seed3();
+        auto m = seed.magnitude();
+        ASSERT_PRECISION_EQ(1.0_p, m) << "seed " << i;
+    }
+}
+
+TEST(NoiseTest, ConvertToSeed3D) {
+    noise::vector3 x = noise::convert_to_seed3(iso::radians{0.0_p}, iso::radians{0.0_p});
+    ASSERT_PRECISION_EQ(1.0_p, x.x());
+    ASSERT_PRECISION_EQ(0.0_p, x.y());
+    ASSERT_PRECISION_EQ(0.0_p, x.z());
+    ASSERT_PRECISION_EQ(1.0_p, x.magnitude());
+
+    // straight up should be purely +Z
+    noise::vector3 up = noise::convert_to_seed3(iso::radians{0.0_p}, iso::radians{iso::pi / 2.0_p});
+    ASSERT_PRECISION_EQ(1.0_p, up.z());
+    ASSERT_PRECISION_EQ(1.0_p, up.magnitude());
+}
+
+TEST(NoiseTest, Perlin3DRange) {
+    noise::vector3 seed = noise::generate_seed3();
+    constexpr noise::precision scale = 32.0_p;
+    constexpr noise::precision gain = 245.4993546_p;
+    for (size_t i = 0; i < 200; i++) {
+        noise::point3 pnt{(noise::precision)(i % 3), (noise::precision)(i % 5), (noise::precision)(i % 7)};
+        noise::point3 scaled{pnt.x() * 100.0_p, pnt.y() * 100.0_p, pnt.z() * 100.0_p};
+        noise::precision value = noise::perlin(scaled, scale, seed, gain);
+        ASSERT_GE(value, 0.0_p);
+        ASSERT_LE(value, 1.0_p) << "iteration " << i;
+    }
+}
+
+TEST(NoiseTest, Simplex3DRange) {
+    noise::vector3 seed = noise::generate_seed3();
+    constexpr noise::precision scale = 32.0_p;
+    constexpr noise::precision gain = 245.4993546_p;
+    for (size_t i = 0; i < 200; i++) {
+        noise::point3 pnt{(noise::precision)(i % 5) / 5.0_p, (noise::precision)(i % 7) / 7.0_p,
+                          (noise::precision)(i % 11) / 11.0_p};
+        noise::point3 scaled{pnt.x() * 100.0_p, pnt.y() * 100.0_p, pnt.z() * 100.0_p};
+        noise::precision value = noise::simplex(scaled, scale, seed, gain);
+        ASSERT_GE(value, 0.0_p);
+        ASSERT_LE(value, 1.0_p) << "iteration " << i;
+    }
+}
+
+TEST(NoiseTest, Perlin3DContinuity) {
+    // Adjacent samples a tiny step apart must stay close (continuous field).
+    noise::vector3 seed = noise::generate_seed3();
+    constexpr noise::precision scale = 32.0_p;
+    constexpr noise::precision gain = 245.4993546_p;
+    noise::point3 a{0.1_p, 0.2_p, 0.3_p};
+    noise::point3 b{0.1_p + 0.001_p, 0.2_p + 0.001_p, 0.3_p + 0.001_p};
+    noise::point3 sa{a.x() * 100.0_p, a.y() * 100.0_p, a.z() * 100.0_p};
+    noise::point3 sb{b.x() * 100.0_p, b.y() * 100.0_p, b.z() * 100.0_p};
+    noise::precision va = noise::perlin(sa, scale, seed, gain);
+    noise::precision vb = noise::perlin(sb, scale, seed, gain);
+    ASSERT_LT(std::abs(va - vb), 0.05_p) << "va=" << va << " vb=" << vb;
+}
+
+TEST(NoiseTest, Fbm3DMeanUnitRange) {
+    noise::vector3 seed = noise::generate_seed3();
+    noise::precision sum = 0.0_p;
+    size_t count = 0;
+    constexpr size_t samples_per_axis = 24;
+    for (size_t z = 0; z < samples_per_axis; z++) {
+        for (size_t y = 0; y < samples_per_axis; y++) {
+            for (size_t x = 0; x < samples_per_axis; x++) {
+                noise::point3 pnt{(noise::precision)x / samples_per_axis, (noise::precision)y / samples_per_axis,
+                                  (noise::precision)z / samples_per_axis};
+                noise::precision value = noise::fractal_brownian(pnt, seed, 6, 2.0_p, 0.5_p, 0.5_p, 1.0_p);
+                sum += value;
+                count++;
+            }
+        }
+    }
+    noise::precision mean = sum / count;
+    ASSERT_GT(mean, 0.25_p) << "mean=" << mean;
+    ASSERT_LT(mean, 0.75_p) << "mean=" << mean;
+    (void)count;
+}
+
+TEST_F(NoiseImageTest, Fbm3DSlices) {
+    // Renders three constant-z slices (near bottom, middle, near top) of the 3D
+    // FBM density so the evolving structures along the z-axis are visible.
+    noise::vector3 seed = noise::generate_seed3();
+    constexpr size_t tile = 256;
+    constexpr size_t dim = tile * 3;
+    fourcc::image<fourcc::PixelFormat::RGB8> slice{tile, dim};
+    noise::precision zvals[3] = {0.1_p, 0.5_p, 0.9_p};
+    for (size_t t = 0; t < 3; t++) {
+        noise::precision z = zvals[t];
+        for (size_t y = 0; y < tile; y++) {
+            for (size_t x = 0; x < tile; x++) {
+                noise::point3 pnt{(noise::precision)x / tile, (noise::precision)y / tile, z};
+                noise::precision value = noise::fractal_brownian(pnt, seed, 6, 2.0_p, 0.5_p, 0.5_p, 1.0_p);
+                uint8_t grey = static_cast<uint8_t>(std::round(value * 255.0_p));
+                fourcc::rgb8& pixel = slice.at(y, t * tile + x);
+                pixel.components.r = grey;
+                pixel.components.g = grey;
+                pixel.components.b = grey;
+            }
+        }
+    }
+    slice.save("noise_image_fbm3_slices.ppm");
+}

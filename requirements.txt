@@ -1,0 +1,7 @@
+# Directly needed
+pybind11
+# Testing
+pytest
+# Helpers
+pyyaml
+jinja2

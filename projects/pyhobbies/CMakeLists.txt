@@ -35,14 +35,14 @@ if (BUILD_UNIT_TESTS)
     # Found on https://discourse.cmake.org/t/possible-to-create-a-python-virtual-env-from-cmake-and-then-find-it-with-findpython3/1132/2
     # Find just the interpreter first
     find_package(Python3 REQUIRED Interpreter)
+    # This mimics the activation of the venv
+    set(ENV{VIRTUAL_ENV} "${CMAKE_SOURCE_DIR}/.venv")
     # Print the version and create the virtual environment
     execute_process (
         COMMAND_ECHO STDOUT
         COMMAND ${Python3_EXECUTABLE} --version
-        COMMAND ${Python3_EXECUTABLE} -m venv ${CMAKE_BINARY_DIR}/venv
+        COMMAND ${Python3_EXECUTABLE} -m venv $ENV{VIRTUAL_ENV}
     )
-    # This mimics the activation of the venv
-    set(ENV{VIRTUAL_ENV} "${CMAKE_BINARY_DIR}/venv")
     # changes the context of the search
     set(Python3_FIND_VIRTUALENV FIRST)
     # gets rid of the previous find
@@ -54,7 +54,7 @@ if (BUILD_UNIT_TESTS)
         COMMAND_ECHO STDOUT
         OUTPUT_STRIP_TRAILING_WHITESPACE
         COMMAND ${Python3_EXECUTABLE} --version
-        COMMAND ${Python3_EXECUTABLE} -m pip install jinja2 pyyaml pytest
+        COMMAND ${Python3_EXECUTABLE} -m pip install -r ${CMAKE_SOURCE_DIR}/requirements.txt
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     )
     add_test(

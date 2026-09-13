@@ -13,15 +13,26 @@ using namespace iso::literals;
 class ArtWorld : public world {
 public:
     ArtWorld()
-        : world(raytrace::point{0, 25, 10}, raytrace::point{0, 0, 10}, "Art1 World", "world_art1.tga")
+        : world(raytrace::point{25, 25, 10}, raytrace::point{0, 0, 10}, "Art1 World", "world_art1.tga")
         , sun_rays{raytrace::vector{-20, 0, -21}, colors::white, lights::intensities::full + 0.5_p}
-        , floor{200.0_p}
-        , pyramid1{looking_at(), 0}
+        , floor{2000.0_p}
+        , pyramid1{origin, 10.0_p}
         , orb{raytrace::point{0, 0, 12}, 2.0_p}
-        , halo{raytrace::point{0, 0, 14}, 2.25_p, 0.125_p} {
+        , halo{raytrace::point{0, 0, 14}, 2.25_p, 0.125_p}
+        , columns{} {
+        // four columns around the pyramid
+        precision height = 10.0_p;
+        columns.emplace_back(raytrace::point{12, 0, height / 2}, height, 0.5_p);
+        columns.emplace_back(raytrace::point{-12, 0, height / 2}, height, 0.5_p);
+        columns.emplace_back(raytrace::point{0, 12, height / 2}, height, 0.5_p);
+        columns.emplace_back(raytrace::point{0, -12, height / 2}, height, 0.5_p);
+
         pyramid1.material(&mediums::metals::stainless);
         orb.material(&mediums::metals::stainless);
         floor.material(&mediums::metals::stainless);
+        for (auto& column : columns) {
+            column.material(&mediums::metals::stainless);
+        }
         halo.material(&mediums::metals::copper);
         ambient_ = colors::stainless;
         // this is the only way to set the intensity of the ambient light is in the I channel
@@ -45,6 +56,9 @@ public:
         scene.add_object(&pyramid1);
         scene.add_object(&orb);
         scene.add_object(&halo);
+        for (auto& column : columns) {
+            scene.add_object(&column);
+        }
         scene.add_media(&mediums::earth_atmosphere);
     }
 
@@ -71,10 +85,8 @@ protected:
     raytrace::objects::square floor;
     raytrace::objects::pyramid pyramid1;
     raytrace::objects::sphere orb;
-    // raytrace::objects::cone    orb_cut;
-    // raytrace::objects::cuboid  column;
-    // raytrace::objects::pyramid column_cap;
     raytrace::objects::torus halo;
+    std::vector<raytrace::objects::cylinder> columns;
 };
 
 // declare a single instance and return the reference to it

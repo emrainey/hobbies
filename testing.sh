@@ -14,4 +14,6 @@ echo "============="
 export PATH=`pwd`/install/${PRESET}/bin:${PATH}
 echo "PATH=${PATH}"
 echo "============="
+find build/homebrew-llvm/projects/raytrace -name 'libworld_*.dylib' | sort
+echo "============="
 (cd testing && $*)

@@ -83,6 +83,8 @@ add_library(hobbies-raytrace
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/torus.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/polygon.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/objects/wall.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/clouds/CloudLayer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/clouds/CloudIntegrator.cpp
 )
 target_link_libraries(hobbies-raytrace
     PUBLIC
@@ -257,6 +259,7 @@ if (BUILD_UNIT_TESTS AND Threads_FOUND AND GTest_FOUND)
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_polygon.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_objparser.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_wall.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_clouds.cpp
     )
     target_link_libraries(gtest_raytrace PRIVATE hobbies-raytrace enabled-debugging GTest::gtest GTest::gmock GTest::gtest_main Threads::Threads)
     # CMake Test Plugin

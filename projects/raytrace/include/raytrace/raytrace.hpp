@@ -62,5 +62,9 @@
 #include "raytrace/objects/polygon.hpp"
 #include "raytrace/objects/wall.hpp"
 
+// Clouds
+#include "raytrace/clouds/CloudLayer.hpp"
+#include "raytrace/clouds/CloudIntegrator.hpp"
+
 // Animator
 #include "raytrace/animator.hpp"

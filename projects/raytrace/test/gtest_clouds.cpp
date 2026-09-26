@@ -177,3 +177,80 @@ TEST(CloudIntegratorTest, TransmittanceDecreasesWithDistance) {
     precision t_thick = thick.transmittance(r);
     EXPECT_GT(t_thin, t_thick);
 }
+TEST(SceneCloudTest, CloudIgnoresMisses) {
+    raytrace::scene sc;
+    sc.set_background_mapper([](ray const&) -> color { return colors::white; });
+    clouds::CloudLayer layer{R3::origin, 1.0_p, 1.0_p, 1.0_p};
+    layer.extinction(2.0_p).density_callback([](point const&) -> precision { return 0.5_p; });
+    sc.add_cloud(layer);
+
+    // Ray passes clear of the [-1, 1]^3 box (y = 5), so it is unaffected.
+    ray r{point{-10.0_p, 5.0_p, 0.0_p}, R3::basis::X};
+    color c = sc.trace(r, mediums::vacuum);
+    EXPECT_NEAR(1.0_p, c.red(), 1e-4);
+}
+
+TEST(SceneCloudTest, LightBrightensCloud) {
+    raytrace::scene sc;
+    sc.set_background_mapper([](ray const&) -> color { return colors::black; });
+    clouds::CloudLayer layer{R3::origin, 1.0_p, 1.0_p, 1.0_p};
+    layer.extinction(1.0_p).albedo(0.9_p).density_callback([](point const&) -> precision { return 0.5_p; });
+    sc.add_cloud(layer);
+    lights::speck sun{point{-5.0_p, 0.0_p, 0.0_p}, colors::white, 1.0_p};
+    sc.add_light(&sun);
+
+    ray r{point{-10.0_p, 0.0_p, 0.0_p}, R3::basis::X};
+    color c = sc.trace(r, mediums::vacuum);
+    EXPECT_GT(c.red(), 0.0_p);
+    EXPECT_LE(c.red(), 1.0_p);
+}
+
+TEST(SceneCloudTest, CloudAttenuatesRay) {
+    using namespace raytrace;
+    scene sc;
+    sc.set_background_mapper([](ray const&) -> raytrace::color { return colors::white; });
+    // A background ray with no clouds passes through untouched.
+    ray r{point{-10.0_p, 0.0_p, 0.0_p}, R3::basis::X};
+    raytrace::color no_cloud = sc.trace(r, mediums::vacuum);
+
+    // A uniform cloud along the same ray heavily attenuates it.
+    clouds::CloudLayer layer{R3::origin, 1.0_p, 1.0_p, 1.0_p};
+    layer.extinction(2.0_p).density_callback([](raytrace::point const&) -> raytrace::precision { return 0.5_p; });
+    sc.add_cloud(layer);
+    raytrace::color with_cloud = sc.trace(r, mediums::vacuum);
+
+    EXPECT_GT(no_cloud.red(), with_cloud.red());
+    EXPECT_GT(no_cloud.green(), with_cloud.green());
+    EXPECT_GT(no_cloud.blue(), with_cloud.blue());
+}
+
+TEST(SceneCloudTest, CloudMissIsFreeOfCharge) {
+    using namespace raytrace;
+    scene sc;
+    sc.set_background_mapper([](ray const&) -> raytrace::color { return colors::white; });
+    // A cloud located far away should not disturb a ray passing elsewhere.
+    clouds::CloudLayer layer{point{-50.0_p, 0.0_p, 0.0_p}, 1.0_p, 1.0_p, 1.0_p};
+    layer.extinction(2.0_p).density_callback([](raytrace::point const&) -> raytrace::precision { return 0.5_p; });
+    sc.add_cloud(layer);
+
+    ray r{point{-10.0_p, 0.0_p, 0.0_p}, R3::basis::X};
+    raytrace::color c = sc.trace(r, mediums::vacuum);
+    EXPECT_NEAR(1.0_p, c.red(), 1e-6);
+}
+
+TEST(SceneCloudTest, CloudGainsLight) {
+    using namespace raytrace;
+    scene sc;
+    sc.set_background_mapper([](ray const&) -> raytrace::color { return colors::black; });
+    clouds::CloudLayer layer{R3::origin, 2.0_p, 2.0_p, 1.0_p};
+    layer.extinction(1.0_p).albedo(0.9_p).density_callback(
+        [](raytrace::point const&) -> raytrace::precision { return 0.5_p; });
+    sc.add_cloud(layer);
+    // A light on the -x side lights the cloud from that face.
+    lights::speck sun{point{-6.0_p, 0.0_p, 0.0_p}, colors::white, lights::intensities::full};
+    sc.add_light(&sun);
+
+    ray r{point{-10.0_p, 0.0_p, 0.0_p}, R3::basis::X};
+    raytrace::color c = sc.trace(r, mediums::vacuum);
+    EXPECT_GT(c.red(), 0.0_p);  // scattered light is added along the ray
+}

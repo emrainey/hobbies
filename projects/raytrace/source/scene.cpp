@@ -12,6 +12,7 @@ scene::scene(double art)
     , m_lights{}
     , m_background{[](raytrace::ray const&) { return colors::black; }}
     , m_media{&mediums::vacuum}  // default to a vacuum
+    , m_cloud_samples{16}
     , m_has_emissive_objects{false} {
 }
 
@@ -64,6 +65,11 @@ void scene::add_media(mediums::medium const* media) {
 void scene::clear() {
     m_objects.clear();
     m_lights.clear();
+    m_clouds.clear();
+}
+
+void scene::add_cloud(clouds::CloudLayer const& layer) {
+    m_clouds.push_back(layer);
 }
 
 size_t scene::number_of_objects(void) const {
@@ -526,7 +532,35 @@ color scene::trace(ray const& world_ray, mediums::medium const& media, size_t re
         // return the background as the ray didn't hit anything.
         traced_color = media.absorbance(std::numeric_limits<precision>::infinity(), m_background(world_ray));
     }
-    return traced_color;
+    // Fold any volumetric clouds / fog the ray passes through and return.
+    return through_clouds(world_ray, traced_color);
+}
+
+color scene::through_clouds(ray const& world_ray, color const& base) const {
+    using namespace operators;
+    color tinted = base;
+    for (auto const& layer : m_clouds) {
+        // The sampling step is chosen so the cloud is crossed in m_cloud_samples steps.
+        precision extent = 2.0_p * std::max({layer.x_half_width(), layer.y_half_width(), layer.z_half_width()});
+        clouds::CloudIntegrator integrator{layer, extent / static_cast<precision>(m_cloud_samples)};
+        precision t0 = 0.0_p, t1 = 0.0_p;
+        if (not integrator.clip(world_ray, t0, t1)) {
+            continue;  // the ray never enters this cloud
+        }
+        // Beer-Lambert extinction of everything behind the cloud.
+        precision transmission = integrator.transmittance(world_ray);
+        tinted = tinted * transmission;
+        // Re-add the sun-facing single-scattered light from each scene light.
+        for (auto const* lit : m_lights) {
+            // Use the direction toward the light viewed from the cloud center as the
+            // representative incoming light direction.
+            ray to_light = lit->incident(layer.center(), 0);
+            vector light_dir = -(to_light.direction().normalized());
+            precision brightness = integrator.brightening(world_ray, light_dir);
+            tinted += lit->color_at(layer.center()) * brightness;
+        }
+    }
+    return tinted;
 }
 
 void scene::render(camera& view, std::string filename, size_t number_of_samples, size_t reflection_depth,

@@ -14,6 +14,8 @@
 #include "raytrace/mediums/transparent.hpp"
 #include "raytrace/objects/object.hpp"
 #include "raytrace/objects/group.hpp"
+#include "raytrace/clouds/CloudLayer.hpp"
+#include "raytrace/clouds/CloudIntegrator.hpp"
 
 namespace raytrace {
 
@@ -160,6 +162,11 @@ public:
     /// Adds a media which the entire scene is set into
     void add_media(mediums::medium const* media);
 
+    /// Adds a bounded volumetric cloud (or fog region) to the scene
+    /// @param layer The cloud to add. The scene takes a copy, so the caller may
+    ///        reuse or discard the original afterwards.
+    void add_cloud(clouds::CloudLayer const& layer);
+
     /// Adds the ambient light value for the entire scene.
     /// If particular objects need more light, consider using emissive materials instead.
     /// @note Use the intensity channel to set the overall brightness of the ambient light.
@@ -198,6 +205,17 @@ protected:
 
     /// The media which the scene starts in
     mediums::medium const* m_media;
+
+    /// The bounded volumetric clouds / fog regions in the scene
+    std::vector<clouds::CloudLayer> m_clouds;
+
+    /// Number of samples across a cloud used to integrate its optical depth
+    size_t m_cloud_samples;
+
+    /// Folds the volumetric clouds into a color computed for a world ray.
+    /// Each cloud the ray passes through attenuates the color (Beer-Lambert) and
+    /// re-adds sun-facing single-scattered light from the scene's lights.
+    color through_clouds(ray const& world_ray, color const& base) const;
 
     /// The set of the finite bounds of the scene
     Bounds m_bounds;

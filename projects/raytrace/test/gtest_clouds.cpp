@@ -254,3 +254,17 @@ TEST(SceneCloudTest, CloudGainsLight) {
     raytrace::color c = sc.trace(r, mediums::vacuum);
     EXPECT_GT(c.red(), 0.0_p);  // scattered light is added along the ray
 }
+
+TEST(CloudLayerTest, VerticalAxisOrientations) {
+    // Default is Y-up: the vertical profile kills density at the +Y and -Y faces.
+    clouds::CloudLayer layer{R3::origin, 1.0_p, 1.0_p, 1.0_p};
+    layer.density_seed(noise::vector3{{0.1_p, 0.2_p, 0.3_p}});
+    EXPECT_NEAR(0.0_p, layer.density(point{0.0_p, 1.0_p, 0.0_p}), 1e-4);
+    EXPECT_GT(layer.density(point{0.0_p, 0.0_p, 0.0_p}), 0.0_p);
+
+    // Z-up: the profile now runs along z, so density tapers at the top/bottom (+/-Z).
+    layer.vertical_axis(clouds::axis::Z);
+    EXPECT_NEAR(0.0_p, layer.density(point{0.0_p, 0.0_p, 1.0_p}), 1e-4);
+    EXPECT_NEAR(0.0_p, layer.density(point{0.0_p, 0.0_p, -1.0_p}), 1e-4);
+    EXPECT_GT(layer.density(point{0.0_p, 0.0_p, 0.0_p}), 0.0_p);
+}

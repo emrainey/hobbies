@@ -15,6 +15,7 @@ CloudLayer::CloudLayer(point const& center, precision xhw, precision yhw, precis
     , m_octaves{6}
     , m_features_across{3.0_p}
     , m_horizontal_strength{0.0_p}
+    , m_vertical{axis::Y}
     , m_density_callback{} {
     basal::exception::throw_if(basal::nearly_zero(xhw), __FILE__, __LINE__, "x half-width can't be zero");
     basal::exception::throw_if(basal::nearly_zero(yhw), __FILE__, __LINE__, "y half-width can't be zero");
@@ -90,6 +91,11 @@ CloudLayer& CloudLayer::density_callback(std::function<precision(point const&)> 
     return (*this);
 }
 
+CloudLayer& CloudLayer::vertical_axis(axis vertical) {
+    m_vertical = vertical;
+    return (*this);
+}
+
 precision CloudLayer::vertical_profile(precision ny) const {
     ny = std::clamp(ny, -1.0_p, 1.0_p);
     // A raised cosine: 1 at the mid-plane, 0 at the top and bottom faces.
@@ -109,13 +115,36 @@ precision CloudLayer::density(point const& world_point) const {
     precision ny = std::clamp(n.y(), -1.0_p, 1.0_p);
     precision nz = std::clamp(n.z(), -1.0_p, 1.0_p);
 
+    // Resolve which box axis is the vertical profile and which two are lateral.
+    precision vertical = 0.0_p;
+    precision lateral1 = 0.0_p;
+    precision lateral2 = 0.0_p;
+    switch (m_vertical) {
+        case axis::Z:
+            vertical = nz;
+            lateral1 = nx;
+            lateral2 = ny;
+            break;
+        case axis::X:
+            vertical = nx;
+            lateral1 = ny;
+            lateral2 = nz;
+            break;
+        case axis::Y:  // [fall-through]
+        default:
+            vertical = ny;
+            lateral1 = nx;
+            lateral2 = nz;
+            break;
+    }
+
     precision value = 0.0_p;
     if (m_density_callback) {
         value = m_density_callback(world_point);
     } else {
         noise::point3 pnt{nx * m_features_across, ny * m_features_across, nz * m_features_across};
         precision fbm = noise::fractal_brownian(pnt, m_seed, m_octaves, 2.0_p, 0.5_p, 0.5_p, 1.0_p);
-        value = fbm * vertical_profile(ny) * horizontal_envelope(nx, nz);
+        value = fbm * vertical_profile(vertical) * horizontal_envelope(lateral1, lateral2);
     }
     return std::clamp(value, 0.0_p, 1.0_p);
 }

@@ -10,10 +10,20 @@ namespace raytrace {
 
 namespace clouds {
 
+/// The box axis treated as the vertical (up-down) direction for the density profile.
+/// The vertical profile tapers to zero at the +/- faces along this axis; the other two
+/// axes feed the horizontal envelope. This lets a cloud bank lie flat along a scene's
+/// up axis rather than always along the local y axis.
+enum class axis : int {
+    X,
+    Y,
+    Z
+};
+
 /// A bounded volumetric cloud. Rays passing through the bounding box integrate the
 /// continuous density field rho(p):
 ///
-///     rho(p) = fbm3(p * scale) * verticalProfile(ny) * horizontalEnvelope(nx, nz)
+///     rho(p) = fbm3(p * scale) * verticalProfile(vertical) * horizontalEnvelope(lateral)
 ///
 /// The FBM places the cloud clumps, the vertical profile peels the density from the
 /// top and bottom faces (lit tops / soft undersides) and the horizontal envelope
@@ -78,6 +88,8 @@ public:
     CloudLayer& density_scale(precision features_across);
     /// Sets the strength of the lateral feathering (0 = a broad bank, larger = a blob)
     CloudLayer& horizontal_strength(precision strength);
+    /// Sets which box axis is the vertical (up-down) direction of the density profile
+    CloudLayer& vertical_axis(axis vertical);
     /// Replaces the whole model with an arbitrary density function (used for tests
     /// and bespoke fields). When set, the FBM model is ignored.
     CloudLayer& density_callback(std::function<precision(point const&)> function);
@@ -114,6 +126,8 @@ protected:
     size_t m_octaves;
     precision m_features_across;
     precision m_horizontal_strength;
+    /// The box axis treated as up for the density profile
+    axis m_vertical;
     /// An optional user supplied density function
     std::function<precision(point const&)> m_density_callback;
 };

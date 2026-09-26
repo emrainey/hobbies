@@ -86,13 +86,22 @@ public:
         , sun{sun_center, 2000.0_p}
         , s0{raytrace::point{0, 0, 5.0_p}, 5.0_p}
         , s1{raytrace::point{6, -6, 6.0_p}, 6.0_p}
-        , s2{raytrace::point{-7, -7, 7.0_p}, 7.0_p} {
+        , s2{raytrace::point{-7, -7, 7.0_p}, 7.0_p}
+        , cloud{raytrace::point{0.0_p, -650.0_p, 25.0_p}, 800.0_p, 900.0_p, 18.0_p} {
         grid.mapper(std::bind(&raytrace::objects::square::map, &floor, std::placeholders::_1));
         floor.material(&grid);
         sun.material(&sun_surface);
         s0.material(&mediums::metals::gold);
         s1.material(&mediums::metals::stainless);
         s2.material(&mediums::metals::silver);
+        // A low, wide cloud bank (haze) behind the near ridge. Z is up in this scene,
+        // so the density profile's vertical axis is Z; the bank is broad in X and Y.
+        cloud.vertical_axis(clouds::axis::Z)
+            .horizontal_strength(0.35_p)
+            .density_scale(4.0_p)
+            .density_octaves(5)
+            .extinction(0.08_p)
+            .albedo(0.55_p);
         ambient_ = outrun::neon_orange;
         ambient_.intensity(0.5_p);
         build_mountains();
@@ -122,6 +131,7 @@ public:
         scene.add_object(&s0);
         scene.add_object(&s1);
         scene.add_object(&s2);
+        scene.add_cloud(cloud);
         for (auto* m : m_mountains) {
             scene.add_object(m);
         }
@@ -179,6 +189,7 @@ protected:
     raytrace::objects::sphere s0;
     raytrace::objects::sphere s1;
     raytrace::objects::sphere s2;
+    raytrace::clouds::CloudLayer cloud;
     std::vector<raytrace::objects::pyramid*> m_mountains;
     std::vector<raytrace::objects::pyramid*> m_far_mountains;
 };

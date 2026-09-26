@@ -550,15 +550,25 @@ color scene::through_clouds(ray const& world_ray, color const& base) const {
         // Beer-Lambert extinction of everything behind the cloud.
         precision transmission = integrator.transmittance(world_ray);
         tinted = tinted * transmission;
-        // Re-add the sun-facing single-scattered light from each scene light.
-        for (auto const* lit : m_lights) {
+
+        // How far the cloud occludes the ray's path (0 = clear, 1 = opaque).
+        precision gap = 1.0_p - transmission;
+
+        // Sun-lit topping from the scene lights, normalized to 0..1.
+        precision lit = 0.0_p;
+        for (auto const* scene_light : m_lights) {
             // Use the direction toward the light viewed from the cloud center as the
             // representative incoming light direction.
-            ray to_light = lit->incident(layer.center(), 0);
+            ray to_light = scene_light->incident(layer.center(), 0);
             vector light_dir = -(to_light.direction().normalized());
-            precision brightness = integrator.brightening(world_ray, light_dir);
-            tinted += lit->color_at(layer.center()) * brightness;
+            precision exposure = integrator.brightening(world_ray, light_dir) / layer.albedo();
+            lit = std::max(lit, std::clamp(exposure, 0.0_p, 1.0_p));
         }
+
+        // Additive white cloud: opacity fills toward white and the sun-lit tops read
+        // brighter still (0.5 extra). Wispy edges stay translucent.
+        precision whiteness = std::clamp(gap + (0.5_p * lit), 0.0_p, 1.0_p);
+        tinted += colors::white * whiteness;
     }
     return tinted;
 }

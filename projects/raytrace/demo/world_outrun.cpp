@@ -87,20 +87,20 @@ public:
         , s0{raytrace::point{0, 0, 5.0_p}, 5.0_p}
         , s1{raytrace::point{6, -6, 6.0_p}, 6.0_p}
         , s2{raytrace::point{-7, -7, 7.0_p}, 7.0_p}
-        , cloud{raytrace::point{0.0_p, -650.0_p, 25.0_p}, 800.0_p, 900.0_p, 18.0_p} {
+        , cloud{raytrace::point{0.0_p, -350.0_p, 120.0_p}, 800.0_p, 120.0_p, 30.0_p} {
         grid.mapper(std::bind(&raytrace::objects::square::map, &floor, std::placeholders::_1));
         floor.material(&grid);
         sun.material(&sun_surface);
         s0.material(&mediums::metals::gold);
         s1.material(&mediums::metals::stainless);
         s2.material(&mediums::metals::silver);
-        // A low, wide cloud bank (haze) behind the near ridge. Z is up in this scene,
-        // so the density profile's vertical axis is Z; the bank is broad in X and Y.
+        // A soft cloud bank high in the sky (Z up in this scene), broad in X and Y.
+        // It hugs the upper skyline so the ground and near ridge stay crisp.
         cloud.vertical_axis(clouds::axis::Z)
-            .horizontal_strength(0.35_p)
-            .density_scale(4.0_p)
+            .horizontal_strength(1.2_p)
+            .density_scale(3.0_p)
             .density_octaves(5)
-            .extinction(0.08_p)
+            .extinction(0.004_p)
             .albedo(0.55_p);
         ambient_ = outrun::neon_orange;
         ambient_.intensity(0.5_p);

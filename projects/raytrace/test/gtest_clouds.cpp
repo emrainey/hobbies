@@ -205,23 +205,26 @@ TEST(SceneCloudTest, LightBrightensCloud) {
     EXPECT_LE(c.red(), 1.0_p);
 }
 
-TEST(SceneCloudTest, CloudAttenuatesRay) {
+TEST(SceneCloudTest, CloudWhitensRay) {
     using namespace raytrace;
     scene sc;
-    sc.set_background_mapper([](ray const&) -> raytrace::color { return colors::white; });
-    // A background ray with no clouds passes through untouched.
+    // A mid-grey background so the cloud's effect is unambiguous in either direction.
+    sc.set_background_mapper([](ray const&) -> raytrace::color { return color(0.4_p, 0.4_p, 0.4_p); });
     ray r{point{-10.0_p, 0.0_p, 0.0_p}, R3::basis::X};
     raytrace::color no_cloud = sc.trace(r, mediums::vacuum);
+    EXPECT_NEAR(0.4_p, no_cloud.red(), 1e-4);
 
-    // A uniform cloud along the same ray heavily attenuates it.
+    // A uniform cloud along the same ray shifts the color toward white (opaque core,
+    // translucent elsewhere).
     clouds::CloudLayer layer{R3::origin, 1.0_p, 1.0_p, 1.0_p};
     layer.extinction(2.0_p).density_callback([](raytrace::point const&) -> raytrace::precision { return 0.5_p; });
     sc.add_cloud(layer);
     raytrace::color with_cloud = sc.trace(r, mediums::vacuum);
 
-    EXPECT_GT(no_cloud.red(), with_cloud.red());
-    EXPECT_GT(no_cloud.green(), with_cloud.green());
-    EXPECT_GT(no_cloud.blue(), with_cloud.blue());
+    EXPECT_GT(with_cloud.red(), no_cloud.red());
+    EXPECT_GT(with_cloud.green(), no_cloud.green());
+    EXPECT_GT(with_cloud.blue(), no_cloud.blue());
+    EXPECT_GT(with_cloud.red(), 0.8_p);
 }
 
 TEST(SceneCloudTest, CloudMissIsFreeOfCharge) {

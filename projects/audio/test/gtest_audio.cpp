@@ -6,6 +6,7 @@
 using namespace audio;
 using namespace audio::equal_temperament;
 using namespace basal::literals;
+using namespace iso::literals;
 
 TEST(AudioTest, Empty) {
     audio::StereoPCM seq{44'100.0_p, 3 * 44'100U};
@@ -13,16 +14,7 @@ TEST(AudioTest, Empty) {
 }
 
 TEST(AudioTest, WhenSavingMonoPCM) {
-    basal::precision sample_rate = 44'100.0_p;
-
-    basal::precision increment = 1.0_p / sample_rate;
-    basal::precision period = 3.0_p;
-    size_t number_of_samples = static_cast<size_t>(period * sample_rate);
-    audio::MonoPCM seq{sample_rate, number_of_samples};
-    seq.for_each([](size_t channel, size_t index, basal::precision offset) -> audio::MonoPCM::sample {
-        basal::precision v = (0.5_p * sin(2.0_p * M_PI * 440.0_p * offset));  // "A" 440.00Hz
-        return std::round(v * INT16_MAX);
-    });
+    audio::MonoPCM seq = generate(44'100.0_p, 3.0_sec, 440.0_Hz);
     EXPECT_TRUE(seq.save("mono_a.wav"));
 }
 
@@ -34,7 +26,7 @@ TEST(AudioTest, WhenSavingEnvelopedMonoPCM) {
     seq.for_each([period](size_t channel, size_t index, basal::precision offset) -> audio::MonoPCM::sample {
         precision ratio = offset / period;
         iso::seconds t{offset};
-        basal::precision v = envelope(ratio) * audio::waveform(ToFrequency(audio::Tone::Bb, 5), t);
+        basal::precision v = cosine(ratio) * audio::waveform(ToFrequency(audio::Tone::Bb, 5), t);
         return std::round(v * INT16_MAX);
     });
     EXPECT_TRUE(seq.save("mono_Bb_enveloped.wav"));
@@ -42,128 +34,90 @@ TEST(AudioTest, WhenSavingEnvelopedMonoPCM) {
 
 TEST(AudioTest, WhenSavingMixedMonoPCM) {
     basal::precision sample_rate = audio::specification::cd_sample_rate;
-    basal::precision period = 3.0_p;
-    size_t number_of_samples = static_cast<size_t>(period * sample_rate);
-    audio::MonoPCM seq0{sample_rate, number_of_samples};
-    audio::MonoPCM seq1{sample_rate, number_of_samples};
-    seq0.for_each([](size_t channel, size_t index, basal::precision offset) -> audio::MonoPCM::sample {
-        iso::seconds t{offset};
-        basal::precision v = audio::waveform(ToFrequency(audio::Tone::A, 4), t);
-        return std::round(v * INT16_MAX);
-    });
-    seq1.for_each([](size_t channel, size_t index, basal::precision offset) -> audio::MonoPCM::sample {
-        iso::seconds t{offset};
-        basal::precision v = audio::waveform(ToFrequency(audio::Tone::C, 4), t);
-        return std::round(v * INT16_MAX);
-    });
+    iso::seconds period = 3.0_sec;
+    audio::MonoPCM seq0 = generate(sample_rate, period, ToFrequency(audio::Tone::A, 4));
+    audio::MonoPCM seq1 = generate(sample_rate, period, ToFrequency(audio::Tone::C, 4));
     audio::MonoPCM seq2 = Mixer<audio::MonoPCM>::even(seq0, seq1);
     EXPECT_TRUE(seq2.save("mono_a_and_c.wav"));
 }
 
+TEST(AudioTest, WhenTestingDTMF) {
+    auto [row_freq_1, col_freq_1] = dtmf::ToFrequencyPair(dtmf::Key::_1);
+    EXPECT_EQ(row_freq_1, 697_Hz);
+    EXPECT_EQ(col_freq_1, 1209_Hz);
+
+    auto [row_freq_5, col_freq_5] = dtmf::ToFrequencyPair(dtmf::Key::_5);
+    EXPECT_EQ(row_freq_5, 770_Hz);
+    EXPECT_EQ(col_freq_5, 1336_Hz);
+
+    auto [row_freq_d, col_freq_d] = dtmf::ToFrequencyPair(dtmf::Key::D);
+    EXPECT_EQ(row_freq_d, 941_Hz);
+    EXPECT_EQ(col_freq_d, 1633_Hz);
+}
+
+TEST(AudioTest, WhenSaving1Tone) {
+    using namespace iso::literals;
+    basal::precision sample_rate = 44'100.0_p;
+    iso::seconds period = 3.0_sec;
+    audio::MonoPCM seq = dtmf::generate(sample_rate, period, dtmf::Key::_1);
+    EXPECT_TRUE(seq.save("dtmf_tone_1.wav"));
+}
+
+TEST(AudioTest, WhenSaving5Tone) {
+    using namespace iso::literals;
+    basal::precision sample_rate = 44'100.0_p;
+    iso::seconds period = 3.0_sec;
+    audio::MonoPCM seq = dtmf::generate(sample_rate, period, dtmf::Key::_5);
+    EXPECT_TRUE(seq.save("dtmf_tone_5.wav"));
+}
+
+TEST(AudioTest, WhenSavingDTone) {
+    using namespace iso::literals;
+    basal::precision sample_rate = 44'100.0_p;
+    iso::seconds period = 3.0_sec;
+    audio::MonoPCM seq = dtmf::generate(sample_rate, period, dtmf::Key::D);
+    EXPECT_TRUE(seq.save("dtmf_tone_d.wav"));
+}
+
 TEST(AudioTest, WhenSavingJoinedMonoPCM) {
     basal::precision sample_rate = audio::specification::cd_sample_rate;
-    basal::precision period = 3.0_p;
-    size_t number_of_samples = static_cast<size_t>(period * sample_rate);
-    audio::MonoPCM seq0{sample_rate, number_of_samples};
-    audio::MonoPCM seq1{sample_rate, number_of_samples};
-    seq0.for_each([](size_t channel, size_t index, basal::precision offset) -> audio::MonoPCM::sample {
-        iso::seconds t{offset};
-        basal::precision v = audio::waveform(ToFrequency(audio::Tone::A, 4), t);
-        return std::round(v * INT16_MAX);
-    });
-    seq1.for_each([](size_t channel, size_t index, basal::precision offset) -> audio::MonoPCM::sample {
-        iso::seconds t{offset};
-        basal::precision v = audio::waveform(ToFrequency(audio::Tone::C, 4), t);
-        return std::round(v * INT16_MAX);
-    });
+    iso::seconds period = 3.0_sec;
+    audio::MonoPCM seq0 = generate(sample_rate, period, ToFrequency(audio::Tone::A, 4));
+    audio::MonoPCM seq1 = generate(sample_rate, period, ToFrequency(audio::Tone::C, 4));
     seq0 += seq1;
     EXPECT_TRUE(seq0.save("mono_a_then_c.wav"));
 }
 
+TEST(AudioTest, WhenDialingAPhoneNumberUsingFunction) {
+    using namespace iso::literals;
+    basal::precision sample_rate = 44'100.0_p;
+    iso::seconds period = 0.25_sec;
+    audio::MonoPCM seq = audio::dtmf::dial(sample_rate, period, "123-456-7890");
+    EXPECT_TRUE(seq.save("dtmf_phone_number_function.wav"));
+}
+
 TEST(AudioTest, WhenSavingStereoPCM) {
     basal::precision sample_rate = audio::specification::cd_sample_rate;
-    basal::precision period = 3.0_p;
-    size_t number_of_samples = static_cast<size_t>(period * sample_rate);
-    audio::StereoPCM seq{sample_rate, number_of_samples};
-    seq.for_each([](size_t channel, size_t index, basal::precision offset) -> audio::StereoPCM::sample {
-        basal::precision v;
-        iso::seconds t{offset};
-        if (channel == 0) {
-            v = audio::waveform(ToFrequency(audio::Tone::A, 4), t);
-        } else if (channel == 1) {
-            v = audio::waveform(ToFrequency(audio::Tone::C, 4), t);
-        } else {
-            v = 0.0_p;
-        }
-        return std::round(v * INT16_MAX);
-    });
+    iso::seconds period = 3.0_sec;
+    audio::StereoPCM seq = generate(sample_rate, period, ToFrequency(audio::Tone::A, 4), ToFrequency(audio::Tone::C, 4));
     EXPECT_TRUE(seq.save("stereo_a_and_c.wav"));
 }
 
 TEST(AudioTest, WhenSavingMixingStereoPCM) {
     basal::precision sample_rate = audio::specification::cd_sample_rate;
-    basal::precision period = 3.0_p;
-    size_t number_of_samples = static_cast<size_t>(period * sample_rate);
-    audio::StereoPCM seq0{sample_rate, number_of_samples};
-    audio::StereoPCM seq1{sample_rate, number_of_samples};
-    seq0.for_each([](size_t channel, size_t index, basal::precision offset) -> audio::StereoPCM::sample {
-        basal::precision v;
-        iso::seconds t{offset};
-        if (channel == 0) {
-            v = audio::waveform(ToFrequency(audio::Tone::A, 4), t);
-        } else if (channel == 1) {
-            v = audio::waveform(ToFrequency(audio::Tone::C, 4), t);
-        } else {
-            v = 0.0_p;
-        }
-        return std::round(v * INT16_MAX);
-    });
-    seq1.for_each([](size_t channel, size_t index, basal::precision offset) -> audio::StereoPCM::sample {
-        basal::precision v;
-        iso::seconds t{offset};
-        if (channel == 0) {
-            v = audio::waveform(ToFrequency(audio::Tone::E, 4), t);
-        } else if (channel == 1) {
-            v = audio::waveform(ToFrequency(audio::Tone::C, 5), t);
-        } else {
-            v = 0.0_p;
-        }
-        return std::round(v * INT16_MAX);
-    });
+    iso::seconds period = 3.0_sec;
+    size_t number_of_samples = static_cast<size_t>(period.value * sample_rate);
+    audio::StereoPCM seq0 = generate(sample_rate, period, ToFrequency(audio::Tone::A, 4), ToFrequency(audio::Tone::E, 4));
+    audio::StereoPCM seq1 = generate(sample_rate, period, ToFrequency(audio::Tone::C, 4), ToFrequency(audio::Tone::C, 5));
     audio::StereoPCM seq2 = Mixer<audio::StereoPCM>::even(seq0, seq1);
     EXPECT_TRUE(seq2.save("stereo_ae_and_cc.wav"));
 }
 
 TEST(AudioTest, WhenSavingJoinedStereoPCM) {
     basal::precision sample_rate = audio::specification::cd_sample_rate;
-    basal::precision period = 3.0_p;
-    size_t number_of_samples = static_cast<size_t>(period * sample_rate);
-    audio::StereoPCM seq0{sample_rate, number_of_samples};
-    audio::StereoPCM seq1{sample_rate, number_of_samples};
-    seq0.for_each([](size_t channel, size_t index, basal::precision offset) -> audio::StereoPCM::sample {
-        basal::precision v;
-        iso::seconds t{offset};
-        if (channel == 0) {
-            v = audio::waveform(ToFrequency(audio::Tone::A, 4), t);
-        } else if (channel == 1) {
-            v = audio::waveform(ToFrequency(audio::Tone::C, 4), t);
-        } else {
-            v = 0.0_p;
-        }
-        return std::round(v * INT16_MAX);
-    });
-    seq1.for_each([](size_t channel, size_t index, basal::precision offset) -> audio::StereoPCM::sample {
-        basal::precision v;
-        iso::seconds t{offset};
-        if (channel == 0) {
-            v = audio::waveform(ToFrequency(audio::Tone::E, 4), t);
-        } else if (channel == 1) {
-            v = audio::waveform(ToFrequency(audio::Tone::C, 5), t);
-        } else {
-            v = 0.0_p;
-        }
-        return std::round(v * INT16_MAX);
-    });
+    iso::seconds period = 3.0_sec;
+    audio::StereoPCM seq0 = generate(sample_rate, period, ToFrequency(audio::Tone::A, 4), ToFrequency(audio::Tone::C, 4));
+    audio::StereoPCM seq1 = generate(sample_rate, period, ToFrequency(audio::Tone::E, 4), ToFrequency(audio::Tone::C, 5));
     seq0 += seq1;
     EXPECT_TRUE(seq0.save("stereo_ac_then_ec.wav"));
 }
@@ -216,7 +170,7 @@ TEST(AudioTest, Envelope) {
     for (size_t i = 0U; i < count; i++) {
         input.push_back(value);
     }
-    std::vector<basal::precision> output = audio::envelope(input);
+    std::vector<basal::precision> output = audio::cosine(input);
     ASSERT_EQ(output.size(), count);
     for (size_t i = 0; i < output.size(); ++i) {
         ASSERT_LE(output[i], value);
@@ -325,14 +279,8 @@ TEST(AudioTest, Simple8FFT) {
 
 TEST(AudioTest, WhenComputingFFTonA440) {
     basal::precision sample_rate = audio::specification::cd_sample_rate;
-    basal::precision period = 1.0_p;
-    size_t number_of_samples = static_cast<size_t>(period * sample_rate);
-    audio::MonoPCM seq{sample_rate, number_of_samples};
-    seq.for_each([period](size_t, size_t, basal::precision offset) -> audio::MonoPCM::sample {
-        iso::seconds t{offset};
-        basal::precision v = audio::waveform(ToFrequency(audio::Tone::A, 4), t);
-        return std::round(v * INT16_MAX);
-    });
+    iso::seconds period = 1.0_sec;
+    audio::MonoPCM seq = generate(sample_rate, period, ToFrequency(audio::Tone::A, 4));
 
     size_t const N = 1024U;
     std::vector<std::complex<precision>> data;

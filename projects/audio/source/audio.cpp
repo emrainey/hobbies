@@ -1,5 +1,7 @@
 #include <audio/audio.hpp>
 
+using namespace iso::operators;
+
 namespace audio {
 
 precision waveform(iso::hertz frequency, iso::seconds offset) {
@@ -142,17 +144,21 @@ iso::seconds SecondsPerDuration(Tempo tempo, Signature signature, Duration lengt
     return spb;
 }
 
-std::vector<basal::precision> envelope(std::vector<basal::precision> const& input) {
+std::vector<basal::precision> cosine(std::vector<basal::precision> const& input) {
     std::vector<basal::precision> output;
     output.reserve(input.size());
     for (size_t i = 0; i < input.size(); ++i) {
         precision fract = static_cast<precision>(i) / static_cast<precision>(input.size());
-        output.push_back(input[i] * envelope(fract));
+        output.push_back(input[i] * cosine(fract));
     }
     return output;
 }
 
-basal::precision envelope(basal::precision ratio) {
+basal::precision constant(basal::precision) {
+    return 1.0_p;
+}
+
+basal::precision cosine(basal::precision ratio) {
     basal::exception::throw_unless(ratio >= 0.0_p && ratio <= 1.0_p, __FILE__, __LINE__,
                                    "Ratio must be between 0 and 1");
     return (0.5_p + 0.5_p * std::cos(iso::tau * ratio + iso::pi));
@@ -304,5 +310,81 @@ void ifft(std::vector<std::complex<precision>>& data) {
 void fft(std::vector<std::complex<precision>>& data) {
     return xfft(data, -1.0_p);
 }
+
+namespace dtmf {
+
+std::tuple<Hertz, Hertz> ToFrequencyPair(Key key) {
+    using namespace iso::literals;
+    uint8_t const row = (static_cast<uint8_t>(key) >> 4) & 0x0F;
+    uint8_t const col = static_cast<uint8_t>(key) & 0x0F;
+    Hertz row_freq[] = {697_Hz, 770_Hz, 852_Hz, 941_Hz};
+    Hertz col_freq[] = {1209_Hz, 1336_Hz, 1477_Hz, 1633_Hz};
+    return std::make_tuple(row_freq[row], col_freq[col]);
+}
+
+} // namespace dtmf
+
+MonoPCM generate(basal::precision sample_rate, iso::seconds period, iso::hertz frequency, envelope env) {
+    size_t number_of_samples = static_cast<size_t>(period.value * sample_rate);
+    MonoPCM seq{sample_rate, number_of_samples};
+    seq.for_each([frequency, period, env](size_t, size_t, basal::precision offset) -> MonoPCM::sample {
+        using iso::operators::operator/;
+        iso::seconds t{offset};
+        basal::precision r = t / period;
+        basal::precision a = env(r);
+        basal::precision v = audio::waveform(frequency, t);
+        return MonoPCM::convert(a * v);
+    });
+    return seq;
+}
+
+StereoPCM generate(basal::precision sample_rate, iso::seconds period, iso::hertz frequency_left, iso::hertz frequency_right, envelope env) {
+    size_t number_of_samples = static_cast<size_t>(period.value * sample_rate);
+    StereoPCM seq{sample_rate, number_of_samples};
+    seq.for_each([frequency_left, frequency_right, period, env](size_t channel, size_t, basal::precision offset) -> StereoPCM::sample {
+        using iso::operators::operator/;
+        iso::seconds t{offset};
+        basal::precision r = t / period;
+        basal::precision a = env(r);
+        basal::precision v;
+        if (channel == 0) {
+            v = audio::waveform(frequency_left, t);
+        } else if (channel == 1) {
+            v = audio::waveform(frequency_right, t);
+        } else {
+            v = 0.0_p;
+        }
+        return StereoPCM::convert(a * v);
+    });
+    return seq;
+}
+
+namespace dtmf {
+
+MonoPCM generate(basal::precision sample_rate, iso::seconds period, Key key, envelope env) {
+    auto [row_freq, col_freq] = ToFrequencyPair(key);
+    MonoPCM seq0 = audio::generate(sample_rate, period, row_freq, env);
+    MonoPCM seq1 = audio::generate(sample_rate, period, col_freq, env);
+    return Mixer<MonoPCM>::even(seq0, seq1);
+}
+
+MonoPCM dial(basal::precision sample_rate, iso::seconds period, std::string const& phone_number) {
+    MonoPCM seq{sample_rate, 1}; // a single zero sample to start with
+    for (char c : phone_number) {
+        if (c == '+' || c == '-' || c == ' ' || c == '(' || c == ')') {
+            continue; // Skip plus, dashes and spaces
+        }
+        dtmf::Key key = ToKey(c);
+        if (seq.count() == 0) {
+            seq = dtmf::generate(sample_rate, period, key, constant);
+        } else {
+            seq += dtmf::generate(sample_rate, period, key, constant);
+        }
+    }
+    return seq;
+}
+
+
+}  // namespace dtmf
 
 }  // namespace audio

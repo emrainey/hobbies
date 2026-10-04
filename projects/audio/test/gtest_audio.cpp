@@ -183,6 +183,20 @@ TEST(AudioTest, SecondsPerBeat) {
     ASSERT_PRECISION_EQ(0.25_p, SecondsPerBeat(240).value) << "240 BPM is 0.25 seconds per beat";
 }
 
+TEST(AudioTest, MeasureFraction) {
+    ASSERT_PRECISION_EQ(1.0_p, MeasureFraction(audio::Duration::Whole));
+    ASSERT_PRECISION_EQ(0.5_p, MeasureFraction(audio::Duration::Half));
+    ASSERT_PRECISION_EQ(0.25_p, MeasureFraction(audio::Duration::Quarter));
+    ASSERT_PRECISION_EQ(0.125_p, MeasureFraction(audio::Duration::Eighth));
+    ASSERT_PRECISION_EQ(0.0625_p, MeasureFraction(audio::Duration::Sixteenth));
+    ASSERT_PRECISION_EQ(0.03125_p, MeasureFraction(audio::Duration::ThirtySecond));
+    ASSERT_PRECISION_EQ(0.75_p, MeasureFraction(audio::Duration::DottedHalf));
+    ASSERT_PRECISION_EQ(0.375_p, MeasureFraction(audio::Duration::DottedQuarter));
+    ASSERT_PRECISION_EQ(0.1875_p, MeasureFraction(audio::Duration::DottedEighth));
+    ASSERT_PRECISION_EQ(0.09375_p, MeasureFraction(audio::Duration::DottedSixteenth));
+    ASSERT_PRECISION_EQ(0.046875_p, MeasureFraction(audio::Duration::DottedThirtySecond));
+}
+
 TEST(AudioTest, SecondsPerDuration) {
     ASSERT_PRECISION_EQ(1.0_p, SecondsPerDuration(60, 4 / audio::Duration::Quarter, audio::Duration::Quarter).value)
         << "60 BPM @ 4/4 time is 1 second per quarter note";
@@ -310,4 +324,200 @@ TEST(AudioTest, WhenComputingFFTonA440) {
         << "FFT peak bin " << peak_index << " too far from expected bin 10";
     // The peak should be well above the noise floor (N/2 ≈ 512 for a unit-amplitude sine)
     EXPECT_GT(peak_magnitude, 100.0_p) << "Peak magnitude " << peak_magnitude << " too low";
+}
+
+TEST(AudioTest, WhenConstructingTracksWrong) {
+    audio::Track track;
+    audio::Measure measure = {
+            .tempo = 120,
+            .signature = {
+                .beats_per_measure = 4,
+                .beat_value = audio::Duration::Quarter
+            },
+            .notes = {
+                {
+                    .pitch = {audio::Tone::A, 4},
+                    .duration = audio::Duration::Quarter,
+                    .volume = audio::Volume::MezzoForte
+                },
+                {
+                    .pitch = {audio::Tone::B, 4},
+                    .duration = audio::Duration::Quarter,
+                    .volume = audio::Volume::MezzoForte
+                },
+                {
+                    .pitch = {audio::Tone::C, 4},
+                    .duration = audio::Duration::Quarter,
+                    .volume = audio::Volume::MezzoForte
+                }
+                // no 4th quarter note
+            }
+    };
+    track.measures.push_back(measure);
+    ASSERT_FALSE(verify(track.measures[0]));
+}
+
+TEST(AudioTest, WhenConstructingTracks) {
+    audio::Track track;
+    audio::Measure measure = {
+            .tempo = 120,
+            .signature = {
+                .beats_per_measure = 4,
+                .beat_value = audio::Duration::Quarter
+            },
+            .notes = {
+                {
+                    .pitch = {audio::Tone::A, 4},
+                    .duration = audio::Duration::Quarter,
+                    .volume = audio::Volume::MezzoForte
+                },
+                {
+                    .pitch = {audio::Tone::B, 4},
+                    .duration = audio::Duration::Quarter,
+                    .volume = audio::Volume::MezzoForte
+                },
+                {
+                    .pitch = {audio::Tone::C, 4},
+                    .duration = audio::Duration::Quarter,
+                    .volume = audio::Volume::MezzoForte
+                },
+                {
+                    .pitch = {audio::Tone::D, 4},
+                    .duration = audio::Duration::Quarter,
+                    .volume = audio::Volume::MezzoForte
+                },
+            }
+    };
+    track.measures.push_back(measure);
+    ASSERT_TRUE(verify(track.measures[0]));
+    ASSERT_TRUE(audio::generate(audio::specification::cd_sample_rate, track).save("track.wav"));
+}
+
+TEST(AudioTest, WhenConstructingTracksWithMultipleMeasures) {
+    audio::Track track;
+    audio::Measure measure1 = {
+        .tempo = 120,
+        .signature = {
+            .beats_per_measure = 4,
+            .beat_value = audio::Duration::Quarter
+        },
+        .notes = {
+            {
+                .pitch = {audio::Tone::C, 4},
+                .duration = audio::Duration::Quarter,
+                .volume = audio::Volume::MezzoForte
+            },
+            {
+                .pitch = {audio::Tone::D, 4},
+                .duration = audio::Duration::Quarter,
+                .volume = audio::Volume::MezzoForte
+            },
+            {
+                .pitch = {audio::Tone::E, 4},
+                .duration = audio::Duration::Quarter,
+                .volume = audio::Volume::MezzoForte
+            },
+            {
+                .pitch = {audio::Tone::C, 4},
+                .duration = audio::Duration::Quarter,
+                .volume = audio::Volume::MezzoForte
+            }
+        }
+    };
+    audio::Measure measure2 = {
+        .tempo = 120,
+        .signature = {
+            .beats_per_measure = 4,
+            .beat_value = audio::Duration::Quarter
+        },
+        .notes = {
+            {
+                .pitch = {audio::Tone::E, 4},
+                .duration = audio::Duration::Quarter,
+                .volume = audio::Volume::Piano
+            },
+            {
+                .pitch = {audio::Tone::F, 4},
+                .duration = audio::Duration::Quarter,
+                .volume = audio::Volume::Piano
+            },
+            {
+                .pitch = {audio::Tone::G, 4},
+                .duration = audio::Duration::Half,
+                .volume = audio::Volume::Piano
+            }
+        }
+    };
+    audio::Measure measure3 = {
+        .tempo = 120,
+        .signature = {
+            .beats_per_measure = 4,
+            .beat_value = audio::Duration::Quarter
+        },
+        .notes = {
+            {
+                .pitch = {audio::Tone::G, 4},
+                .duration = audio::Duration::Eighth,
+                .volume = audio::Volume::Piano
+            },
+            {
+                .pitch = {audio::Tone::A, 4},
+                .duration = audio::Duration::Eighth,
+                .volume = audio::Volume::Piano
+            },
+            {
+                .pitch = {audio::Tone::G, 4},
+                .duration = audio::Duration::Eighth,
+                .volume = audio::Volume::Piano
+            },
+            {
+                .pitch = {audio::Tone::F, 4},
+                .duration = audio::Duration::Eighth,
+                .volume = audio::Volume::Piano
+            },
+            {
+                .pitch = {audio::Tone::E, 4},
+                .duration = audio::Duration::Quarter,
+                .volume = audio::Volume::Piano
+            },
+            {
+                .pitch = {audio::Tone::C, 4},
+                .duration = audio::Duration::Quarter,
+                .volume = audio::Volume::Piano
+            }
+        }
+    };
+    audio::Measure measure4 = {
+        .tempo = 120,
+        .signature = {
+            .beats_per_measure = 4,
+            .beat_value = audio::Duration::Quarter
+        },
+        .notes = {
+            {
+                .pitch = {audio::Tone::D, 4},
+                .duration = audio::Duration::Quarter,
+                .volume = audio::Volume::Piano
+            },
+            {
+                .pitch = {audio::Tone::G, 4},
+                .duration = audio::Duration::Quarter,
+                .volume = audio::Volume::Piano
+            },
+            {
+                .pitch = {audio::Tone::C, 4},
+                .duration = audio::Duration::Half,
+                .volume = audio::Volume::Piano
+            }
+        }
+    };
+    track.measures.push_back(measure1);
+    track.measures.push_back(measure1);
+    track.measures.push_back(measure2);
+    track.measures.push_back(measure2);
+    track.measures.push_back(measure3);
+    track.measures.push_back(measure3);
+    track.measures.push_back(measure4);
+    track.measures.push_back(measure4);
+    ASSERT_TRUE(audio::generate(audio::specification::cd_sample_rate, track).save("track_multiple_measures.wav"));
 }

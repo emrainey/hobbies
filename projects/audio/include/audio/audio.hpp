@@ -17,16 +17,68 @@ using Hertz = iso::hertz;
 
 namespace specification {
 /// The default sample rate for audio
-static constexpr precision default_sample_rate = 44'800.0_p;
+static constexpr basal::precision default_sample_rate = 44'800.0_p;
 /// The default sample rate for CD quality audio
-static constexpr precision cd_sample_rate = 44'100.0_p;
+static constexpr basal::precision cd_sample_rate = 44'100.0_p;
 /// The default sample rate for DVD quality audio
-static constexpr precision dvd_sample_rate = 48'000.0_p;
+static constexpr basal::precision dvd_sample_rate = 48'000.0_p;
 /// The default sample rate for BluRay quality audio
-static constexpr precision blu_ray_sample_rate = 96'000.0_p;
+static constexpr basal::precision blu_ray_sample_rate = 96'000.0_p;
 /// The default sample rate for high definition audio
-static constexpr precision high_def_sample_rate = 192'000.0_p;
+static constexpr basal::precision high_def_sample_rate = 192'000.0_p;
 }  // namespace specification
+
+/// @brief Defines a function for altering the amplitude of a signal
+using Envelope = std::function<basal::precision(basal::precision)>;
+
+/// A pattern for a functor which takes a vector of precision and returns a vector of precision (of the same size) but
+/// manipulated.
+using resampler = std::function<std::vector<basal::precision>(std::vector<basal::precision>&&)>;
+
+/// Shapes the input signal to a cosine envelope.
+/// @param input The input data (a vector of precision)
+/// @return The output data (a vector of precision)
+std::vector<basal::precision> cosine(std::vector<basal::precision> const& input);
+
+/// Computes the sample value for a given frequency and offset through a sine wave.
+/// @param frequency The frequency of the sample
+/// @param offset The time offset of the sample
+/// @return The sample value
+/// @note This is a simple sine wave generator
+basal::precision waveform(iso::hertz frequency, iso::seconds offset);
+
+/// @brief Creates a constant envelope with the given value
+/// @param value The constant value for the envelope
+/// @return The constant value
+basal::precision constant(basal::precision value);
+
+/// @brief Creates a cosine envelope for the given ratio
+/// @param ratio A value between 0.0 to 1.0. Users can use any fraction value they want.
+/// @return A value between 0.0 to 1.0
+basal::precision cosine(basal::precision ratio);
+
+/// @brief Creates a nice attack envelope with a decay
+/// @param ratio A value between 0.0 to 1.0. Users can use any fraction value they want.
+/// @return A value between 0.0 to 1.0
+basal::precision pop(basal::precision ratio);
+
+namespace in {
+/// @brief Creates a linear fade envelope in from the given ratio
+/// @param ratio A value between 0.0 to 1.0. Users can use any fraction value they want.
+/// @return A value between 0.0 to 1.0
+basal::precision fade(basal::precision ratio);
+basal::precision ramp(basal::precision ratio);
+}  // namespace in
+
+namespace out {
+/// @brief Creates a linear fade envelope out from the given ratio
+/// @param ratio A value between 0.0 to 1.0. Users can use any fraction value they want.
+/// @return A value between 0.0 to 1.0
+basal::precision fade(basal::precision ratio);
+basal::precision hill(basal::precision ratio);
+basal::precision cliff(basal::precision ratio);
+basal::precision ramp(basal::precision ratio);
+}  // namespace out
 
 /// @brief Dual-tone multi-frequency (DTMF) signaling for telephone keypads
 namespace dtmf {
@@ -81,6 +133,7 @@ std::tuple<Hertz, Hertz> ToFrequencyPair(Key key);
 
 /// @brief Enumerated values of the letter tone as they would be on a piano keyboard
 enum class Tone : int {
+    None = 0, // No tone, used for rests
     C = 4,  // 4, 16, 28, 40, 52, 64, 76, 88
     Cs = 5,
     Db = Cs,
@@ -100,31 +153,66 @@ enum class Tone : int {
     B = 15,
 };
 
+
+/// @brief A Pitches intensity in music using the classical italian notation (0-100)
+enum class Volume : uint8_t {
+    Silent = 0,
+    Pianissimo = 10,  ///< Very soft
+    Piano = 20,      ///< Soft
+    MezzoPiano = 40, ///< Moderately soft
+    MezzoForte = 60, ///< Moderately loud
+    Forte = 80,      ///< Loud
+    Fortissimo = 90, ///< Very loud
+    Max = 100        ///< The most loud
+};
+
+constexpr static basal::precision ToScalar(Volume volume) {
+    return static_cast<basal::precision>(volume) / static_cast<basal::precision>(Volume::Max);
+}
+
+/// @brief A pitch in music, containing a tone and an octave
 struct Pitch {
     Tone tone;   ///< The tone (e.g. C, D, E, etc.)
     int octave;  ///< The octave (0-8)
 };
 
 /// @brief Enumerated values for use in TimeSignatures
-enum class Duration : int {
-    Whole = 1,
-    Half = 2,
-    Quarter = 4,
+/// The quarter is the base unit for the time signature denominator (e.g., 4/4 means 4 quarter notes per measure) but we have to
+/// respresent as a integer of a fundamental unit like a 1/128 note
+enum class Duration : uint16_t {
+    Whole = 128u,
+    Half = 64u,
+    Quarter = 32u,
+    Eighth = 16u,
+    Sixteenth = 8u,
+    ThirtySecond = 4u,
+
     Crotchet = Quarter,
-    Eighth = 8,
     Quaver = Eighth,
-    Sixteenth = 16,
     Semiquaver = Sixteenth,
-    ThirtySecond = 32,
+    Demisemiquaver = ThirtySecond,
+
+    DottedHalf = Half + Half / 2,
+    DottedQuarter = Quarter + Quarter / 2,
+    DottedEighth = Eighth + Eighth / 2,
+    DottedSixteenth = Sixteenth + Sixteenth / 2,
+    DottedThirtySecond = ThirtySecond + ThirtySecond / 2,
 };
+
+/// @brief Computes the fraction of a measure that a given duration represents
+/// @param duration The duration of the note
+/// @return The fraction of a measure that the duration represents
+constexpr static basal::precision MeasureFraction(Duration duration) {
+    return static_cast<basal::precision>(duration) / static_cast<basal::precision>(Duration::Whole);
+}
 
 /// @brief A time or metre signature for use in music
 /// The numerator is the number of beats in a measure (e.g. 2,3,4,5,6),
 /// The denominator is the type of beat (e.g. quarter, eighth, etc.)
-/// @note Examples 4/4 is common time, Signature{4, Duration::Quarter}
+/// @note Examples 4/4 is common time, Signature{4, Duration::Quarter} or 4 / Duration::Quarter
 struct Signature {
     uint8_t beats_per_measure;  ///< The number of beats in a measure (e.g. 2,3,4,5,6)
-    Duration value;             ///< The type of beat (e.g. quarter, eighth, etc.)
+    Duration beat_value;             ///< The type of beat (e.g. quarter, eighth, etc.)
 };
 
 /// @brief A constructor for a time signature from a literal divider
@@ -137,6 +225,25 @@ constexpr Signature operator/(unsigned long beats, Duration value) {
 
 /// @brief A tempo in beats per minute
 using Tempo = std::uint16_t;
+
+/// @brief A note in music, containing a pitch and duration
+struct Note {
+    Pitch pitch;  ///< The pitch of the note (tone and octave)
+    Duration duration;  ///< The duration of the note
+    Volume volume; ///< The volume of the pitch by name
+    Envelope attack{constant};  ///< The attack envelope of the note
+};
+
+/// @brief A measure in music, containing a tempo and a time signature.
+struct Measure {
+    Tempo tempo;  ///< The tempo of the measure in beats per minute
+    Signature signature;  ///< The time signature of the measure
+    std::vector<Note> notes;  ///< The notes in the measure (and silences)
+};
+
+struct Track {
+    std::vector<Measure> measures;  ///< The measures in the track
+};
 
 /// @brief Computes the number of seconds per beat given a tempo
 /// @param tempo The tempo in beats per minute
@@ -337,58 +444,6 @@ using StereoPCM = Sequence<int16_t, 2>;
 using MonoPCMFloat = Sequence<float, 1>;
 using StereoPCMFloat = Sequence<float, 2>;
 
-/// @brief Defines a function for altering the amplitude of a signal
-using envelope = std::function<basal::precision(basal::precision)>;
-
-/// A pattern for a functor which takes a vector of precision and returns a vector of precision (of the same size) but
-/// manipulated.
-using resampler = std::function<std::vector<basal::precision>(std::vector<basal::precision>&&)>;
-
-/// Shapes the input signal to a cosine envelope.
-/// @param input The input data (a vector of precision)
-/// @return The output data (a vector of precision)
-std::vector<basal::precision> cosine(std::vector<basal::precision> const& input);
-
-/// Computes the sample value for a given frequency and offset through a sine wave.
-/// @param frequency The frequency of the sample
-/// @param offset The time offset of the sample
-/// @return The sample value
-/// @note This is a simple sine wave generator
-basal::precision waveform(iso::hertz frequency, iso::seconds offset);
-
-/// @brief Creates a constant envelope with the given value
-/// @param value The constant value for the envelope
-/// @return The constant value
-basal::precision constant(basal::precision value);
-
-/// @brief Creates a cosine envelope for the given ratio
-/// @param ratio A value between 0.0 to 1.0. Users can use any fraction value they want.
-/// @return A value between 0.0 to 1.0
-basal::precision cosine(basal::precision ratio);
-
-/// @brief Creates a nice attack envelope with a decay
-/// @param ratio A value between 0.0 to 1.0. Users can use any fraction value they want.
-/// @return A value between 0.0 to 1.0
-basal::precision pop(basal::precision ratio);
-
-namespace in {
-/// @brief Creates a linear fade envelope in from the given ratio
-/// @param ratio A value between 0.0 to 1.0. Users can use any fraction value they want.
-/// @return A value between 0.0 to 1.0
-basal::precision fade(basal::precision ratio);
-basal::precision ramp(basal::precision ratio);
-}  // namespace in
-
-namespace out {
-/// @brief Creates a linear fade envelope out from the given ratio
-/// @param ratio A value between 0.0 to 1.0. Users can use any fraction value they want.
-/// @return A value between 0.0 to 1.0
-basal::precision fade(basal::precision ratio);
-basal::precision hill(basal::precision ratio);
-basal::precision cliff(basal::precision ratio);
-basal::precision ramp(basal::precision ratio);
-}  // namespace out
-
 template <typename SEQUENCE_TYPE>
 class Mixer {
 public:
@@ -421,7 +476,7 @@ void ifft(std::vector<std::complex<precision>>& data);
 /// @param period The duration of the sequence in seconds
 /// @param frequency The frequency of the waveform (in Hertz)
 /// @return The generated mono PCM sequence
-MonoPCM generate(basal::precision sample_rate, iso::seconds period, iso::hertz frequency, envelope env = constant);
+MonoPCM generate(basal::precision sample_rate, iso::seconds period, iso::hertz frequency, Envelope env = constant);
 
 /// Generates a Stereo PCM sequence with the given parameters
 /// @param sample_rate The sample rate of the sequence
@@ -429,14 +484,14 @@ MonoPCM generate(basal::precision sample_rate, iso::seconds period, iso::hertz f
 /// @param frequency_left The frequency of the waveform for the left channel (in Hertz)
 /// @param frequency_right The frequency of the waveform for the right channel (in Hertz)
 /// @return The generated stereo PCM sequence
-StereoPCM generate(basal::precision sample_rate, iso::seconds period, iso::hertz frequency, iso::hertz frequency_right, envelope env = constant);
+StereoPCM generate(basal::precision sample_rate, iso::seconds period, iso::hertz frequency, iso::hertz frequency_right, Envelope env = constant);
 
 /// @brief Generates a mono PCM sequence with multiple tones
 /// @param sample_rate The sample rate of the sequence
 /// @param period The duration of the sequence in seconds
 /// @param tones The vector of tones to generate
 /// @return The generated mono PCM sequence containing the specified tones
-MonoPCM generate(basal::precision sample_rate, iso::seconds period, std::vector<Tone> const& tones, envelope env = constant);
+MonoPCM generate(basal::precision sample_rate, iso::seconds period, std::vector<Tone> const& tones, Envelope env = constant);
 
 namespace dtmf {
 
@@ -445,7 +500,7 @@ namespace dtmf {
 /// @param period The duration of the sequence in seconds
 /// @param key The DTMF key
 /// @return The generated mono PCM sequence containing the DTMF tone
-MonoPCM generate(basal::precision sample_rate, iso::seconds period, Key key, envelope env = constant);
+MonoPCM generate(basal::precision sample_rate, iso::seconds period, Key key, Envelope env = constant);
 
 /// @brief Generates a DTMF sequence for the given phone number
 /// @param sample_rate The sample rate of the sequence
@@ -455,5 +510,16 @@ MonoPCM generate(basal::precision sample_rate, iso::seconds period, Key key, env
 MonoPCM dial(basal::precision sample_rate, iso::seconds period, std::string const& phone_number);
 
 }  // namespace dtmf
+
+/// @brief Verifies the sum of notes in a measure matching the expected duration
+/// @param measure The measure to verify
+/// @return True if the sum of notes matches the expected duration, false otherwise
+bool verify(Measure const& measure);
+
+/// @brief Generates a mono PCM sequence for the given track
+/// @param sample_rate The sample rate of the sequence
+/// @param track The track containing the measures and notes to generate
+/// @return The generated mono PCM sequence containing the track's audio
+MonoPCM generate(basal::precision sample_rate, Track const& track);
 
 }  // namespace audio

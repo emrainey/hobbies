@@ -1,4 +1,5 @@
 #include <audio/audio.hpp>
+#include <basal/exception.hpp>
 
 using namespace iso::operators;
 
@@ -131,17 +132,15 @@ bool Sequence<int16_t, 2>::save(std::string filename) const {
 
 iso::seconds SecondsPerBeat(Tempo tempo) {
     // 60 BPM is 1 second per beat
-    return iso::seconds{60.0_p / static_cast<precision>(tempo)};
+    basal::precision seconds_per_minute = 60.0_p;
+    return iso::seconds{seconds_per_minute / static_cast<precision>(tempo)};
 }
 
 iso::seconds SecondsPerDuration(Tempo tempo, Signature signature, Duration length) {
     // 60 BPM @ 3/4 time is 1 second per quarter note, 2 seconds per half note, 3 seconds per dotted half note
     // 60 BPM @ 4/4 time is also 1 second per quarter note, 2 seconds per half note, 4 seconds per whole note
-    precision ratio = static_cast<precision>(basal::to_underlying(signature.value))
-                      / static_cast<precision>(basal::to_underlying(length));
-    auto spb = SecondsPerBeat(tempo);
-    spb *= ratio;
-    return spb;
+    basal::precision beats = static_cast<precision>(length) / static_cast<precision>(signature.beat_value);
+    return SecondsPerBeat(tempo) * beats;
 }
 
 std::vector<basal::precision> cosine(std::vector<basal::precision> const& input) {
@@ -324,7 +323,7 @@ std::tuple<Hertz, Hertz> ToFrequencyPair(Key key) {
 
 } // namespace dtmf
 
-MonoPCM generate(basal::precision sample_rate, iso::seconds period, iso::hertz frequency, envelope env) {
+MonoPCM generate(basal::precision sample_rate, iso::seconds period, iso::hertz frequency, Envelope env) {
     size_t number_of_samples = static_cast<size_t>(period.value * sample_rate);
     MonoPCM seq{sample_rate, number_of_samples};
     seq.for_each([frequency, period, env](size_t, size_t, basal::precision offset) -> MonoPCM::sample {
@@ -338,7 +337,7 @@ MonoPCM generate(basal::precision sample_rate, iso::seconds period, iso::hertz f
     return seq;
 }
 
-StereoPCM generate(basal::precision sample_rate, iso::seconds period, iso::hertz frequency_left, iso::hertz frequency_right, envelope env) {
+StereoPCM generate(basal::precision sample_rate, iso::seconds period, iso::hertz frequency_left, iso::hertz frequency_right, Envelope env) {
     size_t number_of_samples = static_cast<size_t>(period.value * sample_rate);
     StereoPCM seq{sample_rate, number_of_samples};
     seq.for_each([frequency_left, frequency_right, period, env](size_t channel, size_t, basal::precision offset) -> StereoPCM::sample {
@@ -361,7 +360,7 @@ StereoPCM generate(basal::precision sample_rate, iso::seconds period, iso::hertz
 
 namespace dtmf {
 
-MonoPCM generate(basal::precision sample_rate, iso::seconds period, Key key, envelope env) {
+MonoPCM generate(basal::precision sample_rate, iso::seconds period, Key key, Envelope env) {
     auto [row_freq, col_freq] = ToFrequencyPair(key);
     MonoPCM seq0 = audio::generate(sample_rate, period, row_freq, env);
     MonoPCM seq1 = audio::generate(sample_rate, period, col_freq, env);
@@ -384,7 +383,41 @@ MonoPCM dial(basal::precision sample_rate, iso::seconds period, std::string cons
     return seq;
 }
 
-
 }  // namespace dtmf
+
+bool verify(Measure const& measure) {
+    // sum the time that the notes occupy in the measure and compare it to
+    // the measure's tempo and time signature to ensure the notes fit exactly
+    iso::seconds measure_duration = SecondsPerBeat(measure.tempo) * measure.signature.beats_per_measure;
+    iso::seconds notes_duration = iso::seconds{0};
+    for (auto const& note : measure.notes) {
+        notes_duration += SecondsPerDuration(measure.tempo, measure.signature, note.duration);
+    }
+    return basal::nearly_equals(notes_duration.value, measure_duration.value);
+}
+
+MonoPCM generate(basal::precision sample_rate, Track const& track) {
+    MonoPCM seq{sample_rate, 1}; // a single zero sample to start with
+    size_t measure_index = 0;
+    for (auto const& measure : track.measures) {
+        basal::exception::throw_unless(verify(measure), __FILE__, __LINE__, "Invalid measure %u: notes do not fit the measure's duration", static_cast<unsigned>(measure_index));
+        for (auto const& note : measure.notes) {
+            // Generate the note and append it to the sequence
+            iso::hertz frequency = equal_temperament::ToFrequency(note.pitch);
+            basal::precision volume_ratio = audio::ToScalar(note.volume);
+            auto attack = [note, volume_ratio](basal::precision ratio) {
+                return note.attack(ratio) * volume_ratio;
+            };
+            MonoPCM note_seq = audio::generate(sample_rate, SecondsPerDuration(measure.tempo, measure.signature, note.duration), frequency, attack);
+            if (seq.count() == 0) {
+                seq = note_seq;
+            } else {
+                seq += note_seq;
+            }
+        }
+        ++measure_index;
+    }
+    return seq;
+}
 
 }  // namespace audio

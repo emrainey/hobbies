@@ -48,6 +48,40 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/audio
     FILES_MATCHING PATTERN "*.hpp"
 )
 
+# Visualization of audio with the FFT, used by the demos
+add_library(hobbies-fft-vis
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/fft_vis.cpp
+)
+target_include_directories(hobbies-fft-vis
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>
+)
+target_link_libraries(hobbies-fft-vis
+    PUBLIC
+        hobbies-audio
+        hobbies-fourcc
+    PRIVATE
+        enabled-warnings
+        enabled-debugging
+        native-optimized
+)
+set_target_properties(hobbies-fft-vis PROPERTIES
+    VERSION ${PROJECT_VERSION}
+    SOVERSION ${PROJECT_VERSION_MAJOR}
+    POSITION_INDEPENDENT_CODE ON
+)
+install(TARGETS hobbies-fft-vis
+    EXPORT audio-targets
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/fft_vis
+    DESTINATION include
+    FILES_MATCHING PATTERN "*.hpp"
+)
+
 # === Googletests ===
 if (BUILD_UNIT_TESTS AND Threads_FOUND AND GTest_FOUND)
     add_executable(gtest_audio
@@ -55,7 +89,20 @@ if (BUILD_UNIT_TESTS AND Threads_FOUND AND GTest_FOUND)
     )
     target_link_libraries(gtest_audio PRIVATE hobbies-audio enabled-debugging GTest::gtest GTest::gmock GTest::gtest_main Threads::Threads)
     add_test(NAME gtest_audio COMMAND gtest_audio)
+
+    add_executable(gtest_fft_vis
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_fft_vis.cpp
+    )
+    target_link_libraries(gtest_fft_vis PRIVATE hobbies-fft-vis enabled-debugging GTest::gtest GTest::gmock GTest::gtest_main Threads::Threads)
+    add_test(NAME gtest_fft_vis COMMAND gtest_fft_vis)
 endif()
+
+# === Demos ===
+add_executable(demo_noise_effects ${CMAKE_CURRENT_SOURCE_DIR}/demo/main_noise_effects.cpp)
+target_link_libraries(demo_noise_effects PRIVATE hobbies-audio hobbies-fft-vis hobbies-noise enabled-warnings)
+add_executable(demo_fft_vis ${CMAKE_CURRENT_SOURCE_DIR}/demo/main_fft_vis.cpp)
+target_link_libraries(demo_fft_vis PRIVATE hobbies-fft-vis enabled-warnings)
+install(TARGETS demo_noise_effects demo_fft_vis RUNTIME DESTINATION bin)
 
 # === Doxygen ===
 if (Doxygen_FOUND)

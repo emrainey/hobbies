@@ -1,4 +1,10 @@
 #include <audio/audio.hpp>
+#include <algorithm>
+#include <cmath>
+#include <cstring>
+#include <fstream>
+#include <iterator>
+
 #include <basal/exception.hpp>
 
 using namespace iso::operators;
@@ -48,26 +54,127 @@ static bool is_extension(std::string filename, std::string ext) {
     // std::filesystem::path fp = filename;
     // return fp.extension() == ext;
     char const* pext = strrchr(filename.c_str(), '.');
-    if (strcmp(pext, ext.c_str()) == 0) {
+    if (pext != nullptr and strcmp(pext, ext.c_str()) == 0) {
         return true;
     }
     return false;
 }
 
-template <>
-bool Sequence<uint16_t, 1>::load(std::string filename) {
-    if (is_extension(filename, ".wav")) {
+namespace wav {
+
+/// The decoded contents of a .wav file with the samples interleaved and converted to 16 bit.
+struct decoded {
+    size_t channels{0U};
+    precision sample_rate{0.0_p};
+    std::vector<int16_t> interleaved;
+};
+
+template <typename T>
+static T read_le(std::vector<uint8_t> const& bytes, size_t offset) {
+    T value;
+    std::memcpy(&value, &bytes[offset], sizeof(T));  // files are little endian, so are the supported hosts
+    return value;
+}
+
+/// Reads and decodes 8, 16, 24 or 32 bit PCM and 32 bit float .wav files of any channel count.
+static bool decode(std::string const& filename, decoded& out) {
+    std::ifstream file(filename, std::ios::binary);
+    if (not file) {
         return false;
     }
-    return false;
+    std::vector<uint8_t> bytes((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    if (bytes.size() < 12U or std::memcmp(&bytes[0], "RIFF", 4) != 0 or std::memcmp(&bytes[8], "WAVE", 4) != 0) {
+        return false;
+    }
+    uint16_t format = 0U, channels = 0U, bits = 0U;
+    uint32_t sample_rate = 0U;
+    size_t data_offset = 0U, data_size = 0U;
+    bool have_fmt = false, have_data = false;
+    size_t offset = 12U;
+    while (offset + 8U <= bytes.size() and not have_data) {
+        uint32_t size = read_le<uint32_t>(bytes, offset + 4U);
+        size_t body = offset + 8U;
+        if (std::memcmp(&bytes[offset], "fmt ", 4) == 0 and size >= 16U and body + 16U <= bytes.size()) {
+            format = read_le<uint16_t>(bytes, body);
+            channels = read_le<uint16_t>(bytes, body + 2U);
+            sample_rate = read_le<uint32_t>(bytes, body + 4U);
+            bits = read_le<uint16_t>(bytes, body + 14U);
+            if (format == 0xFFFEU and size >= 26U and body + 26U <= bytes.size()) {
+                format = read_le<uint16_t>(bytes, body + 24U);  // the sub format begins with the real format tag
+            }
+            have_fmt = true;
+        } else if (std::memcmp(&bytes[offset], "data", 4) == 0) {
+            data_offset = body;
+            data_size = std::min(static_cast<size_t>(size), bytes.size() - body);  // tolerate truncated files
+            have_data = true;
+        }
+        offset = body + size + (size & 1U);  // chunks are word aligned
+    }
+    if (not have_fmt or not have_data or channels == 0U or sample_rate == 0U) {
+        return false;
+    }
+    bool const is_float = (format == 3U and bits == 32U);
+    bool const is_pcm = (format == 1U and (bits == 8U or bits == 16U or bits == 24U or bits == 32U));
+    if (not is_float and not is_pcm) {
+        return false;
+    }
+    size_t const bytes_per_sample = bits / 8U;
+    size_t const frames = data_size / (bytes_per_sample * channels);
+    out.channels = channels;
+    out.sample_rate = static_cast<precision>(sample_rate);
+    out.interleaved.resize(frames * channels);
+    for (size_t i = 0; i < out.interleaved.size(); ++i) {
+        size_t at = data_offset + i * bytes_per_sample;
+        int16_t v = 0;
+        if (is_float) {
+            float f = std::clamp(read_le<float>(bytes, at), -1.0f, 1.0f);
+            v = static_cast<int16_t>(std::lround(f * 32767.0f));
+        } else if (bits == 8U) {
+            v = static_cast<int16_t>((static_cast<int>(bytes[at]) - 128) * 256);
+        } else if (bits == 16U) {
+            v = read_le<int16_t>(bytes, at);
+        } else if (bits == 24U) {
+            v = static_cast<int16_t>(read_le<int16_t>(bytes, at + 1U));  // the top two bytes
+        } else {
+            v = static_cast<int16_t>(read_le<int32_t>(bytes, at) >> 16);
+        }
+        out.interleaved[i] = v;
+    }
+    return true;
+}
+
+}  // namespace wav
+
+/// Loads a .wav file into the per channel sample arrays. Fails if the file's channel count is not CHANNELS.
+template <size_t CHANNELS>
+static bool load_wav(std::string const& filename, std::array<std::vector<int16_t>, CHANNELS>& samples,
+                     precision& sample_rate) {
+    if (not is_extension(filename, ".wav")) {
+        return false;
+    }
+    wav::decoded decoded;
+    if (not wav::decode(filename, decoded) or decoded.channels != CHANNELS or decoded.interleaved.empty()) {
+        return false;
+    }
+    size_t const frames = decoded.interleaved.size() / CHANNELS;
+    for (size_t c = 0; c < CHANNELS; ++c) {
+        samples[c].resize(frames);
+        for (size_t i = 0; i < frames; ++i) {
+            samples[c][i] = decoded.interleaved[i * CHANNELS + c];
+        }
+    }
+    sample_rate = decoded.sample_rate;
+    return true;
 }
 
 template <>
-bool Sequence<uint16_t, 2>::load(std::string filename) {
-    if (is_extension(filename, ".wav")) {
-        return false;
-    }
-    return false;
+bool Sequence<int16_t, 1>::load(std::string filename) {
+    return load_wav<channels>(filename, samples_, sample_rate_);
+}
+
+template <>
+bool Sequence<int16_t, 2>::load(std::string filename) {
+    return load_wav<channels>(filename, samples_, sample_rate_);
 }
 
 template <>
@@ -321,7 +428,7 @@ std::tuple<Hertz, Hertz> ToFrequencyPair(Key key) {
     return std::make_tuple(row_freq[row], col_freq[col]);
 }
 
-} // namespace dtmf
+}  // namespace dtmf
 
 MonoPCM generate(basal::precision sample_rate, iso::seconds period, iso::hertz frequency, Envelope env) {
     size_t number_of_samples = static_cast<size_t>(period.value * sample_rate);
@@ -337,10 +444,12 @@ MonoPCM generate(basal::precision sample_rate, iso::seconds period, iso::hertz f
     return seq;
 }
 
-StereoPCM generate(basal::precision sample_rate, iso::seconds period, iso::hertz frequency_left, iso::hertz frequency_right, Envelope env) {
+StereoPCM generate(basal::precision sample_rate, iso::seconds period, iso::hertz frequency_left,
+                   iso::hertz frequency_right, Envelope env) {
     size_t number_of_samples = static_cast<size_t>(period.value * sample_rate);
     StereoPCM seq{sample_rate, number_of_samples};
-    seq.for_each([frequency_left, frequency_right, period, env](size_t channel, size_t, basal::precision offset) -> StereoPCM::sample {
+    seq.for_each([frequency_left, frequency_right, period, env](size_t channel, size_t,
+                                                                basal::precision offset) -> StereoPCM::sample {
         using iso::operators::operator/;
         iso::seconds t{offset};
         basal::precision r = t / period;
@@ -368,10 +477,10 @@ MonoPCM generate(basal::precision sample_rate, iso::seconds period, Key key, Env
 }
 
 MonoPCM dial(basal::precision sample_rate, iso::seconds period, std::string const& phone_number) {
-    MonoPCM seq{sample_rate, 1}; // a single zero sample to start with
+    MonoPCM seq{sample_rate, 1};  // a single zero sample to start with
     for (char c : phone_number) {
         if (c == '+' || c == '-' || c == ' ' || c == '(' || c == ')') {
-            continue; // Skip plus, dashes and spaces
+            continue;  // Skip plus, dashes and spaces
         }
         dtmf::Key key = ToKey(c);
         if (seq.count() == 0) {
@@ -397,18 +506,19 @@ bool verify(Measure const& measure) {
 }
 
 MonoPCM generate(basal::precision sample_rate, Track const& track) {
-    MonoPCM seq{sample_rate, 1}; // a single zero sample to start with
+    MonoPCM seq{sample_rate, 1};  // a single zero sample to start with
     size_t measure_index = 0;
     for (auto const& measure : track.measures) {
-        basal::exception::throw_unless(verify(measure), __FILE__, __LINE__, "Invalid measure %u: notes do not fit the measure's duration", static_cast<unsigned>(measure_index));
+        basal::exception::throw_unless(verify(measure), __FILE__, __LINE__,
+                                       "Invalid measure %u: notes do not fit the measure's duration",
+                                       static_cast<unsigned>(measure_index));
         for (auto const& note : measure.notes) {
             // Generate the note and append it to the sequence
             iso::hertz frequency = equal_temperament::ToFrequency(note.pitch);
             basal::precision volume_ratio = audio::ToScalar(note.volume);
-            auto attack = [note, volume_ratio](basal::precision ratio) {
-                return note.attack(ratio) * volume_ratio;
-            };
-            MonoPCM note_seq = audio::generate(sample_rate, SecondsPerDuration(measure.tempo, measure.signature, note.duration), frequency, attack);
+            auto attack = [note, volume_ratio](basal::precision ratio) { return note.attack(ratio) * volume_ratio; };
+            MonoPCM note_seq = audio::generate(
+                sample_rate, SecondsPerDuration(measure.tempo, measure.signature, note.duration), frequency, attack);
             if (seq.count() == 0) {
                 seq = note_seq;
             } else {
@@ -419,5 +529,17 @@ MonoPCM generate(basal::precision sample_rate, Track const& track) {
     }
     return seq;
 }
+
+namespace midi {
+
+std::variant<Status, Data> parse(uint8_t raw) {
+    if (raw & 0x80) {
+        return Status{raw};
+    } else {
+        return Data{raw};
+    }
+}
+
+}  // namespace midi
 
 }  // namespace audio

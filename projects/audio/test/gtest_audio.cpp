@@ -434,17 +434,20 @@ TEST(AudioTest, WhenConstructingTracksWithMultipleMeasures) {
             {
                 .pitch = {audio::Tone::E, 4},
                 .duration = audio::Duration::Quarter,
-                .volume = audio::Volume::Piano
+                .volume = audio::Volume::Piano,
+                .attack = pop,
             },
             {
                 .pitch = {audio::Tone::F, 4},
                 .duration = audio::Duration::Quarter,
-                .volume = audio::Volume::Piano
+                .volume = audio::Volume::Piano,
+                .attack = pop,
             },
             {
                 .pitch = {audio::Tone::G, 4},
                 .duration = audio::Duration::Half,
-                .volume = audio::Volume::Piano
+                .volume = audio::Volume::Piano,
+                .attack = pop,
             }
         }
     };
@@ -458,17 +461,20 @@ TEST(AudioTest, WhenConstructingTracksWithMultipleMeasures) {
             {
                 .pitch = {audio::Tone::G, 4},
                 .duration = audio::Duration::Eighth,
-                .volume = audio::Volume::Piano
+                .volume = audio::Volume::Piano,
+                .attack = pop,
             },
             {
                 .pitch = {audio::Tone::A, 4},
                 .duration = audio::Duration::Eighth,
-                .volume = audio::Volume::Piano
+                .volume = audio::Volume::Piano,
+                .attack = pop,
             },
             {
                 .pitch = {audio::Tone::G, 4},
                 .duration = audio::Duration::Eighth,
-                .volume = audio::Volume::Piano
+                .volume = audio::Volume::Piano,
+                .attack = pop,
             },
             {
                 .pitch = {audio::Tone::F, 4},
@@ -520,4 +526,39 @@ TEST(AudioTest, WhenConstructingTracksWithMultipleMeasures) {
     track.measures.push_back(measure4);
     track.measures.push_back(measure4);
     ASSERT_TRUE(audio::generate(audio::specification::cd_sample_rate, track).save("track_multiple_measures.wav"));
+}
+
+TEST(AudioTest, WhenLoadingMonoPCM) {
+    audio::MonoPCM saved = generate(8'000.0_p, 1.0_sec, 440.0_Hz);
+    ASSERT_TRUE(saved.save("load_mono.wav"));
+    audio::MonoPCM loaded{44'100.0_p, 1U};
+    ASSERT_TRUE(loaded.load("load_mono.wav"));
+    EXPECT_EQ(saved.count(), loaded.count());
+    EXPECT_NEAR(saved.sample_rate(), loaded.sample_rate(), 0.5_p);
+    for (size_t i = 0; i < saved.count(); ++i) {
+        ASSERT_EQ(saved(0, i), loaded(0, i));
+    }
+}
+
+TEST(AudioTest, WhenLoadingStereoPCM) {
+    audio::StereoPCM saved = generate(8'000.0_p, 1.0_sec, 440.0_Hz, 660.0_Hz);
+    ASSERT_TRUE(saved.save("load_stereo.wav"));
+    audio::StereoPCM loaded{44'100.0_p, 1U};
+    ASSERT_TRUE(loaded.load("load_stereo.wav"));
+    EXPECT_EQ(saved.count(), loaded.count());
+    for (size_t i = 0; i < saved.count(); ++i) {
+        ASSERT_EQ(saved(0, i), loaded(0, i));
+        ASSERT_EQ(saved(1, i), loaded(1, i));
+    }
+}
+
+TEST(AudioTest, WhenLoadingWithWrongChannelsOrBadFile) {
+    audio::MonoPCM saved = generate(8'000.0_p, 0.25_sec, 440.0_Hz);
+    ASSERT_TRUE(saved.save("load_mismatch.wav"));
+    audio::StereoPCM stereo{44'100.0_p, 1U};
+    EXPECT_FALSE(stereo.load("load_mismatch.wav"));
+    EXPECT_EQ(1U, stereo.count());  // unchanged on failure
+    audio::MonoPCM mono{44'100.0_p, 1U};
+    EXPECT_FALSE(mono.load("this_file_does_not_exist.wav"));
+    EXPECT_FALSE(mono.load("no_extension"));
 }

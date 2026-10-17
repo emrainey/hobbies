@@ -84,57 +84,74 @@ basal::precision ramp(basal::precision ratio);
 namespace dtmf {
 
 enum class Key : uint8_t {
-    _1  = ((0 << 0)|(0 << 4)),
-    _2  = ((1 << 0)|(0 << 4)),
-    _3  = ((2 << 0)|(0 << 4)),
-    A  = ((3 << 0)|(0 << 4)),
-    _4  = ((0 << 0)|(1 << 4)),
-    _5  = ((1 << 0)|(1 << 4)),
-    _6  = ((2 << 0)|(1 << 4)),
-    B  = ((3 << 0)|(1 << 4)),
-    _7  = ((0 << 0)|(2 << 4)),
-    _8  = ((1 << 0)|(2 << 4)),
-    _9  = ((2 << 0)|(2 << 4)),
-    C  = ((3 << 0)|(2 << 4)),
-    Asterisk  = ((0 << 0)|(3 << 4)),
-    _0  = ((1 << 0)|(3 << 4)),
-    Pound  = ((2 << 0)|(3 << 4)),
-    D  = ((3 << 0)|(3 << 4))
+    _1 = ((0 << 0) | (0 << 4)),
+    _2 = ((1 << 0) | (0 << 4)),
+    _3 = ((2 << 0) | (0 << 4)),
+    A = ((3 << 0) | (0 << 4)),
+    _4 = ((0 << 0) | (1 << 4)),
+    _5 = ((1 << 0) | (1 << 4)),
+    _6 = ((2 << 0) | (1 << 4)),
+    B = ((3 << 0) | (1 << 4)),
+    _7 = ((0 << 0) | (2 << 4)),
+    _8 = ((1 << 0) | (2 << 4)),
+    _9 = ((2 << 0) | (2 << 4)),
+    C = ((3 << 0) | (2 << 4)),
+    Asterisk = ((0 << 0) | (3 << 4)),
+    _0 = ((1 << 0) | (3 << 4)),
+    Pound = ((2 << 0) | (3 << 4)),
+    D = ((3 << 0) | (3 << 4))
 };
 
 constexpr static Key ToKey(char c) {
     switch (c) {
-        case '1': return Key::_1;
-        case '2': return Key::_2;
-        case '3': return Key::_3;
-        case '4': return Key::_4;
-        case '5': return Key::_5;
-        case '6': return Key::_6;
-        case '7': return Key::_7;
-        case '8': return Key::_8;
-        case '9': return Key::_9;
-        case '0': return Key::_0;
-        case 'A': return Key::A;
-        case 'B': return Key::B;
-        case 'C': return Key::C;
-        case 'D': return Key::D;
-        case '*': return Key::Asterisk;
-        case '#': return Key::Pound;
-        default: return Key::_0; // Default to 0 if unknown
+        case '1':
+            return Key::_1;
+        case '2':
+            return Key::_2;
+        case '3':
+            return Key::_3;
+        case '4':
+            return Key::_4;
+        case '5':
+            return Key::_5;
+        case '6':
+            return Key::_6;
+        case '7':
+            return Key::_7;
+        case '8':
+            return Key::_8;
+        case '9':
+            return Key::_9;
+        case '0':
+            return Key::_0;
+        case 'A':
+            return Key::A;
+        case 'B':
+            return Key::B;
+        case 'C':
+            return Key::C;
+        case 'D':
+            return Key::D;
+        case '*':
+            return Key::Asterisk;
+        case '#':
+            return Key::Pound;
+        default:
+            return Key::_0;  // Default to 0 if unknown
     }
 }
 
 /// @brief Get the frequency pair (row and column) for a given DTMF key
 std::tuple<Hertz, Hertz> ToFrequencyPair(Key key);
 
-//static constexpr std::tuple<Hertz, Hertz> busy_tone = std::make_tuple(480_Hz, 620_Hz);
+// static constexpr std::tuple<Hertz, Hertz> busy_tone = std::make_tuple(480_Hz, 620_Hz);
 
-} // namespace dtmf
+}  // namespace dtmf
 
 /// @brief Enumerated values of the letter tone as they would be on a piano keyboard
 enum class Tone : int {
-    None = 0, // No tone, used for rests
-    C = 4,  // 4, 16, 28, 40, 52, 64, 76, 88
+    None = 0,  // No tone, used for rests
+    C = 4,     // 4, 16, 28, 40, 52, 64, 76, 88
     Cs = 5,
     Db = Cs,
     D = 6,
@@ -153,17 +170,16 @@ enum class Tone : int {
     B = 15,
 };
 
-
 /// @brief A Pitches intensity in music using the classical italian notation (0-100)
 enum class Volume : uint8_t {
     Silent = 0,
     Pianissimo = 10,  ///< Very soft
-    Piano = 20,      ///< Soft
-    MezzoPiano = 40, ///< Moderately soft
-    MezzoForte = 60, ///< Moderately loud
-    Forte = 80,      ///< Loud
-    Fortissimo = 90, ///< Very loud
-    Max = 100        ///< The most loud
+    Piano = 20,       ///< Soft
+    MezzoPiano = 40,  ///< Moderately soft
+    MezzoForte = 60,  ///< Moderately loud
+    Forte = 80,       ///< Loud
+    Fortissimo = 90,  ///< Very loud
+    Max = 100         ///< The most loud
 };
 
 constexpr static basal::precision ToScalar(Volume volume) {
@@ -177,8 +193,8 @@ struct Pitch {
 };
 
 /// @brief Enumerated values for use in TimeSignatures
-/// The quarter is the base unit for the time signature denominator (e.g., 4/4 means 4 quarter notes per measure) but we have to
-/// respresent as a integer of a fundamental unit like a 1/128 note
+/// The quarter is the base unit for the time signature denominator (e.g., 4/4 means 4 quarter notes per measure) but we
+/// have to respresent as a integer of a fundamental unit like a 1/128 note
 enum class Duration : uint16_t {
     Whole = 128u,
     Half = 64u,
@@ -212,7 +228,7 @@ constexpr static basal::precision MeasureFraction(Duration duration) {
 /// @note Examples 4/4 is common time, Signature{4, Duration::Quarter} or 4 / Duration::Quarter
 struct Signature {
     uint8_t beats_per_measure;  ///< The number of beats in a measure (e.g. 2,3,4,5,6)
-    Duration beat_value;             ///< The type of beat (e.g. quarter, eighth, etc.)
+    Duration beat_value;        ///< The type of beat (e.g. quarter, eighth, etc.)
 };
 
 /// @brief A constructor for a time signature from a literal divider
@@ -228,16 +244,16 @@ using Tempo = std::uint16_t;
 
 /// @brief A note in music, containing a pitch and duration
 struct Note {
-    Pitch pitch;  ///< The pitch of the note (tone and octave)
-    Duration duration;  ///< The duration of the note
-    Volume volume; ///< The volume of the pitch by name
+    Pitch pitch;                ///< The pitch of the note (tone and octave)
+    Duration duration;          ///< The duration of the note
+    Volume volume;              ///< The volume of the pitch by name
     Envelope attack{constant};  ///< The attack envelope of the note
 };
 
 /// @brief A measure in music, containing a tempo and a time signature.
 struct Measure {
-    Tempo tempo;  ///< The tempo of the measure in beats per minute
-    Signature signature;  ///< The time signature of the measure
+    Tempo tempo;              ///< The tempo of the measure in beats per minute
+    Signature signature;      ///< The time signature of the measure
     std::vector<Note> notes;  ///< The notes in the measure (and silences)
 };
 
@@ -354,6 +370,9 @@ public:
 
     /// Loads the sequence from a file (like a .wav file)
     /// @param filename The file to load
+    /// @return true on success. Replaces the sample rate and samples. Fails (leaving the sequence unchanged) if the
+    /// file is missing, not a supported .wav (8/16/24/32 bit PCM or 32 bit float) or its channel count differs.
+    /// @note Implemented for MonoPCM and StereoPCM. Other sample formats are converted to 16 bit.
     bool load(std::string filename);
 
     /// Saves the sequence to a file (like a .wav file)
@@ -418,8 +437,8 @@ public:
     /// @param index the index to add the samples at
     /// @note This will overwrite the samples in the sequence or append data at the end
     void join(Sequence const& other) {
-        basal::exception::throw_if(basal::nearly_equals(other.sample_rate(), sample_rate()) == false, __FILE__, __LINE__,
-                                   "Sample rates must be the same");
+        basal::exception::throw_if(basal::nearly_equals(other.sample_rate(), sample_rate()) == false, __FILE__,
+                                   __LINE__, "Sample rates must be the same");
         for (size_t i = 0; i < channels; ++i) {
             // copy the samples from the other sequence (this is automatically resize)
             samples_[i].insert(samples_[i].end(), other.samples_[i].begin(), other.samples_[i].end());
@@ -484,14 +503,16 @@ MonoPCM generate(basal::precision sample_rate, iso::seconds period, iso::hertz f
 /// @param frequency_left The frequency of the waveform for the left channel (in Hertz)
 /// @param frequency_right The frequency of the waveform for the right channel (in Hertz)
 /// @return The generated stereo PCM sequence
-StereoPCM generate(basal::precision sample_rate, iso::seconds period, iso::hertz frequency, iso::hertz frequency_right, Envelope env = constant);
+StereoPCM generate(basal::precision sample_rate, iso::seconds period, iso::hertz frequency, iso::hertz frequency_right,
+                   Envelope env = constant);
 
 /// @brief Generates a mono PCM sequence with multiple tones
 /// @param sample_rate The sample rate of the sequence
 /// @param period The duration of the sequence in seconds
 /// @param tones The vector of tones to generate
 /// @return The generated mono PCM sequence containing the specified tones
-MonoPCM generate(basal::precision sample_rate, iso::seconds period, std::vector<Tone> const& tones, Envelope env = constant);
+MonoPCM generate(basal::precision sample_rate, iso::seconds period, std::vector<Tone> const& tones,
+                 Envelope env = constant);
 
 namespace dtmf {
 
@@ -521,5 +542,43 @@ bool verify(Measure const& measure);
 /// @param track The track containing the measures and notes to generate
 /// @return The generated mono PCM sequence containing the track's audio
 MonoPCM generate(basal::precision sample_rate, Track const& track);
+
+namespace midi {
+
+union Status {
+    Status() = default;
+    Status(uint8_t raw) : raw(raw) {}
+    Status(uint8_t channel, uint8_t value) : bits{channel, value, 1U} {}
+    struct {
+        uint8_t channel : 4;
+        uint8_t value : 3;
+        uint8_t status : 1;
+    } bits;
+    uint8_t raw;
+
+    constexpr explicit operator uint8_t() const noexcept { return raw; }
+};
+
+union Data {
+    Data() = default;
+    Data(uint8_t value) : bits{value, 0U} {}
+    struct {
+        uint8_t value : 7;
+        uint8_t status : 1;
+    } bits;
+    uint8_t raw;
+    constexpr explicit operator uint8_t() const noexcept { return raw; }
+};
+
+struct Message {
+    Status status;
+    Data key;
+    Data velocity;
+};
+
+/// Converts a raw byte from a MIDI stream into either a Status or a Message
+std::variant<Status, Data> parse(uint8_t raw);
+
+} // namespace midi
 
 }  // namespace audio

@@ -290,6 +290,10 @@ color accumulate_samples(std::vector<color> const& samples);
 /// Color-Codes a precision value from -1.0 to 1.0 using the jet color map.
 color jet(precision value);
 
+/// Color-Codes a precision value from 0.0 to 1.0 (clamped) using a black-blue-magenta-orange-yellow-white heat color
+/// map.
+color heat(precision value);
+
 /// Color-Codes a precision value from min to max using a greyscale color map. Values outside the range are colored
 /// magenta.
 color greyscale(precision d, precision min, precision max);

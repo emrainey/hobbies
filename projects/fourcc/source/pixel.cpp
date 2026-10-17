@@ -3,6 +3,9 @@
 
 #include <fourcc/pixel.hpp>
 
+#include <algorithm>
+#include <array>
+
 namespace fourcc {
 
 color accumulate_samples(std::vector<color> const& samples) {
@@ -35,6 +38,22 @@ color jet(precision value) {
     auto g = base(value);
     auto b = base(value + 0.5_p);
     return color(r, g, b);
+}
+
+color heat(precision value) {
+    static constexpr std::array<std::array<precision, 3>, 6> stops = {{
+        {0.0_p, 0.0_p, 0.0_p},
+        {0.1_p, 0.0_p, 0.5_p},
+        {0.7_p, 0.1_p, 0.5_p},
+        {1.0_p, 0.5_p, 0.1_p},
+        {1.0_p, 0.9_p, 0.3_p},
+        {1.0_p, 1.0_p, 1.0_p},
+    }};
+    value = std::clamp(value, 0.0_p, 1.0_p) * static_cast<precision>(stops.size() - 1U);
+    size_t i = std::min(static_cast<size_t>(value), stops.size() - 2U);
+    precision f = value - static_cast<precision>(i);
+    auto mix = [&](size_t k) -> precision { return stops[i][k] * (1.0_p - f) + stops[i + 1U][k] * f; };
+    return color(mix(0U), mix(1U), mix(2U));
 }
 
 color greyscale(precision value, precision min, precision max) {

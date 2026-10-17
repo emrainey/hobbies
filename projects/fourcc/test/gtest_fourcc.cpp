@@ -221,3 +221,20 @@ TEST(FourccTest, BilateralFilter) {
     bilateral_test<5>();
     bilateral_test<7>();
 }
+TEST(FourccTest, HeatColorMap) {
+    auto const black = heat(0.0_p);
+    EXPECT_DOUBLE_EQ(0.0_p, black.red());
+    EXPECT_DOUBLE_EQ(0.0_p, black.green());
+    EXPECT_DOUBLE_EQ(0.0_p, black.blue());
+    auto const white = heat(1.0_p);
+    EXPECT_DOUBLE_EQ(1.0_p, white.red());
+    EXPECT_DOUBLE_EQ(1.0_p, white.green());
+    EXPECT_DOUBLE_EQ(1.0_p, white.blue());
+    // out of range values clamp
+    EXPECT_DOUBLE_EQ(black.red(), heat(-3.0_p).red());
+    EXPECT_DOUBLE_EQ(white.blue(), heat(7.0_p).blue());
+    // the first interior stop is dark blue
+    auto const blue = heat(0.2_p);
+    EXPECT_DOUBLE_EQ(0.1_p, blue.red());
+    EXPECT_DOUBLE_EQ(0.5_p, blue.blue());
+}

@@ -33,6 +33,9 @@ constexpr size_t kMemoryPageRows = 8U;
 constexpr size_t kConsoleMaxLines = 128U;
 constexpr size_t kInstructionSize = sizeof(Instruction);
 constexpr size_t kBreakPointSlots = 16U;
+/// How many cycles F7 executes in one go. The demo program loops forever, so a burst is needed to watch it run without
+/// pressing F4 a few hundred times per pass.
+constexpr size_t kRunBurstCycles = 100U;
 
 template <typename RegisterRows>
 Elements BuildRegisterColumn(RegisterRows const& rows) {
@@ -184,7 +187,8 @@ int main(int argc, char* argv[]) {
 
     // End "Loader"
 
-    Address memory_base_address = DefaultVectorTableAddress;
+    // Open the memory window on the region the demo program fills and rolls.
+    Address memory_base_address = kPatternRamBase;
     isa_demo::MemoryViewMode memory_view_mode = isa_demo::MemoryViewMode::Byte;
     std::string memory_base_input = FormatAddressHex(memory_base_address);
     std::string memory_view_status = "Enter base address (hex) and press Enter";
@@ -239,14 +243,24 @@ int main(int argc, char* argv[]) {
         push_console_line("  Enter apply base address");
         push_console_line("  Up/Down move by row");
         push_console_line("  PageUp/PageDown move by page");
-        push_console_line("  Home jump to SRAM");
+        push_console_line("  Home jump to the demo data");
         push_console_line("  F6 cycle memory view (byte/short/word)");
         push_console_line("  F1 show help");
         push_console_line("  F2 save state");
         push_console_line("  F3 load state");
         push_console_line("  F4 execute cycle");
+        push_console_line("  F7 run " + std::to_string(kRunBurstCycles) + " cycles");
         push_console_line("  F5 reset CPU");
         push_console_line("  Esc quit");
+    };
+
+    const auto report_cycle_outcome = [&] {
+        if (cpu.ViewSpecial().exception_.HasException()) {
+            push_console_line(">>>Exception occurred!<<<");
+        }
+        if (cpu.IsHalted()) {
+            push_console_line("CPU is halted. Press F5 to reset.");
+        }
     };
 
     const auto save_cpu_state = [&] {
@@ -382,7 +396,7 @@ int main(int argc, char* argv[]) {
 
     const auto console_panel = [&](int panel_height) {
         Elements rows;
-        rows.push_back(text("Keys: F2 save, F3 load, F4 execute cycle, F5 reset, Esc quit"));
+        rows.push_back(text("Keys: F2 save, F3 load, F4 execute cycle, F5 reset, F7 run burst, Esc quit"));
         rows.push_back(separator());
 
         const int visible_rows = std::max(1, panel_height - static_cast<int>(rows.size()) - 1);
@@ -477,12 +491,19 @@ int main(int argc, char* argv[]) {
         if (event == Event::F4) {
             cpu.Cycle();
             push_console_line("Executed cycle");
-            if (cpu.ViewSpecial().exception_.HasException()) {
-                push_console_line(">>>Exception occurred!<<<");
+            report_cycle_outcome();
+            return true;
+        }
+        if (event == Event::F7) {
+            // Run a burst so the demo program's endless loop can be watched without stepping one cycle at a time. Stop
+            // early if the CPU halts or faults, so a burst never walks into an unmapped handler.
+            size_t executed = 0U;
+            while ((executed < kRunBurstCycles) && !cpu.IsHalted() && !cpu.ViewSpecial().exception_.HasException()) {
+                cpu.Cycle();
+                ++executed;
             }
-            if (cpu.IsHalted()) {
-                push_console_line("CPU is halted. Press F5 to reset.");
-            }
+            push_console_line("Ran " + std::to_string(executed) + " cycle(s)");
+            report_cycle_outcome();
             return true;
         }
         if (event == Event::F5) {
@@ -529,7 +550,7 @@ int main(int argc, char* argv[]) {
             return true;
         }
         if (event == Event::Home) {
-            memory_base_address = DefaultSramStartAddress;
+            memory_base_address = kPatternRamBase;
             update_memory_base_input();
             return true;
         }

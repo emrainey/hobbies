@@ -1,3 +1,4 @@
+#include <array>
 #include <cstddef>
 #include <limits>
 #include <sstream>
@@ -499,6 +500,121 @@ TEST_F(InstructionTest, FallMovesStackPointerUpByImmediateWords) {
     EXPECT_EQ(0x10001000U, cpu.ViewSpecial().stack_.current.value);
 }
 
+TEST_F(InstructionTest, FallSetsStackFaultWhenRestoringAboveLimit) {
+    auto& stack = cpu.GetSpecial().stack_;
+    stack.base = isa::Address{0x10000000U};
+    stack.current = isa::Address{0x10001FFCU};
+    stack.limit = isa::Address{0x10002000U};
+
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Fall{isa::Immediate<10>{2U}}});
+
+    EXPECT_TRUE(cpu.ViewSpecial().exception_.stack_fault);
+    EXPECT_EQ(0x10001FFCU, cpu.ViewSpecial().stack_.current.value);
+}
+
+TEST_F(InstructionTest, FallByZeroAtEmptyStackIsNoOp) {
+    auto& stack = cpu.GetSpecial().stack_;
+    stack.base = isa::Address{0x10000000U};
+    stack.current = isa::Address{0x10002000U};
+    stack.limit = isa::Address{0x10002000U};
+
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Fall{isa::Immediate<10>{0U}}});
+
+    EXPECT_EQ(0x10002000U, cpu.ViewSpecial().stack_.current.value);
+    EXPECT_FALSE(cpu.ViewSpecial().exception_.stack_fault);
+}
+
+TEST_F(InstructionTest, GrowThenFallRoundTripsStackPointer) {
+    auto& stack = cpu.GetSpecial().stack_;
+    stack.base = isa::Address{0x10000000U};
+    stack.current = isa::Address{0x10001000U};
+    stack.limit = isa::Address{0x10002000U};
+
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Grow{isa::Immediate<10>{3U}}});
+    EXPECT_EQ(0x10000FF4U, cpu.ViewSpecial().stack_.current.value);
+
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Fall{isa::Immediate<10>{3U}}});
+
+    EXPECT_EQ(0x10001000U, cpu.ViewSpecial().stack_.current.value);
+    EXPECT_FALSE(cpu.ViewSpecial().exception_.stack_fault);
+}
+
+TEST_F(InstructionTest, FallThenGrowRoundTripsStackPointer) {
+    auto& stack = cpu.GetSpecial().stack_;
+    stack.base = isa::Address{0x10000000U};
+    stack.current = isa::Address{0x10001000U};
+    stack.limit = isa::Address{0x10002000U};
+
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Fall{isa::Immediate<10>{2U}}});
+    EXPECT_EQ(0x10001008U, cpu.ViewSpecial().stack_.current.value);
+
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Grow{isa::Immediate<10>{2U}}});
+
+    EXPECT_EQ(0x10001000U, cpu.ViewSpecial().stack_.current.value);
+    EXPECT_FALSE(cpu.ViewSpecial().exception_.stack_fault);
+}
+
+TEST_F(InstructionTest, GrowToBaseThenFallReturnsToLimit) {
+    // The empty-stack pointer is the exclusive limit and the base is inclusive, so a full grow followed by an equal
+    // fall must traverse both endpoints without faulting.
+    auto& stack = cpu.GetSpecial().stack_;
+    stack.base = isa::Address{0x10001000U};
+    stack.current = isa::Address{0x10001010U};
+    stack.limit = isa::Address{0x10001010U};
+
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Grow{isa::Immediate<10>{4U}}});
+    EXPECT_EQ(0x10001000U, cpu.ViewSpecial().stack_.current.value);
+    EXPECT_FALSE(cpu.ViewSpecial().exception_.stack_fault);
+
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Fall{isa::Immediate<10>{4U}}});
+
+    EXPECT_EQ(0x10001010U, cpu.ViewSpecial().stack_.current.value);
+    EXPECT_FALSE(cpu.ViewSpecial().exception_.stack_fault);
+}
+
+TEST_F(InstructionTest, GrowThenFallKeepsTrackOfMixedImmediates) {
+    auto& stack = cpu.GetSpecial().stack_;
+    stack.base = isa::Address{0x10000000U};
+    stack.current = isa::Address{0x10001000U};
+    stack.limit = isa::Address{0x10002000U};
+
+    // The fall displacements do not mirror the grow displacements; both sequences total 31 words, so only a running
+    // pointer that accumulates each step lands back on the starting address.
+    constexpr std::array<uint32_t, 4> grow_steps{4U, 8U, 16U, 3U};
+    constexpr std::array<uint32_t, 4> grow_expected{0x10000FF0U, 0x10000FD0U, 0x10000F90U, 0x10000F84U};
+    for (size_t i = 0; i < grow_steps.size(); ++i) {
+        RunSingleInstruction(
+            isa::instructions::Instruction{isa::instructions::Grow{isa::Immediate<10>{grow_steps[i]}}});
+        EXPECT_EQ(grow_expected[i], cpu.ViewSpecial().stack_.current.value) << "grow step " << i;
+        EXPECT_FALSE(cpu.ViewSpecial().exception_.stack_fault) << "grow step " << i;
+    }
+
+    constexpr std::array<uint32_t, 5> fall_steps{8U, 3U, 12U, 4U, 4U};
+    constexpr std::array<uint32_t, 5> fall_expected{0x10000FA4U, 0x10000FB0U, 0x10000FE0U, 0x10000FF0U, 0x10001000U};
+    for (size_t i = 0; i < fall_steps.size(); ++i) {
+        RunSingleInstruction(
+            isa::instructions::Instruction{isa::instructions::Fall{isa::Immediate<10>{fall_steps[i]}}});
+        EXPECT_EQ(fall_expected[i], cpu.ViewSpecial().stack_.current.value) << "fall step " << i;
+        EXPECT_FALSE(cpu.ViewSpecial().exception_.stack_fault) << "fall step " << i;
+    }
+}
+
+TEST_F(InstructionTest, FallReachesLimitExactlyButCannotPassIt) {
+    auto& stack = cpu.GetSpecial().stack_;
+    stack.base = isa::Address{0x10000000U};
+    stack.current = isa::Address{0x10001FFCU};
+    stack.limit = isa::Address{0x10002000U};
+
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Fall{isa::Immediate<10>{1U}}});
+    EXPECT_EQ(0x10002000U, cpu.ViewSpecial().stack_.current.value);
+    EXPECT_FALSE(cpu.ViewSpecial().exception_.stack_fault);
+
+    // There is no storage above `limit`, so one more word must fault and leave the pointer alone.
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Fall{isa::Immediate<10>{1U}}});
+    EXPECT_EQ(0x10002000U, cpu.ViewSpecial().stack_.current.value);
+    EXPECT_TRUE(cpu.ViewSpecial().exception_.stack_fault);
+}
+
 TEST_F(InstructionTest, PushStoresSelectedRegistersAndMovesStackPointer) {
     auto& stack = cpu.GetSpecial().stack_;
     stack.base = isa::Address{0x10000000U};
@@ -516,11 +632,58 @@ TEST_F(InstructionTest, PushStoresSelectedRegistersAndMovesStackPointer) {
     uint32_t first = 0U;
     uint32_t second = 0U;
     ASSERT_TRUE(cpu.Peek(isa::Address{0x10000FF8U}, first));
-    ASSERT_TRUE(cpu.Peek(isa::Address{0x10000FF4U}, second));
+    ASSERT_TRUE(cpu.Peek(isa::Address{0x10000FFCU}, second));
     EXPECT_EQ(0xAAAABBBBU, first);
     EXPECT_EQ(0xCCCCDDDDU, second);
     EXPECT_FALSE(cpu.ViewSpecial().exception_.stack_fault);
     EXPECT_FALSE(cpu.ViewSpecial().exception_.bus_fault);
+}
+
+TEST_F(InstructionTest, PushThenPullRoundTripsSelectedRegisters) {
+    auto& stack = cpu.GetSpecial().stack_;
+    stack.base = isa::Address{0x10000000U};
+    stack.current = isa::Address{0x10001000U};
+    stack.limit = isa::Address{0x10002000U};
+
+    cpu.GetScratch()[0].as_u32[0] = 0xAAAA0000U;
+    cpu.GetScratch()[2].as_u32[0] = 0xCCCC0000U;
+    cpu.GetScratch()[5].as_u32[0] = 0x55550000U;
+
+    // s0, s2 and s5
+    constexpr uint32_t mask = 0b0000'0000'0010'0101U;
+    RunSingleInstruction(
+        isa::instructions::Instruction{isa::instructions::Push{isa::instructions::Push::ImmediateType{mask}}});
+
+    EXPECT_EQ(0x10000FF4U, cpu.ViewSpecial().stack_.current.value);
+    EXPECT_FALSE(cpu.ViewSpecial().exception_.stack_fault);
+
+    // Clobber the registers so the pull has to restore them from memory.
+    cpu.GetScratch()[0].as_u32[0] = 0U;
+    cpu.GetScratch()[2].as_u32[0] = 0U;
+    cpu.GetScratch()[5].as_u32[0] = 0U;
+
+    RunSingleInstruction(
+        isa::instructions::Instruction{isa::instructions::Pull{isa::instructions::Pull::ImmediateType{mask}}});
+
+    EXPECT_EQ(0x10001000U, cpu.ViewSpecial().stack_.current.value);
+    EXPECT_EQ(0xAAAA0000U, cpu.ViewScratch()[0].as_u32[0]);
+    EXPECT_EQ(0xCCCC0000U, cpu.ViewScratch()[2].as_u32[0]);
+    EXPECT_EQ(0x55550000U, cpu.ViewScratch()[5].as_u32[0]);
+    EXPECT_FALSE(cpu.ViewSpecial().exception_.stack_fault);
+    EXPECT_FALSE(cpu.ViewSpecial().exception_.bus_fault);
+}
+
+TEST_F(InstructionTest, PushByZeroAtEmptyStackIsNoOp) {
+    auto& stack = cpu.GetSpecial().stack_;
+    stack.base = isa::Address{0x10000000U};
+    stack.current = isa::Address{0x10002000U};
+    stack.limit = isa::Address{0x10002000U};
+
+    RunSingleInstruction(
+        isa::instructions::Instruction{isa::instructions::Push{isa::instructions::Push::ImmediateType{0U}}});
+
+    EXPECT_EQ(0x10002000U, cpu.ViewSpecial().stack_.current.value);
+    EXPECT_FALSE(cpu.ViewSpecial().exception_.stack_fault);
 }
 
 TEST_F(InstructionTest, PullLoadsSelectedRegistersAndMovesStackPointer) {
@@ -542,6 +705,24 @@ TEST_F(InstructionTest, PullLoadsSelectedRegistersAndMovesStackPointer) {
     EXPECT_EQ(0x44444444U, cpu.ViewScratch()[4].as_u32[0]);
     EXPECT_FALSE(cpu.ViewSpecial().exception_.stack_fault);
     EXPECT_FALSE(cpu.ViewSpecial().exception_.bus_fault);
+}
+
+TEST_F(InstructionTest, PullCanFillStackToLimit) {
+    auto& stack = cpu.GetSpecial().stack_;
+    stack.base = isa::Address{0x10000000U};
+    stack.current = isa::Address{0x10001FF8U};
+    stack.limit = isa::Address{0x10002000U};
+
+    ASSERT_TRUE(cpu.Poke(isa::Address{0x10001FF8U}, 0x11111111U));
+    ASSERT_TRUE(cpu.Poke(isa::Address{0x10001FFCU}, 0x22222222U));
+
+    RunSingleInstruction(isa::instructions::Instruction{
+        isa::instructions::Pull{isa::instructions::Pull::ImmediateType{0b0000'0000'0000'0011U}}});
+
+    EXPECT_EQ(0x10002000U, cpu.ViewSpecial().stack_.current.value);
+    EXPECT_EQ(0x11111111U, cpu.ViewScratch()[0].as_u32[0]);
+    EXPECT_EQ(0x22222222U, cpu.ViewScratch()[1].as_u32[0]);
+    EXPECT_FALSE(cpu.ViewSpecial().exception_.stack_fault);
 }
 
 TEST_F(InstructionTest, PushSetsStackFaultWhenStackRangeWouldBeExceeded) {

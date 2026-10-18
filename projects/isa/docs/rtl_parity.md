@@ -27,7 +27,7 @@ Milestone IDs refer to @ref rtl_roadmap.
 | ID | Area | Status | Milestone |
 | --- | --- | --- | --- |
 | P-001 | `Grow` stack-overflow condition | `CPP-BUG` — fixed | M3 |
-| P-002 | `Push`/`Pull` vs `Grow`/`Fall` bound style | OPEN | M3 |
+| P-002 | `Push`/`Pull` vs `Grow`/`Fall` bound style | `CPP-BUG` — fixed | M3 |
 | P-003 | Divide-by-zero fault class | OPEN (suspected `CPP-BUG`) | M6/M8 |
 | P-004 | Caches unused on hot path | DEFERRED | M10 |
 | P-005 | Privilege not enforced | DEFERRED | M8 |
@@ -37,7 +37,7 @@ Milestone IDs refer to @ref rtl_roadmap.
 | P-009 | `Load`/`Save` special-base encoding | OPEN | M2 |
 | P-010 | `Reverse` unit selector reuses `shift` | OPEN | M5 |
 | P-011 | Erased word / immediate-leap decode | MATCHED | M0 |
-| P-012 | `Push`/`Pull` register ordering | OPEN | M3 |
+| P-012 | `Push`/`Pull` register ordering | `CPP-BUG` — fixed | M3 |
 | P-013 | `Move` eval-to-eval semantics | OPEN | M1/M4 |
 | P-014 | `MoveImmediate` eval/upper selection | OPEN | M1 |
 | P-015 | `Swap` load-then-store atomicity | OPEN | M2 |
@@ -67,9 +67,28 @@ address space. `Grow{0}` remains a no-op. Covered by `GrowMovesStackPointerDownB
 
 ### P-002 — `Push`/`Pull` vs `Grow`/`Fall` bound style
 
-`source/cpu.cpp:586-637` (push/pull, via `Contained`) vs `:542-585` (grow/fall, via explicit compare).
-Two different bounds idioms for the same stack. Not necessarily a bug, but the RTL must reproduce
-whichever is intended. Resolve together with P-001.
+`source/cpu.cpp` stack operations. The original code used two different bounds idioms for the same
+stack: `Contained(addr)` (`base <= addr < limit`) for `Push`/`Pull`, and explicit comparisons for
+`Grow`/`Fall`. `Contained` is an *address* predicate (the storage is half-open) but it was applied to
+post-move *stack pointers*, so the legal empty-stack pointer, `current == limit`, was rejected:
+`Pull` up to the limit and `Push #0` at an empty stack both raised a spurious `stack_fault`.
+
+**Fixed (C++).** `Stack` now exposes two predicates on 64-bit intermediates:
+
+* `ContainsPointer(uint64_t)` — legal pointer range `[base, limit]` (closed at the exclusive top).
+* `ContainsBlock(uint64_t start, uint32_t size)` — byte range `[start, start + size)` lies inside the
+  storage `[base, limit)`.
+
+`Grow`, `Fall`, `Push` and `Pull` all use `ContainsPointer`/`ContainsBlock`, with arithmetic widened to
+64 bits so a pointer near zero or near the top of the address space cannot wrap into a plausible
+value. `Grow{0}` and `Fall{0}` are no-ops, and a zero-register `Push`/`Pull` at an empty stack is a
+success rather than a fault. Covered by the round-trip tests
+(`GrowThenFallRoundTripsStackPointer`, `FallThenGrowRoundTripsStackPointer`,
+`GrowToBaseThenFallReturnsToLimit`, `PushThenPullRoundTripsSelectedRegisters`), the asymmetric
+accumulation test `GrowThenFallKeepsTrackOfMixedImmediates`, the top-boundary test
+`FallReachesLimitExactlyButCannotPassIt`, and the empty-stack cases `PushByZeroAtEmptyStackIsNoOp`,
+`FallByZeroAtEmptyStackIsNoOp` and `PullCanFillStackToLimit`.
+The RTL must reproduce these two predicates exactly in M3.
 
 ### P-003 — Divide-by-zero fault class
 
@@ -133,8 +152,15 @@ kept as a regression anchor.
 
 ### P-012 — `Push`/`Pull` register ordering
 
-`source/cpu.cpp:596-604` (push) and `:621-631` (pull). Registers are walked in ascending scratch
-order while the stack address walks descending (push) / ascending (pull). The RTL must match this
+`source/cpu.cpp` `Push`/`Pull`. Registers are walked in ascending scratch order and the stack address
+walks ascending in both directions. The original `Push` walked the address *descending*
+(`address -= 4` while `Pull` used `address += 4`), so a multi-register `Push` followed by an identical
+`Pull` did not round-trip: the memory image was mirrored.
+
+**Fixed (C++).** `Push` now writes the newly allocated block `[next, current)` from low to high, the
+same order `Pull` reads it, so the two are inverses for any register mask. Covered by
+`PushThenPullRoundTripsSelectedRegisters`, and the existing `PushStoresSelectedRegistersAndMovesStackPointer`
+now expects the higher-numbered register at the higher address (`0x10000FFC`). The RTL must match this
 order for the resulting memory image to be identical.
 
 ### P-013 — `Move` eval-to-eval semantics
@@ -185,8 +211,6 @@ images). Debugger-side functionality, not architectural; not planned for RTL par
 
 ## Open questions
 
-* P-002: the intended bound idiom for `Fall` (whether to align it with the corrected `Grow`
-  predicate or leave the explicit `next <= limit` check).
 * P-003/P-017: whether divide-by-zero is an instruction fault, an arithmetic fault, an evaluation
   bit, or some combination.
 * P-007: whether `deferred` needs an explicit pending latch in the architectural state.

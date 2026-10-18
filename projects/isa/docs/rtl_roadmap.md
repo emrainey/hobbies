@@ -155,8 +155,9 @@ Gate both behind the existing `BUILD_VERILOG` option.
   the eventual FP unit may require independent reference vectors, not the C++ model.
 * **Wide vs. narrow stores.** Sub-word `save` uses byte enables (`mem_wstrb`); the C++ model does
   read-modify-write via `Poke`. Both must agree on endianness and byte placement.
-* **`Grow`/`Fall` bound conditions.** P-001 (the inverted `Grow` predicate) is fixed in C++; see
-  @ref rtl_parity. P-002 (whether to unify the `Grow`/`Fall` and `Push`/`Pull` bound idioms) is still
-  open. The RTL must reproduce the corrected `Grow` predicate in M3.
+* **Stack bound conditions.** P-001 (the inverted `Grow` predicate), P-002 (the split bounds idioms)
+  and P-012 (`Push`/`Pull` ordering) are fixed in C++; see @ref rtl_parity. `Stack::ContainsPointer`
+  and `Stack::ContainsBlock` are the reference predicates, and `Push`/`Pull` both walk ascending. The
+  RTL must reproduce these in M3.
 * **Pipeline hazard work (M12)** can reintroduce divergences; keep the M1–M11 diff harness as the
   regression gate.

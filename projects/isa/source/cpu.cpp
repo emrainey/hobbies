@@ -550,18 +550,15 @@ void Processor::Cycle() {
             }
             if (allowed) {
                 /// The stack grows downwards, so growing subtracts the immediate (expressed in 32-bit words) from the
-                /// current pointer. The base address is the lowest usable address and is inclusive, so the new pointer
-                /// must not drop below it. Guard the subtraction as well so a pointer near zero cannot wrap.
-                const auto amount = static_cast<isa::Address::StorageType>(grow.imm * 4U);
-                if (special_.stack_.current.value < amount) {
-                    special_.exception_.stack_fault = 1;
+                /// current pointer. The base address is the lowest usable address and is inclusive, while the limit is
+                /// the exclusive top; the new pointer must remain within [base, limit]. The subtraction is performed in
+                /// 64 bits so a pointer near zero cannot wrap into a plausible address.
+                const uint64_t next
+                    = static_cast<uint64_t>(special_.stack_.current.value) - static_cast<uint64_t>(grow.imm) * 4U;
+                if (special_.stack_.ContainsPointer(next)) {
+                    special_.stack_.current = Address{static_cast<isa::Address::StorageType>(next)};
                 } else {
-                    const Address next = special_.stack_.current - Address{amount};
-                    if (next < special_.stack_.base) {
-                        special_.exception_.stack_fault = 1;
-                    } else {
-                        special_.stack_.current = next;
-                    }
+                    special_.exception_.stack_fault = 1;
                 }
             }
             break;
@@ -576,11 +573,13 @@ void Processor::Cycle() {
                 allowed = (eval & mask) != 0U;
             }
             if (allowed) {
-                /// Restore stack space by adding the immediate value * 4 (in 32-bit words) to the current Stack
-                /// Pointer, without moving beyond the stack limit.
-                Address next = special_.stack_.current + Address{static_cast<isa::Address::StorageType>(fall.imm * 4U)};
-                if (next <= special_.stack_.limit) {
-                    special_.stack_.current = next;
+                /// Restore stack space by adding the immediate value * 4 (in 32-bit words) to the current pointer,
+                /// without moving past the exclusive stack limit. The addition is performed in 64 bits so it cannot
+                /// wrap past the top of the address space.
+                const uint64_t next
+                    = static_cast<uint64_t>(special_.stack_.current.value) + static_cast<uint64_t>(fall.imm) * 4U;
+                if (special_.stack_.ContainsPointer(next)) {
+                    special_.stack_.current = Address{static_cast<isa::Address::StorageType>(next)};
                 } else {
                     special_.exception_.stack_fault = 1;
                 }
@@ -589,24 +588,22 @@ void Processor::Cycle() {
         }
         case Operator::Push: {
             const auto& push = instruction.push;
-            // Push the registers specified in the mask to the stack. We need to check for stack overflow by ensuring
-            // that we don't push beyond the stack limit.
-            auto count = __builtin_popcount(push.imm);
-            Address next
-                = special_.stack_.current - Address{sizeof(word<CountOfDataBits>) * static_cast<uint32_t>(count)};
-            if (special_.stack_.Contained(next)) {
-                // We can push the registers to the stack
-                Address address = next;
+            // Push the registers selected by the mask into the newly allocated block [next, current) of the stack. The
+            // block must lie within the stack storage [base, limit), otherwise a stack fault is raised.
+            const auto count = static_cast<uint32_t>(__builtin_popcount(push.imm));
+            const uint32_t size = sizeof(word<CountOfDataBits>) * count;
+            const uint64_t next = static_cast<uint64_t>(special_.stack_.current.value) - static_cast<uint64_t>(size);
+            if (special_.stack_.ContainsBlock(next, size)) {
+                Address address{static_cast<isa::Address::StorageType>(next)};
                 for (size_t i = 0; i < scratch_.size(); ++i) {
                     if ((push.imm & (1U << i)) != 0U) {
                         if (not Poke(address, scratch_[i].as_u32[0])) {
                             special_.exception_.bus_fault = 1;
-                        } else {
-                            address -= sizeof(word<CountOfDataBits>);
                         }
+                        address += sizeof(word<CountOfDataBits>);
                     }
                 }
-                special_.stack_.current = next;
+                special_.stack_.current = Address{static_cast<isa::Address::StorageType>(next)};
             } else {
                 special_.exception_.stack_fault = 1;
             }
@@ -614,13 +611,12 @@ void Processor::Cycle() {
         }
         case Operator::Pull: {
             const auto& pull = instruction.pull;
-            // Pull the registers specified in the mask from the stack. We need to check for stack underflow by ensuring
-            // that we don't pull beyond the initial stack pointer.
-            auto count = __builtin_popcount(pull.imm);
-            Address next
-                = special_.stack_.current + Address{sizeof(word<CountOfDataBits>) * static_cast<uint32_t>(count)};
-            if (special_.stack_.Contained(next)) {
-                // We can pull the registers from the stack
+            // Pull the registers selected by the mask from the block [current, next) of the stack. The block must lie
+            // within the stack storage [base, limit), otherwise a stack fault is raised.
+            const auto count = static_cast<uint32_t>(__builtin_popcount(pull.imm));
+            const uint32_t size = sizeof(word<CountOfDataBits>) * count;
+            const uint64_t next = static_cast<uint64_t>(special_.stack_.current.value) + static_cast<uint64_t>(size);
+            if (special_.stack_.ContainsBlock(special_.stack_.current.value, size)) {
                 Address address = special_.stack_.current;
                 for (size_t i = 0; i < scratch_.size(); ++i) {
                     if ((pull.imm & (1U << i)) != 0U) {
@@ -633,7 +629,7 @@ void Processor::Cycle() {
                         address += sizeof(word<CountOfDataBits>);
                     }
                 }
-                special_.stack_.current = next;
+                special_.stack_.current = Address{static_cast<isa::Address::StorageType>(next)};
             } else {
                 special_.exception_.stack_fault = 1;
             }

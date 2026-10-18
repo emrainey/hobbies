@@ -39,10 +39,19 @@ struct Stack {
         return static_cast<uint32_t>(limit - base);
     }
 
-    /// Returns true if the given address is within the stack range, false otherwise. Note that the limit is exclusive,
-    /// so the valid stack addresses are [base, limit).
-    constexpr bool Contained(Address const& addr) const {
-        return (base <= addr) and (addr < limit);
+    /// Returns true if the stack pointer may legally hold the given value.
+    /// The storage is the half-open range [base, limit); the empty-stack pointer equals the exclusive limit, so the
+    /// legal pointer range is the closed interval [base, limit].
+    constexpr bool ContainsPointer(uint64_t pointer) const {
+        return (static_cast<uint64_t>(base.value) <= pointer) and (pointer <= static_cast<uint64_t>(limit.value));
+    }
+
+    /// Returns true if the byte range [start, start + size) lies within the stack storage [base, limit).
+    /// The size is expected to be a whole number of words.
+    constexpr bool ContainsBlock(uint64_t start, uint32_t size) const {
+        const uint64_t limit_value = static_cast<uint64_t>(limit.value);
+        return (static_cast<uint64_t>(base.value) <= start) and (start <= limit_value)
+               and (static_cast<uint64_t>(size) <= limit_value - start);
     }
 };
 

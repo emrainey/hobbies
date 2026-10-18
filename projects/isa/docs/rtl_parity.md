@@ -49,16 +49,19 @@ Milestone IDs refer to @ref rtl_roadmap.
 | P-021 | Breakpoints / persistence | DEFERRED (not planned for RTL) | — |
 | P-022 | Byte-strobed sub-word writes | `RTL-AHEAD` | M6 |
 | P-023 | `Move` shift builder truncates | `CPP-BUG` fixed | M1 |
+| P-024 | Taken control transfer resumes past its target | `CPP-BUG` — fixed | M3 |
+| P-025 | `Leap` immediate applied in bytes | `CPP-BUG` — fixed | M3 |
 
 ## Details
 
 ### P-001 — `Grow` stack-overflow condition
 
-`source/cpu.cpp:542-571`. The stack grows *down* from `limit` toward `base`, so growing subtracts
+`source/cpu.cpp:552-581`. The stack grows *down* from `limit` toward `base`, so growing subtracts
 from `current`. The original code accepted the operation when `next <= base` and raised
 `stack_fault` otherwise, which was inverted: `next <= base` is exactly the overflow case, and the
-normal case (`next > base`) faulted. This also made `demo/program1.hpp`'s `Grow{4}` fault against
-its configured stack (`current=0x10008000`, `base=0x10000000`).
+normal case (`next > base`) faulted. This also made the demo program of the time (`Grow{4}`) fault
+against its configured stack (`current=0x10008000`, `base=0x10000000`); that program has since been
+replaced, and the case is covered by the tests below.
 
 **Fixed (C++).** `Grow` now moves `current` down by `imm * 4` and succeeds only when the result is
 still at or above `base`; it sets `stack_fault` and leaves `current` unchanged when the result would
@@ -95,7 +98,7 @@ The RTL must reproduce these two predicates exactly in M3.
 
 ### P-003 — Divide-by-zero fault class
 
-`source/cpu.cpp:1005,1016,1030,1041,1055,1066`. Division/modulo by zero sets `instruction_fault`.
+`source/cpu.cpp:1016,1027,1041,1052,1066,1077`. Division/modulo by zero sets `instruction_fault`.
 The ISA defines a distinct `arithmetic_fault` (`include/isa/cpu.hpp:80`, `ExceptionType::ArithmeticFault`)
 and `docs/exceptions.md` lists arithmetic faults separately. Suspected wrong fault class in C++.
 Determines the `GetHandler` vector taken, so it matters for M8.
@@ -104,7 +107,7 @@ Determines the `GetHandler` vector taken, so it matters for M8.
 
 `include/isa/cpu.hpp:17-20` declares `InstructionCache` (`Cache<Instruction, 256, 1>`) and
 `DataCache` (`Cache<uint8_t, 1024, 16>`), but `Processor::Cycle()` reads and writes through
-`Peek`/`Poke` (`cpu.cpp:290-1318`) and never touches them. Documented design includes the caches, so
+`Peek`/`Poke` (`cpu.cpp:290-1329`) and never touches them. Documented design includes the caches, so
 per the roadmap they are in scope — C++ first (M10), then RTL.
 
 ### P-005 — Privilege not enforced
@@ -122,13 +125,13 @@ documented (`docs/exceptions.md`). C++ first (M8).
 ### P-007 — Interrupts not implemented
 
 `Ticker`, `Deferred`, `External`, `Unmaskable` and `Nested` have vector-table slots and `Exception`
-flag bits (`cpu.hpp:67-105`) and a `GetHandler` branch each (`cpu.cpp:1320-1376`), but no trigger
+flag bits (`cpu.hpp:67-105`) and a `GetHandler` branch each (`cpu.cpp:1331-1387`), but no trigger
 path exists in `Cycle()`. Note `deferred` is documented as "raised after the next instruction is
 executed", which needs a pending latch rather than an immediate redirect. C++ first (M9).
 
 ### P-008 — Floating-point precision semantics
 
-`source/cpu.cpp:1218-1307`. FP uses the host `float` and `fenv` (`FE_INEXACT`/`FE_UNDERFLOW`), and
+`source/cpu.cpp:1229-1318`. FP uses the host `float` and `fenv` (`FE_INEXACT`/`FE_UNDERFLOW`), and
 sets `flags.rounded = flags.inexact` (`:1301`) as an approximation. `FloatingDivision` also treats
 `|divisor| < epsilon` as divide-by-zero (`:1274`). None of this is bit-exactly reproducible in RTL;
 the FP strategy (real IEEE-754 unit vs. third-party core vs. independent reference vectors) is
@@ -136,13 +139,13 @@ deferred to M11.
 
 ### P-009 — `Load`/`Save` special-base encoding
 
-`source/cpu.cpp:389-396` (load) and `:435-442` (save). When `special==1` the `base` scratch index is
+`source/cpu.cpp:392-399` (load) and `:438-445` (save). When `special==1` the `base` scratch index is
 reused as a selector: `base==4` → stack current, `base==0` → program address, anything else →
 `instruction_fault`. Mirror exactly, including the fault case.
 
 ### P-010 — `Reverse` unit selector reuses `shift`
 
-`source/cpu.cpp:782-796`. For `Reverse`, the `shift` field is reinterpreted as a unit selector
+`source/cpu.cpp:792-806`. For `Reverse`, the `shift` field is reinterpreted as a unit selector
 (`0`=byte, `1`=half, `2`=word); a value `> 2` sets `instruction_fault`. The RTL decode must apply the
 same reinterpretation per-opcode.
 
@@ -168,7 +171,7 @@ order for the resulting memory image to be identical.
 
 ### P-013 — `Move` eval-to-eval semantics
 
-`source/cpu.cpp:336-347`. When both `dst` and `src` are Evaluation registers, `type==1`; the shift
+`source/cpu.cpp:339-350`. When both `dst` and `src` are Evaluation registers, `type==1`; the shift
 applies to the 8-bit eval value, and the source is zeroed when `dst != src` (as it is for scratch).
 Match the zeroing behaviour exactly.
 
@@ -178,7 +181,7 @@ where a left shift truncates at the byte (`0xFF << 4 == 0xF0`) and a shift of 8 
 
 ### P-014 — `MoveImmediate` eval/upper selection
 
-`source/cpu.cpp:350-357`. The `eval` bit selects an Evaluation destination and masks the immediate to
+`source/cpu.cpp:353-360`. The `eval` bit selects an Evaluation destination and masks the immediate to
 8 bits; otherwise `upper` picks the upper 16-bit half of the scratch register. The `upper`+eval
 combination is rejected at construction (`instructions.hpp:249`), so the RTL need not define it.
 
@@ -188,7 +191,7 @@ pins the surviving half and the 8-bit mask.
 
 ### P-015 — `Swap` load-then-store atomicity
 
-`source/cpu.cpp:358-367`. `Swap` peeks the address and pokes the exchanged value; if either fails it
+`source/cpu.cpp:361-370`. `Swap` peeks the address and pokes the exchanged value; if either fails it
 sets `bus_fault` and leaves the register untouched. The RTL must not partially commit the exchange
 on a fault.
 
@@ -205,13 +208,13 @@ Decide together whether the flag, the fault, or both apply.
 
 ### P-018 — `Negate` size encoding
 
-`source/cpu.cpp:1100-1133`. `neg.sXX` carries a 2-bit `size` in the top bits of the word and is
+`source/cpu.cpp:1111-1144`. `neg.sXX` carries a 2-bit `size` in the top bits of the word and is
 implemented as `Subtraction(0, src)` per width; the evaluation is written only when `cond` and no
 instruction fault occurred.
 
 ### P-020 — `Trip` redirect timing
 
-`source/cpu.cpp:665-683` sets `numeral.trip` and the `tripped` flag (and optionally the debug
+`source/cpu.cpp:676-694` sets `numeral.trip` and the `tripped` flag (and optionally the debug
 breakpoint) but does not redirect inline; the redirect happens in the `Cycle()` tail via
 `GetHandler()` (`:1312-1313`). The RTL FSM must place the redirect at the same commit point.
 
@@ -225,7 +228,7 @@ images). Debugger-side functionality, not architectural; not planned for RTL par
 `rtl/processor.sv` `mem_wstrb`. A sub-word `save` is a real strobed write in hardware: the lanes
 covered by `size`/`shift` are written and the remaining lanes are left unchanged. The C++ model does
 not model this. `Cycle()` writes only whole words and implements a sub-word `save` as a software
-read-modify-write — `source/cpu.cpp:475` peeks the word, merges the `size`/`shift`-selected bits, and
+read-modify-write — `source/cpu.cpp:478` peeks the word, merges the `size`/`shift`-selected bits, and
 pokes the result — and `Bus::Poke` accepts only one whole `AddressableUnitType`, which on the
 32-bit-unit flash and tightly-coupled buses is a `uint32_t`. There is no byte-granular write path in
 C++ at all.
@@ -245,8 +248,8 @@ the extra `log2` narrowed the immediate to 2 bits. `Immediate`'s constructor tak
 2-bit bitfield, so `Move{S1, S2, false, 4}` silently encoded a shift of **zero** rather than being
 rejected — `Move::ImmediateType{4}.value == 0`.
 
-This was not theoretical: `demo/program1.hpp:28` writes `Move{..., true, Move::ImmediateType{4}}`,
-which had been encoding a shift of 0.
+This was not theoretical: the demo program of the time wrote `Move{..., true, Move::ImmediateType{4}}`
+(it has since been replaced), which had been encoding a shift of 0.
 
 **CPP-BUG (fixed, M1).** Both models read the 5-bit field identically — `rtl/isa.sv`'s `move_t` and
 the C++ bitfield agree, which `gtest_layout` already verified — so this was a defect in the C++
@@ -265,6 +268,44 @@ the field it fills (`MoveImmediate`, `Zero` and the rest do).
 
 A shift literal of 32 or more still truncates to the low 5 bits, which is inherent to the encoding
 and now consistent with every other immediate.
+
+### P-024 — A taken control transfer resumed one instruction past its target
+
+`source/cpu.cpp`. `Cycle()` ends by advancing the Program Address to the instruction which comes next
+(`program_address_ += sizeof(Instruction)`). `Leap`, `LeapImmediate`, `Back` and `Call` had already
+written the address to run next, so the shared tail advanced them a second time and every taken
+control transfer landed **four bytes past its target**.
+
+`docs/instructions.md:57` (`PA = Sd + (sign_extend(#simm<10>) * 4)`) and `:61`
+(`PA = #addr<30:2> << 2`) are unambiguous that the target *is* the next Program Address, so the model
+was wrong rather than the documentation. No RTL depended on it yet — M1 implements no control
+transfer — so it surfaced through the demo program rather than through co-simulation: the fill loop
+restarted on its `save` instead of its `add`, the running value never advanced, and every generated
+word came out identical.
+
+**CPP-BUG (fixed, M3 prep).** `Cycle()` now records whether the instruction chose its own next address
+(`control_transferred`) and skips the tail increment when it did. The exception path is unchanged and
+still takes priority, and a `leap` whose condition is false still falls through. Six tests in
+`test/gtest_instruction.cpp` had frozen the wrong behaviour and were updated
+(`LeapJumpsToTargetAddress`, `ImmediateLeapJumpsToAbsoluteAddress`,
+`ImmediateLeapWithSaveStoresReturnAddress`, `BackJumpsToReturnAddress`,
+`BackWithZeroSetsReturnAddressToSafeHandler`, `CallJumpsToSystemCallHandlerAndStoresCallNumber`);
+`LeapThatIsNotTakenFallsThrough` was added so the incremental path stays pinned. The M3 RTL must land
+the target address directly.
+
+### P-025 — `Leap` immediate measured in bytes
+
+`source/cpu.cpp`. The same block added `leap.imm` to the base address as a raw byte count, while
+`docs/instructions.md:51` and the `Leap` field comment (`include/isa/instructions.hpp:555`) define it
+as a count of instructions which is scaled by four to become a byte offset. The two agree only for
+`imm == 0`, which is all the tests exercised, so nothing caught it.
+
+**CPP-BUG (fixed, M3 prep).** The offset is now
+`int64_t(leap.imm) * static_cast<int64_t>(sizeof(Instruction))`, computed in 64 bits so that neither
+the sign nor the scaling can wrap, with the existing overflow and underflow bus-fault guards applied
+to the scaled value. `LeapImmediateIsMeasuredInInstructions` and
+`LeapBackwardsScalesTheImmediateAndLandsOnTheTarget` pin `+2` and `-2` as eight bytes either way, which
+settles the immediate-scaling conflict recorded while the demo program was being written.
 
 ## Open questions
 

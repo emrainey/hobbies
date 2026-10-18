@@ -339,7 +339,42 @@ TEST_F(InstructionTest, LeapJumpsToTargetAddress) {
     RunSingleInstruction(isa::instructions::Instruction{
         isa::instructions::Leap{isa::Operand{isa::Operand::Type::Scratch, 1}, isa::SignedImmediate<10>{0}}});
 
-    EXPECT_EQ(0x10000184U, cpu.ViewSpecial().program_address_.value);
+    // The register holds the address to run next, so that is where the program address ends up: it is not advanced
+    // past it as it would be for a fall-through instruction.
+    EXPECT_EQ(0x10000180U, cpu.ViewSpecial().program_address_.value);
+}
+
+TEST_F(InstructionTest, LeapImmediateIsMeasuredInInstructions) {
+    // The immediate counts instructions rather than bytes, so two instructions ahead of the base is eight bytes on.
+    cpu.GetScratch()[1].as_address = isa::Address{0x10000180U};
+
+    RunSingleInstruction(isa::instructions::Instruction{
+        isa::instructions::Leap{isa::Operand{isa::Operand::Type::Scratch, 1}, isa::SignedImmediate<10>{2}}});
+
+    EXPECT_EQ(0x10000188U, cpu.ViewSpecial().program_address_.value);
+}
+
+TEST_F(InstructionTest, LeapBackwardsScalesTheImmediateAndLandsOnTheTarget) {
+    cpu.GetScratch()[1].as_address = isa::Address{0x10000180U};
+
+    RunSingleInstruction(isa::instructions::Instruction{
+        isa::instructions::Leap{isa::Operand{isa::Operand::Type::Scratch, 1}, isa::SignedImmediate<10>{-2}}});
+
+    EXPECT_EQ(0x10000178U, cpu.ViewSpecial().program_address_.value);
+}
+
+TEST_F(InstructionTest, LeapThatIsNotTakenFallsThrough) {
+    // The mask has a bit the evaluation does not, so the leap does not happen and the program address advances by the
+    // size of an instruction as it does for any other instruction.
+    cpu.GetEvaluations()[0].value = 0x00U;
+    cpu.GetEvaluations()[1].value = 0x20U;
+    cpu.GetScratch()[1].as_address = isa::Address{0x10000180U};
+
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Leap{
+        isa::Operand{isa::Operand::Type::Evaluation, 0}, isa::Operand{isa::Operand::Type::Evaluation, 1},
+        isa::Operand{isa::Operand::Type::Scratch, 1}, isa::SignedImmediate<10>{0}}});
+
+    EXPECT_EQ(kCodeAddress + 4U, cpu.ViewSpecial().program_address_.value);
 }
 
 TEST_F(InstructionTest, LeapBeyondMaximumAddressRaisesBusFault) {
@@ -381,7 +416,7 @@ TEST_F(InstructionTest, ImmediateLeapJumpsToAbsoluteAddress) {
     RunSingleInstruction(
         isa::instructions::Instruction{isa::instructions::LeapImmediate{isa::Address{0x10000180U}, false}});
 
-    EXPECT_EQ(0x10000184U, cpu.ViewSpecial().program_address_.value);
+    EXPECT_EQ(0x10000180U, cpu.ViewSpecial().program_address_.value);
     EXPECT_EQ(kCodeAddress + 0x40U, cpu.ViewSpecial().return_address_.value);
 }
 
@@ -390,7 +425,7 @@ TEST_F(InstructionTest, ImmediateLeapWithSaveStoresReturnAddress) {
         isa::instructions::Instruction{isa::instructions::LeapImmediate{isa::Address{0x100001C0U}, true}});
 
     EXPECT_EQ(kCodeAddress + 4U, cpu.ViewSpecial().return_address_.value);
-    EXPECT_EQ(0x100001C4U, cpu.ViewSpecial().program_address_.value);
+    EXPECT_EQ(0x100001C0U, cpu.ViewSpecial().program_address_.value);
 }
 
 TEST_F(InstructionTest, BackJumpsToReturnAddress) {
@@ -398,7 +433,7 @@ TEST_F(InstructionTest, BackJumpsToReturnAddress) {
 
     RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Back{false}});
 
-    EXPECT_EQ(0x100001C4U, cpu.ViewSpecial().program_address_.value);
+    EXPECT_EQ(0x100001C0U, cpu.ViewSpecial().program_address_.value);
     EXPECT_EQ(0x100001C0U, cpu.ViewSpecial().return_address_.value);
 }
 
@@ -407,7 +442,7 @@ TEST_F(InstructionTest, BackWithZeroSetsReturnAddressToSafeHandler) {
 
     RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Back{true}});
 
-    EXPECT_EQ(0x100001C4U, cpu.ViewSpecial().program_address_.value);
+    EXPECT_EQ(0x100001C0U, cpu.ViewSpecial().program_address_.value);
     EXPECT_EQ(kSafeHandler, cpu.ViewSpecial().return_address_.value);
 }
 
@@ -782,7 +817,7 @@ TEST_F(InstructionTest, CallJumpsToSystemCallHandlerAndStoresCallNumber) {
 
     EXPECT_EQ(7U, cpu.ViewSpecial().numeral_.call);
     EXPECT_EQ(kCodeAddress + 4U, cpu.ViewSpecial().return_address_.value);
-    EXPECT_EQ(kSystemCallHandler + 4U, cpu.ViewSpecial().program_address_.value);
+    EXPECT_EQ(kSystemCallHandler, cpu.ViewSpecial().program_address_.value);
 }
 
 TEST_F(InstructionTest, TripSetsExceptionAndJumpsToTripHandler) {

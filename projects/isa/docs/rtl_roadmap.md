@@ -111,7 +111,7 @@ raises `mem_fault` for unassigned addresses, matching `Bus::State::Fault`.
 `mem_wstrb` is a real strobe, not a "write zero to the unselected lanes" mask: a clear lane must
 survive the write unchanged. This is the first place the RTL is deliberately *ahead* of the C++
 model — `Cycle()` writes only whole 32-bit words, implementing a sub-word `save` as a software
-read-modify-write (`source/cpu.cpp:475` peeks the word, merges the size/shift-selected bits, pokes it
+read-modify-write (`source/cpu.cpp:478` peeks the word, merges the size/shift-selected bits, pokes it
 back), and `Bus::Poke` accepts only one whole `AddressableUnitType`, which on the 32-bit-unit flash
 and tightly-coupled buses is a `uint32_t`. The C++ side therefore has no byte-granular write path at
 all. The RTL drives strobes directly, so **parity for sub-word stores is asserted on the final memory
@@ -227,6 +227,10 @@ target_link_libraries(gtest_isa_rtl_processor
   the eventual FP unit may require independent reference vectors, not the C++ model.
 * **Wide vs. narrow stores.** Sub-word `save` uses byte enables (`mem_wstrb`); the C++ model does
   read-modify-write via `Poke`. Both must agree on endianness and byte placement.
+* **Control-transfer addressing.** P-024 (a taken `leap`, `LeapImmediate`, `back` or `call` resumed one
+  instruction past its target) and P-025 (a `leap`'s relative immediate was applied in bytes instead of
+  instructions) are both fixed in C++; see @ref rtl_parity. The M3 RTL must land the target address
+  directly and scale the relative immediate by the size of an instruction.
 * **Stack bound conditions.** P-001 (the inverted `Grow` predicate), P-002 (the split bounds idioms)
   and P-012 (`Push`/`Pull` ordering) are fixed in C++; see @ref rtl_parity. `Stack::ContainsPointer`
   and `Stack::ContainsBlock` are the reference predicates, and `Push`/`Pull` both walk ascending. The

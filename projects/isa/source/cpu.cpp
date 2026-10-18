@@ -297,6 +297,9 @@ void Processor::Cycle() {
         // If we fail to fetch an instruction, we'll treat it as a NoOp and just advance the program counter.
         instruction = instructions::Instruction{instructions::NoOp{}};
     }
+    // Set by the instructions which choose the next Program Address themselves (the leaps, a return and a call).
+    // Those instructions already hold the address to run next, so they must not also be advanced past it below.
+    bool control_transferred = false;
     switch (instruction.base()) {
         case isa::Operator::None:
             // Do nothing
@@ -487,6 +490,7 @@ void Processor::Cycle() {
                     special_.return_address_ = special_.program_address_ + sizeof(instructions::Instruction);
                 }
                 special_.program_address_ = Address{instruction.raw & isa::ImmediateLeapAddressMask};
+                control_transferred = true;
                 break;
             }
 
@@ -505,30 +509,36 @@ void Processor::Cycle() {
                     // to leap to the target instruction.
                     special_.return_address_ = special_.program_address_ + sizeof(instructions::Instruction);
                 }
-                if (leap.imm > 0) {
-                    const Address base = scratch_[leap.dst].as_address;
-                    const auto offset = static_cast<isa::Address::StorageType>(leap.imm);
+                // The immediate is measured in instructions rather than in bytes, so it is scaled by the size of an
+                // instruction before it is applied to the base address. The arithmetic is done in 64 bits so that
+                // neither the sign nor the scaling can wrap around.
+                const Address base = scratch_[leap.dst].as_address;
+                const auto byte_offset
+                    = static_cast<int64_t>(leap.imm) * static_cast<int64_t>(sizeof(instructions::Instruction));
+                if (byte_offset > 0) {
+                    const auto offset = static_cast<isa::Address::StorageType>(byte_offset);
                     if (base.value > std::numeric_limits<isa::Address::StorageType>::max() - offset) {
                         special_.exception_.bus_fault = 1;
                         break;
                     }
                     special_.program_address_ = base + Address{offset};
-                } else if (leap.imm < 0) {
-                    const Address base = scratch_[leap.dst].as_address;
-                    const auto offset = static_cast<isa::Address::StorageType>(-leap.imm);
+                } else if (byte_offset < 0) {
+                    const auto offset = static_cast<isa::Address::StorageType>(-byte_offset);
                     if (base.value < offset) {
                         special_.exception_.bus_fault = 1;
                         break;
                     }
                     special_.program_address_ = base - Address{offset};
                 } else {
-                    special_.program_address_ = scratch_[leap.dst].as_address;
+                    special_.program_address_ = base;
                 }
+                control_transferred = true;
             }
             break;
         }
         case Operator::Back:
             special_.program_address_ = special_.return_address_;
+            control_transferred = true;
             if (instruction.back.zero) {
                 Address safe_handler{0U};
                 uint32_t offset = offsetof(VectorTable, safe_handler);
@@ -656,6 +666,7 @@ void Processor::Cycle() {
                 if (Peek(special_.vector_table_address_ + offset, handler.value)) {
                     special_.numeral_.call = call.imm;
                     special_.program_address_ = handler;
+                    control_transferred = true;
                 } else {
                     special_.exception_.bus_fault = 1;
                 }
@@ -1311,7 +1322,7 @@ void Processor::Cycle() {
     }
     if (special_.exception_.HasException()) {
         special_.program_address_ = GetHandler();
-    } else {
+    } else if (not control_transferred) {
         special_.program_address_ += sizeof(instructions::Instruction);
     }
     special_.performance_counter_ += 1;

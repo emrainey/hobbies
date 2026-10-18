@@ -30,7 +30,7 @@ module processor
     // Architectural state, exposed for the lockstep harness
     output word_t      scratch[SCRATCH_COUNT],
     output byte_t      evaluation[EVAL_COUNT],
-    output word_t      special[16],
+    output word_t      special[SPECIAL_COUNT],
 
     // Commit handshake
     output logic retire,
@@ -39,23 +39,24 @@ module processor
 );
 
     // Mirrors isa::DefaultVectorTableAddress (include/isa/map.hpp, Map[1].start).
-    localparam address_t DEFAULT_VECTOR_TABLE_ADDRESS = 32'h0010_0000;
+    // Unsized so the width is taken from `address_t`; a parameter cannot be used as
+    // the size of a based literal (`ADDRESS_SIZE'h...` is a syntax error).
+    localparam address_t DEFAULT_VECTOR_TABLE_ADDRESS = 'h0010_0000;
 
-    // Special-register word indices, matching isa::Special (include/isa/cpu.hpp).
-    localparam int SPECIAL_PA = 0;
-    localparam int SPECIAL_RA = 1;
-    localparam int SPECIAL_VTA = 2;
-    localparam int SPECIAL_STACK_LIMIT = 3;
-    localparam int SPECIAL_STACK_CURRENT = 4;
-    localparam int SPECIAL_STACK_BASE = 5;
-    localparam int SPECIAL_EXC_STACK_LIMIT = 6;
-    localparam int SPECIAL_EXC_STACK_CURRENT = 7;
-    localparam int SPECIAL_EXC_STACK_BASE = 8;
-    localparam int SPECIAL_MODE = 11;
-    localparam int SPECIAL_PERFORMANCE_COUNTER = 13;
+    // Special-register word indices (SPECIAL_*) come from the generated isa package,
+    // which the C++ model binds to its own field offsets with static_asserts.
+
+    // Mode register layout. Packed structs list the most significant field first,
+    // the reverse of the C++ bitfield order (isa::Mode allocates from bit 0).
+    typedef struct packed {
+        logic [WORD_SIZE-3-1:0] reserved;
+        logic                   nonprivileged;
+        logic                   privileged;
+        logic                   exception;
+    } mode_t;
 
     // Mode at reset: Exception=0, Privileged=0, NonPrivileged=1 (isa::Mode's default).
-    localparam word_t MODE_RESET = 32'h0000_0004;
+    localparam mode_t MODE_RESET = '{nonprivileged: 1'b1, default: '0};
 
     // Vector-table word offsets, matching isa::VectorTable.
     localparam logic [2:0] BOOT_STACK_INITIAL = 3'd0;
@@ -84,7 +85,7 @@ module processor
         if (state == S_BOOT) begin
             mem_addr = DEFAULT_VECTOR_TABLE_ADDRESS + (address_t'(boot_index) << 2);
         end else if (state == S_FETCH) begin
-            mem_addr = special[SPECIAL_PA];
+            mem_addr = special[SPECIAL_PROGRAM_ADDRESS];
         end else begin
             mem_addr = '0;
         end
@@ -104,10 +105,10 @@ module processor
             for (int i = 0; i < EVAL_COUNT; i++) begin
                 evaluation[i] <= '1;
             end
-            for (int i = 0; i < 16; i++) begin
+            for (int i = 0; i < SPECIAL_COUNT; i++) begin
                 special[i] <= '0;
             end
-            special[SPECIAL_VTA]  <= DEFAULT_VECTOR_TABLE_ADDRESS;
+            special[SPECIAL_VECTOR_TABLE_ADDRESS] <= DEFAULT_VECTOR_TABLE_ADDRESS;
             special[SPECIAL_MODE] <= MODE_RESET;
         end else begin
             case (state)
@@ -123,15 +124,15 @@ module processor
                                 special[SPECIAL_STACK_BASE] <= mem_rdata;
                             end
                             BOOT_EXC_STACK_INITIAL: begin
-                                special[SPECIAL_EXC_STACK_LIMIT]   <= mem_rdata;
-                                special[SPECIAL_EXC_STACK_CURRENT] <= mem_rdata;
+                                special[SPECIAL_EXCEPTION_STACK_LIMIT]   <= mem_rdata;
+                                special[SPECIAL_EXCEPTION_STACK_CURRENT] <= mem_rdata;
                             end
                             BOOT_EXC_STACK_BOUNDARY: begin
-                                special[SPECIAL_EXC_STACK_BASE] <= mem_rdata;
+                                special[SPECIAL_EXCEPTION_STACK_BASE] <= mem_rdata;
                             end
                             default: begin
-                                special[SPECIAL_PA] <= mem_rdata;
-                                special[SPECIAL_RA] <= mem_rdata;
+                                special[SPECIAL_PROGRAM_ADDRESS] <= mem_rdata;
+                                special[SPECIAL_RETURN_ADDRESS] <= mem_rdata;
                             end
                         endcase
                     end
@@ -150,7 +151,7 @@ module processor
                 end
 
                 S_COMMIT: begin
-                    special[SPECIAL_PA]                  <= special[SPECIAL_PA] + 32'd4;
+                    special[SPECIAL_PROGRAM_ADDRESS]     <= special[SPECIAL_PROGRAM_ADDRESS] + 32'd4;
                     special[SPECIAL_PERFORMANCE_COUNTER] <= special[SPECIAL_PERFORMANCE_COUNTER] + 32'd1;
                     retire                               <= 1'b1;
                     state                                <= S_FETCH;

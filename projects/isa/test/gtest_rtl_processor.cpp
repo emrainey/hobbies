@@ -112,6 +112,12 @@ TEST_F(RtlProcessorTest, ResetStateMatchesTheFastModel) {
     ExpectStateMatches();
 }
 
+TEST_F(RtlProcessorTest, ExposedStateWidthsMatchTheFastModel) {
+    EXPECT_EQ(isa::CountOfScratchRegisters, dut.scratch.size());
+    EXPECT_EQ(isa::CountOfEvaluationRegisters, dut.evaluation.size());
+    EXPECT_EQ(isa::CountOfSpecialRegisters, dut.special.size());
+}
+
 TEST_F(RtlProcessorTest, ErasedProgramRetiresNoOpsInLockstep) {
     for (uint32_t step = 0U; step < kRetiredSteps; ++step) {
         SCOPED_TRACE(::testing::Message() << "step " << step);

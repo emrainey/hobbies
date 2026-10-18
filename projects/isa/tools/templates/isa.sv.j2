@@ -26,6 +26,14 @@ typedef logic [EVAL_INDEX_W-1:0]    eval_idx_t;
 localparam word_t ERASED_WORD = '1;  // an erased flash word decodes as a noop
 localparam word_t UNDEFINED = 32'hDEAD_BEEF;
 
+// === Special register indices ===
+// The word index of each special register, in isa::Special order. The C++ model
+// static_asserts its own field offsets against these.
+localparam int SPECIAL_COUNT = {{ special_count }};
+{% for s in special %}
+localparam int {{ s.sv }} = {{ s.index }};{{ ('  // ' + s.comment) if s.comment else '' }}
+{% endfor %}
+
 // === Enumerations ===
 {% for e in enums %}
 typedef enum logic [{{ e.width - 1 }}:0] {

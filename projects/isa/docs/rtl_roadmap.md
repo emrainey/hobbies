@@ -35,6 +35,12 @@ The single source of truth already exists: `docs/instructions.json` renders `rtl
 staleness test (`isa_generated_sources_are_current`). Keep it that way — every new field or opcode
 goes through the generator, never hand-edited in `isa.sv`.
 
+The spec also carries the **special-register list**. Its word indices are emitted as
+`SPECIAL_*` localparams in `isa.sv` and as `isa::special::*` in `operator.hpp`, and `cpu.hpp`
+binds its own `isa::Special` field offsets to them with `static_assert`, so reordering a field
+or an entry is a compile error rather than a silent RTL/C++ mismatch. The RTL therefore names
+special registers (`special[SPECIAL_MODE]`) instead of using magic numbers.
+
 ## Cycle contract
 
 `Processor::Cycle()` retires exactly one instruction. The RTL must expose the same boundary so the
@@ -63,6 +69,9 @@ mismatch is a @ref rtl_parity row, not an immediate failure.
 * `special` is zeroed, then `vector_table_address_` is set to `0x0010_0000`
   (`isa::DefaultVectorTableAddress`) and `mode_` to `0x0000_0004` (`Mode` defaults to
   `nonprivileged = 1`). This last one is easy to miss because `Special{}` is otherwise all zero.
+  The RTL builds it from a `mode_t` packed struct with a named assignment pattern
+  (`'{nonprivileged: 1'b1, default: '0}`); packed-struct members are listed most-significant
+  first, the reverse of the C++ bitfield order.
 * Five words are read from the vector table and patched in:
   `stack_initial` → stack `limit`/`current`, `stack_boundary` → stack `base`,
   `exception_stack_initial` → exception stack `limit`/`current`,

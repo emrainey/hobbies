@@ -8,6 +8,24 @@
     "imm10_w": 10,
     "imm16_w": 16
   },
+  "special_registers": [
+    {"name": "program_address", "comment": "PA: the address of the instruction being executed"},
+    {"name": "return_address", "comment": "RA: the address control flow returns to"},
+    {"name": "vector_table_address", "comment": "VTA: base of the exception handler vector table"},
+    {"name": "stack_limit", "comment": "CPU stack SLA: exclusive top (the empty-stack pointer)"},
+    {"name": "stack_current", "comment": "CPU stack SCA: the current pointer"},
+    {"name": "stack_base", "comment": "CPU stack SBA: the inclusive lowest address"},
+    {"name": "exception_stack_limit", "comment": "Exception stack: exclusive top"},
+    {"name": "exception_stack_current", "comment": "Exception stack: current pointer"},
+    {"name": "exception_stack_base", "comment": "Exception stack: inclusive lowest address"},
+    {"name": "exception", "comment": "Flags of the exception currently being handled"},
+    {"name": "exception_mask", "comment": "Mask of enabled exceptions"},
+    {"name": "mode", "comment": "Processor mode: exception/privileged/nonprivileged"},
+    {"name": "numeral", "comment": "Call and trip immediate values"},
+    {"name": "performance_counter", "comment": "Retired-instruction counter"},
+    {"name": "reserved_0", "comment": "Reserved for future expansion"},
+    {"name": "reserved_1", "comment": "Reserved for future expansion"}
+  ],
   "derived": {
     "scratch_index_w": "clog2(scratch_count)",
     "eval_index_w": "clog2(eval_count)",

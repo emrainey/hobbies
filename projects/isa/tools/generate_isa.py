@@ -50,6 +50,7 @@ class Spec:
     def __init__(self, data):
         self.data = data
         self.values = dict(data["parameters"])
+        self.values["special_count"] = len(data["special_registers"])
         self.exprs = {k: k for k in self.values}
         for name, expr in data["derived"].items():
             self.values[name] = self.evaluate(expr)
@@ -105,8 +106,15 @@ class Spec:
             seen[i["opcode"]] = i["name"]
             instructions.append({**i, "sv": "OP_" + snake_upper(i["name"]),
                                  "hex": f"{i['opcode']:0{(self.op_bits + 3) // 4}X}"})
+        special = [
+            {"name": r["name"], "sv": "SPECIAL_" + snake_upper(r["name"]), "cpp": camel(r["name"]),
+             "index": i, "comment": r.get("comment", "")}
+            for i, r in enumerate(self.data["special_registers"])
+        ]
         return {
             "parameters": [{"name": k, "sv": k.upper(), "value": v} for k, v in self.data["parameters"].items()],
+            "special": special,
+            "special_count": len(special),
             "derived": [{"name": k, "sv": k.upper(), "expr": e, "sv_expr": to_sv(e), "value": self.values[k]}
                         for k, e in self.data["derived"].items()],
             "enums": [{"name": k, **v} for k, v in self.data["enums"].items()],

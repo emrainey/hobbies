@@ -32,4 +32,12 @@ constexpr Field {{ f.camel }}[]{
 {% endfor %}
 
 }  // namespace layout
+
+/// Word indices of the special registers, in isa::Special order.
+namespace special {
+{% for s in special %}
+constexpr size_t {{ s.cpp }} = {{ s.index }};{{ ('  ///< ' + s.comment) if s.comment else '' }}
+{% endfor %}
+constexpr size_t Count = {{ special_count }};
+}  // namespace special
 }  // namespace isa

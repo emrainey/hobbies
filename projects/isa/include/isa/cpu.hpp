@@ -450,8 +450,30 @@ static_assert(sizeof(Special) == CountOfSpecialRegisters * sizeof(Address),
               "Special union must be the size of the number of special registers times the size of an Address for "
               "efficient storage and manipulation");
 
-constexpr static size_t ProgramAddressIndex{0U};
-constexpr static size_t StackCurrentIndex{4U};
+/// The special-register layout is generated (tools/generate_isa.py -> isa/operator.hpp). Bind the C++ field order to
+/// the generated word indices so reordering or inserting a field fails here rather than silently corrupting the RTL.
+static_assert(offsetof(Special, program_address_) == special::ProgramAddress * sizeof(Address));
+static_assert(offsetof(Special, return_address_) == special::ReturnAddress * sizeof(Address));
+static_assert(offsetof(Special, vector_table_address_) == special::VectorTableAddress * sizeof(Address));
+static_assert(offsetof(Special, stack_) + offsetof(Stack, limit) == special::StackLimit * sizeof(Address));
+static_assert(offsetof(Special, stack_) + offsetof(Stack, current) == special::StackCurrent * sizeof(Address));
+static_assert(offsetof(Special, stack_) + offsetof(Stack, base) == special::StackBase * sizeof(Address));
+static_assert(offsetof(Special, exception_stack_) + offsetof(Stack, limit)
+              == special::ExceptionStackLimit * sizeof(Address));
+static_assert(offsetof(Special, exception_stack_) + offsetof(Stack, current)
+              == special::ExceptionStackCurrent * sizeof(Address));
+static_assert(offsetof(Special, exception_stack_) + offsetof(Stack, base)
+              == special::ExceptionStackBase * sizeof(Address));
+static_assert(offsetof(Special, exception_) == special::Exception * sizeof(Address));
+static_assert(offsetof(Special, exception_mask_) == special::ExceptionMask * sizeof(Address));
+static_assert(offsetof(Special, mode_) == special::Mode * sizeof(Address));
+static_assert(offsetof(Special, numeral_) == special::Numeral * sizeof(Address));
+static_assert(offsetof(Special, performance_counter_) == special::PerformanceCounter * sizeof(Address));
+static_assert(offsetof(Special, reserved_) == special::Reserved0 * sizeof(Address));
+static_assert(CountOfSpecialRegisters == special::Count);
+
+constexpr static size_t ProgramAddressIndex{special::ProgramAddress};
+constexpr static size_t StackCurrentIndex{special::StackCurrent};
 
 /// The evaluation registers
 using Evaluations = std::array<Evaluation, CountOfEvaluationRegisters>;

@@ -31,6 +31,27 @@ typedef logic [EVAL_INDEX_W-1:0]    eval_idx_t;
 localparam word_t ERASED_WORD = '1;  // an erased flash word decodes as a noop
 localparam word_t UNDEFINED = 32'hDEAD_BEEF;
 
+// === Special register indices ===
+// The word index of each special register, in isa::Special order. The C++ model
+// static_asserts its own field offsets against these.
+localparam int SPECIAL_COUNT = 16;
+localparam int SPECIAL_PROGRAM_ADDRESS = 0;  // PA: the address of the instruction being executed
+localparam int SPECIAL_RETURN_ADDRESS = 1;  // RA: the address control flow returns to
+localparam int SPECIAL_VECTOR_TABLE_ADDRESS = 2;  // VTA: base of the exception handler vector table
+localparam int SPECIAL_STACK_LIMIT = 3;  // CPU stack SLA: exclusive top (the empty-stack pointer)
+localparam int SPECIAL_STACK_CURRENT = 4;  // CPU stack SCA: the current pointer
+localparam int SPECIAL_STACK_BASE = 5;  // CPU stack SBA: the inclusive lowest address
+localparam int SPECIAL_EXCEPTION_STACK_LIMIT = 6;  // Exception stack: exclusive top
+localparam int SPECIAL_EXCEPTION_STACK_CURRENT = 7;  // Exception stack: current pointer
+localparam int SPECIAL_EXCEPTION_STACK_BASE = 8;  // Exception stack: inclusive lowest address
+localparam int SPECIAL_EXCEPTION = 9;  // Flags of the exception currently being handled
+localparam int SPECIAL_EXCEPTION_MASK = 10;  // Mask of enabled exceptions
+localparam int SPECIAL_MODE = 11;  // Processor mode: exception/privileged/nonprivileged
+localparam int SPECIAL_NUMERAL = 12;  // Call and trip immediate values
+localparam int SPECIAL_PERFORMANCE_COUNTER = 13;  // Retired-instruction counter
+localparam int SPECIAL_RESERVED_0 = 14;  // Reserved for future expansion
+localparam int SPECIAL_RESERVED_1 = 15;  // Reserved for future expansion
+
 // === Enumerations ===
 typedef enum logic [1:0] {
     SIZE_BYTE = 2'd0,

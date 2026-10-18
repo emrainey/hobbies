@@ -251,4 +251,25 @@ constexpr Field FloatUnary[]{
 };
 
 }  // namespace layout
+
+/// Word indices of the special registers, in isa::Special order.
+namespace special {
+constexpr size_t ProgramAddress = 0;  ///< PA: the address of the instruction being executed
+constexpr size_t ReturnAddress = 1;  ///< RA: the address control flow returns to
+constexpr size_t VectorTableAddress = 2;  ///< VTA: base of the exception handler vector table
+constexpr size_t StackLimit = 3;  ///< CPU stack SLA: exclusive top (the empty-stack pointer)
+constexpr size_t StackCurrent = 4;  ///< CPU stack SCA: the current pointer
+constexpr size_t StackBase = 5;  ///< CPU stack SBA: the inclusive lowest address
+constexpr size_t ExceptionStackLimit = 6;  ///< Exception stack: exclusive top
+constexpr size_t ExceptionStackCurrent = 7;  ///< Exception stack: current pointer
+constexpr size_t ExceptionStackBase = 8;  ///< Exception stack: inclusive lowest address
+constexpr size_t Exception = 9;  ///< Flags of the exception currently being handled
+constexpr size_t ExceptionMask = 10;  ///< Mask of enabled exceptions
+constexpr size_t Mode = 11;  ///< Processor mode: exception/privileged/nonprivileged
+constexpr size_t Numeral = 12;  ///< Call and trip immediate values
+constexpr size_t PerformanceCounter = 13;  ///< Retired-instruction counter
+constexpr size_t Reserved0 = 14;  ///< Reserved for future expansion
+constexpr size_t Reserved1 = 15;  ///< Reserved for future expansion
+constexpr size_t Count = 16;
+}  // namespace special
 }  // namespace isa

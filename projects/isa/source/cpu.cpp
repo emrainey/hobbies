@@ -549,15 +549,19 @@ void Processor::Cycle() {
                 allowed = (eval & mask) != 0U;
             }
             if (allowed) {
-                /// Grow the Stack Pointer by the immediate value * 4 (since the immediate value is in terms of 32-bit
-                /// words) Growth of a Stack is _downwards_ in memory, so we subtract the immediate value from the
-                /// current Stack Pointer to grow the stack. We also need to check for stack overflow by ensuring that
-                /// we don't grow the stack beyond its limit.
-                Address next = special_.stack_.current - Address{static_cast<isa::Address::StorageType>(grow.imm * 4U)};
-                if (next <= special_.stack_.base) {
-                    special_.stack_.current = next;
-                } else {
+                /// The stack grows downwards, so growing subtracts the immediate (expressed in 32-bit words) from the
+                /// current pointer. The base address is the lowest usable address and is inclusive, so the new pointer
+                /// must not drop below it. Guard the subtraction as well so a pointer near zero cannot wrap.
+                const auto amount = static_cast<isa::Address::StorageType>(grow.imm * 4U);
+                if (special_.stack_.current.value < amount) {
                     special_.exception_.stack_fault = 1;
+                } else {
+                    const Address next = special_.stack_.current - Address{amount};
+                    if (next < special_.stack_.base) {
+                        special_.exception_.stack_fault = 1;
+                    } else {
+                        special_.stack_.current = next;
+                    }
                 }
             }
             break;

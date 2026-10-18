@@ -432,9 +432,63 @@ TEST_F(InstructionTest, PrivilegeExceptionRoutesAboveSafeAndExternalPriority) {
 }
 
 TEST_F(InstructionTest, GrowMovesStackPointerDownByImmediateWords) {
+    auto& stack = cpu.GetSpecial().stack_;
+    stack.base = isa::Address{0x10000000U};
+    stack.current = isa::Address{0x10001000U};
+    stack.limit = isa::Address{0x10002000U};
+
     RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Grow{isa::Immediate<10>{1U}}});
 
     EXPECT_EQ(0x10000FFCU, cpu.ViewSpecial().stack_.current.value);
+    EXPECT_FALSE(cpu.ViewSpecial().exception_.stack_fault);
+}
+
+TEST_F(InstructionTest, GrowCanReachStackBase) {
+    auto& stack = cpu.GetSpecial().stack_;
+    stack.base = isa::Address{0x10000000U};
+    stack.current = isa::Address{0x10000004U};
+    stack.limit = isa::Address{0x10002000U};
+
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Grow{isa::Immediate<10>{1U}}});
+
+    EXPECT_EQ(0x10000000U, cpu.ViewSpecial().stack_.current.value);
+    EXPECT_FALSE(cpu.ViewSpecial().exception_.stack_fault);
+}
+
+TEST_F(InstructionTest, GrowSetsStackFaultWhenGrowingBelowBase) {
+    auto& stack = cpu.GetSpecial().stack_;
+    stack.base = isa::Address{0x10000000U};
+    stack.current = isa::Address{0x10000004U};
+    stack.limit = isa::Address{0x10002000U};
+
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Grow{isa::Immediate<10>{2U}}});
+
+    EXPECT_TRUE(cpu.ViewSpecial().exception_.stack_fault);
+    EXPECT_EQ(0x10000004U, cpu.ViewSpecial().stack_.current.value);
+}
+
+TEST_F(InstructionTest, GrowSetsStackFaultWhenThePointerWouldWrap) {
+    auto& stack = cpu.GetSpecial().stack_;
+    stack.base = isa::Address{0x00000000U};
+    stack.current = isa::Address{0x00000002U};
+    stack.limit = isa::Address{0x00001000U};
+
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Grow{isa::Immediate<10>{1U}}});
+
+    EXPECT_TRUE(cpu.ViewSpecial().exception_.stack_fault);
+    EXPECT_EQ(0x00000002U, cpu.ViewSpecial().stack_.current.value);
+}
+
+TEST_F(InstructionTest, GrowByZeroDoesNotMoveOrFault) {
+    auto& stack = cpu.GetSpecial().stack_;
+    stack.base = isa::Address{0x10000000U};
+    stack.current = isa::Address{0x10002000U};
+    stack.limit = isa::Address{0x10002000U};
+
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Grow{isa::Immediate<10>{0U}}});
+
+    EXPECT_EQ(0x10002000U, cpu.ViewSpecial().stack_.current.value);
+    EXPECT_FALSE(cpu.ViewSpecial().exception_.stack_fault);
 }
 
 TEST_F(InstructionTest, FallMovesStackPointerUpByImmediateWords) {

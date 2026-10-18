@@ -12,7 +12,10 @@ The plan below reflects these agreed decisions:
 * **Microarchitecture:** single-cycle / multi-cycle *functional parity first*. The 4-stage pipeline in
   @ref pipeline is a later micro-architecture step (M12), layered over a proven golden harness.
 * **Oracle:** the C++ model. When the two disagree we decide case-by-case which is wrong and record
-  the call in @ref rtl_parity.
+  the call in @ref rtl_parity. The C++ model is the oracle for *the milestones in the order below*,
+  not in perpetuity: where the RTL is deliberately more faithful to the documented design — a real
+  byte-strobed write where C++ performs a read-modify-write — the ledger records `RTL-AHEAD` and
+  parity is asserted one level up, at the architectural result, rather than on the transaction.
 * **Floating point:** deferred. FP phases (M11) sit after the integer core, exception handling and
   caches.
 * **Parity target:** *the documented design*, not merely what `Processor::Cycle()` happens to execute
@@ -93,13 +96,22 @@ A single unified word-bus port, routed by the testbench through the same address
 | `mem_write` | out | 1 | 1 = write, 0 = read |
 | `mem_addr` | out | 32 | Word-aligned address |
 | `mem_wdata` | out | 32 | Write data |
-| `mem_wstrb` | out | 4 | Byte enables for sub-word writes |
+| `mem_wstrb` | out | 4 | Write strobe: lane `i` is written; a clear lane is left unchanged |
 | `mem_rdata` | in | 32 | Combinational response to `mem_addr`, sampled on the next rising edge |
 | `mem_fault` | in | 1 | Unassigned/unaligned/faulting access |
 
 Read data returns combinationally (SRAM-like) so a fetch closes in the following cycle; the
 testbench routes `mem_addr` through `isa::memory::Map` and the attached `isa::Memory` objects and
 raises `mem_fault` for unassigned addresses, matching `Bus::State::Fault`.
+
+`mem_wstrb` is a real strobe, not a "write zero to the unselected lanes" mask: a clear lane must
+survive the write unchanged. This is the first place the RTL is deliberately *ahead* of the C++
+model — `Cycle()` writes only whole 32-bit words, implementing a sub-word `save` as a software
+read-modify-write (`source/cpu.cpp:475` peeks the word, merges the size/shift-selected bits, pokes it
+back), and `Bus::Poke` accepts only one whole `AddressableUnitType`, which on the 32-bit-unit flash
+and tightly-coupled buses is a `uint32_t`. The C++ side therefore has no byte-granular write path at
+all. The RTL drives strobes directly, so **parity for sub-word stores is asserted on the final memory
+image after the step, not on the bus transactions** — P-022 in @ref rtl_parity.
 
 ## Co-simulation harness
 

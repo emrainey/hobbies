@@ -18,6 +18,7 @@ When the two models disagree, determine which side is wrong and record the call:
 | `RTL-BUG` | The RTL is wrong; C++ is the reference |
 | `SPEC` | Both are defensible; the docs are ambiguous and need a decision first |
 | `DEFERRED` | Agreed to differ for now; revisit at the named milestone |
+| `RTL-AHEAD` | The RTL is intentionally *more* faithful than the C++ model; parity is asserted at the architectural result, not the bus transaction |
 | `MATCHED` | Verified matching, kept here as a regression anchor |
 
 Milestone IDs refer to @ref rtl_roadmap.
@@ -46,6 +47,7 @@ Milestone IDs refer to @ref rtl_roadmap.
 | P-018 | `Negate` size encoding | OPEN | M7 |
 | P-020 | `Trip` redirect timing | OPEN | M3/M8 |
 | P-021 | Breakpoints / persistence | DEFERRED (not planned for RTL) | — |
+| P-022 | Byte-strobed sub-word writes | `RTL-AHEAD` | M6 |
 
 ## Details
 
@@ -208,6 +210,22 @@ breakpoint) but does not redirect inline; the redirect happens in the `Cycle()` 
 
 `source/cpu.cpp:96-141,143-278` (16 breakpoints, `Save`/`Load` of scratch/special/eval/cache/memory
 images). Debugger-side functionality, not architectural; not planned for RTL parity.
+
+### P-022 — Byte-strobed sub-word writes
+
+`rtl/processor.sv` `mem_wstrb`. A sub-word `save` is a real strobed write in hardware: the lanes
+covered by `size`/`shift` are written and the remaining lanes are left unchanged. The C++ model does
+not model this. `Cycle()` writes only whole words and implements a sub-word `save` as a software
+read-modify-write — `source/cpu.cpp:475` peeks the word, merges the `size`/`shift`-selected bits, and
+pokes the result — and `Bus::Poke` accepts only one whole `AddressableUnitType`, which on the
+32-bit-unit flash and tightly-coupled buses is a `uint32_t`. There is no byte-granular write path in
+C++ at all.
+
+**RTL-AHEAD.** The RTL behaviour is the faithful one and is kept; this is a case of the C++ shortcut
+being an implementation detail rather than a specification. The consequence is that a sub-word store
+step cannot be compared as a bus transaction, and the lockstep check must instead diff the **memory
+image** after both models retire (the M0 harness already services the DUT bus from `oracle.Peek`).
+Revisit at M6, where `Load`/`Save` make it concrete.
 
 ## Open questions
 

@@ -25,6 +25,16 @@ verilate(isa_rtl_sim
         ${CMAKE_CURRENT_SOURCE_DIR}/rtl/isa.sv
         ${CMAKE_CURRENT_SOURCE_DIR}/rtl/decoder.sv
 )
+
+add_library(isa_rtl_processor_sim)
+
+verilate(isa_rtl_processor_sim
+    PREFIX Vprocessor
+    TOP_MODULE processor
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/rtl/isa.sv
+        ${CMAKE_CURRENT_SOURCE_DIR}/rtl/processor.sv
+)
 endif()
 
 add_library(hobbies-isa
@@ -132,6 +142,10 @@ if (BUILD_UNIT_TESTS AND Threads_FOUND AND GTest_FOUND)
         add_executable(gtest_isa_rtl ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_rtl_decoder.cpp)
         target_link_libraries(gtest_isa_rtl PRIVATE isa_rtl_sim hobbies-isa GTest::gtest GTest::gtest_main Threads::Threads)
         add_test(NAME gtest_isa_rtl COMMAND gtest_isa_rtl)
+
+        add_executable(gtest_isa_rtl_processor ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_rtl_processor.cpp)
+        target_link_libraries(gtest_isa_rtl_processor PRIVATE isa_rtl_processor_sim hobbies-isa GTest::gtest GTest::gtest_main Threads::Threads)
+        add_test(NAME gtest_isa_rtl_processor COMMAND gtest_isa_rtl_processor)
     endif()
 endif()
 

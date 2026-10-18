@@ -191,9 +191,10 @@ model extended first. M12 is the microarchitecture.
 * **The implemented set is data, not control flow.** `is_implemented()` lists the opcodes this
   milestone executes; the `S_COMMIT` case and this function grow together, and `default` sets
   `unsupported`.
-* **Tests read the generated layout.** `SetField()` in the test looks a field up by name in the
-  generated `isa::layout` tables instead of restating bit positions. It exists because the `Move`
-  builder cannot express a shift of 4 or more — see P-023 in @ref rtl_parity.
+* **Tests read the generated layout.** `gtest_layout` extracts fields by name from the generated
+  `isa::layout` tables instead of restating bit positions, so a format change is caught there rather
+  than in every test. `LayoutTest.MoveShiftOperandEncodesEveryShiftAmount` is the regression guard for
+  P-023, which had been silently encoding large `move` shifts as zero.
 * **Reset-image stimulus.** The M1 tests do not need a preamble to seed registers: the reset image
   (scratch all ones, evaluations 0xFF) is already pinned by `ResetStateMatchesTheFastModel`, and a
   cleared source register is a distinguishable outcome.

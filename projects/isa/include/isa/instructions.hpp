@@ -147,7 +147,13 @@ struct Copy {
 };
 
 struct Move {
-    using ImmediateType = isa::Immediate<log2(CountOfDataShiftBits)>;
+    /// The shift amount operand. This has to span the whole `shift` field, so it is
+    /// the field width itself and not its log2: building it as
+    /// `Immediate<log2(CountOfDataShiftBits)>` narrows it to 2 bits and silently
+    /// truncates any shift of 4 or more to zero (see P-023).
+    using ImmediateType = isa::Immediate<CountOfDataShiftBits>;
+    static_assert(ImmediateType::Bits == CountOfDataShiftBits,
+                  "The move shift operand must span the whole shift field, or larger shifts truncate");
     Move() = delete;
     constexpr Move(Operand dst, Operand src)
         : op{Operator::Move}

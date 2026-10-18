@@ -1,7 +1,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <initializer_list>
-#include <string_view>
 
 #include <gtest/gtest.h>
 
@@ -23,22 +22,6 @@ constexpr uint32_t kRetiredSteps = 32U;
 template <typename I>
 uint32_t Encode(I const& instruction) {
     return isa::instructions::Instruction{instruction}.raw;
-}
-
-/// Overwrites a named field of `word`, using the layout tables generated into
-/// `isa/operator.hpp` so the test does not restate bit positions that `rtl/isa.sv`
-/// already owns. Needed because the `Move` builder takes a 2-bit shift and silently
-/// truncates anything larger (P-023 in docs/rtl_parity.md).
-template <size_t N>
-uint32_t SetField(uint32_t word, isa::layout::Field const (&fields)[N], std::string_view name, uint32_t value) {
-    for (auto const& field : fields) {
-        if (name == field.name) {
-            uint32_t const mask = ((1U << field.width) - 1U) << field.lsb;
-            return (word & ~mask) | ((value << field.lsb) & mask);
-        }
-    }
-    ADD_FAILURE() << "no field named " << name;
-    return word;
 }
 
 }  // namespace
@@ -192,10 +175,9 @@ TEST_F(RtlProcessorTest, MoveShiftsScratchAndClearsTheSource) {
         // S4 = 0x8000_0000 ...
         Encode(MoveImmediate{Operand{Operand::Type::Scratch, 4}, isa::Immediate<16>{0x0000U}}),
         Encode(MoveImmediate{Operand{Operand::Type::Scratch, 4}, isa::Immediate<16>{0x8000U}, true}),
-        // ... then S3 = S4 >> 4 arithmetically, with a shift the builder cannot express.
-        SetField(Encode(Move{Operand{Operand::Type::Scratch, 3}, Operand{Operand::Type::Scratch, 4}, true,
-                             Move::ImmediateType{0}}),
-                 isa::layout::Move, "shift", 4U),
+        // ... then S3 = S4 >> 4 arithmetically.
+        Encode(
+            Move{Operand{Operand::Type::Scratch, 3}, Operand{Operand::Type::Scratch, 4}, true, Move::ImmediateType{4}}),
         // Same register on both sides: shifted in place, nothing cleared.
         Encode(Move{Operand{Operand::Type::Scratch, 5}, Operand{Operand::Type::Scratch, 5}, false,
                     Move::ImmediateType{2}}),
@@ -215,17 +197,14 @@ TEST_F(RtlProcessorTest, MoveShiftsEvaluationWithinEightBits) {
         // E1 = E2, E2 cleared. Evaluation bytes reset to 0xFF.
         Encode(Move{Operand{Operand::Type::Evaluation, 1}, Operand{Operand::Type::Evaluation, 2}}),
         // E3 = E4 >> 4 == 0x0F, E4 cleared.
-        SetField(Encode(Move{Operand{Operand::Type::Evaluation, 3}, Operand{Operand::Type::Evaluation, 4}, true,
-                             Move::ImmediateType{0}}),
-                 isa::layout::Move, "shift", 4U),
+        Encode(Move{Operand{Operand::Type::Evaluation, 3}, Operand{Operand::Type::Evaluation, 4}, true,
+                    Move::ImmediateType{4}}),
         // E5 = E6 << 4 == 0xF0: the shift truncates at the byte, not the word.
-        SetField(Encode(Move{Operand{Operand::Type::Evaluation, 5}, Operand{Operand::Type::Evaluation, 6}, false,
-                             Move::ImmediateType{0}}),
-                 isa::layout::Move, "shift", 4U),
+        Encode(Move{Operand{Operand::Type::Evaluation, 5}, Operand{Operand::Type::Evaluation, 6}, false,
+                    Move::ImmediateType{4}}),
         // E7 = E7 << 8 == 0: every bit shifted out, and in place so nothing is cleared.
-        SetField(Encode(Move{Operand{Operand::Type::Evaluation, 7}, Operand{Operand::Type::Evaluation, 7}, false,
-                             Move::ImmediateType{0}}),
-                 isa::layout::Move, "shift", 8U),
+        Encode(Move{Operand{Operand::Type::Evaluation, 7}, Operand{Operand::Type::Evaluation, 7}, false,
+                    Move::ImmediateType{8}}),
     });
 
     EXPECT_EQ(0xFFU, oracle.ViewEvaluations()[1].value);

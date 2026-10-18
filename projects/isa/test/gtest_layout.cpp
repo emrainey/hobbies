@@ -78,6 +78,31 @@ TEST(LayoutTest, CopyFieldsMatchCppBitfields) {
     EXPECT_EQ(1U, Extract(i.raw, layout::Copy, "cond"));
 }
 
+TEST(LayoutTest, MoveFieldsMatchCppBitfields) {
+    using isa::instructions::Move;
+    Instruction i{Move{E(3), E(4), E(5), E(6), true, Move::ImmediateType{17}}};
+    EXPECT_EQ(3U, Extract(i.raw, layout::Move, "eval"));
+    EXPECT_EQ(4U, Extract(i.raw, layout::Move, "mask"));
+    EXPECT_EQ(5U, Extract(i.raw, layout::Move, "dst"));
+    EXPECT_EQ(6U, Extract(i.raw, layout::Move, "src"));
+    EXPECT_EQ(1U, Extract(i.raw, layout::Move, "cond"));
+    EXPECT_EQ(1U, Extract(i.raw, layout::Move, "type_"));
+    EXPECT_EQ(1U, Extract(i.raw, layout::Move, "dir"));
+    EXPECT_EQ(17U, Extract(i.raw, layout::Move, "shift"));
+}
+
+TEST(LayoutTest, MoveShiftOperandEncodesEveryShiftAmount) {
+    using isa::instructions::Move;
+    // P-023: the operand used to be Immediate<log2(CountOfDataShiftBits)>, which is two
+    // bits wide, so every shift of 4 or more encoded as zero.
+    EXPECT_EQ(isa::CountOfDataShiftBits, Move::ImmediateType::Bits)
+        << "the shift operand must span the whole shift field";
+    for (uint32_t shift = 0U; shift < isa::CountOfDataBits; ++shift) {
+        Instruction const i{Move{S(1), S(2), false, Move::ImmediateType{shift}}};
+        EXPECT_EQ(shift, Extract(i.raw, layout::Move, "shift")) << "shift " << shift;
+    }
+}
+
 TEST(LayoutTest, SwapFieldsMatchCppBitfields) {
     Instruction i{isa::instructions::Swap{S(6), S(11)}};
     EXPECT_EQ(6U, Extract(i.raw, layout::Swap, "a"));

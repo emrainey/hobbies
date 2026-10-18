@@ -48,7 +48,7 @@ Milestone IDs refer to @ref rtl_roadmap.
 | P-020 | `Trip` redirect timing | OPEN | M3/M8 |
 | P-021 | Breakpoints / persistence | DEFERRED (not planned for RTL) | — |
 | P-022 | Byte-strobed sub-word writes | `RTL-AHEAD` | M6 |
-| P-023 | `Move` shift builder truncates | `CPP-BUG` | M1 |
+| P-023 | `Move` shift builder truncates | `CPP-BUG` fixed | M1 |
 
 ## Details
 
@@ -236,28 +236,38 @@ step cannot be compared as a bus transaction, and the lockstep check must instea
 image** after both models retire (the M0 harness already services the DUT bus from `oracle.Peek`).
 Revisit at M6, where `Load`/`Save` make it concrete.
 
-### P-023 — `Move` shift builder truncates
+### P-023 — `Move` shift builder truncated
 
-`include/isa/instructions.hpp:150`. `Move`'s shift operand is built from
+`include/isa/instructions.hpp:150`. `Move`'s shift operand was built from
 `ImmediateType = isa::Immediate<log2(CountOfDataShiftBits)>`, while the `shift` field it populates is
 `CountOfDataShiftBits` bits wide. `CountOfDataShiftBits` is *already* `log2(CountOfDataBits)` = 5, so
-the extra `log2` narrows the immediate to 2 bits. `Immediate`'s constructor takes a `uint32_t` into a
-2-bit bitfield, so `Move{S1, S2, false, 4}` silently encodes a shift of **zero** rather than being
+the extra `log2` narrowed the immediate to 2 bits. `Immediate`'s constructor takes a `uint32_t` into a
+2-bit bitfield, so `Move{S1, S2, false, 4}` silently encoded a shift of **zero** rather than being
 rejected — `Move::ImmediateType{4}.value == 0`.
 
-**CPP-BUG (open).** Both models read the 5-bit field identically — `rtl/isa.sv`'s `move_t` and the
-C++ bitfield agree, which `gtest_layout` already verifies — so this is a defect in the C++ *builder*,
-not a model divergence. It still matters, because it means the C++ model cannot express a legal
-instruction and hand-written stimulus cannot reach shifts 4..31 through the builder. M1 works around
-it by patching the field through the generated layout tables (`SetField` in
-`test/gtest_rtl_processor.cpp`); the RTL honours the full 5-bit range regardless. Fixing it is a
-one-character change (`Immediate<CountOfDataShiftBits>`), deferred so that M1 stays an RTL change and
-the fix can be made deliberately.
+This was not theoretical: `demo/program1.hpp:28` writes `Move{..., true, Move::ImmediateType{4}}`,
+which had been encoding a shift of 0.
+
+**CPP-BUG (fixed, M1).** Both models read the 5-bit field identically — `rtl/isa.sv`'s `move_t` and
+the C++ bitfield agree, which `gtest_layout` already verified — so this was a defect in the C++
+*builder*, not a model divergence. The fix is the field width itself:
+
+```cpp
+using ImmediateType = isa::Immediate<CountOfDataShiftBits>;
+static_assert(ImmediateType::Bits == CountOfDataShiftBits, "...");
+```
+
+The `static_assert` is not tautological: it constrains the *expression* rather than the template
+parameter, so reintroducing `log2(...)` fails the build. `LayoutTest.MoveShiftOperandEncodesEveryShiftAmount`
+walks shifts 0..31 and checks the encoded field, and `LayoutTest.MoveFieldsMatchCppBitfields` pins the
+rest of the format; `Move::ImmediateType` is the only builder alias that did not take its width from
+the field it fills (`MoveImmediate`, `Zero` and the rest do).
+
+A shift literal of 32 or more still truncates to the low 5 bits, which is inherent to the encoding
+and now consistent with every other immediate.
 
 ## Open questions
 
 * P-003/P-017: whether divide-by-zero is an instruction fault, an arithmetic fault, an evaluation
   bit, or some combination.
 * P-007: whether `deferred` needs an explicit pending latch in the architectural state.
-* P-023: whether to widen the `Move` shift immediate to the field width, or to have the builder
-  reject an out-of-range shift instead of truncating it.

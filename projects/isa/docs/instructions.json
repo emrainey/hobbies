@@ -1,0 +1,973 @@
+{
+  "parameters": {
+    "word_size": 32,
+    "address_size": 32,
+    "op_size": 8,
+    "scratch_count": 16,
+    "eval_count": 16,
+    "imm10_w": 10,
+    "imm16_w": 16
+  },
+  "derived": {
+    "scratch_index_w": "clog2(scratch_count)",
+    "eval_index_w": "clog2(eval_count)",
+    "shift_w": "clog2(word_size)",
+    "reg_index_w": "max(scratch_index_w, eval_index_w)"
+  },
+  "enums": {
+    "size": {
+      "width": 2,
+      "prefix": "SIZE_",
+      "values": {
+        "BYTE": 0,
+        "HALF": 1,
+        "WORD": 2,
+        "DOUBLE": 3
+      }
+    },
+    "eval_type": {
+      "width": 2,
+      "prefix": "EVAL_",
+      "values": {
+        "NONE": 0,
+        "COMPARISON": 1,
+        "ARITHMETIC": 2,
+        "PRECISION": 3
+      }
+    },
+    "register_type": {
+      "width": 1,
+      "prefix": "REG_",
+      "values": {
+        "SCRATCH": 0,
+        "EVALUATION": 1
+      }
+    }
+  },
+  "formats": {
+    "noop": {
+      "comment": "No operands",
+      "opcode": true,
+      "fields": [
+        {
+          "name": "reserved",
+          "fill": true
+        }
+      ]
+    },
+    "copy": {
+      "comment": "copy Sd, Ss [: Ee]",
+      "opcode": true,
+      "fields": [
+        {
+          "name": "dst",
+          "width": "scratch_index_w",
+          "type": "scratch_idx_t"
+        },
+        {
+          "name": "src",
+          "width": "scratch_index_w",
+          "type": "scratch_idx_t"
+        },
+        {
+          "name": "eval",
+          "width": "eval_index_w",
+          "type": "eval_idx_t"
+        },
+        {
+          "name": "cond",
+          "width": 1
+        },
+        {
+          "name": "reserved",
+          "fill": true
+        }
+      ]
+    },
+    "move": {
+      "comment": "move Sd, Ss with condition, type, direction and shift",
+      "opcode": true,
+      "fields": [
+        {
+          "name": "eval",
+          "width": "eval_index_w",
+          "type": "eval_idx_t"
+        },
+        {
+          "name": "mask",
+          "width": "eval_index_w",
+          "type": "eval_idx_t"
+        },
+        {
+          "name": "dst",
+          "width": "scratch_index_w",
+          "type": "scratch_idx_t"
+        },
+        {
+          "name": "src",
+          "width": "scratch_index_w",
+          "type": "scratch_idx_t"
+        },
+        {
+          "name": "cond",
+          "width": 1
+        },
+        {
+          "name": "type_",
+          "width": 1,
+          "comment": "0 = scratch to scratch, 1 = evaluation to evaluation"
+        },
+        {
+          "name": "dir",
+          "width": 1
+        },
+        {
+          "name": "shift",
+          "width": "shift_w"
+        }
+      ]
+    },
+    "move_immediate": {
+      "comment": "move #imm to a scratch or evaluation register",
+      "opcode": true,
+      "fields": [
+        {
+          "name": "dst",
+          "width": "reg_index_w"
+        },
+        {
+          "name": "eval",
+          "width": 1
+        },
+        {
+          "name": "upper",
+          "width": 1
+        },
+        {
+          "name": "reserved",
+          "width": 2
+        },
+        {
+          "name": "imm",
+          "width": "imm16_w"
+        }
+      ]
+    },
+    "swap": {
+      "comment": "swap Sa, [Sb]",
+      "opcode": true,
+      "fields": [
+        {
+          "name": "a",
+          "width": "scratch_index_w",
+          "type": "scratch_idx_t"
+        },
+        {
+          "name": "b",
+          "width": "scratch_index_w",
+          "type": "scratch_idx_t"
+        },
+        {
+          "name": "reserved",
+          "fill": true
+        }
+      ]
+    },
+    "zero": {
+      "comment": "zero.s / zero.e {mask}",
+      "opcode": true,
+      "fields": [
+        {
+          "name": "mask",
+          "width": "imm16_w"
+        },
+        {
+          "name": "type_",
+          "width": 1,
+          "type": "register_type_e"
+        },
+        {
+          "name": "reserved",
+          "fill": true
+        }
+      ]
+    },
+    "memory": {
+      "comment": "load / save",
+      "opcode": true,
+      "fields": [
+        {
+          "name": "reg_",
+          "width": "scratch_index_w",
+          "type": "scratch_idx_t"
+        },
+        {
+          "name": "base",
+          "width": "scratch_index_w",
+          "type": "scratch_idx_t"
+        },
+        {
+          "name": "special",
+          "width": 1
+        },
+        {
+          "name": "off",
+          "width": 1
+        },
+        {
+          "name": "shift",
+          "width": 2
+        },
+        {
+          "name": "size",
+          "width": 2,
+          "type": "size_e"
+        },
+        {
+          "name": "imm",
+          "width": "imm10_w"
+        }
+      ]
+    },
+    "leap": {
+      "comment": "leap [Ee, Em,] Sd, #simm",
+      "opcode": true,
+      "fields": [
+        {
+          "name": "eval",
+          "width": "eval_index_w",
+          "type": "eval_idx_t"
+        },
+        {
+          "name": "mask",
+          "width": "eval_index_w",
+          "type": "eval_idx_t"
+        },
+        {
+          "name": "dst",
+          "width": "scratch_index_w",
+          "type": "scratch_idx_t"
+        },
+        {
+          "name": "cond",
+          "width": 1
+        },
+        {
+          "name": "save",
+          "width": 1
+        },
+        {
+          "name": "imm",
+          "width": "imm10_w",
+          "signed": true
+        }
+      ]
+    },
+    "leap_immediate": {
+      "comment": "leap #addr; the low two bits select the form, the rest is address >> 2",
+      "opcode": false,
+      "fields": [
+        {
+          "name": "immediate",
+          "width": 1
+        },
+        {
+          "name": "save",
+          "width": 1
+        },
+        {
+          "name": "imm",
+          "width": "address_size-2"
+        }
+      ]
+    },
+    "back": {
+      "comment": "back [zero]",
+      "opcode": true,
+      "fields": [
+        {
+          "name": "zero",
+          "width": 1
+        },
+        {
+          "name": "reserved",
+          "fill": true
+        }
+      ]
+    },
+    "frame": {
+      "comment": "grow / fall / call: [Ee, Em] #imm",
+      "opcode": true,
+      "fields": [
+        {
+          "name": "eval",
+          "width": "eval_index_w",
+          "type": "eval_idx_t"
+        },
+        {
+          "name": "mask",
+          "width": "eval_index_w",
+          "type": "eval_idx_t"
+        },
+        {
+          "name": "cond",
+          "width": 1
+        },
+        {
+          "name": "reserved",
+          "fill": true
+        },
+        {
+          "name": "imm",
+          "width": "imm10_w"
+        }
+      ]
+    },
+    "trip": {
+      "comment": "trip [.dbg] [Ee, Em] #imm",
+      "opcode": true,
+      "fields": [
+        {
+          "name": "eval",
+          "width": "eval_index_w",
+          "type": "eval_idx_t"
+        },
+        {
+          "name": "mask",
+          "width": "eval_index_w",
+          "type": "eval_idx_t"
+        },
+        {
+          "name": "cond",
+          "width": 1
+        },
+        {
+          "name": "debug_break",
+          "width": 1
+        },
+        {
+          "name": "reserved",
+          "fill": true
+        },
+        {
+          "name": "imm",
+          "width": "imm10_w"
+        }
+      ]
+    },
+    "push_pull": {
+      "comment": "push / pull {mask}",
+      "opcode": true,
+      "fields": [
+        {
+          "name": "reserved",
+          "fill": true
+        },
+        {
+          "name": "mask",
+          "width": "imm16_w"
+        }
+      ]
+    },
+    "compare": {
+      "comment": "comp Sa, Sb : Ee",
+      "opcode": true,
+      "fields": [
+        {
+          "name": "e",
+          "width": "eval_index_w",
+          "type": "eval_idx_t"
+        },
+        {
+          "name": "a",
+          "width": "scratch_index_w",
+          "type": "scratch_idx_t"
+        },
+        {
+          "name": "b",
+          "width": "scratch_index_w",
+          "type": "scratch_idx_t"
+        },
+        {
+          "name": "signed_",
+          "width": 1
+        },
+        {
+          "name": "eval_type",
+          "width": 2,
+          "type": "eval_type_e"
+        },
+        {
+          "name": "reserved",
+          "fill": true
+        }
+      ]
+    },
+    "bitwise1": {
+      "comment": "one source with an optional shift amount or bit index",
+      "opcode": true,
+      "fields": [
+        {
+          "name": "dst",
+          "width": "scratch_index_w",
+          "type": "scratch_idx_t"
+        },
+        {
+          "name": "src",
+          "width": "scratch_index_w",
+          "type": "scratch_idx_t"
+        },
+        {
+          "name": "eval",
+          "width": "eval_index_w",
+          "type": "eval_idx_t"
+        },
+        {
+          "name": "shift",
+          "width": "shift_w"
+        },
+        {
+          "name": "cond",
+          "width": 1
+        },
+        {
+          "name": "reserved",
+          "fill": true
+        }
+      ]
+    },
+    "binary": {
+      "comment": "two sources: bitwise and float binary operations",
+      "opcode": true,
+      "fields": [
+        {
+          "name": "dst",
+          "width": "scratch_index_w",
+          "type": "scratch_idx_t"
+        },
+        {
+          "name": "src1",
+          "width": "scratch_index_w",
+          "type": "scratch_idx_t"
+        },
+        {
+          "name": "src2",
+          "width": "scratch_index_w",
+          "type": "scratch_idx_t"
+        },
+        {
+          "name": "eval",
+          "width": "eval_index_w",
+          "type": "eval_idx_t"
+        },
+        {
+          "name": "cond",
+          "width": 1
+        },
+        {
+          "name": "reserved",
+          "fill": true
+        }
+      ]
+    },
+    "negate": {
+      "comment": "neg.sXX Sd, Ss : Ee",
+      "opcode": true,
+      "fields": [
+        {
+          "name": "dst",
+          "width": "scratch_index_w",
+          "type": "scratch_idx_t"
+        },
+        {
+          "name": "src",
+          "width": "scratch_index_w",
+          "type": "scratch_idx_t"
+        },
+        {
+          "name": "eval",
+          "width": "eval_index_w",
+          "type": "eval_idx_t"
+        },
+        {
+          "name": "cond",
+          "width": 1
+        },
+        {
+          "name": "sat",
+          "width": 1
+        },
+        {
+          "name": "reserved",
+          "fill": true
+        },
+        {
+          "name": "size",
+          "width": 2,
+          "type": "size_e"
+        }
+      ]
+    },
+    "extend": {
+      "comment": "sext/zext.XX Sd, Ss : Ee",
+      "opcode": true,
+      "fields": [
+        {
+          "name": "dst",
+          "width": "scratch_index_w",
+          "type": "scratch_idx_t"
+        },
+        {
+          "name": "src",
+          "width": "scratch_index_w",
+          "type": "scratch_idx_t"
+        },
+        {
+          "name": "eval",
+          "width": "eval_index_w",
+          "type": "eval_idx_t"
+        },
+        {
+          "name": "cond",
+          "width": 1
+        },
+        {
+          "name": "sign",
+          "width": 1
+        },
+        {
+          "name": "reserved",
+          "fill": true
+        },
+        {
+          "name": "size",
+          "width": 2,
+          "type": "size_e"
+        }
+      ]
+    },
+    "arithmetic": {
+      "comment": "add/sub/mul/div/mod.{s,u}XX [.sat] Sd, Sa, Sb : Ee",
+      "opcode": true,
+      "fields": [
+        {
+          "name": "dst",
+          "width": "scratch_index_w",
+          "type": "scratch_idx_t"
+        },
+        {
+          "name": "src1",
+          "width": "scratch_index_w",
+          "type": "scratch_idx_t"
+        },
+        {
+          "name": "src2",
+          "width": "scratch_index_w",
+          "type": "scratch_idx_t"
+        },
+        {
+          "name": "eval",
+          "width": "eval_index_w",
+          "type": "eval_idx_t"
+        },
+        {
+          "name": "cond",
+          "width": 1
+        },
+        {
+          "name": "sign",
+          "width": 1
+        },
+        {
+          "name": "sat",
+          "width": 1
+        },
+        {
+          "name": "reserved",
+          "fill": true
+        },
+        {
+          "name": "size",
+          "width": 2,
+          "type": "size_e"
+        }
+      ]
+    },
+    "float_unary": {
+      "comment": "floor, ceil, abs, neg, fractional, convert (dir: 0 = i2f, 1 = f2i)",
+      "opcode": true,
+      "fields": [
+        {
+          "name": "dst",
+          "width": "scratch_index_w",
+          "type": "scratch_idx_t"
+        },
+        {
+          "name": "src",
+          "width": "scratch_index_w",
+          "type": "scratch_idx_t"
+        },
+        {
+          "name": "dir",
+          "width": 1
+        },
+        {
+          "name": "reserved",
+          "fill": true
+        }
+      ]
+    }
+  },
+  "instructions": [
+    {
+      "name": "None",
+      "opcode": 0,
+      "format": "noop",
+      "mnemonic": "noop",
+      "comment": "noop (the erased word 0xFFFFFFFF also decodes as noop)"
+    },
+    {
+      "name": "Copy",
+      "opcode": 4,
+      "format": "copy",
+      "mnemonic": "copy",
+      "comment": ""
+    },
+    {
+      "name": "Move",
+      "opcode": 8,
+      "format": "move",
+      "mnemonic": "move",
+      "comment": ""
+    },
+    {
+      "name": "MoveImmediate",
+      "opcode": 12,
+      "format": "move_immediate",
+      "mnemonic": "move",
+      "comment": ""
+    },
+    {
+      "name": "Swap",
+      "opcode": 16,
+      "format": "swap",
+      "mnemonic": "swap",
+      "comment": ""
+    },
+    {
+      "name": "Zero",
+      "opcode": 20,
+      "format": "zero",
+      "mnemonic": "zero",
+      "comment": ""
+    },
+    {
+      "name": "Leap",
+      "opcode": 24,
+      "format": "leap",
+      "mnemonic": "leap",
+      "comment": ""
+    },
+    {
+      "name": "Back",
+      "opcode": 28,
+      "format": "back",
+      "mnemonic": "back",
+      "comment": ""
+    },
+    {
+      "name": "Grow",
+      "opcode": 32,
+      "format": "frame",
+      "mnemonic": "grow",
+      "comment": ""
+    },
+    {
+      "name": "Fall",
+      "opcode": 36,
+      "format": "frame",
+      "mnemonic": "fall",
+      "comment": ""
+    },
+    {
+      "name": "Push",
+      "opcode": 40,
+      "format": "push_pull",
+      "mnemonic": "push",
+      "comment": ""
+    },
+    {
+      "name": "Pull",
+      "opcode": 44,
+      "format": "push_pull",
+      "mnemonic": "pull",
+      "comment": ""
+    },
+    {
+      "name": "Call",
+      "opcode": 48,
+      "format": "frame",
+      "mnemonic": "call",
+      "comment": ""
+    },
+    {
+      "name": "Trip",
+      "opcode": 52,
+      "format": "trip",
+      "mnemonic": "trip",
+      "comment": ""
+    },
+    {
+      "name": "Load",
+      "opcode": 60,
+      "format": "memory",
+      "mnemonic": "load",
+      "comment": ""
+    },
+    {
+      "name": "Save",
+      "opcode": 64,
+      "format": "memory",
+      "mnemonic": "save",
+      "comment": ""
+    },
+    {
+      "name": "Compare",
+      "opcode": 68,
+      "format": "compare",
+      "mnemonic": "comp",
+      "comment": ""
+    },
+    {
+      "name": "Complement",
+      "opcode": 72,
+      "format": "bitwise1",
+      "mnemonic": "bcpl",
+      "comment": ""
+    },
+    {
+      "name": "Rsh",
+      "opcode": 76,
+      "format": "bitwise1",
+      "mnemonic": "brsh",
+      "comment": ""
+    },
+    {
+      "name": "Asr",
+      "opcode": 80,
+      "format": "bitwise1",
+      "mnemonic": "basr",
+      "comment": ""
+    },
+    {
+      "name": "Lsh",
+      "opcode": 84,
+      "format": "bitwise1",
+      "mnemonic": "blsh",
+      "comment": ""
+    },
+    {
+      "name": "Rotate",
+      "opcode": 88,
+      "format": "bitwise1",
+      "mnemonic": "brot",
+      "comment": ""
+    },
+    {
+      "name": "Count1s",
+      "opcode": 92,
+      "format": "bitwise1",
+      "mnemonic": "bcnt",
+      "comment": ""
+    },
+    {
+      "name": "CountL0s",
+      "opcode": 96,
+      "format": "bitwise1",
+      "mnemonic": "bclz",
+      "comment": ""
+    },
+    {
+      "name": "Not",
+      "opcode": 100,
+      "format": "bitwise1",
+      "mnemonic": "bnot",
+      "comment": ""
+    },
+    {
+      "name": "SetBit",
+      "opcode": 104,
+      "format": "bitwise1",
+      "mnemonic": "bset",
+      "comment": ""
+    },
+    {
+      "name": "ClearBit",
+      "opcode": 108,
+      "format": "bitwise1",
+      "mnemonic": "bclr",
+      "comment": ""
+    },
+    {
+      "name": "ToggleBit",
+      "opcode": 112,
+      "format": "bitwise1",
+      "mnemonic": "btgl",
+      "comment": ""
+    },
+    {
+      "name": "Reverse",
+      "opcode": 116,
+      "format": "bitwise1",
+      "mnemonic": "brev",
+      "comment": ""
+    },
+    {
+      "name": "And",
+      "opcode": 120,
+      "format": "binary",
+      "mnemonic": "band",
+      "comment": ""
+    },
+    {
+      "name": "Or",
+      "opcode": 124,
+      "format": "binary",
+      "mnemonic": "borr",
+      "comment": ""
+    },
+    {
+      "name": "Xor",
+      "opcode": 128,
+      "format": "binary",
+      "mnemonic": "bxor",
+      "comment": ""
+    },
+    {
+      "name": "Addition",
+      "opcode": 132,
+      "format": "arithmetic",
+      "mnemonic": "add",
+      "comment": ""
+    },
+    {
+      "name": "Subtract",
+      "opcode": 136,
+      "format": "arithmetic",
+      "mnemonic": "sub",
+      "comment": ""
+    },
+    {
+      "name": "Multiply",
+      "opcode": 140,
+      "format": "arithmetic",
+      "mnemonic": "mul",
+      "comment": ""
+    },
+    {
+      "name": "Divide",
+      "opcode": 144,
+      "format": "arithmetic",
+      "mnemonic": "div",
+      "comment": ""
+    },
+    {
+      "name": "Modulo",
+      "opcode": 148,
+      "format": "arithmetic",
+      "mnemonic": "mod",
+      "comment": ""
+    },
+    {
+      "name": "FloatingFloor",
+      "opcode": 152,
+      "format": "float_unary",
+      "mnemonic": "fflr",
+      "comment": ""
+    },
+    {
+      "name": "FloatingCeil",
+      "opcode": 156,
+      "format": "float_unary",
+      "mnemonic": "fcel",
+      "comment": ""
+    },
+    {
+      "name": "FloatingAbs",
+      "opcode": 160,
+      "format": "float_unary",
+      "mnemonic": "fabs",
+      "comment": ""
+    },
+    {
+      "name": "FloatingNegate",
+      "opcode": 164,
+      "format": "float_unary",
+      "mnemonic": "fneg",
+      "comment": ""
+    },
+    {
+      "name": "FloatingFractional",
+      "opcode": 168,
+      "format": "float_unary",
+      "mnemonic": "ffrc",
+      "comment": ""
+    },
+    {
+      "name": "FloatingConvert",
+      "opcode": 172,
+      "format": "float_unary",
+      "mnemonic": "fcvt",
+      "comment": ""
+    },
+    {
+      "name": "FloatingAddition",
+      "opcode": 176,
+      "format": "binary",
+      "mnemonic": "fadd",
+      "comment": ""
+    },
+    {
+      "name": "FloatingSubtraction",
+      "opcode": 180,
+      "format": "binary",
+      "mnemonic": "fsub",
+      "comment": ""
+    },
+    {
+      "name": "FloatingMultiplication",
+      "opcode": 184,
+      "format": "binary",
+      "mnemonic": "fmul",
+      "comment": ""
+    },
+    {
+      "name": "FloatingDivision",
+      "opcode": 188,
+      "format": "binary",
+      "mnemonic": "fdiv",
+      "comment": ""
+    },
+    {
+      "name": "Negate",
+      "opcode": 192,
+      "format": "negate",
+      "mnemonic": "neg",
+      "comment": ""
+    },
+    {
+      "name": "Extend",
+      "opcode": 196,
+      "format": "extend",
+      "mnemonic": "sext/zext",
+      "comment": ""
+    },
+    {
+      "name": "Halt",
+      "opcode": 252,
+      "format": "noop",
+      "mnemonic": "halt",
+      "comment": "Halts the processor"
+    }
+  ]
+}

@@ -5,88 +5,11 @@
 #include <iostream>
 
 #include <basal/exception.hpp>
+#include <isa/operator.hpp>
 #include <isa/types.hpp>
 
 namespace isa {
 
-/// The operation code for an instruction
-
-enum class Operator : uint32_t {
-    None = 0,  ///< noop (0x00000000; the erased word 0xFFFFFFFF also decodes as noop)
-    // === Movement within Files ===
-    Copy = 0x04U,           ///< copy scratchDestination, scratchSource
-    Move = 0x08U,           ///< move scratchDestination, scratchSource, Source = 0
-    MoveImmediate = 0x0CU,  ///< move immediate to scratch/evaluation register
-    Swap = 0x10U,           ///< swap scratchRegisterA with the word at the address in scratchRegisterB
-    Zero = 0x14U,           ///< zero.s/zero.e {mask}; clear the masked scratch (s) or evaluation (e) registers
-    // === Special Register Manipulation ===
-    Leap = 0x18U,  ///< leap to address in scratch with optional immediate offset and condition
-    Back = 0x1CU,  ///< back from subroutine to address in Return Address Special Register
-    Grow = 0x20U,  ///< grow #imm<10> (words); optionally conditional on an evaluation and mask
-    Fall = 0x24U,  ///< fall #imm<10> (restore stack space)
-    Push = 0x28U,  ///< push {mask} (mask of scratch)
-    Pull = 0x2CU,  ///< pull {mask} (mask of scratch)
-    Call = 0x30U,  ///< call #imm<10> (System Call Number) This is the entry from User mode to Privileged Mode.
-    Trip = 0x34U,  ///< trip #imm<10> (exception type encoded in the immediate value.
-                   ///< This can be used to test triggering interrupts but must be called from privileged mode,
-                   ///< otherwise a privileged instruction exception will be raised)
-    // === Memory Operations ===
-    Load = 0x3CU,  ///< load scratchDestination, scratchAddress
-    Save = 0x40U,  ///< save scratchSource, scratchAddress
-    // === Comparison ===
-    Compare = 0x44U,  ///< comp scratchA, scratchB : eval
-    // === Bit Operators ===
-    // 1 arg
-    Complement = 0x48U,  ///< bcpl scratchDestination, scratchSource
-    Rsh = 0x4CU,         ///< brsh scratchDestination, scratchSource, #imm<5>
-    Asr = 0x50U,         ///< basr scratchDestination, scratchSource, #imm<5>
-    Lsh = 0x54U,         ///< blsh scratchDestination, scratchSource, #imm<5>
-    Rotate = 0x58U,      ///< brot scratchDestination, scratchSource, #imm<5> (rotate left)
-    Count1s = 0x5CU,     ///< bcnt scratchDestination, scratchSource
-    CountL0s = 0x60U,    ///< bclz scratchDestination, scratchSource
-    Not = 0x64U,         ///< bnot scratchDestination, scratchSource
-    SetBit = 0x68U,      ///< bset scratchDestination, scratchSource, #imm<5>
-    ClearBit = 0x6CU,    ///< bclr scratchDestination, scratchSource, #imm<5>
-    ToggleBit = 0x70U,   ///< btgl scratchDestination, scratchSource, #imm<5>
-    Reverse = 0x74U,  ///< brev scratchDestination, scratchSource, #imm<5> (but limited to 0 = bytes, 1 = half-words, 2
-                      ///< = words)
-    // 2 arg
-    And = 0x78U,  ///< band scratchDestination, scratchSource, scratchSource
-    Or = 0x7CU,   ///< borr scratchDestination, scratchSource, scratchSource
-    Xor = 0x80U,  ///< bxor scratchDestination, scratchSource, scratchSource
-
-    // === Arithmetic (Integer) ===
-    Addition = 0x84U,  ///< add{s/u}.{type}{size} Sd, Sa, Sb : Es
-    Subtract = 0x88U,  ///< sub{s/u}.{type}{size} Sd, Sa, Sb : Es
-    Multiply = 0x8CU,  ///< mul{s/u}.{type}{size} Sd, Sa, Sb : Es
-    Divide = 0x90U,    ///< div{s/u}.{type}{size} Sd, Sa, Sb : Es
-    Modulo = 0x94U,    ///< mod{s/u}.{type}{size} Sd, Sa, Sb : Es
-
-    // === ALU (Precision) ===
-    // 1 arg
-    FloatingFloor = 0x98U,       ///< fflr scratchDestination, scratchSource
-    FloatingCeil = 0x9CU,        ///< fcel scratchDestination, scratchSource
-    FloatingAbs = 0xA0U,         ///< fabs scratchDestination, scratchSource
-    FloatingNegate = 0xA4U,      ///< fneg scratchDestination, scratchSource
-    FloatingFractional = 0xA8U,  ///< ffrc scratchDestination, scratchSource
-    FloatingConvert = 0xACU,     ///< fcvt.i2f/fcvt.f2i scratchDestination, scratchSource
-    // 2 arg
-    FloatingAddition = 0xB0U,     ///< fadd scratchDestination, scratchSource, scratchSource : eval -> precision flags
-    FloatingSubtraction = 0xB4U,  ///< fsub scratchDestination, scratchSource, scratchSource : eval -> precision flags
-    FloatingMultiplication = 0xB8U,  ///< fmul scratchDestination, scratchSource, scratchSource : eval -> precision
-                                     ///< flags
-    FloatingDivision = 0xBCU,  ///< fdiv scratchDestination, scratchSource, scratchSource -> Fault if scratchSource ==
-                               ///< 0.0
-
-    // === ALU (Integer, 1 arg) ===
-    Negate = 0xC0U,  ///< neg.s{size} scratchDestination, scratchSource : Es (signed two's complement negate)
-    Extend = 0xC4U,  ///< sext/zext.{size} scratchDestination, scratchSource : Es (widen a byte/half-word to a word)
-
-    // === ALU (SIMD) ===
-
-    Halt = 0xFCU  ///< Halts the processor.
-    // === NO INSTRUCTIONS PAST THIS POINT ===
-};
 constexpr size_t CountOfOperatorBits{8u};
 constexpr uint32_t ImmediateLeapBitMask{0x1U};
 constexpr uint32_t ImmediateLeapSaveBitMask{0x2U};

@@ -2,6 +2,9 @@
 cmake_minimum_required(VERSION 3.31.0)
 project(ecs LANGUAGES CXX VERSION 0.1.0)  # This must match the conanfile.py!
 
+# === Options ===
+option(BUILD_VERILOG "Build the Verilog components" ON)
+
 # === Dependencies ===
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(SDL2)
@@ -10,6 +13,20 @@ find_package(Threads)
 find_package(GTest)
 
 # === Targets ===
+if (BUILD_VERILOG)
+find_package(verilator HINTS $ENV{VERILATOR_ROOT} REQUIRED)
+
+add_library(isa_rtl_sim)
+
+verilate(isa_rtl_sim
+    PREFIX Vdecoder
+    TOP_MODULE decoder
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/rtl/isa.sv
+        ${CMAKE_CURRENT_SOURCE_DIR}/rtl/decoder.sv
+)
+endif()
+
 add_library(hobbies-isa
     ${CMAKE_CURRENT_SOURCE_DIR}/source/bus.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/cpu.cpp
@@ -106,9 +123,27 @@ if (BUILD_UNIT_TESTS AND Threads_FOUND AND GTest_FOUND)
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_register_view.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_cache.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_instruction.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_layout.cpp
     )
     target_link_libraries(gtest_isa PRIVATE hobbies-isa-demo enabled-debugging GTest::gtest GTest::gmock GTest::gtest_main Threads::Threads)
     add_test(NAME gtest_isa COMMAND gtest_isa)
+
+    if (BUILD_VERILOG)
+        add_executable(gtest_isa_rtl ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_rtl_decoder.cpp)
+        target_link_libraries(gtest_isa_rtl PRIVATE isa_rtl_sim hobbies-isa GTest::gtest GTest::gtest_main Threads::Threads)
+        add_test(NAME gtest_isa_rtl COMMAND gtest_isa_rtl)
+    endif()
+endif()
+
+# === Generated Sources ===
+# include/isa/operator.hpp, rtl/isa.sv and docs/instruction_formats.md are generated from docs/instructions.json.
+find_package(Python3 COMPONENTS Interpreter)
+if (Python3_FOUND)
+    execute_process(COMMAND ${Python3_EXECUTABLE} -c "import jinja2" RESULT_VARIABLE ISA_JINJA2_RESULT OUTPUT_QUIET ERROR_QUIET)
+endif()
+if (Python3_FOUND AND ISA_JINJA2_RESULT EQUAL 0)
+    add_test(NAME isa_generated_sources_are_current
+        COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/generate_isa.py --check)
 endif()
 
 # === Doxygen ===

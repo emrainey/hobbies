@@ -39,8 +39,8 @@ Milestone IDs refer to @ref rtl_roadmap.
 | P-010 | `Reverse` unit selector reuses `shift` | OPEN | M5 |
 | P-011 | Erased word / immediate-leap decode | MATCHED | M0 |
 | P-012 | `Push`/`Pull` register ordering | `CPP-BUG` — fixed | M3 |
-| P-013 | `Move` eval-to-eval semantics | OPEN | M1/M4 |
-| P-014 | `MoveImmediate` eval/upper selection | OPEN | M1 |
+| P-013 | `Move` eval-to-eval semantics | MATCHED | M1/M4 |
+| P-014 | `MoveImmediate` eval/upper selection | MATCHED | M1 |
 | P-015 | `Swap` load-then-store atomicity | OPEN | M2 |
 | P-016 | Bitwise evaluation flags | OPEN | M5/M7 |
 | P-017 | Arithmetic `undefined` flag vs fault | OPEN (linked P-003) | M6/M8 |
@@ -48,6 +48,7 @@ Milestone IDs refer to @ref rtl_roadmap.
 | P-020 | `Trip` redirect timing | OPEN | M3/M8 |
 | P-021 | Breakpoints / persistence | DEFERRED (not planned for RTL) | — |
 | P-022 | Byte-strobed sub-word writes | `RTL-AHEAD` | M6 |
+| P-023 | `Move` shift builder truncates | `CPP-BUG` | M1 |
 
 ## Details
 
@@ -171,11 +172,19 @@ order for the resulting memory image to be identical.
 applies to the 8-bit eval value, and the source is zeroed when `dst != src` (as it is for scratch).
 Match the zeroing behaviour exactly.
 
+**MATCHED (M1).** `rtl/processor.sv` implements the 8-bit shift and the conditional source zeroing,
+and `RtlProcessorTest.MoveShiftsEvaluationWithinEightBits` diffs each step — including a shift of 4,
+where a left shift truncates at the byte (`0xFF << 4 == 0xF0`) and a shift of 8 produces zero.
+
 ### P-014 — `MoveImmediate` eval/upper selection
 
 `source/cpu.cpp:350-357`. The `eval` bit selects an Evaluation destination and masks the immediate to
 8 bits; otherwise `upper` picks the upper 16-bit half of the scratch register. The `upper`+eval
 combination is rejected at construction (`instructions.hpp:249`), so the RTL need not define it.
+
+**MATCHED (M1).** `rtl/processor.sv` writes `evaluation[dst] <= imm[7:0]`, or the selected 16-bit half
+of the scratch register; `RtlProcessorTest.MoveImmediateWritesHalvesAndMasksEvaluationDestination`
+pins the surviving half and the 8-bit mask.
 
 ### P-015 — `Swap` load-then-store atomicity
 
@@ -227,8 +236,28 @@ step cannot be compared as a bus transaction, and the lockstep check must instea
 image** after both models retire (the M0 harness already services the DUT bus from `oracle.Peek`).
 Revisit at M6, where `Load`/`Save` make it concrete.
 
+### P-023 — `Move` shift builder truncates
+
+`include/isa/instructions.hpp:150`. `Move`'s shift operand is built from
+`ImmediateType = isa::Immediate<log2(CountOfDataShiftBits)>`, while the `shift` field it populates is
+`CountOfDataShiftBits` bits wide. `CountOfDataShiftBits` is *already* `log2(CountOfDataBits)` = 5, so
+the extra `log2` narrows the immediate to 2 bits. `Immediate`'s constructor takes a `uint32_t` into a
+2-bit bitfield, so `Move{S1, S2, false, 4}` silently encodes a shift of **zero** rather than being
+rejected — `Move::ImmediateType{4}.value == 0`.
+
+**CPP-BUG (open).** Both models read the 5-bit field identically — `rtl/isa.sv`'s `move_t` and the
+C++ bitfield agree, which `gtest_layout` already verifies — so this is a defect in the C++ *builder*,
+not a model divergence. It still matters, because it means the C++ model cannot express a legal
+instruction and hand-written stimulus cannot reach shifts 4..31 through the builder. M1 works around
+it by patching the field through the generated layout tables (`SetField` in
+`test/gtest_rtl_processor.cpp`); the RTL honours the full 5-bit range regardless. Fixing it is a
+one-character change (`Immediate<CountOfDataShiftBits>`), deferred so that M1 stays an RTL change and
+the fix can be made deliberately.
+
 ## Open questions
 
 * P-003/P-017: whether divide-by-zero is an instruction fault, an arithmetic fault, an evaluation
   bit, or some combination.
 * P-007: whether `deferred` needs an explicit pending latch in the architectural state.
+* P-023: whether to widen the `Move` shift immediate to the field width, or to have the builder
+  reject an out-of-range shift instead of truncating it.

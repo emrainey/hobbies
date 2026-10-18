@@ -31,7 +31,7 @@ The plan below reflects these agreed decisions:
 | Model | Present | Missing |
 | --- | --- | --- |
 | C++ (`hobbies-isa`) | One instruction per `Processor::Cycle()`; full ISA datapath; vector-table boot in `Reset()`; direct `Peek`/`Poke` buses; breakpoints; persistence | Caches on the hot path; privilege enforcement; exception mask/mode; interrupts (ticker/deferred/external); arithmetic-fault routing |
-| SV (`isa_rtl_sim`, `isa_rtl_processor_sim`) | Generated `isa` package (`rtl/isa.sv`): params, enums, opcodes, `is_defined_op`, instruction format structs and `instruction_t` union. Combinational `decoder` (`rtl/decoder.sv`). M0 `processor` top (`rtl/processor.sv`): reset/vector-table boot, word-bus port, fetch, stub retire, architectural state exposed to the harness | Real execution: register-file and special-register updates, ALU, control flow, stack, loads/stores, exceptions, caches |
+| SV (`isa_rtl_sim`, `isa_rtl_processor_sim`) | Generated `isa` package (`rtl/isa.sv`): params, enums, opcodes, `is_defined_op`, instruction format structs and `instruction_t` union. Combinational `decoder` (`rtl/decoder.sv`). M1 `processor` top (`rtl/processor.sv`): reset/vector-table boot, word-bus port, fetch/execute FSM, the register-file instructions (`move`, `movei`, `copy`, `zero`, `halt`), `unsupported` strobe, architectural state exposed to the harness | Everything else: control flow, stack, loads/stores, ALU, exceptions, caches |
 
 The single source of truth already exists: `docs/instructions.json` renders `rtl/isa.sv`,
 `include/isa/operator.hpp` and `docs/instruction_formats.md` via `tools/generate_isa.py`, with a
@@ -58,6 +58,10 @@ two can be stepped in lockstep:
 * `halted` is exposed so the harness can stop, mirroring `Processor::IsHalted()`.
 * `booted` marks the end of the reset vector-table boot, so the harness can diff the reset image
   before the first instruction retires.
+* `unsupported` is raised at the commit edge when the instruction cannot be executed yet: a defined
+  opcode the milestone has not reached, or an undefined one. It is how a partially-implemented
+  `processor` announces its own frontier instead of silently retiring an instruction it does not
+  understand. Milestone tests assert it stays low, and it disappears as the opcode set fills in.
 * A `mem_*` bus port (below) is held stable across the bus-wait cycles.
 
 The testbench loop is then: drive the program into shared memory, reset both models, then for each
@@ -174,6 +178,26 @@ staleness test working. Vectors must respect the validity rules the decoder alre
 M0–M7 reproduce `Processor::Cycle()` exactly. M8–M10 reach the documented design, with the C++
 model extended first. M12 is the microarchitecture.
 
+### M1 notes
+
+* **One FSM, one edge.** `S_FETCH` drives the bus and latches the word; `S_COMMIT` performs the
+  register writes, the program-address advance, the counter and `retire` on a single edge. The
+  cycle count per instruction is an implementation detail — the harness only compares state at the
+  retire boundary — but keeping fetch and execute separate is what lets M2 add bus-wait states
+  without reshaping the FSM.
+* **Fields come from the union.** The `instruction_t` view (`view.copy.dst`, `view.move.shift`, …)
+  is used rather than shifting the raw word by hand, so the field positions stay owned by
+  `rtl/isa.sv` and are already covered by `gtest_layout`.
+* **The implemented set is data, not control flow.** `is_implemented()` lists the opcodes this
+  milestone executes; the `S_COMMIT` case and this function grow together, and `default` sets
+  `unsupported`.
+* **Tests read the generated layout.** `SetField()` in the test looks a field up by name in the
+  generated `isa::layout` tables instead of restating bit positions. It exists because the `Move`
+  builder cannot express a shift of 4 or more — see P-023 in @ref rtl_parity.
+* **Reset-image stimulus.** The M1 tests do not need a preamble to seed registers: the reset image
+  (scratch all ones, evaluations 0xFF) is already pinned by `ResetStateMatchesTheFastModel`, and a
+  cleared source register is a distinguishable outcome.
+
 ## Build and target changes
 
 `projects/isa/CMakeLists.txt` builds two Verilator targets, both gated behind `BUILD_VERILOG`:
@@ -188,7 +212,7 @@ add_library(isa_rtl_processor_sim)
 verilate(isa_rtl_processor_sim
     PREFIX Vprocessor
     TOP_MODULE processor
-    SOURCES rtl/isa.sv rtl/processor.sv)
+    SOURCES rtl/isa.sv rtl/decoder.sv rtl/processor.sv)
 
 add_executable(gtest_isa_rtl_processor test/gtest_rtl_processor.cpp)
 target_link_libraries(gtest_isa_rtl_processor

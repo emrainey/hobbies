@@ -1,5 +1,6 @@
 #include <cstddef>
 #include <limits>
+#include <sstream>
 #include <stdexcept>
 
 #include <gmock/gmock.h>
@@ -36,7 +37,7 @@ protected:
         special.return_address_ = isa::Address{kCodeAddress + 0x40U};
         special.performance_counter_ = 0U;
 
-        // Configure stack values so Grow/Undo can be checked deterministically.
+        // Configure stack values so Grow/Fall can be checked deterministically.
         special.stack_.current = isa::Address{0x10001000U};
         special.stack_.base = isa::Address{0x10001000U};
         special.stack_.limit = isa::Address{0x10002000U};
@@ -134,15 +135,38 @@ TEST_F(InstructionTest, MoveImmediateToEvaluationWritesLowByte) {
     EXPECT_EQ(0xA5U, cpu.ViewEvaluations()[1].value);
 }
 
-TEST_F(InstructionTest, SwapExchangesScratchValues) {
+TEST_F(InstructionTest, ErasedWordIsNoOp) {
+    isa::instructions::Instruction erased;
+    erased.raw = 0xFFFFFFFFU;
+    EXPECT_EQ(isa::Operator::None, erased.base());
+
+    const auto program_address = cpu.ViewSpecial().program_address_.value;
+    RunSingleInstruction(erased);
+    EXPECT_EQ(program_address + sizeof(isa::instructions::Instruction), cpu.ViewSpecial().program_address_.value);
+}
+
+TEST_F(InstructionTest, SwapExchangesScratchWithMemory) {
+    ASSERT_TRUE(cpu.Poke(kDataAddress, 0x55555555U));
     cpu.GetScratch()[1].as_u32[0] = 0xAAAAAAAAU;
-    cpu.GetScratch()[2].as_u32[0] = 0x55555555U;
+    cpu.GetScratch()[2].as_address = isa::Address{kDataAddress};
 
     RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Swap{
         isa::Operand{isa::Operand::Type::Scratch, 1}, isa::Operand{isa::Operand::Type::Scratch, 2}}});
 
+    uint32_t word = 0U;
+    ASSERT_TRUE(cpu.Peek(kDataAddress, word));
+    EXPECT_EQ(0xAAAAAAAAU, word);
     EXPECT_EQ(0x55555555U, cpu.ViewScratch()[1].as_u32[0]);
-    EXPECT_EQ(0xAAAAAAAAU, cpu.ViewScratch()[2].as_u32[0]);
+}
+
+TEST_F(InstructionTest, SwapToInvalidAddressRaisesBusFault) {
+    cpu.GetScratch()[1].as_u32[0] = 0x1234U;
+    cpu.GetScratch()[2].as_address = isa::Address{0xF0000000U};
+
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Swap{
+        isa::Operand{isa::Operand::Type::Scratch, 1}, isa::Operand{isa::Operand::Type::Scratch, 2}}});
+
+    EXPECT_EQ(0x1234U, cpu.ViewScratch()[1].as_u32[0]);
 }
 
 TEST_F(InstructionTest, ZeroClearsMaskedScratchRegisters) {
@@ -413,10 +437,10 @@ TEST_F(InstructionTest, GrowMovesStackPointerDownByImmediateWords) {
     EXPECT_EQ(0x10000FFCU, cpu.ViewSpecial().stack_.current.value);
 }
 
-TEST_F(InstructionTest, UndoMovesStackPointerUpByImmediateWords) {
+TEST_F(InstructionTest, FallMovesStackPointerUpByImmediateWords) {
     cpu.GetSpecial().stack_.current = isa::Address{0x10000FFCU};
 
-    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Undo{isa::Immediate<10>{1U}}});
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Fall{isa::Immediate<10>{1U}}});
 
     EXPECT_EQ(0x10001000U, cpu.ViewSpecial().stack_.current.value);
 }
@@ -531,8 +555,30 @@ TEST_F(InstructionTest, TripSetsExceptionAndJumpsToTripHandler) {
         isa::instructions::Trip{isa::Immediate<10>{static_cast<uint32_t>(isa::ExceptionType::Tripped)}}});
 
     EXPECT_TRUE(cpu.ViewSpecial().exception_.tripped);
+    EXPECT_FALSE(cpu.HasBreakPoint());
     EXPECT_EQ(isa::ExceptionType::Tripped, static_cast<isa::ExceptionType>(cpu.ViewSpecial().numeral_.trip));
     EXPECT_EQ(kTripHandler, cpu.ViewSpecial().program_address_.value);
+}
+
+TEST_F(InstructionTest, TripCanAlsoSignalAndClearDebuggerBreak) {
+    RunSingleInstruction(isa::instructions::Instruction{
+        isa::instructions::Trip{isa::Immediate<10>{static_cast<uint32_t>(isa::ExceptionType::Tripped)}, true}});
+
+    EXPECT_TRUE(cpu.ViewSpecial().exception_.tripped);
+    EXPECT_TRUE(cpu.HasBreakPoint());
+    EXPECT_EQ(kTripHandler, cpu.ViewSpecial().program_address_.value);
+
+    cpu.ClearBreakPointHit();
+    EXPECT_FALSE(cpu.HasBreakPoint());
+}
+
+TEST_F(InstructionTest, ConditionalTripDoesNotSignalDebuggerBreakWhenNotTaken) {
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Trip{
+        isa::Operand{isa::Operand::Type::Evaluation, 0}, isa::Operand{isa::Operand::Type::Evaluation, 1},
+        isa::Immediate<10>{static_cast<uint32_t>(isa::ExceptionType::Tripped)}, true}});
+
+    EXPECT_FALSE(cpu.ViewSpecial().exception_.tripped);
+    EXPECT_FALSE(cpu.HasBreakPoint());
 }
 
 TEST_F(InstructionTest, CompareUpdatesEvaluationFlags) {
@@ -630,6 +676,166 @@ TEST_F(InstructionTest, BitwiseCountLeadingZerosWritesResult) {
     EXPECT_EQ(8U, cpu.ViewScratch()[1].as_u32[0]);
 }
 
+namespace {
+using isa::Operand;
+using isa::instructions::Bitwise1;
+using isa::instructions::Bitwise2;
+using isa::instructions::Instruction;
+constexpr Operand S1{Operand::Type::Scratch, 1};
+constexpr Operand S2{Operand::Type::Scratch, 2};
+constexpr Operand S3{Operand::Type::Scratch, 3};
+constexpr Operand E4{Operand::Type::Evaluation, 4};
+}  // namespace
+
+TEST_F(InstructionTest, BitwiseArithmeticShiftRightKeepsSign) {
+    cpu.GetScratch()[2].as_u32[0] = 0x80000000U;
+    RunSingleInstruction(Instruction{Bitwise1::Asr(S1, S2, isa::Immediate<5>{4U})});
+    EXPECT_EQ(0xF8000000U, cpu.ViewScratch()[1].as_u32[0]);
+}
+
+TEST_F(InstructionTest, BitwiseRotateWrapsBitsAround) {
+    cpu.GetScratch()[2].as_u32[0] = 0x80000001U;
+    RunSingleInstruction(Instruction{Bitwise1::Rotate(S1, S2, isa::Immediate<5>{4U})});
+    EXPECT_EQ(0x00000018U, cpu.ViewScratch()[1].as_u32[0]);
+    RunSingleInstruction(Instruction{Bitwise1::Rotate(S1, S2, isa::Immediate<5>{28U})});
+    EXPECT_EQ(0x18000000U, cpu.ViewScratch()[1].as_u32[0]);
+}
+
+TEST_F(InstructionTest, BitwiseNotIsLogical) {
+    cpu.GetScratch()[2].as_u32[0] = 0x1234U;
+    RunSingleInstruction(Instruction{Bitwise1::Not(S1, S2)});
+    EXPECT_EQ(0U, cpu.ViewScratch()[1].as_u32[0]);
+    cpu.GetScratch()[2].as_u32[0] = 0U;
+    RunSingleInstruction(Instruction{Bitwise1::Not(S1, S2)});
+    EXPECT_EQ(0xFFFFFFFFU, cpu.ViewScratch()[1].as_u32[0]);
+}
+
+TEST_F(InstructionTest, BitwiseSetClearToggleBit) {
+    cpu.GetScratch()[2].as_u32[0] = 0x0000000FU;
+    RunSingleInstruction(Instruction{Bitwise1::Set(S1, S2, isa::Immediate<5>{8U})});
+    EXPECT_EQ(0x0000010FU, cpu.ViewScratch()[1].as_u32[0]);
+    RunSingleInstruction(Instruction{Bitwise1::Clear(S1, S2, isa::Immediate<5>{0U})});
+    EXPECT_EQ(0x0000000EU, cpu.ViewScratch()[1].as_u32[0]);
+    RunSingleInstruction(Instruction{Bitwise1::Toggle(S1, S2, isa::Immediate<5>{31U})});
+    EXPECT_EQ(0x8000000FU, cpu.ViewScratch()[1].as_u32[0]);
+}
+
+TEST_F(InstructionTest, BitwiseReverseBitsWithinUnits) {
+    cpu.GetScratch()[2].as_u32[0] = 0x01020304U;
+    RunSingleInstruction(Instruction{Bitwise1::ReverseBytes(S1, S2)});
+    EXPECT_EQ(0x8040C020U, cpu.ViewScratch()[1].as_u32[0]);
+    RunSingleInstruction(Instruction{Bitwise1::ReverseHalf(S1, S2)});
+    EXPECT_EQ(0x408020C0U, cpu.ViewScratch()[1].as_u32[0]);
+    cpu.GetScratch()[2].as_u32[0] = 0x00000001U;
+    RunSingleInstruction(Instruction{Bitwise1::ReverseWord(S1, S2)});
+    EXPECT_EQ(0x80000000U, cpu.ViewScratch()[1].as_u32[0]);
+}
+
+TEST_F(InstructionTest, BitwiseSetsArithmeticFlagsWhenEvaluated) {
+    cpu.GetScratch()[2].as_u32[0] = 0xF0F0F0F0U;
+    cpu.GetScratch()[3].as_u32[0] = 0x0F0F0F0FU;
+    RunSingleInstruction(Instruction{Bitwise2::And(S1, S2, S3).Evaluate(E4)});
+    EXPECT_EQ(0U, cpu.ViewScratch()[1].as_u32[0]);
+    EXPECT_EQ(isa::to_underlying(isa::EvaluationType::Arithmetic), cpu.ViewEvaluations()[4].arithmetic.type);
+    EXPECT_EQ(1U, cpu.ViewEvaluations()[4].arithmetic.zero);
+    EXPECT_EQ(1U, cpu.ViewEvaluations()[4].arithmetic.positive);
+
+    RunSingleInstruction(Instruction{Bitwise2::Or(S1, S2, S3).Evaluate(E4)});
+    EXPECT_EQ(0U, cpu.ViewEvaluations()[4].arithmetic.zero);
+    EXPECT_EQ(0U, cpu.ViewEvaluations()[4].arithmetic.positive);
+
+    RunSingleInstruction(Instruction{Bitwise1::Count(S1, S2).Evaluate(E4)});
+    EXPECT_EQ(1U, cpu.ViewEvaluations()[4].arithmetic.positive);
+}
+
+TEST_F(InstructionTest, BitwiseWithoutEvaluateLeavesEvaluationUntouched) {
+    cpu.GetScratch()[2].as_u32[0] = 1U;
+    cpu.GetScratch()[3].as_u32[0] = 2U;
+    const auto before = cpu.ViewEvaluations()[4].value;
+    RunSingleInstruction(Instruction{Bitwise2::Or(S1, S2, S3)});
+    EXPECT_EQ(before, cpu.ViewEvaluations()[4].value);
+}
+
+TEST_F(InstructionTest, BitwiseFormatting) {
+    std::ostringstream os;
+    os << Instruction{Bitwise1::Set(S1, S2, isa::Immediate<5>{3U}).Evaluate(E4)} << "|"
+       << Instruction{Bitwise1::Not(S1, S2)} << "|" << Instruction{Bitwise1::ReverseHalf(S1, S2)} << "|"
+       << Instruction{Bitwise2::Xor(S1, S2, S3).Evaluate(E4)};
+    EXPECT_EQ("bset S1, S2, #3 : E4|bnot S1, S2|brev.h S1, S2|bxor S1, S2, S3 : E4", os.str());
+}
+
+TEST_F(InstructionTest, SignExtendWidensByteAndHalfWord) {
+    cpu.GetScratch()[2].as_u32[0] = 0x12345680U;
+    RunSingleInstruction(Instruction{isa::instructions::Extend::Sign(S1, S2, isa::Size::Byte)});
+    EXPECT_EQ(0xFFFFFF80U, cpu.ViewScratch()[1].as_u32[0]);
+    cpu.GetScratch()[2].as_u32[0] = 0x12348000U;
+    RunSingleInstruction(Instruction{isa::instructions::Extend::Sign(S1, S2, isa::Size::HalfWord)});
+    EXPECT_EQ(0xFFFF8000U, cpu.ViewScratch()[1].as_u32[0]);
+    cpu.GetScratch()[2].as_u32[0] = 0xFFFFFF7FU;
+    RunSingleInstruction(Instruction{isa::instructions::Extend::Sign(S1, S2, isa::Size::Byte)});
+    EXPECT_EQ(0x0000007FU, cpu.ViewScratch()[1].as_u32[0]);
+}
+
+TEST_F(InstructionTest, ZeroExtendClearsUpperBits) {
+    cpu.GetScratch()[2].as_u32[0] = 0xFFFFFF80U;
+    RunSingleInstruction(Instruction{isa::instructions::Extend::Zero(S1, S2, isa::Size::Byte)});
+    EXPECT_EQ(0x00000080U, cpu.ViewScratch()[1].as_u32[0]);
+    cpu.GetScratch()[2].as_u32[0] = 0xFFFF8000U;
+    RunSingleInstruction(Instruction{isa::instructions::Extend::Zero(S1, S2, isa::Size::HalfWord)});
+    EXPECT_EQ(0x00008000U, cpu.ViewScratch()[1].as_u32[0]);
+}
+
+TEST_F(InstructionTest, ExtendSetsFlagsAndFormats) {
+    cpu.GetScratch()[2].as_u32[0] = 0x80U;
+    RunSingleInstruction(Instruction{isa::instructions::Extend::Sign(S1, S2, isa::Size::Byte).Evaluate(E4)});
+    EXPECT_EQ(0U, cpu.ViewEvaluations()[4].arithmetic.positive);
+    EXPECT_EQ(0U, cpu.ViewEvaluations()[4].arithmetic.zero);
+    std::ostringstream os;
+    os << Instruction{isa::instructions::Extend::Sign(S1, S2, isa::Size::Byte).Evaluate(E4)} << "|"
+       << Instruction{isa::instructions::Extend::Zero(S1, S2, isa::Size::HalfWord)};
+    EXPECT_EQ("sext.b S1, S2 : E4|zext.h S1, S2", os.str());
+}
+
+TEST_F(InstructionTest, ZeroLeapAndArithmeticFormatting) {
+    std::ostringstream os;
+    os << Instruction{isa::instructions::Zero{Operand{Operand::Type::Mask, isa::Immediate<16>{0b101U}},
+                                              isa::RegisterType::Evaluation}}
+       << "|" << Instruction{isa::instructions::Leap{S1, isa::instructions::Leap::ImmediateType{-3}, true}} << "|"
+       << Instruction{isa::instructions::Leap{E4, Operand{Operand::Type::Evaluation, 5}, S1,
+                                              isa::instructions::Leap::ImmediateType{2}}}
+       << "|" << Instruction{isa::instructions::LeapImmediate{isa::Address{0x100U}, true}} << "|"
+       << Instruction{isa::instructions::Arithmetic::Adds(S1, S2, S3, isa::instructions::Arithmetic::Size::HalfWord)}
+       << "|" << Instruction{isa::instructions::Arithmetic::AdduSat(S1, S2, S3)};
+    EXPECT_EQ(
+        "zero.e 0b0000000000000101|leap.s S1, #-3|leap E4, E5, S1, #2|leap.s #0x00000100|add.s16 S1, S2, S3|"
+        "add.u32.sat S1, S2, S3",
+        os.str());
+}
+
+TEST_F(InstructionTest, NegateWordNegatesSignedValue) {
+    cpu.GetScratch()[2].as_s32[0] = 42;
+    RunSingleInstruction(Instruction{isa::instructions::Negate::Make(S1, S2)});
+    EXPECT_EQ(-42, cpu.ViewScratch()[1].as_s32[0]);
+}
+
+TEST_F(InstructionTest, NegateByteWrapsOrSaturatesAtMinimum) {
+    cpu.GetScratch()[2].as_s08[0] = -128;
+    RunSingleInstruction(Instruction{isa::instructions::Negate::Make(S1, S2, isa::Size::Byte).Evaluate(E4)});
+    EXPECT_EQ(-128, cpu.ViewScratch()[1].as_s08[0]);
+    EXPECT_EQ(1U, cpu.ViewEvaluations()[4].arithmetic.overflow);
+    RunSingleInstruction(Instruction{isa::instructions::Negate::Make(S1, S2, isa::Size::Byte, true)});
+    EXPECT_EQ(127, cpu.ViewScratch()[1].as_s08[0]);
+}
+
+TEST_F(InstructionTest, NegateSetsFlagsAndFormats) {
+    cpu.GetScratch()[2].as_s32[0] = 0;
+    RunSingleInstruction(Instruction{isa::instructions::Negate::Make(S1, S2).Evaluate(E4)});
+    EXPECT_EQ(1U, cpu.ViewEvaluations()[4].arithmetic.zero);
+    std::ostringstream os;
+    os << Instruction{isa::instructions::Negate::Make(S1, S2, isa::Size::HalfWord, true).Evaluate(E4)};
+    EXPECT_EQ("neg.s16.sat S1, S2 : E4", os.str());
+}
+
 TEST_F(InstructionTest, ArithmeticAdditionWritesResult) {
     cpu.GetScratch()[2].as_u32[0] = 12U;
     cpu.GetScratch()[3].as_u32[0] = 30U;
@@ -719,6 +925,68 @@ TEST_F(InstructionTest, FloatingCeilWritesCeiledValue) {
         isa::Operand{isa::Operand::Type::Scratch, 1}, isa::Operand{isa::Operand::Type::Scratch, 2})});
 
     EXPECT_FLOAT_EQ(4.0F, cpu.ViewScratch()[1].as_float[0]);
+}
+
+TEST_F(InstructionTest, FloatingConvertFloatToIntTruncatesAndSaturates) {
+    using isa::Operand;
+    auto convert = [&](float value) {
+        cpu.GetScratch()[1].as_float[0] = value;
+        RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Precision1::Convert(
+            Operand{Operand::Type::Scratch, 0}, Operand{Operand::Type::Scratch, 1}, true)});
+        return cpu.ViewScratch()[0].as_s32[0];
+    };
+    EXPECT_EQ(3, convert(3.9F));
+    EXPECT_EQ(-3, convert(-3.9F));
+    EXPECT_EQ(std::numeric_limits<int32_t>::max(), convert(1e20F));
+    EXPECT_EQ(std::numeric_limits<int32_t>::min(), convert(-1e20F));
+}
+
+TEST_F(InstructionTest, FloatingConvertIntToFloat) {
+    using isa::Operand;
+    cpu.GetScratch()[1].as_s32[0] = -42;
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Precision1::Convert(
+        Operand{Operand::Type::Scratch, 0}, Operand{Operand::Type::Scratch, 1}, false)});
+    EXPECT_FLOAT_EQ(-42.0F, cpu.ViewScratch()[0].as_float[0]);
+}
+
+TEST_F(InstructionTest, ConditionalFloatingAddSetsPrecisionFlags) {
+    using isa::Operand;
+    auto add = [&](float a, float b) {
+        cpu.GetScratch()[1].as_float[0] = a;
+        cpu.GetScratch()[2].as_float[0] = b;
+        RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Precision2::FAdd(
+            Operand{Operand::Type::Scratch, 0}, Operand{Operand::Type::Scratch, 1}, Operand{Operand::Type::Scratch, 2},
+            Operand{Operand::Type::Evaluation, 3})});
+        return cpu.ViewEvaluations()[3].precision;
+    };
+    auto exact = add(1.0F, 2.0F);
+    EXPECT_EQ(isa::to_underlying(isa::EvaluationType::Precision), exact.type);
+    EXPECT_EQ(0U, exact.inexact);
+    EXPECT_EQ(0U, exact.rounded);
+    auto inexact = add(1.0F, 1e-10F);
+    EXPECT_EQ(1U, inexact.inexact);
+    EXPECT_EQ(1U, inexact.rounded);
+}
+
+TEST_F(InstructionTest, ConditionalFloatingMultiplySetsUnderflowAndSubnormal) {
+    using isa::Operand;
+    cpu.GetScratch()[1].as_float[0] = 1e-30F;
+    cpu.GetScratch()[2].as_float[0] = 1e-10F;
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Precision2::FMul(
+        Operand{Operand::Type::Scratch, 0}, Operand{Operand::Type::Scratch, 1}, Operand{Operand::Type::Scratch, 2},
+        Operand{Operand::Type::Evaluation, 3})});
+    EXPECT_EQ(1U, cpu.ViewEvaluations()[3].precision.underflow);
+    EXPECT_EQ(1U, cpu.ViewEvaluations()[3].precision.inexact);
+}
+
+TEST_F(InstructionTest, UnconditionalFloatingAddLeavesEvaluationUntouched) {
+    using isa::Operand;
+    cpu.GetScratch()[1].as_float[0] = 1.0F;
+    cpu.GetScratch()[2].as_float[0] = 1e-10F;
+    const auto before = cpu.ViewEvaluations()[3].value;
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Precision2::FAdd(
+        Operand{Operand::Type::Scratch, 0}, Operand{Operand::Type::Scratch, 1}, Operand{Operand::Type::Scratch, 2})});
+    EXPECT_EQ(before, cpu.ViewEvaluations()[3].value);
 }
 
 TEST_F(InstructionTest, FloatingFractionalWritesFractionalPart) {

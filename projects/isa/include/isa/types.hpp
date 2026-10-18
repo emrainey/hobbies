@@ -160,8 +160,12 @@ struct Address {
     //=================================================================================
 
     friend std::ostream& operator<<(std::ostream& os, Address const& address) {
+        auto const flags = os.flags();
+        auto const fill = os.fill();
         os << "0x" << std::hex << std::uppercase << std::setfill('0') << std::setw(sizeof(isa::Address) * 2U)
            << static_cast<isa::Address::StorageType>(address.value);
+        os.flags(flags);
+        os.fill(fill);
         return os;
     }
 };
@@ -450,7 +454,9 @@ struct Immediate {
     uint32_t : CountOfDataBits - BITS;
 
     friend std::ostream& operator<<(std::ostream& os, Immediate<BITS> imm) {
+        auto const flags = os.flags();
         os << "#" << std::hex << imm.value;
+        os.flags(flags);
         return os;
     }
 };
@@ -468,7 +474,9 @@ struct SignedImmediate {
     int32_t : CountOfDataBits - BITS;
 
     friend std::ostream& operator<<(std::ostream& os, SignedImmediate<BITS> imm) {
+        auto const flags = os.flags();
         os << "#" << std::hex << imm.value;
+        os.flags(flags);
         return os;
     }
 };

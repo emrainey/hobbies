@@ -4,6 +4,8 @@
 #include <basal/ieee754.hpp>
 #include <isa/cpu.hpp>
 
+#include <cfenv>
+#include <cmath>
 #include <cstdio>
 #include <filesystem>
 #include <limits>
@@ -30,6 +32,7 @@ void Processor::Reset() {
     evaluation_.fill(isa::Evaluation{0xFFU});
     special_ = Special{};
     halted_ = false;
+    break_point_hit_ = false;
 
     // Load the Entry point from the Vector Table Into the Program Address Register
     uint32_t offset = offsetof(VectorTable, reset_handler);
@@ -92,6 +95,10 @@ bool Processor::Poke(Address address, uint32_t value) {
 
 bool Processor::HasBreakPoint() const {
     return break_point_hit_;
+}
+
+void Processor::ClearBreakPointHit() {
+    break_point_hit_ = false;
 }
 
 bool Processor::SetBreakPoint(Address address) {
@@ -270,6 +277,16 @@ PersistenceReport Processor::Load(std::string const& folder) {
     return report;
 }
 
+namespace {
+/// Bitwise operations report the sign and zero state of their result; they never overflow.
+ArithmeticEvaluation BitwiseEvaluation(uint32_t result) {
+    ArithmeticEvaluation eval;
+    eval.positive = (result & 0x80000000U) == 0U ? 1U : 0U;
+    eval.zero = result == 0U ? 1U : 0U;
+    return eval;
+}
+}  // namespace
+
 void Processor::Cycle() {
     if (halted_) {
         return;
@@ -338,13 +355,16 @@ void Processor::Cycle() {
                 scratch_[instruction.movi.dst].as_u16[index] = instruction.movi.imm;
             }
             break;
-        case isa::Operator::Swap:
-            if (instruction.swap.type == RegisterType::Scratch) {
-                std::swap(scratch_[instruction.swap.a], scratch_[instruction.swap.b]);
-            } else {
-                std::swap(evaluation_[instruction.swap.a], evaluation_[instruction.swap.b]);
+        case isa::Operator::Swap: {
+            const Address address{scratch_[instruction.swap.b].as_address};
+            uint32_t word = 0U;
+            if (not Peek(address, word) or not Poke(address, scratch_[instruction.swap.a].as_u32[0])) {
+                special_.exception_.bus_fault = 1;
+                break;
             }
+            scratch_[instruction.swap.a].as_u32[0] = word;
             break;
+        }
         case isa::Operator::Zero:
             if (instruction.clear.type == RegisterType::Scratch) {
                 for (size_t i = 0; i < scratch_.size(); ++i) {
@@ -542,21 +562,19 @@ void Processor::Cycle() {
             }
             break;
         }
-        case Operator::Undo: {
-            const auto& undo = instruction.undo;
-            uint32_t eval = evaluation_[undo.eval].value;
-            uint32_t mask = evaluation_[undo.mask].value;
+        case Operator::Fall: {
+            const auto& fall = instruction.fall;
+            uint32_t eval = evaluation_[fall.eval].value;
+            uint32_t mask = evaluation_[fall.mask].value;
             bool allowed = true;
-            if (undo.cond) {
-                // if the eval & mask is not zero, then perform the undo
+            if (fall.cond) {
+                // If the eval & mask is not zero, then restore the stack space.
                 allowed = (eval & mask) != 0U;
             }
             if (allowed) {
-                /// Undo the growth of the Stack Pointer by the immediate value * 4 (since the immediate value is in
-                /// terms of 32-bit words) This is done by adding the immediate value to the current Stack Pointer, and
-                /// we also need to check for stack underflow by ensuring that we don't undo the growth beyond the
-                /// initial stack pointer.
-                Address next = special_.stack_.current + Address{static_cast<isa::Address::StorageType>(undo.imm * 4U)};
+                /// Restore stack space by adding the immediate value * 4 (in 32-bit words) to the current Stack
+                /// Pointer, without moving beyond the stack limit.
+                Address next = special_.stack_.current + Address{static_cast<isa::Address::StorageType>(fall.imm * 4U)};
                 if (next <= special_.stack_.limit) {
                     special_.stack_.current = next;
                 } else {
@@ -657,6 +675,9 @@ void Processor::Cycle() {
                 special_.numeral_.trip = trip.imm;
                 // special_.exception_.type = static_cast<ExceptionType>(trip.imm);
                 special_.exception_.tripped = 1;
+                if (trip.debug_break) {
+                    break_point_hit_ = true;
+                }
             }
             break;
         }
@@ -683,71 +704,105 @@ void Processor::Cycle() {
             evaluation_[compare.e] = cmp;
             break;
         }
-        case Operator::And: {
-            const auto& bitwise = instruction.bitwise2;
-            uint32_t result = scratch_[bitwise.src1].as_u32[0] & scratch_[bitwise.src2].as_u32[0];
-            scratch_[bitwise.dst].as_u32[0] = result;
-            break;
-        }
-        case Operator::Or: {
-            const auto& bitwise = instruction.bitwise2;
-            uint32_t result = scratch_[bitwise.src1].as_u32[0] | scratch_[bitwise.src2].as_u32[0];
-            scratch_[bitwise.dst].as_u32[0] = result;
-            break;
-        }
+        case Operator::And:
+        case Operator::Or:
         case Operator::Xor: {
             const auto& bitwise = instruction.bitwise2;
-            uint32_t result = scratch_[bitwise.src1].as_u32[0] ^ scratch_[bitwise.src2].as_u32[0];
-            scratch_[bitwise.dst].as_u32[0] = result;
-            break;
-        }
-        case Operator::Complement: {
-            const auto& complement_instr = instruction.bitwise1;
-            uint32_t result = ~scratch_[complement_instr.src].as_u32[0];
-            scratch_[complement_instr.dst].as_u32[0] = result;
-            break;
-        }
-        case Operator::Rsh: {
-            const auto& rsh_instr = instruction.bitwise1;
-            uint32_t result = scratch_[rsh_instr.src].as_u32[0] >> rsh_instr.shift;
-            scratch_[rsh_instr.dst].as_u32[0] = result;
-            break;
-        }
-        case Operator::Lsh: {
-            const auto& lsh_instr = instruction.bitwise1;
-            uint32_t result = scratch_[lsh_instr.src].as_u32[0] << lsh_instr.shift;
-            scratch_[lsh_instr.dst].as_u32[0] = result;
-            break;
-        }
-        case Operator::Count1s: {
-            const auto& count_instr = instruction.bitwise1;
-            uint32_t value = scratch_[count_instr.src].as_u32[0];
+            const uint32_t lhs = scratch_[bitwise.src1].as_u32[0];
+            const uint32_t rhs = scratch_[bitwise.src2].as_u32[0];
             uint32_t result = 0U;
-            while (value) {
-                result += value & 1U;
-                value >>= 1;
+            if (instruction.base() == Operator::And) {
+                result = lhs & rhs;
+            } else if (instruction.base() == Operator::Or) {
+                result = lhs | rhs;
+            } else {
+                result = lhs ^ rhs;
             }
-            scratch_[count_instr.dst].as_u32[0] = result;
+            scratch_[bitwise.dst].as_u32[0] = result;
+            if (bitwise.cond) {
+                evaluation_[bitwise.eval] = BitwiseEvaluation(result);
+            }
             break;
         }
-        case Operator::CountL0s: {
-            const auto& count_instr = instruction.bitwise1;
-            uint32_t value = scratch_[count_instr.src].as_u32[0];
+        case Operator::Complement:
+        case Operator::Rsh:
+        case Operator::Asr:
+        case Operator::Lsh:
+        case Operator::Rotate:
+        case Operator::Count1s:
+        case Operator::CountL0s:
+        case Operator::Not:
+        case Operator::SetBit:
+        case Operator::ClearBit:
+        case Operator::ToggleBit:
+        case Operator::Reverse: {
+            const auto& bitwise = instruction.bitwise1;
+            const uint32_t value = scratch_[bitwise.src].as_u32[0];
+            const uint32_t shift = bitwise.shift;
             uint32_t result = 0U;
-            uint32_t shift = 31;
-            uint32_t mask = 1U << shift;
-            // count the leading zeros by checking the most significant bit shifting right until we encounter a 1 or run
-            // out of bits
-            while ((value & mask) == 0U) {
-                result++;
-                if (shift == 0) {
+            bool valid = true;
+            switch (instruction.base()) {
+                case Operator::Complement:
+                    result = ~value;
                     break;
-                } else {
-                    shift--;
-                    mask = 1U << shift;
+                case Operator::Rsh:
+                    result = value >> shift;
+                    break;
+                case Operator::Asr:
+                    result = static_cast<uint32_t>(static_cast<int32_t>(value) >> shift);
+                    break;
+                case Operator::Lsh:
+                    result = value << shift;
+                    break;
+                case Operator::Rotate:
+                    result = (shift == 0U) ? value : ((value << shift) | (value >> (32U - shift)));
+                    break;
+                case Operator::Count1s:
+                    for (uint32_t v = value; v != 0U; v >>= 1) {
+                        result += v & 1U;
+                    }
+                    break;
+                case Operator::CountL0s:
+                    while (result < 32U && (value & (0x80000000U >> result)) == 0U) {
+                        result++;
+                    }
+                    break;
+                case Operator::Not:
+                    result = (value == 0U) ? 0xFFFFFFFFU : 0U;
+                    break;
+                case Operator::SetBit:
+                    result = value | (1U << shift);
+                    break;
+                case Operator::ClearBit:
+                    result = value & ~(1U << shift);
+                    break;
+                case Operator::ToggleBit:
+                    result = value ^ (1U << shift);
+                    break;
+                default: {  // Reverse the bits within each byte (0), half-word (1) or word (2)
+                    if (shift > 2U) {
+                        valid = false;
+                        break;
+                    }
+                    const uint32_t unit_bits = 8U << shift;
+                    for (uint32_t base = 0U; base < 32U; base += unit_bits) {
+                        for (uint32_t bit = 0U; bit < unit_bits; ++bit) {
+                            if ((value & (1U << (base + bit))) != 0U) {
+                                result |= 1U << (base + unit_bits - 1U - bit);
+                            }
+                        }
+                    }
+                    break;
                 }
             }
-            scratch_[count_instr.dst].as_u32[0] = result;
+            if (not valid) {
+                special_.exception_.instruction_fault = 1;
+                break;
+            }
+            scratch_[bitwise.dst].as_u32[0] = result;
+            if (bitwise.cond) {
+                evaluation_[bitwise.eval] = BitwiseEvaluation(result);
+            }
             break;
         }
         case Operator::Addition: {
@@ -1023,6 +1078,59 @@ void Processor::Cycle() {
             }
             break;
         }
+        case Operator::Extend: {
+            const auto& extend = instruction.extend;
+            uint32_t result = 0U;
+            if (extend.size == static_cast<uint32_t>(isa::Size::Byte)) {
+                result = extend.sign ? static_cast<uint32_t>(static_cast<int32_t>(scratch_[extend.src].as_s08[0]))
+                                     : static_cast<uint32_t>(scratch_[extend.src].as_u08[0]);
+            } else if (extend.size == static_cast<uint32_t>(isa::Size::HalfWord)) {
+                result = extend.sign ? static_cast<uint32_t>(static_cast<int32_t>(scratch_[extend.src].as_s16[0]))
+                                     : static_cast<uint32_t>(scratch_[extend.src].as_u16[0]);
+            } else {
+                special_.exception_.instruction_fault = 1;
+                break;
+            }
+            scratch_[extend.dst].as_u32[0] = result;
+            if (extend.cond) {
+                evaluation_[extend.eval] = BitwiseEvaluation(result);
+            }
+            break;
+        }
+        case Operator::Negate: {
+            const auto& negate = instruction.negate;
+            Evaluation flags;
+            switch (static_cast<isa::Size>(negate.size)) {
+                case isa::Size::Byte: {
+                    auto [result, eval]
+                        = operations::Subtraction<int8_t, int16_t>(0, scratch_[negate.src].as_s08[0], negate.sat);
+                    scratch_[negate.dst].as_s08[0] = result;
+                    flags = eval;
+                    break;
+                }
+                case isa::Size::HalfWord: {
+                    auto [result, eval]
+                        = operations::Subtraction<int16_t, int32_t>(0, scratch_[negate.src].as_s16[0], negate.sat);
+                    scratch_[negate.dst].as_s16[0] = result;
+                    flags = eval;
+                    break;
+                }
+                case isa::Size::Word: {
+                    auto [result, eval]
+                        = operations::Subtraction<int32_t, int64_t>(0, scratch_[negate.src].as_s32[0], negate.sat);
+                    scratch_[negate.dst].as_s32[0] = result;
+                    flags = eval;
+                    break;
+                }
+                default:
+                    special_.exception_.instruction_fault = 1;
+                    break;
+            }
+            if (negate.cond and not special_.exception_.instruction_fault) {
+                evaluation_[negate.eval] = flags;
+            }
+            break;
+        }
         case Operator::Modulo: {
             const auto& arithmetic = instruction.arithmetic;
             switch (static_cast<instructions::Arithmetic::Size>(arithmetic.size)) {
@@ -1137,37 +1245,63 @@ void Processor::Cycle() {
             scratch_[precision1.dst].as_float[0] = value - std::floor(value);
             break;
         }
-        case Operator::FloatingAddition: {
-            const auto& precision2 = instruction.precision2;
-            float a = scratch_[precision2.src1].as_float[0];
-            float b = scratch_[precision2.src2].as_float[0];
-            scratch_[precision2.dst].as_float[0] = a + b;
+        case Operator::FloatingConvert: {
+            const auto& precision1 = instruction.precision1;
+            if (precision1.dir) {
+                // float to int truncates toward zero and saturates; NaN becomes 0
+                const float value = scratch_[precision1.src].as_float[0];
+                int32_t result = 0;
+                if (value >= 2147483648.0F) {
+                    result = std::numeric_limits<int32_t>::max();
+                } else if (value <= -2147483648.0F) {
+                    result = std::numeric_limits<int32_t>::min();
+                } else if (value == value) {
+                    result = static_cast<int32_t>(value);
+                }
+                scratch_[precision1.dst].as_s32[0] = result;
+            } else {
+                scratch_[precision1.dst].as_float[0] = static_cast<float>(scratch_[precision1.src].as_s32[0]);
+            }
             break;
         }
-        case Operator::FloatingSubtraction: {
-            const auto& precision2 = instruction.precision2;
-            float a = scratch_[precision2.src1].as_float[0];
-            float b = scratch_[precision2.src2].as_float[0];
-            scratch_[precision2.dst].as_float[0] = a - b;
-            break;
-        }
-        case Operator::FloatingMultiplication: {
-            const auto& precision2 = instruction.precision2;
-            float a = scratch_[precision2.src1].as_float[0];
-            float b = scratch_[precision2.src2].as_float[0];
-            scratch_[precision2.dst].as_float[0] = a * b;
-            break;
-        }
+        case Operator::FloatingAddition:
+        case Operator::FloatingSubtraction:
+        case Operator::FloatingMultiplication:
         case Operator::FloatingDivision: {
             const auto& precision2 = instruction.precision2;
-            float divisor = scratch_[precision2.src2].as_float[0];
-            // very nearly zero from either direction
-            if (std::abs(divisor) < std::numeric_limits<float>::epsilon()) {
-                // Division by zero exception
+            volatile float a = scratch_[precision2.src1].as_float[0];
+            volatile float b = scratch_[precision2.src2].as_float[0];
+            if (instruction.base() == Operator::FloatingDivision
+                and std::abs(scratch_[precision2.src2].as_float[0]) < std::numeric_limits<float>::epsilon()) {
+                // very nearly zero from either direction, so this is a division by zero
                 special_.exception_.instruction_fault = 1;
-            } else {
-                float dividend = scratch_[precision2.src1].as_float[0];
-                scratch_[precision2.dst].as_float[0] = dividend / divisor;
+                break;
+            }
+            std::feclearexcept(FE_ALL_EXCEPT);
+            volatile float result = 0.0F;
+            switch (instruction.base()) {
+                case Operator::FloatingAddition:
+                    result = a + b;
+                    break;
+                case Operator::FloatingSubtraction:
+                    result = a - b;
+                    break;
+                case Operator::FloatingMultiplication:
+                    result = a * b;
+                    break;
+                default:
+                    result = a / b;
+                    break;
+            }
+            const int raised = std::fetestexcept(FE_INEXACT | FE_UNDERFLOW);
+            scratch_[precision2.dst].as_float[0] = result;
+            if (precision2.cond) {
+                PrecisionEvaluation flags;
+                flags.inexact = (raised & FE_INEXACT) != 0 ? 1U : 0U;
+                flags.rounded = flags.inexact;
+                flags.subnormal = std::fpclassify(static_cast<float>(result)) == FP_SUBNORMAL ? 1U : 0U;
+                flags.underflow = (raised & FE_UNDERFLOW) != 0 ? 1U : 0U;
+                evaluation_[precision2.eval] = flags;
             }
             break;
         }

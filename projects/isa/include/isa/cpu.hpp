@@ -199,7 +199,9 @@ struct Exception {
 
     friend std::ostream& operator<<(std::ostream& os, Exception exc) {
         word<CountOfDataBits> fields = *reinterpret_cast<word<CountOfDataBits>*>(&exc);
+        auto const flags = os.flags();
         os << std::hex << fields.as_u32[0];
+        os.flags(flags);
         // os << " R:" << exc.reset << " U:" << exc.unmaskable << "N:" << exc.nested << " B:" << exc.bus_fault
         //    << " I:" << exc.instruction_fault << " A:" << exc.arithmetic_fault << " S:" << exc.stack_fault
         //    << "C:" << exc.system_call << " D:" << exc.deferred << " T:" << exc.ticker << " P:" << exc.privilege_fault
@@ -567,6 +569,9 @@ public:
     /// Indicates if a breakpoint has been hit, which can be used for debugging and tooling purposes to determine
     /// whether to halt the CPU or not.
     bool HasBreakPoint() const;
+
+    /// Clears the debugger break signal so execution can resume.
+    void ClearBreakPointHit();
 
     /// Sets a break point at the given address, which will cause the CPU to halt when the program counter reaches that
     /// address.

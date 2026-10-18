@@ -33,7 +33,7 @@ For normal function calls, a `leap` is used.
 #### Epilogue
 
 ```asm
-0xxxxx undo #20         -- clean up local structure off stack
+0xxxxx fall #20         -- clean up local structure off stack
 0xxxxx pull #0003     -- restore caller's scratch registers
 0xxxxx move S0, #X      -- set return value
 0xxxxx back             -- return to caller
@@ -49,7 +49,7 @@ A system call would look like this in assembly which invokes a specific system c
 0xxxxx move S1, #arg2
 0xxxxx move S2, #arg3
 0xxxxx move S3, #arg4
-0xxxxx call #imm<16>
+0xxxxx call #imm<10>
 0xxxxx -- S0 has return value or pointer to structure on local stack
 ```
 Inside the system call handler, the system call number can be read from the `call` field of the `Numeral` struct in the special register, and the arguments can be read from S0-S3. The return value can be written back to S0 before returning from the handler.
@@ -62,7 +62,7 @@ Inside the system call handler, the system call number can be read from the `cal
 0xxxxx -- Read arguments from S0-S3
 0xxxxx -- Perform system call logic based on system call number and arguments
 0xxxxx -- Write return value to S0
-0xxxxx undo #20         -- clean up local structure off stack
+0xxxxx fall #20         -- clean up local structure off stack
 0xxxxx pull #000F     -- restore caller's scratch registers
 0xxxxx back             -- return to caller (sensitive to call and trip instruction returns)
 ```
@@ -70,14 +70,14 @@ Inside the system call handler, the system call number can be read from the `cal
 An C++ wrapper can be constructed like this:
 
 ```cpp
-/// System call with code #imm<16> and arguments arg1, arg2, arg3, arg4.
+/// System call with code #imm<10> and arguments arg1, arg2, arg3, arg4.
 /// @return A word which can be a value or a pointer to a structure in memory.
 /// @warning Returning a pointer to privileged memory will cause a privilege fault if the caller is unprivileged. Use with caution!
 template <uint16_t CODE>
 word call(word arg1, word arg2, word arg3, word arg4);
 
 // Example usage:
-auto result = call<0x1234>(arg1, arg2, arg3, arg4);
+auto result = call<0x234>(arg1, arg2, arg3, arg4);
 ```
 
 ### Tripped Exception
@@ -85,7 +85,7 @@ auto result = call<0x1234>(arg1, arg2, arg3, arg4);
 A triggered exception would look like this in assembly which invokes a specific exception handler based on the immediate argument:
 
 ```asm
-trip #imm<16>
+trip #imm<10>
 ```
 
 Inside the handler, it is expected that the handler will read the exception type from the `trip` field of the `Numeral` struct in the special register, and handle the exception accordingly. The handler can also read any relevant information about the exception from the other fields in the special register, such as the program address where the exception occurred, and can write any necessary information back to the special register before returning.
@@ -98,7 +98,7 @@ Inside the handler, it is expected that the handler will read the exception type
 0xxxxx -- Read other relevant information about the exception from special register fields
 0xxxxx -- Perform exception handling logic based on exception type and relevant information
 0xxxxx -- Write any necessary information back to special register fields
-0xxxxx undo #20         -- clean up local structure off stack
+0xxxxx fall #20         -- clean up local structure off stack
 0xxxxx pull #000F     -- restore caller's scratch registers
 0xxxxx back             -- return to caller (sensitive to call and trip instruction returns)
 ```

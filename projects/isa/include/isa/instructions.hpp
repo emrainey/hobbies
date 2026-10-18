@@ -12,40 +12,38 @@ namespace isa {
 /// The operation code for an instruction
 
 enum class Operator : uint32_t {
-    None = 0,  ///< noop
+    None = 0,  ///< noop (0x00000000; the erased word 0xFFFFFFFF also decodes as noop)
     // === Movement within Files ===
     Copy = 0x04U,           ///< copy scratchDestination, scratchSource
     Move = 0x08U,           ///< move scratchDestination, scratchSource, Source = 0
     MoveImmediate = 0x0CU,  ///< move immediate to scratch/evaluation register
-    Swap = 0x10U,           ///< swap scratchRegisterA, scratchRegisterB; reg_type (0=scratch, 1=evaluation)
-    Zero = 0x14U,           ///< clear registers using mask; reg_type (0=scratch, 1=evaluation)
+    Swap = 0x10U,           ///< swap scratchRegisterA with the word at the address in scratchRegisterB
+    Zero = 0x14U,           ///< zero.s/zero.e {mask}; clear the masked scratch (s) or evaluation (e) registers
     // === Special Register Manipulation ===
     Leap = 0x18U,  ///< leap to address in scratch with optional immediate offset and condition
     Back = 0x1CU,  ///< back from subroutine to address in Return Address Special Register
-    Grow = 0x20U,  ///< grow #imm<16> (mask of scratch)
-    Undo = 0x24U,  ///< undo #imm<16> (mask of scratch)
+    Grow = 0x20U,  ///< grow #imm<10> (words); optionally conditional on an evaluation and mask
+    Fall = 0x24U,  ///< fall #imm<10> (restore stack space)
     Push = 0x28U,  ///< push {mask} (mask of scratch)
     Pull = 0x2CU,  ///< pull {mask} (mask of scratch)
-    Call = 0x30U,  ///< call #imm<16> (System Call Number) This is the entry from User mode to Privileged Mode.
-    Trip = 0x34U,  ///< Trip #imm<16> (Trip an exception with the given exception type encoded in the immediate value.
+    Call = 0x30U,  ///< call #imm<10> (System Call Number) This is the entry from User mode to Privileged Mode.
+    Trip = 0x34U,  ///< trip #imm<10> (exception type encoded in the immediate value.
                    ///< This can be used to test triggering interrupts but must be called from privileged mode,
                    ///< otherwise a privileged instruction exception will be raised)
-    Breakpoint = 0x38U,  ///< Breakpoint #imm<16> (Trigger a breakpoint exception with the given immediate value. This
-                         ///< can be used to set breakpoints in software for debugging)
     // === Memory Operations ===
     Load = 0x3CU,  ///< load scratchDestination, scratchAddress
-    Save = 0x40U,  ///< store scratchSource, scratchAddress
+    Save = 0x40U,  ///< save scratchSource, scratchAddress
     // === Comparison ===
-    Compare = 0x44U,  ///< Compare scratchA, scratchB
+    Compare = 0x44U,  ///< comp scratchA, scratchB : eval
     // === Bit Operators ===
     // 1 arg
     Complement = 0x48U,  ///< bcpl scratchDestination, scratchSource
     Rsh = 0x4CU,         ///< brsh scratchDestination, scratchSource, #imm<5>
     Asr = 0x50U,         ///< basr scratchDestination, scratchSource, #imm<5>
     Lsh = 0x54U,         ///< blsh scratchDestination, scratchSource, #imm<5>
-    Rotate = 0x58U,      ///< brot scratchDestination, scratchSource, #imm<5>
+    Rotate = 0x58U,      ///< brot scratchDestination, scratchSource, #imm<5> (rotate left)
     Count1s = 0x5CU,     ///< bcnt scratchDestination, scratchSource
-    CountL0s = 0x60U,    ///< bcnz scratchDestination, scratchSource
+    CountL0s = 0x60U,    ///< bclz scratchDestination, scratchSource
     Not = 0x64U,         ///< bnot scratchDestination, scratchSource
     SetBit = 0x68U,      ///< bset scratchDestination, scratchSource, #imm<5>
     ClearBit = 0x6CU,    ///< bclr scratchDestination, scratchSource, #imm<5>
@@ -71,12 +69,18 @@ enum class Operator : uint32_t {
     FloatingAbs = 0xA0U,         ///< fabs scratchDestination, scratchSource
     FloatingNegate = 0xA4U,      ///< fneg scratchDestination, scratchSource
     FloatingFractional = 0xA8U,  ///< ffrc scratchDestination, scratchSource
-    FloatingConvert = 0xACU,     ///< fcvts{type}{size} scratchDestination, scratchSource
+    FloatingConvert = 0xACU,     ///< fcvt.i2f/fcvt.f2i scratchDestination, scratchSource
     // 2 arg
-    FloatingAddition = 0xB0U,        ///< fadd scratchDestination, scratchSource, scratchSource -> Overflow or Underflow
-    FloatingSubtraction = 0xB4U,     ///< fsub scratchDestination, scratchSource, scratchSource -> Overflow or Underflow
-    FloatingMultiplication = 0xB8U,  ///< fmul scratchDestination, scratchSource, scratchSource -> Overflow or Underflow
-    FloatingDivision = 0xBCU,  ///< fdiv scratchDestination, scratchSource, scratchSource -> Fault if scratchSource == 0
+    FloatingAddition = 0xB0U,     ///< fadd scratchDestination, scratchSource, scratchSource : eval -> precision flags
+    FloatingSubtraction = 0xB4U,  ///< fsub scratchDestination, scratchSource, scratchSource : eval -> precision flags
+    FloatingMultiplication = 0xB8U,  ///< fmul scratchDestination, scratchSource, scratchSource : eval -> precision
+                                     ///< flags
+    FloatingDivision = 0xBCU,  ///< fdiv scratchDestination, scratchSource, scratchSource -> Fault if scratchSource ==
+                               ///< 0.0
+
+    // === ALU (Integer, 1 arg) ===
+    Negate = 0xC0U,  ///< neg.s{size} scratchDestination, scratchSource : Es (signed two's complement negate)
+    Extend = 0xC4U,  ///< sext/zext.{size} scratchDestination, scratchSource : Es (widen a byte/half-word to a word)
 
     // === ALU (SIMD) ===
 
@@ -147,6 +151,11 @@ public:
     Base& operator=(Base&&) = default;
 
     Operator operator()() const {
+        // An erased word (all ones) is a noop, not an immediate leap.
+        constexpr uint32_t kErasedArg = (1U << (CountOfDataBits - CountOfOperatorBits)) - 1U;
+        if (to_underlying(op) == ((1U << CountOfOperatorBits) - 1U) && arg == kErasedArg) {
+            return Operator::None;
+        }
         if ((to_underlying(op) & ImmediateLeapBitMask) != 0U) {
             return Operator::Leap;
         }
@@ -184,20 +193,6 @@ public:
 protected:
     Operator op : CountOfOperatorBits;
     uint32_t : CountOfDataBits - CountOfOperatorBits;
-};
-
-struct Breakpoint {
-    using ImmediateType = isa::Immediate<16>;
-    constexpr Breakpoint(ImmediateType imm) : op{Operator::Breakpoint}, imm{imm.value} {
-    }
-    friend std::ostream& operator<<(std::ostream& os, Breakpoint b) {
-        os << "bkpt " << Operand{Operand::Type::Mask, b.imm};
-        return os;
-    }
-
-    Operator op : CountOfOperatorBits;
-    uint32_t : CountOfDataBits - CountOfOperatorBits - ImmediateType::Bits;
-    uint32_t imm : ImmediateType::Bits;
 };
 
 struct Copy {
@@ -372,28 +367,21 @@ struct MoveImmediate {
 
 struct Swap {
     Swap() = delete;
-    constexpr Swap(Operand a, Operand b) : op{Operator::Swap}, a{a.index}, b{b.index}, type{0} {
-        basal::exception::throw_unless(a.type == b.type, __FILE__, __LINE__,
-                                       "Swap instruction requires both operands to be of the same type");
-        basal::exception::throw_if(
-            a.type == static_cast<uint32_t>(Operand::Type::None)
-                || a.type > static_cast<uint32_t>(Operand::Type::Evaluation),
-            __FILE__, __LINE__, "Swap instruction requires both operands to be either Scratch or Evaluation registers");
-        type = (a.type == to_underlying(Operand::Type::Scratch)) ? RegisterType::Scratch : RegisterType::Evaluation;
+    constexpr Swap(Operand a, Operand b) : op{Operator::Swap}, a{a.index}, b{b.index} {
+        basal::exception::throw_unless(
+            a.type == to_underlying(Operand::Type::Scratch) && b.type == to_underlying(Operand::Type::Scratch),
+            __FILE__, __LINE__, "Swap instruction requires both operands to be Scratch registers");
     }
 
     friend std::ostream& operator<<(std::ostream& os, Swap s) {
-        Operand::Type register_type
-            = s.type == RegisterType::Scratch ? Operand::Type::Scratch : Operand::Type::Evaluation;
-        os << "swap " << Operand{register_type, s.a} << ", " << Operand{register_type, s.b};
+        os << "swap " << Operand{Operand::Type::Scratch, s.a} << ", " << Operand{Operand::Type::Scratch, s.b};
         return os;
     }
 
     Operator op : CountOfOperatorBits;
-    uint32_t a : CountOfScratchIndexBits;
-    uint32_t b : CountOfScratchIndexBits;
-    RegisterType type : 1;
-    uint32_t : 15;
+    uint32_t a : CountOfScratchIndexBits;  ///< Scratch register swapped with memory
+    uint32_t b : CountOfScratchIndexBits;  ///< Scratch register holding the memory address
+    uint32_t : 16;
 };
 
 struct Zero {
@@ -403,7 +391,7 @@ struct Zero {
         : op{Operator::Zero}, mask{mask.imm}, type{to_underlying(evaluation)} {
     }
     friend std::ostream& operator<<(std::ostream& os, Zero c) {
-        os << "zero " << (c.type == RegisterType::Scratch ? 'S' : 'E') << ", "
+        os << "zero" << (c.type == RegisterType::Scratch ? ".s " : ".e ")
            << Operand{Operand::Type::Mask, ImmediateType{c.mask}};
         return os;
     }
@@ -620,12 +608,12 @@ struct Leap {
         , imm{imm.value} {
     }
     friend std::ostream& operator<<(std::ostream& os, Leap j) {
-        os << "leap ";
-        os << Operand{Operand::Type::Scratch, j.dst} << " + (" << ImmediateType{j.imm} << " * 4)";
+        os << (j.save ? "leap.s " : "leap ");
         if (j.cond) {
-            os << " : " << Operand{Operand::Type::Evaluation, j.eval} << ", "
-               << Operand{Operand::Type::Evaluation, j.mask};
+            os << Operand{Operand::Type::Evaluation, j.eval} << ", " << Operand{Operand::Type::Evaluation, j.mask}
+               << ", ";
         }
+        os << Operand{Operand::Type::Scratch, j.dst} << ", #" << static_cast<int32_t>(j.imm);
         return os;
     }
 
@@ -652,10 +640,8 @@ struct LeapImmediate {
     }
 
     friend std::ostream& operator<<(std::ostream& os, LeapImmediate j) {
-        os << "leap #" << Address{static_cast<Address::StorageType>(j.imm) << 2U};
-        if ((j.mode & ImmediateLeapSaveBitMask) != 0U) {
-            os << " (save)";
-        }
+        os << (((j.mode & ImmediateLeapSaveBitMask) != 0U) ? "leap.s #" : "leap #")
+           << Address{static_cast<Address::StorageType>(j.imm) << 2U};
         return os;
     }
 
@@ -676,7 +662,7 @@ struct Back {
     }
 
     Operator op : CountOfOperatorBits;
-    uint32_t zero : 1;  ///< If == 1, then the back will zero the return address after returning.
+    uint32_t zero : 1;  ///< If == 1, then the return address is reloaded with the safe handler address after returning.
     uint32_t : CountOfDataBits - CountOfOperatorBits - 1;
 };
 
@@ -702,12 +688,11 @@ struct Grow {
     }
 
     Operator op : CountOfOperatorBits;
-    uint32_t eval : CountOfEvalIndexBits;  ///< Evaluation Register to check for conditional trip (if cond == 1)
+    uint32_t eval : CountOfEvalIndexBits;  ///< Evaluation Register to check for conditional grow (if cond == 1)
     uint32_t mask : CountOfEvalIndexBits;  ///< Mask for the evaluation register
-    uint32_t cond : 1;                     ///< If == 1, then the trip will be conditional on the evaluation and mask.
+    uint32_t cond : 1;                     ///< If == 1, then the grow will be conditional on the evaluation and mask.
     uint32_t : CountOfDataBits - CountOfOperatorBits - (2 * CountOfEvalIndexBits) - ImmediateType::Bits - 1;
-    uint32_t imm : ImmediateType::Bits;  ///< Each bit corresponds to a scratch register. If the bit is set, the
-                                         ///< corresponding scratch register will be grown.
+    uint32_t imm : ImmediateType::Bits;  ///< Number of words to grow the stack by.
 };
 
 struct Push {
@@ -742,23 +727,23 @@ struct Pull {
                                          ///< corresponding scratch register will be pulled (restored).
 };
 
-struct Undo {
+struct Fall {
     using ImmediateType = isa::Immediate<10>;
-    Undo() = delete;
-    constexpr Undo(ImmediateType imm) : op{Operator::Undo}, eval{0}, mask{0}, cond{0}, imm{imm.value} {
+    Fall() = delete;
+    constexpr Fall(ImmediateType imm) : op{Operator::Fall}, eval{0}, mask{0}, cond{0}, imm{imm.value} {
     }
-    constexpr Undo(Operand e, Operand m, ImmediateType imm)
-        : op{Operator::Undo}, eval{e.index}, mask{m.index}, cond{1}, imm{imm.value} {
+    constexpr Fall(Operand e, Operand m, ImmediateType imm)
+        : op{Operator::Fall}, eval{e.index}, mask{m.index}, cond{1}, imm{imm.value} {
         basal::exception::throw_if(e.type != static_cast<uint32_t>(Operand::Type::Evaluation), __FILE__, __LINE__,
-                                   "Undo instruction requires the first operand to be an Evaluation register");
+                                   "Fall instruction requires the first operand to be an Evaluation register");
         basal::exception::throw_if(m.type != static_cast<uint32_t>(Operand::Type::Evaluation), __FILE__, __LINE__,
-                                   "Undo instruction requires the second operand to be an Evaluation register");
+                                   "Fall instruction requires the second operand to be an Evaluation register");
     }
-    friend std::ostream& operator<<(std::ostream& os, Undo u) {
-        os << "undo " << ImmediateType{u.imm};
-        if (u.cond) {
-            os << " : " << Operand{Operand::Type::Evaluation, u.eval} << ", "
-               << Operand{Operand::Type::Evaluation, u.mask};
+    friend std::ostream& operator<<(std::ostream& os, Fall f) {
+        os << "fall " << ImmediateType{f.imm};
+        if (f.cond) {
+            os << " : " << Operand{Operand::Type::Evaluation, f.eval} << ", "
+               << Operand{Operand::Type::Evaluation, f.mask};
         }
         return os;
     }
@@ -768,8 +753,7 @@ struct Undo {
     uint32_t mask : CountOfEvalIndexBits;  ///< Mask for the evaluation register
     uint32_t cond : 1;                     ///< If == 1, then the trip will be conditional on the evaluation and mask.
     uint32_t : CountOfDataBits - CountOfOperatorBits - (2 * CountOfEvalIndexBits) - ImmediateType::Bits - 1;
-    uint32_t imm : ImmediateType::Bits;  ///< Each bit corresponds to a scratch register. If the bit is set, the
-                                         ///< corresponding scratch register will be undone (shrunk).
+    uint32_t imm : ImmediateType::Bits;  ///< Number of stack words to restore.
 };
 
 struct Call {
@@ -804,17 +788,23 @@ struct Call {
 struct Trip {
     using ImmediateType = isa::Immediate<10>;
     Trip() = delete;
-    constexpr Trip(ImmediateType imm) : op{Operator::Trip}, eval{0}, mask{0}, cond{0}, imm{imm.value} {
+    constexpr Trip(ImmediateType imm, bool debug_break = false)
+        : op{Operator::Trip}, eval{0}, mask{0}, cond{0}, debug_break{debug_break ? 1U : 0U}, imm{imm.value} {
     }
-    constexpr Trip(Operand e, Operand m, ImmediateType imm)
-        : op{Operator::Trip}, eval{e.index}, mask{m.index}, cond{1}, imm{imm.value} {
+    constexpr Trip(Operand e, Operand m, ImmediateType imm, bool debug_break = false)
+        : op{Operator::Trip}
+        , eval{e.index}
+        , mask{m.index}
+        , cond{1}
+        , debug_break{debug_break ? 1U : 0U}
+        , imm{imm.value} {
         basal::exception::throw_if(e.type != static_cast<uint32_t>(Operand::Type::Evaluation), __FILE__, __LINE__,
                                    "Trip instruction requires the first operand to be an Evaluation register");
         basal::exception::throw_if(m.type != static_cast<uint32_t>(Operand::Type::Evaluation), __FILE__, __LINE__,
                                    "Trip instruction requires the second operand to be an Evaluation register");
     }
     friend std::ostream& operator<<(std::ostream& os, Trip t) {
-        os << "trip " << ImmediateType{t.imm};
+        os << (t.debug_break ? "trip.dbg " : "trip ") << ImmediateType{t.imm};
         if (t.cond) {
             os << " : " << Operand{Operand::Type::Evaluation, t.eval} << ", "
                << Operand{Operand::Type::Evaluation, t.mask};
@@ -826,7 +816,8 @@ struct Trip {
     uint32_t eval : CountOfEvalIndexBits;  ///< Evaluation Register to check for conditional trip (if cond == 1)
     uint32_t mask : CountOfEvalIndexBits;  ///< Mask for the evaluation register
     uint32_t cond : 1;                     ///< If == 1, then the trip will be conditional on the evaluation and mask.
-    uint32_t : CountOfDataBits - CountOfOperatorBits - (2 * CountOfEvalIndexBits) - ImmediateType::Bits - 1;
+    uint32_t debug_break : 1;              ///< If == 1, signal a debugger break when the trip is taken.
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (2 * CountOfEvalIndexBits) - ImmediateType::Bits - 2;
     uint32_t imm : ImmediateType::Bits;  ///< The immediate value of the exception type to trip.
 };
 
@@ -887,9 +878,8 @@ public:
         return Bitwise1(Operator::Asr, dst, src, shift);
     }
 
-    constexpr static Bitwise1 Rotate(Operand dst, Operand src, ImmediateType shift, bool right = true) {
-        Bitwise1 b(Operator::Rotate, dst, src, shift, right);
-        return b;
+    constexpr static Bitwise1 Rotate(Operand dst, Operand src, ImmediateType shift) {
+        return Bitwise1(Operator::Rotate, dst, src, shift);
     }
 
     constexpr static Bitwise1 Lsh(Operand dst, Operand src, ImmediateType shift) {
@@ -932,6 +922,16 @@ public:
         return Bitwise1(Operator::Reverse, dst, src, ImmediateType{2});
     }
 
+    /// Returns a copy of this instruction which also sets the flags of the given evaluation register
+    constexpr Bitwise1 Evaluate(Operand e) const {
+        basal::exception::throw_if(e.type != static_cast<uint32_t>(Operand::Type::Evaluation), __FILE__, __LINE__,
+                                   "Bitwise1 instruction requires the evaluation operand to be an Evaluation register");
+        Bitwise1 copy{*this};
+        copy.eval = e.index;
+        copy.cond = 1U;
+        return copy;
+    }
+
     friend std::ostream& operator<<(std::ostream& os, Bitwise1 b) {
         if (b.op == Operator::Complement) {
             os << "bcpl ";
@@ -942,7 +942,7 @@ public:
         } else if (b.op == Operator::Asr) {
             os << "basr ";
         } else if (b.op == Operator::Rotate) {
-            os << "brot." << (b.dir ? "r " : "l ");
+            os << "brot ";
         } else if (b.op == Operator::Not) {
             os << "bnot ";
         } else if (b.op == Operator::Count1s) {
@@ -956,14 +956,17 @@ public:
         } else if (b.op == Operator::ToggleBit) {
             os << "btgl ";
         } else if (b.op == Operator::Reverse) {
-            os << "brev ";
+            os << "brev" << (b.shift == 0 ? ".b " : (b.shift == 1 ? ".h " : ".w "));
         } else {
             os << "??? ";
         }
         os << Operand{Operand::Type::Scratch, b.dst} << ", " << Operand{Operand::Type::Scratch, b.src};
-        if (b.op == Operator::Rsh || b.op == Operator::Lsh || b.op == Operator::Asr
-            || (b.op == Operator::Rotate && b.shift > 0)) {
-            os << ", " << b.shift;
+        if (b.op == Operator::Rsh || b.op == Operator::Lsh || b.op == Operator::Asr || b.op == Operator::Rotate
+            || b.op == Operator::SetBit || b.op == Operator::ClearBit || b.op == Operator::ToggleBit) {
+            os << ", #" << b.shift;
+        }
+        if (b.cond) {
+            os << " : " << Operand{Operand::Type::Evaluation, b.eval};
         }
         return os;
     }
@@ -974,12 +977,11 @@ public:
     uint32_t eval : CountOfEvalIndexBits;    ///< Evaluation Register to check for conditional operation (if cond == 1)
     uint32_t shift : ImmediateType::Bits;    ///< Shift Amount (for shift instructions)
     uint32_t cond : 1;                       ///< If == 1, then the operation will set the evaluation register
-    uint32_t dir : 1;  ///< Direction for Shift/Rotate (0 = Left, 1 = Right) (only used for shift instructions)
-    uint32_t : CountOfDataBits - CountOfOperatorBits - (3 * CountOfScratchIndexBits) - ImmediateType::Bits - 2;
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (3 * CountOfScratchIndexBits) - ImmediateType::Bits - 1;
 
 protected:
-    constexpr Bitwise1(Operator op, Operand dst, Operand src, ImmediateType shift = ImmediateType{0}, bool right = true)
-        : op{op}, dst{dst.index}, src{src.index}, eval{0}, shift{shift.value}, cond{0}, dir{right ? 1U : 0U} {
+    constexpr Bitwise1(Operator op, Operand dst, Operand src, ImmediateType shift = ImmediateType{0})
+        : op{op}, dst{dst.index}, src{src.index}, eval{0}, shift{shift.value}, cond{0} {
         basal::exception::throw_unless(dst.type == static_cast<uint32_t>(Operand::Type::Scratch)
                                            && src.type == static_cast<uint32_t>(Operand::Type::Scratch),
                                        __FILE__, __LINE__,
@@ -1004,6 +1006,16 @@ public:
         return Bitwise2(Operator::Xor, dst, src1, src2);
     }
 
+    /// Returns a copy of this instruction which also sets the flags of the given evaluation register
+    constexpr Bitwise2 Evaluate(Operand e) const {
+        basal::exception::throw_if(e.type != static_cast<uint32_t>(Operand::Type::Evaluation), __FILE__, __LINE__,
+                                   "Bitwise2 instruction requires the evaluation operand to be an Evaluation register");
+        Bitwise2 copy{*this};
+        copy.eval = e.index;
+        copy.cond = 1U;
+        return copy;
+    }
+
     friend std::ostream& operator<<(std::ostream& os, Bitwise2 a) {
         if (a.op == Operator::And) {
             os << "band ";
@@ -1016,6 +1028,9 @@ public:
         }
         os << Operand{Operand::Type::Scratch, a.dst} << ", " << Operand{Operand::Type::Scratch, a.src1} << ", "
            << Operand{Operand::Type::Scratch, a.src2};
+        if (a.cond) {
+            os << " : " << Operand{Operand::Type::Evaluation, a.eval};
+        }
         return os;
     }
 
@@ -1023,16 +1038,132 @@ public:
     uint32_t dst : CountOfScratchIndexBits;   ///< Destination Scratch Register
     uint32_t src1 : CountOfScratchIndexBits;  ///< Source Scratch Register 1
     uint32_t src2 : CountOfScratchIndexBits;  ///< Source Scratch Register 2
-    uint32_t : CountOfDataBits - CountOfOperatorBits - (3 * CountOfScratchIndexBits);
+    uint32_t eval : CountOfEvalIndexBits;     ///< Evaluation Register to set flags in (if cond == 1)
+    uint32_t cond : 1;                        ///< If == 1, then the operation will set the evaluation register
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (3 * CountOfScratchIndexBits) - CountOfEvalIndexBits - 1;
 
 protected:
     constexpr Bitwise2(Operator op, Operand dst, Operand src1, Operand src2)
-        : op{op}, dst{dst.index}, src1{src1.index}, src2{src2.index} {
+        : op{op}, dst{dst.index}, src1{src1.index}, src2{src2.index}, eval{0}, cond{0} {
         basal::exception::throw_unless(dst.type == static_cast<uint32_t>(Operand::Type::Scratch)
                                            && src1.type == static_cast<uint32_t>(Operand::Type::Scratch)
                                            && src2.type == static_cast<uint32_t>(Operand::Type::Scratch),
                                        __FILE__, __LINE__,
                                        "Bitwise2 instruction requires all operands to be Scratch registers");
+    }
+};
+
+/// Signed integer negate (two's complement) of a scratch register of 8, 16 or 32 bits.
+class Negate {
+public:
+    using Size = isa::Size;
+
+    constexpr Negate() = delete;
+
+    constexpr static Negate Make(Operand dst, Operand src, Size size = Size::Word, bool saturating = false) {
+        return Negate(dst, src, size, saturating);
+    }
+
+    /// Returns a copy of this instruction which also sets the flags of the given evaluation register
+    constexpr Negate Evaluate(Operand e) const {
+        basal::exception::throw_if(e.type != static_cast<uint32_t>(Operand::Type::Evaluation), __FILE__, __LINE__,
+                                   "Negate instruction requires the evaluation operand to be an Evaluation register");
+        Negate copy{*this};
+        copy.eval = e.index;
+        copy.cond = 1U;
+        return copy;
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, Negate n) {
+        os << "neg.s" << (8U << n.size) << (n.sat ? ".sat " : " ");
+        os << Operand{Operand::Type::Scratch, n.dst} << ", " << Operand{Operand::Type::Scratch, n.src};
+        if (n.cond) {
+            os << " : " << Operand{Operand::Type::Evaluation, n.eval};
+        }
+        return os;
+    }
+
+    Operator op : CountOfOperatorBits;
+    uint32_t dst : CountOfScratchIndexBits;  ///< Destination Scratch Register
+    uint32_t src : CountOfScratchIndexBits;  ///< Source Scratch Register
+    uint32_t eval : CountOfEvalIndexBits;    ///< Evaluation Register to set flags in (if cond == 1)
+    uint32_t cond : 1;                       ///< If == 1, then the operation will set the evaluation register
+    uint32_t sat : 1;                        ///< If == 1, then the operation will be saturating
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (2 * CountOfScratchIndexBits) - CountOfEvalIndexBits - 4;
+    uint32_t size : 2;  ///< Size of the operation (0 = 8-bit, 1 = 16-bit, 2 = 32-bit, 3 = reserved)
+
+protected:
+    constexpr Negate(Operand dst, Operand src, Size size, bool saturating)
+        : op{Operator::Negate}
+        , dst{dst.index}
+        , src{src.index}
+        , eval{0}
+        , cond{0}
+        , sat{saturating ? 1U : 0U}
+        , size{static_cast<uint32_t>(size)} {
+        basal::exception::throw_unless(dst.type == static_cast<uint32_t>(Operand::Type::Scratch)
+                                           && src.type == static_cast<uint32_t>(Operand::Type::Scratch),
+                                       __FILE__, __LINE__,
+                                       "Negate instruction requires both operands to be Scratch registers");
+    }
+};
+
+/// Widens the low byte or half-word of a scratch register to a full word, by sign (sext) or zero (zext) extension.
+class Extend {
+public:
+    constexpr Extend() = delete;
+
+    constexpr static Extend Sign(Operand dst, Operand src, Size size) {
+        return Extend(dst, src, size, true);
+    }
+
+    constexpr static Extend Zero(Operand dst, Operand src, Size size) {
+        return Extend(dst, src, size, false);
+    }
+
+    /// Returns a copy of this instruction which also sets the flags of the given evaluation register
+    constexpr Extend Evaluate(Operand e) const {
+        basal::exception::throw_if(e.type != static_cast<uint32_t>(Operand::Type::Evaluation), __FILE__, __LINE__,
+                                   "Extend instruction requires the evaluation operand to be an Evaluation register");
+        Extend copy{*this};
+        copy.eval = e.index;
+        copy.cond = 1U;
+        return copy;
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, Extend x) {
+        os << (x.sign ? "sext." : "zext.") << (x.size == 0U ? "b " : "h ");
+        os << Operand{Operand::Type::Scratch, x.dst} << ", " << Operand{Operand::Type::Scratch, x.src};
+        if (x.cond) {
+            os << " : " << Operand{Operand::Type::Evaluation, x.eval};
+        }
+        return os;
+    }
+
+    Operator op : CountOfOperatorBits;
+    uint32_t dst : CountOfScratchIndexBits;  ///< Destination Scratch Register
+    uint32_t src : CountOfScratchIndexBits;  ///< Source Scratch Register
+    uint32_t eval : CountOfEvalIndexBits;    ///< Evaluation Register to set flags in (if cond == 1)
+    uint32_t cond : 1;                       ///< If == 1, then the operation will set the evaluation register
+    uint32_t sign : 1;                       ///< If == 1, then sign extend, otherwise zero extend
+    uint32_t : CountOfDataBits - CountOfOperatorBits - (2 * CountOfScratchIndexBits) - CountOfEvalIndexBits - 4;
+    uint32_t size : 2;  ///< Size of the source value (0 = 8-bit, 1 = 16-bit)
+
+protected:
+    constexpr Extend(Operand dst, Operand src, Size size, bool sign)
+        : op{Operator::Extend}
+        , dst{dst.index}
+        , src{src.index}
+        , eval{0}
+        , cond{0}
+        , sign{sign ? 1U : 0U}
+        , size{static_cast<uint32_t>(size)} {
+        basal::exception::throw_unless(dst.type == static_cast<uint32_t>(Operand::Type::Scratch)
+                                           && src.type == static_cast<uint32_t>(Operand::Type::Scratch),
+                                       __FILE__, __LINE__,
+                                       "Extend instruction requires both operands to be Scratch registers");
+        basal::exception::throw_unless(size == Size::Byte || size == Size::HalfWord, __FILE__, __LINE__,
+                                       "Extend instruction only widens Byte or HalfWord sources");
     }
 };
 
@@ -1141,7 +1272,7 @@ public:
         } else {
             os << "???";
         }
-        os << (a.sat ? "s" : "u");
+        os << (a.sign ? ".s" : ".u") << (8U << a.size) << (a.sat ? ".sat " : " ");
         os << Operand{Operand::Type::Scratch, a.dst} << ", " << Operand{Operand::Type::Scratch, a.src1} << ", "
            << Operand{Operand::Type::Scratch, a.src2};
         if (a.cond) {
@@ -1386,9 +1517,6 @@ union Instruction {
     /// Typed Constructor
     constexpr Instruction(Halt) : halt{} {
     }
-    /// Typed Constructor
-    constexpr Instruction(Breakpoint b) : breakpoint{b} {
-    }
     /// Typed Constructor for Copy
     constexpr Instruction(Copy c) : copy{c} {
     }
@@ -1422,8 +1550,8 @@ union Instruction {
     /// Typed Constructor for Grow
     constexpr Instruction(Grow g) : grow{g} {
     }
-    /// Typed Constructor for Undo
-    constexpr Instruction(Undo u) : undo{u} {
+    /// Typed Constructor for Fall
+    constexpr Instruction(Fall f) : fall{f} {
     }
     /// Typed Constructor for Push
     constexpr Instruction(Push p) : push{p} {
@@ -1446,6 +1574,14 @@ union Instruction {
     /// Typed Constructor for Bitwise2
     constexpr Instruction(Bitwise2 x) : bitwise2{x} {
     }
+    /// Typed Constructor for Extend
+    constexpr Instruction(Extend x) : extend{x} {
+    }
+
+    /// Typed Constructor for Negate
+    constexpr Instruction(Negate n) : negate{n} {
+    }
+
     /// Typed Constructor for Arithmetic
     constexpr Instruction(Arithmetic a) : arithmetic{a} {
     }
@@ -1460,11 +1596,10 @@ union Instruction {
     Base base;              ///< The base instruction for decoding the operator
     NoOp noop;              ///< No Operation
     Halt halt;              ///< Halt the processor
-    Breakpoint breakpoint;  ///< Breakpoint for debugging (not a real instruction, used for tooling)
     Copy copy;              ///< Copy from one evaluation register to another
     Move move;              ///< Move from scratch to scratch
     MoveImmediate movi;     ///< Move immediate to scratch/evaluation register
-    Swap swap;              ///< Swap registers based on reg_type
+    Swap swap;              ///< Swap a scratch register with the memory word addressed by another
     Zero clear;             ///< Zero registers based on reg_type and mask
     Load loads;             ///< Load from memory to scratch register
     Save save;              ///< Saves a value from scratch register to memory
@@ -1472,7 +1607,7 @@ union Instruction {
     LeapImmediate leapi;    ///< Absolute immediate leap with optional return address save
     Back back;              ///< Returns from a Leap
     Grow grow;              ///< Grow the memory by a number of pages specified in an evaluation register
-    Undo undo;              ///< Undo the last memory growth
+    Fall fall;              ///< Restore stack space after memory growth
     Push push;              ///< Push a scratch register to the call stack
     Pull pull;              ///< Pull a scratch register from the call stack
     Call call;              ///< Call a subroutine at an address specified in an evaluation register
@@ -1481,6 +1616,8 @@ union Instruction {
     Bitwise2 bitwise2;      ///< Holds the 2 argument bitwise operations (AND, OR, XOR)
     Bitwise1 bitwise1;      ///< Holds the 1 argument bitwise operations
     Arithmetic arithmetic;  ///< Holds the arithmetic operations (ADD, SUB, MUL, DIV, MOD)
+    Negate negate;          ///< Holds the signed integer negate
+    Extend extend;          ///< Holds the sign/zero extend
     Precision1 precision1;  ///< Holds the unary precision operations (FAbs, FNeg, Floor, Ceil, Convert)
     Precision2 precision2;  ///< Holds the binary precision operations (FAdd, FSub, FMul, FDiv)
     //=================================
@@ -1489,8 +1626,6 @@ union Instruction {
             os << instr.noop;
         } else if (instr.base() == Operator::Halt) {
             os << instr.halt;
-        } else if (instr.base() == Operator::Breakpoint) {
-            os << instr.breakpoint;
         } else if (instr.base() == Operator::Copy) {
             os << instr.copy;
         } else if (instr.base() == Operator::Move) {
@@ -1515,8 +1650,8 @@ union Instruction {
             os << instr.back;
         } else if (instr.base() == Operator::Grow) {
             os << instr.grow;
-        } else if (instr.base() == Operator::Undo) {
-            os << instr.undo;
+        } else if (instr.base() == Operator::Fall) {
+            os << instr.fall;
         } else if (instr.base() == Operator::Push) {
             os << instr.push;
         } else if (instr.base() == Operator::Pull) {
@@ -1536,6 +1671,8 @@ union Instruction {
         } else if (instr.base() == Operator::Rotate) {
             os << instr.bitwise1;
         } else if (instr.base() == Operator::Lsh) {
+            os << instr.bitwise1;
+        } else if (instr.base() == Operator::Not) {
             os << instr.bitwise1;
         } else if (instr.base() == Operator::Count1s) {
             os << instr.bitwise1;
@@ -1563,6 +1700,10 @@ union Instruction {
             os << instr.arithmetic;
         } else if (instr.base() == Operator::Divide) {
             os << instr.arithmetic;
+        } else if (instr.base() == Operator::Extend) {
+            os << instr.extend;
+        } else if (instr.base() == Operator::Negate) {
+            os << instr.negate;
         } else if (instr.base() == Operator::Modulo) {
             os << instr.arithmetic;
         } else if (instr.base() == Operator::FloatingAbs) {

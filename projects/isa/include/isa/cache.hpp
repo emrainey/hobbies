@@ -105,6 +105,7 @@ struct Cache {
         }
 
         friend std::ostream& operator<<(std::ostream& os, Line const& line) {
+            auto const flags = os.flags();
             os << "Valid: " << line.valid_ << " Dirty: " << line.dirty_ << " Tag: " << line.tag_ << " Data: [";
             for (size_t i = 0; i < UnitsPerLine; ++i) {
                 os << std::hex << line.data_[i];
@@ -113,6 +114,7 @@ struct Cache {
                 }
             }
             os << "]";
+            os.flags(flags);
             return os;
         }
     };

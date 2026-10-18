@@ -11,8 +11,7 @@
 
 ## Software Induced
 
-* Breakpoint - executed breakpoint instruction
+* Breakpoint - execution reached an address configured as a debugger breakpoint
 * Semihosting - execute external semihosting feature in place of normal instruction. Requires debugger support.
 * Invalid Operation - executed invalid operation instruction
 * System Call - executed system call instruction to elevate privilege
-

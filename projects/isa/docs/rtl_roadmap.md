@@ -10,7 +10,9 @@ See @ref rtl_parity for the running list of model-to-model divergences.
 The plan below reflects these agreed decisions:
 
 * **Microarchitecture:** single-cycle / multi-cycle *functional parity first*. The 4-stage pipeline in
-  @ref pipeline is a later micro-architecture step (M12), layered over a proven golden harness.
+  @ref pipeline is a later micro-architecture step (M12), layered over a proven golden harness. The
+  code is refactored incrementally along the way rather than all at once at M12 — see the structure
+  track below.
 * **Oracle:** the C++ model. When the two disagree we decide case-by-case which is wrong and record
   the call in @ref rtl_parity. The C++ model is the oracle for *the milestones in the order below*,
   not in perpetuity: where the RTL is deliberately more faithful to the documented design — a real
@@ -173,10 +175,11 @@ staleness test working. Vectors must respect the validity rules the decoder alre
 | **M9** | Interrupts: ticker/deferred/external/unmaskable/nested, external handler table | M8 | *C++ first*, then RTL; injected events redirect identically |
 | **M10** | Caches: I-cache 256×1, D-cache 1024×16 | M9 | *C++ first* (make `Cycle()` actually use them), then RTL; statistics and contents match |
 | **M11** | Floating point: floor/ceil/abs/neg/fractional/convert, fadd/fsub/fmul/fdiv, precision flags | M10 | FP strategy chosen; bit-exact vectors pass |
-| **M12** | Pipeline micro-architecture: split into the Fetch/Decode/Execute/Writeback stages of @ref pipeline | M1–M11 green | Same architectural results, retired one instruction per pipeline drain |
+| **M12** | Pipeline micro-architecture: split into the Fetch/Decode/Execute/Writeback stages of @ref pipeline | M1–M11 green, structure track complete | Same architectural results, retired one instruction per pipeline drain |
 
 M0–M7 reproduce `Processor::Cycle()` exactly. M8–M10 reach the documented design, with the C++
-model extended first. M12 is the microarchitecture.
+model extended first. M12 is the microarchitecture. The structure track below runs alongside all of
+them and keeps the shape ready for M12.
 
 ### M1 notes
 
@@ -198,6 +201,51 @@ model extended first. M12 is the microarchitecture.
 * **Reset-image stimulus.** The M1 tests do not need a preamble to seed registers: the reset image
   (scratch all ones, evaluations 0xFF) is already pinned by `ResetStateMatchesTheFastModel`, and a
   cleared source register is a distinguishable outcome.
+
+## Structure track
+
+M0–M12 is the *behavioural* plan; nothing in it constrains the shape of the code. Left alone the shape
+becomes "whatever the last milestone appended to", and M8–M10 — exceptions, privilege, interrupts,
+caches — each get added to a monolith. M12 would then be a rewrite of that monolith under a
+green-test constraint, which is the worst time to attempt one.
+
+This track is deliberately not numbered into the milestones: it renumbers nothing, and each step is a
+refactor whose exit criterion is "the architectural results did not change", decided mechanically by
+the lockstep harness rather than by review.
+
+| ID | Refactor | Land with | Exit criterion |
+| --- | --- | --- | --- |
+| **S1** | Put the instruction path on the bus protocol that already exists: byte-strobed `Write`, a `Read` that faults on in-range-but-unmapped, and a synchronous listener adapter so `Cycle()` can call it; retire `Bus::Peek`/`Poke` from the instruction path | M2 | Both models write through the same strobed path, so sub-word `save` parity is asserted on the transaction and P-022 can move to `MATCHED` |
+| **S2** | `processor.sv` split into `regfile.sv`, `csr.sv`, `alu.sv`, `boot.sv`, `mem_stage.sv`; the top becomes control and wiring | M2/M3 | Every M0–M12 test still diffs clean |
+| **S3** | C++ execute seam: the `Cycle()` arms become small `Execute…(instruction, state)` functions | M3/M4 | 64 arms today, ~150 by M6; each arm unit-testable without a `Processor` |
+| **S4** | `Commit`/`Redirect` seam, replacing the tail's `control_transferred` flag and exception branch | before M8 | The fault ladder, mask/mode and interrupt sources all feed one redirect path |
+| **S5** | Caches behind the memory seam | M10 | Hits, misses and statistics match without touching ALU or control |
+
+The idle seam is worth looking for before building a new one. `isa::Bus` already carries a transactional
+protocol — `Read`/`Write` with `Listener::OnData`/`OnEvent`, `State` and `Events` — and `isa::Cache` is
+implemented, dirty-tracking and unit-tested, with one instruction and one data cache living inside
+`Processor`. Neither is on the instruction path: every access in `Cycle()` goes through
+`Bus::Peek`/`Poke`, the accessors marked `[DEBUG]`, which fire no events and cannot fault. The caches
+are cleaned on reset, persisted, and exposed to the UI, but never fed, so their hit rate is permanently
+zero. One operation with two implementations — a tested one and a used one — is the failure mode this
+track exists to remove, and it is why S1 is deletion as much as addition.
+
+Two rules keep it honest:
+
+* **Split what exists; do not pre-build what does not.** Seams for privilege, MMU or interrupts are
+  guesses until M8/M9 settle what they need, and the register-file port counts are not known until
+  M12. A guessed hook is a rewrite waiting to happen.
+* **The harness is the proof.** One retired instruction diffs the whole architectural image, so a
+  refactor that changes nothing is verifiable and one that changes something is caught immediately.
+  `demo/program1.hpp` adds a long-running integration run on top of that.
+
+Watch Verilator's cross-module optimisation when S2 lands: if a split costs simulation time,
+`/*verilator inline_module */` on the leaf modules keeps the structure without the overhead.
+
+The same principle applies off-chip: programs are still C++ initialiser lists with hand-computed
+absolute addresses and a two-pass fixup (`demo/program1.hpp` is a hand-rolled assembler). The layouts
+are already generated into `docs/instruction_formats.md` and `isa::layout`, so a small assembler
+driven by that table would be the tooling equivalent of S3 — stop hand-maintaining derived data.
 
 ## Build and target changes
 

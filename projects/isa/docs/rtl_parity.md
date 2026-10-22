@@ -239,6 +239,11 @@ step cannot be compared as a bus transaction, and the lockstep check must instea
 image** after both models retire (the M0 harness already services the DUT bus from `oracle.Peek`).
 Revisit at M6, where `Load`/`Save` make it concrete.
 
+The intended closure is the bus seam in the structure track (S1, @ref rtl_roadmap): once the C++ model
+issues a request carrying byte strobes and the memory backends honour them, both models perform the
+same transaction and this row can move to `MATCHED` without changing either model's architectural
+behaviour.
+
 ### P-023 — `Move` shift builder truncated
 
 `include/isa/instructions.hpp:150`. `Move`'s shift operand was built from

@@ -74,7 +74,7 @@ mismatch is a @ref rtl_parity row, not an immediate failure.
 
 `Processor::Reset()` is not just "clear everything"; the RTL reset must reproduce it exactly:
 
-* `scratch` = `0xFFFF_FFFF` in every register, `evaluation` = `0xFF` in every byte.
+* `scratch` and `evaluation` are zeroed.
 * `special` is zeroed, then `vector_table_address_` is set to `0x0010_0000`
   (`isa::DefaultVectorTableAddress`) and `mode_` to `0x0000_0004` (`Mode` defaults to
   `nonprivileged = 1`). This last one is easy to miss because `Special{}` is otherwise all zero.
@@ -198,9 +198,8 @@ them and keeps the shape ready for M12.
   `isa::layout` tables instead of restating bit positions, so a format change is caught there rather
   than in every test. `LayoutTest.MoveShiftOperandEncodesEveryShiftAmount` is the regression guard for
   P-023, which had been silently encoding large `move` shifts as zero.
-* **Reset-image stimulus.** The M1 tests do not need a preamble to seed registers: the reset image
-  (scratch all ones, evaluations 0xFF) is already pinned by `ResetStateMatchesTheFastModel`, and a
-  cleared source register is a distinguishable outcome.
+* **Reset-image stimulus.** The reset image is zero in both models and is pinned by
+  `ResetStateMatchesTheFastModel`. Tests that need nonzero register values seed them explicitly.
 
 ## Structure track
 

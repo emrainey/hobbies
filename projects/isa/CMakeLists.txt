@@ -44,6 +44,7 @@ verilate(isa_rtl_processor_sim
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/rtl/isa.sv
         ${CMAKE_CURRENT_SOURCE_DIR}/rtl/decoder.sv
+        ${CMAKE_CURRENT_SOURCE_DIR}/rtl/register.sv
         ${CMAKE_CURRENT_SOURCE_DIR}/rtl/processor.sv
 )
 endif()

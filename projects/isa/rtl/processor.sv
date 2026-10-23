@@ -161,10 +161,10 @@ module processor
             fetch_fault <= 1'b0;
 
             for (int i = 0; i < SCRATCH_COUNT; i++) begin
-                scratch[i] <= ERASED_WORD;
+                scratch[i] <= '0;
             end
             for (int i = 0; i < EVAL_COUNT; i++) begin
-                evaluation[i] <= '1;
+                evaluation[i] <= '0;
             end
             for (int i = 0; i < SPECIAL_COUNT; i++) begin
                 special[i] <= '0;

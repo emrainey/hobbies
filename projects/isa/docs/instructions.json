@@ -80,17 +80,17 @@
         {
           "name": "dst",
           "width": "scratch_index_w",
-          "type": "scratch_idx_t"
+          "type": "scratch_index_t"
         },
         {
           "name": "src",
           "width": "scratch_index_w",
-          "type": "scratch_idx_t"
+          "type": "scratch_index_t"
         },
         {
           "name": "eval",
           "width": "eval_index_w",
-          "type": "eval_idx_t"
+          "type": "eval_index_t"
         },
         {
           "name": "cond",
@@ -109,22 +109,22 @@
         {
           "name": "eval",
           "width": "eval_index_w",
-          "type": "eval_idx_t"
+          "type": "eval_index_t"
         },
         {
           "name": "mask",
           "width": "eval_index_w",
-          "type": "eval_idx_t"
+          "type": "eval_index_t"
         },
         {
           "name": "dst",
           "width": "scratch_index_w",
-          "type": "scratch_idx_t"
+          "type": "scratch_index_t"
         },
         {
           "name": "src",
           "width": "scratch_index_w",
-          "type": "scratch_idx_t"
+          "type": "scratch_index_t"
         },
         {
           "name": "cond",
@@ -178,12 +178,12 @@
         {
           "name": "a",
           "width": "scratch_index_w",
-          "type": "scratch_idx_t"
+          "type": "scratch_index_t"
         },
         {
           "name": "b",
           "width": "scratch_index_w",
-          "type": "scratch_idx_t"
+          "type": "scratch_index_t"
         },
         {
           "name": "reserved",
@@ -217,12 +217,12 @@
         {
           "name": "reg_",
           "width": "scratch_index_w",
-          "type": "scratch_idx_t"
+          "type": "scratch_index_t"
         },
         {
           "name": "base",
           "width": "scratch_index_w",
-          "type": "scratch_idx_t"
+          "type": "scratch_index_t"
         },
         {
           "name": "special",
@@ -254,17 +254,17 @@
         {
           "name": "eval",
           "width": "eval_index_w",
-          "type": "eval_idx_t"
+          "type": "eval_index_t"
         },
         {
           "name": "mask",
           "width": "eval_index_w",
-          "type": "eval_idx_t"
+          "type": "eval_index_t"
         },
         {
           "name": "dst",
           "width": "scratch_index_w",
-          "type": "scratch_idx_t"
+          "type": "scratch_index_t"
         },
         {
           "name": "cond",
@@ -320,12 +320,12 @@
         {
           "name": "eval",
           "width": "eval_index_w",
-          "type": "eval_idx_t"
+          "type": "eval_index_t"
         },
         {
           "name": "mask",
           "width": "eval_index_w",
-          "type": "eval_idx_t"
+          "type": "eval_index_t"
         },
         {
           "name": "cond",
@@ -348,12 +348,12 @@
         {
           "name": "eval",
           "width": "eval_index_w",
-          "type": "eval_idx_t"
+          "type": "eval_index_t"
         },
         {
           "name": "mask",
           "width": "eval_index_w",
-          "type": "eval_idx_t"
+          "type": "eval_index_t"
         },
         {
           "name": "cond",
@@ -394,17 +394,17 @@
         {
           "name": "e",
           "width": "eval_index_w",
-          "type": "eval_idx_t"
+          "type": "eval_index_t"
         },
         {
           "name": "a",
           "width": "scratch_index_w",
-          "type": "scratch_idx_t"
+          "type": "scratch_index_t"
         },
         {
           "name": "b",
           "width": "scratch_index_w",
-          "type": "scratch_idx_t"
+          "type": "scratch_index_t"
         },
         {
           "name": "signed_",
@@ -428,17 +428,17 @@
         {
           "name": "dst",
           "width": "scratch_index_w",
-          "type": "scratch_idx_t"
+          "type": "scratch_index_t"
         },
         {
           "name": "src",
           "width": "scratch_index_w",
-          "type": "scratch_idx_t"
+          "type": "scratch_index_t"
         },
         {
           "name": "eval",
           "width": "eval_index_w",
-          "type": "eval_idx_t"
+          "type": "eval_index_t"
         },
         {
           "name": "shift",
@@ -461,22 +461,22 @@
         {
           "name": "dst",
           "width": "scratch_index_w",
-          "type": "scratch_idx_t"
+          "type": "scratch_index_t"
         },
         {
           "name": "src1",
           "width": "scratch_index_w",
-          "type": "scratch_idx_t"
+          "type": "scratch_index_t"
         },
         {
           "name": "src2",
           "width": "scratch_index_w",
-          "type": "scratch_idx_t"
+          "type": "scratch_index_t"
         },
         {
           "name": "eval",
           "width": "eval_index_w",
-          "type": "eval_idx_t"
+          "type": "eval_index_t"
         },
         {
           "name": "cond",
@@ -495,17 +495,17 @@
         {
           "name": "dst",
           "width": "scratch_index_w",
-          "type": "scratch_idx_t"
+          "type": "scratch_index_t"
         },
         {
           "name": "src",
           "width": "scratch_index_w",
-          "type": "scratch_idx_t"
+          "type": "scratch_index_t"
         },
         {
           "name": "eval",
           "width": "eval_index_w",
-          "type": "eval_idx_t"
+          "type": "eval_index_t"
         },
         {
           "name": "cond",
@@ -533,17 +533,17 @@
         {
           "name": "dst",
           "width": "scratch_index_w",
-          "type": "scratch_idx_t"
+          "type": "scratch_index_t"
         },
         {
           "name": "src",
           "width": "scratch_index_w",
-          "type": "scratch_idx_t"
+          "type": "scratch_index_t"
         },
         {
           "name": "eval",
           "width": "eval_index_w",
-          "type": "eval_idx_t"
+          "type": "eval_index_t"
         },
         {
           "name": "cond",
@@ -571,22 +571,22 @@
         {
           "name": "dst",
           "width": "scratch_index_w",
-          "type": "scratch_idx_t"
+          "type": "scratch_index_t"
         },
         {
           "name": "src1",
           "width": "scratch_index_w",
-          "type": "scratch_idx_t"
+          "type": "scratch_index_t"
         },
         {
           "name": "src2",
           "width": "scratch_index_w",
-          "type": "scratch_idx_t"
+          "type": "scratch_index_t"
         },
         {
           "name": "eval",
           "width": "eval_index_w",
-          "type": "eval_idx_t"
+          "type": "eval_index_t"
         },
         {
           "name": "cond",
@@ -618,12 +618,12 @@
         {
           "name": "dst",
           "width": "scratch_index_w",
-          "type": "scratch_idx_t"
+          "type": "scratch_index_t"
         },
         {
           "name": "src",
           "width": "scratch_index_w",
-          "type": "scratch_idx_t"
+          "type": "scratch_index_t"
         },
         {
           "name": "dir",

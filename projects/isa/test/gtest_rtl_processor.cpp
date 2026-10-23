@@ -137,6 +137,12 @@ protected:
 
 TEST_F(RtlProcessorTest, ResetStateMatchesTheFastModel) {
     ExpectStateMatches();
+    for (size_t i = 0; i < isa::CountOfScratchRegisters; ++i) {
+        EXPECT_EQ(0U, dut.scratch[i]) << "scratch[" << i << "]";
+    }
+    for (size_t i = 0; i < isa::CountOfEvaluationRegisters; ++i) {
+        EXPECT_EQ(0U, dut.evaluation[i]) << "evaluation[" << i << "]";
+    }
 }
 
 TEST_F(RtlProcessorTest, ExposedStateWidthsMatchTheFastModel) {
@@ -157,10 +163,8 @@ TEST_F(RtlProcessorTest, ErasedProgramRetiresNoOpsInLockstep) {
 
 // === M1: the register file and the no-memory instructions ===
 //
-// These programs rely on the reset image that `ResetStateMatchesTheFastModel`
-// already pins: every scratch register reads 0xFFFF_FFFF and every evaluation byte
-// reads 0xFF. A `move` that clears its source is therefore visible as the source
-// becoming 0 rather than staying all ones.
+// Registers reset to zero; programs seed nonzero values when needed to make
+// copy, shift, and conditional behavior observable.
 
 TEST_F(RtlProcessorTest, MoveShiftsScratchAndClearsTheSource) {
     using isa::Operand;
@@ -175,6 +179,8 @@ TEST_F(RtlProcessorTest, MoveShiftsScratchAndClearsTheSource) {
         // S4 = 0x8000_0000 ...
         Encode(MoveImmediate{Operand{Operand::Type::Scratch, 4}, isa::Immediate<16>{0x0000U}}),
         Encode(MoveImmediate{Operand{Operand::Type::Scratch, 4}, isa::Immediate<16>{0x8000U}, true}),
+        Encode(MoveImmediate{Operand{Operand::Type::Scratch, 5}, isa::Immediate<16>{0xFFFFU}}),
+        Encode(MoveImmediate{Operand{Operand::Type::Scratch, 5}, isa::Immediate<16>{0xFFFFU}, true}),
         // ... then S3 = S4 >> 4 arithmetically.
         Encode(
             Move{Operand{Operand::Type::Scratch, 3}, Operand{Operand::Type::Scratch, 4}, true, Move::ImmediateType{4}}),
@@ -194,15 +200,19 @@ TEST_F(RtlProcessorTest, MoveShiftsEvaluationWithinEightBits) {
     using isa::Operand;
     using namespace isa::instructions;
     RunProgram({
-        // E1 = E2, E2 cleared. Evaluation bytes reset to 0xFF.
+        Encode(MoveImmediate{Operand{Operand::Type::Evaluation, 2}, isa::Immediate<16>{0x00FFU}}),
+        // E1 = E2, E2 cleared.
         Encode(Move{Operand{Operand::Type::Evaluation, 1}, Operand{Operand::Type::Evaluation, 2}}),
+        Encode(MoveImmediate{Operand{Operand::Type::Evaluation, 4}, isa::Immediate<16>{0x00FFU}}),
         // E3 = E4 >> 4 == 0x0F, E4 cleared.
         Encode(Move{Operand{Operand::Type::Evaluation, 3}, Operand{Operand::Type::Evaluation, 4}, true,
                     Move::ImmediateType{4}}),
+        Encode(MoveImmediate{Operand{Operand::Type::Evaluation, 6}, isa::Immediate<16>{0x00FFU}}),
         // E5 = E6 << 4 == 0xF0: the shift truncates at the byte, not the word.
         Encode(Move{Operand{Operand::Type::Evaluation, 5}, Operand{Operand::Type::Evaluation, 6}, false,
                     Move::ImmediateType{4}}),
-        // E7 = E7 << 8 == 0: every bit shifted out, and in place so nothing is cleared.
+        Encode(MoveImmediate{Operand{Operand::Type::Evaluation, 7}, isa::Immediate<16>{0x00FFU}}),
+        // E7 = E7 << 8 == 0: every bit shifted out.
         Encode(Move{Operand{Operand::Type::Evaluation, 7}, Operand{Operand::Type::Evaluation, 7}, false,
                     Move::ImmediateType{8}}),
     });
@@ -220,10 +230,12 @@ TEST_F(RtlProcessorTest, ConditionalMoveIsGatedByTheEvaluationAndMask) {
     using isa::Operand;
     using namespace isa::instructions;
     RunProgram({
+        Encode(MoveImmediate{Operand{Operand::Type::Evaluation, 0}, isa::Immediate<16>{1U}}),
+        Encode(MoveImmediate{Operand{Operand::Type::Scratch, 2}, isa::Immediate<16>{0x2222U}}),
+        Encode(MoveImmediate{Operand{Operand::Type::Scratch, 4}, isa::Immediate<16>{0x4444U}}),
         // zero.e 0x0002: E1 = 0.
         Encode(Zero{Operand{Operand::Type::Mask, isa::Immediate<16>{0x0002U}}, isa::RegisterType::Evaluation}),
-        // E0 & E1 == 0, so both scratch registers keep the reset image. S2 staying
-        // all ones is the signal: an allowed move would have cleared it.
+        // E0 & E1 == 0, so the move is blocked and S2 stays unchanged.
         Encode(Move{Operand{Operand::Type::Evaluation, 0}, Operand{Operand::Type::Evaluation, 1},
                     Operand{Operand::Type::Scratch, 1}, Operand{Operand::Type::Scratch, 2}}),
         // E1 = 1, so E0 & E1 != 0 and the same move is now taken.
@@ -232,9 +244,9 @@ TEST_F(RtlProcessorTest, ConditionalMoveIsGatedByTheEvaluationAndMask) {
                     Operand{Operand::Type::Scratch, 3}, Operand{Operand::Type::Scratch, 4}}),
     });
 
-    EXPECT_EQ(0xFFFFFFFFU, oracle.ViewScratch()[1].as_u32[0]);
-    EXPECT_EQ(0xFFFFFFFFU, oracle.ViewScratch()[2].as_u32[0]);  // blocked, so not cleared
-    EXPECT_EQ(0xFFFFFFFFU, oracle.ViewScratch()[3].as_u32[0]);
+    EXPECT_EQ(0U, oracle.ViewScratch()[1].as_u32[0]);
+    EXPECT_EQ(0x2222U, oracle.ViewScratch()[2].as_u32[0]);  // blocked, so not cleared
+    EXPECT_EQ(0x4444U, oracle.ViewScratch()[3].as_u32[0]);
     EXPECT_EQ(0x00000000U, oracle.ViewScratch()[4].as_u32[0]);  // taken, so cleared
     EXPECT_EQ(0x01U, oracle.ViewEvaluations()[1].value);        // masked to 8 bits
 }
@@ -243,7 +255,7 @@ TEST_F(RtlProcessorTest, MoveImmediateWritesHalvesAndMasksEvaluationDestination)
     using isa::Operand;
     using namespace isa::instructions;
     RunProgram({
-        // The low half only: the reset high half of 0xFFFF survives.
+        // The low half only; the reset high half remains zero.
         Encode(MoveImmediate{Operand{Operand::Type::Scratch, 5}, isa::Immediate<16>{0xABCDU}}),
         Encode(MoveImmediate{Operand{Operand::Type::Scratch, 5}, isa::Immediate<16>{0x1234U}, true}),
         // An evaluation destination takes the low 8 bits of the immediate.
@@ -258,32 +270,38 @@ TEST_F(RtlProcessorTest, CopyWritesTheComparisonEvaluationOnlyWhenConditional) {
     using isa::Operand;
     using namespace isa::instructions;
     RunProgram({
+        Encode(MoveImmediate{Operand{Operand::Type::Scratch, 2}, isa::Immediate<16>{0x1234U}}),
         Encode(Copy{Operand{Operand::Type::Scratch, 1}, Operand{Operand::Type::Scratch, 2}}),
         Encode(Copy{Operand{Operand::Type::Scratch, 3}, Operand{Operand::Type::Scratch, 4},
                     Operand{Operand::Type::Evaluation, 2}}),
     });
 
-    EXPECT_EQ(0xFFFFFFFFU, oracle.ViewScratch()[1].as_u32[0]);
-    EXPECT_EQ(0xFFFFFFFFU, oracle.ViewScratch()[2].as_u32[0]);  // copy leaves the source alone
-    EXPECT_EQ(0xFFU, oracle.ViewEvaluations()[0].value);        // unconditional: untouched
-    EXPECT_EQ(0x09U, oracle.ViewEvaluations()[2].value);        // type = comparison, equal
+    EXPECT_EQ(0x1234U, oracle.ViewScratch()[1].as_u32[0]);
+    EXPECT_EQ(0x1234U, oracle.ViewScratch()[2].as_u32[0]);  // copy leaves the source alone
+    EXPECT_EQ(0U, oracle.ViewEvaluations()[0].value);       // unconditional: untouched
+    EXPECT_EQ(0x09U, oracle.ViewEvaluations()[2].value);    // type = comparison, equal
 }
 
 TEST_F(RtlProcessorTest, ZeroClearsOnlyTheMaskedRegisters) {
     using isa::Operand;
     using namespace isa::instructions;
     RunProgram({
+        Encode(MoveImmediate{Operand{Operand::Type::Scratch, 1}, isa::Immediate<16>{0x1111U}}),
+        Encode(MoveImmediate{Operand{Operand::Type::Scratch, 3}, isa::Immediate<16>{0x3333U}}),
+        Encode(MoveImmediate{Operand{Operand::Type::Evaluation, 0}, isa::Immediate<16>{0x00FFU}}),
+        Encode(MoveImmediate{Operand{Operand::Type::Evaluation, 8}, isa::Immediate<16>{0x00FFU}}),
+        Encode(MoveImmediate{Operand{Operand::Type::Evaluation, 9}, isa::Immediate<16>{0x00FFU}}),
         Encode(Zero{Operand{Operand::Type::Mask, isa::Immediate<16>{0x0005U}}}),
         Encode(Zero{Operand{Operand::Type::Mask, isa::Immediate<16>{0x0300U}}, isa::RegisterType::Evaluation}),
     });
 
     EXPECT_EQ(0x00000000U, oracle.ViewScratch()[0].as_u32[0]);
-    EXPECT_EQ(0xFFFFFFFFU, oracle.ViewScratch()[1].as_u32[0]);
+    EXPECT_EQ(0x1111U, oracle.ViewScratch()[1].as_u32[0]);
     EXPECT_EQ(0x00000000U, oracle.ViewScratch()[2].as_u32[0]);
-    EXPECT_EQ(0xFFFFFFFFU, oracle.ViewScratch()[3].as_u32[0]);
+    EXPECT_EQ(0x3333U, oracle.ViewScratch()[3].as_u32[0]);
     for (size_t i = 0; i < isa::CountOfEvaluationRegisters; ++i) {
-        bool const masked = (i == 8U) || (i == 9U);
-        EXPECT_EQ(masked ? 0x00U : 0xFFU, oracle.ViewEvaluations()[i].value) << "evaluation[" << i << "]";
+        uint8_t const expected = i == 0U ? 0xFFU : 0U;
+        EXPECT_EQ(expected, oracle.ViewEvaluations()[i].value) << "evaluation[" << i << "]";
     }
 }
 

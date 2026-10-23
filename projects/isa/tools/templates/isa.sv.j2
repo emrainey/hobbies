@@ -20,8 +20,8 @@ typedef logic [(WORD_SIZE/1)-1:0] word_t;
 typedef logic [(WORD_SIZE*2)-1:0] long_t;
 typedef logic [ADDRESS_SIZE-1:0]  address_t;
 
-typedef logic [SCRATCH_INDEX_W-1:0] scratch_idx_t;
-typedef logic [EVAL_INDEX_W-1:0]    eval_idx_t;
+typedef logic [SCRATCH_INDEX_W-1:0] scratch_index_t;
+typedef logic [EVAL_INDEX_W-1:0]    eval_index_t;
 
 localparam word_t ERASED_WORD = '1;  // an erased flash word decodes as a noop
 localparam word_t UNDEFINED = 32'hDEAD_BEEF;
@@ -61,6 +61,15 @@ function automatic logic is_defined_op(logic [OP_SIZE-1:0] code);
         default: return 1'b0;
     endcase
 endfunction
+
+localparam int SCRATCH_CONTROL_BITS = 2;
+
+typedef enum logic [(SCRATCH_CONTROL_BITS-1):0] {
+    SCRATCH_CONTROL_NONE = 2'b00,
+    SCRATCH_CONTROL_FIRST = 2'b01,
+    SCRATCH_CONTROL_SECOND = 2'b10,
+    SCRATCH_CONTROL_BOTH = 2'b11
+} scratch_control_t;
 
 // === Instruction formats ===
 // Packed structs list the most significant field first, the reverse of the order

@@ -28,8 +28,8 @@ Processor::Processor()
 void Processor::Reset() {
     instruction_cache_.Clean();
     data_cache_.Clean();
-    scratch_.fill(isa::word<32>{0xFFFF'FFFFU});
-    evaluation_.fill(isa::Evaluation{0xFFU});
+    scratch_.fill(isa::word<32>{0U});
+    evaluation_.fill(isa::Evaluation{0U});
     special_ = Special{};
     halted_ = false;
     break_point_hit_ = false;

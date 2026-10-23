@@ -25,8 +25,8 @@ typedef logic [(WORD_SIZE/1)-1:0] word_t;
 typedef logic [(WORD_SIZE*2)-1:0] long_t;
 typedef logic [ADDRESS_SIZE-1:0]  address_t;
 
-typedef logic [SCRATCH_INDEX_W-1:0] scratch_idx_t;
-typedef logic [EVAL_INDEX_W-1:0]    eval_idx_t;
+typedef logic [SCRATCH_INDEX_W-1:0] scratch_index_t;
+typedef logic [EVAL_INDEX_W-1:0]    eval_index_t;
 
 localparam word_t ERASED_WORD = '1;  // an erased flash word decodes as a noop
 localparam word_t UNDEFINED = 32'hDEAD_BEEF;
@@ -185,6 +185,15 @@ function automatic logic is_defined_op(logic [OP_SIZE-1:0] code);
     endcase
 endfunction
 
+localparam int SCRATCH_CONTROL_BITS = 2;
+
+typedef enum logic [(SCRATCH_CONTROL_BITS-1):0] {
+    SCRATCH_CONTROL_NONE = 2'b00,
+    SCRATCH_CONTROL_FIRST = 2'b01,
+    SCRATCH_CONTROL_SECOND = 2'b10,
+    SCRATCH_CONTROL_BOTH = 2'b11
+} scratch_control_t;
+
 // === Instruction formats ===
 // Packed structs list the most significant field first, the reverse of the order
 // in instructions.json (and of the C++ bitfields, which are allocated from bit 0).
@@ -199,9 +208,9 @@ typedef struct packed {
 typedef struct packed {
     logic [WORD_SIZE - (OP_SIZE + SCRATCH_INDEX_W + SCRATCH_INDEX_W + EVAL_INDEX_W + 1)-1:0] reserved;
     logic cond;
-    eval_idx_t eval;
-    scratch_idx_t src;
-    scratch_idx_t dst;
+    eval_index_t eval;
+    scratch_index_t src;
+    scratch_index_t dst;
     op_e op;
 } copy_t;
 
@@ -211,10 +220,10 @@ typedef struct packed {
     logic dir;
     logic type_;
     logic cond;
-    scratch_idx_t src;
-    scratch_idx_t dst;
-    eval_idx_t mask;
-    eval_idx_t eval;
+    scratch_index_t src;
+    scratch_index_t dst;
+    eval_index_t mask;
+    eval_index_t eval;
     op_e op;
 } move_t;
 
@@ -231,8 +240,8 @@ typedef struct packed {
 // swap Sa, [Sb]
 typedef struct packed {
     logic [WORD_SIZE - (OP_SIZE + SCRATCH_INDEX_W + SCRATCH_INDEX_W)-1:0] reserved;
-    scratch_idx_t b;
-    scratch_idx_t a;
+    scratch_index_t b;
+    scratch_index_t a;
     op_e op;
 } swap_t;
 
@@ -251,8 +260,8 @@ typedef struct packed {
     logic [2-1:0] shift;
     logic off;
     logic special;
-    scratch_idx_t base;
-    scratch_idx_t reg_;
+    scratch_index_t base;
+    scratch_index_t reg_;
     op_e op;
 } memory_t;
 
@@ -261,9 +270,9 @@ typedef struct packed {
     logic signed [IMM10_W-1:0] imm;
     logic save;
     logic cond;
-    scratch_idx_t dst;
-    eval_idx_t mask;
-    eval_idx_t eval;
+    scratch_index_t dst;
+    eval_index_t mask;
+    eval_index_t eval;
     op_e op;
 } leap_t;
 
@@ -286,8 +295,8 @@ typedef struct packed {
     logic [IMM10_W-1:0] imm;
     logic [WORD_SIZE - (OP_SIZE + EVAL_INDEX_W + EVAL_INDEX_W + 1 + IMM10_W)-1:0] reserved;
     logic cond;
-    eval_idx_t mask;
-    eval_idx_t eval;
+    eval_index_t mask;
+    eval_index_t eval;
     op_e op;
 } frame_t;
 
@@ -297,8 +306,8 @@ typedef struct packed {
     logic [WORD_SIZE - (OP_SIZE + EVAL_INDEX_W + EVAL_INDEX_W + 1 + 1 + IMM10_W)-1:0] reserved;
     logic debug_break;
     logic cond;
-    eval_idx_t mask;
-    eval_idx_t eval;
+    eval_index_t mask;
+    eval_index_t eval;
     op_e op;
 } trip_t;
 
@@ -314,9 +323,9 @@ typedef struct packed {
     logic [WORD_SIZE - (OP_SIZE + EVAL_INDEX_W + SCRATCH_INDEX_W + SCRATCH_INDEX_W + 1 + 2)-1:0] reserved;
     eval_type_e eval_type;
     logic signed_;
-    scratch_idx_t b;
-    scratch_idx_t a;
-    eval_idx_t e;
+    scratch_index_t b;
+    scratch_index_t a;
+    eval_index_t e;
     op_e op;
 } compare_t;
 
@@ -325,9 +334,9 @@ typedef struct packed {
     logic [WORD_SIZE - (OP_SIZE + SCRATCH_INDEX_W + SCRATCH_INDEX_W + EVAL_INDEX_W + SHIFT_W + 1)-1:0] reserved;
     logic cond;
     logic [SHIFT_W-1:0] shift;
-    eval_idx_t eval;
-    scratch_idx_t src;
-    scratch_idx_t dst;
+    eval_index_t eval;
+    scratch_index_t src;
+    scratch_index_t dst;
     op_e op;
 } bitwise1_t;
 
@@ -335,10 +344,10 @@ typedef struct packed {
 typedef struct packed {
     logic [WORD_SIZE - (OP_SIZE + SCRATCH_INDEX_W + SCRATCH_INDEX_W + SCRATCH_INDEX_W + EVAL_INDEX_W + 1)-1:0] reserved;
     logic cond;
-    eval_idx_t eval;
-    scratch_idx_t src2;
-    scratch_idx_t src1;
-    scratch_idx_t dst;
+    eval_index_t eval;
+    scratch_index_t src2;
+    scratch_index_t src1;
+    scratch_index_t dst;
     op_e op;
 } binary_t;
 
@@ -348,9 +357,9 @@ typedef struct packed {
     logic [WORD_SIZE - (OP_SIZE + SCRATCH_INDEX_W + SCRATCH_INDEX_W + EVAL_INDEX_W + 1 + 1 + 2)-1:0] reserved;
     logic sat;
     logic cond;
-    eval_idx_t eval;
-    scratch_idx_t src;
-    scratch_idx_t dst;
+    eval_index_t eval;
+    scratch_index_t src;
+    scratch_index_t dst;
     op_e op;
 } negate_t;
 
@@ -360,9 +369,9 @@ typedef struct packed {
     logic [WORD_SIZE - (OP_SIZE + SCRATCH_INDEX_W + SCRATCH_INDEX_W + EVAL_INDEX_W + 1 + 1 + 2)-1:0] reserved;
     logic sign;
     logic cond;
-    eval_idx_t eval;
-    scratch_idx_t src;
-    scratch_idx_t dst;
+    eval_index_t eval;
+    scratch_index_t src;
+    scratch_index_t dst;
     op_e op;
 } extend_t;
 
@@ -373,10 +382,10 @@ typedef struct packed {
     logic sat;
     logic sign;
     logic cond;
-    eval_idx_t eval;
-    scratch_idx_t src2;
-    scratch_idx_t src1;
-    scratch_idx_t dst;
+    eval_index_t eval;
+    scratch_index_t src2;
+    scratch_index_t src1;
+    scratch_index_t dst;
     op_e op;
 } arithmetic_t;
 
@@ -384,8 +393,8 @@ typedef struct packed {
 typedef struct packed {
     logic [WORD_SIZE - (OP_SIZE + SCRATCH_INDEX_W + SCRATCH_INDEX_W + 1)-1:0] reserved;
     logic dir;
-    scratch_idx_t src;
-    scratch_idx_t dst;
+    scratch_index_t src;
+    scratch_index_t dst;
     op_e op;
 } float_unary_t;
 

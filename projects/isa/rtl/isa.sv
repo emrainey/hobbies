@@ -26,7 +26,7 @@ typedef logic [(WORD_SIZE*2)-1:0] long_t;
 typedef logic [ADDRESS_SIZE-1:0]  address_t;
 
 typedef logic [SCRATCH_INDEX_W-1:0] scratch_index_t;
-typedef logic [EVAL_INDEX_W-1:0]    eval_index_t;
+typedef logic [EVAL_INDEX_W-1:0]    evaluation_index_t;
 
 localparam word_t ERASED_WORD = '1;  // an erased flash word decodes as a noop
 localparam word_t UNDEFINED = 32'hDEAD_BEEF;
@@ -194,6 +194,13 @@ typedef enum logic [(SCRATCH_CONTROL_BITS-1):0] {
     SCRATCH_CONTROL_BOTH = 2'b11
 } scratch_control_t;
 
+typedef enum logic [(SCRATCH_CONTROL_BITS-1):0] {
+    EVALUATION_CONTROL_NONE = 2'b00,
+    EVALUATION_CONTROL_FIRST = 2'b01,
+    EVALUATION_CONTROL_SECOND = 2'b10,
+    EVALUATION_CONTROL_BOTH = 2'b11
+} evaluation_control_t;
+
 // === Instruction formats ===
 // Packed structs list the most significant field first, the reverse of the order
 // in instructions.json (and of the C++ bitfields, which are allocated from bit 0).
@@ -208,7 +215,7 @@ typedef struct packed {
 typedef struct packed {
     logic [WORD_SIZE - (OP_SIZE + SCRATCH_INDEX_W + SCRATCH_INDEX_W + EVAL_INDEX_W + 1)-1:0] reserved;
     logic cond;
-    eval_index_t eval;
+    evaluation_index_t eval;
     scratch_index_t src;
     scratch_index_t dst;
     op_e op;
@@ -222,8 +229,8 @@ typedef struct packed {
     logic cond;
     scratch_index_t src;
     scratch_index_t dst;
-    eval_index_t mask;
-    eval_index_t eval;
+    evaluation_index_t mask;
+    evaluation_index_t eval;
     op_e op;
 } move_t;
 
@@ -271,8 +278,8 @@ typedef struct packed {
     logic save;
     logic cond;
     scratch_index_t dst;
-    eval_index_t mask;
-    eval_index_t eval;
+    evaluation_index_t mask;
+    evaluation_index_t eval;
     op_e op;
 } leap_t;
 
@@ -295,8 +302,8 @@ typedef struct packed {
     logic [IMM10_W-1:0] imm;
     logic [WORD_SIZE - (OP_SIZE + EVAL_INDEX_W + EVAL_INDEX_W + 1 + IMM10_W)-1:0] reserved;
     logic cond;
-    eval_index_t mask;
-    eval_index_t eval;
+    evaluation_index_t mask;
+    evaluation_index_t eval;
     op_e op;
 } frame_t;
 
@@ -306,8 +313,8 @@ typedef struct packed {
     logic [WORD_SIZE - (OP_SIZE + EVAL_INDEX_W + EVAL_INDEX_W + 1 + 1 + IMM10_W)-1:0] reserved;
     logic debug_break;
     logic cond;
-    eval_index_t mask;
-    eval_index_t eval;
+    evaluation_index_t mask;
+    evaluation_index_t eval;
     op_e op;
 } trip_t;
 
@@ -325,7 +332,7 @@ typedef struct packed {
     logic signed_;
     scratch_index_t b;
     scratch_index_t a;
-    eval_index_t e;
+    evaluation_index_t e;
     op_e op;
 } compare_t;
 
@@ -334,7 +341,7 @@ typedef struct packed {
     logic [WORD_SIZE - (OP_SIZE + SCRATCH_INDEX_W + SCRATCH_INDEX_W + EVAL_INDEX_W + SHIFT_W + 1)-1:0] reserved;
     logic cond;
     logic [SHIFT_W-1:0] shift;
-    eval_index_t eval;
+    evaluation_index_t eval;
     scratch_index_t src;
     scratch_index_t dst;
     op_e op;
@@ -344,7 +351,7 @@ typedef struct packed {
 typedef struct packed {
     logic [WORD_SIZE - (OP_SIZE + SCRATCH_INDEX_W + SCRATCH_INDEX_W + SCRATCH_INDEX_W + EVAL_INDEX_W + 1)-1:0] reserved;
     logic cond;
-    eval_index_t eval;
+    evaluation_index_t eval;
     scratch_index_t src2;
     scratch_index_t src1;
     scratch_index_t dst;
@@ -357,7 +364,7 @@ typedef struct packed {
     logic [WORD_SIZE - (OP_SIZE + SCRATCH_INDEX_W + SCRATCH_INDEX_W + EVAL_INDEX_W + 1 + 1 + 2)-1:0] reserved;
     logic sat;
     logic cond;
-    eval_index_t eval;
+    evaluation_index_t eval;
     scratch_index_t src;
     scratch_index_t dst;
     op_e op;
@@ -369,7 +376,7 @@ typedef struct packed {
     logic [WORD_SIZE - (OP_SIZE + SCRATCH_INDEX_W + SCRATCH_INDEX_W + EVAL_INDEX_W + 1 + 1 + 2)-1:0] reserved;
     logic sign;
     logic cond;
-    eval_index_t eval;
+    evaluation_index_t eval;
     scratch_index_t src;
     scratch_index_t dst;
     op_e op;
@@ -382,7 +389,7 @@ typedef struct packed {
     logic sat;
     logic sign;
     logic cond;
-    eval_index_t eval;
+    evaluation_index_t eval;
     scratch_index_t src2;
     scratch_index_t src1;
     scratch_index_t dst;

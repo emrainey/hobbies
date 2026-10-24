@@ -90,7 +90,7 @@
         {
           "name": "eval",
           "width": "eval_index_w",
-          "type": "eval_index_t"
+          "type": "evaluation_index_t"
         },
         {
           "name": "cond",
@@ -109,12 +109,12 @@
         {
           "name": "eval",
           "width": "eval_index_w",
-          "type": "eval_index_t"
+          "type": "evaluation_index_t"
         },
         {
           "name": "mask",
           "width": "eval_index_w",
-          "type": "eval_index_t"
+          "type": "evaluation_index_t"
         },
         {
           "name": "dst",
@@ -254,12 +254,12 @@
         {
           "name": "eval",
           "width": "eval_index_w",
-          "type": "eval_index_t"
+          "type": "evaluation_index_t"
         },
         {
           "name": "mask",
           "width": "eval_index_w",
-          "type": "eval_index_t"
+          "type": "evaluation_index_t"
         },
         {
           "name": "dst",
@@ -320,12 +320,12 @@
         {
           "name": "eval",
           "width": "eval_index_w",
-          "type": "eval_index_t"
+          "type": "evaluation_index_t"
         },
         {
           "name": "mask",
           "width": "eval_index_w",
-          "type": "eval_index_t"
+          "type": "evaluation_index_t"
         },
         {
           "name": "cond",
@@ -348,12 +348,12 @@
         {
           "name": "eval",
           "width": "eval_index_w",
-          "type": "eval_index_t"
+          "type": "evaluation_index_t"
         },
         {
           "name": "mask",
           "width": "eval_index_w",
-          "type": "eval_index_t"
+          "type": "evaluation_index_t"
         },
         {
           "name": "cond",
@@ -394,7 +394,7 @@
         {
           "name": "e",
           "width": "eval_index_w",
-          "type": "eval_index_t"
+          "type": "evaluation_index_t"
         },
         {
           "name": "a",
@@ -438,7 +438,7 @@
         {
           "name": "eval",
           "width": "eval_index_w",
-          "type": "eval_index_t"
+          "type": "evaluation_index_t"
         },
         {
           "name": "shift",
@@ -476,7 +476,7 @@
         {
           "name": "eval",
           "width": "eval_index_w",
-          "type": "eval_index_t"
+          "type": "evaluation_index_t"
         },
         {
           "name": "cond",
@@ -505,7 +505,7 @@
         {
           "name": "eval",
           "width": "eval_index_w",
-          "type": "eval_index_t"
+          "type": "evaluation_index_t"
         },
         {
           "name": "cond",
@@ -543,7 +543,7 @@
         {
           "name": "eval",
           "width": "eval_index_w",
-          "type": "eval_index_t"
+          "type": "evaluation_index_t"
         },
         {
           "name": "cond",
@@ -586,7 +586,7 @@
         {
           "name": "eval",
           "width": "eval_index_w",
-          "type": "eval_index_t"
+          "type": "evaluation_index_t"
         },
         {
           "name": "cond",

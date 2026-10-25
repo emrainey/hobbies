@@ -42,6 +42,17 @@ protected:
         dut_.eval();
     }
 
+    void Write(uint8_t control, uint8_t index0, uint32_t data0, uint8_t index1, uint32_t data1) {
+        dut_.write_control = control;
+        dut_.write_index[0] = index0;
+        dut_.write_data[0] = data0;
+        dut_.write_index[1] = index1;
+        dut_.write_data[1] = data1;
+        Clock();
+        dut_.write_control = kNoPorts;
+        dut_.eval();
+    }
+
     void SetRead(uint8_t control, uint8_t index0, uint8_t index1) {
         dut_.read_control = control;
         dut_.read_index[0] = index0;
@@ -154,6 +165,31 @@ TEST_F(RtlRegisterFileTest, NoWriteControlPreservesStoredValues) {
 
     SetRead(kFirstPort, 4, 0);
     EXPECT_EQ(dut_.read_data[0], 0x44444444U);
+}
+
+TEST_F(RtlRegisterFileTest, ClearMaskZeroesOnlySelectedRegisters) {
+    Write(kBothPorts, 1, 0xDEADBEEF, 2, 0xDEADBEEF);
+    Write(kBothPorts, 3, 0xDEADBEEF, 4, 0xDEADBEEF);
+
+    dut_.clear_mask = 0b00110;  // registers 1 and 2
+    Clock();
+    dut_.clear_mask = 0;
+
+    SetRead(kBothPorts, 1, 2);
+    EXPECT_EQ(dut_.read_data[0], 0U);
+    EXPECT_EQ(dut_.read_data[1], 0U);
+    SetRead(kBothPorts, 3, 4);
+    EXPECT_EQ(dut_.read_data[0], 0xDEADBEEF);
+    EXPECT_EQ(dut_.read_data[1], 0xDEADBEEF);
+}
+
+TEST_F(RtlRegisterFileTest, WriteWinsOverClearMaskOnTheSameRegister) {
+    dut_.clear_mask = 0b00010;
+    Write(kFirstPort, 1, 0xDEADBEEF, 0, 0);
+    dut_.clear_mask = 0;
+
+    SetRead(kFirstPort, 1, 0);
+    EXPECT_EQ(dut_.read_data[0], 0xDEADBEEF);
 }
 
 }  // namespace

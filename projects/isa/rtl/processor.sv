@@ -1,6 +1,9 @@
 // M1 processor top: reset/vector-table boot, fetch, and the register-file
 // instructions (move, movei, copy, zero, halt).
 //
+// Fetch, decode (operand read) and commit are separate states. Scratch and
+// evaluation state live in the register_file/evaluation_file submodules.
+//
 // Fetch and execute are separate states. `mem_req`/`mem_addr` are driven from
 // S_FETCH and the returned word is latched at the edge into S_COMMIT, where the
 // instruction commits: the register writes, the program-address advance, the
@@ -43,9 +46,8 @@ module processor
     input  word_t      mem_rdata,
     input  logic       mem_fault,
 
-    // Architectural state, exposed for the lockstep harness
-    output word_t      scratch[SCRATCH_COUNT],
-    output byte_t      evaluation[EVAL_COUNT],
+    // Special registers, exposed for the lockstep harness (scratch and evaluation
+    // live in `u_scratch`/`u_evaluation` and are read hierarchically)
     output word_t      special[SPECIAL_COUNT],
 
     // Commit handshake
@@ -84,14 +86,16 @@ module processor
     localparam logic [2:0] BOOT_EXC_STACK_BOUNDARY = 3'd3;
     localparam logic [2:0] BOOT_RESET_HANDLER = 3'd4;
 
-    typedef enum logic [1:0] {
+    typedef enum logic [2:0] {
         S_BOOT,
         S_FETCH,
+        S_DECODE,
         S_COMMIT,
         S_HALTED
     } state_e;
 
     state_e     state;
+    logic       cond_pass;
     logic [2:0] boot_index;
 
     assign booted = (state != S_BOOT);
@@ -116,10 +120,16 @@ module processor
         .valid(decoded_valid)
     );
 
-    // What `copy Sd, Ss : Ee` writes: ComparisonEvaluation{false, true, false, false},
-    // i.e. type = Comparison in bits 1:0 and equal in bit 3 (isa::ComparisonEvaluation,
-    // include/isa/types.hpp).
-    localparam byte_t EVAL_COMPARISON_EQUAL = 8'h09;
+    // What `copy Sd, Ss : Ee` writes: ComparisonEvaluation{false, true, false, false}
+    // (isa::ComparisonEvaluation, include/isa/types.hpp).
+    function automatic byte_t comparison_equal();
+        evaluation_t e;
+        e = '0;
+        e.comparison.type_ = EVAL_TYPE_COMPARISON;
+        e.comparison.equal = 1'b1;
+        return e.raw;
+    endfunction
+    localparam byte_t EVAL_COMPARISON_EQUAL = comparison_equal();
 
     // The opcodes this milestone executes. Extending this function and the S_COMMIT
     // case below is what makes a milestone land.
@@ -149,6 +159,123 @@ module processor
         end
     end
 
+
+    // The register files. Reads are combinational from the instruction; writes land
+    // at the S_COMMIT edge. A same-index double write resolves to port 0.
+    scratch_control_t    s_read_control, s_write_control;
+    scratch_index_t      s_read_index[0:1], s_write_index[0:1];
+    word_t               s_read_data[0:1], s_write_data[0:1];
+    logic [SCRATCH_COUNT-1:0] s_clear;
+    evaluation_control_t e_read_control, e_write_control;
+    evaluation_index_t   e_read_index[0:1], e_write_index[0:1];
+    byte_t               e_read_data[0:1], e_write_data[0:1];
+    logic [EVAL_COUNT-1:0]    e_clear;
+
+    register_file u_scratch (
+        .clock(clk), .reset(reset), .clear_mask(s_clear),
+        .write_control(s_write_control), .write_index(s_write_index), .write_data(s_write_data),
+        .read_control(s_read_control), .read_index(s_read_index), .read_data(s_read_data)
+    );
+
+    evaluation_file u_evaluation (
+        .clock(clk), .reset(reset), .clear_mask(e_clear),
+        .write_control(e_write_control), .write_index(e_write_index), .write_data(e_write_data),
+        .read_control(e_read_control), .read_index(e_read_index), .read_data(e_read_data)
+    );
+
+    logic commit_valid;
+    assign commit_valid = (state == S_COMMIT) && !fetch_fault && supported_op;
+
+    always_comb begin
+        s_read_control  = SCRATCH_CONTROL_NONE;
+        s_write_control = SCRATCH_CONTROL_NONE;
+        e_read_control  = EVALUATION_CONTROL_NONE;
+        e_write_control = EVALUATION_CONTROL_NONE;
+        s_clear         = '0;
+        e_clear         = '0;
+        for (int i = 0; i < 2; i++) begin
+            s_read_index[i]  = '0;
+            s_write_index[i] = '0;
+            s_write_data[i]  = '0;
+            e_read_index[i]  = '0;
+            e_write_index[i] = '0;
+            e_write_data[i]  = '0;
+        end
+
+        // Operand read for the condition (S_DECODE).
+        if (state == S_DECODE && decoded_op == OP_MOVE && view.move.cond) begin
+            e_read_control  = EVALUATION_CONTROL_BOTH;
+            e_read_index[0] = view.move.eval;
+            e_read_index[1] = view.move.mask;
+        end
+
+        if (commit_valid) begin
+            case (decoded_op)
+                OP_COPY: begin
+                    s_read_control   = SCRATCH_CONTROL_FIRST;
+                    s_read_index[0]  = view.copy.src;
+                    s_write_control  = SCRATCH_CONTROL_FIRST;
+                    s_write_index[0] = view.copy.dst;
+                    s_write_data[0]  = s_read_data[0];
+                    if (view.copy.cond) begin
+                        e_write_control  = EVALUATION_CONTROL_FIRST;
+                        e_write_index[0] = view.copy.eval;
+                        e_write_data[0]  = EVAL_COMPARISON_EQUAL;
+                    end
+                end
+                OP_MOVE: begin
+                    if (cond_pass && view.move.type_ == 1'b0) begin
+                        // Shift the word, then clear the source. When source and
+                        // destination match, port 0 (the value) wins.
+                        s_read_control   = SCRATCH_CONTROL_FIRST;
+                        s_read_index[0]  = view.move.src;
+                        s_write_control  = SCRATCH_CONTROL_BOTH;
+                        s_write_index[0] = view.move.dst;
+                        s_write_data[0]  = view.move.dir
+                                               ? word_t'($signed(s_read_data[0]) >>> view.move.shift)
+                                               : (s_read_data[0] << view.move.shift);
+                        s_write_index[1] = view.move.src;
+                    end
+                    if (cond_pass && view.move.type_ == 1'b1) begin
+                        // The shift applies to the 8-bit value (cpu.cpp:336-347).
+                        e_read_control   = EVALUATION_CONTROL_FIRST;
+                        e_read_index[0]  = view.move.src;
+                        e_write_control  = EVALUATION_CONTROL_BOTH;
+                        e_write_index[0] = view.move.dst;
+                        e_write_data[0]  = view.move.dir
+                                               ? (e_read_data[0] >> view.move.shift)
+                                               : (e_read_data[0] << view.move.shift);
+                        e_write_index[1] = view.move.src;
+                    end
+                end
+                OP_MOVE_IMMEDIATE: begin
+                    if (view.move_immediate.eval) begin
+                        e_write_control  = EVALUATION_CONTROL_FIRST;
+                        e_write_index[0] = view.move_immediate.dst;
+                        e_write_data[0]  = view.move_immediate.imm[7:0];
+                    end else begin
+                        // Partial-word write: read-modify-write on the destination.
+                        s_read_control   = SCRATCH_CONTROL_FIRST;
+                        s_read_index[0]  = view.move_immediate.dst;
+                        s_write_control  = SCRATCH_CONTROL_FIRST;
+                        s_write_index[0] = view.move_immediate.dst;
+                        s_write_data[0]  = view.move_immediate.upper
+                                               ? {view.move_immediate.imm, s_read_data[0][15:0]}
+                                               : {s_read_data[0][31:16], view.move_immediate.imm};
+                    end
+                end
+                OP_ZERO: begin
+                    if (view.zero.type_ == REG_SCRATCH) begin
+                        s_clear = view.zero.mask;
+                    end else begin
+                        e_clear = view.zero.mask;
+                    end
+                end
+                default: ;
+            endcase
+        end
+    end
+
     always_ff @(posedge clk) begin
         retire      <= 1'b0;
         unsupported <= 1'b0;
@@ -160,12 +287,7 @@ module processor
             instruction <= ERASED_WORD;
             fetch_fault <= 1'b0;
 
-            for (int i = 0; i < SCRATCH_COUNT; i++) begin
-                scratch[i] <= '0;
-            end
-            for (int i = 0; i < EVAL_COUNT; i++) begin
-                evaluation[i] <= '0;
-            end
+            cond_pass   <= 1'b0;
             for (int i = 0; i < SPECIAL_COUNT; i++) begin
                 special[i] <= '0;
             end
@@ -210,7 +332,14 @@ module processor
                     // The bus response is combinational, so the word is present now.
                     instruction <= mem_rdata;
                     fetch_fault <= mem_fault;
-                    state       <= S_COMMIT;
+                    state       <= S_DECODE;
+                end
+
+                S_DECODE: begin
+                    // The operand read stage: the evaluation file is read for the
+                    // condition and the verdict is held for S_COMMIT.
+                    cond_pass <= !view.move.cond || ((e_read_data[0] & e_read_data[1]) != 8'd0);
+                    state     <= S_COMMIT;
                 end
 
                 S_COMMIT: begin
@@ -219,76 +348,11 @@ module processor
                     if (fetch_fault) begin
                         // No instruction: Cycle() substitutes a noop and advances.
                     end else if (supported_op) begin
-                        case (decoded_op)
-                            OP_NONE: ;  // retire and advance only
-                            OP_HALT: begin
-                                halted <= 1'b1;
-                                state  <= S_HALTED;
-                            end
-                            OP_COPY: begin
-                                scratch[view.copy.dst] <= scratch[view.copy.src];
-                                if (view.copy.cond) begin
-                                    evaluation[view.copy.eval] <= EVAL_COMPARISON_EQUAL;
-                                end
-                            end
-                            OP_MOVE: begin
-                                logic allowed;
-                                allowed = 1'b1;
-                                if (view.move.cond) begin
-                                    allowed = (evaluation[view.move.eval] & evaluation[view.move.mask]) != 8'd0;
-                                end
-                                if (allowed && (view.move.type_ == 1'b0)) begin
-                                    // Scratch to scratch: shift the word, then clear the
-                                    // source unless it is the destination (cpu.cpp:324-335).
-                                    word_t value;
-                                    value = view.move.dir
-                                                ? word_t'($signed(scratch[view.move.src]) >>> view.move.shift)
-                                                : (scratch[view.move.src] << view.move.shift);
-                                    scratch[view.move.dst] <= value;
-                                    if (view.move.dst != view.move.src) begin
-                                        scratch[view.move.src] <= '0;
-                                    end
-                                end
-                                if (allowed && (view.move.type_ == 1'b1)) begin
-                                    // Evaluation to evaluation: the shift applies to the 8-bit
-                                    // value, so a left shift keeps only the low byte
-                                    // (cpu.cpp:336-347).
-                                    byte_t value;
-                                    value = view.move.dir
-                                                ? (evaluation[view.move.src] >> view.move.shift)
-                                                : (evaluation[view.move.src] << view.move.shift);
-                                    evaluation[view.move.dst] <= value;
-                                    if (view.move.dst != view.move.src) begin
-                                        evaluation[view.move.src] <= '0;
-                                    end
-                                end
-                            end
-                            OP_MOVE_IMMEDIATE: begin
-                                if (view.move_immediate.eval) begin
-                                    evaluation[view.move_immediate.dst] <= view.move_immediate.imm[7:0];
-                                end else if (view.move_immediate.upper) begin
-                                    scratch[view.move_immediate.dst][31:16] <= view.move_immediate.imm;
-                                end else begin
-                                    scratch[view.move_immediate.dst][15:0] <= view.move_immediate.imm;
-                                end
-                            end
-                            OP_ZERO: begin
-                                if (view.zero.type_ == REG_SCRATCH) begin
-                                    for (int i = 0; i < SCRATCH_COUNT; i++) begin
-                                        if (view.zero.mask[i]) begin
-                                            scratch[i] <= '0;
-                                        end
-                                    end
-                                end else begin
-                                    for (int i = 0; i < EVAL_COUNT; i++) begin
-                                        if (view.zero.mask[i]) begin
-                                            evaluation[i] <= '0;
-                                        end
-                                    end
-                                end
-                            end
-                            default: ;  // unreachable: supported_op excludes it
-                        endcase
+                        // Register writes are driven combinationally into the files below.
+                        if (decoded_op == OP_HALT) begin
+                            halted <= 1'b1;
+                            state  <= S_HALTED;
+                        end
                     end else begin
                         unsupported <= 1'b1;
                     end

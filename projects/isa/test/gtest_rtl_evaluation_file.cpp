@@ -193,4 +193,29 @@ TEST_F(RtlEvaluationFileTest, StoresFullByteWidth) {
     EXPECT_EQ(dut_.read_data[1], 0x80U);
 }
 
+TEST_F(RtlEvaluationFileTest, ClearMaskZeroesOnlySelectedRegisters) {
+    Write(kBothPorts, 1, 0xA5, 2, 0xA5);
+    Write(kBothPorts, 3, 0xA5, 4, 0xA5);
+
+    dut_.clear_mask = 0b00110;  // registers 1 and 2
+    Clock();
+    dut_.clear_mask = 0;
+
+    SetRead(kBothPorts, 1, 2);
+    EXPECT_EQ(dut_.read_data[0], 0U);
+    EXPECT_EQ(dut_.read_data[1], 0U);
+    SetRead(kBothPorts, 3, 4);
+    EXPECT_EQ(dut_.read_data[0], 0xA5);
+    EXPECT_EQ(dut_.read_data[1], 0xA5);
+}
+
+TEST_F(RtlEvaluationFileTest, WriteWinsOverClearMaskOnTheSameRegister) {
+    dut_.clear_mask = 0b00010;
+    Write(kFirstPort, 1, 0xA5, 0, 0);
+    dut_.clear_mask = 0;
+
+    SetRead(kFirstPort, 1, 0);
+    EXPECT_EQ(dut_.read_data[0], 0xA5);
+}
+
 }  // namespace

@@ -5,6 +5,7 @@
 #include <gtest/gtest.h>
 
 #include <Vprocessor.h>
+#include <Vprocessor___024root.h>
 #include <isa/cpu.hpp>
 
 namespace {
@@ -59,6 +60,14 @@ protected:
         ASSERT_TRUE(RunUntilBooted());
     }
 
+    /// Architectural register state lives in the register-file submodules.
+    uint32_t Scratch(size_t i) {
+        return dut.rootp->processor__DOT__u_scratch__DOT__scratch[i];
+    }
+    uint32_t Evaluation(size_t i) {
+        return dut.rootp->processor__DOT__u_evaluation__DOT__evaluation[i];
+    }
+
     /// Services one bus access from the DUT using the oracle's memory.
     void ServiceBus() {
         uint32_t value = 0U;
@@ -103,10 +112,10 @@ protected:
 
     void ExpectStateMatches() {
         for (size_t i = 0; i < isa::CountOfScratchRegisters; ++i) {
-            EXPECT_EQ(oracle.ViewScratch()[i].as_u32[0], dut.scratch[i]) << "scratch[" << i << "]";
+            EXPECT_EQ(oracle.ViewScratch()[i].as_u32[0], Scratch(i)) << "scratch[" << i << "]";
         }
         for (size_t i = 0; i < isa::CountOfEvaluationRegisters; ++i) {
-            EXPECT_EQ(oracle.ViewEvaluations()[i].value, dut.evaluation[i]) << "evaluation[" << i << "]";
+            EXPECT_EQ(oracle.ViewEvaluations()[i].value, Evaluation(i)) << "evaluation[" << i << "]";
         }
         for (size_t i = 0; i < isa::CountOfSpecialRegisters; ++i) {
             EXPECT_EQ(oracle.ViewSpecial().as_word(i).as_u32[0], dut.special[i]) << "special[" << i << "]";
@@ -138,16 +147,16 @@ protected:
 TEST_F(RtlProcessorTest, ResetStateMatchesTheFastModel) {
     ExpectStateMatches();
     for (size_t i = 0; i < isa::CountOfScratchRegisters; ++i) {
-        EXPECT_EQ(0U, dut.scratch[i]) << "scratch[" << i << "]";
+        EXPECT_EQ(0U, Scratch(i)) << "scratch[" << i << "]";
     }
     for (size_t i = 0; i < isa::CountOfEvaluationRegisters; ++i) {
-        EXPECT_EQ(0U, dut.evaluation[i]) << "evaluation[" << i << "]";
+        EXPECT_EQ(0U, Evaluation(i)) << "evaluation[" << i << "]";
     }
 }
 
 TEST_F(RtlProcessorTest, ExposedStateWidthsMatchTheFastModel) {
-    EXPECT_EQ(isa::CountOfScratchRegisters, dut.scratch.size());
-    EXPECT_EQ(isa::CountOfEvaluationRegisters, dut.evaluation.size());
+    EXPECT_EQ(isa::CountOfScratchRegisters, std::size(dut.rootp->processor__DOT__u_scratch__DOT__scratch));
+    EXPECT_EQ(isa::CountOfEvaluationRegisters, std::size(dut.rootp->processor__DOT__u_evaluation__DOT__evaluation));
     EXPECT_EQ(isa::CountOfSpecialRegisters, dut.special.size());
 }
 

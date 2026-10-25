@@ -3,6 +3,7 @@ import isa::*;
 module evaluation_file(
     input logic clock,
     input logic reset,
+    input logic [EVAL_COUNT-1:0] clear_mask,
     input evaluation_control_t write_control,
     input evaluation_index_t write_index[0:1],
     input byte_t write_data[0:1],
@@ -10,13 +11,19 @@ module evaluation_file(
     input evaluation_index_t read_index[0:1],
     output byte_t read_data[0:1]
 );
-    byte_t evaluation [(EVAL_COUNT-1):0];
+    byte_t evaluation [(EVAL_COUNT-1):0] /* verilator public_flat_rd */;
     always_ff @(posedge clock or posedge reset) begin
         if (reset) begin
             for (int i = 0; i < EVAL_COUNT; i++) begin
                 evaluation[i] <= '0;
             end
         end else begin
+            // Selective clear; a write to the same register in the same cycle wins.
+            for (int i = 0; i < EVAL_COUNT; i++) begin
+                if (clear_mask[i]) begin
+                    evaluation[i] <= '0;
+                end
+            end
             case (write_control)
                 EVALUATION_CONTROL_FIRST: begin
                     evaluation[write_index[0]] <= write_data[0];
@@ -64,6 +71,7 @@ endmodule
 module register_file(
     input logic clock,
     input logic reset,
+    input logic [SCRATCH_COUNT-1:0] clear_mask,
     input scratch_control_t write_control,
     input scratch_index_t write_index[0:1],
     input word_t write_data[0:1],
@@ -71,13 +79,19 @@ module register_file(
     input scratch_index_t read_index[0:1],
     output word_t read_data[0:1]
 );
-    reg [WORD_SIZE-1:0] scratch [(SCRATCH_COUNT-1):0];
+    reg [WORD_SIZE-1:0] scratch [(SCRATCH_COUNT-1):0] /* verilator public_flat_rd */;
     always_ff @(posedge clock or posedge reset) begin
         if (reset) begin
             for (int i = 0; i < SCRATCH_COUNT; i++) begin
                 scratch[i] <= '0;
             end
         end else begin
+            // Selective clear; a write to the same register in the same cycle wins.
+            for (int i = 0; i < SCRATCH_COUNT; i++) begin
+                if (clear_mask[i]) begin
+                    scratch[i] <= '0;
+                end
+            end
             case (write_control)
                 SCRATCH_CONTROL_FIRST: begin
                     scratch[write_index[0]] <= write_data[0];

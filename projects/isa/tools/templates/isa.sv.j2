@@ -78,6 +78,53 @@ typedef enum logic [(SCRATCH_CONTROL_BITS-1):0] {
     EVALUATION_CONTROL_BOTH = 2'b11
 } evaluation_control_t;
 
+// === Evaluation register layout ===
+// Mirrors isa::BaseEvaluation/ComparisonEvaluation/ArithmeticEvaluation/
+// PrecisionEvaluation (include/isa/types.hpp): the type sits in bits 1:0 and the
+// flags above it. Packed structs list the most significant field first, the
+// reverse of the C++ bitfield order.
+typedef enum logic [1:0] {
+    EVAL_TYPE_NONE = 2'd0,
+    EVAL_TYPE_COMPARISON = 2'd1,
+    EVAL_TYPE_ARITHMETIC = 2'd2,
+    EVAL_TYPE_PRECISION = 2'd3
+} evaluation_type_e;
+
+typedef struct packed {
+    logic [1:0] reserved;
+    logic not_equal;
+    logic greater_than;
+    logic equal;
+    logic less_than;
+    evaluation_type_e type_;
+} comparison_evaluation_t;
+
+typedef struct packed {
+    logic [1:0] reserved;
+    logic undefined;
+    logic overflow;
+    logic zero;
+    logic positive;
+    evaluation_type_e type_;
+} arithmetic_evaluation_t;
+
+typedef struct packed {
+    logic [1:0] reserved;
+    logic underflow;
+    logic subnormal;
+    logic rounded;
+    logic inexact;
+    evaluation_type_e type_;
+} precision_evaluation_t;
+
+// An evaluation register viewed as raw bits or as any of the typed layouts.
+typedef union packed {
+    byte_t raw;
+    comparison_evaluation_t comparison;
+    arithmetic_evaluation_t arithmetic;
+    precision_evaluation_t precision;
+} evaluation_t;
+
 // === Instruction formats ===
 // Packed structs list the most significant field first, the reverse of the order
 // in instructions.json (and of the C++ bitfields, which are allocated from bit 0).
@@ -104,5 +151,32 @@ typedef union packed {
     {{ f.type }} {{ f.name }};
 {% endfor %}
 } instruction_t;
+
+// === Sized integer helpers (shared by the ALU and any unit working on sized operands) ===
+// Wide enough for an unsigned word-by-word product, which is held as a positive value.
+localparam int WIDE_SIZE = (2 * WORD_SIZE) + 2;
+typedef logic signed [WIDE_SIZE-1:0] wide_t;
+
+// The operand bit width selected by `size`; SIZE_DOUBLE is not an operand size.
+function automatic int size_bits(size_e size);
+    case (size)
+        SIZE_BYTE: return WORD_SIZE / 4;
+        SIZE_HALF: return WORD_SIZE / 2;
+        default:   return WORD_SIZE;
+    endcase
+endfunction
+
+function automatic logic size_is_operand(size_e size);
+    return size == SIZE_BYTE || size == SIZE_HALF || size == SIZE_WORD;
+endfunction
+
+// Largest and smallest value that fits in `bits` bits.
+function automatic wide_t range_max(int bits, logic is_signed);
+    return is_signed ? (wide_t'(1) <<< (bits - 1)) - 1 : (wide_t'(1) <<< bits) - 1;
+endfunction
+
+function automatic wide_t range_min(int bits, logic is_signed);
+    return is_signed ? -(wide_t'(1) <<< (bits - 1)) : wide_t'(0);
+endfunction
 
 endpackage : isa

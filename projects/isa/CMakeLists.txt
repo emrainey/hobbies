@@ -46,6 +46,37 @@ verilate(isa_rtl_evaluation_file_sim
         ${CMAKE_CURRENT_SOURCE_DIR}/rtl/register.sv
 )
 
+add_library(isa_rtl_bitwise_sim)
+
+verilate(isa_rtl_bitwise_sim
+    PREFIX Vbitwise_logic_unit
+    TOP_MODULE bitwise_logic_unit
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/rtl/isa.sv
+        ${CMAKE_CURRENT_SOURCE_DIR}/rtl/bitwise.sv
+)
+
+add_library(isa_rtl_extend_sim)
+
+verilate(isa_rtl_extend_sim
+    PREFIX Voperand_extend
+    TOP_MODULE operand_extend
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/rtl/isa.sv
+        ${CMAKE_CURRENT_SOURCE_DIR}/rtl/extend.sv
+)
+
+add_library(isa_rtl_alu_sim)
+
+verilate(isa_rtl_alu_sim
+    PREFIX Valu
+    TOP_MODULE alu
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/rtl/isa.sv
+        ${CMAKE_CURRENT_SOURCE_DIR}/rtl/extend.sv
+        ${CMAKE_CURRENT_SOURCE_DIR}/rtl/alu.sv
+)
+
 add_library(isa_rtl_processor_sim)
 
 verilate(isa_rtl_processor_sim
@@ -53,6 +84,9 @@ verilate(isa_rtl_processor_sim
     TOP_MODULE processor
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/rtl/isa.sv
+        ${CMAKE_CURRENT_SOURCE_DIR}/rtl/extend.sv
+        ${CMAKE_CURRENT_SOURCE_DIR}/rtl/alu.sv
+        ${CMAKE_CURRENT_SOURCE_DIR}/rtl/bitwise.sv
         ${CMAKE_CURRENT_SOURCE_DIR}/rtl/decoder.sv
         ${CMAKE_CURRENT_SOURCE_DIR}/rtl/register.sv
         ${CMAKE_CURRENT_SOURCE_DIR}/rtl/processor.sv
@@ -173,6 +207,18 @@ if (BUILD_UNIT_TESTS AND Threads_FOUND AND GTest_FOUND)
         add_executable(gtest_isa_rtl_evaluation_file ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_rtl_evaluation_file.cpp)
         target_link_libraries(gtest_isa_rtl_evaluation_file PRIVATE isa_rtl_evaluation_file_sim GTest::gtest GTest::gtest_main Threads::Threads)
         add_test(NAME gtest_isa_rtl_evaluation_file COMMAND gtest_isa_rtl_evaluation_file)
+
+        add_executable(gtest_isa_rtl_bitwise ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_rtl_bitwise.cpp)
+        target_link_libraries(gtest_isa_rtl_bitwise PRIVATE isa_rtl_bitwise_sim hobbies-isa GTest::gtest GTest::gtest_main Threads::Threads)
+        add_test(NAME gtest_isa_rtl_bitwise COMMAND gtest_isa_rtl_bitwise)
+
+        add_executable(gtest_isa_rtl_extend ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_rtl_extend.cpp)
+        target_link_libraries(gtest_isa_rtl_extend PRIVATE isa_rtl_extend_sim GTest::gtest GTest::gtest_main Threads::Threads)
+        add_test(NAME gtest_isa_rtl_extend COMMAND gtest_isa_rtl_extend)
+
+        add_executable(gtest_isa_rtl_alu ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_rtl_alu.cpp)
+        target_link_libraries(gtest_isa_rtl_alu PRIVATE isa_rtl_alu_sim hobbies-isa GTest::gtest GTest::gtest_main Threads::Threads)
+        add_test(NAME gtest_isa_rtl_alu COMMAND gtest_isa_rtl_alu)
 
         add_executable(gtest_isa_rtl_processor ${CMAKE_CURRENT_SOURCE_DIR}/test/gtest_rtl_processor.cpp)
         target_link_libraries(gtest_isa_rtl_processor PRIVATE isa_rtl_processor_sim hobbies-isa GTest::gtest GTest::gtest_main Threads::Threads)

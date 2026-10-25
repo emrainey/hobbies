@@ -157,7 +157,7 @@ TEST_F(RtlProcessorTest, ResetStateMatchesTheFastModel) {
 TEST_F(RtlProcessorTest, ExposedStateWidthsMatchTheFastModel) {
     EXPECT_EQ(isa::CountOfScratchRegisters, std::size(dut.rootp->processor__DOT__u_scratch__DOT__scratch));
     EXPECT_EQ(isa::CountOfEvaluationRegisters, std::size(dut.rootp->processor__DOT__u_evaluation__DOT__evaluation));
-    EXPECT_EQ(isa::CountOfSpecialRegisters, dut.special.size());
+    EXPECT_EQ(isa::CountOfSpecialRegisters, std::size(dut.special));
 }
 
 TEST_F(RtlProcessorTest, ErasedProgramRetiresNoOpsInLockstep) {

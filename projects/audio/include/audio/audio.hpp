@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <tuple>
+#include <variant>
 
 #include <basal/basal.hpp>
 #include <basal/ieee754.hpp>

@@ -31,6 +31,19 @@ typedef logic [EVAL_INDEX_W-1:0]    evaluation_index_t;
 localparam word_t ERASED_WORD = '1;  // an erased flash word decodes as a noop
 localparam word_t UNDEFINED = 32'hDEAD_BEEF;
 
+// === Vector table ===
+// Mirrors isa::DefaultVectorTableAddress (include/isa/map.hpp, Map[1].start).
+// Unsized so the width is taken from `address_t`; a parameter cannot be used as
+// the size of a based literal (`ADDRESS_SIZE'h...` is a syntax error).
+localparam address_t DEFAULT_VECTOR_TABLE_ADDRESS = 'h0010_0000;
+
+// Word offsets of the fields in isa::VectorTable (include/isa/cpu.hpp).
+localparam logic [2:0] BOOT_STACK_INITIAL = 3'd0;
+localparam logic [2:0] BOOT_STACK_BOUNDARY = 3'd1;
+localparam logic [2:0] BOOT_EXC_STACK_INITIAL = 3'd2;
+localparam logic [2:0] BOOT_EXC_STACK_BOUNDARY = 3'd3;
+localparam logic [2:0] BOOT_RESET_HANDLER = 3'd4;
+
 // === Special register indices ===
 // The word index of each special register, in isa::Special order. The C++ model
 // static_asserts its own field offsets against these.

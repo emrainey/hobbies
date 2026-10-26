@@ -59,10 +59,7 @@ module processor
     output logic unsupported
 );
 
-    // Mirrors isa::DefaultVectorTableAddress (include/isa/map.hpp, Map[1].start).
-    // Unsized so the width is taken from `address_t`; a parameter cannot be used as
-    // the size of a based literal (`ADDRESS_SIZE'h...` is a syntax error).
-    localparam address_t DEFAULT_VECTOR_TABLE_ADDRESS = 'h0010_0000;
+    // The vector table location (DEFAULT_VECTOR_TABLE_ADDRESS) comes from the isa package.
 
     // Special-register word indices (SPECIAL_*) come from the generated isa package,
     // which the C++ model binds to its own field offsets with static_asserts.
@@ -79,12 +76,7 @@ module processor
     // Mode at reset: Exception=0, Privileged=0, NonPrivileged=1 (isa::Mode's default).
     localparam mode_t MODE_RESET = '{nonprivileged: 1'b1, default: '0};
 
-    // Vector-table word offsets, matching isa::VectorTable.
-    localparam logic [2:0] BOOT_STACK_INITIAL = 3'd0;
-    localparam logic [2:0] BOOT_STACK_BOUNDARY = 3'd1;
-    localparam logic [2:0] BOOT_EXC_STACK_INITIAL = 3'd2;
-    localparam logic [2:0] BOOT_EXC_STACK_BOUNDARY = 3'd3;
-    localparam logic [2:0] BOOT_RESET_HANDLER = 3'd4;
+    // Vector-table word offsets (BOOT_*) come from the isa package.
 
     typedef enum logic [2:0] {
         S_BOOT,

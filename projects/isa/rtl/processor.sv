@@ -134,6 +134,7 @@ module processor
             OP_COMPLEMENT, OP_RSH, OP_ASR, OP_LSH, OP_ROTATE, OP_COUNT1S, OP_COUNT_L0S,
             OP_NOT, OP_SET_BIT, OP_CLEAR_BIT, OP_TOGGLE_BIT, OP_REVERSE: return 1'b1;
             OP_AND, OP_OR, OP_XOR: return 1'b1;
+            OP_ADDITION, OP_SUBTRACT, OP_MULTIPLY, OP_DIVIDE, OP_MODULO, OP_NEGATE, OP_EXTEND: return 1'b1;
             default: return 1'b0;
         endcase
     endfunction
@@ -217,10 +218,83 @@ module processor
     logic blu_fault;
     assign blu_fault = (decoded_op == OP_REVERSE) && (view.bitwise1.shift > 2);
 
+    // The arithmetic operations (add, sub, mul, div, mod, neg, sext/zext). Their
+    // operands are read in S_DECODE and held in registers, so the unit's fault (a zero
+    // divisor, a bad size) does not depend on the register file in the commit cycle.
+    // The three formats share the size field but place `sign`, `sat`, `cond` and
+    // `eval` differently, so each is picked out by operation.
+    logic is_alu, is_alu_binary, is_extend, is_negate;
+    always_comb begin
+        is_alu_binary = decoded_op == OP_ADDITION || decoded_op == OP_SUBTRACT || decoded_op == OP_MULTIPLY
+                        || decoded_op == OP_DIVIDE || decoded_op == OP_MODULO;
+        is_negate     = decoded_op == OP_NEGATE;
+        is_extend     = decoded_op == OP_EXTEND;
+        is_alu        = is_alu_binary || is_negate || is_extend;
+    end
+
+    word_t op_a, op_b;  // the operands latched at the end of S_DECODE
+
+    logic alu_sign, alu_sat, alu_cond;
+    evaluation_index_t alu_eval_index;
+    scratch_index_t alu_dst;
+    always_comb begin
+        alu_sign       = 1'b0;
+        alu_sat        = 1'b0;
+        alu_cond       = 1'b0;
+        alu_eval_index = view.arithmetic.eval;
+        alu_dst        = view.arithmetic.dst;
+        if (is_alu_binary) begin
+            alu_sign       = view.arithmetic.sign;
+            alu_sat        = view.arithmetic.sat;
+            alu_cond       = view.arithmetic.cond;
+        end else if (is_negate) begin
+            alu_sat        = view.negate.sat;
+            alu_cond       = view.negate.cond;
+            alu_eval_index = view.negate.eval;
+            alu_dst        = view.negate.dst;
+        end else begin
+            alu_sign       = view.extend.sign;
+            alu_cond       = view.extend.cond;
+            alu_eval_index = view.extend.eval;
+            alu_dst        = view.extend.dst;
+        end
+    end
+
+    word_t       alu_result;
+    evaluation_t alu_eva;
+    logic        alu_fault_raw;
+    /* verilator lint_off UNUSEDSIGNAL */
+    logic        alu_valid;  // is_alu already says whether the unit executes this opcode
+    /* verilator lint_on UNUSEDSIGNAL */
+
+    alu u_alu (
+        .op(decoded_op), .size(view.arithmetic.size), .sign(alu_sign), .sat(alu_sat),
+        .a(op_a), .b(op_b),
+        .result(alu_result), .eva(alu_eva), .fault(alu_fault_raw), .valid(alu_valid)
+    );
+
+    logic alu_fault;
+    assign alu_fault = is_alu && alu_fault_raw;
+
+    // The instruction writes only the low `size` bits of the destination (extend writes
+    // the whole word), so the old destination, read at commit, supplies the rest.
+    word_t alu_mask, alu_write_data;
+    always_comb begin
+        case (view.arithmetic.size)
+            SIZE_BYTE: alu_mask = 32'h0000_00FF;
+            SIZE_HALF: alu_mask = 32'h0000_FFFF;
+            default:   alu_mask = 32'hFFFF_FFFF;
+        endcase
+        if (is_extend) begin
+            alu_mask = 32'hFFFF_FFFF;
+        end
+        alu_write_data = (s_read_data[0] & ~alu_mask) | (alu_result & alu_mask);
+    end
+
     // An instruction fault: an undefined opcode or an invalid operation. Nothing is
     // written, and the exception below redirects the program address like Cycle().
     logic instruction_fault;
-    assign instruction_fault = (state == S_COMMIT) && !fetch_fault && (!decoded_valid || blu_fault);
+    assign instruction_fault = (state == S_COMMIT) && !fetch_fault && (!decoded_valid || blu_fault || alu_fault);
 
     // The exception state after this commit; any set bit redirects through the table.
     word_t exception_next;
@@ -232,7 +306,7 @@ module processor
     end
 
     logic commit_valid;
-    assign commit_valid = (state == S_COMMIT) && !fetch_fault && supported_op && !blu_fault;
+    assign commit_valid = (state == S_COMMIT) && !fetch_fault && supported_op && !blu_fault && !alu_fault;
 
     always_comb begin
         s_read_control  = SCRATCH_CONTROL_NONE;
@@ -257,9 +331,21 @@ module processor
             e_read_index[1] = view.move.mask;
         end
 
+        // The ALU operands are read in S_DECODE and latched.
+        if (state == S_DECODE && is_alu) begin
+            s_read_control  = is_alu_binary ? SCRATCH_CONTROL_BOTH : SCRATCH_CONTROL_FIRST;
+            s_read_index[0] = is_alu_binary ? view.arithmetic.src1 : (is_negate ? view.negate.src : view.extend.src);
+            s_read_index[1] = view.arithmetic.src2;
+        end
+
         // Bitwise operands are read whenever the operation is about to commit; only the
         // write is gated by the operation being valid.
         if (state == S_COMMIT && !fetch_fault && supported_op) begin
+            if (is_alu) begin
+                // The old destination, merged with the sized result.
+                s_read_control  = SCRATCH_CONTROL_FIRST;
+                s_read_index[0] = alu_dst;
+            end
             if (is_bitwise1) begin
                 s_read_control  = SCRATCH_CONTROL_FIRST;
                 s_read_index[0] = view.bitwise1.src;
@@ -272,6 +358,17 @@ module processor
         end
 
         if (commit_valid) begin
+            if (is_alu) begin
+                s_write_control  = SCRATCH_CONTROL_FIRST;
+                s_write_index[0] = alu_dst;
+                s_write_data[0]  = alu_write_data;
+                if (alu_cond) begin
+                    e_write_control  = EVALUATION_CONTROL_FIRST;
+                    e_write_index[0] = alu_eval_index;
+                    e_write_data[0]  = alu_eva.raw;
+                end
+            end
+
             if (is_bitwise1 || is_bitwise2) begin
                 s_write_control  = SCRATCH_CONTROL_FIRST;
                 s_write_index[0] = is_bitwise2 ? view.binary.dst : view.bitwise1.dst;
@@ -362,6 +459,8 @@ module processor
             vector_index <= '0;
 
             cond_pass   <= 1'b0;
+            op_a        <= '0;
+            op_b        <= '0;
             for (int i = 0; i < SPECIAL_COUNT; i++) begin
                 special[i] <= '0;
             end
@@ -413,6 +512,8 @@ module processor
                     // The operand read stage: the evaluation file is read for the
                     // condition and the verdict is held for S_COMMIT.
                     cond_pass <= !view.move.cond || ((e_read_data[0] & e_read_data[1]) != 8'd0);
+                    op_a      <= s_read_data[0];
+                    op_b      <= s_read_data[1];
                     state     <= S_COMMIT;
                 end
 

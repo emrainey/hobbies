@@ -124,22 +124,20 @@ protected:
         EXPECT_EQ(oracle.IsHalted(), static_cast<bool>(dut.halted));
     }
 
-    /// Pokes `program` at the code address, then steps both models one retired
-    /// instruction at a time and diffs the whole architectural state after each.
+    /// Pokes `program` after whatever was run before, then steps both models one
+    /// retired instruction at a time and diffs the whole architectural state after each.
     /// Every instruction must be one this milestone implements, so `unsupported`
     /// staying low is part of the assertion.
-    void RunProgram_Vector(std::vector<uint32_t> const& program) {
-        RunProgram(std::initializer_list<uint32_t>{});
-        for (uint32_t const word : program) {
-            RunProgram({word});
-        }
-    }
+    uint32_t next_program_address = kCodeAddress;
 
     void RunProgram(std::initializer_list<uint32_t> program) {
-        uint32_t address = kCodeAddress;
+        RunProgram_Vector(std::vector<uint32_t>{program});
+    }
+
+    void RunProgram_Vector(std::vector<uint32_t> const& program) {
         for (uint32_t const word : program) {
-            ASSERT_TRUE(oracle.Poke(isa::Address{address}, word));
-            address += sizeof(uint32_t);
+            ASSERT_TRUE(oracle.Poke(isa::Address{next_program_address}, word));
+            next_program_address += sizeof(uint32_t);
         }
 
         for (size_t step = 0; step < program.size(); ++step) {
@@ -432,13 +430,131 @@ TEST_F(RtlProcessorTest, ReverseWiderThanAWordWritesNothingAndIsFlagged) {
     ASSERT_TRUE(oracle.Poke(isa::Address{kFlashBase + 32U}, kFaultHandler));
     Instruction bad{Bitwise1::ReverseBytes(dst, s1)};
     bad.bitwise1.shift = 3U;
-    ASSERT_TRUE(oracle.Poke(isa::Address{kCodeAddress + 8U}, bad.raw));
+    ASSERT_TRUE(oracle.Poke(isa::Address{next_program_address}, bad.raw));
     oracle.Cycle();
     ASSERT_TRUE(RunUntilRetire());
     EXPECT_FALSE(dut.unsupported) << "a fault is not an unimplemented opcode";
     EXPECT_EQ(0U, Scratch(2));
     EXPECT_EQ(kFaultHandler, dut.special[isa::special::ProgramAddress]);
     ExpectStateMatches();
+}
+
+TEST_F(RtlProcessorTest, ArithmeticOperationsMatchTheFastModel) {
+    using isa::Operand;
+    using namespace isa::instructions;
+    using Size = Arithmetic::Size;
+    using Factory = Arithmetic (*)(Operand, Operand, Operand, Size);
+
+    Operand const s1{Operand::Type::Scratch, 1};
+    Operand const s2{Operand::Type::Scratch, 2};
+    Operand const dst{Operand::Type::Scratch, 3};
+    Operand const e5{Operand::Type::Evaluation, 5};
+
+    // A divisor whose low byte and low half-word are never zero, so nothing here faults.
+    constexpr uint32_t kLhs[]
+        = {0U, 1U, 0x80U, 0x7FU, 0x8000U, 0x7FFFU, 0x80000000U, 0x7FFFFFFFU, 0xFFFFFFFFU, 0x12345678U};
+    constexpr uint32_t kRhs[]
+        = {1U, 0x7FU, 0xFFU, 0x7F7FU, 0xFFFFU, 3U, 0x7FFFFFFFU, 0xFFFFFFFFU, 0x80000001U, 0x00018001U};
+    constexpr Factory kFactories[] = {
+        Arithmetic::Addu, Arithmetic::Adds, Arithmetic::AdduSat, Arithmetic::AddsSat,
+        Arithmetic::Subu, Arithmetic::Subs, Arithmetic::SubuSat, Arithmetic::SubsSat,
+        Arithmetic::Mulu, Arithmetic::Muls, Arithmetic::MuluSat, Arithmetic::MulsSat,
+        Arithmetic::Divu, Arithmetic::Divs, Arithmetic::Modu,    Arithmetic::Mods,
+    };
+    constexpr Size kSizes[] = {Size::Byte, Size::HalfWord, Size::Word};
+
+    std::vector<uint32_t> program;
+    LoadWord(program, 3, 0xA5A5A5A5U);  // the upper bits a sized result must leave alone
+    for (uint32_t const lhs : kLhs) {
+        for (uint32_t const rhs : kRhs) {
+            LoadWord(program, 1, lhs);
+            LoadWord(program, 2, rhs);
+            for (auto const factory : kFactories) {
+                for (Size const size : kSizes) {
+                    Arithmetic instruction = factory(dst, s1, s2, size);
+                    instruction.cond = 1U;
+                    instruction.eval = e5.index;
+                    program.push_back(Encode(instruction));
+                }
+            }
+        }
+    }
+    RunProgram_Vector(program);
+}
+
+TEST_F(RtlProcessorTest, NegateAndExtendMatchTheFastModel) {
+    using isa::Operand;
+    using isa::Size;
+    using namespace isa::instructions;
+
+    Operand const s1{Operand::Type::Scratch, 1};
+    Operand const dst{Operand::Type::Scratch, 2};
+    Operand const e6{Operand::Type::Evaluation, 6};
+
+    std::vector<uint32_t> program;
+    LoadWord(program, 2, 0xA5A5A5A5U);
+    for (uint32_t const value : {0U, 1U, 0x80U, 0x8000U, 0x80000000U, 0x7FFFFFFFU, 0xFFFFFFFFU, 0x1234ABCDU}) {
+        LoadWord(program, 1, value);
+        for (Size const size : {Size::Byte, Size::HalfWord, Size::Word}) {
+            program.push_back(Encode(Negate::Make(dst, s1, size, false).Evaluate(e6)));
+            program.push_back(Encode(Negate::Make(dst, s1, size, true).Evaluate(e6)));
+        }
+        for (Size const size : {Size::Byte, Size::HalfWord}) {
+            program.push_back(Encode(Extend::Sign(dst, s1, size).Evaluate(e6)));
+            program.push_back(Encode(Extend::Zero(dst, s1, size)));
+        }
+    }
+    RunProgram_Vector(program);
+}
+
+/// Runs `word` after loading scratch 1 and 3, expecting a fault: nothing is written and
+/// both models continue at the instruction-fault handler.
+#define EXPECT_FAULTS_LIKE_THE_FAST_MODEL(word_expr)                                   \
+    do {                                                                               \
+        std::vector<uint32_t> setup;                                                   \
+        LoadWord(setup, 1, 0x1234U);                                                   \
+        LoadWord(setup, 3, 0xCAFEF00DU);                                               \
+        RunProgram_Vector(setup);                                                      \
+        ASSERT_TRUE(oracle.Poke(isa::Address{kFlashBase + 32U}, kFaultHandler));       \
+        ASSERT_TRUE(oracle.Poke(isa::Address{next_program_address}, (word_expr)));     \
+        oracle.Cycle();                                                                \
+        ASSERT_TRUE(RunUntilRetire());                                                 \
+        EXPECT_FALSE(dut.unsupported);                                                 \
+        EXPECT_EQ(0xCAFEF00DU, Scratch(3)) << "a faulting instruction writes nothing"; \
+        EXPECT_EQ(kFaultHandler, dut.special[isa::special::ProgramAddress]);           \
+        ExpectStateMatches();                                                          \
+    } while (false)
+
+TEST_F(RtlProcessorTest, DivideByZeroFaultsInLockstep) {
+    using isa::Operand;
+    using namespace isa::instructions;
+    EXPECT_FAULTS_LIKE_THE_FAST_MODEL(Encode(Arithmetic::Divu(
+        Operand{Operand::Type::Scratch, 3}, Operand{Operand::Type::Scratch, 1}, Operand{Operand::Type::Scratch, 2})));
+}
+
+TEST_F(RtlProcessorTest, ModuloByZeroFaultsInLockstep) {
+    using isa::Operand;
+    using namespace isa::instructions;
+    EXPECT_FAULTS_LIKE_THE_FAST_MODEL(
+        Encode(Arithmetic::Mods(Operand{Operand::Type::Scratch, 3}, Operand{Operand::Type::Scratch, 1},
+                                Operand{Operand::Type::Scratch, 2}, Arithmetic::Size::HalfWord)));
+}
+
+TEST_F(RtlProcessorTest, NegateWithAnInvalidSizeFaultsInLockstep) {
+    using isa::Operand;
+    using namespace isa::instructions;
+    EXPECT_FAULTS_LIKE_THE_FAST_MODEL(Encode(Negate::Make(
+        Operand{Operand::Type::Scratch, 3}, Operand{Operand::Type::Scratch, 1}, isa::Size::DoubleWord, false)));
+}
+
+TEST_F(RtlProcessorTest, ExtendToTheSameSizeFaultsInLockstep) {
+    using isa::Operand;
+    using namespace isa::instructions;
+    // The encoder refuses a word-sized extend, so the size field is patched in raw.
+    Instruction instruction{
+        Extend::Sign(Operand{Operand::Type::Scratch, 3}, Operand{Operand::Type::Scratch, 1}, isa::Size::Byte)};
+    instruction.extend.size = static_cast<uint32_t>(isa::Size::Word);
+    EXPECT_FAULTS_LIKE_THE_FAST_MODEL(instruction.raw);
 }
 
 TEST_F(RtlProcessorTest, OpcodesBeyondThisMilestoneAreFlagged) {

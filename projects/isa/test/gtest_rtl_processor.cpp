@@ -12,6 +12,7 @@ namespace {
 
 constexpr uint32_t kFlashBase = 0x00100000U;
 constexpr uint32_t kFlashLimit = 0x0010FFFFU;
+constexpr uint32_t kFaultHandler = 0x00100200U;
 constexpr uint32_t kCodeAddress = 0x00100100U;
 constexpr uint32_t kStackInitial = 0x0010F000U;
 constexpr uint32_t kStackBoundary = 0x00100000U;
@@ -127,6 +128,13 @@ protected:
     /// instruction at a time and diffs the whole architectural state after each.
     /// Every instruction must be one this milestone implements, so `unsupported`
     /// staying low is part of the assertion.
+    void RunProgram_Vector(std::vector<uint32_t> const& program) {
+        RunProgram(std::initializer_list<uint32_t>{});
+        for (uint32_t const word : program) {
+            RunProgram({word});
+        }
+    }
+
     void RunProgram(std::initializer_list<uint32_t> program) {
         uint32_t address = kCodeAddress;
         for (uint32_t const word : program) {
@@ -339,6 +347,100 @@ TEST_F(RtlProcessorTest, HaltStopsBothModelsAndHolds) {
     ExpectStateMatches();
 }
 
+namespace {
+
+/// Loads a full 32-bit value into a scratch register with two `movei` halves.
+void LoadWord(std::vector<uint32_t>& program, uint8_t index, uint32_t value) {
+    using isa::Operand;
+    using namespace isa::instructions;
+    Operand const dst{Operand::Type::Scratch, index};
+    program.push_back(Encode(MoveImmediate{dst, isa::Immediate<16>{value & 0xFFFFU}}));
+    program.push_back(Encode(MoveImmediate{dst, isa::Immediate<16>{value >> 16U}, true}));
+}
+
+}  // namespace
+
+TEST_F(RtlProcessorTest, OneSourceBitwiseOperationsMatchTheFastModel) {
+    using isa::Operand;
+    using namespace isa::instructions;
+    using Shift = Bitwise1::ImmediateType;
+    Operand const s1{Operand::Type::Scratch, 1};
+    Operand const dst{Operand::Type::Scratch, 2};
+    Operand const e3{Operand::Type::Evaluation, 3};
+
+    std::vector<uint32_t> program;
+    LoadWord(program, 1, 0x80F01234U);
+    std::vector<Bitwise1> ops = {
+        Bitwise1::Complement(dst, s1),
+        Bitwise1::Rsh(dst, s1, Shift{5}),
+        Bitwise1::Asr(dst, s1, Shift{7}),
+        Bitwise1::Lsh(dst, s1, Shift{9}),
+        Bitwise1::Rotate(dst, s1, Shift{0}),
+        Bitwise1::Rotate(dst, s1, Shift{13}),
+        Bitwise1::Count(dst, s1),
+        Bitwise1::LeadingZeros(dst, s1),
+        Bitwise1::Not(dst, s1),
+        Bitwise1::Set(dst, s1, Shift{31}),
+        Bitwise1::Clear(dst, s1, Shift{4}),
+        Bitwise1::Toggle(dst, s1, Shift{0}),
+        Bitwise1::ReverseBytes(dst, s1),
+        Bitwise1::ReverseHalf(dst, s1),
+        Bitwise1::ReverseWord(dst, s1),
+        Bitwise1::Lsh(dst, s1, Shift{31}).Evaluate(e3),
+        Bitwise1::Lsh(dst, s1, Shift{31}).Evaluate(e3),
+    };
+    // A zero result sets the zero flag and a negative one clears `positive`.
+    ops.push_back(Bitwise1::Rsh(dst, s1, Shift{31}).Evaluate(e3));
+    ops.push_back(Bitwise1::Clear(dst, dst, Shift{0}).Evaluate(e3));
+    for (auto const& op : ops) {
+        program.push_back(Encode(op));
+    }
+    RunProgram_Vector(program);
+}
+
+TEST_F(RtlProcessorTest, TwoSourceBitwiseOperationsMatchTheFastModel) {
+    using isa::Operand;
+    using namespace isa::instructions;
+    Operand const s1{Operand::Type::Scratch, 1};
+    Operand const s2{Operand::Type::Scratch, 2};
+    Operand const dst{Operand::Type::Scratch, 3};
+    Operand const e4{Operand::Type::Evaluation, 4};
+
+    std::vector<uint32_t> program;
+    LoadWord(program, 1, 0xF0F0AAAAU);
+    LoadWord(program, 2, 0x0FF05555U);
+    program.push_back(Encode(Bitwise2::And(dst, s1, s2)));
+    program.push_back(Encode(Bitwise2::Or(dst, s1, s2).Evaluate(e4)));
+    program.push_back(Encode(Bitwise2::Xor(dst, s1, s2).Evaluate(e4)));
+    program.push_back(Encode(Bitwise2::And(dst, s1, Operand{Operand::Type::Scratch, 5}).Evaluate(e4)));  // zero result
+    program.push_back(Encode(Bitwise2::Xor(s1, s1, s1)));  // dst aliases both sources
+    RunProgram_Vector(program);
+}
+
+TEST_F(RtlProcessorTest, ReverseWiderThanAWordWritesNothingAndIsFlagged) {
+    using isa::Operand;
+    using namespace isa::instructions;
+    Operand const s1{Operand::Type::Scratch, 1};
+    Operand const dst{Operand::Type::Scratch, 2};
+
+    std::vector<uint32_t> program;
+    LoadWord(program, 1, 0x12345678U);
+    RunProgram_Vector(program);
+
+    // `shift` = 3 is not a unit width, so both models raise an instruction fault, write
+    // nothing and continue at the instruction-fault handler.
+    ASSERT_TRUE(oracle.Poke(isa::Address{kFlashBase + 32U}, kFaultHandler));
+    Instruction bad{Bitwise1::ReverseBytes(dst, s1)};
+    bad.bitwise1.shift = 3U;
+    ASSERT_TRUE(oracle.Poke(isa::Address{kCodeAddress + 8U}, bad.raw));
+    oracle.Cycle();
+    ASSERT_TRUE(RunUntilRetire());
+    EXPECT_FALSE(dut.unsupported) << "a fault is not an unimplemented opcode";
+    EXPECT_EQ(0U, Scratch(2));
+    EXPECT_EQ(kFaultHandler, dut.special[isa::special::ProgramAddress]);
+    ExpectStateMatches();
+}
+
 TEST_F(RtlProcessorTest, OpcodesBeyondThisMilestoneAreFlagged) {
     // 0x18 is a defined opcode (`leap`) that M1 does not execute. The RTL retires it
     // as a noop and says so; the C++ model performs the leap, so the state is
@@ -350,13 +452,23 @@ TEST_F(RtlProcessorTest, OpcodesBeyondThisMilestoneAreFlagged) {
     EXPECT_EQ(kCodeAddress + 4U, dut.special[isa::special::ProgramAddress]);
 }
 
-TEST_F(RtlProcessorTest, UndefinedOpcodeIsFlagged) {
-    // 0x38 lies between the defined opcodes 0x34 (`trip`) and 0x3C (`load`). The C++
-    // model raises an instruction fault and redirects through the vector table, which
-    // is M8; the RTL only reports that it could not execute it.
+TEST_F(RtlProcessorTest, UndefinedOpcodeRaisesAnInstructionFaultInLockstep) {
+    // 0x38 lies between the defined opcodes 0x34 (`trip`) and 0x3C (`load`).
+    ASSERT_TRUE(oracle.Poke(isa::Address{kFlashBase + 32U}, kFaultHandler));
     ASSERT_TRUE(oracle.Poke(isa::Address{kCodeAddress}, 0x00000038U));
     oracle.Cycle();
     ASSERT_TRUE(RunUntilRetire());
-    EXPECT_TRUE(dut.unsupported) << "undefined opcode";
+    EXPECT_FALSE(dut.unsupported) << "undefined, not unimplemented";
     EXPECT_EQ(1U, dut.special[isa::special::PerformanceCounter]) << "still retires exactly once";
+    EXPECT_EQ(kFaultHandler, dut.special[isa::special::ProgramAddress]);
+    ExpectStateMatches();
+}
+
+TEST_F(RtlProcessorTest, FaultThroughAnErasedHandlerSlotMatchesTheFastModel) {
+    // The handler slot is erased flash, which reads back as 0xFFFFFFFF; both models
+    // take that as the next program address.
+    ASSERT_TRUE(oracle.Poke(isa::Address{kCodeAddress}, 0x00000038U));
+    oracle.Cycle();
+    ASSERT_TRUE(RunUntilRetire());
+    ExpectStateMatches();
 }

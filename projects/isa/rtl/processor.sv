@@ -1,5 +1,6 @@
-// M1 processor top: reset/vector-table boot, fetch, and the register-file
-// instructions (move, movei, copy, zero, halt).
+// M1 processor top: reset/vector-table boot, fetch, the register-file
+// instructions (move, movei, copy, zero, halt) and the bitwise operations, which
+// run through the combinational bitwise_logic_unit.
 //
 // Fetch, decode (operand read) and commit are separate states. Scratch and
 // evaluation state live in the register_file/evaluation_file submodules.
@@ -83,12 +84,14 @@ module processor
         S_FETCH,
         S_DECODE,
         S_COMMIT,
+        S_VECTOR,
         S_HALTED
     } state_e;
 
     state_e     state;
     logic       cond_pass;
     logic [2:0] boot_index;
+    logic [3:0] vector_index;
 
     assign booted = (state != S_BOOT);
 
@@ -128,6 +131,9 @@ module processor
     function automatic logic is_implemented(op_e code);
         case (code)
             OP_NONE, OP_COPY, OP_MOVE, OP_MOVE_IMMEDIATE, OP_ZERO, OP_HALT: return 1'b1;
+            OP_COMPLEMENT, OP_RSH, OP_ASR, OP_LSH, OP_ROTATE, OP_COUNT1S, OP_COUNT_L0S,
+            OP_NOT, OP_SET_BIT, OP_CLEAR_BIT, OP_TOGGLE_BIT, OP_REVERSE: return 1'b1;
+            OP_AND, OP_OR, OP_XOR: return 1'b1;
             default: return 1'b0;
         endcase
     endfunction
@@ -137,7 +143,7 @@ module processor
     assign supported_op = decoded_valid && is_implemented(decoded_op);
 
     always_comb begin
-        mem_req   = (state == S_BOOT) || (state == S_FETCH);
+        mem_req   = (state == S_BOOT) || (state == S_FETCH) || (state == S_VECTOR);
         mem_write = 1'b0;
         mem_wdata = '0;
         mem_wstrb = '0;
@@ -146,6 +152,8 @@ module processor
             mem_addr = DEFAULT_VECTOR_TABLE_ADDRESS + (address_t'(boot_index) << 2);
         end else if (state == S_FETCH) begin
             mem_addr = special[SPECIAL_PROGRAM_ADDRESS];
+        end else if (state == S_VECTOR) begin
+            mem_addr = special[SPECIAL_VECTOR_TABLE_ADDRESS] + (address_t'(vector_index) << 2);
         end else begin
             mem_addr = '0;
         end
@@ -175,8 +183,56 @@ module processor
         .read_control(e_read_control), .read_index(e_read_index), .read_data(e_read_data)
     );
 
+    // Bitwise operations: the one-source forms (bitwise1) carry a shift or bit index,
+    // the two-source forms (binary) read a second scratch register.
+    logic is_bitwise2, is_bitwise1;
+    always_comb begin
+        is_bitwise2 = (decoded_op == OP_AND) || (decoded_op == OP_OR) || (decoded_op == OP_XOR);
+        case (decoded_op)
+            OP_COMPLEMENT, OP_RSH, OP_ASR, OP_LSH, OP_ROTATE, OP_COUNT1S, OP_COUNT_L0S,
+            OP_NOT, OP_SET_BIT, OP_CLEAR_BIT, OP_TOGGLE_BIT, OP_REVERSE: is_bitwise1 = 1'b1;
+            default: is_bitwise1 = 1'b0;
+        endcase
+    end
+
+    word_t blu_a, blu_b, blu_result;
+    byte_t blu_evaluation;
+    /* verilator lint_off UNUSEDSIGNAL */
+    logic  blu_valid;  // the same verdict as blu_fault, which is decoded without the data path
+    /* verilator lint_on UNUSEDSIGNAL */
+
+    assign blu_a = s_read_data[0];
+    assign blu_b = is_bitwise2 ? s_read_data[1] : word_t'(view.bitwise1.shift);
+
+    bitwise_logic_unit u_blu (
+        .opcode(decoded_op), .a(blu_a), .b(blu_b),
+        .result(blu_result), .evaluation(blu_evaluation), .valid(blu_valid)
+    );
+
+    // An invalid bitwise operation (REVERSE wider than a word) is an instruction fault,
+    // whose handler is M8; until then it is reported like an unexecutable opcode and
+    // writes nothing. It is decoded from the instruction alone, because the unit's own
+    // `valid` sits on the operand data path and would close a loop through the
+    // register file's write-before-read forwarding.
+    logic blu_fault;
+    assign blu_fault = (decoded_op == OP_REVERSE) && (view.bitwise1.shift > 2);
+
+    // An instruction fault: an undefined opcode or an invalid operation. Nothing is
+    // written, and the exception below redirects the program address like Cycle().
+    logic instruction_fault;
+    assign instruction_fault = (state == S_COMMIT) && !fetch_fault && (!decoded_valid || blu_fault);
+
+    // The exception state after this commit; any set bit redirects through the table.
+    word_t exception_next;
+    always_comb begin
+        exception_next = special[SPECIAL_EXCEPTION];
+        if (instruction_fault) begin
+            exception_next[EXCEPTION_INSTRUCTION_FAULT] = 1'b1;
+        end
+    end
+
     logic commit_valid;
-    assign commit_valid = (state == S_COMMIT) && !fetch_fault && supported_op;
+    assign commit_valid = (state == S_COMMIT) && !fetch_fault && supported_op && !blu_fault;
 
     always_comb begin
         s_read_control  = SCRATCH_CONTROL_NONE;
@@ -201,7 +257,32 @@ module processor
             e_read_index[1] = view.move.mask;
         end
 
+        // Bitwise operands are read whenever the operation is about to commit; only the
+        // write is gated by the operation being valid.
+        if (state == S_COMMIT && !fetch_fault && supported_op) begin
+            if (is_bitwise1) begin
+                s_read_control  = SCRATCH_CONTROL_FIRST;
+                s_read_index[0] = view.bitwise1.src;
+            end
+            if (is_bitwise2) begin
+                s_read_control  = SCRATCH_CONTROL_BOTH;
+                s_read_index[0] = view.binary.src1;
+                s_read_index[1] = view.binary.src2;
+            end
+        end
+
         if (commit_valid) begin
+            if (is_bitwise1 || is_bitwise2) begin
+                s_write_control  = SCRATCH_CONTROL_FIRST;
+                s_write_index[0] = is_bitwise2 ? view.binary.dst : view.bitwise1.dst;
+                s_write_data[0]  = blu_result;
+                if (is_bitwise2 ? view.binary.cond : view.bitwise1.cond) begin
+                    e_write_control  = EVALUATION_CONTROL_FIRST;
+                    e_write_index[0] = is_bitwise2 ? view.binary.eval : view.bitwise1.eval;
+                    e_write_data[0]  = blu_evaluation;
+                end
+            end
+
             case (decoded_op)
                 OP_COPY: begin
                     s_read_control   = SCRATCH_CONTROL_FIRST;
@@ -278,6 +359,7 @@ module processor
             halted      <= 1'b0;
             instruction <= ERASED_WORD;
             fetch_fault <= 1'b0;
+            vector_index <= '0;
 
             cond_pass   <= 1'b0;
             for (int i = 0; i < SPECIAL_COUNT; i++) begin
@@ -339,6 +421,8 @@ module processor
 
                     if (fetch_fault) begin
                         // No instruction: Cycle() substitutes a noop and advances.
+                    end else if (!decoded_valid) begin
+                        // Undefined opcode: an instruction fault, handled below.
                     end else if (supported_op) begin
                         // Register writes are driven combinationally into the files below.
                         if (decoded_op == OP_HALT) begin
@@ -349,9 +433,32 @@ module processor
                         unsupported <= 1'b1;
                     end
 
-                    special[SPECIAL_PROGRAM_ADDRESS]     <= special[SPECIAL_PROGRAM_ADDRESS] + 32'd4;
                     special[SPECIAL_PERFORMANCE_COUNTER] <= special[SPECIAL_PERFORMANCE_COUNTER] + 32'd1;
-                    retire                               <= 1'b1;
+                    special[SPECIAL_EXCEPTION]           <= exception_next;
+
+                    if (exception_next != '0) begin
+                        // Any pending exception sends the next fetch through the vector table.
+                        vector_index <= VECTOR_INSTRUCTION_FAULT_HANDLER;
+                        state        <= S_VECTOR;
+                    end else begin
+                        special[SPECIAL_PROGRAM_ADDRESS] <= special[SPECIAL_PROGRAM_ADDRESS] + 32'd4;
+                        retire                           <= 1'b1;
+                    end
+                end
+
+                S_VECTOR: begin
+                    // GetHandler(): the handler, or the reset handler when that read faults.
+                    if (!mem_fault) begin
+                        special[SPECIAL_PROGRAM_ADDRESS] <= mem_rdata;
+                        retire                           <= 1'b1;
+                        state                            <= halted ? S_HALTED : S_FETCH;
+                    end else if (vector_index != 4'(BOOT_RESET_HANDLER)) begin
+                        vector_index <= 4'(BOOT_RESET_HANDLER);
+                    end else begin
+                        // Cycle() throws here: there is no handler to run.
+                        halted <= 1'b1;
+                        state  <= S_HALTED;
+                    end
                 end
 
                 S_HALTED: begin

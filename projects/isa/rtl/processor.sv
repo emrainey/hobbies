@@ -1,6 +1,5 @@
-// M1 processor top: reset/vector-table boot, fetch, the register-file
-// instructions (move, movei, copy, zero, halt) and the bitwise operations, which
-// run through the combinational bitwise_logic_unit.
+// Processor top: reset/vector-table boot, register-file and integer ALU
+// instructions, bitwise operations, and variable-latency LOAD.
 //
 // Fetch, decode (operand read) and commit are separate states. Scratch and
 // evaluation state live in the register_file/evaluation_file submodules.
@@ -86,6 +85,7 @@ module processor
         S_FETCH_RESPONSE,
         S_DECODE,
         S_COMMIT,
+        S_LOAD_RESPONSE,
         S_VECTOR_REQUEST,
         S_VECTOR_RESPONSE,
         S_HALTED
@@ -133,7 +133,7 @@ module processor
     // case below is what makes a milestone land.
     function automatic logic is_implemented(op_e code);
         case (code)
-            OP_NONE, OP_COPY, OP_MOVE, OP_MOVE_IMMEDIATE, OP_ZERO, OP_HALT: return 1'b1;
+            OP_NONE, OP_COPY, OP_MOVE, OP_MOVE_IMMEDIATE, OP_ZERO, OP_LOAD, OP_HALT: return 1'b1;
             OP_COMPLEMENT, OP_RSH, OP_ASR, OP_LSH, OP_ROTATE, OP_COUNT1S, OP_COUNT_L0S,
             OP_NOT, OP_SET_BIT, OP_CLEAR_BIT, OP_TOGGLE_BIT, OP_REVERSE: return 1'b1;
             OP_AND, OP_OR, OP_XOR: return 1'b1;
@@ -146,9 +146,36 @@ module processor
     logic supported_op;
     assign supported_op = decoded_valid && is_implemented(decoded_op);
 
+    logic load_encoding_valid;
     always_comb begin
-        mem_req_valid = !reset && ((state == S_BOOT_REQUEST) || (state == S_FETCH_REQUEST) || (state == S_VECTOR_REQUEST));
-        mem_rsp_ready = !reset && ((state == S_BOOT_RESPONSE) || (state == S_FETCH_RESPONSE) || (state == S_VECTOR_RESPONSE));
+        load_encoding_valid = 1'b1;
+        if (decoded_op == OP_LOAD) begin
+            case (view.memory.size)
+                SIZE_BYTE: load_encoding_valid = 1'b1;
+                SIZE_HALF: load_encoding_valid = view.memory.shift <= 1;
+                SIZE_WORD: load_encoding_valid = view.memory.shift == 0;
+                default:   load_encoding_valid = 1'b0;
+            endcase
+            if (view.memory.special && view.memory.base != 4 && view.memory.base != 0) begin
+                load_encoding_valid = 1'b0;
+            end
+        end
+    end
+
+    address_t load_address;
+    always_comb begin
+        if (view.memory.special) begin
+            load_address = view.memory.base == 4 ? special[SPECIAL_STACK_CURRENT] : special[SPECIAL_PROGRAM_ADDRESS];
+        end else begin
+            load_address = s_read_data[0] + (view.memory.off ? address_t'(view.memory.imm) : '0);
+        end
+    end
+
+    always_comb begin
+        mem_req_valid = !reset && ((state == S_BOOT_REQUEST) || (state == S_FETCH_REQUEST) ||
+                                   (state == S_VECTOR_REQUEST) || (state == S_COMMIT && commit_valid && decoded_op == OP_LOAD));
+        mem_rsp_ready = !reset && ((state == S_BOOT_RESPONSE) || (state == S_FETCH_RESPONSE) ||
+                                   (state == S_VECTOR_RESPONSE) || state == S_LOAD_RESPONSE);
         mem_write = 1'b0;
         mem_wdata = '0;
         mem_wstrb = '0;
@@ -159,6 +186,8 @@ module processor
             mem_addr = special[SPECIAL_PROGRAM_ADDRESS];
         end else if (state == S_VECTOR_REQUEST) begin
             mem_addr = special[SPECIAL_VECTOR_TABLE_ADDRESS] + (address_t'(vector_index) << 2);
+        end else if (state == S_COMMIT && decoded_op == OP_LOAD) begin
+            mem_addr = load_address;
         end else begin
             mem_addr = '0;
         end
@@ -295,22 +324,40 @@ module processor
         alu_write_data = (s_read_data[0] & ~alu_mask) | (alu_result & alu_mask);
     end
 
+    word_t load_value;
+    always_comb begin
+        case (view.memory.size)
+            SIZE_BYTE: load_value = (mem_rsp_data >> (view.memory.shift * 8)) & 32'h0000_00FF;
+            SIZE_HALF: load_value = (mem_rsp_data >> (view.memory.shift * 16)) & 32'h0000_FFFF;
+            default:   load_value = mem_rsp_data;
+        endcase
+    end
+
     // An instruction fault: an undefined opcode or an invalid operation. Nothing is
     // written, and the exception below redirects the program address like Cycle().
     logic instruction_fault;
-    assign instruction_fault = (state == S_COMMIT) && !fetch_fault && (!decoded_valid || blu_fault || alu_fault);
+    assign instruction_fault = (state == S_COMMIT) && !fetch_fault &&
+                               (!decoded_valid || blu_fault || alu_fault ||
+                                (decoded_op == OP_LOAD && !load_encoding_valid));
+
+    logic load_bus_fault;
+    assign load_bus_fault = (state == S_LOAD_RESPONSE) && mem_rsp_valid && mem_rsp_ready && mem_rsp_fault;
 
     // The exception state after this commit; any set bit redirects through the table.
     word_t exception_next;
     always_comb begin
         exception_next = special[SPECIAL_EXCEPTION];
+        if (load_bus_fault) begin
+            exception_next[3] = 1'b1;
+        end
         if (instruction_fault) begin
             exception_next[EXCEPTION_INSTRUCTION_FAULT] = 1'b1;
         end
     end
 
     logic commit_valid;
-    assign commit_valid = (state == S_COMMIT) && !fetch_fault && supported_op && !blu_fault && !alu_fault;
+    assign commit_valid = (state == S_COMMIT) && !fetch_fault && supported_op && !blu_fault && !alu_fault &&
+                          (decoded_op != OP_LOAD || load_encoding_valid);
 
     always_comb begin
         s_read_control  = SCRATCH_CONTROL_NONE;
@@ -345,6 +392,10 @@ module processor
         // Bitwise operands are read whenever the operation is about to commit; only the
         // write is gated by the operation being valid.
         if (state == S_COMMIT && !fetch_fault && supported_op) begin
+            if (decoded_op == OP_LOAD) begin
+                s_read_control  = SCRATCH_CONTROL_FIRST;
+                s_read_index[0] = view.memory.base;
+            end
             if (is_alu) begin
                 // The old destination, merged with the sized result.
                 s_read_control  = SCRATCH_CONTROL_FIRST;
@@ -358,6 +409,22 @@ module processor
                 s_read_control  = SCRATCH_CONTROL_BOTH;
                 s_read_index[0] = view.binary.src1;
                 s_read_index[1] = view.binary.src2;
+            end
+        end
+
+        if (state == S_LOAD_RESPONSE && mem_rsp_valid && !mem_rsp_fault) begin
+            s_read_control  = SCRATCH_CONTROL_FIRST;
+            s_read_index[0] = view.memory.base;
+            if (view.memory.off == 1'b0) begin
+                s_write_control  = SCRATCH_CONTROL_BOTH;
+                s_write_index[0] = view.memory.base;
+                s_write_data[0]  = s_read_data[0] + address_t'(view.memory.imm);
+                s_write_index[1] = view.memory.reg_;
+                s_write_data[1]  = load_value;
+            end else begin
+                s_write_control  = SCRATCH_CONTROL_FIRST;
+                s_write_index[0] = view.memory.reg_;
+                s_write_data[0]  = load_value;
             end
         end
 
@@ -538,32 +605,53 @@ module processor
                 end
 
                 S_COMMIT: begin
-                    state <= S_FETCH_REQUEST;
-
-                    if (fetch_fault) begin
-                        // No instruction: Cycle() substitutes a noop and advances.
-                    end else if (!decoded_valid) begin
-                        // Undefined opcode: an instruction fault, handled below.
-                    end else if (supported_op) begin
-                        // Register writes are driven combinationally into the files below.
-                        if (decoded_op == OP_HALT) begin
-                            halted <= 1'b1;
-                            state  <= S_HALTED;
+                    if (commit_valid && decoded_op == OP_LOAD) begin
+                        if (mem_req_ready) begin
+                            state <= S_LOAD_RESPONSE;
                         end
                     end else begin
-                        unsupported <= 1'b1;
+                        state <= S_FETCH_REQUEST;
+
+                        if (fetch_fault) begin
+                            // No instruction: Cycle() substitutes a noop and advances.
+                        end else if (!decoded_valid) begin
+                            // Undefined opcode: an instruction fault, handled below.
+                        end else if (supported_op) begin
+                            // Register writes are driven combinationally into the files below.
+                            if (decoded_op == OP_HALT) begin
+                                halted <= 1'b1;
+                                state  <= S_HALTED;
+                            end
+                        end else begin
+                            unsupported <= 1'b1;
+                        end
+
+                        special[SPECIAL_PERFORMANCE_COUNTER] <= special[SPECIAL_PERFORMANCE_COUNTER] + 32'd1;
+                        special[SPECIAL_EXCEPTION]           <= exception_next;
+
+                        if (exception_next != '0) begin
+                            // Any pending exception sends the next fetch through the vector table.
+                            vector_index <= VECTOR_INSTRUCTION_FAULT_HANDLER;
+                            state        <= S_VECTOR_REQUEST;
+                        end else begin
+                            special[SPECIAL_PROGRAM_ADDRESS] <= special[SPECIAL_PROGRAM_ADDRESS] + 32'd4;
+                            retire                           <= 1'b1;
+                        end
                     end
+                end
 
-                    special[SPECIAL_PERFORMANCE_COUNTER] <= special[SPECIAL_PERFORMANCE_COUNTER] + 32'd1;
-                    special[SPECIAL_EXCEPTION]           <= exception_next;
-
-                    if (exception_next != '0) begin
-                        // Any pending exception sends the next fetch through the vector table.
-                        vector_index <= VECTOR_INSTRUCTION_FAULT_HANDLER;
-                        state        <= S_VECTOR_REQUEST;
-                    end else begin
-                        special[SPECIAL_PROGRAM_ADDRESS] <= special[SPECIAL_PROGRAM_ADDRESS] + 32'd4;
-                        retire                           <= 1'b1;
+                S_LOAD_RESPONSE: begin
+                    if (mem_rsp_valid && mem_rsp_ready) begin
+                        special[SPECIAL_PERFORMANCE_COUNTER] <= special[SPECIAL_PERFORMANCE_COUNTER] + 32'd1;
+                        special[SPECIAL_EXCEPTION]           <= exception_next;
+                        if (exception_next != '0) begin
+                            vector_index <= exception_next[3] ? 4'd7 : VECTOR_INSTRUCTION_FAULT_HANDLER;
+                            state        <= S_VECTOR_REQUEST;
+                        end else begin
+                            special[SPECIAL_PROGRAM_ADDRESS] <= special[SPECIAL_PROGRAM_ADDRESS] + 32'd4;
+                            retire                           <= 1'b1;
+                            state                            <= S_FETCH_REQUEST;
+                        end
                     end
                 end
 

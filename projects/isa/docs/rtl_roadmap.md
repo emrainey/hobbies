@@ -33,7 +33,7 @@ The plan below reflects these agreed decisions:
 | Model | Present | Missing |
 | --- | --- | --- |
 | C++ (`hobbies-isa`) | One instruction per `Processor::Cycle()`; full ISA datapath; vector-table boot in `Reset()`; direct `Peek`/`Poke` buses; breakpoints; persistence | Caches on the hot path; privilege enforcement; exception mask/mode; interrupts (ticker/deferred/external); arithmetic-fault routing |
-| SV (`isa_rtl_sim`, `isa_rtl_processor_sim`) | Generated `isa` package (`rtl/isa.sv`): params, enums, opcodes, `is_defined_op`, instruction format structs and `instruction_t` union. Combinational `decoder` (`rtl/decoder.sv`). M1 `processor` top (`rtl/processor.sv`): reset/vector-table boot, word-bus port, fetch/execute FSM, the register-file instructions (`move`, `movei`, `copy`, `zero`, `halt`), `unsupported` strobe, architectural state exposed to the harness | Everything else: control flow, stack, loads/stores, ALU, exceptions, caches |
+| SV (`isa_rtl_sim`, `isa_rtl_processor_sim`) | Generated `isa` package and combinational decoder; serialized processor FSM with reset/vector-table boot and a variable-latency request/response bus; register-file, bitwise, and integer ALU instructions; `load` byte/half/word with lanes, offset/post-increment addressing, delayed responses, and bus-fault handling; lockstep tests against C++ | `swap`, `save`, remaining control flow/stack operations, `compare`, floating point, full exception/privilege behavior, caches |
 
 The single source of truth already exists: `docs/instructions.json` renders `rtl/isa.sv`,
 `include/isa/operator.hpp` and `docs/instruction_formats.md` via `tools/generate_isa.py`, with a
@@ -183,7 +183,7 @@ staleness test working. Vectors must respect the validity rules the decoder alre
 | --- | --- | --- | --- |
 | **M0** | Contract + harness: top `processor` with reset/vector-table boot, `retire`/`halted`/`booted`, bus port, stub retire (every fetched word retires unchanged), co-sim target, @ref rtl_parity, second Verilator target | — | Reset image diffs clean; an erased program retires 32 noops in lockstep |
 | **M1** | Core state, no memory: register file (16×32, 16×8), `Special`, `move`, `movei`, `copy`, `zero`, `halt` | M0 | Directed programs diff clean against `Cycle()` |
-| **M2** | Bus port live: decoder dispatch and real fetch/execute, `swap`, `load`, `save` (all size/shift/off/special modes) | M1 | Load/save addressing modes match |
+| **M2** | Bus port live: decoder dispatch and real fetch/execute; implement `load` first, then `save` and `swap` (all size/shift/off/special modes) | M1 | Load/save addressing modes match |
 | **M3** | Control flow + stack: `leap` (relative **and** immediate form), `back`, `grow`, `fall`, `push`, `pull`, `call`, `trip`; RA semantics | M2 | PA/RA/stack regs match per step, including the `Grow`/`Fall` bounds cases |
 | **M4** | `comp` + eval-gated conditions used by move/leap/grow/fall/call/trip | M3 | Eval register bytes and gating match |
 | **M5** | Bitwise: `bitwise1` (shift/rotate/count/clz/not/complement/set/clear/toggle/reverse) and `bitwise2` (and/or/xor) + bitwise eval flags | M4 | Scratch + eval match |

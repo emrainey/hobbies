@@ -410,6 +410,49 @@ void LoadWord(std::vector<uint32_t>& program, uint8_t index, uint32_t value) {
 
 }  // namespace
 
+TEST_F(RtlProcessorTest, LoadReadsWordAndSelectedByteAndHalfWordLanes) {
+    using isa::Operand;
+    using namespace isa::instructions;
+    constexpr uint32_t kDataAddress = kFlashBase + 0x800U;
+    ASSERT_TRUE(oracle.Poke(isa::Address{kDataAddress}, 0xD4C3B2A1U));
+    ASSERT_TRUE(oracle.Poke(isa::Address{kDataAddress + 4U}, 0x44332211U));
+
+    Operand const base{Operand::Type::Scratch, 1};
+    std::vector<uint32_t> program;
+    LoadWord(program, 1, kDataAddress);
+    program.push_back(Encode(Load::Byte(Operand{Operand::Type::Scratch, 2}, base, 0)));
+    program.push_back(Encode(Load::Byte(Operand{Operand::Type::Scratch, 3}, base, 2)));
+    program.push_back(Encode(Load::HalfWord(Operand{Operand::Type::Scratch, 4}, base, 1)));
+    program.push_back(Encode(Load::Word(Operand{Operand::Type::Scratch, 5}, base)));
+    program.push_back(Encode(Load::Word(Operand{Operand::Type::Scratch, 7}, base, Load::ImmediateType{4U}, false)));
+    program.push_back(Encode(Load::Word(Operand{Operand::Type::Scratch, 6}, base, Load::ImmediateType{4U}, true)));
+    request_delay_cycles = 3;
+    response_delay_cycles = 5;
+
+    RunProgram_Vector(program);
+
+    EXPECT_EQ(0xA1U, Scratch(2));
+    EXPECT_EQ(0xC3U, Scratch(3));
+    EXPECT_EQ(0xD4C3U, Scratch(4));
+    EXPECT_EQ(0xD4C3B2A1U, Scratch(5));
+    EXPECT_EQ(0xD4C3B2A1U, Scratch(6));
+    EXPECT_EQ(0x44332211U, Scratch(7));
+    EXPECT_EQ(kDataAddress + 4U, Scratch(1)) << "post-index load increments the base";
+}
+
+TEST_F(RtlProcessorTest, LoadCanUseStackAndProgramAddressBases) {
+    using isa::Operand;
+    using namespace isa::instructions;
+    constexpr uint32_t kStackData = 0x76543210U;
+    ASSERT_TRUE(oracle.Poke(isa::Address{kStackInitial}, kStackData));
+
+    Instruction const from_program_address{Load::FromProgramAddress(Operand{Operand::Type::Scratch, 3})};
+    RunProgram({Encode(Load::FromStack(Operand{Operand::Type::Scratch, 2})), from_program_address.raw});
+
+    EXPECT_EQ(kStackData, Scratch(2));
+    EXPECT_EQ(from_program_address.raw, Scratch(3));
+}
+
 TEST_F(RtlProcessorTest, OneSourceBitwiseOperationsMatchTheFastModel) {
     using isa::Operand;
     using namespace isa::instructions;
@@ -607,6 +650,53 @@ TEST_F(RtlProcessorTest, ExtendToTheSameSizeFaultsInLockstep) {
         Extend::Sign(Operand{Operand::Type::Scratch, 3}, Operand{Operand::Type::Scratch, 1}, isa::Size::Byte)};
     instruction.extend.size = static_cast<uint32_t>(isa::Size::Word);
     EXPECT_FAULTS_LIKE_THE_FAST_MODEL(instruction.raw);
+}
+
+TEST_F(RtlProcessorTest, FaultingLoadPreservesRegistersAndVectorsToBusFaultHandler) {
+    using isa::Operand;
+    using namespace isa::instructions;
+    constexpr uint32_t kUnmappedAddress = 0x00200000U;
+    ASSERT_TRUE(oracle.Poke(isa::Address{kFlashBase + 28U}, kFaultHandler));
+
+    std::vector<uint32_t> program;
+    LoadWord(program, 1, kUnmappedAddress);
+    LoadWord(program, 3, 0xCAFEF00DU);
+    program.push_back(Encode(Load::Word(Operand{Operand::Type::Scratch, 3}, Operand{Operand::Type::Scratch, 1},
+                                        Load::ImmediateType{4U}, true)));
+    request_delay_cycles = 2;
+    response_delay_cycles = 9;
+
+    RunProgram_Vector(program);
+
+    EXPECT_EQ(kUnmappedAddress, Scratch(1)) << "failed load must not update its base";
+    EXPECT_EQ(0xCAFEF00DU, Scratch(3)) << "failed load must not write its destination";
+    EXPECT_EQ(kFaultHandler, dut.special[isa::special::ProgramAddress]);
+    ExpectStateMatches();
+}
+
+TEST_F(RtlProcessorTest, InvalidLoadSizeFaultsBeforeIssuingMemoryRequest) {
+    using isa::Operand;
+    using namespace isa::instructions;
+    ASSERT_TRUE(oracle.Poke(isa::Address{kFlashBase + 32U}, kFaultHandler));
+
+    Instruction invalid{Load::Word(Operand{Operand::Type::Scratch, 3}, Operand{Operand::Type::Scratch, 1})};
+    invalid.loads.size = isa::Size::DoubleWord;
+
+    std::vector<uint32_t> program;
+    LoadWord(program, 1, kFlashBase + 0x800U);
+    LoadWord(program, 3, 0xCAFEF00DU);
+    RunProgram_Vector(program);
+
+    uint32_t const requests_before_invalid_load = bus_request_count;
+    ASSERT_TRUE(oracle.Poke(isa::Address{next_program_address}, invalid.raw));
+    oracle.Cycle();
+    ASSERT_TRUE(RunUntilRetire());
+
+    EXPECT_EQ(requests_before_invalid_load + 2U, bus_request_count)
+        << "only the instruction fetch and instruction-fault vector read should issue";
+    EXPECT_EQ(0xCAFEF00DU, Scratch(3)) << "faulting load must not write its destination";
+    EXPECT_EQ(kFaultHandler, dut.special[isa::special::ProgramAddress]);
+    ExpectStateMatches();
 }
 
 TEST_F(RtlProcessorTest, OpcodesBeyondThisMilestoneAreFlagged) {

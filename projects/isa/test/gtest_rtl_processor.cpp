@@ -1,6 +1,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <initializer_list>
+#include <vector>
 
 #include <gtest/gtest.h>
 
@@ -44,6 +45,17 @@ protected:
     uint32_t response_cycles_remaining = 0;
     uint32_t response_data = 0;
     bool response_fault = false;
+    bool response_completed = false;
+    bool transaction_write = false;
+    uint32_t transaction_address = 0;
+    uint32_t transaction_wdata = 0;
+    uint8_t transaction_wstrb = 0;
+    struct WriteTransaction {
+        uint32_t address;
+        uint32_t data;
+        uint8_t strobe;
+    };
+    std::vector<WriteTransaction> write_transactions;
 
     void SetUp() override {
         ASSERT_TRUE(oracle.AttachFlashMemory(flash));
@@ -79,6 +91,21 @@ protected:
 
     /// Drives one clock edge and advances the one-outstanding-transaction responder.
     void Clock() {
+        if (bus_pending && response_cycles_remaining == 0 && !response_completed) {
+            response_completed = true;
+            if (transaction_write && !response_fault) {
+                uint32_t word = 0;
+                ASSERT_TRUE(oracle.Peek(isa::Address{transaction_address}, word));
+                for (uint32_t lane = 0; lane < 4; ++lane) {
+                    if ((transaction_wstrb & (1U << lane)) != 0U) {
+                        const uint32_t mask = 0xFFU << (lane * 8U);
+                        word = (word & ~mask) | (transaction_wdata & mask);
+                    }
+                }
+                ASSERT_TRUE(oracle.Poke(isa::Address{transaction_address}, word));
+            }
+        }
+
         dut.clk = 0;
         dut.mem_req_ready = !bus_pending && request_cycles_remaining == 0;
         dut.mem_rsp_valid = bus_pending && response_cycles_remaining == 0;
@@ -89,12 +116,16 @@ protected:
         const bool request_accepted = dut.mem_req_valid && dut.mem_req_ready;
         const bool response_accepted = dut.mem_rsp_valid && dut.mem_rsp_ready;
         const uint32_t request_address = static_cast<uint32_t>(dut.mem_addr);
+        const bool request_write = dut.mem_write;
+        const uint32_t request_wdata = static_cast<uint32_t>(dut.mem_wdata);
+        const uint8_t request_wstrb = static_cast<uint8_t>(dut.mem_wstrb);
 
         dut.clk = 1;
         dut.eval();
 
         if (response_accepted) {
             bus_pending = false;
+            response_completed = false;
         } else if (bus_pending && response_cycles_remaining > 0) {
             --response_cycles_remaining;
         }
@@ -105,6 +136,14 @@ protected:
             response_fault = !oracle.Peek(isa::Address{request_address}, response_data);
             response_cycles_remaining = response_delay_cycles;
             bus_pending = true;
+            response_completed = false;
+            transaction_write = request_write;
+            transaction_address = request_address;
+            transaction_wdata = request_wdata;
+            transaction_wstrb = request_wstrb;
+            if (request_write) {
+                write_transactions.push_back({request_address, request_wdata, request_wstrb});
+            }
             request_cycles_remaining = request_delay_cycles;
         } else if (dut.mem_req_valid && request_cycles_remaining > 0) {
             --request_cycles_remaining;
@@ -451,6 +490,115 @@ TEST_F(RtlProcessorTest, LoadCanUseStackAndProgramAddressBases) {
 
     EXPECT_EQ(kStackData, Scratch(2));
     EXPECT_EQ(from_program_address.raw, Scratch(3));
+}
+
+TEST_F(RtlProcessorTest, SaveWritesByteHalfWordAndWordLanes) {
+    using isa::Operand;
+    using namespace isa::instructions;
+    constexpr uint32_t kDataAddress = kFlashBase + 0x900U;
+    ASSERT_TRUE(oracle.Poke(isa::Address{kDataAddress}, 0x11223344U));
+    ASSERT_TRUE(oracle.Poke(isa::Address{kDataAddress + 4U}, 0x55667788U));
+    ASSERT_TRUE(oracle.Poke(isa::Address{kDataAddress + 8U}, 0x99AABBCCU));
+    ASSERT_TRUE(oracle.Poke(isa::Address{kDataAddress + 12U}, 0xDDEEFF00U));
+
+    Operand const base{Operand::Type::Scratch, 1};
+    Operand const byte_value{Operand::Type::Scratch, 2};
+    Operand const half_value{Operand::Type::Scratch, 3};
+    Operand const word_value{Operand::Type::Scratch, 4};
+    std::vector<uint32_t> program;
+    LoadWord(program, 1, kDataAddress);
+    LoadWord(program, 2, 0xA1B2C3D4U);
+    LoadWord(program, 3, 0xE5F60718U);
+    LoadWord(program, 4, 0x89ABCDEFU);
+    program.push_back(Encode(Save::Byte(byte_value, base, 2, Save::ImmediateType{4U})));
+    program.push_back(Encode(Save::HalfWord(half_value, base, 1, Save::ImmediateType{8U})));
+    program.push_back(Encode(Save::Word(word_value, base, Save::ImmediateType{12U})));
+    program.push_back(Encode(Save::Word(word_value, base, Save::ImmediateType{4U}, true)));
+    request_delay_cycles = 2;
+    response_delay_cycles = 7;
+
+    RunProgram_Vector(program);
+
+    ASSERT_EQ(4U, write_transactions.size());
+    EXPECT_EQ(kDataAddress + 4U, write_transactions[0].address);
+    EXPECT_EQ(0x00D40000U, write_transactions[0].data);
+    EXPECT_EQ(0b0100U, write_transactions[0].strobe);
+    EXPECT_EQ(kDataAddress + 8U, write_transactions[1].address);
+    EXPECT_EQ(0x07180000U, write_transactions[1].data);
+    EXPECT_EQ(0b1100U, write_transactions[1].strobe);
+    EXPECT_EQ(kDataAddress + 12U, write_transactions[2].address);
+    EXPECT_EQ(0x89ABCDEFU, write_transactions[2].data);
+    EXPECT_EQ(0b1111U, write_transactions[2].strobe);
+    EXPECT_EQ(kDataAddress, write_transactions[3].address);
+    EXPECT_EQ(0x89ABCDEFU, write_transactions[3].data);
+    EXPECT_EQ(0b1111U, write_transactions[3].strobe);
+    EXPECT_EQ(kDataAddress + 4U, Scratch(1)) << "post-index save increments the base";
+}
+
+TEST_F(RtlProcessorTest, SaveWaitsForWriteCompletionBeforeRetiring) {
+    using isa::Operand;
+    using namespace isa::instructions;
+    constexpr uint32_t kDataAddress = kFlashBase + 0xA00U;
+    ASSERT_TRUE(oracle.Poke(isa::Address{kDataAddress}, 0x11223344U));
+    Operand const base{Operand::Type::Scratch, 1};
+    Operand const source{Operand::Type::Scratch, 2};
+    std::vector<uint32_t> setup;
+    LoadWord(setup, 1, kDataAddress);
+    LoadWord(setup, 2, 0xAABBCCDDU);
+    RunProgram_Vector(setup);
+
+    response_delay_cycles = 0;
+    uint32_t const requests_before_save = bus_request_count;
+    uint32_t const save = Encode(Save::Word(source, base));
+    ASSERT_TRUE(oracle.Poke(isa::Address{next_program_address}, save));
+    oracle.Cycle();
+    for (uint32_t cycle = 0; cycle < 10U && !dut.mem_write; ++cycle) {
+        Clock();
+    }
+    ASSERT_TRUE(dut.mem_write);
+    EXPECT_EQ(kDataAddress, dut.mem_addr);
+    EXPECT_EQ(0xAABBCCDDU, dut.mem_wdata);
+    EXPECT_EQ(0xFU, dut.mem_wstrb);
+    response_delay_cycles = 41;
+    Clock();
+    ASSERT_FALSE(dut.retire) << "save retired before write completion";
+    EXPECT_EQ(requests_before_save + 2U, bus_request_count)
+        << "the instruction fetch and one write request should have been accepted";
+    EXPECT_TRUE(transaction_write);
+    EXPECT_EQ(kDataAddress, transaction_address);
+    EXPECT_EQ(0xAABBCCDDU, transaction_wdata);
+    EXPECT_EQ(0xFU, transaction_wstrb);
+
+    for (uint32_t cycle = 0; cycle < response_delay_cycles; ++cycle) {
+        Clock();
+        EXPECT_FALSE(dut.retire) << "save retired before write completion";
+        EXPECT_EQ(requests_before_save + 2U, bus_request_count) << "write request was duplicated";
+    }
+    ASSERT_TRUE(RunUntilRetire());
+    EXPECT_EQ(0xAABBCCDDU, Scratch(2));
+    ExpectStateMatches();
+}
+
+TEST_F(RtlProcessorTest, FaultingSaveDoesNotUpdateMemoryOrPostIncrementBase) {
+    using isa::Operand;
+    using namespace isa::instructions;
+    constexpr uint32_t kUnmappedAddress = 0x00200000U;
+    ASSERT_TRUE(oracle.Poke(isa::Address{kFlashBase + 28U}, kFaultHandler));
+
+    std::vector<uint32_t> program;
+    LoadWord(program, 1, kUnmappedAddress);
+    LoadWord(program, 2, 0xCAFEF00DU);
+    RunProgram_Vector(program);
+
+    uint32_t const save = Encode(Save::Word(Operand{Operand::Type::Scratch, 2}, Operand{Operand::Type::Scratch, 1},
+                                            Save::ImmediateType{4U}, true));
+    ASSERT_TRUE(oracle.Poke(isa::Address{next_program_address}, save));
+    oracle.Cycle();
+    ASSERT_TRUE(RunUntilRetire());
+
+    EXPECT_EQ(kUnmappedAddress, Scratch(1)) << "faulting save must not update its base";
+    EXPECT_EQ(kFaultHandler, dut.special[isa::special::ProgramAddress]);
+    ExpectStateMatches();
 }
 
 TEST_F(RtlProcessorTest, OneSourceBitwiseOperationsMatchTheFastModel) {

@@ -46,8 +46,9 @@ localparam logic [2:0] BOOT_RESET_HANDLER = 3'd4;
 // The handler the instruction-fault exception vectors through (VectorTable::instruction_fault_handler).
 localparam logic [3:0] VECTOR_INSTRUCTION_FAULT_HANDLER = 4'd8;
 
-// Bit of SPECIAL_EXCEPTION set by an instruction fault (isa::Exception, LSB first:
-// reset, unmaskable, nested, bus_fault, instruction_fault).
+// Bits of SPECIAL_EXCEPTION (isa::Exception, LSB first: reset, unmaskable, nested,
+// bus_fault, instruction_fault).
+localparam int EXCEPTION_BUS_FAULT = 3;
 localparam int EXCEPTION_INSTRUCTION_FAULT = 4;
 
 // === Special register indices ===

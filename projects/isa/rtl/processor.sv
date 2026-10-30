@@ -86,6 +86,7 @@ module processor
         S_DECODE,
         S_COMMIT,
         S_LOAD_RESPONSE,
+        S_SAVE_RESPONSE,
         S_VECTOR_REQUEST,
         S_VECTOR_RESPONSE,
         S_HALTED
@@ -133,7 +134,7 @@ module processor
     // case below is what makes a milestone land.
     function automatic logic is_implemented(op_e code);
         case (code)
-            OP_NONE, OP_COPY, OP_MOVE, OP_MOVE_IMMEDIATE, OP_ZERO, OP_LOAD, OP_HALT: return 1'b1;
+            OP_NONE, OP_COPY, OP_MOVE, OP_MOVE_IMMEDIATE, OP_ZERO, OP_LOAD, OP_SAVE, OP_HALT: return 1'b1;
             OP_COMPLEMENT, OP_RSH, OP_ASR, OP_LSH, OP_ROTATE, OP_COUNT1S, OP_COUNT_L0S,
             OP_NOT, OP_SET_BIT, OP_CLEAR_BIT, OP_TOGGLE_BIT, OP_REVERSE: return 1'b1;
             OP_AND, OP_OR, OP_XOR: return 1'b1;
@@ -146,18 +147,18 @@ module processor
     logic supported_op;
     assign supported_op = decoded_valid && is_implemented(decoded_op);
 
-    logic load_encoding_valid;
+    logic memory_encoding_valid;
     always_comb begin
-        load_encoding_valid = 1'b1;
-        if (decoded_op == OP_LOAD) begin
+        memory_encoding_valid = 1'b1;
+        if (decoded_op == OP_LOAD || decoded_op == OP_SAVE) begin
             case (view.memory.size)
-                SIZE_BYTE: load_encoding_valid = 1'b1;
-                SIZE_HALF: load_encoding_valid = view.memory.shift <= 1;
-                SIZE_WORD: load_encoding_valid = view.memory.shift == 0;
-                default:   load_encoding_valid = 1'b0;
+                SIZE_BYTE: memory_encoding_valid = 1'b1;
+                SIZE_HALF: memory_encoding_valid = view.memory.shift <= 1;
+                SIZE_WORD: memory_encoding_valid = view.memory.shift == 0;
+                default:   memory_encoding_valid = 1'b0;
             endcase
             if (view.memory.special && view.memory.base != 4 && view.memory.base != 0) begin
-                load_encoding_valid = 1'b0;
+                memory_encoding_valid = 1'b0;
             end
         end
     end
@@ -173,12 +174,33 @@ module processor
 
     always_comb begin
         mem_req_valid = !reset && ((state == S_BOOT_REQUEST) || (state == S_FETCH_REQUEST) ||
-                                   (state == S_VECTOR_REQUEST) || (state == S_COMMIT && commit_valid && decoded_op == OP_LOAD));
+                                   (state == S_VECTOR_REQUEST) ||
+                                   (state == S_COMMIT && commit_valid &&
+                                    (decoded_op == OP_LOAD || decoded_op == OP_SAVE)));
         mem_rsp_ready = !reset && ((state == S_BOOT_RESPONSE) || (state == S_FETCH_RESPONSE) ||
-                                   (state == S_VECTOR_RESPONSE) || state == S_LOAD_RESPONSE);
+                                   (state == S_VECTOR_RESPONSE) || state == S_LOAD_RESPONSE ||
+                                   state == S_SAVE_RESPONSE);
         mem_write = 1'b0;
         mem_wdata = '0;
         mem_wstrb = '0;
+
+        if (state == S_COMMIT && commit_valid && decoded_op == OP_SAVE) begin
+            mem_write = 1'b1;
+            case (view.memory.size)
+                SIZE_BYTE: begin
+                    mem_wstrb = 4'b0001 << view.memory.shift;
+                    mem_wdata = word_t'(s_read_data[1][7:0]) << (view.memory.shift * 8);
+                end
+                SIZE_HALF: begin
+                    mem_wstrb = 4'b0011 << (view.memory.shift * 2);
+                    mem_wdata = word_t'(s_read_data[1][15:0]) << (view.memory.shift * 16);
+                end
+                default: begin
+                    mem_wstrb = 4'b1111;
+                    mem_wdata = s_read_data[1];
+                end
+            endcase
+        end
 
         if (state == S_BOOT_REQUEST) begin
             mem_addr = DEFAULT_VECTOR_TABLE_ADDRESS + (address_t'(boot_index) << 2);
@@ -186,7 +208,7 @@ module processor
             mem_addr = special[SPECIAL_PROGRAM_ADDRESS];
         end else if (state == S_VECTOR_REQUEST) begin
             mem_addr = special[SPECIAL_VECTOR_TABLE_ADDRESS] + (address_t'(vector_index) << 2);
-        end else if (state == S_COMMIT && decoded_op == OP_LOAD) begin
+        end else if (state == S_COMMIT && (decoded_op == OP_LOAD || decoded_op == OP_SAVE)) begin
             mem_addr = load_address;
         end else begin
             mem_addr = '0;
@@ -338,17 +360,18 @@ module processor
     logic instruction_fault;
     assign instruction_fault = (state == S_COMMIT) && !fetch_fault &&
                                (!decoded_valid || blu_fault || alu_fault ||
-                                (decoded_op == OP_LOAD && !load_encoding_valid));
+                                ((decoded_op == OP_LOAD || decoded_op == OP_SAVE) && !memory_encoding_valid));
 
-    logic load_bus_fault;
-    assign load_bus_fault = (state == S_LOAD_RESPONSE) && mem_rsp_valid && mem_rsp_ready && mem_rsp_fault;
+    logic data_bus_fault;
+    assign data_bus_fault = ((state == S_LOAD_RESPONSE) || (state == S_SAVE_RESPONSE)) &&
+                            mem_rsp_valid && mem_rsp_ready && mem_rsp_fault;
 
     // The exception state after this commit; any set bit redirects through the table.
     word_t exception_next;
     always_comb begin
         exception_next = special[SPECIAL_EXCEPTION];
-        if (load_bus_fault) begin
-            exception_next[3] = 1'b1;
+        if (data_bus_fault) begin
+            exception_next[EXCEPTION_BUS_FAULT] = 1'b1;
         end
         if (instruction_fault) begin
             exception_next[EXCEPTION_INSTRUCTION_FAULT] = 1'b1;
@@ -357,7 +380,7 @@ module processor
 
     logic commit_valid;
     assign commit_valid = (state == S_COMMIT) && !fetch_fault && supported_op && !blu_fault && !alu_fault &&
-                          (decoded_op != OP_LOAD || load_encoding_valid);
+                          ((decoded_op != OP_LOAD && decoded_op != OP_SAVE) || memory_encoding_valid);
 
     always_comb begin
         s_read_control  = SCRATCH_CONTROL_NONE;
@@ -396,6 +419,11 @@ module processor
                 s_read_control  = SCRATCH_CONTROL_FIRST;
                 s_read_index[0] = view.memory.base;
             end
+            if (decoded_op == OP_SAVE) begin
+                s_read_control  = SCRATCH_CONTROL_BOTH;
+                s_read_index[0] = view.memory.base;
+                s_read_index[1] = view.memory.reg_;
+            end
             if (is_alu) begin
                 // The old destination, merged with the sized result.
                 s_read_control  = SCRATCH_CONTROL_FIRST;
@@ -412,7 +440,7 @@ module processor
             end
         end
 
-        if (state == S_LOAD_RESPONSE && mem_rsp_valid && !mem_rsp_fault) begin
+        if (state == S_LOAD_RESPONSE && mem_rsp_valid && mem_rsp_ready && !mem_rsp_fault) begin
             s_read_control  = SCRATCH_CONTROL_FIRST;
             s_read_index[0] = view.memory.base;
             if (view.memory.off == 1'b0) begin
@@ -426,6 +454,16 @@ module processor
                 s_write_index[0] = view.memory.reg_;
                 s_write_data[0]  = load_value;
             end
+
+        end
+
+        if (state == S_SAVE_RESPONSE && mem_rsp_valid && mem_rsp_ready && !mem_rsp_fault &&
+            view.memory.off == 1'b0) begin
+            s_read_control  = SCRATCH_CONTROL_FIRST;
+            s_read_index[0] = view.memory.base;
+            s_write_control = SCRATCH_CONTROL_FIRST;
+            s_write_index[0] = view.memory.base;
+            s_write_data[0] = s_read_data[0] + address_t'(view.memory.imm);
         end
 
         if (commit_valid) begin
@@ -605,9 +643,9 @@ module processor
                 end
 
                 S_COMMIT: begin
-                    if (commit_valid && decoded_op == OP_LOAD) begin
+                    if (commit_valid && (decoded_op == OP_LOAD || decoded_op == OP_SAVE)) begin
                         if (mem_req_ready) begin
-                            state <= S_LOAD_RESPONSE;
+                            state <= decoded_op == OP_LOAD ? S_LOAD_RESPONSE : S_SAVE_RESPONSE;
                         end
                     end else begin
                         state <= S_FETCH_REQUEST;
@@ -645,7 +683,26 @@ module processor
                         special[SPECIAL_PERFORMANCE_COUNTER] <= special[SPECIAL_PERFORMANCE_COUNTER] + 32'd1;
                         special[SPECIAL_EXCEPTION]           <= exception_next;
                         if (exception_next != '0) begin
-                            vector_index <= exception_next[3] ? 4'd7 : VECTOR_INSTRUCTION_FAULT_HANDLER;
+                            vector_index <= exception_next[EXCEPTION_BUS_FAULT]
+                                                ? 4'd7
+                                                : VECTOR_INSTRUCTION_FAULT_HANDLER;
+                            state        <= S_VECTOR_REQUEST;
+                        end else begin
+                            special[SPECIAL_PROGRAM_ADDRESS] <= special[SPECIAL_PROGRAM_ADDRESS] + 32'd4;
+                            retire                           <= 1'b1;
+                            state                            <= S_FETCH_REQUEST;
+                        end
+                    end
+                end
+
+                S_SAVE_RESPONSE: begin
+                    if (mem_rsp_valid && mem_rsp_ready) begin
+                        special[SPECIAL_PERFORMANCE_COUNTER] <= special[SPECIAL_PERFORMANCE_COUNTER] + 32'd1;
+                        special[SPECIAL_EXCEPTION]           <= exception_next;
+                        if (exception_next != '0) begin
+                            vector_index <= exception_next[EXCEPTION_BUS_FAULT]
+                                                ? 4'd7
+                                                : VECTOR_INSTRUCTION_FAULT_HANDLER;
                             state        <= S_VECTOR_REQUEST;
                         end else begin
                             special[SPECIAL_PROGRAM_ADDRESS] <= special[SPECIAL_PROGRAM_ADDRESS] + 32'd4;

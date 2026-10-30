@@ -132,8 +132,11 @@ model — `Cycle()` writes only whole 32-bit words, implementing a sub-word `sav
 read-modify-write (`source/cpu.cpp:478` peeks the word, merges the size/shift-selected bits, pokes it
 back), and `Bus::Poke` accepts only one whole `AddressableUnitType`, which on the 32-bit-unit flash
 and tightly-coupled buses is a `uint32_t`. The C++ side therefore has no byte-granular write path at
-all. The RTL drives strobes directly, so **parity for sub-word stores is asserted on the final memory
-image after the step, not on the bus transactions** — P-022 in @ref rtl_parity.
+all. The RTL drives strobes directly, so sub-word stores cannot be compared as identical bus
+transactions — P-022 in @ref rtl_parity. The current RTL tests assert the exact address, write data
+and lane strobes for byte, half-word and word stores. The shared oracle memory is not an independent
+DUT memory image, so it cannot by itself prove final-memory parity; an independent memory model is
+needed for that check.
 
 ## Co-simulation harness
 
@@ -198,6 +201,9 @@ staleness test working. Vectors must respect the validity rules the decoder alre
 M0–M7 reproduce `Processor::Cycle()` exactly. M8–M10 reach the documented design, with the C++
 model extended first. M12 is the microarchitecture. The structure track below runs alongside all of
 them and keeps the shape ready for M12.
+
+M2 progress: variable-latency `load` and `save` are implemented and covered by directed RTL tests;
+`swap` remains.
 
 ### M1 notes
 

@@ -235,9 +235,10 @@ C++ at all.
 
 **RTL-AHEAD.** The RTL behaviour is the faithful one and is kept; this is a case of the C++ shortcut
 being an implementation detail rather than a specification. The consequence is that a sub-word store
-step cannot be compared as a bus transaction, and the lockstep check must instead diff the **memory
-image** after both models retire (the M0 harness already services the DUT bus from `oracle.Peek`).
-Revisit at M6, where `Load`/`Save` make it concrete.
+step cannot be compared as an identical bus transaction. The current RTL tests assert each store's
+address, write data and byte strobes. They do not yet independently diff the final memory image:
+the M0 harness services the DUT bus from `oracle.Peek`, so the oracle's memory is not an independent
+DUT memory model and can mask a missing DUT write. Revisit at M6, where `Load`/`Save` make it concrete.
 
 The intended closure is the bus seam in the structure track (S1, @ref rtl_roadmap): once the C++ model
 issues a request carrying byte strobes and the memory backends honour them, both models perform the

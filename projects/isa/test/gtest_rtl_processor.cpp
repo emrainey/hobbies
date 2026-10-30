@@ -19,6 +19,7 @@ constexpr uint32_t kStackBoundary = 0x00100000U;
 constexpr uint32_t kExceptionStackInitial = 0x0010E000U;
 constexpr uint32_t kExceptionStackBoundary = 0x0010D000U;
 constexpr uint32_t kRetiredSteps = 32U;
+constexpr int kMaxWaitCycles = 10000;
 
 /// Encodes a typed instruction into the word both models fetch.
 template <typename I>
@@ -28,14 +29,21 @@ uint32_t Encode(I const& instruction) {
 
 }  // namespace
 
-/// Lockstep harness for M0: the C++ model is the oracle and the RTL is stepped one
-/// retired instruction at a time. Both models share `oracle`'s attached flash, which
-/// services the DUT bus exactly as `Processor::Peek` services the fast model.
+/// Lockstep harness for the RTL processor. The C++ model is the oracle and both
+/// models share its attached flash through a variable-latency bus responder.
 class RtlProcessorTest : public testing::Test {
 protected:
     isa::Processor oracle;
     isa::FlashMemory flash{isa::Range{kFlashBase, kFlashLimit}};
     Vprocessor dut;
+    uint32_t request_delay_cycles = 0;
+    uint32_t request_cycles_remaining = 0;
+    uint32_t response_delay_cycles = 0;
+    uint32_t bus_request_count = 0;
+    bool bus_pending = false;
+    uint32_t response_cycles_remaining = 0;
+    uint32_t response_data = 0;
+    bool response_fault = false;
 
     void SetUp() override {
         ASSERT_TRUE(oracle.AttachFlashMemory(flash));
@@ -69,41 +77,54 @@ protected:
         return dut.rootp->processor__DOT__u_evaluation__DOT__evaluation[i];
     }
 
-    /// Services one bus access from the DUT using the oracle's memory.
-    void ServiceBus() {
-        uint32_t value = 0U;
-        dut.mem_rdata = 0U;
-        if (dut.mem_req && oracle.Peek(isa::Address{static_cast<uint32_t>(dut.mem_addr)}, value)) {
-            dut.mem_rdata = value;
-            dut.mem_fault = 0;
-        } else {
-            dut.mem_fault = dut.mem_req ? 1 : 0;
+    /// Drives one clock edge and advances the one-outstanding-transaction responder.
+    void Clock() {
+        dut.clk = 0;
+        dut.mem_req_ready = !bus_pending && request_cycles_remaining == 0;
+        dut.mem_rsp_valid = bus_pending && response_cycles_remaining == 0;
+        dut.mem_rsp_data = response_data;
+        dut.mem_rsp_fault = response_fault;
+        dut.eval();
+
+        const bool request_accepted = dut.mem_req_valid && dut.mem_req_ready;
+        const bool response_accepted = dut.mem_rsp_valid && dut.mem_rsp_ready;
+        const uint32_t request_address = static_cast<uint32_t>(dut.mem_addr);
+
+        dut.clk = 1;
+        dut.eval();
+
+        if (response_accepted) {
+            bus_pending = false;
+        } else if (bus_pending && response_cycles_remaining > 0) {
+            --response_cycles_remaining;
+        }
+
+        if (request_accepted) {
+            ASSERT_FALSE(bus_pending);
+            ++bus_request_count;
+            response_fault = !oracle.Peek(isa::Address{request_address}, response_data);
+            response_cycles_remaining = response_delay_cycles;
+            bus_pending = true;
+            request_cycles_remaining = request_delay_cycles;
+        } else if (dut.mem_req_valid && request_cycles_remaining > 0) {
+            --request_cycles_remaining;
         }
     }
 
-    /// Drives one rising clock edge, with the bus serviced before the edge.
-    void Clock() {
-        dut.clk = 0;
-        dut.eval();
-        ServiceBus();
-        dut.eval();
-        dut.clk = 1;
-        dut.eval();
-    }
-
     bool RunUntilBooted() {
-        for (int i = 0; i < 100 && !dut.booted; ++i) {
+        for (int i = 0; i < kMaxWaitCycles && !dut.booted; ++i) {
             Clock();
         }
         return dut.booted;
     }
 
     bool RunUntilRetire() {
-        for (int i = 0; i < 1000; ++i) {
+        for (int i = 0; i < kMaxWaitCycles; ++i) {
             Clock();
             if (dut.retire) {
                 return true;
             }
+
             if (dut.halted) {
                 return false;
             }
@@ -149,6 +170,37 @@ protected:
         }
     }
 };
+
+TEST_F(RtlProcessorTest, FetchWaitsForAnArbitrarilyDelayedMemoryResponse) {
+    constexpr uint32_t kRequestDelayCycles = 17;
+    constexpr uint32_t kResponseDelayCycles = 257;
+    request_delay_cycles = kRequestDelayCycles;
+    request_cycles_remaining = kRequestDelayCycles;
+    response_delay_cycles = kResponseDelayCycles;
+
+    uint32_t const requests_before_fetch = bus_request_count;
+    oracle.Cycle();
+    uint32_t const stalled_fetch_address = kCodeAddress;
+    uint32_t const total_delay = kRequestDelayCycles + kResponseDelayCycles + 2;
+    for (uint32_t cycle = 0; cycle <= total_delay; ++cycle) {
+        Clock();
+        EXPECT_FALSE(dut.retire) << "retired before the fetch response, cycle " << cycle;
+        EXPECT_LE(bus_request_count, requests_before_fetch + 1U)
+            << "the outstanding fetch must not be issued more than once";
+        if (cycle < kRequestDelayCycles) {
+            EXPECT_TRUE(dut.mem_req_valid);
+            EXPECT_EQ(stalled_fetch_address, dut.mem_addr) << "request fields changed while backpressured";
+            EXPECT_EQ(requests_before_fetch, bus_request_count) << "request accepted before ready";
+        } else {
+            EXPECT_EQ(requests_before_fetch + 1U, bus_request_count) << "request was not accepted after ready";
+        }
+        EXPECT_EQ(kCodeAddress, dut.special[isa::special::ProgramAddress]);
+    }
+
+    ASSERT_TRUE(RunUntilRetire()) << "the processor did not resume after the response";
+    EXPECT_EQ(requests_before_fetch + 1U, bus_request_count);
+    ExpectStateMatches();
+}
 
 TEST_F(RtlProcessorTest, ResetStateMatchesTheFastModel) {
     ExpectStateMatches();

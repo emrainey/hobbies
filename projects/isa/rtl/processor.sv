@@ -5,12 +5,10 @@
 // Fetch, decode (operand read) and commit are separate states. Scratch and
 // evaluation state live in the register_file/evaluation_file submodules.
 //
-// Fetch and execute are separate states. `mem_req`/`mem_addr` are driven from
-// S_FETCH and the returned word is latched at the edge into S_COMMIT, where the
-// instruction commits: the register writes, the program-address advance, the
-// performance counter and the `retire` pulse all land on that one edge. Splitting
-// them now means M2 can insert bus-wait states for load/save without reshaping the
-// FSM -- only `is_implemented` and the S_COMMIT case grow.
+// Fetch, decode and commit are serialized. Bus requests use a decoupled
+// request/response handshake: request fields remain stable until accepted, and the
+// processor waits for a response before advancing. Memory latency is unbounded by
+// the RTL; a system may report a timeout as a fault response.
 //
 // `unsupported` pulses at the commit edge when the fetched instruction cannot be
 // executed: a defined opcode this milestone has not reached, or an undefined one.
@@ -29,9 +27,8 @@
 //   * reset boot from the vector table, matching Processor::Reset(),
 //   * architectural state readable by the lockstep harness.
 //
-// Bus timing: `mem_req` starts an access in the current cycle, `mem_addr` is stable
-// while it is high, and `mem_rdata`/`mem_fault` are combinational responses to
-// `mem_addr` that are sampled on the next rising edge. This matches Bus::Peek.
+// Request and response handshakes occur on rising edges when valid and ready are
+// both high. A response may arrive any number of cycles after its request.
 module processor
     import isa::*;
 (
@@ -39,13 +36,16 @@ module processor
     input  logic reset,
 
     // Unified word bus
-    output logic       mem_req,
+    output logic       mem_req_valid,
+    input  logic       mem_req_ready,
     output logic       mem_write,
     output address_t   mem_addr,
     output word_t      mem_wdata,
     output logic [3:0] mem_wstrb,
-    input  word_t      mem_rdata,
-    input  logic       mem_fault,
+    input  logic       mem_rsp_valid,
+    output logic       mem_rsp_ready,
+    input  word_t      mem_rsp_data,
+    input  logic       mem_rsp_fault,
 
     // Special registers, exposed for the lockstep harness (scratch and evaluation
     // live in `u_scratch`/`u_evaluation` and are read hierarchically)
@@ -79,12 +79,15 @@ module processor
 
     // Vector-table word offsets (BOOT_*) come from the isa package.
 
-    typedef enum logic [2:0] {
-        S_BOOT,
-        S_FETCH,
+    typedef enum logic [3:0] {
+        S_BOOT_REQUEST,
+        S_BOOT_RESPONSE,
+        S_FETCH_REQUEST,
+        S_FETCH_RESPONSE,
         S_DECODE,
         S_COMMIT,
-        S_VECTOR,
+        S_VECTOR_REQUEST,
+        S_VECTOR_RESPONSE,
         S_HALTED
     } state_e;
 
@@ -93,9 +96,9 @@ module processor
     logic [2:0] boot_index;
     logic [3:0] vector_index;
 
-    assign booted = (state != S_BOOT);
+    assign booted = (state != S_BOOT_REQUEST) && (state != S_BOOT_RESPONSE);
 
-    // The instruction latched at the end of S_FETCH, and whether fetching it faulted.
+    // The instruction latched after a fetch response, and whether that response faulted.
     // A failed fetch is replayed as a noop, matching the Cycle() fetch fallback
     // (source/cpu.cpp:296-299).
     word_t instruction;
@@ -144,16 +147,17 @@ module processor
     assign supported_op = decoded_valid && is_implemented(decoded_op);
 
     always_comb begin
-        mem_req   = (state == S_BOOT) || (state == S_FETCH) || (state == S_VECTOR);
+        mem_req_valid = !reset && ((state == S_BOOT_REQUEST) || (state == S_FETCH_REQUEST) || (state == S_VECTOR_REQUEST));
+        mem_rsp_ready = !reset && ((state == S_BOOT_RESPONSE) || (state == S_FETCH_RESPONSE) || (state == S_VECTOR_RESPONSE));
         mem_write = 1'b0;
         mem_wdata = '0;
         mem_wstrb = '0;
 
-        if (state == S_BOOT) begin
+        if (state == S_BOOT_REQUEST) begin
             mem_addr = DEFAULT_VECTOR_TABLE_ADDRESS + (address_t'(boot_index) << 2);
-        end else if (state == S_FETCH) begin
+        end else if (state == S_FETCH_REQUEST) begin
             mem_addr = special[SPECIAL_PROGRAM_ADDRESS];
-        end else if (state == S_VECTOR) begin
+        end else if (state == S_VECTOR_REQUEST) begin
             mem_addr = special[SPECIAL_VECTOR_TABLE_ADDRESS] + (address_t'(vector_index) << 2);
         end else begin
             mem_addr = '0;
@@ -451,7 +455,7 @@ module processor
         unsupported <= 1'b0;
 
         if (reset) begin
-            state       <= S_BOOT;
+            state       <= S_BOOT_REQUEST;
             boot_index  <= '0;
             halted      <= 1'b0;
             instruction <= ERASED_WORD;
@@ -468,44 +472,60 @@ module processor
             special[SPECIAL_MODE] <= MODE_RESET;
         end else begin
             case (state)
-                S_BOOT: begin
-                    // A faulting read leaves the field at its reset value, mirroring Reset().
-                    if (!mem_fault) begin
-                        case (boot_index)
-                            BOOT_STACK_INITIAL: begin
-                                special[SPECIAL_STACK_LIMIT]   <= mem_rdata;
-                                special[SPECIAL_STACK_CURRENT] <= mem_rdata;
-                            end
-                            BOOT_STACK_BOUNDARY: begin
-                                special[SPECIAL_STACK_BASE] <= mem_rdata;
-                            end
-                            BOOT_EXC_STACK_INITIAL: begin
-                                special[SPECIAL_EXCEPTION_STACK_LIMIT]   <= mem_rdata;
-                                special[SPECIAL_EXCEPTION_STACK_CURRENT] <= mem_rdata;
-                            end
-                            BOOT_EXC_STACK_BOUNDARY: begin
-                                special[SPECIAL_EXCEPTION_STACK_BASE] <= mem_rdata;
-                            end
-                            default: begin
-                                special[SPECIAL_PROGRAM_ADDRESS] <= mem_rdata;
-                                special[SPECIAL_RETURN_ADDRESS] <= mem_rdata;
-                            end
-                        endcase
-                    end
-
-                    if (boot_index == BOOT_RESET_HANDLER) begin
-                        boot_index <= '0;
-                        state      <= S_FETCH;
-                    end else begin
-                        boot_index <= boot_index + 1'b1;
+                S_BOOT_REQUEST: begin
+                    if (mem_req_ready) begin
+                        state <= S_BOOT_RESPONSE;
                     end
                 end
 
-                S_FETCH: begin
-                    // The bus response is combinational, so the word is present now.
-                    instruction <= mem_rdata;
-                    fetch_fault <= mem_fault;
-                    state       <= S_DECODE;
+                S_BOOT_RESPONSE: begin
+                    if (mem_rsp_valid && mem_rsp_ready) begin
+                        // A faulting read leaves the field at its reset value, mirroring Reset().
+                        if (!mem_rsp_fault) begin
+                            case (boot_index)
+                                BOOT_STACK_INITIAL: begin
+                                    special[SPECIAL_STACK_LIMIT]   <= mem_rsp_data;
+                                    special[SPECIAL_STACK_CURRENT] <= mem_rsp_data;
+                                end
+                                BOOT_STACK_BOUNDARY: begin
+                                    special[SPECIAL_STACK_BASE] <= mem_rsp_data;
+                                end
+                                BOOT_EXC_STACK_INITIAL: begin
+                                    special[SPECIAL_EXCEPTION_STACK_LIMIT]   <= mem_rsp_data;
+                                    special[SPECIAL_EXCEPTION_STACK_CURRENT] <= mem_rsp_data;
+                                end
+                                BOOT_EXC_STACK_BOUNDARY: begin
+                                    special[SPECIAL_EXCEPTION_STACK_BASE] <= mem_rsp_data;
+                                end
+                                default: begin
+                                    special[SPECIAL_PROGRAM_ADDRESS] <= mem_rsp_data;
+                                    special[SPECIAL_RETURN_ADDRESS] <= mem_rsp_data;
+                                end
+                            endcase
+                        end
+
+                        if (boot_index == BOOT_RESET_HANDLER) begin
+                            boot_index <= '0;
+                            state      <= S_FETCH_REQUEST;
+                        end else begin
+                            boot_index <= boot_index + 1'b1;
+                            state      <= S_BOOT_REQUEST;
+                        end
+                    end
+                end
+
+                S_FETCH_REQUEST: begin
+                    if (mem_req_ready) begin
+                        state <= S_FETCH_RESPONSE;
+                    end
+                end
+
+                S_FETCH_RESPONSE: begin
+                    if (mem_rsp_valid && mem_rsp_ready) begin
+                        instruction <= mem_rsp_data;
+                        fetch_fault <= mem_rsp_fault;
+                        state       <= S_DECODE;
+                    end
                 end
 
                 S_DECODE: begin
@@ -518,7 +538,7 @@ module processor
                 end
 
                 S_COMMIT: begin
-                    state <= S_FETCH;
+                    state <= S_FETCH_REQUEST;
 
                     if (fetch_fault) begin
                         // No instruction: Cycle() substitutes a noop and advances.
@@ -540,25 +560,34 @@ module processor
                     if (exception_next != '0) begin
                         // Any pending exception sends the next fetch through the vector table.
                         vector_index <= VECTOR_INSTRUCTION_FAULT_HANDLER;
-                        state        <= S_VECTOR;
+                        state        <= S_VECTOR_REQUEST;
                     end else begin
                         special[SPECIAL_PROGRAM_ADDRESS] <= special[SPECIAL_PROGRAM_ADDRESS] + 32'd4;
                         retire                           <= 1'b1;
                     end
                 end
 
-                S_VECTOR: begin
-                    // GetHandler(): the handler, or the reset handler when that read faults.
-                    if (!mem_fault) begin
-                        special[SPECIAL_PROGRAM_ADDRESS] <= mem_rdata;
-                        retire                           <= 1'b1;
-                        state                            <= halted ? S_HALTED : S_FETCH;
-                    end else if (vector_index != 4'(BOOT_RESET_HANDLER)) begin
-                        vector_index <= 4'(BOOT_RESET_HANDLER);
-                    end else begin
-                        // Cycle() throws here: there is no handler to run.
-                        halted <= 1'b1;
-                        state  <= S_HALTED;
+                S_VECTOR_REQUEST: begin
+                    if (mem_req_ready) begin
+                        state <= S_VECTOR_RESPONSE;
+                    end
+                end
+
+                S_VECTOR_RESPONSE: begin
+                    if (mem_rsp_valid && mem_rsp_ready) begin
+                        // GetHandler(): the handler, or the reset handler when that read faults.
+                        if (!mem_rsp_fault) begin
+                            special[SPECIAL_PROGRAM_ADDRESS] <= mem_rsp_data;
+                            retire                           <= 1'b1;
+                            state                            <= halted ? S_HALTED : S_FETCH_REQUEST;
+                        end else if (vector_index != 4'(BOOT_RESET_HANDLER)) begin
+                            vector_index <= 4'(BOOT_RESET_HANDLER);
+                            state        <= S_VECTOR_REQUEST;
+                        end else begin
+                            // Cycle() throws here: there is no handler to run.
+                            halted <= 1'b1;
+                            state  <= S_HALTED;
+                        end
                     end
                 end
 
@@ -566,7 +595,7 @@ module processor
                     // Cycle() returns immediately once halted; hold until reset.
                 end
 
-                default: state <= S_FETCH;
+                default: state <= S_FETCH_REQUEST;
             endcase
         end
     end

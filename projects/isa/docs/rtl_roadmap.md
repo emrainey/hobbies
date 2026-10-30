@@ -98,17 +98,33 @@ A single unified word-bus port, routed by the testbench through the same address
 
 | Signal | Dir | Width | Meaning |
 | --- | --- | --- | --- |
-| `mem_req` | out | 1 | A bus access starts this cycle |
+| `mem_req_valid` | out | 1 | The processor is presenting a stable request |
+| `mem_req_ready` | in | 1 | The memory accepts the request when valid and ready are both high |
 | `mem_write` | out | 1 | 1 = write, 0 = read |
 | `mem_addr` | out | 32 | Word-aligned address |
 | `mem_wdata` | out | 32 | Write data |
 | `mem_wstrb` | out | 4 | Write strobe: lane `i` is written; a clear lane is left unchanged |
-| `mem_rdata` | in | 32 | Combinational response to `mem_addr`, sampled on the next rising edge |
-| `mem_fault` | in | 1 | Unassigned/unaligned/faulting access |
+| `mem_rsp_valid` | in | 1 | A response is available; held until accepted |
+| `mem_rsp_ready` | out | 1 | The processor can accept a response |
+| `mem_rsp_data` | in | 32 | Read data accompanying a valid response |
+| `mem_rsp_fault` | in | 1 | Unassigned/unaligned/faulting access accompanying a valid response |
 
-Read data returns combinationally (SRAM-like) so a fetch closes in the following cycle; the
-testbench routes `mem_addr` through `isa::memory::Map` and the attached `isa::Memory` objects and
-raises `mem_fault` for unassigned addresses, matching `Bus::State::Fault`.
+Requests are accepted on a rising edge when `mem_req_valid && mem_req_ready`. The processor then
+waits for a response, which is accepted on a rising edge when `mem_rsp_valid && mem_rsp_ready`.
+There is one outstanding transaction, and the RTL imposes no maximum response latency. A system
+that needs a timeout can eventually return a fault response. The testbench models delayed
+responses and routes the accepted address through the oracle's attached memory; unassigned
+addresses produce fault responses, matching `Bus::State::Fault`.
+
+Reset is expected to reset the memory responder/interconnect at the same time as the processor,
+discarding any in-flight transaction. Resetting only the processor while a response is outstanding
+would need an explicit cancellation or transaction-tag mechanism, which this single-outstanding
+protocol does not currently provide.
+
+The request and response channels are independent: after accepting a request, memory may take
+arbitrarily many cycles to respond. While waiting, the processor holds its instruction and
+architectural state and does not retire or issue a duplicate request. This models bubbles from
+memory stalls; it does not yet overlap execution of multiple instructions.
 
 `mem_wstrb` is a real strobe, not a "write zero to the unselected lanes" mask: a clear lane must
 survive the write unchanged. This is the first place the RTL is deliberately *ahead* of the C++
@@ -141,8 +157,10 @@ for (step : steps) {
 }
 ```
 
-`tick()` first drives `dut.mem_rdata`/`dut.mem_fault` from `dut.mem_addr`, then toggles the clock, so
-the combinational bus response is valid at the commit edge.
+The testbench responder accepts one request, retains its result, delays the response by a
+configurable number of cycles, and holds response-valid until the processor accepts it. Directed
+tests verify that fetch does not retire during a long response delay and does not issue duplicate
+requests.
 
 State is read straight from the Verilated model's public ports (`scratch`, `evaluation`, `special`),
 so no debug ports are needed for M1–M7. A snapshot/debug port can be added later if the harness needs
@@ -183,11 +201,11 @@ them and keeps the shape ready for M12.
 
 ### M1 notes
 
-* **One FSM, one edge.** `S_FETCH` drives the bus and latches the word; `S_COMMIT` performs the
-  register writes, the program-address advance, the counter and `retire` on a single edge. The
-  cycle count per instruction is an implementation detail — the harness only compares state at the
-  retire boundary — but keeping fetch and execute separate is what lets M2 add bus-wait states
-  without reshaping the FSM.
+* **One FSM, variable-latency bus.** `S_FETCH_REQUEST` holds a request until acceptance;
+  `S_FETCH_RESPONSE` waits for the response and latches the instruction. Boot and exception-vector
+  reads use the same request/response pattern. `S_COMMIT` performs register writes, the
+  program-address advance, the counter and `retire` on one edge. This serialized FSM stalls safely
+  for memory; overlapping instruction execution is a later microarchitecture step.
 * **Fields come from the union.** The `instruction_t` view (`view.copy.dst`, `view.move.shift`, …)
   is used rather than shifting the raw word by hand, so the field positions stay owned by
   `rtl/isa.sv` and are already covered by `gtest_layout`.

@@ -41,7 +41,7 @@ Milestone IDs refer to @ref rtl_roadmap.
 | P-012 | `Push`/`Pull` register ordering | `CPP-BUG` — fixed | M3 |
 | P-013 | `Move` eval-to-eval semantics | MATCHED | M1/M4 |
 | P-014 | `MoveImmediate` eval/upper selection | MATCHED | M1 |
-| P-015 | `Swap` load-then-store atomicity | OPEN | M2 |
+| P-015 | `Swap` load-then-store atomicity | MATCHED | M2 |
 | P-016 | Bitwise evaluation flags | OPEN | M5/M7 |
 | P-017 | Arithmetic `undefined` flag vs fault | OPEN (linked P-003) | M6/M8 |
 | P-018 | `Negate` size encoding | OPEN | M7 |

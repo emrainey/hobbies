@@ -87,6 +87,9 @@ module processor
         S_COMMIT,
         S_LOAD_RESPONSE,
         S_SAVE_RESPONSE,
+        S_SWAP_READ_RESPONSE,
+        S_SWAP_WRITE_REQUEST,
+        S_SWAP_WRITE_RESPONSE,
         S_VECTOR_REQUEST,
         S_VECTOR_RESPONSE,
         S_HALTED
@@ -104,6 +107,11 @@ module processor
     // (source/cpu.cpp:296-299).
     word_t instruction;
     logic  fetch_fault;
+
+    // Latched swap operands and read data, held across the two bus transactions.
+    address_t swap_address_reg;
+    word_t    swap_wdata_reg;
+    word_t    swap_read_data_reg;
 
     // The instruction viewed as any of the generated formats, and the effective
     // operation from the shared combinational decoder.
@@ -135,7 +143,7 @@ module processor
     function automatic logic is_implemented(op_e code);
         case (code)
             OP_NONE, OP_COPY, OP_MOVE, OP_MOVE_IMMEDIATE, OP_ZERO, OP_LOAD, OP_SAVE, OP_HALT: return 1'b1;
-            OP_COMPLEMENT, OP_RSH, OP_ASR, OP_LSH, OP_ROTATE, OP_COUNT1S, OP_COUNT_L0S,
+            OP_SWAP, OP_COMPLEMENT, OP_RSH, OP_ASR, OP_LSH, OP_ROTATE, OP_COUNT1S, OP_COUNT_L0S,
             OP_NOT, OP_SET_BIT, OP_CLEAR_BIT, OP_TOGGLE_BIT, OP_REVERSE: return 1'b1;
             OP_AND, OP_OR, OP_XOR: return 1'b1;
             OP_ADDITION, OP_SUBTRACT, OP_MULTIPLY, OP_DIVIDE, OP_MODULO, OP_NEGATE, OP_EXTEND: return 1'b1;
@@ -172,14 +180,21 @@ module processor
         end
     end
 
+    // Swap addresses the word in Sb; Sa is the value written.
+    address_t swap_address;
     always_comb begin
-        mem_req_valid = !reset && ((state == S_BOOT_REQUEST) || (state == S_FETCH_REQUEST) ||
-                                   (state == S_VECTOR_REQUEST) ||
-                                   (state == S_COMMIT && commit_valid &&
-                                    (decoded_op == OP_LOAD || decoded_op == OP_SAVE)));
+        swap_address = s_read_data[0];
+    end
+    always_comb begin
+        mem_req_valid = !reset && ( (state == S_BOOT_REQUEST) || (state == S_FETCH_REQUEST) ||
+                                    (state == S_VECTOR_REQUEST) ||
+                                    (state == S_COMMIT && commit_valid &&
+                                     (decoded_op == OP_LOAD || decoded_op == OP_SAVE || decoded_op == OP_SWAP)) ||
+                                    (state == S_SWAP_WRITE_REQUEST) );
         mem_rsp_ready = !reset && ((state == S_BOOT_RESPONSE) || (state == S_FETCH_RESPONSE) ||
                                    (state == S_VECTOR_RESPONSE) || state == S_LOAD_RESPONSE ||
-                                   state == S_SAVE_RESPONSE);
+                                   state == S_SAVE_RESPONSE || state == S_SWAP_READ_RESPONSE ||
+                                   state == S_SWAP_WRITE_RESPONSE);
         mem_write = 1'b0;
         mem_wdata = '0;
         mem_wstrb = '0;
@@ -202,14 +217,26 @@ module processor
             endcase
         end
 
+        if (state == S_SWAP_WRITE_REQUEST) begin
+            mem_write = 1'b1;
+            mem_wstrb = 4'b1111;
+            mem_wdata = swap_wdata_reg;
+        end
+
         if (state == S_BOOT_REQUEST) begin
             mem_addr = DEFAULT_VECTOR_TABLE_ADDRESS + (address_t'(boot_index) << 2);
         end else if (state == S_FETCH_REQUEST) begin
             mem_addr = special[SPECIAL_PROGRAM_ADDRESS];
         end else if (state == S_VECTOR_REQUEST) begin
             mem_addr = special[SPECIAL_VECTOR_TABLE_ADDRESS] + (address_t'(vector_index) << 2);
-        end else if (state == S_COMMIT && (decoded_op == OP_LOAD || decoded_op == OP_SAVE)) begin
-            mem_addr = load_address;
+        end else if (state == S_COMMIT && (decoded_op == OP_LOAD || decoded_op == OP_SAVE || decoded_op == OP_SWAP)) begin
+            if (decoded_op == OP_SWAP) begin
+                mem_addr = swap_address;
+            end else begin
+                mem_addr = load_address;
+            end
+        end else if (state == S_SWAP_WRITE_REQUEST) begin
+            mem_addr = swap_address_reg;
         end else begin
             mem_addr = '0;
         end
@@ -363,7 +390,8 @@ module processor
                                 ((decoded_op == OP_LOAD || decoded_op == OP_SAVE) && !memory_encoding_valid));
 
     logic data_bus_fault;
-    assign data_bus_fault = ((state == S_LOAD_RESPONSE) || (state == S_SAVE_RESPONSE)) &&
+    assign data_bus_fault = ((state == S_LOAD_RESPONSE) || (state == S_SAVE_RESPONSE) ||
+                            (state == S_SWAP_READ_RESPONSE) || (state == S_SWAP_WRITE_RESPONSE)) &&
                             mem_rsp_valid && mem_rsp_ready && mem_rsp_fault;
 
     // The exception state after this commit; any set bit redirects through the table.
@@ -424,6 +452,11 @@ module processor
                 s_read_index[0] = view.memory.base;
                 s_read_index[1] = view.memory.reg_;
             end
+            if (decoded_op == OP_SWAP) begin
+                s_read_control  = SCRATCH_CONTROL_BOTH;
+                s_read_index[0] = view.swap.b;
+                s_read_index[1] = view.swap.a;
+            end
             if (is_alu) begin
                 // The old destination, merged with the sized result.
                 s_read_control  = SCRATCH_CONTROL_FIRST;
@@ -464,6 +497,12 @@ module processor
             s_write_control = SCRATCH_CONTROL_FIRST;
             s_write_index[0] = view.memory.base;
             s_write_data[0] = s_read_data[0] + address_t'(view.memory.imm);
+        end
+
+        if (state == S_SWAP_WRITE_RESPONSE && mem_rsp_valid && mem_rsp_ready && !mem_rsp_fault) begin
+            s_write_control  = SCRATCH_CONTROL_FIRST;
+            s_write_index[0] = view.swap.a;
+            s_write_data[0]  = swap_read_data_reg;
         end
 
         if (commit_valid) begin
@@ -570,6 +609,9 @@ module processor
             cond_pass   <= 1'b0;
             op_a        <= '0;
             op_b        <= '0;
+            swap_address_reg <= '0;
+            swap_wdata_reg   <= '0;
+            swap_read_data_reg <= '0;
             for (int i = 0; i < SPECIAL_COUNT; i++) begin
                 special[i] <= '0;
             end
@@ -643,8 +685,14 @@ module processor
                 end
 
                 S_COMMIT: begin
-                    if (commit_valid && (decoded_op == OP_LOAD || decoded_op == OP_SAVE)) begin
-                        if (mem_req_ready) begin
+                    if (commit_valid && (decoded_op == OP_LOAD || decoded_op == OP_SAVE || decoded_op == OP_SWAP)) begin
+                        if (decoded_op == OP_SWAP) begin
+                            if (mem_req_ready) begin
+                                swap_address_reg <= swap_address;
+                                swap_wdata_reg  <= s_read_data[1];
+                                state           <= S_SWAP_READ_RESPONSE;
+                            end
+                        end else if (mem_req_ready) begin
                             state <= decoded_op == OP_LOAD ? S_LOAD_RESPONSE : S_SAVE_RESPONSE;
                         end
                     end else begin
@@ -696,6 +744,51 @@ module processor
                 end
 
                 S_SAVE_RESPONSE: begin
+                    if (mem_rsp_valid && mem_rsp_ready) begin
+                        special[SPECIAL_PERFORMANCE_COUNTER] <= special[SPECIAL_PERFORMANCE_COUNTER] + 32'd1;
+                        special[SPECIAL_EXCEPTION]           <= exception_next;
+                        if (exception_next != '0) begin
+                            vector_index <= exception_next[EXCEPTION_BUS_FAULT]
+                                                ? 4'd7
+                                                : VECTOR_INSTRUCTION_FAULT_HANDLER;
+                            state        <= S_VECTOR_REQUEST;
+                        end else begin
+                            special[SPECIAL_PROGRAM_ADDRESS] <= special[SPECIAL_PROGRAM_ADDRESS] + 32'd4;
+                            retire                           <= 1'b1;
+                            state                            <= S_FETCH_REQUEST;
+                        end
+                    end
+                end
+
+                S_SWAP_READ_RESPONSE: begin
+                    if (mem_rsp_valid && mem_rsp_ready) begin
+                        if (mem_rsp_fault) begin
+                            special[SPECIAL_PERFORMANCE_COUNTER] <= special[SPECIAL_PERFORMANCE_COUNTER] + 32'd1;
+                            special[SPECIAL_EXCEPTION]           <= exception_next;
+                            if (exception_next != '0) begin
+                                vector_index <= exception_next[EXCEPTION_BUS_FAULT]
+                                                    ? 4'd7
+                                                    : VECTOR_INSTRUCTION_FAULT_HANDLER;
+                                state        <= S_VECTOR_REQUEST;
+                            end else begin
+                                special[SPECIAL_PROGRAM_ADDRESS] <= special[SPECIAL_PROGRAM_ADDRESS] + 32'd4;
+                                retire                           <= 1'b1;
+                                state                            <= S_FETCH_REQUEST;
+                            end
+                        end else begin
+                            swap_read_data_reg <= mem_rsp_data;
+                            state              <= S_SWAP_WRITE_REQUEST;
+                        end
+                    end
+                end
+
+                S_SWAP_WRITE_REQUEST: begin
+                    if (mem_req_ready) begin
+                        state <= S_SWAP_WRITE_RESPONSE;
+                    end
+                end
+
+                S_SWAP_WRITE_RESPONSE: begin
                     if (mem_rsp_valid && mem_rsp_ready) begin
                         special[SPECIAL_PERFORMANCE_COUNTER] <= special[SPECIAL_PERFORMANCE_COUNTER] + 32'd1;
                         special[SPECIAL_EXCEPTION]           <= exception_next;

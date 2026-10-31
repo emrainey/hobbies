@@ -202,8 +202,7 @@ M0–M7 reproduce `Processor::Cycle()` exactly. M8–M10 reach the documented de
 model extended first. M12 is the microarchitecture. The structure track below runs alongside all of
 them and keeps the shape ready for M12.
 
-M2 progress: variable-latency `load` and `save` are implemented and covered by directed RTL tests;
-`swap` remains.
+M2 progress: variable-latency `load`, `save` and `swap` are implemented and covered by directed RTL tests.
 
 ### M1 notes
 

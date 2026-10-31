@@ -101,7 +101,7 @@ void image::generate_each(subsampler get_color, size_t number_of_samples, std::o
         delta = new FixedSampleFuzzer();
     }
 
-#pragma omp parallel for shared(data, delta, get_color)
+#pragma omp parallel for
     for (size_t y = 0; y < height; y++) {
         for (size_t x = 0; x < width; x++) {
             if (mask and (mask->at(y, x) < mask_threshold)) {

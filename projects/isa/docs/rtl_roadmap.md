@@ -290,6 +290,16 @@ target_link_libraries(gtest_isa_rtl_processor
     PRIVATE isa_rtl_processor_sim hobbies-isa GTest::gtest GTest::gtest_main Threads::Threads)
 ```
 
+## Tooling follow-ups
+
+Open-source RTL tooling to add later (not yet wired into CMake):
+
+- **Verible lint/format:** add a `verible-verilog-lint` target for `rtl/*.sv` and run it in CI.
+- **Slang:** add an elaboration/parse check target to catch SystemVerilog issues Verilator may accept.
+- **Yosys:** add a synthesis smoke test to ensure the processor elaborates and has no unsupported constructs.
+- **SymbiYosys:** add formal checks for FSM invariants (no lost requests, no partial swap commit, retire once per instruction).
+- **GTKWave:** document how to dump and view VCD/FST traces from the Verilator testbench.
+
 ## Risks
 
 * **No oracle for the documented-only features.** Mitigated by implementing M8–M10 C++ first.

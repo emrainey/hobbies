@@ -1,0 +1,32 @@
+{
+  "assignee": "@me",
+  "require_milestone": true,
+  "require_area": "auto",
+  "milestone_pattern": null,
+  "branch": {
+    "require": true
+  },
+  "labels": {
+    "area": [
+      { "name": "area: audio", "color": "c5def5", "description": "audio project" },
+      { "name": "area: basal", "color": "c5def5", "description": "basal project" },
+      { "name": "area: doorgame", "color": "c5def5", "description": "doorgame project" },
+      { "name": "area: ecs", "color": "c5def5", "description": "ecs project" },
+      { "name": "area: fourcc", "color": "c5def5", "description": "fourcc project" },
+      { "name": "area: fractals", "color": "c5def5", "description": "fractals project" },
+      { "name": "area: geometry", "color": "c5def5", "description": "geometry project" },
+      { "name": "area: htm", "color": "c5def5", "description": "htm project" },
+      { "name": "area: isa", "color": "c5def5", "description": "isa project" },
+      { "name": "area: linalg", "color": "c5def5", "description": "linalg project" },
+      { "name": "area: linalg-algo", "color": "c5def5", "description": "linalg-algo project" },
+      { "name": "area: linalg-utils", "color": "c5def5", "description": "linalg-utils project" },
+      { "name": "area: neuralnet", "color": "c5def5", "description": "neuralnet project" },
+      { "name": "area: noise", "color": "c5def5", "description": "noise project" },
+      { "name": "area: pyhobbies", "color": "c5def5", "description": "pyhobbies project" },
+      { "name": "area: raytrace", "color": "c5def5", "description": "raytrace project" },
+      { "name": "area: units_of_measure", "color": "c5def5", "description": "units_of_measure project" },
+      { "name": "area: vision", "color": "c5def5", "description": "vision project" },
+      { "name": "area: xmmt", "color": "c5def5", "description": "xmmt project" }
+    ]
+  }
+}

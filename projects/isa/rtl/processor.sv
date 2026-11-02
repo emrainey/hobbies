@@ -144,7 +144,7 @@ module processor
     function automatic logic is_implemented(op_e code);
         case (code)
             OP_NONE, OP_COPY, OP_MOVE, OP_MOVE_IMMEDIATE, OP_ZERO, OP_LOAD, OP_SAVE, OP_HALT,
-            OP_LEAP, OP_BACK: return 1'b1;
+            OP_LEAP, OP_BACK, OP_GROW, OP_FALL: return 1'b1;
             OP_SWAP, OP_COMPLEMENT, OP_RSH, OP_ASR, OP_LSH, OP_ROTATE, OP_COUNT1S, OP_COUNT_L0S,
             OP_NOT, OP_SET_BIT, OP_CLEAR_BIT, OP_TOGGLE_BIT, OP_REVERSE: return 1'b1;
             OP_AND, OP_OR, OP_XOR: return 1'b1;
@@ -424,6 +424,21 @@ module processor
             leap_target = leap_base;
     end
 
+    logic [63:0] grow_fall_next64;
+    logic stack_fault_this;
+    always_comb begin
+        grow_fall_next64 = 64'd0;
+        stack_fault_this = 1'b0;
+        if ((decoded_op == OP_GROW || decoded_op == OP_FALL) && cond_pass) begin
+            if (decoded_op == OP_GROW)
+                grow_fall_next64 = 64'(special[SPECIAL_STACK_CURRENT]) - (64'(view.frame.imm) * 64'd4);
+            else
+                grow_fall_next64 = 64'(special[SPECIAL_STACK_CURRENT]) + (64'(view.frame.imm) * 64'd4);
+            if (grow_fall_next64 < 64'(special[SPECIAL_STACK_BASE]) || grow_fall_next64 > 64'(special[SPECIAL_STACK_LIMIT]))
+                stack_fault_this = 1'b1;
+        end
+    end
+
     logic control_transferred;
     always_comb begin
         control_transferred = 1'b0;
@@ -462,6 +477,9 @@ module processor
         if (decoded_op == OP_LEAP && !leap_is_immediate && cond_pass && leap_overflow) begin
             exception_next[EXCEPTION_BUS_FAULT] = 1'b1;
         end
+        if ((decoded_op == OP_GROW || decoded_op == OP_FALL) && cond_pass && stack_fault_this) begin
+            exception_next[EXCEPTION_STACK_FAULT] = 1'b1;
+        end
     end
 
     logic commit_valid;
@@ -494,6 +512,11 @@ module processor
             e_read_control  = EVALUATION_CONTROL_BOTH;
             e_read_index[0] = view.leap.eval;
             e_read_index[1] = view.leap.mask;
+        end
+        if (state == S_DECODE && (decoded_op == OP_GROW || decoded_op == OP_FALL) && view.frame.cond) begin
+            e_read_control  = EVALUATION_CONTROL_BOTH;
+            e_read_index[0] = view.frame.eval;
+            e_read_index[1] = view.frame.mask;
         end
 
         // The ALU operands are read in S_DECODE and latched.
@@ -755,6 +778,11 @@ module processor
                             cond_pass <= ((e_read_data[0] & e_read_data[1]) != 8'd0);
                         else
                             cond_pass <= 1'b1;
+                    end else if (decoded_op == OP_GROW || decoded_op == OP_FALL) begin
+                        if (view.frame.cond)
+                            cond_pass <= ((e_read_data[0] & e_read_data[1]) != 8'd0);
+                        else
+                            cond_pass <= 1'b1;
                     end else begin
                         cond_pass <= 1'b1;
                     end
@@ -808,6 +836,14 @@ module processor
                             end
                             if (decoded_op == OP_BACK && !view.back.zero) begin
                                 special[SPECIAL_PROGRAM_ADDRESS] <= special[SPECIAL_RETURN_ADDRESS];
+                            end
+                            if (decoded_op == OP_GROW || decoded_op == OP_FALL) begin
+                                if (cond_pass && !stack_fault_this) begin
+                                    if (decoded_op == OP_GROW)
+                                        special[SPECIAL_STACK_CURRENT] <= special[SPECIAL_STACK_CURRENT] - (32'(view.frame.imm) << 2);
+                                    else
+                                        special[SPECIAL_STACK_CURRENT] <= special[SPECIAL_STACK_CURRENT] + (32'(view.frame.imm) << 2);
+                                end
                             end
                         end else begin
                             unsupported <= 1'b1;

@@ -47,9 +47,11 @@ localparam logic [2:0] BOOT_RESET_HANDLER = 3'd4;
 localparam logic [3:0] VECTOR_INSTRUCTION_FAULT_HANDLER = 4'd8;
 
 // Bits of SPECIAL_EXCEPTION (isa::Exception, LSB first: reset, unmaskable, nested,
-// bus_fault, instruction_fault).
+// bus_fault, instruction_fault, arithmetic_fault, stack_fault).
 localparam int EXCEPTION_BUS_FAULT = 3;
 localparam int EXCEPTION_INSTRUCTION_FAULT = 4;
+localparam int EXCEPTION_ARITHMETIC_FAULT = 5;
+localparam int EXCEPTION_STACK_FAULT = 6;
 
 // === Special register indices ===
 // The word index of each special register, in isa::Special order. The C++ model

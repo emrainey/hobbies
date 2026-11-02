@@ -16,6 +16,7 @@ stateDiagram-v2
     S_COMMIT --> S_LOAD_RESPONSE : commit_valid && OP_LOAD && mem_req_ready
     S_COMMIT --> S_SAVE_RESPONSE : commit_valid && OP_SAVE && mem_req_ready
     S_COMMIT --> S_SWAP_READ_RESPONSE : commit_valid && OP_SWAP && mem_req_ready
+    S_COMMIT --> S_BACK_RESPONSE : commit_valid && OP_BACK && zero && mem_req_ready
     S_COMMIT --> S_FETCH_REQUEST : otherwise (retire, or redirect on exception)
 
     S_LOAD_RESPONSE --> S_FETCH_REQUEST : mem_rsp_valid && mem_rsp_ready (retire or redirect)
@@ -26,11 +27,14 @@ stateDiagram-v2
     S_SWAP_WRITE_REQUEST --> S_SWAP_WRITE_RESPONSE : mem_req_ready
     S_SWAP_WRITE_RESPONSE --> S_FETCH_REQUEST : mem_rsp_valid && mem_rsp_ready (retire or redirect)
 
+    S_BACK_RESPONSE --> S_FETCH_REQUEST : mem_rsp_valid && mem_rsp_ready (retire or redirect)
+
     S_COMMIT --> S_VECTOR_REQUEST : exception pending
     S_LOAD_RESPONSE --> S_VECTOR_REQUEST : exception pending
     S_SAVE_RESPONSE --> S_VECTOR_REQUEST : exception pending
     S_SWAP_READ_RESPONSE --> S_VECTOR_REQUEST : exception pending
     S_SWAP_WRITE_RESPONSE --> S_VECTOR_REQUEST : exception pending
+    S_BACK_RESPONSE --> S_VECTOR_REQUEST : exception pending
 
     S_VECTOR_REQUEST --> S_VECTOR_RESPONSE : mem_req_ready
     S_VECTOR_RESPONSE --> S_FETCH_REQUEST : handler read OK

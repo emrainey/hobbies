@@ -90,6 +90,7 @@ module processor
         S_SWAP_READ_RESPONSE,
         S_SWAP_WRITE_REQUEST,
         S_SWAP_WRITE_RESPONSE,
+        S_BACK_RESPONSE,
         S_VECTOR_REQUEST,
         S_VECTOR_RESPONSE,
         S_HALTED
@@ -142,7 +143,8 @@ module processor
     // case below is what makes a milestone land.
     function automatic logic is_implemented(op_e code);
         case (code)
-            OP_NONE, OP_COPY, OP_MOVE, OP_MOVE_IMMEDIATE, OP_ZERO, OP_LOAD, OP_SAVE, OP_HALT: return 1'b1;
+            OP_NONE, OP_COPY, OP_MOVE, OP_MOVE_IMMEDIATE, OP_ZERO, OP_LOAD, OP_SAVE, OP_HALT,
+            OP_LEAP, OP_BACK: return 1'b1;
             OP_SWAP, OP_COMPLEMENT, OP_RSH, OP_ASR, OP_LSH, OP_ROTATE, OP_COUNT1S, OP_COUNT_L0S,
             OP_NOT, OP_SET_BIT, OP_CLEAR_BIT, OP_TOGGLE_BIT, OP_REVERSE: return 1'b1;
             OP_AND, OP_OR, OP_XOR: return 1'b1;
@@ -189,12 +191,13 @@ module processor
         mem_req_valid = !reset && ( (state == S_BOOT_REQUEST) || (state == S_FETCH_REQUEST) ||
                                     (state == S_VECTOR_REQUEST) ||
                                     (state == S_COMMIT && commit_valid &&
-                                     (decoded_op == OP_LOAD || decoded_op == OP_SAVE || decoded_op == OP_SWAP)) ||
+                                     (decoded_op == OP_LOAD || decoded_op == OP_SAVE || decoded_op == OP_SWAP ||
+                                      (decoded_op == OP_BACK && view.back.zero))) ||
                                     (state == S_SWAP_WRITE_REQUEST) );
         mem_rsp_ready = !reset && ((state == S_BOOT_RESPONSE) || (state == S_FETCH_RESPONSE) ||
                                    (state == S_VECTOR_RESPONSE) || state == S_LOAD_RESPONSE ||
                                    state == S_SAVE_RESPONSE || state == S_SWAP_READ_RESPONSE ||
-                                   state == S_SWAP_WRITE_RESPONSE);
+                                   state == S_SWAP_WRITE_RESPONSE || state == S_BACK_RESPONSE);
         mem_write = 1'b0;
         mem_wdata = '0;
         mem_wstrb = '0;
@@ -235,6 +238,8 @@ module processor
             end else begin
                 mem_addr = load_address;
             end
+        end else if (state == S_COMMIT && commit_valid && decoded_op == OP_BACK && view.back.zero) begin
+            mem_addr = special[SPECIAL_VECTOR_TABLE_ADDRESS] + 32'd64;
         end else if (state == S_SWAP_WRITE_REQUEST) begin
             mem_addr = swap_address_reg;
         end else begin
@@ -382,6 +387,56 @@ module processor
         endcase
     end
 
+    // Leap helpers (register form). Immediate form is handled separately.
+    logic leap_is_immediate;
+    assign leap_is_immediate = view.leap_immediate.immediate;
+
+    logic signed [63:0] leap_byte_offset;
+    assign leap_byte_offset = $signed({{54{view.leap.imm[9]}}, view.leap.imm}) * 64'sd4;
+
+    word_t leap_imm_target;
+    assign leap_imm_target = {view.leap_immediate.imm, 2'b00};
+
+    word_t leap_base;
+    assign leap_base = s_read_data[0];
+
+    logic leap_overflow;
+    always_comb begin
+        leap_overflow = 1'b0;
+        if (decoded_op == OP_LEAP && !leap_is_immediate && cond_pass) begin
+            if (leap_byte_offset > 0) begin
+                if (leap_base > 32'hFFFFFFFF - leap_byte_offset[31:0])
+                    leap_overflow = 1'b1;
+            end else if (leap_byte_offset < 0) begin
+                if (leap_base < (32'd0 - leap_byte_offset[31:0]))
+                    leap_overflow = 1'b1;
+            end
+        end
+    end
+
+    word_t leap_target;
+    always_comb begin
+        if (leap_byte_offset > 0)
+            leap_target = leap_base + leap_byte_offset[31:0];
+        else if (leap_byte_offset < 0)
+            leap_target = leap_base - (32'd0 - leap_byte_offset[31:0]);
+        else
+            leap_target = leap_base;
+    end
+
+    logic control_transferred;
+    always_comb begin
+        control_transferred = 1'b0;
+        if (decoded_op == OP_LEAP) begin
+            if (leap_is_immediate)
+                control_transferred = 1'b1;
+            else if (cond_pass)
+                control_transferred = 1'b1;
+        end else if (decoded_op == OP_BACK) begin
+            control_transferred = 1'b1;
+        end
+    end
+
     // An instruction fault: an undefined opcode or an invalid operation. Nothing is
     // written, and the exception below redirects the program address like Cycle().
     logic instruction_fault;
@@ -403,6 +458,9 @@ module processor
         end
         if (instruction_fault) begin
             exception_next[EXCEPTION_INSTRUCTION_FAULT] = 1'b1;
+        end
+        if (decoded_op == OP_LEAP && !leap_is_immediate && cond_pass && leap_overflow) begin
+            exception_next[EXCEPTION_BUS_FAULT] = 1'b1;
         end
     end
 
@@ -431,6 +489,11 @@ module processor
             e_read_control  = EVALUATION_CONTROL_BOTH;
             e_read_index[0] = view.move.eval;
             e_read_index[1] = view.move.mask;
+        end
+        if (state == S_DECODE && decoded_op == OP_LEAP && !view.leap_immediate.immediate && view.leap.cond) begin
+            e_read_control  = EVALUATION_CONTROL_BOTH;
+            e_read_index[0] = view.leap.eval;
+            e_read_index[1] = view.leap.mask;
         end
 
         // The ALU operands are read in S_DECODE and latched.
@@ -470,6 +533,10 @@ module processor
                 s_read_control  = SCRATCH_CONTROL_BOTH;
                 s_read_index[0] = view.binary.src1;
                 s_read_index[1] = view.binary.src2;
+            end
+            if (decoded_op == OP_LEAP && !leap_is_immediate) begin
+                s_read_control  = SCRATCH_CONTROL_FIRST;
+                s_read_index[0] = view.leap.dst;
             end
         end
 
@@ -678,7 +745,19 @@ module processor
                 S_DECODE: begin
                     // The operand read stage: the evaluation file is read for the
                     // condition and the verdict is held for S_COMMIT.
-                    cond_pass <= !view.move.cond || ((e_read_data[0] & e_read_data[1]) != 8'd0);
+                    if (decoded_op == OP_LEAP && !view.leap_immediate.immediate) begin
+                        if (view.leap.cond)
+                            cond_pass <= ((e_read_data[0] & e_read_data[1]) != 8'd0);
+                        else
+                            cond_pass <= 1'b1;
+                    end else if (decoded_op == OP_MOVE) begin
+                        if (view.move.cond)
+                            cond_pass <= ((e_read_data[0] & e_read_data[1]) != 8'd0);
+                        else
+                            cond_pass <= 1'b1;
+                    end else begin
+                        cond_pass <= 1'b1;
+                    end
                     op_a      <= s_read_data[0];
                     op_b      <= s_read_data[1];
                     state     <= S_COMMIT;
@@ -695,6 +774,13 @@ module processor
                         end else if (mem_req_ready) begin
                             state <= decoded_op == OP_LOAD ? S_LOAD_RESPONSE : S_SAVE_RESPONSE;
                         end
+                    end else if (commit_valid && decoded_op == OP_BACK && view.back.zero) begin
+                        special[SPECIAL_PROGRAM_ADDRESS] <= special[SPECIAL_RETURN_ADDRESS];
+                        if (mem_req_ready) begin
+                            state <= S_BACK_RESPONSE;
+                        end else begin
+                            state <= S_COMMIT;
+                        end
                     end else begin
                         state <= S_FETCH_REQUEST;
 
@@ -708,6 +794,21 @@ module processor
                                 halted <= 1'b1;
                                 state  <= S_HALTED;
                             end
+                            if (decoded_op == OP_LEAP) begin
+                                if (leap_is_immediate) begin
+                                    if (view.leap_immediate.save)
+                                        special[SPECIAL_RETURN_ADDRESS] <= special[SPECIAL_PROGRAM_ADDRESS] + 32'd4;
+                                    special[SPECIAL_PROGRAM_ADDRESS] <= leap_imm_target;
+                                end else if (cond_pass) begin
+                                    if (view.leap.save)
+                                        special[SPECIAL_RETURN_ADDRESS] <= special[SPECIAL_PROGRAM_ADDRESS] + 32'd4;
+                                    if (!leap_overflow)
+                                        special[SPECIAL_PROGRAM_ADDRESS] <= leap_target;
+                                end
+                            end
+                            if (decoded_op == OP_BACK && !view.back.zero) begin
+                                special[SPECIAL_PROGRAM_ADDRESS] <= special[SPECIAL_RETURN_ADDRESS];
+                            end
                         end else begin
                             unsupported <= 1'b1;
                         end
@@ -717,11 +818,15 @@ module processor
 
                         if (exception_next != '0) begin
                             // Any pending exception sends the next fetch through the vector table.
-                            vector_index <= VECTOR_INSTRUCTION_FAULT_HANDLER;
+                            vector_index <= exception_next[EXCEPTION_BUS_FAULT]
+                                                ? 4'd7
+                                                : VECTOR_INSTRUCTION_FAULT_HANDLER;
                             state        <= S_VECTOR_REQUEST;
-                        end else begin
+                        end else if (!control_transferred) begin
                             special[SPECIAL_PROGRAM_ADDRESS] <= special[SPECIAL_PROGRAM_ADDRESS] + 32'd4;
                             retire                           <= 1'b1;
+                        end else begin
+                            retire <= 1'b1;
                         end
                     end
                 end
@@ -801,6 +906,23 @@ module processor
                             special[SPECIAL_PROGRAM_ADDRESS] <= special[SPECIAL_PROGRAM_ADDRESS] + 32'd4;
                             retire                           <= 1'b1;
                             state                            <= S_FETCH_REQUEST;
+                        end
+                    end
+                end
+
+                S_BACK_RESPONSE: begin
+                    if (mem_rsp_valid && mem_rsp_ready) begin
+                        special[SPECIAL_PERFORMANCE_COUNTER] <= special[SPECIAL_PERFORMANCE_COUNTER] + 32'd1;
+                        special[SPECIAL_EXCEPTION]           <= exception_next;
+                        if (exception_next != '0) begin
+                            vector_index <= exception_next[EXCEPTION_BUS_FAULT]
+                                                ? 4'd7
+                                                : VECTOR_INSTRUCTION_FAULT_HANDLER;
+                            state        <= S_VECTOR_REQUEST;
+                        end else begin
+                            special[SPECIAL_RETURN_ADDRESS] <= mem_rsp_data;
+                            retire                          <= 1'b1;
+                            state                           <= S_FETCH_REQUEST;
                         end
                     end
                 end

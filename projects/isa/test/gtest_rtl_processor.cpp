@@ -848,10 +848,10 @@ TEST_F(RtlProcessorTest, InvalidLoadSizeFaultsBeforeIssuingMemoryRequest) {
 }
 
 TEST_F(RtlProcessorTest, OpcodesBeyondThisMilestoneAreFlagged) {
-    // 0x18 is a defined opcode (`leap`) that M1 does not execute. The RTL retires it
-    // as a noop and says so; the C++ model performs the leap, so the state is
-    // expected to differ and is not compared.
-    ASSERT_TRUE(oracle.Poke(isa::Address{kCodeAddress}, 0x00000018U));
+    // 0x20 is a defined opcode (`grow`) that this milestone does not execute. The RTL
+    // retires it as a noop and says so; the C++ model performs the grow, so the state
+    // is expected to differ and is not compared.
+    ASSERT_TRUE(oracle.Poke(isa::Address{kCodeAddress}, 0x00000020U));
     oracle.Cycle();
     ASSERT_TRUE(RunUntilRetire());
     EXPECT_TRUE(dut.unsupported) << "defined but unimplemented opcode";

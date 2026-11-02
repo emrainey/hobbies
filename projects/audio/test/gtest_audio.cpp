@@ -99,7 +99,8 @@ TEST(AudioTest, WhenDialingAPhoneNumberUsingFunction) {
 TEST(AudioTest, WhenSavingStereoPCM) {
     basal::precision sample_rate = audio::specification::cd_sample_rate;
     iso::seconds period = 3.0_sec;
-    audio::StereoPCM seq = generate(sample_rate, period, ToFrequency(audio::Tone::A, 4), ToFrequency(audio::Tone::C, 4));
+    audio::StereoPCM seq
+        = generate(sample_rate, period, ToFrequency(audio::Tone::A, 4), ToFrequency(audio::Tone::C, 4));
     EXPECT_TRUE(seq.save("stereo_a_and_c.wav"));
 }
 
@@ -107,8 +108,10 @@ TEST(AudioTest, WhenSavingMixingStereoPCM) {
     basal::precision sample_rate = audio::specification::cd_sample_rate;
     iso::seconds period = 3.0_sec;
     size_t number_of_samples = static_cast<size_t>(period.value * sample_rate);
-    audio::StereoPCM seq0 = generate(sample_rate, period, ToFrequency(audio::Tone::A, 4), ToFrequency(audio::Tone::E, 4));
-    audio::StereoPCM seq1 = generate(sample_rate, period, ToFrequency(audio::Tone::C, 4), ToFrequency(audio::Tone::C, 5));
+    audio::StereoPCM seq0
+        = generate(sample_rate, period, ToFrequency(audio::Tone::A, 4), ToFrequency(audio::Tone::E, 4));
+    audio::StereoPCM seq1
+        = generate(sample_rate, period, ToFrequency(audio::Tone::C, 4), ToFrequency(audio::Tone::C, 5));
     audio::StereoPCM seq2 = Mixer<audio::StereoPCM>::even(seq0, seq1);
     EXPECT_TRUE(seq2.save("stereo_ae_and_cc.wav"));
 }
@@ -116,8 +119,10 @@ TEST(AudioTest, WhenSavingMixingStereoPCM) {
 TEST(AudioTest, WhenSavingJoinedStereoPCM) {
     basal::precision sample_rate = audio::specification::cd_sample_rate;
     iso::seconds period = 3.0_sec;
-    audio::StereoPCM seq0 = generate(sample_rate, period, ToFrequency(audio::Tone::A, 4), ToFrequency(audio::Tone::C, 4));
-    audio::StereoPCM seq1 = generate(sample_rate, period, ToFrequency(audio::Tone::E, 4), ToFrequency(audio::Tone::C, 5));
+    audio::StereoPCM seq0
+        = generate(sample_rate, period, ToFrequency(audio::Tone::A, 4), ToFrequency(audio::Tone::C, 4));
+    audio::StereoPCM seq1
+        = generate(sample_rate, period, ToFrequency(audio::Tone::E, 4), ToFrequency(audio::Tone::C, 5));
     seq0 += seq1;
     EXPECT_TRUE(seq0.save("stereo_ac_then_ec.wav"));
 }
@@ -329,30 +334,14 @@ TEST(AudioTest, WhenComputingFFTonA440) {
 TEST(AudioTest, WhenConstructingTracksWrong) {
     audio::Track track;
     audio::Measure measure = {
-            .tempo = 120,
-            .signature = {
-                .beats_per_measure = 4,
-                .beat_value = audio::Duration::Quarter
-            },
-            .notes = {
-                {
-                    .pitch = {audio::Tone::A, 4},
-                    .duration = audio::Duration::Quarter,
-                    .volume = audio::Volume::MezzoForte
-                },
-                {
-                    .pitch = {audio::Tone::B, 4},
-                    .duration = audio::Duration::Quarter,
-                    .volume = audio::Volume::MezzoForte
-                },
-                {
-                    .pitch = {audio::Tone::C, 4},
-                    .duration = audio::Duration::Quarter,
-                    .volume = audio::Volume::MezzoForte
-                }
-                // no 4th quarter note
-            }
-    };
+        .tempo = 120,
+        .signature = {.beats_per_measure = 4, .beat_value = audio::Duration::Quarter},
+        .notes = {
+            {.pitch = {audio::Tone::A, 4}, .duration = audio::Duration::Quarter, .volume = audio::Volume::MezzoForte},
+            {.pitch = {audio::Tone::B, 4}, .duration = audio::Duration::Quarter, .volume = audio::Volume::MezzoForte},
+            {.pitch = {audio::Tone::C, 4}, .duration = audio::Duration::Quarter, .volume = audio::Volume::MezzoForte}
+            // no 4th quarter note
+        }};
     track.measures.push_back(measure);
     ASSERT_FALSE(verify(track.measures[0]));
 }
@@ -360,34 +349,14 @@ TEST(AudioTest, WhenConstructingTracksWrong) {
 TEST(AudioTest, WhenConstructingTracks) {
     audio::Track track;
     audio::Measure measure = {
-            .tempo = 120,
-            .signature = {
-                .beats_per_measure = 4,
-                .beat_value = audio::Duration::Quarter
-            },
-            .notes = {
-                {
-                    .pitch = {audio::Tone::A, 4},
-                    .duration = audio::Duration::Quarter,
-                    .volume = audio::Volume::MezzoForte
-                },
-                {
-                    .pitch = {audio::Tone::B, 4},
-                    .duration = audio::Duration::Quarter,
-                    .volume = audio::Volume::MezzoForte
-                },
-                {
-                    .pitch = {audio::Tone::C, 4},
-                    .duration = audio::Duration::Quarter,
-                    .volume = audio::Volume::MezzoForte
-                },
-                {
-                    .pitch = {audio::Tone::D, 4},
-                    .duration = audio::Duration::Quarter,
-                    .volume = audio::Volume::MezzoForte
-                },
-            }
-    };
+        .tempo = 120,
+        .signature = {.beats_per_measure = 4, .beat_value = audio::Duration::Quarter},
+        .notes = {
+            {.pitch = {audio::Tone::A, 4}, .duration = audio::Duration::Quarter, .volume = audio::Volume::MezzoForte},
+            {.pitch = {audio::Tone::B, 4}, .duration = audio::Duration::Quarter, .volume = audio::Volume::MezzoForte},
+            {.pitch = {audio::Tone::C, 4}, .duration = audio::Duration::Quarter, .volume = audio::Volume::MezzoForte},
+            {.pitch = {audio::Tone::D, 4}, .duration = audio::Duration::Quarter, .volume = audio::Volume::MezzoForte},
+        }};
     track.measures.push_back(measure);
     ASSERT_TRUE(verify(track.measures[0]));
     ASSERT_TRUE(audio::generate(audio::specification::cd_sample_rate, track).save("track.wav"));
@@ -397,126 +366,63 @@ TEST(AudioTest, WhenConstructingTracksWithMultipleMeasures) {
     audio::Track track;
     audio::Measure measure1 = {
         .tempo = 120,
-        .signature = {
-            .beats_per_measure = 4,
-            .beat_value = audio::Duration::Quarter
-        },
-        .notes = {
-            {
-                .pitch = {audio::Tone::C, 4},
-                .duration = audio::Duration::Quarter,
-                .volume = audio::Volume::MezzoForte
-            },
-            {
-                .pitch = {audio::Tone::D, 4},
-                .duration = audio::Duration::Quarter,
-                .volume = audio::Volume::MezzoForte
-            },
-            {
-                .pitch = {audio::Tone::E, 4},
-                .duration = audio::Duration::Quarter,
-                .volume = audio::Volume::MezzoForte
-            },
-            {
-                .pitch = {audio::Tone::C, 4},
-                .duration = audio::Duration::Quarter,
-                .volume = audio::Volume::MezzoForte
-            }
-        }
-    };
-    audio::Measure measure2 = {
-        .tempo = 120,
-        .signature = {
-            .beats_per_measure = 4,
-            .beat_value = audio::Duration::Quarter
-        },
-        .notes = {
-            {
-                .pitch = {audio::Tone::E, 4},
-                .duration = audio::Duration::Quarter,
-                .volume = audio::Volume::Piano,
-                .attack = pop,
-            },
-            {
-                .pitch = {audio::Tone::F, 4},
-                .duration = audio::Duration::Quarter,
-                .volume = audio::Volume::Piano,
-                .attack = pop,
-            },
-            {
-                .pitch = {audio::Tone::G, 4},
-                .duration = audio::Duration::Half,
-                .volume = audio::Volume::Piano,
-                .attack = pop,
-            }
-        }
-    };
-    audio::Measure measure3 = {
-        .tempo = 120,
-        .signature = {
-            .beats_per_measure = 4,
-            .beat_value = audio::Duration::Quarter
-        },
-        .notes = {
-            {
-                .pitch = {audio::Tone::G, 4},
-                .duration = audio::Duration::Eighth,
-                .volume = audio::Volume::Piano,
-                .attack = pop,
-            },
-            {
-                .pitch = {audio::Tone::A, 4},
-                .duration = audio::Duration::Eighth,
-                .volume = audio::Volume::Piano,
-                .attack = pop,
-            },
-            {
-                .pitch = {audio::Tone::G, 4},
-                .duration = audio::Duration::Eighth,
-                .volume = audio::Volume::Piano,
-                .attack = pop,
-            },
-            {
-                .pitch = {audio::Tone::F, 4},
-                .duration = audio::Duration::Eighth,
-                .volume = audio::Volume::Piano
-            },
-            {
-                .pitch = {audio::Tone::E, 4},
-                .duration = audio::Duration::Quarter,
-                .volume = audio::Volume::Piano
-            },
-            {
-                .pitch = {audio::Tone::C, 4},
-                .duration = audio::Duration::Quarter,
-                .volume = audio::Volume::Piano
-            }
-        }
-    };
+        .signature = {.beats_per_measure = 4, .beat_value = audio::Duration::Quarter},
+        .notes
+        = {{.pitch = {audio::Tone::C, 4}, .duration = audio::Duration::Quarter, .volume = audio::Volume::MezzoForte},
+           {.pitch = {audio::Tone::D, 4}, .duration = audio::Duration::Quarter, .volume = audio::Volume::MezzoForte},
+           {.pitch = {audio::Tone::E, 4}, .duration = audio::Duration::Quarter, .volume = audio::Volume::MezzoForte},
+           {.pitch = {audio::Tone::C, 4}, .duration = audio::Duration::Quarter, .volume = audio::Volume::MezzoForte}}};
+    audio::Measure measure2 = {.tempo = 120,
+                               .signature = {.beats_per_measure = 4, .beat_value = audio::Duration::Quarter},
+                               .notes = {{
+                                             .pitch = {audio::Tone::E, 4},
+                                             .duration = audio::Duration::Quarter,
+                                             .volume = audio::Volume::Piano,
+                                             .attack = pop,
+                                         },
+                                         {
+                                             .pitch = {audio::Tone::F, 4},
+                                             .duration = audio::Duration::Quarter,
+                                             .volume = audio::Volume::Piano,
+                                             .attack = pop,
+                                         },
+                                         {
+                                             .pitch = {audio::Tone::G, 4},
+                                             .duration = audio::Duration::Half,
+                                             .volume = audio::Volume::Piano,
+                                             .attack = pop,
+                                         }}};
+    audio::Measure measure3
+        = {.tempo = 120,
+           .signature = {.beats_per_measure = 4, .beat_value = audio::Duration::Quarter},
+           .notes
+           = {{
+                  .pitch = {audio::Tone::G, 4},
+                  .duration = audio::Duration::Eighth,
+                  .volume = audio::Volume::Piano,
+                  .attack = pop,
+              },
+              {
+                  .pitch = {audio::Tone::A, 4},
+                  .duration = audio::Duration::Eighth,
+                  .volume = audio::Volume::Piano,
+                  .attack = pop,
+              },
+              {
+                  .pitch = {audio::Tone::G, 4},
+                  .duration = audio::Duration::Eighth,
+                  .volume = audio::Volume::Piano,
+                  .attack = pop,
+              },
+              {.pitch = {audio::Tone::F, 4}, .duration = audio::Duration::Eighth, .volume = audio::Volume::Piano},
+              {.pitch = {audio::Tone::E, 4}, .duration = audio::Duration::Quarter, .volume = audio::Volume::Piano},
+              {.pitch = {audio::Tone::C, 4}, .duration = audio::Duration::Quarter, .volume = audio::Volume::Piano}}};
     audio::Measure measure4 = {
         .tempo = 120,
-        .signature = {
-            .beats_per_measure = 4,
-            .beat_value = audio::Duration::Quarter
-        },
-        .notes = {
-            {
-                .pitch = {audio::Tone::D, 4},
-                .duration = audio::Duration::Quarter,
-                .volume = audio::Volume::Piano
-            },
-            {
-                .pitch = {audio::Tone::G, 4},
-                .duration = audio::Duration::Quarter,
-                .volume = audio::Volume::Piano
-            },
-            {
-                .pitch = {audio::Tone::C, 4},
-                .duration = audio::Duration::Half,
-                .volume = audio::Volume::Piano
-            }
-        }
-    };
+        .signature = {.beats_per_measure = 4, .beat_value = audio::Duration::Quarter},
+        .notes = {{.pitch = {audio::Tone::D, 4}, .duration = audio::Duration::Quarter, .volume = audio::Volume::Piano},
+                  {.pitch = {audio::Tone::G, 4}, .duration = audio::Duration::Quarter, .volume = audio::Volume::Piano},
+                  {.pitch = {audio::Tone::C, 4}, .duration = audio::Duration::Half, .volume = audio::Volume::Piano}}};
     track.measures.push_back(measure1);
     track.measures.push_back(measure1);
     track.measures.push_back(measure2);

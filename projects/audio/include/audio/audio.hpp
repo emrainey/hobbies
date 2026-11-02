@@ -548,8 +548,10 @@ namespace midi {
 
 union Status {
     Status() = default;
-    Status(uint8_t raw) : raw(raw) {}
-    Status(uint8_t channel, uint8_t value) : bits{channel, value, 1U} {}
+    Status(uint8_t raw) : raw(raw) {
+    }
+    Status(uint8_t channel, uint8_t value) : bits{channel, value, 1U} {
+    }
     struct {
         uint8_t channel : 4;
         uint8_t value : 3;
@@ -557,18 +559,23 @@ union Status {
     } bits;
     uint8_t raw;
 
-    constexpr explicit operator uint8_t() const noexcept { return raw; }
+    constexpr explicit operator uint8_t() const noexcept {
+        return raw;
+    }
 };
 
 union Data {
     Data() = default;
-    Data(uint8_t value) : bits{value, 0U} {}
+    Data(uint8_t value) : bits{value, 0U} {
+    }
     struct {
         uint8_t value : 7;
         uint8_t status : 1;
     } bits;
     uint8_t raw;
-    constexpr explicit operator uint8_t() const noexcept { return raw; }
+    constexpr explicit operator uint8_t() const noexcept {
+        return raw;
+    }
 };
 
 struct Message {
@@ -580,6 +587,6 @@ struct Message {
 /// Converts a raw byte from a MIDI stream into either a Status or a Message
 std::variant<Status, Data> parse(uint8_t raw);
 
-} // namespace midi
+}  // namespace midi
 
 }  // namespace audio

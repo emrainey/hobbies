@@ -93,6 +93,7 @@ module processor
         S_BACK_RESPONSE,
         S_PUSH_PULL_REQUEST,
         S_PUSH_PULL_RESPONSE,
+        S_CALL_RESPONSE,
         S_VECTOR_REQUEST,
         S_VECTOR_RESPONSE,
         S_HALTED
@@ -164,7 +165,7 @@ module processor
     function automatic logic is_implemented(op_e code);
         case (code)
             OP_NONE, OP_COPY, OP_MOVE, OP_MOVE_IMMEDIATE, OP_ZERO, OP_LOAD, OP_SAVE, OP_HALT,
-            OP_LEAP, OP_BACK, OP_GROW, OP_FALL, OP_PUSH, OP_PULL: return 1'b1;
+            OP_LEAP, OP_BACK, OP_GROW, OP_FALL, OP_PUSH, OP_PULL, OP_CALL, OP_TRIP: return 1'b1;
             OP_SWAP, OP_COMPLEMENT, OP_RSH, OP_ASR, OP_LSH, OP_ROTATE, OP_COUNT1S, OP_COUNT_L0S,
             OP_NOT, OP_SET_BIT, OP_CLEAR_BIT, OP_TOGGLE_BIT, OP_REVERSE: return 1'b1;
             OP_AND, OP_OR, OP_XOR, OP_COMPARE: return 1'b1;
@@ -214,12 +215,13 @@ module processor
                                      (decoded_op == OP_LOAD || decoded_op == OP_SAVE || decoded_op == OP_SWAP ||
                                       (decoded_op == OP_BACK && view.back.zero))) ||
                                     (state == S_SWAP_WRITE_REQUEST) ||
-                                    (state == S_PUSH_PULL_REQUEST) );
+                                    (state == S_PUSH_PULL_REQUEST) ||
+                                    (state == S_COMMIT && commit_valid && decoded_op == OP_CALL && cond_pass) );
         mem_rsp_ready = !reset && ((state == S_BOOT_RESPONSE) || (state == S_FETCH_RESPONSE) ||
                                    (state == S_VECTOR_RESPONSE) || state == S_LOAD_RESPONSE ||
                                    state == S_SAVE_RESPONSE || state == S_SWAP_READ_RESPONSE ||
                                    state == S_SWAP_WRITE_RESPONSE || state == S_BACK_RESPONSE ||
-                                   state == S_PUSH_PULL_RESPONSE);
+                                   state == S_PUSH_PULL_RESPONSE || state == S_CALL_RESPONSE);
         mem_write = 1'b0;
         mem_wdata = '0;
         mem_wstrb = '0;
@@ -272,6 +274,8 @@ module processor
             mem_addr = special[SPECIAL_VECTOR_TABLE_ADDRESS] + 32'd64;
         end else if (state == S_PUSH_PULL_REQUEST) begin
             mem_addr = push_pull_address;
+        end else if (state == S_COMMIT && commit_valid && decoded_op == OP_CALL && cond_pass) begin
+            mem_addr = special[SPECIAL_VECTOR_TABLE_ADDRESS] + 32'd48;
         end else if (state == S_SWAP_WRITE_REQUEST) begin
             mem_addr = swap_address_reg;
         end else begin
@@ -555,6 +559,25 @@ module processor
         if ((decoded_op == OP_PUSH || decoded_op == OP_PULL) && push_pull_bus_fault) begin
             exception_next[EXCEPTION_BUS_FAULT] = 1'b1;
         end
+        if (decoded_op == OP_TRIP && cond_pass) begin
+            exception_next[EXCEPTION_TRIPPED] = 1'b1;
+        end
+    end
+
+    logic [3:0] exception_vector_index;
+    always_comb begin
+        if (exception_next[EXCEPTION_BUS_FAULT])
+            exception_vector_index = 4'd7;
+        else if (exception_next[EXCEPTION_INSTRUCTION_FAULT])
+            exception_vector_index = 4'd8;
+        else if (exception_next[EXCEPTION_ARITHMETIC_FAULT])
+            exception_vector_index = 4'd9;
+        else if (exception_next[EXCEPTION_STACK_FAULT])
+            exception_vector_index = 4'd10;
+        else if (exception_next[EXCEPTION_TRIPPED])
+            exception_vector_index = 4'd11;
+        else
+            exception_vector_index = VECTOR_INSTRUCTION_FAULT_HANDLER;
     end
 
     logic commit_valid;
@@ -589,6 +612,11 @@ module processor
             e_read_index[1] = view.leap.mask;
         end
         if (state == S_DECODE && (decoded_op == OP_GROW || decoded_op == OP_FALL) && view.frame.cond) begin
+            e_read_control  = EVALUATION_CONTROL_BOTH;
+            e_read_index[0] = view.frame.eval;
+            e_read_index[1] = view.frame.mask;
+        end
+        if (state == S_DECODE && (decoded_op == OP_CALL || decoded_op == OP_TRIP) && view.frame.cond) begin
             e_read_control  = EVALUATION_CONTROL_BOTH;
             e_read_index[0] = view.frame.eval;
             e_read_index[1] = view.frame.mask;
@@ -885,6 +913,11 @@ module processor
                             cond_pass <= ((e_read_data[0] & e_read_data[1]) != 8'd0);
                         else
                             cond_pass <= 1'b1;
+                    end else if (decoded_op == OP_CALL || decoded_op == OP_TRIP) begin
+                        if (view.frame.cond)
+                            cond_pass <= ((e_read_data[0] & e_read_data[1]) != 8'd0);
+                        else
+                            cond_pass <= 1'b1;
                     end else begin
                         cond_pass <= 1'b1;
                     end
@@ -921,6 +954,13 @@ module processor
                         push_pull_end       <= push_pull_end64[31:0];
                         push_pull_bus_fault <= 1'b0;
                         state               <= S_PUSH_PULL_REQUEST;
+                    end else if (commit_valid && decoded_op == OP_CALL && cond_pass) begin
+                        special[SPECIAL_RETURN_ADDRESS] <= special[SPECIAL_PROGRAM_ADDRESS] + 32'd4;
+                        if (mem_req_ready) begin
+                            state <= S_CALL_RESPONSE;
+                        end else begin
+                            state <= S_COMMIT;
+                        end
                     end else begin
                         state <= S_FETCH_REQUEST;
 
@@ -957,6 +997,11 @@ module processor
                                         special[SPECIAL_STACK_CURRENT] <= special[SPECIAL_STACK_CURRENT] + (32'(view.frame.imm) << 2);
                                 end
                             end
+
+                            if (decoded_op == OP_TRIP && cond_pass) begin
+                                special[SPECIAL_NUMERAL] <= (special[SPECIAL_NUMERAL] & 32'h0000FFFF) |
+                                                             (32'(view.trip.imm) << 16);
+                            end
                         end else begin
                             unsupported <= 1'b1;
                         end
@@ -966,9 +1011,7 @@ module processor
 
                         if (exception_next != '0) begin
                             // Any pending exception sends the next fetch through the vector table.
-                            vector_index <= exception_next[EXCEPTION_BUS_FAULT]
-                                                ? 4'd7
-                                                : VECTOR_INSTRUCTION_FAULT_HANDLER;
+                            vector_index <= exception_vector_index;
                             state        <= S_VECTOR_REQUEST;
                         end else if (!control_transferred) begin
                             special[SPECIAL_PROGRAM_ADDRESS] <= special[SPECIAL_PROGRAM_ADDRESS] + 32'd4;
@@ -984,9 +1027,7 @@ module processor
                         special[SPECIAL_PERFORMANCE_COUNTER] <= special[SPECIAL_PERFORMANCE_COUNTER] + 32'd1;
                         special[SPECIAL_EXCEPTION]           <= exception_next;
                         if (exception_next != '0) begin
-                            vector_index <= exception_next[EXCEPTION_BUS_FAULT]
-                                                ? 4'd7
-                                                : VECTOR_INSTRUCTION_FAULT_HANDLER;
+                            vector_index <= exception_vector_index;
                             state        <= S_VECTOR_REQUEST;
                         end else begin
                             special[SPECIAL_PROGRAM_ADDRESS] <= special[SPECIAL_PROGRAM_ADDRESS] + 32'd4;
@@ -1001,9 +1042,7 @@ module processor
                         special[SPECIAL_PERFORMANCE_COUNTER] <= special[SPECIAL_PERFORMANCE_COUNTER] + 32'd1;
                         special[SPECIAL_EXCEPTION]           <= exception_next;
                         if (exception_next != '0) begin
-                            vector_index <= exception_next[EXCEPTION_BUS_FAULT]
-                                                ? 4'd7
-                                                : VECTOR_INSTRUCTION_FAULT_HANDLER;
+                            vector_index <= exception_vector_index;
                             state        <= S_VECTOR_REQUEST;
                         end else begin
                             special[SPECIAL_PROGRAM_ADDRESS] <= special[SPECIAL_PROGRAM_ADDRESS] + 32'd4;
@@ -1019,9 +1058,7 @@ module processor
                             special[SPECIAL_PERFORMANCE_COUNTER] <= special[SPECIAL_PERFORMANCE_COUNTER] + 32'd1;
                             special[SPECIAL_EXCEPTION]           <= exception_next;
                             if (exception_next != '0) begin
-                                vector_index <= exception_next[EXCEPTION_BUS_FAULT]
-                                                    ? 4'd7
-                                                    : VECTOR_INSTRUCTION_FAULT_HANDLER;
+                                vector_index <= exception_vector_index;
                                 state        <= S_VECTOR_REQUEST;
                             end else begin
                                 special[SPECIAL_PROGRAM_ADDRESS] <= special[SPECIAL_PROGRAM_ADDRESS] + 32'd4;
@@ -1046,9 +1083,7 @@ module processor
                         special[SPECIAL_PERFORMANCE_COUNTER] <= special[SPECIAL_PERFORMANCE_COUNTER] + 32'd1;
                         special[SPECIAL_EXCEPTION]           <= exception_next;
                         if (exception_next != '0) begin
-                            vector_index <= exception_next[EXCEPTION_BUS_FAULT]
-                                                ? 4'd7
-                                                : VECTOR_INSTRUCTION_FAULT_HANDLER;
+                            vector_index <= exception_vector_index;
                             state        <= S_VECTOR_REQUEST;
                         end else begin
                             special[SPECIAL_PROGRAM_ADDRESS] <= special[SPECIAL_PROGRAM_ADDRESS] + 32'd4;
@@ -1063,9 +1098,7 @@ module processor
                         special[SPECIAL_PERFORMANCE_COUNTER] <= special[SPECIAL_PERFORMANCE_COUNTER] + 32'd1;
                         special[SPECIAL_EXCEPTION]           <= exception_next;
                         if (exception_next != '0) begin
-                            vector_index <= exception_next[EXCEPTION_BUS_FAULT]
-                                                ? 4'd7
-                                                : VECTOR_INSTRUCTION_FAULT_HANDLER;
+                            vector_index <= exception_vector_index;
                             state        <= S_VECTOR_REQUEST;
                         end else begin
                             special[SPECIAL_RETURN_ADDRESS] <= mem_rsp_data;
@@ -1093,9 +1126,7 @@ module processor
                             special[SPECIAL_PERFORMANCE_COUNTER] <= special[SPECIAL_PERFORMANCE_COUNTER] + 32'd1;
                             special[SPECIAL_EXCEPTION]           <= exception_next;
                             if (exception_next != '0) begin
-                                vector_index <= exception_next[EXCEPTION_BUS_FAULT]
-                                                    ? 4'd7
-                                                    : VECTOR_INSTRUCTION_FAULT_HANDLER;
+                                vector_index <= exception_vector_index;
                                 state        <= S_VECTOR_REQUEST;
                             end else begin
                                 special[SPECIAL_PROGRAM_ADDRESS] <= special[SPECIAL_PROGRAM_ADDRESS] + 32'd4;
@@ -1104,6 +1135,23 @@ module processor
                             end
                         end else begin
                             state <= S_PUSH_PULL_REQUEST;
+                        end
+                    end
+                end
+
+                S_CALL_RESPONSE: begin
+                    if (mem_rsp_valid && mem_rsp_ready) begin
+                        special[SPECIAL_PERFORMANCE_COUNTER] <= special[SPECIAL_PERFORMANCE_COUNTER] + 32'd1;
+                        special[SPECIAL_EXCEPTION]           <= exception_next;
+                        if (exception_next != '0) begin
+                            vector_index <= exception_vector_index;
+                            state        <= S_VECTOR_REQUEST;
+                        end else begin
+                            special[SPECIAL_NUMERAL] <= (special[SPECIAL_NUMERAL] & 32'hFFFF0000) |
+                                                         32'(view.frame.imm);
+                            special[SPECIAL_PROGRAM_ADDRESS] <= mem_rsp_data;
+                            retire                          <= 1'b1;
+                            state                           <= S_FETCH_REQUEST;
                         end
                     end
                 end

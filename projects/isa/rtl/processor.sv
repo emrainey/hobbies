@@ -167,7 +167,7 @@ module processor
             OP_LEAP, OP_BACK, OP_GROW, OP_FALL, OP_PUSH, OP_PULL: return 1'b1;
             OP_SWAP, OP_COMPLEMENT, OP_RSH, OP_ASR, OP_LSH, OP_ROTATE, OP_COUNT1S, OP_COUNT_L0S,
             OP_NOT, OP_SET_BIT, OP_CLEAR_BIT, OP_TOGGLE_BIT, OP_REVERSE: return 1'b1;
-            OP_AND, OP_OR, OP_XOR: return 1'b1;
+            OP_AND, OP_OR, OP_XOR, OP_COMPARE: return 1'b1;
             OP_ADDITION, OP_SUBTRACT, OP_MULTIPLY, OP_DIVIDE, OP_MODULO, OP_NEGATE, OP_EXTEND: return 1'b1;
             default: return 1'b0;
         endcase
@@ -419,6 +419,23 @@ module processor
         endcase
     end
 
+    evaluation_t comp_eval;
+    always_comb begin
+        comp_eval = '0;
+        comp_eval.comparison.type_ = EVAL_TYPE_COMPARISON;
+        if (view.compare.signed_) begin
+            if ($signed(s_read_data[0]) == $signed(s_read_data[1])) comp_eval.comparison.equal = 1'b1;
+            if ($signed(s_read_data[0]) <  $signed(s_read_data[1])) comp_eval.comparison.less_than = 1'b1;
+            if ($signed(s_read_data[0]) >  $signed(s_read_data[1])) comp_eval.comparison.greater_than = 1'b1;
+            if ($signed(s_read_data[0]) != $signed(s_read_data[1])) comp_eval.comparison.not_equal = 1'b1;
+        end else begin
+            if (s_read_data[0] == s_read_data[1]) comp_eval.comparison.equal = 1'b1;
+            if (s_read_data[0] <  s_read_data[1]) comp_eval.comparison.less_than = 1'b1;
+            if (s_read_data[0] >  s_read_data[1]) comp_eval.comparison.greater_than = 1'b1;
+            if (s_read_data[0] != s_read_data[1]) comp_eval.comparison.not_equal = 1'b1;
+        end
+    end
+
     // Leap helpers (register form). Immediate form is handled separately.
     logic leap_is_immediate;
     assign leap_is_immediate = view.leap_immediate.immediate;
@@ -623,6 +640,11 @@ module processor
                 s_read_control  = SCRATCH_CONTROL_FIRST;
                 s_read_index[0] = 4'(push_pull_index);
             end
+            if (decoded_op == OP_COMPARE) begin
+                s_read_control  = SCRATCH_CONTROL_BOTH;
+                s_read_index[0] = view.compare.a;
+                s_read_index[1] = view.compare.b;
+            end
         end
 
         if (state == S_LOAD_RESPONSE && mem_rsp_valid && mem_rsp_ready && !mem_rsp_fault) begin
@@ -747,6 +769,11 @@ module processor
                     end else begin
                         e_clear = view.zero.mask;
                     end
+                end
+                OP_COMPARE: begin
+                    e_write_control  = EVALUATION_CONTROL_FIRST;
+                    e_write_index[0] = view.compare.e;
+                    e_write_data[0]  = comp_eval.raw;
                 end
                 default: ;
             endcase

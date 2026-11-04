@@ -78,7 +78,7 @@ module processor
 
     // Vector-table word offsets (BOOT_*) come from the isa package.
 
-    typedef enum logic [3:0] {
+    typedef enum logic [4:0] {
         S_BOOT_REQUEST,
         S_BOOT_RESPONSE,
         S_FETCH_REQUEST,
@@ -91,6 +91,8 @@ module processor
         S_SWAP_WRITE_REQUEST,
         S_SWAP_WRITE_RESPONSE,
         S_BACK_RESPONSE,
+        S_PUSH_PULL_REQUEST,
+        S_PUSH_PULL_RESPONSE,
         S_VECTOR_REQUEST,
         S_VECTOR_RESPONSE,
         S_HALTED
@@ -98,6 +100,12 @@ module processor
 
     state_e     state;
     logic       cond_pass;
+    logic       push_pull_is_push;
+    logic [15:0] push_pull_mask;
+    logic [4:0]  push_pull_index;
+    logic [31:0] push_pull_address;
+    logic [31:0] push_pull_end;
+    logic       push_pull_bus_fault;
     logic [2:0] boot_index;
     logic [3:0] vector_index;
 
@@ -122,6 +130,18 @@ module processor
 
     always_comb view = instruction;
 
+    function automatic int first_set_bit(input [15:0] mask);
+        for (int i = 0; i < 16; i++)
+            if (mask[i]) return i;
+        return 16;
+    endfunction
+
+    function automatic int next_set_bit(input [15:0] mask, input int after);
+        for (int i = after + 1; i < 16; i++)
+            if (mask[i]) return i;
+        return 16;
+    endfunction
+
     decoder u_decoder (
         .instruction(instruction),
         .op(decoded_op),
@@ -144,7 +164,7 @@ module processor
     function automatic logic is_implemented(op_e code);
         case (code)
             OP_NONE, OP_COPY, OP_MOVE, OP_MOVE_IMMEDIATE, OP_ZERO, OP_LOAD, OP_SAVE, OP_HALT,
-            OP_LEAP, OP_BACK, OP_GROW, OP_FALL: return 1'b1;
+            OP_LEAP, OP_BACK, OP_GROW, OP_FALL, OP_PUSH, OP_PULL: return 1'b1;
             OP_SWAP, OP_COMPLEMENT, OP_RSH, OP_ASR, OP_LSH, OP_ROTATE, OP_COUNT1S, OP_COUNT_L0S,
             OP_NOT, OP_SET_BIT, OP_CLEAR_BIT, OP_TOGGLE_BIT, OP_REVERSE: return 1'b1;
             OP_AND, OP_OR, OP_XOR: return 1'b1;
@@ -193,11 +213,13 @@ module processor
                                     (state == S_COMMIT && commit_valid &&
                                      (decoded_op == OP_LOAD || decoded_op == OP_SAVE || decoded_op == OP_SWAP ||
                                       (decoded_op == OP_BACK && view.back.zero))) ||
-                                    (state == S_SWAP_WRITE_REQUEST) );
+                                    (state == S_SWAP_WRITE_REQUEST) ||
+                                    (state == S_PUSH_PULL_REQUEST) );
         mem_rsp_ready = !reset && ((state == S_BOOT_RESPONSE) || (state == S_FETCH_RESPONSE) ||
                                    (state == S_VECTOR_RESPONSE) || state == S_LOAD_RESPONSE ||
                                    state == S_SAVE_RESPONSE || state == S_SWAP_READ_RESPONSE ||
-                                   state == S_SWAP_WRITE_RESPONSE || state == S_BACK_RESPONSE);
+                                   state == S_SWAP_WRITE_RESPONSE || state == S_BACK_RESPONSE ||
+                                   state == S_PUSH_PULL_RESPONSE);
         mem_write = 1'b0;
         mem_wdata = '0;
         mem_wstrb = '0;
@@ -226,6 +248,14 @@ module processor
             mem_wdata = swap_wdata_reg;
         end
 
+        if (state == S_PUSH_PULL_REQUEST) begin
+            if (push_pull_is_push) begin
+                mem_write = 1'b1;
+                mem_wstrb = 4'b1111;
+                mem_wdata = s_read_data[0];
+            end
+        end
+
         if (state == S_BOOT_REQUEST) begin
             mem_addr = DEFAULT_VECTOR_TABLE_ADDRESS + (address_t'(boot_index) << 2);
         end else if (state == S_FETCH_REQUEST) begin
@@ -240,6 +270,8 @@ module processor
             end
         end else if (state == S_COMMIT && commit_valid && decoded_op == OP_BACK && view.back.zero) begin
             mem_addr = special[SPECIAL_VECTOR_TABLE_ADDRESS] + 32'd64;
+        end else if (state == S_PUSH_PULL_REQUEST) begin
+            mem_addr = push_pull_address;
         end else if (state == S_SWAP_WRITE_REQUEST) begin
             mem_addr = swap_address_reg;
         end else begin
@@ -439,6 +471,26 @@ module processor
         end
     end
 
+    logic [3:0]  push_pull_count;
+    logic [31:0] push_pull_size;
+    logic        push_pull_bounds_ok;
+    logic [63:0] push_pull_end64;
+    always_comb begin
+        push_pull_count = 4'($countones(view.push_pull.mask));
+        push_pull_size = 32'(push_pull_count) * 32'd4;
+        if (decoded_op == OP_PUSH) begin
+            push_pull_end64 = 64'(special[SPECIAL_STACK_CURRENT]) - 64'(push_pull_size);
+            push_pull_bounds_ok = (64'(special[SPECIAL_STACK_BASE]) <= push_pull_end64) &&
+                                  (push_pull_end64 <= 64'(special[SPECIAL_STACK_LIMIT])) &&
+                                  (64'(push_pull_size) <= 64'(special[SPECIAL_STACK_LIMIT]) - push_pull_end64);
+        end else begin
+            push_pull_end64 = 64'(special[SPECIAL_STACK_CURRENT]) + 64'(push_pull_size);
+            push_pull_bounds_ok = (64'(special[SPECIAL_STACK_BASE]) <= 64'(special[SPECIAL_STACK_CURRENT])) &&
+                                  (64'(special[SPECIAL_STACK_CURRENT]) <= 64'(special[SPECIAL_STACK_LIMIT])) &&
+                                  (64'(push_pull_size) <= 64'(special[SPECIAL_STACK_LIMIT]) - 64'(special[SPECIAL_STACK_CURRENT]));
+        end
+    end
+
     logic control_transferred;
     always_comb begin
         control_transferred = 1'b0;
@@ -479,6 +531,12 @@ module processor
         end
         if ((decoded_op == OP_GROW || decoded_op == OP_FALL) && cond_pass && stack_fault_this) begin
             exception_next[EXCEPTION_STACK_FAULT] = 1'b1;
+        end
+        if ((decoded_op == OP_PUSH || decoded_op == OP_PULL) && !push_pull_bounds_ok) begin
+            exception_next[EXCEPTION_STACK_FAULT] = 1'b1;
+        end
+        if ((decoded_op == OP_PUSH || decoded_op == OP_PULL) && push_pull_bus_fault) begin
+            exception_next[EXCEPTION_BUS_FAULT] = 1'b1;
         end
     end
 
@@ -561,6 +619,10 @@ module processor
                 s_read_control  = SCRATCH_CONTROL_FIRST;
                 s_read_index[0] = view.leap.dst;
             end
+            if (state == S_PUSH_PULL_REQUEST && push_pull_is_push) begin
+                s_read_control  = SCRATCH_CONTROL_FIRST;
+                s_read_index[0] = 4'(push_pull_index);
+            end
         end
 
         if (state == S_LOAD_RESPONSE && mem_rsp_valid && mem_rsp_ready && !mem_rsp_fault) begin
@@ -593,6 +655,13 @@ module processor
             s_write_control  = SCRATCH_CONTROL_FIRST;
             s_write_index[0] = view.swap.a;
             s_write_data[0]  = swap_read_data_reg;
+        end
+
+        if (state == S_PUSH_PULL_RESPONSE && mem_rsp_valid && mem_rsp_ready && !mem_rsp_fault &&
+            !push_pull_is_push) begin
+            s_write_control  = SCRATCH_CONTROL_FIRST;
+            s_write_index[0] = 4'(push_pull_index);
+            s_write_data[0]  = mem_rsp_data;
         end
 
         if (commit_valid) begin
@@ -697,6 +766,12 @@ module processor
             vector_index <= '0;
 
             cond_pass   <= 1'b0;
+            push_pull_is_push  <= 1'b0;
+            push_pull_mask     <= '0;
+            push_pull_index    <= '0;
+            push_pull_address  <= '0;
+            push_pull_end      <= '0;
+            push_pull_bus_fault <= 1'b0;
             op_a        <= '0;
             op_b        <= '0;
             swap_address_reg <= '0;
@@ -809,6 +884,16 @@ module processor
                         end else begin
                             state <= S_COMMIT;
                         end
+                    end else if (commit_valid && (decoded_op == OP_PUSH || decoded_op == OP_PULL) &&
+                                 push_pull_bounds_ok && (push_pull_count != 0)) begin
+                        push_pull_is_push   <= (decoded_op == OP_PUSH);
+                        push_pull_mask      <= view.push_pull.mask;
+                        push_pull_index     <= 5'(first_set_bit(view.push_pull.mask));
+                        push_pull_address   <= (decoded_op == OP_PUSH) ? push_pull_end64[31:0]
+                                                                   : special[SPECIAL_STACK_CURRENT];
+                        push_pull_end       <= push_pull_end64[31:0];
+                        push_pull_bus_fault <= 1'b0;
+                        state               <= S_PUSH_PULL_REQUEST;
                     end else begin
                         state <= S_FETCH_REQUEST;
 
@@ -959,6 +1044,39 @@ module processor
                             special[SPECIAL_RETURN_ADDRESS] <= mem_rsp_data;
                             retire                          <= 1'b1;
                             state                           <= S_FETCH_REQUEST;
+                        end
+                    end
+                end
+
+                S_PUSH_PULL_REQUEST: begin
+                    if (mem_req_ready) begin
+                        state <= S_PUSH_PULL_RESPONSE;
+                    end
+                end
+
+                S_PUSH_PULL_RESPONSE: begin
+                    if (mem_rsp_valid && mem_rsp_ready) begin
+                        if (mem_rsp_fault) begin
+                            push_pull_bus_fault <= 1'b1;
+                        end
+                        push_pull_address <= push_pull_address + 32'd4;
+                        push_pull_index   <= 5'(next_set_bit(push_pull_mask, int'(push_pull_index)));
+                        if (next_set_bit(push_pull_mask, int'(push_pull_index)) >= 16) begin
+                            special[SPECIAL_STACK_CURRENT] <= push_pull_end;
+                            special[SPECIAL_PERFORMANCE_COUNTER] <= special[SPECIAL_PERFORMANCE_COUNTER] + 32'd1;
+                            special[SPECIAL_EXCEPTION]           <= exception_next;
+                            if (exception_next != '0) begin
+                                vector_index <= exception_next[EXCEPTION_BUS_FAULT]
+                                                    ? 4'd7
+                                                    : VECTOR_INSTRUCTION_FAULT_HANDLER;
+                                state        <= S_VECTOR_REQUEST;
+                            end else begin
+                                special[SPECIAL_PROGRAM_ADDRESS] <= special[SPECIAL_PROGRAM_ADDRESS] + 32'd4;
+                                retire <= 1'b1;
+                                state  <= S_FETCH_REQUEST;
+                            end
+                        end else begin
+                            state <= S_PUSH_PULL_REQUEST;
                         end
                     end
                 end

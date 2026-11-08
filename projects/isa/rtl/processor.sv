@@ -172,6 +172,7 @@ module processor
             OP_FLOATING_CEIL: return 1'b1;
             OP_FLOATING_FRACTIONAL: return 1'b1;
             OP_FLOATING_CONVERT: return 1'b1;
+            OP_FLOATING_ADDITION: return 1'b1;
             OP_SWAP, OP_COMPLEMENT, OP_RSH, OP_ASR, OP_LSH, OP_ROTATE, OP_COUNT1S, OP_COUNT_L0S,
             OP_NOT, OP_SET_BIT, OP_CLEAR_BIT, OP_TOGGLE_BIT, OP_REVERSE: return 1'b1;
             OP_AND, OP_OR, OP_XOR, OP_COMPARE: return 1'b1;
@@ -339,6 +340,19 @@ module processor
         .in (s_read_data[0]),
         .dir(view.float_unary.dir),
         .out(fp_convert_result)
+    );
+
+    // Stage 4 of M11: floating-point addition (combinational).
+    logic [WORD_SIZE-1:0] fp_add_result;
+    logic fp_add_inexact, fp_add_rounded, fp_add_subnormal, fp_add_underflow;
+    fp_add u_fp_add (
+        .a         (s_read_data[0]),
+        .b         (s_read_data[1]),
+        .result    (fp_add_result),
+        .inexact   (fp_add_inexact),
+        .rounded   (fp_add_rounded),
+        .subnormal (fp_add_subnormal),
+        .underflow (fp_add_underflow)
     );
 
     register_file u_scratch (
@@ -725,6 +739,11 @@ module processor
                 s_read_control  = SCRATCH_CONTROL_FIRST;
                 s_read_index[0] = view.float_unary.src;
             end
+            if (decoded_op == OP_FLOATING_ADDITION) begin
+                s_read_control  = SCRATCH_CONTROL_BOTH;
+                s_read_index[0] = view.binary.src1;
+                s_read_index[1] = view.binary.src2;
+            end
         end
 
         if (state == S_LOAD_RESPONSE && mem_rsp_valid && mem_rsp_ready && !mem_rsp_fault) begin
@@ -886,6 +905,17 @@ module processor
                     s_write_control  = SCRATCH_CONTROL_FIRST;
                     s_write_index[0] = view.float_unary.dst;
                     s_write_data[0]  = fp_convert_result;
+                end
+                OP_FLOATING_ADDITION: begin
+                    s_write_control  = SCRATCH_CONTROL_FIRST;
+                    s_write_index[0] = view.binary.dst;
+                    s_write_data[0]  = fp_add_result;
+                    if (view.binary.cond) begin
+                        e_write_control  = EVALUATION_CONTROL_FIRST;
+                        e_write_index[0] = view.binary.eval;
+                        e_write_data[0]  = {2'b00, fp_add_underflow, fp_add_subnormal,
+                                           fp_add_rounded, fp_add_inexact, 2'b11};
+                    end
                 end
                 default: ;
             endcase

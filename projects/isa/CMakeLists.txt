@@ -89,7 +89,9 @@ verilate(isa_rtl_processor_sim
         ${CMAKE_CURRENT_SOURCE_DIR}/rtl/bitwise.sv
         ${CMAKE_CURRENT_SOURCE_DIR}/rtl/decoder.sv
         ${CMAKE_CURRENT_SOURCE_DIR}/rtl/register.sv
+        ${CMAKE_CURRENT_SOURCE_DIR}/rtl/fp_common.sv
         ${CMAKE_CURRENT_SOURCE_DIR}/rtl/fp_unary.sv
+        ${CMAKE_CURRENT_SOURCE_DIR}/rtl/fp_binary.sv
         ${CMAKE_CURRENT_SOURCE_DIR}/rtl/processor.sv
 )
 endif()

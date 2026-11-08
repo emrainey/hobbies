@@ -34,7 +34,7 @@ Milestone IDs refer to @ref rtl_roadmap.
 | P-005 | Privilege not enforced | DEFERRED | M8 |
 | P-006 | Exception mask never consulted | DEFERRED | M8 |
 | P-007 | Interrupts not implemented | DEFERRED | M9 |
-| P-008 | Floating-point precision semantics | DEFERRED | M11 |
+| P-008 | Floating-point precision semantics | STRATEGY-CHOSEN | M11 |
 | P-009 | `Load`/`Save` special-base encoding | OPEN | M2 |
 | P-010 | `Reverse` unit selector reuses `shift` | OPEN | M5 |
 | P-011 | Erased word / immediate-leap decode | MATCHED | M0 |
@@ -133,9 +133,18 @@ executed", which needs a pending latch rather than an immediate redirect. C++ fi
 
 `source/cpu.cpp:1229-1318`. FP uses the host `float` and `fenv` (`FE_INEXACT`/`FE_UNDERFLOW`), and
 sets `flags.rounded = flags.inexact` (`:1301`) as an approximation. `FloatingDivision` also treats
-`|divisor| < epsilon` as divide-by-zero (`:1274`). None of this is bit-exactly reproducible in RTL;
-the FP strategy (real IEEE-754 unit vs. third-party core vs. independent reference vectors) is
-deferred to M11.
+`|divisor| < epsilon` as divide-by-zero (`:1274`).
+
+**Strategy chosen (M11).** The RTL implements a self-contained IEEE-754 binary32 unit with
+round-to-nearest-even and sticky-bit flag derivation, rather than trying to mirror host `fenv`
+directly. The C++ model keeps using host `float` operations as the architectural oracle, because
+those are themselves IEEE-754 binary32 round-to-nearest and agree with a conforming unit for the
+result value; the RTL derives `inexact`, `rounded`, `subnormal` and `underflow` from the same
+rounding decision instead of from `fetestexcept`. `FloatingDivision` keeps the existing
+`|divisor| < FLT_EPSILON` divide-by-zero rule, replicated verbatim in RTL. FP instructions therefore
+remain in the normal lockstep harness, with an additional directed edge-case vector set (NaN,
+infinity, subnormals, overflow, exact ties) as the regression gate. No third-party core is pulled in;
+the unit is synthesizable SystemVerilog in `rtl/` (candidate split point for S2).
 
 ### P-009 — `Load`/`Save` special-base encoding
 

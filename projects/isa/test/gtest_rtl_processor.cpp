@@ -847,11 +847,87 @@ TEST_F(RtlProcessorTest, InvalidLoadSizeFaultsBeforeIssuingMemoryRequest) {
     ExpectStateMatches();
 }
 
+TEST_F(RtlProcessorTest, FloatingNegateMatchesTheFastModel) {
+    using isa::Operand;
+    using namespace isa::instructions;
+    Operand const src{Operand::Type::Scratch, 2};
+    Operand const dst{Operand::Type::Scratch, 1};
+
+    std::vector<uint32_t> program;
+    LoadWord(program, 2, 0x40D00000U);  // 6.5f
+    program.push_back(Encode(Precision1::FNeg(dst, src)));
+    RunProgram_Vector(program);
+}
+
+TEST_F(RtlProcessorTest, FloatingFloorMatchesTheFastModel) {
+    using isa::Operand;
+    using namespace isa::instructions;
+    Operand const src{Operand::Type::Scratch, 2};
+    Operand const dst{Operand::Type::Scratch, 1};
+
+    std::vector<uint32_t> program;
+    LoadWord(program, 2, 0x40700000U);  // 3.75f
+    program.push_back(Encode(Precision1::Floor(dst, src)));
+    RunProgram_Vector(program);
+}
+
+TEST_F(RtlProcessorTest, FloatingCeilMatchesTheFastModel) {
+    using isa::Operand;
+    using namespace isa::instructions;
+    Operand const src{Operand::Type::Scratch, 2};
+    Operand const dst{Operand::Type::Scratch, 1};
+
+    std::vector<uint32_t> program;
+    LoadWord(program, 2, 0x40500000U);  // 3.25f
+    program.push_back(Encode(Precision1::Ceil(dst, src)));
+    RunProgram_Vector(program);
+}
+
+TEST_F(RtlProcessorTest, FloatingFractionalMatchesTheFastModel) {
+    using isa::Operand;
+    using namespace isa::instructions;
+    Operand const src{Operand::Type::Scratch, 2};
+    Operand const dst{Operand::Type::Scratch, 1};
+
+    std::vector<uint32_t> program;
+    LoadWord(program, 2, 0x40700000U);  // 3.75f
+    program.push_back(Encode(Precision1::Fractional(dst, src)));
+    RunProgram_Vector(program);
+}
+
+TEST_F(RtlProcessorTest, FloatingConvertMatchesTheFastModel) {
+    using isa::Operand;
+    using namespace isa::instructions;
+    Operand const src{Operand::Type::Scratch, 2};
+    Operand const dst{Operand::Type::Scratch, 1};
+
+    std::vector<uint32_t> program;
+    LoadWord(program, 2, 0x40700000U);  // 3.75f as int bits? will be reinterpreted by convert
+    // int -> float
+    program.push_back(Encode(Precision1::Convert(dst, src, false)));
+    // float -> int on a separate value
+    LoadWord(program, 2, 0x40700000U);  // 3.75f
+    program.push_back(Encode(Precision1::Convert(dst, src, true)));
+    RunProgram_Vector(program);
+}
+
+TEST_F(RtlProcessorTest, FloatingAbsMatchesTheFastModel) {
+    using isa::Operand;
+    using namespace isa::instructions;
+    Operand const src{Operand::Type::Scratch, 2};
+    Operand const dst{Operand::Type::Scratch, 1};
+
+    std::vector<uint32_t> program;
+    LoadWord(program, 2, 0xC0500000U);  // -3.25f
+    program.push_back(Encode(Precision1::FAbs(dst, src)));
+    RunProgram_Vector(program);
+}
+
 TEST_F(RtlProcessorTest, OpcodesBeyondThisMilestoneAreFlagged) {
-    // 0x98 is a defined opcode (`fflr`) that this milestone does not execute. The RTL
+    // 0xBC is a defined opcode (`fdiv`) that this milestone does not execute. The RTL
     // retires it as a noop and says so; the C++ model performs the float op, so the state
     // is expected to differ and is not compared.
-    ASSERT_TRUE(oracle.Poke(isa::Address{kCodeAddress}, 0x00000098U));
+    ASSERT_TRUE(oracle.Poke(isa::Address{kCodeAddress}, 0x000000BCU));
     oracle.Cycle();
     ASSERT_TRUE(RunUntilRetire());
     EXPECT_TRUE(dut.unsupported) << "defined but unimplemented opcode";

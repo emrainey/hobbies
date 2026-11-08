@@ -166,6 +166,12 @@ module processor
         case (code)
             OP_NONE, OP_COPY, OP_MOVE, OP_MOVE_IMMEDIATE, OP_ZERO, OP_LOAD, OP_SAVE, OP_HALT,
             OP_LEAP, OP_BACK, OP_GROW, OP_FALL, OP_PUSH, OP_PULL, OP_CALL, OP_TRIP: return 1'b1;
+            OP_FLOATING_ABS: return 1'b1;
+            OP_FLOATING_NEGATE: return 1'b1;
+            OP_FLOATING_FLOOR: return 1'b1;
+            OP_FLOATING_CEIL: return 1'b1;
+            OP_FLOATING_FRACTIONAL: return 1'b1;
+            OP_FLOATING_CONVERT: return 1'b1;
             OP_SWAP, OP_COMPLEMENT, OP_RSH, OP_ASR, OP_LSH, OP_ROTATE, OP_COUNT1S, OP_COUNT_L0S,
             OP_NOT, OP_SET_BIT, OP_CLEAR_BIT, OP_TOGGLE_BIT, OP_REVERSE: return 1'b1;
             OP_AND, OP_OR, OP_XOR, OP_COMPARE: return 1'b1;
@@ -294,6 +300,46 @@ module processor
     evaluation_index_t   e_read_index[0:1], e_write_index[0:1];
     byte_t               e_read_data[0:1], e_write_data[0:1];
     logic [EVAL_COUNT-1:0]    e_clear;
+
+    // Stage 1 of M11: floating-point absolute value (combinational).
+    logic [WORD_SIZE-1:0] fp_abs_result;
+    fp_abs u_fp_abs (
+        .in (s_read_data[0]),
+        .out(fp_abs_result)
+    );
+
+    // Stage 2 of M11: floating-point negation (combinational).
+    logic [WORD_SIZE-1:0] fp_neg_result;
+    fp_neg u_fp_neg (
+        .in (s_read_data[0]),
+        .out(fp_neg_result)
+    );
+
+    // Stage 3 of M11: floor, ceil, fractional, convert (combinational).
+    logic [WORD_SIZE-1:0] fp_floor_result;
+    fp_floor u_fp_floor (
+        .in (s_read_data[0]),
+        .out(fp_floor_result)
+    );
+
+    logic [WORD_SIZE-1:0] fp_ceil_result;
+    fp_ceil u_fp_ceil (
+        .in (s_read_data[0]),
+        .out(fp_ceil_result)
+    );
+
+    logic [WORD_SIZE-1:0] fp_fractional_result;
+    fp_fractional u_fp_fractional (
+        .in (s_read_data[0]),
+        .out(fp_fractional_result)
+    );
+
+    logic [WORD_SIZE-1:0] fp_convert_result;
+    fp_convert u_fp_convert (
+        .in (s_read_data[0]),
+        .dir(view.float_unary.dir),
+        .out(fp_convert_result)
+    );
 
     register_file u_scratch (
         .clock(clk), .reset(reset), .clear_mask(s_clear),
@@ -673,6 +719,12 @@ module processor
                 s_read_index[0] = view.compare.a;
                 s_read_index[1] = view.compare.b;
             end
+            if (decoded_op == OP_FLOATING_ABS || decoded_op == OP_FLOATING_NEGATE ||
+                decoded_op == OP_FLOATING_FLOOR || decoded_op == OP_FLOATING_CEIL ||
+                decoded_op == OP_FLOATING_FRACTIONAL || decoded_op == OP_FLOATING_CONVERT) begin
+                s_read_control  = SCRATCH_CONTROL_FIRST;
+                s_read_index[0] = view.float_unary.src;
+            end
         end
 
         if (state == S_LOAD_RESPONSE && mem_rsp_valid && mem_rsp_ready && !mem_rsp_fault) begin
@@ -802,6 +854,38 @@ module processor
                     e_write_control  = EVALUATION_CONTROL_FIRST;
                     e_write_index[0] = view.compare.e;
                     e_write_data[0]  = comp_eval.raw;
+                end
+                OP_FLOATING_ABS: begin
+                    // Stage 1 of M11: clear the sign bit of the source float.
+                    s_write_control  = SCRATCH_CONTROL_FIRST;
+                    s_write_index[0] = view.float_unary.dst;
+                    s_write_data[0]  = fp_abs_result;
+                end
+                OP_FLOATING_NEGATE: begin
+                    // Stage 2 of M11: flip the sign bit of the source float.
+                    s_write_control  = SCRATCH_CONTROL_FIRST;
+                    s_write_index[0] = view.float_unary.dst;
+                    s_write_data[0]  = fp_neg_result;
+                end
+                OP_FLOATING_FLOOR: begin
+                    s_write_control  = SCRATCH_CONTROL_FIRST;
+                    s_write_index[0] = view.float_unary.dst;
+                    s_write_data[0]  = fp_floor_result;
+                end
+                OP_FLOATING_CEIL: begin
+                    s_write_control  = SCRATCH_CONTROL_FIRST;
+                    s_write_index[0] = view.float_unary.dst;
+                    s_write_data[0]  = fp_ceil_result;
+                end
+                OP_FLOATING_FRACTIONAL: begin
+                    s_write_control  = SCRATCH_CONTROL_FIRST;
+                    s_write_index[0] = view.float_unary.dst;
+                    s_write_data[0]  = fp_fractional_result;
+                end
+                OP_FLOATING_CONVERT: begin
+                    s_write_control  = SCRATCH_CONTROL_FIRST;
+                    s_write_index[0] = view.float_unary.dst;
+                    s_write_data[0]  = fp_convert_result;
                 end
                 default: ;
             endcase

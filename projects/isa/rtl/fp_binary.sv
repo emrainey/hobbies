@@ -40,6 +40,9 @@ module fp_add (
             end
             rounded = inexact;
             subnormal = (fp_exponent(rbits) == 8'd0 && fp_mantissa(rbits) != 0) ? 1'b1 : 1'b0;
+            // Underflow: the exact result was tiny (subnormal range) and the
+            // rounded result is inexact. This also covers the case where the
+            // tiny result rounds all the way to zero (result is not subnormal).
             underflow = inexact && (rexact != 0.0) &&
                         (rexact < (2.0 ** -126)) && (rexact > -(2.0 ** -126));
         end
@@ -81,11 +84,15 @@ module fp_mul (
             end
             rounded = inexact;
             subnormal = (fp_exponent(rbits) == 8'd0 && fp_mantissa(rbits) != 0) ? 1'b1 : 1'b0;
+            // Underflow: the exact result was tiny (subnormal range) and the
+            // rounded result is inexact. This also covers the case where the
+            // tiny result rounds all the way to zero (result is not subnormal).
             underflow = inexact && (rexact != 0.0) &&
                         (rexact < (2.0 ** -126)) && (rexact > -(2.0 ** -126));
         end
     end
 endmodule
+
 // Stage 4 of M11: IEEE-754 binary32 subtraction.
 module fp_sub (
     input  logic [31:0] a,
@@ -121,6 +128,9 @@ module fp_sub (
             end
             rounded = inexact;
             subnormal = (fp_exponent(rbits) == 8'd0 && fp_mantissa(rbits) != 0) ? 1'b1 : 1'b0;
+            // Underflow: the exact result was tiny (subnormal range) and the
+            // rounded result is inexact. This also covers the case where the
+            // tiny result rounds all the way to zero (result is not subnormal).
             underflow = inexact && (rexact != 0.0) &&
                         (rexact < (2.0 ** -126)) && (rexact > -(2.0 ** -126));
         end

@@ -45,6 +45,12 @@ localparam logic [2:0] BOOT_EXC_STACK_BOUNDARY = 3'd3;
 localparam logic [2:0] BOOT_RESET_HANDLER = 3'd4;
 // The handler the instruction-fault exception vectors through (VectorTable::instruction_fault_handler).
 localparam logic [3:0] VECTOR_INSTRUCTION_FAULT_HANDLER = 4'd8;
+// Vector-table word offsets for the fault handlers (VectorTable field index).
+localparam logic [3:0] VECTOR_BUS_FAULT_HANDLER = 4'd7;
+localparam logic [3:0] VECTOR_ARITHMETIC_FAULT_HANDLER = 4'd9;
+localparam logic [3:0] VECTOR_STACK_FAULT_HANDLER = 4'd10;
+localparam logic [3:0] VECTOR_TRIPPED_HANDLER = 4'd11;
+localparam logic [3:0] VECTOR_PRIVILEGE_HANDLER = 4'd15;
 
 // Bits of SPECIAL_EXCEPTION (isa::Exception, LSB first: reset, unmaskable, nested,
 // bus_fault, instruction_fault, arithmetic_fault, stack_fault).
@@ -53,6 +59,11 @@ localparam int EXCEPTION_INSTRUCTION_FAULT = 4;
 localparam int EXCEPTION_ARITHMETIC_FAULT = 5;
 localparam int EXCEPTION_STACK_FAULT = 6;
 localparam int EXCEPTION_TRIPPED = 7;
+localparam int EXCEPTION_PRIVILEGE_FAULT = 11;
+// Bits 0 and 1 (reset, unmaskable) are never maskable.
+localparam logic [31:0] EXCEPTION_MASK_PRESERVED_BITS = 32'd3;
+// Mode value when entering an exception handler: exception + privileged.
+localparam logic [31:0] MODE_EXCEPTION = 32'd3;
 
 // === Special register indices ===
 // The word index of each special register, in isa::Special order. The C++ model

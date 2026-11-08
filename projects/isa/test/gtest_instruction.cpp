@@ -76,7 +76,30 @@ TEST_F(InstructionTest, NoOpAdvancesProgramCounter) {
     EXPECT_EQ(1U, cpu.ViewSpecial().performance_counter_);
 }
 
+TEST_F(InstructionTest, PrivilegedInstructionInNonprivilegedModeRaisesPrivilegeFault) {
+    ASSERT_TRUE(cpu.ViewSpecial().mode_.nonprivileged);
+    ASSERT_FALSE(cpu.ViewSpecial().mode_.privileged);
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Halt{}});
+
+    EXPECT_FALSE(cpu.IsHalted());
+    EXPECT_EQ(kPrivilegeHandler, cpu.ViewSpecial().program_address_.value);
+    EXPECT_TRUE(cpu.ViewSpecial().exception_.privilege_fault);
+}
+
+TEST_F(InstructionTest, TripInNonprivilegedModeRaisesPrivilegeFault) {
+    ASSERT_TRUE(cpu.ViewSpecial().mode_.nonprivileged);
+    ASSERT_FALSE(cpu.ViewSpecial().mode_.privileged);
+    RunSingleInstruction(isa::instructions::Instruction{
+        isa::instructions::Trip{isa::Immediate<10>{static_cast<uint32_t>(isa::ExceptionType::Tripped)}}});
+
+    EXPECT_FALSE(cpu.ViewSpecial().exception_.tripped);
+    EXPECT_EQ(kPrivilegeHandler, cpu.ViewSpecial().program_address_.value);
+    EXPECT_TRUE(cpu.ViewSpecial().exception_.privilege_fault);
+}
+
 TEST_F(InstructionTest, HaltSetsHaltedState) {
+    cpu.GetSpecial().mode_.privileged = 1;
+    cpu.GetSpecial().mode_.nonprivileged = 0;
     RunSingleInstruction(isa::instructions::Instruction{isa::instructions::Halt{}});
 
     EXPECT_TRUE(cpu.IsHalted());
@@ -821,6 +844,8 @@ TEST_F(InstructionTest, CallJumpsToSystemCallHandlerAndStoresCallNumber) {
 }
 
 TEST_F(InstructionTest, TripSetsExceptionAndJumpsToTripHandler) {
+    cpu.GetSpecial().mode_.privileged = 1;
+    cpu.GetSpecial().mode_.nonprivileged = 0;
     RunSingleInstruction(isa::instructions::Instruction{
         isa::instructions::Trip{isa::Immediate<10>{static_cast<uint32_t>(isa::ExceptionType::Tripped)}}});
 
@@ -831,6 +856,8 @@ TEST_F(InstructionTest, TripSetsExceptionAndJumpsToTripHandler) {
 }
 
 TEST_F(InstructionTest, TripCanAlsoSignalAndClearDebuggerBreak) {
+    cpu.GetSpecial().mode_.privileged = 1;
+    cpu.GetSpecial().mode_.nonprivileged = 0;
     RunSingleInstruction(isa::instructions::Instruction{
         isa::instructions::Trip{isa::Immediate<10>{static_cast<uint32_t>(isa::ExceptionType::Tripped)}, true}});
 

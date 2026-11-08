@@ -221,6 +221,13 @@ struct Exception {
     Word as_word() const {
         return *reinterpret_cast<const Word*>(this);
     }
+
+    /// Apply an exception mask in place, preserving the non-maskable reset and
+    /// unmaskable bits (bits 0 and 1).
+    Exception& operator&=(Word mask_word) {
+        *reinterpret_cast<uint32_t*>(this) &= mask_word.as_u32[0] | 0x3U;
+        return *this;
+    }
 };
 static_assert(sizeof(Exception) == sizeof(word<CountOfDataBits>),
               "Exception struct must be the size of a single word for efficient storage and manipulation");
@@ -299,6 +306,11 @@ struct ExceptionMask {
 
     Word as_word() const {
         return *reinterpret_cast<const Word*>(this);
+    }
+
+    /// Enable every maskable exception (and the non-maskable bits) by setting all bits.
+    void EnableAll() {
+        *reinterpret_cast<uint32_t*>(this) = 0xFFFFFFFFU;
     }
 };
 

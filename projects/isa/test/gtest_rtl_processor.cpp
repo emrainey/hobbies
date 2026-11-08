@@ -411,9 +411,36 @@ TEST_F(RtlProcessorTest, ZeroClearsOnlyTheMaskedRegisters) {
     }
 }
 
+TEST_F(RtlProcessorTest, PrivilegedTripInNonprivilegedModeFaultsInLockstep) {
+    using isa::Operand;
+    using namespace isa::instructions;
+    ASSERT_TRUE(oracle.Poke(isa::Address{kFlashBase + 15U * 4U}, kFaultHandler));
+
+    std::vector<uint32_t> program;
+    program.push_back(Encode(Trip{isa::Immediate<10>{static_cast<uint32_t>(isa::ExceptionType::Tripped)}}));
+    RunProgram_Vector(program);
+
+    EXPECT_EQ(kFaultHandler, dut.special[isa::special::ProgramAddress]);
+}
+
+TEST_F(RtlProcessorTest, PrivilegedInstructionInNonprivilegedModeFaultsInLockstep) {
+    using isa::Operand;
+    using namespace isa::instructions;
+    ASSERT_TRUE(oracle.Poke(isa::Address{kFlashBase + 15U * 4U}, kFaultHandler));
+
+    std::vector<uint32_t> program;
+    program.push_back(Encode(Halt{}));
+    RunProgram_Vector(program);
+
+    EXPECT_EQ(kFaultHandler, dut.special[isa::special::ProgramAddress]);
+}
+
 TEST_F(RtlProcessorTest, HaltStopsBothModelsAndHolds) {
     using isa::Operand;
     using namespace isa::instructions;
+    oracle.GetSpecial().mode_.privileged = 1;
+    oracle.GetSpecial().mode_.nonprivileged = 0;
+    dut.special[isa::special::Mode] = 2U;
     RunProgram({
         Encode(MoveImmediate{Operand{Operand::Type::Scratch, 1}, isa::Immediate<16>{0x1234U}}),
         Encode(Halt{}),
@@ -759,6 +786,7 @@ TEST_F(RtlProcessorTest, NegateAndExtendMatchTheFastModel) {
         LoadWord(setup, 3, 0xCAFEF00DU);                                               \
         RunProgram_Vector(setup);                                                      \
         ASSERT_TRUE(oracle.Poke(isa::Address{kFlashBase + 32U}, kFaultHandler));       \
+        ASSERT_TRUE(oracle.Poke(isa::Address{kFlashBase + 36U}, kFaultHandler));       \
         ASSERT_TRUE(oracle.Poke(isa::Address{next_program_address}, (word_expr)));     \
         oracle.Cycle();                                                                \
         ASSERT_TRUE(RunUntilRetire());                                                 \

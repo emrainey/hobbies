@@ -31,6 +31,8 @@ void Processor::Reset() {
     scratch_.fill(isa::word<32>{0U});
     evaluation_.fill(isa::Evaluation{0U});
     special_ = Special{};
+    // Enable all maskable exceptions by default.
+    special_.exception_mask_.EnableAll();
     halted_ = false;
     break_point_hit_ = false;
 
@@ -300,1027 +302,1068 @@ void Processor::Cycle() {
     // Set by the instructions which choose the next Program Address themselves (the leaps, a return and a call).
     // Those instructions already hold the address to run next, so they must not also be advanced past it below.
     bool control_transferred = false;
-    switch (instruction.base()) {
-        case isa::Operator::None:
-            // Do nothing
-            break;
-        case isa::Operator::Halt:
-            // For a halt instruction, we'll just stop executing further instructions until the next reset.
-            halted_ = true;
-            break;
-        case isa::Operator::Copy: {
-            const auto& copy = instruction.copy;
-            scratch_[copy.dst].as_u32[0] = scratch_[copy.src].as_u32[0];
-            if (copy.cond) {
-                evaluation_[copy.eval] = ComparisonEvaluation{false, true, false, false};
-            }
-            break;
-        }
-        case isa::Operator::Move: {
-            bool allowed = true;  // default to allowed
-            if (instruction.move.cond) {
-                // if the eval & mask is not zero, then perform the move
-                uint32_t eval = evaluation_[instruction.move.eval].value;
-                uint32_t mask = evaluation_[instruction.move.mask].value;
-                allowed = (eval & mask) != 0U;
-            }
-            if (allowed and instruction.move.type == 0U) {
-                uint32_t value = scratch_[instruction.move.src].as_u32[0];
-                if (instruction.move.dir) {
-                    value = static_cast<uint32_t>(static_cast<int32_t>(value) >> instruction.move.shift);
-                } else {
-                    value <<= instruction.move.shift;
+    if (IsPrivilegedInstruction(instruction.base()) and special_.mode_.nonprivileged) {
+        special_.exception_.privilege_fault = 1;
+    } else {
+        switch (instruction.base()) {
+            case isa::Operator::None:
+                // Do nothing
+                break;
+            case isa::Operator::Halt:
+                // For a halt instruction, we'll just stop executing further instructions until the next reset.
+                halted_ = true;
+                break;
+            case isa::Operator::Copy: {
+                const auto& copy = instruction.copy;
+                scratch_[copy.dst].as_u32[0] = scratch_[copy.src].as_u32[0];
+                if (copy.cond) {
+                    evaluation_[copy.eval] = ComparisonEvaluation{false, true, false, false};
                 }
-                scratch_[instruction.move.dst].as_u32[0] = value;
-                if (instruction.move.dst != instruction.move.src) {
-                    scratch_[instruction.move.src].as_u32[0] = 0U;
-                }
-            }
-            if (allowed and instruction.move.type == 1U) {
-                EvaluationUnit value = evaluation_[instruction.move.src].value;
-                if (instruction.move.dir) {
-                    value = static_cast<EvaluationUnit>(static_cast<uint8_t>(value) >> instruction.move.shift);
-                } else {
-                    value <<= instruction.move.shift;
-                }
-                evaluation_[instruction.move.dst].value = value;
-                if (instruction.move.dst != instruction.move.src) {
-                    evaluation_[instruction.move.src].value = 0U;
-                }
-            }
-            break;
-        }
-        case isa::Operator::MoveImmediate:
-            if (instruction.movi.eval) {
-                evaluation_[instruction.movi.dst].value = instruction.movi.imm & 0xFFU;
-            } else {
-                size_t index = instruction.movi.upper ? 1U : 0U;
-                scratch_[instruction.movi.dst].as_u16[index] = instruction.movi.imm;
-            }
-            break;
-        case isa::Operator::Swap: {
-            const Address address{scratch_[instruction.swap.b].as_address};
-            uint32_t word = 0U;
-            if (not Peek(address, word) or not Poke(address, scratch_[instruction.swap.a].as_u32[0])) {
-                special_.exception_.bus_fault = 1;
                 break;
             }
-            scratch_[instruction.swap.a].as_u32[0] = word;
-            break;
-        }
-        case isa::Operator::Zero:
-            if (instruction.clear.type == RegisterType::Scratch) {
-                for (size_t i = 0; i < scratch_.size(); ++i) {
-                    if ((instruction.clear.mask & (1U << i)) != 0U) {
-                        scratch_[i].as_u32[0] = 0U;
+            case isa::Operator::Move: {
+                bool allowed = true;  // default to allowed
+                if (instruction.move.cond) {
+                    // if the eval & mask is not zero, then perform the move
+                    uint32_t eval = evaluation_[instruction.move.eval].value;
+                    uint32_t mask = evaluation_[instruction.move.mask].value;
+                    allowed = (eval & mask) != 0U;
+                }
+                if (allowed and instruction.move.type == 0U) {
+                    uint32_t value = scratch_[instruction.move.src].as_u32[0];
+                    if (instruction.move.dir) {
+                        value = static_cast<uint32_t>(static_cast<int32_t>(value) >> instruction.move.shift);
+                    } else {
+                        value <<= instruction.move.shift;
+                    }
+                    scratch_[instruction.move.dst].as_u32[0] = value;
+                    if (instruction.move.dst != instruction.move.src) {
+                        scratch_[instruction.move.src].as_u32[0] = 0U;
                     }
                 }
-            } else {
-                for (size_t i = 0; i < evaluation_.size(); ++i) {
-                    if ((instruction.clear.mask & (1U << i)) != 0U) {
-                        evaluation_[i].value = 0U;
+                if (allowed and instruction.move.type == 1U) {
+                    EvaluationUnit value = evaluation_[instruction.move.src].value;
+                    if (instruction.move.dir) {
+                        value = static_cast<EvaluationUnit>(static_cast<uint8_t>(value) >> instruction.move.shift);
+                    } else {
+                        value <<= instruction.move.shift;
+                    }
+                    evaluation_[instruction.move.dst].value = value;
+                    if (instruction.move.dst != instruction.move.src) {
+                        evaluation_[instruction.move.src].value = 0U;
                     }
                 }
+                break;
             }
-            break;
-        case isa::Operator::Load: {
-            const auto& load = instruction.loads;
-            Address address;
-            if (load.special == 0U) {
-                address = scratch_[load.base].as_address + (load.off ? Address{load.imm} : Address{0});
-            } else {
-                if (load.base == 4U) {
-                    address = special_.stack_.current;
-                } else if (load.base == 0U) {
-                    address = special_.program_address_;
+            case isa::Operator::MoveImmediate:
+                if (instruction.movi.eval) {
+                    evaluation_[instruction.movi.dst].value = instruction.movi.imm & 0xFFU;
                 } else {
-                    special_.exception_.instruction_fault = 1;
+                    size_t index = instruction.movi.upper ? 1U : 0U;
+                    scratch_[instruction.movi.dst].as_u16[index] = instruction.movi.imm;
+                }
+                break;
+            case isa::Operator::Swap: {
+                const Address address{scratch_[instruction.swap.b].as_address};
+                uint32_t word = 0U;
+                if (not Peek(address, word) or not Poke(address, scratch_[instruction.swap.a].as_u32[0])) {
+                    special_.exception_.bus_fault = 1;
                     break;
                 }
+                scratch_[instruction.swap.a].as_u32[0] = word;
+                break;
             }
-            uint32_t word = 0U;
-            if (Peek(address, word)) {
+            case isa::Operator::Zero:
+                if (instruction.clear.type == RegisterType::Scratch) {
+                    for (size_t i = 0; i < scratch_.size(); ++i) {
+                        if ((instruction.clear.mask & (1U << i)) != 0U) {
+                            scratch_[i].as_u32[0] = 0U;
+                        }
+                    }
+                } else {
+                    for (size_t i = 0; i < evaluation_.size(); ++i) {
+                        if ((instruction.clear.mask & (1U << i)) != 0U) {
+                            evaluation_[i].value = 0U;
+                        }
+                    }
+                }
+                break;
+            case isa::Operator::Load: {
+                const auto& load = instruction.loads;
+                Address address;
+                if (load.special == 0U) {
+                    address = scratch_[load.base].as_address + (load.off ? Address{load.imm} : Address{0});
+                } else {
+                    if (load.base == 4U) {
+                        address = special_.stack_.current;
+                    } else if (load.base == 0U) {
+                        address = special_.program_address_;
+                    } else {
+                        special_.exception_.instruction_fault = 1;
+                        break;
+                    }
+                }
+                uint32_t word = 0U;
+                if (Peek(address, word)) {
+                    uint32_t value = word;
+                    if (load.size == isa::Size::Byte) {
+                        const uint32_t shift = static_cast<uint32_t>(load.shift) * 8U;
+                        value = (word >> shift) & 0xFFU;
+                    } else if (load.size == isa::Size::HalfWord) {
+                        if (load.shift > 1U) {
+                            special_.exception_.instruction_fault = 1;
+                            break;
+                        }
+                        const uint32_t shift = static_cast<uint32_t>(load.shift) * 16U;
+                        value = (word >> shift) & 0xFFFFU;
+                    } else if (load.size == isa::Size::Word) {
+                        if (load.shift != 0U) {
+                            special_.exception_.instruction_fault = 1;
+                            break;
+                        }
+                    } else {
+                        special_.exception_.instruction_fault = 1;
+                        break;
+                    }
+                    scratch_[load.dst].as_u32[0] = value;
+                    if (load.off == 0U) {
+                        scratch_[load.base].as_address += load.imm;
+                    }
+                } else {
+                    special_.exception_.bus_fault = 1;
+                }
+                break;
+            }
+            case isa::Operator::Save: {
+                const auto& save = instruction.save;
+                Address address;
+                if (save.special == 0U) {
+                    address = scratch_[save.base].as_address + (save.off ? Address{save.imm} : Address{0});
+                } else {
+                    if (save.base == 4U) {
+                        address = special_.stack_.current;
+                    } else if (save.base == 0U) {
+                        address = special_.program_address_;
+                    } else {
+                        special_.exception_.instruction_fault = 1;
+                        break;
+                    }
+                }
+                uint32_t word = 0U;
+                if (not Peek(address, word)) {
+                    special_.exception_.bus_fault = 1;
+                    break;
+                }
+
+                const uint32_t src = scratch_[save.src].as_u32[0];
                 uint32_t value = word;
-                if (load.size == isa::Size::Byte) {
-                    const uint32_t shift = static_cast<uint32_t>(load.shift) * 8U;
-                    value = (word >> shift) & 0xFFU;
-                } else if (load.size == isa::Size::HalfWord) {
-                    if (load.shift > 1U) {
+                if (save.size == isa::Size::Byte) {
+                    const uint32_t shift = static_cast<uint32_t>(save.shift) * 8U;
+                    value &= ~(0xFFU << shift);
+                    value |= ((src & 0xFFU) << shift);
+                } else if (save.size == isa::Size::HalfWord) {
+                    if (save.shift > 1U) {
                         special_.exception_.instruction_fault = 1;
                         break;
                     }
-                    const uint32_t shift = static_cast<uint32_t>(load.shift) * 16U;
-                    value = (word >> shift) & 0xFFFFU;
-                } else if (load.size == isa::Size::Word) {
-                    if (load.shift != 0U) {
+                    const uint32_t shift = static_cast<uint32_t>(save.shift) * 16U;
+                    value &= ~(0xFFFFU << shift);
+                    value |= ((src & 0xFFFFU) << shift);
+                } else if (save.size == isa::Size::Word) {
+                    if (save.shift != 0U) {
                         special_.exception_.instruction_fault = 1;
                         break;
                     }
+                    value = src;
                 } else {
                     special_.exception_.instruction_fault = 1;
                     break;
                 }
-                scratch_[load.dst].as_u32[0] = value;
-                if (load.off == 0U) {
-                    scratch_[load.base].as_address += load.imm;
-                }
-            } else {
-                special_.exception_.bus_fault = 1;
-            }
-            break;
-        }
-        case isa::Operator::Save: {
-            const auto& save = instruction.save;
-            Address address;
-            if (save.special == 0U) {
-                address = scratch_[save.base].as_address + (save.off ? Address{save.imm} : Address{0});
-            } else {
-                if (save.base == 4U) {
-                    address = special_.stack_.current;
-                } else if (save.base == 0U) {
-                    address = special_.program_address_;
-                } else {
-                    special_.exception_.instruction_fault = 1;
-                    break;
-                }
-            }
-            uint32_t word = 0U;
-            if (not Peek(address, word)) {
-                special_.exception_.bus_fault = 1;
-                break;
-            }
 
-            const uint32_t src = scratch_[save.src].as_u32[0];
-            uint32_t value = word;
-            if (save.size == isa::Size::Byte) {
-                const uint32_t shift = static_cast<uint32_t>(save.shift) * 8U;
-                value &= ~(0xFFU << shift);
-                value |= ((src & 0xFFU) << shift);
-            } else if (save.size == isa::Size::HalfWord) {
-                if (save.shift > 1U) {
-                    special_.exception_.instruction_fault = 1;
-                    break;
-                }
-                const uint32_t shift = static_cast<uint32_t>(save.shift) * 16U;
-                value &= ~(0xFFFFU << shift);
-                value |= ((src & 0xFFFFU) << shift);
-            } else if (save.size == isa::Size::Word) {
-                if (save.shift != 0U) {
-                    special_.exception_.instruction_fault = 1;
-                    break;
-                }
-                value = src;
-            } else {
-                special_.exception_.instruction_fault = 1;
-                break;
-            }
-
-            if (Poke(address, value)) {
-                if (save.off == 0U) {
-                    scratch_[save.base].as_address += save.imm;
-                }
-            } else {
-                special_.exception_.bus_fault = 1;
-            }
-            break;
-        }
-        case isa::Operator::Leap: {
-            if ((instruction.raw & isa::ImmediateLeapBitMask) != 0U) {
-                if ((instruction.raw & isa::ImmediateLeapSaveBitMask) != 0U) {
-                    special_.return_address_ = special_.program_address_ + sizeof(instructions::Instruction);
-                }
-                special_.program_address_ = Address{instruction.raw & isa::ImmediateLeapAddressMask};
-                control_transferred = true;
-                break;
-            }
-
-            const auto& leap = instruction.leap;
-            bool allowed = true;  // default to allowed
-            if (leap.cond) {
-                // if the eval & mask is not zero, then perform the leap
-                uint32_t eval = evaluation_[leap.eval].value;
-                uint32_t mask = evaluation_[leap.mask].value;
-                allowed = (eval & mask) != 0U;
-            }
-            if (allowed) {
-                if (leap.save) {
-                    // If the save bit is set, then we need to save the return address (i.e. the address of the next
-                    // instruction) in the Return Address Special Register before we update the Program Address Register
-                    // to leap to the target instruction.
-                    special_.return_address_ = special_.program_address_ + sizeof(instructions::Instruction);
-                }
-                // The immediate is measured in instructions rather than in bytes, so it is scaled by the size of an
-                // instruction before it is applied to the base address. The arithmetic is done in 64 bits so that
-                // neither the sign nor the scaling can wrap around.
-                const Address base = scratch_[leap.dst].as_address;
-                const auto byte_offset
-                    = static_cast<int64_t>(leap.imm) * static_cast<int64_t>(sizeof(instructions::Instruction));
-                if (byte_offset > 0) {
-                    const auto offset = static_cast<isa::Address::StorageType>(byte_offset);
-                    if (base.value > std::numeric_limits<isa::Address::StorageType>::max() - offset) {
-                        special_.exception_.bus_fault = 1;
-                        break;
+                if (Poke(address, value)) {
+                    if (save.off == 0U) {
+                        scratch_[save.base].as_address += save.imm;
                     }
-                    special_.program_address_ = base + Address{offset};
-                } else if (byte_offset < 0) {
-                    const auto offset = static_cast<isa::Address::StorageType>(-byte_offset);
-                    if (base.value < offset) {
-                        special_.exception_.bus_fault = 1;
-                        break;
-                    }
-                    special_.program_address_ = base - Address{offset};
-                } else {
-                    special_.program_address_ = base;
-                }
-                control_transferred = true;
-            }
-            break;
-        }
-        case Operator::Back:
-            special_.program_address_ = special_.return_address_;
-            control_transferred = true;
-            if (instruction.back.zero) {
-                Address safe_handler{0U};
-                uint32_t offset = offsetof(VectorTable, safe_handler);
-                if (Peek(special_.vector_table_address_ + offset, safe_handler.value)) {
-                    special_.return_address_ = safe_handler;
                 } else {
                     special_.exception_.bus_fault = 1;
                 }
+                break;
             }
-            break;
-        case Operator::Grow: {
-            const auto& grow = instruction.grow;
-            uint32_t eval = evaluation_[grow.eval].value;
-            uint32_t mask = evaluation_[grow.mask].value;
-            bool allowed = true;
-            if (grow.cond) {
-                // if the eval & mask is not zero, then perform the grow
-                allowed = (eval & mask) != 0U;
-            }
-            if (allowed) {
-                /// The stack grows downwards, so growing subtracts the immediate (expressed in 32-bit words) from the
-                /// current pointer. The base address is the lowest usable address and is inclusive, while the limit is
-                /// the exclusive top; the new pointer must remain within [base, limit]. The subtraction is performed in
-                /// 64 bits so a pointer near zero cannot wrap into a plausible address.
-                const uint64_t next
-                    = static_cast<uint64_t>(special_.stack_.current.value) - static_cast<uint64_t>(grow.imm) * 4U;
-                if (special_.stack_.ContainsPointer(next)) {
-                    special_.stack_.current = Address{static_cast<isa::Address::StorageType>(next)};
-                } else {
-                    special_.exception_.stack_fault = 1;
-                }
-            }
-            break;
-        }
-        case Operator::Fall: {
-            const auto& fall = instruction.fall;
-            uint32_t eval = evaluation_[fall.eval].value;
-            uint32_t mask = evaluation_[fall.mask].value;
-            bool allowed = true;
-            if (fall.cond) {
-                // If the eval & mask is not zero, then restore the stack space.
-                allowed = (eval & mask) != 0U;
-            }
-            if (allowed) {
-                /// Restore stack space by adding the immediate value * 4 (in 32-bit words) to the current pointer,
-                /// without moving past the exclusive stack limit. The addition is performed in 64 bits so it cannot
-                /// wrap past the top of the address space.
-                const uint64_t next
-                    = static_cast<uint64_t>(special_.stack_.current.value) + static_cast<uint64_t>(fall.imm) * 4U;
-                if (special_.stack_.ContainsPointer(next)) {
-                    special_.stack_.current = Address{static_cast<isa::Address::StorageType>(next)};
-                } else {
-                    special_.exception_.stack_fault = 1;
-                }
-            }
-            break;
-        }
-        case Operator::Push: {
-            const auto& push = instruction.push;
-            // Push the registers selected by the mask into the newly allocated block [next, current) of the stack. The
-            // block must lie within the stack storage [base, limit), otherwise a stack fault is raised.
-            const auto count = static_cast<uint32_t>(__builtin_popcount(push.imm));
-            const uint32_t size = sizeof(word<CountOfDataBits>) * count;
-            const uint64_t next = static_cast<uint64_t>(special_.stack_.current.value) - static_cast<uint64_t>(size);
-            if (special_.stack_.ContainsBlock(next, size)) {
-                Address address{static_cast<isa::Address::StorageType>(next)};
-                for (size_t i = 0; i < scratch_.size(); ++i) {
-                    if ((push.imm & (1U << i)) != 0U) {
-                        if (not Poke(address, scratch_[i].as_u32[0])) {
-                            special_.exception_.bus_fault = 1;
-                        }
-                        address += sizeof(word<CountOfDataBits>);
+            case isa::Operator::Leap: {
+                if ((instruction.raw & isa::ImmediateLeapBitMask) != 0U) {
+                    if ((instruction.raw & isa::ImmediateLeapSaveBitMask) != 0U) {
+                        special_.return_address_ = special_.program_address_ + sizeof(instructions::Instruction);
                     }
-                }
-                special_.stack_.current = Address{static_cast<isa::Address::StorageType>(next)};
-            } else {
-                special_.exception_.stack_fault = 1;
-            }
-            break;
-        }
-        case Operator::Pull: {
-            const auto& pull = instruction.pull;
-            // Pull the registers selected by the mask from the block [current, next) of the stack. The block must lie
-            // within the stack storage [base, limit), otherwise a stack fault is raised.
-            const auto count = static_cast<uint32_t>(__builtin_popcount(pull.imm));
-            const uint32_t size = sizeof(word<CountOfDataBits>) * count;
-            const uint64_t next = static_cast<uint64_t>(special_.stack_.current.value) + static_cast<uint64_t>(size);
-            if (special_.stack_.ContainsBlock(special_.stack_.current.value, size)) {
-                Address address = special_.stack_.current;
-                for (size_t i = 0; i < scratch_.size(); ++i) {
-                    if ((pull.imm & (1U << i)) != 0U) {
-                        uint32_t value = 0U;
-                        if (Peek(address, value)) {
-                            scratch_[i].as_u32[0] = value;
-                        } else {
-                            special_.exception_.bus_fault = 1;
-                        }
-                        address += sizeof(word<CountOfDataBits>);
-                    }
-                }
-                special_.stack_.current = Address{static_cast<isa::Address::StorageType>(next)};
-            } else {
-                special_.exception_.stack_fault = 1;
-            }
-            break;
-        }
-        case Operator::Call: {
-            const auto& call = instruction.call;
-            bool allowed = true;  // default to allowed
-            if (call.cond) {
-                // if the eval & mask is not zero, then perform the call
-                uint32_t eval = evaluation_[call.eval].value;
-                uint32_t mask = evaluation_[call.mask].value;
-                allowed = (eval & mask) != 0U;
-            }
-            if (allowed) {
-                // For a call instruction, we'll save the return address (i.e. the address of the next instruction) in
-                // the Return Address Special Register before we update the Program Address Register to leap to the
-                // target instruction.
-                special_.return_address_ = special_.program_address_ + sizeof(instructions::Instruction);
-                Address handler{0};
-                // read the vector table to get the address of the system call handler corresponding to the system call
-                // number in the immediate value of the instruction
-                uint32_t offset = offsetof(VectorTable, system_call_handler);
-                if (Peek(special_.vector_table_address_ + offset, handler.value)) {
-                    special_.numeral_.call = call.imm;
-                    special_.program_address_ = handler;
+                    special_.program_address_ = Address{instruction.raw & isa::ImmediateLeapAddressMask};
                     control_transferred = true;
+                    break;
+                }
+
+                const auto& leap = instruction.leap;
+                bool allowed = true;  // default to allowed
+                if (leap.cond) {
+                    // if the eval & mask is not zero, then perform the leap
+                    uint32_t eval = evaluation_[leap.eval].value;
+                    uint32_t mask = evaluation_[leap.mask].value;
+                    allowed = (eval & mask) != 0U;
+                }
+                if (allowed) {
+                    if (leap.save) {
+                        // If the save bit is set, then we need to save the return address (i.e. the address of the next
+                        // instruction) in the Return Address Special Register before we update the Program Address
+                        // Register to leap to the target instruction.
+                        special_.return_address_ = special_.program_address_ + sizeof(instructions::Instruction);
+                    }
+                    // The immediate is measured in instructions rather than in bytes, so it is scaled by the size of an
+                    // instruction before it is applied to the base address. The arithmetic is done in 64 bits so that
+                    // neither the sign nor the scaling can wrap around.
+                    const Address base = scratch_[leap.dst].as_address;
+                    const auto byte_offset
+                        = static_cast<int64_t>(leap.imm) * static_cast<int64_t>(sizeof(instructions::Instruction));
+                    if (byte_offset > 0) {
+                        const auto offset = static_cast<isa::Address::StorageType>(byte_offset);
+                        if (base.value > std::numeric_limits<isa::Address::StorageType>::max() - offset) {
+                            special_.exception_.bus_fault = 1;
+                            break;
+                        }
+                        special_.program_address_ = base + Address{offset};
+                    } else if (byte_offset < 0) {
+                        const auto offset = static_cast<isa::Address::StorageType>(-byte_offset);
+                        if (base.value < offset) {
+                            special_.exception_.bus_fault = 1;
+                            break;
+                        }
+                        special_.program_address_ = base - Address{offset};
+                    } else {
+                        special_.program_address_ = base;
+                    }
+                    control_transferred = true;
+                }
+                break;
+            }
+            case Operator::Back:
+                special_.program_address_ = special_.return_address_;
+                control_transferred = true;
+                if (instruction.back.zero) {
+                    Address safe_handler{0U};
+                    uint32_t offset = offsetof(VectorTable, safe_handler);
+                    if (Peek(special_.vector_table_address_ + offset, safe_handler.value)) {
+                        special_.return_address_ = safe_handler;
+                    } else {
+                        special_.exception_.bus_fault = 1;
+                    }
+                }
+                break;
+            case Operator::Grow: {
+                const auto& grow = instruction.grow;
+                uint32_t eval = evaluation_[grow.eval].value;
+                uint32_t mask = evaluation_[grow.mask].value;
+                bool allowed = true;
+                if (grow.cond) {
+                    // if the eval & mask is not zero, then perform the grow
+                    allowed = (eval & mask) != 0U;
+                }
+                if (allowed) {
+                    /// The stack grows downwards, so growing subtracts the immediate (expressed in 32-bit words) from
+                    /// the current pointer. The base address is the lowest usable address and is inclusive, while the
+                    /// limit is the exclusive top; the new pointer must remain within [base, limit]. The subtraction is
+                    /// performed in 64 bits so a pointer near zero cannot wrap into a plausible address.
+                    const uint64_t next
+                        = static_cast<uint64_t>(special_.stack_.current.value) - static_cast<uint64_t>(grow.imm) * 4U;
+                    if (special_.stack_.ContainsPointer(next)) {
+                        special_.stack_.current = Address{static_cast<isa::Address::StorageType>(next)};
+                    } else {
+                        special_.exception_.stack_fault = 1;
+                    }
+                }
+                break;
+            }
+            case Operator::Fall: {
+                const auto& fall = instruction.fall;
+                uint32_t eval = evaluation_[fall.eval].value;
+                uint32_t mask = evaluation_[fall.mask].value;
+                bool allowed = true;
+                if (fall.cond) {
+                    // If the eval & mask is not zero, then restore the stack space.
+                    allowed = (eval & mask) != 0U;
+                }
+                if (allowed) {
+                    /// Restore stack space by adding the immediate value * 4 (in 32-bit words) to the current pointer,
+                    /// without moving past the exclusive stack limit. The addition is performed in 64 bits so it cannot
+                    /// wrap past the top of the address space.
+                    const uint64_t next
+                        = static_cast<uint64_t>(special_.stack_.current.value) + static_cast<uint64_t>(fall.imm) * 4U;
+                    if (special_.stack_.ContainsPointer(next)) {
+                        special_.stack_.current = Address{static_cast<isa::Address::StorageType>(next)};
+                    } else {
+                        special_.exception_.stack_fault = 1;
+                    }
+                }
+                break;
+            }
+            case Operator::Push: {
+                const auto& push = instruction.push;
+                // Push the registers selected by the mask into the newly allocated block [next, current) of the stack.
+                // The block must lie within the stack storage [base, limit), otherwise a stack fault is raised.
+                const auto count = static_cast<uint32_t>(__builtin_popcount(push.imm));
+                const uint32_t size = sizeof(word<CountOfDataBits>) * count;
+                const uint64_t next
+                    = static_cast<uint64_t>(special_.stack_.current.value) - static_cast<uint64_t>(size);
+                if (special_.stack_.ContainsBlock(next, size)) {
+                    Address address{static_cast<isa::Address::StorageType>(next)};
+                    for (size_t i = 0; i < scratch_.size(); ++i) {
+                        if ((push.imm & (1U << i)) != 0U) {
+                            if (not Poke(address, scratch_[i].as_u32[0])) {
+                                special_.exception_.bus_fault = 1;
+                            }
+                            address += sizeof(word<CountOfDataBits>);
+                        }
+                    }
+                    special_.stack_.current = Address{static_cast<isa::Address::StorageType>(next)};
                 } else {
-                    special_.exception_.bus_fault = 1;
+                    special_.exception_.stack_fault = 1;
                 }
+                break;
             }
-            break;
-        }
-        case Operator::Trip: {
-            const auto& trip = instruction.trip;
-            bool allowed = true;  // default to allowed
-            if (trip.cond) {
-                // if the eval & mask is not zero, then perform the trip
-                uint32_t eval = evaluation_[trip.eval].value;
-                uint32_t mask = evaluation_[trip.mask].value;
-                allowed = (eval & mask) != 0U;
-            }
-            if (allowed) {
-                special_.numeral_.trip = trip.imm;
-                // special_.exception_.type = static_cast<ExceptionType>(trip.imm);
-                special_.exception_.tripped = 1;
-                if (trip.debug_break) {
-                    break_point_hit_ = true;
+            case Operator::Pull: {
+                const auto& pull = instruction.pull;
+                // Pull the registers selected by the mask from the block [current, next) of the stack. The block must
+                // lie within the stack storage [base, limit), otherwise a stack fault is raised.
+                const auto count = static_cast<uint32_t>(__builtin_popcount(pull.imm));
+                const uint32_t size = sizeof(word<CountOfDataBits>) * count;
+                const uint64_t next
+                    = static_cast<uint64_t>(special_.stack_.current.value) + static_cast<uint64_t>(size);
+                if (special_.stack_.ContainsBlock(special_.stack_.current.value, size)) {
+                    Address address = special_.stack_.current;
+                    for (size_t i = 0; i < scratch_.size(); ++i) {
+                        if ((pull.imm & (1U << i)) != 0U) {
+                            uint32_t value = 0U;
+                            if (Peek(address, value)) {
+                                scratch_[i].as_u32[0] = value;
+                            } else {
+                                special_.exception_.bus_fault = 1;
+                            }
+                            address += sizeof(word<CountOfDataBits>);
+                        }
+                    }
+                    special_.stack_.current = Address{static_cast<isa::Address::StorageType>(next)};
+                } else {
+                    special_.exception_.stack_fault = 1;
                 }
+                break;
             }
-            break;
-        }
-        case Operator::Compare: {
-            const auto& compare = instruction.compare;
-            ComparisonEvaluation cmp{};
-            if (compare.s) {
-                // Signed comparison
-                int32_t a = scratch_[compare.a].as_s32[0];
-                int32_t b = scratch_[compare.b].as_s32[0];
-                cmp.equal = (a == b) ? 1U : 0U;
-                cmp.less_than = (a < b) ? 1U : 0U;
-                cmp.greater_than = (a > b) ? 1U : 0U;
-                cmp.not_equal = (a != b) ? 1U : 0U;
-            } else {
-                // Unsigned comparison
-                uint32_t a = scratch_[compare.a].as_u32[0];
-                uint32_t b = scratch_[compare.b].as_u32[0];
-                cmp.equal = (a == b) ? 1U : 0U;
-                cmp.less_than = (a < b) ? 1U : 0U;
-                cmp.greater_than = (a > b) ? 1U : 0U;
-                cmp.not_equal = (a != b) ? 1U : 0U;
-            }
-            evaluation_[compare.e] = cmp;
-            break;
-        }
-        case Operator::And:
-        case Operator::Or:
-        case Operator::Xor: {
-            const auto& bitwise = instruction.bitwise2;
-            const uint32_t lhs = scratch_[bitwise.src1].as_u32[0];
-            const uint32_t rhs = scratch_[bitwise.src2].as_u32[0];
-            uint32_t result = 0U;
-            if (instruction.base() == Operator::And) {
-                result = lhs & rhs;
-            } else if (instruction.base() == Operator::Or) {
-                result = lhs | rhs;
-            } else {
-                result = lhs ^ rhs;
-            }
-            scratch_[bitwise.dst].as_u32[0] = result;
-            if (bitwise.cond) {
-                evaluation_[bitwise.eval] = BitwiseEvaluation(result);
-            }
-            break;
-        }
-        case Operator::Complement:
-        case Operator::Rsh:
-        case Operator::Asr:
-        case Operator::Lsh:
-        case Operator::Rotate:
-        case Operator::Count1s:
-        case Operator::CountL0s:
-        case Operator::Not:
-        case Operator::SetBit:
-        case Operator::ClearBit:
-        case Operator::ToggleBit:
-        case Operator::Reverse: {
-            const auto& bitwise = instruction.bitwise1;
-            const uint32_t value = scratch_[bitwise.src].as_u32[0];
-            const uint32_t shift = bitwise.shift;
-            uint32_t result = 0U;
-            bool valid = true;
-            switch (instruction.base()) {
-                case Operator::Complement:
-                    result = ~value;
-                    break;
-                case Operator::Rsh:
-                    result = value >> shift;
-                    break;
-                case Operator::Asr:
-                    result = static_cast<uint32_t>(static_cast<int32_t>(value) >> shift);
-                    break;
-                case Operator::Lsh:
-                    result = value << shift;
-                    break;
-                case Operator::Rotate:
-                    result = (shift == 0U) ? value : ((value << shift) | (value >> (32U - shift)));
-                    break;
-                case Operator::Count1s:
-                    for (uint32_t v = value; v != 0U; v >>= 1) {
-                        result += v & 1U;
+            case Operator::Call: {
+                const auto& call = instruction.call;
+                bool allowed = true;  // default to allowed
+                if (call.cond) {
+                    // if the eval & mask is not zero, then perform the call
+                    uint32_t eval = evaluation_[call.eval].value;
+                    uint32_t mask = evaluation_[call.mask].value;
+                    allowed = (eval & mask) != 0U;
+                }
+                if (allowed) {
+                    // For a call instruction, we'll save the return address (i.e. the address of the next instruction)
+                    // in the Return Address Special Register before we update the Program Address Register to leap to
+                    // the target instruction.
+                    special_.return_address_ = special_.program_address_ + sizeof(instructions::Instruction);
+                    Address handler{0};
+                    // read the vector table to get the address of the system call handler corresponding to the system
+                    // call number in the immediate value of the instruction
+                    uint32_t offset = offsetof(VectorTable, system_call_handler);
+                    if (Peek(special_.vector_table_address_ + offset, handler.value)) {
+                        special_.numeral_.call = call.imm;
+                        special_.program_address_ = handler;
+                        control_transferred = true;
+                    } else {
+                        special_.exception_.bus_fault = 1;
                     }
-                    break;
-                case Operator::CountL0s:
-                    while (result < 32U && (value & (0x80000000U >> result)) == 0U) {
-                        result++;
+                }
+                break;
+            }
+            case Operator::Trip: {
+                const auto& trip = instruction.trip;
+                bool allowed = true;  // default to allowed
+                if (trip.cond) {
+                    // if the eval & mask is not zero, then perform the trip
+                    uint32_t eval = evaluation_[trip.eval].value;
+                    uint32_t mask = evaluation_[trip.mask].value;
+                    allowed = (eval & mask) != 0U;
+                }
+                if (allowed) {
+                    special_.numeral_.trip = trip.imm;
+                    // special_.exception_.type = static_cast<ExceptionType>(trip.imm);
+                    special_.exception_.tripped = 1;
+                    if (trip.debug_break) {
+                        break_point_hit_ = true;
                     }
-                    break;
-                case Operator::Not:
-                    result = (value == 0U) ? 0xFFFFFFFFU : 0U;
-                    break;
-                case Operator::SetBit:
-                    result = value | (1U << shift);
-                    break;
-                case Operator::ClearBit:
-                    result = value & ~(1U << shift);
-                    break;
-                case Operator::ToggleBit:
-                    result = value ^ (1U << shift);
-                    break;
-                default: {  // Reverse the bits within each byte (0), half-word (1) or word (2)
-                    if (shift > 2U) {
-                        valid = false;
+                }
+                break;
+            }
+            case Operator::Compare: {
+                const auto& compare = instruction.compare;
+                ComparisonEvaluation cmp{};
+                if (compare.s) {
+                    // Signed comparison
+                    int32_t a = scratch_[compare.a].as_s32[0];
+                    int32_t b = scratch_[compare.b].as_s32[0];
+                    cmp.equal = (a == b) ? 1U : 0U;
+                    cmp.less_than = (a < b) ? 1U : 0U;
+                    cmp.greater_than = (a > b) ? 1U : 0U;
+                    cmp.not_equal = (a != b) ? 1U : 0U;
+                } else {
+                    // Unsigned comparison
+                    uint32_t a = scratch_[compare.a].as_u32[0];
+                    uint32_t b = scratch_[compare.b].as_u32[0];
+                    cmp.equal = (a == b) ? 1U : 0U;
+                    cmp.less_than = (a < b) ? 1U : 0U;
+                    cmp.greater_than = (a > b) ? 1U : 0U;
+                    cmp.not_equal = (a != b) ? 1U : 0U;
+                }
+                evaluation_[compare.e] = cmp;
+                break;
+            }
+            case Operator::And:
+            case Operator::Or:
+            case Operator::Xor: {
+                const auto& bitwise = instruction.bitwise2;
+                const uint32_t lhs = scratch_[bitwise.src1].as_u32[0];
+                const uint32_t rhs = scratch_[bitwise.src2].as_u32[0];
+                uint32_t result = 0U;
+                if (instruction.base() == Operator::And) {
+                    result = lhs & rhs;
+                } else if (instruction.base() == Operator::Or) {
+                    result = lhs | rhs;
+                } else {
+                    result = lhs ^ rhs;
+                }
+                scratch_[bitwise.dst].as_u32[0] = result;
+                if (bitwise.cond) {
+                    evaluation_[bitwise.eval] = BitwiseEvaluation(result);
+                }
+                break;
+            }
+            case Operator::Complement:
+            case Operator::Rsh:
+            case Operator::Asr:
+            case Operator::Lsh:
+            case Operator::Rotate:
+            case Operator::Count1s:
+            case Operator::CountL0s:
+            case Operator::Not:
+            case Operator::SetBit:
+            case Operator::ClearBit:
+            case Operator::ToggleBit:
+            case Operator::Reverse: {
+                const auto& bitwise = instruction.bitwise1;
+                const uint32_t value = scratch_[bitwise.src].as_u32[0];
+                const uint32_t shift = bitwise.shift;
+                uint32_t result = 0U;
+                bool valid = true;
+                switch (instruction.base()) {
+                    case Operator::Complement:
+                        result = ~value;
+                        break;
+                    case Operator::Rsh:
+                        result = value >> shift;
+                        break;
+                    case Operator::Asr:
+                        result = static_cast<uint32_t>(static_cast<int32_t>(value) >> shift);
+                        break;
+                    case Operator::Lsh:
+                        result = value << shift;
+                        break;
+                    case Operator::Rotate:
+                        result = (shift == 0U) ? value : ((value << shift) | (value >> (32U - shift)));
+                        break;
+                    case Operator::Count1s:
+                        for (uint32_t v = value; v != 0U; v >>= 1) {
+                            result += v & 1U;
+                        }
+                        break;
+                    case Operator::CountL0s:
+                        while (result < 32U && (value & (0x80000000U >> result)) == 0U) {
+                            result++;
+                        }
+                        break;
+                    case Operator::Not:
+                        result = (value == 0U) ? 0xFFFFFFFFU : 0U;
+                        break;
+                    case Operator::SetBit:
+                        result = value | (1U << shift);
+                        break;
+                    case Operator::ClearBit:
+                        result = value & ~(1U << shift);
+                        break;
+                    case Operator::ToggleBit:
+                        result = value ^ (1U << shift);
+                        break;
+                    default: {  // Reverse the bits within each byte (0), half-word (1) or word (2)
+                        if (shift > 2U) {
+                            valid = false;
+                            break;
+                        }
+                        const uint32_t unit_bits = 8U << shift;
+                        for (uint32_t base = 0U; base < 32U; base += unit_bits) {
+                            for (uint32_t bit = 0U; bit < unit_bits; ++bit) {
+                                if ((value & (1U << (base + bit))) != 0U) {
+                                    result |= 1U << (base + unit_bits - 1U - bit);
+                                }
+                            }
+                        }
                         break;
                     }
-                    const uint32_t unit_bits = 8U << shift;
-                    for (uint32_t base = 0U; base < 32U; base += unit_bits) {
-                        for (uint32_t bit = 0U; bit < unit_bits; ++bit) {
-                            if ((value & (1U << (base + bit))) != 0U) {
-                                result |= 1U << (base + unit_bits - 1U - bit);
-                            }
-                        }
-                    }
+                }
+                if (not valid) {
+                    special_.exception_.instruction_fault = 1;
                     break;
                 }
-            }
-            if (not valid) {
-                special_.exception_.instruction_fault = 1;
+                scratch_[bitwise.dst].as_u32[0] = result;
+                if (bitwise.cond) {
+                    evaluation_[bitwise.eval] = BitwiseEvaluation(result);
+                }
                 break;
             }
-            scratch_[bitwise.dst].as_u32[0] = result;
-            if (bitwise.cond) {
-                evaluation_[bitwise.eval] = BitwiseEvaluation(result);
-            }
-            break;
-        }
-        case Operator::Addition: {
-            const auto& arithmetic = instruction.arithmetic;
-            switch (static_cast<instructions::Arithmetic::Size>(arithmetic.size)) {
-                case instructions::Arithmetic::Size::Byte:  // 8-bit
-                    if (arithmetic.sign) {
-                        auto [result, eval] = operations::Addition<int8_t, int16_t>(
-                            scratch_[arithmetic.src1].as_s08[0], scratch_[arithmetic.src2].as_s08[0], arithmetic.sat);
-                        scratch_[arithmetic.dst].as_s08[0] = result;
-                        if (arithmetic.cond) {
-                            evaluation_[arithmetic.eval] = eval;
-                        }
-                    } else {
-                        auto [result, eval] = operations::Addition<uint8_t, uint16_t>(
-                            scratch_[arithmetic.src1].as_u08[0], scratch_[arithmetic.src2].as_u08[0], arithmetic.sat);
-                        scratch_[arithmetic.dst].as_u08[0] = result;
-                        if (arithmetic.cond) {
-                            evaluation_[arithmetic.eval] = eval;
-                        }
-                    }
-                    break;
-                case instructions::Arithmetic::Size::HalfWord:  // 16-bit
-                    if (arithmetic.sign) {
-                        auto [result, eval] = operations::Addition<int16_t, int32_t>(
-                            scratch_[arithmetic.src1].as_s16[0], scratch_[arithmetic.src2].as_s16[0], arithmetic.sat);
-                        scratch_[arithmetic.dst].as_s16[0] = result;
-                        if (arithmetic.cond) {
-                            evaluation_[arithmetic.eval] = eval;
-                        }
-                    } else {
-                        auto [result, eval] = operations::Addition<uint16_t, uint32_t>(
-                            scratch_[arithmetic.src1].as_u16[0], scratch_[arithmetic.src2].as_u16[0], arithmetic.sat);
-                        scratch_[arithmetic.dst].as_u16[0] = result;
-                        if (arithmetic.cond) {
-                            evaluation_[arithmetic.eval] = eval;
-                        }
-                    }
-                    break;
-                case instructions::Arithmetic::Size::Word:  // 32-bit
-                    if (arithmetic.sign) {
-                        auto [result, eval] = operations::Addition<int32_t, int64_t>(
-                            scratch_[arithmetic.src1].as_s32[0], scratch_[arithmetic.src2].as_s32[0], arithmetic.sat);
-                        scratch_[arithmetic.dst].as_s32[0] = result;
-                        if (arithmetic.cond) {
-                            evaluation_[arithmetic.eval] = eval;
-                        }
-                    } else {
-                        auto [result, eval] = operations::Addition<uint32_t, uint64_t>(
-                            scratch_[arithmetic.src1].as_u32[0], scratch_[arithmetic.src2].as_u32[0], arithmetic.sat);
-                        scratch_[arithmetic.dst].as_u32[0] = result;
-                        if (arithmetic.cond) {
-                            evaluation_[arithmetic.eval] = eval;
-                        }
-                    }
-                    break;
-                default: {
-                    // Invalid size, set an appropriate exception
-                    special_.exception_.instruction_fault = 1;
-                    break;
-                }
-            }
-            break;
-        }
-        case Operator::Subtract: {
-            const auto& arithmetic = instruction.arithmetic;
-            switch (static_cast<instructions::Arithmetic::Size>(arithmetic.size)) {
-                case instructions::Arithmetic::Size::Byte:  // 8-bit
-                    if (arithmetic.sign) {
-                        auto [result, eval] = operations::Subtraction<int8_t, int16_t>(
-                            scratch_[arithmetic.src1].as_s08[0], scratch_[arithmetic.src2].as_s08[0], arithmetic.sat);
-                        scratch_[arithmetic.dst].as_s08[0] = result;
-                        if (arithmetic.cond) {
-                            evaluation_[arithmetic.eval] = eval;
-                        }
-                    } else {
-                        auto [result, eval] = operations::Subtraction<uint8_t, uint16_t>(
-                            scratch_[arithmetic.src1].as_u08[0], scratch_[arithmetic.src2].as_u08[0], arithmetic.sat);
-                        scratch_[arithmetic.dst].as_u08[0] = result;
-                        if (arithmetic.cond) {
-                            evaluation_[arithmetic.eval] = eval;
-                        }
-                    }
-                    break;
-                case instructions::Arithmetic::Size::HalfWord:  // 16-bit
-                    if (arithmetic.sign) {
-                        auto [result, eval] = operations::Subtraction<int16_t, int32_t>(
-                            scratch_[arithmetic.src1].as_s16[0], scratch_[arithmetic.src2].as_s16[0], arithmetic.sat);
-                        scratch_[arithmetic.dst].as_s16[0] = result;
-                        if (arithmetic.cond) {
-                            evaluation_[arithmetic.eval] = eval;
-                        }
-                    } else {
-                        auto [result, eval] = operations::Subtraction<uint16_t, uint32_t>(
-                            scratch_[arithmetic.src1].as_u16[0], scratch_[arithmetic.src2].as_u16[0], arithmetic.sat);
-                        scratch_[arithmetic.dst].as_u16[0] = result;
-                        if (arithmetic.cond) {
-                            evaluation_[arithmetic.eval] = eval;
-                        }
-                    }
-                    break;
-                case instructions::Arithmetic::Size::Word:  // 32-bit
-                    if (arithmetic.sign) {
-                        auto [result, eval] = operations::Subtraction<int32_t, int64_t>(
-                            scratch_[arithmetic.src1].as_s32[0], scratch_[arithmetic.src2].as_s32[0], arithmetic.sat);
-                        scratch_[arithmetic.dst].as_s32[0] = result;
-                        if (arithmetic.cond) {
-                            evaluation_[arithmetic.eval] = eval;
-                        }
-                    } else {
-                        auto [result, eval] = operations::Subtraction<uint32_t, uint64_t>(
-                            scratch_[arithmetic.src1].as_u32[0], scratch_[arithmetic.src2].as_u32[0], arithmetic.sat);
-                        scratch_[arithmetic.dst].as_u32[0] = result;
-                        if (arithmetic.cond) {
-                            evaluation_[arithmetic.eval] = eval;
-                        }
-                    }
-                    break;
-                default: {
-                    // Invalid size, set an appropriate exception
-                    special_.exception_.instruction_fault = 1;
-                    break;
-                }
-            }
-            break;
-        }
-        case Operator::Multiply: {
-            const auto& arithmetic = instruction.arithmetic;
-            switch (static_cast<instructions::Arithmetic::Size>(arithmetic.size)) {
-                case instructions::Arithmetic::Size::Byte:  // 8-bit
-                    if (arithmetic.sign) {
-                        auto [result, evaluation] = operations::Multiply<int8_t, int16_t>(
-                            scratch_[arithmetic.src1].as_s08[0], scratch_[arithmetic.src2].as_s08[0], arithmetic.sat);
-                        if (arithmetic.cond) {
-                            // set the evaluation flag for arithmetic overflow if it occurred during the multiplication
-                            evaluation_[arithmetic.eval] = evaluation;
-                        }
-                        scratch_[arithmetic.dst].as_s08[0] = result;
-                    } else {
-                        auto [result, evaluation] = operations::Multiply<uint8_t, uint16_t>(
-                            scratch_[arithmetic.src1].as_u08[0], scratch_[arithmetic.src2].as_u08[0], arithmetic.sat);
-                        if (arithmetic.cond) {
-                            // set the evaluation flag for arithmetic overflow if it occurred during the multiplication
-                            evaluation_[arithmetic.eval] = evaluation;
-                        }
-                        scratch_[arithmetic.dst].as_u08[0] = result;
-                    }
-                    break;
-                case instructions::Arithmetic::Size::HalfWord:  // 16-bit
-                    if (arithmetic.sign) {
-                        auto [result, evaluation] = operations::Multiply<int16_t, int32_t>(
-                            scratch_[arithmetic.src1].as_s16[0], scratch_[arithmetic.src2].as_s16[0], arithmetic.sat);
-                        if (arithmetic.cond) {
-                            // set the evaluation flag for arithmetic overflow if it occurred during the multiplication
-                            evaluation_[arithmetic.eval] = evaluation;
-                        }
-                        scratch_[arithmetic.dst].as_s16[0] = result;
-                    } else {
-                        auto [result, evaluation] = operations::Multiply<uint16_t, uint32_t>(
-                            scratch_[arithmetic.src1].as_u16[0], scratch_[arithmetic.src2].as_u16[0], arithmetic.sat);
-                        if (arithmetic.cond) {
-                            // set the evaluation flag for arithmetic overflow if it occurred during the multiplication
-                            evaluation_[arithmetic.eval] = evaluation;
-                        }
-                        scratch_[arithmetic.dst].as_u16[0] = result;
-                    }
-                    break;
-                case instructions::Arithmetic::Size::Word:  // 32-bit
-                    if (arithmetic.sign) {
-                        auto [result, evaluation] = operations::Multiply<int32_t, int64_t>(
-                            scratch_[arithmetic.src1].as_s32[0], scratch_[arithmetic.src2].as_s32[0], arithmetic.sat);
-                        if (arithmetic.cond) {
-                            // set the evaluation flag for arithmetic overflow if it occurred during the multiplication
-                            evaluation_[arithmetic.eval] = evaluation;
-                        }
-                        scratch_[arithmetic.dst].as_s32[0] = result;
-                    } else {
-                        auto [result, evaluation] = operations::Multiply<uint32_t, uint64_t>(
-                            scratch_[arithmetic.src1].as_u32[0], scratch_[arithmetic.src2].as_u32[0], arithmetic.sat);
-                        if (arithmetic.cond) {
-                            // set the evaluation flag for arithmetic overflow if it occurred during the multiplication
-                            evaluation_[arithmetic.eval] = evaluation;
-                        }
-                        scratch_[arithmetic.dst].as_u32[0] = result;
-                    }
-                    break;
-                default:
-                    break;
-            }
-            break;
-        }
-        case Operator::Divide: {
-            const auto& arithmetic = instruction.arithmetic;
-            switch (static_cast<instructions::Arithmetic::Size>(arithmetic.size)) {
-                case instructions::Arithmetic::Size::Byte:
-                    if (arithmetic.sign) {
-                        auto [result, eval] = operations::Division<int8_t>(scratch_[arithmetic.src1].as_s08[0],
-                                                                           scratch_[arithmetic.src2].as_s08[0]);
-                        if (eval.arithmetic.undefined) {
-                            special_.exception_.instruction_fault = 1;
-                        } else {
+            case Operator::Addition: {
+                const auto& arithmetic = instruction.arithmetic;
+                switch (static_cast<instructions::Arithmetic::Size>(arithmetic.size)) {
+                    case instructions::Arithmetic::Size::Byte:  // 8-bit
+                        if (arithmetic.sign) {
+                            auto [result, eval] = operations::Addition<int8_t, int16_t>(
+                                scratch_[arithmetic.src1].as_s08[0], scratch_[arithmetic.src2].as_s08[0],
+                                arithmetic.sat);
                             scratch_[arithmetic.dst].as_s08[0] = result;
                             if (arithmetic.cond) {
                                 evaluation_[arithmetic.eval] = eval;
                             }
-                        }
-                    } else {
-                        auto [result, eval] = operations::Division<uint8_t>(scratch_[arithmetic.src1].as_u08[0],
-                                                                            scratch_[arithmetic.src2].as_u08[0]);
-                        if (eval.arithmetic.undefined) {
-                            special_.exception_.instruction_fault = 1;
                         } else {
+                            auto [result, eval] = operations::Addition<uint8_t, uint16_t>(
+                                scratch_[arithmetic.src1].as_u08[0], scratch_[arithmetic.src2].as_u08[0],
+                                arithmetic.sat);
                             scratch_[arithmetic.dst].as_u08[0] = result;
                             if (arithmetic.cond) {
                                 evaluation_[arithmetic.eval] = eval;
                             }
                         }
-                    }
-                    break;
-                case instructions::Arithmetic::Size::HalfWord:
-                    if (arithmetic.sign) {
-                        auto [result, eval] = operations::Division<int16_t>(scratch_[arithmetic.src1].as_s16[0],
-                                                                            scratch_[arithmetic.src2].as_s16[0]);
-                        if (eval.arithmetic.undefined) {
-                            special_.exception_.instruction_fault = 1;
-                        } else {
+                        break;
+                    case instructions::Arithmetic::Size::HalfWord:  // 16-bit
+                        if (arithmetic.sign) {
+                            auto [result, eval] = operations::Addition<int16_t, int32_t>(
+                                scratch_[arithmetic.src1].as_s16[0], scratch_[arithmetic.src2].as_s16[0],
+                                arithmetic.sat);
                             scratch_[arithmetic.dst].as_s16[0] = result;
                             if (arithmetic.cond) {
                                 evaluation_[arithmetic.eval] = eval;
                             }
-                        }
-                    } else {
-                        auto [result, eval] = operations::Division<uint16_t>(scratch_[arithmetic.src1].as_u16[0],
-                                                                             scratch_[arithmetic.src2].as_u16[0]);
-                        if (eval.arithmetic.undefined) {
-                            special_.exception_.instruction_fault = 1;
                         } else {
+                            auto [result, eval] = operations::Addition<uint16_t, uint32_t>(
+                                scratch_[arithmetic.src1].as_u16[0], scratch_[arithmetic.src2].as_u16[0],
+                                arithmetic.sat);
                             scratch_[arithmetic.dst].as_u16[0] = result;
                             if (arithmetic.cond) {
                                 evaluation_[arithmetic.eval] = eval;
                             }
                         }
-                    }
-                    break;
-                case instructions::Arithmetic::Size::Word:
-                    if (arithmetic.sign) {
-                        auto [result, eval] = operations::Division<int32_t>(scratch_[arithmetic.src1].as_s32[0],
-                                                                            scratch_[arithmetic.src2].as_s32[0]);
-                        if (eval.arithmetic.undefined) {
-                            special_.exception_.instruction_fault = 1;
-                        } else {
+                        break;
+                    case instructions::Arithmetic::Size::Word:  // 32-bit
+                        if (arithmetic.sign) {
+                            auto [result, eval] = operations::Addition<int32_t, int64_t>(
+                                scratch_[arithmetic.src1].as_s32[0], scratch_[arithmetic.src2].as_s32[0],
+                                arithmetic.sat);
                             scratch_[arithmetic.dst].as_s32[0] = result;
                             if (arithmetic.cond) {
                                 evaluation_[arithmetic.eval] = eval;
                             }
-                        }
-                    } else {
-                        auto [result, eval] = operations::Division<uint32_t>(scratch_[arithmetic.src1].as_u32[0],
-                                                                             scratch_[arithmetic.src2].as_u32[0]);
-                        if (eval.arithmetic.undefined) {
-                            special_.exception_.instruction_fault = 1;
                         } else {
+                            auto [result, eval] = operations::Addition<uint32_t, uint64_t>(
+                                scratch_[arithmetic.src1].as_u32[0], scratch_[arithmetic.src2].as_u32[0],
+                                arithmetic.sat);
                             scratch_[arithmetic.dst].as_u32[0] = result;
                             if (arithmetic.cond) {
                                 evaluation_[arithmetic.eval] = eval;
                             }
                         }
+                        break;
+                    default: {
+                        // Invalid size, set an appropriate exception
+                        special_.exception_.instruction_fault = 1;
+                        break;
                     }
-                    break;
-                default:
-                    special_.exception_.instruction_fault = 1;
-                    break;
-            }
-            break;
-        }
-        case Operator::Extend: {
-            const auto& extend = instruction.extend;
-            uint32_t result = 0U;
-            if (extend.size == static_cast<uint32_t>(isa::Size::Byte)) {
-                result = extend.sign ? static_cast<uint32_t>(static_cast<int32_t>(scratch_[extend.src].as_s08[0]))
-                                     : static_cast<uint32_t>(scratch_[extend.src].as_u08[0]);
-            } else if (extend.size == static_cast<uint32_t>(isa::Size::HalfWord)) {
-                result = extend.sign ? static_cast<uint32_t>(static_cast<int32_t>(scratch_[extend.src].as_s16[0]))
-                                     : static_cast<uint32_t>(scratch_[extend.src].as_u16[0]);
-            } else {
-                special_.exception_.instruction_fault = 1;
+                }
                 break;
             }
-            scratch_[extend.dst].as_u32[0] = result;
-            if (extend.cond) {
-                evaluation_[extend.eval] = BitwiseEvaluation(result);
-            }
-            break;
-        }
-        case Operator::Negate: {
-            const auto& negate = instruction.negate;
-            Evaluation flags;
-            switch (static_cast<isa::Size>(negate.size)) {
-                case isa::Size::Byte: {
-                    auto [result, eval]
-                        = operations::Subtraction<int8_t, int16_t>(0, scratch_[negate.src].as_s08[0], negate.sat);
-                    scratch_[negate.dst].as_s08[0] = result;
-                    flags = eval;
-                    break;
-                }
-                case isa::Size::HalfWord: {
-                    auto [result, eval]
-                        = operations::Subtraction<int16_t, int32_t>(0, scratch_[negate.src].as_s16[0], negate.sat);
-                    scratch_[negate.dst].as_s16[0] = result;
-                    flags = eval;
-                    break;
-                }
-                case isa::Size::Word: {
-                    auto [result, eval]
-                        = operations::Subtraction<int32_t, int64_t>(0, scratch_[negate.src].as_s32[0], negate.sat);
-                    scratch_[negate.dst].as_s32[0] = result;
-                    flags = eval;
-                    break;
-                }
-                default:
-                    special_.exception_.instruction_fault = 1;
-                    break;
-            }
-            if (negate.cond and not special_.exception_.instruction_fault) {
-                evaluation_[negate.eval] = flags;
-            }
-            break;
-        }
-        case Operator::Modulo: {
-            const auto& arithmetic = instruction.arithmetic;
-            switch (static_cast<instructions::Arithmetic::Size>(arithmetic.size)) {
-                case instructions::Arithmetic::Size::Byte:
-                    if (arithmetic.sign) {
-                        auto [result, eval] = operations::Modulo<int8_t>(scratch_[arithmetic.src1].as_s08[0],
-                                                                         scratch_[arithmetic.src2].as_s08[0]);
-                        if (eval.arithmetic.undefined) {
-                            special_.exception_.instruction_fault = 1;
-                        } else {
+            case Operator::Subtract: {
+                const auto& arithmetic = instruction.arithmetic;
+                switch (static_cast<instructions::Arithmetic::Size>(arithmetic.size)) {
+                    case instructions::Arithmetic::Size::Byte:  // 8-bit
+                        if (arithmetic.sign) {
+                            auto [result, eval] = operations::Subtraction<int8_t, int16_t>(
+                                scratch_[arithmetic.src1].as_s08[0], scratch_[arithmetic.src2].as_s08[0],
+                                arithmetic.sat);
                             scratch_[arithmetic.dst].as_s08[0] = result;
                             if (arithmetic.cond) {
                                 evaluation_[arithmetic.eval] = eval;
                             }
-                        }
-                    } else {
-                        auto [result, eval] = operations::Modulo<uint8_t>(scratch_[arithmetic.src1].as_u08[0],
-                                                                          scratch_[arithmetic.src2].as_u08[0]);
-                        if (eval.arithmetic.undefined) {
-                            special_.exception_.instruction_fault = 1;
                         } else {
+                            auto [result, eval] = operations::Subtraction<uint8_t, uint16_t>(
+                                scratch_[arithmetic.src1].as_u08[0], scratch_[arithmetic.src2].as_u08[0],
+                                arithmetic.sat);
                             scratch_[arithmetic.dst].as_u08[0] = result;
                             if (arithmetic.cond) {
                                 evaluation_[arithmetic.eval] = eval;
                             }
                         }
-                    }
-                    break;
-                case instructions::Arithmetic::Size::HalfWord:
-                    if (arithmetic.sign) {
-                        auto [result, eval] = operations::Modulo<int16_t>(scratch_[arithmetic.src1].as_s16[0],
-                                                                          scratch_[arithmetic.src2].as_s16[0]);
-                        if (eval.arithmetic.undefined) {
-                            special_.exception_.instruction_fault = 1;
-                        } else {
+                        break;
+                    case instructions::Arithmetic::Size::HalfWord:  // 16-bit
+                        if (arithmetic.sign) {
+                            auto [result, eval] = operations::Subtraction<int16_t, int32_t>(
+                                scratch_[arithmetic.src1].as_s16[0], scratch_[arithmetic.src2].as_s16[0],
+                                arithmetic.sat);
                             scratch_[arithmetic.dst].as_s16[0] = result;
                             if (arithmetic.cond) {
                                 evaluation_[arithmetic.eval] = eval;
                             }
-                        }
-                    } else {
-                        auto [result, eval] = operations::Modulo<uint16_t>(scratch_[arithmetic.src1].as_u16[0],
-                                                                           scratch_[arithmetic.src2].as_u16[0]);
-                        if (eval.arithmetic.undefined) {
-                            special_.exception_.instruction_fault = 1;
                         } else {
+                            auto [result, eval] = operations::Subtraction<uint16_t, uint32_t>(
+                                scratch_[arithmetic.src1].as_u16[0], scratch_[arithmetic.src2].as_u16[0],
+                                arithmetic.sat);
                             scratch_[arithmetic.dst].as_u16[0] = result;
                             if (arithmetic.cond) {
                                 evaluation_[arithmetic.eval] = eval;
                             }
                         }
-                    }
-                    break;
-                case instructions::Arithmetic::Size::Word:
-                    if (arithmetic.sign) {
-                        auto [result, eval] = operations::Modulo<int32_t>(scratch_[arithmetic.src1].as_s32[0],
-                                                                          scratch_[arithmetic.src2].as_s32[0]);
-                        if (eval.arithmetic.undefined) {
-                            special_.exception_.instruction_fault = 1;
-                        } else {
+                        break;
+                    case instructions::Arithmetic::Size::Word:  // 32-bit
+                        if (arithmetic.sign) {
+                            auto [result, eval] = operations::Subtraction<int32_t, int64_t>(
+                                scratch_[arithmetic.src1].as_s32[0], scratch_[arithmetic.src2].as_s32[0],
+                                arithmetic.sat);
                             scratch_[arithmetic.dst].as_s32[0] = result;
                             if (arithmetic.cond) {
                                 evaluation_[arithmetic.eval] = eval;
                             }
-                        }
-                    } else {
-                        auto [result, eval] = operations::Modulo<uint32_t>(scratch_[arithmetic.src1].as_u32[0],
-                                                                           scratch_[arithmetic.src2].as_u32[0]);
-                        if (eval.arithmetic.undefined) {
-                            special_.exception_.instruction_fault = 1;
                         } else {
+                            auto [result, eval] = operations::Subtraction<uint32_t, uint64_t>(
+                                scratch_[arithmetic.src1].as_u32[0], scratch_[arithmetic.src2].as_u32[0],
+                                arithmetic.sat);
                             scratch_[arithmetic.dst].as_u32[0] = result;
                             if (arithmetic.cond) {
                                 evaluation_[arithmetic.eval] = eval;
                             }
                         }
+                        break;
+                    default: {
+                        // Invalid size, set an appropriate exception
+                        special_.exception_.instruction_fault = 1;
+                        break;
                     }
-                    break;
-                default:
-                    special_.exception_.instruction_fault = 1;
-                    break;
-            }
-            break;
-        }
-        case Operator::FloatingAbs: {
-            const auto& precision1 = instruction.precision1;
-            float value = scratch_[precision1.src].as_float[0];
-            scratch_[precision1.dst].as_float[0] = std::abs(value);
-            break;
-        }
-        case Operator::FloatingNegate: {
-            const auto& precision1 = instruction.precision1;
-            float value = scratch_[precision1.src].as_float[0];
-            scratch_[precision1.dst].as_float[0] = -value;
-            break;
-        }
-        case Operator::FloatingCeil: {
-            const auto& precision1 = instruction.precision1;
-            float value = scratch_[precision1.src].as_float[0];
-            scratch_[precision1.dst].as_float[0] = std::ceil(value);
-            break;
-        }
-        case Operator::FloatingFloor: {
-            const auto& precision1 = instruction.precision1;
-            float value = scratch_[precision1.src].as_float[0];
-            scratch_[precision1.dst].as_float[0] = std::floor(value);
-            break;
-        }
-        case Operator::FloatingFractional: {
-            const auto& precision1 = instruction.precision1;
-            float value = scratch_[precision1.src].as_float[0];
-            scratch_[precision1.dst].as_float[0] = value - std::floor(value);
-            break;
-        }
-        case Operator::FloatingConvert: {
-            const auto& precision1 = instruction.precision1;
-            if (precision1.dir) {
-                // float to int truncates toward zero and saturates; NaN becomes 0
-                const float value = scratch_[precision1.src].as_float[0];
-                int32_t result = 0;
-                if (value >= 2147483648.0F) {
-                    result = std::numeric_limits<int32_t>::max();
-                } else if (value <= -2147483648.0F) {
-                    result = std::numeric_limits<int32_t>::min();
-                } else if (value == value) {
-                    result = static_cast<int32_t>(value);
                 }
-                scratch_[precision1.dst].as_s32[0] = result;
-            } else {
-                scratch_[precision1.dst].as_float[0] = static_cast<float>(scratch_[precision1.src].as_s32[0]);
-            }
-            break;
-        }
-        case Operator::FloatingAddition:
-        case Operator::FloatingSubtraction:
-        case Operator::FloatingMultiplication:
-        case Operator::FloatingDivision: {
-            const auto& precision2 = instruction.precision2;
-            volatile float a = scratch_[precision2.src1].as_float[0];
-            volatile float b = scratch_[precision2.src2].as_float[0];
-            if (instruction.base() == Operator::FloatingDivision
-                and std::abs(scratch_[precision2.src2].as_float[0]) < std::numeric_limits<float>::epsilon()) {
-                // very nearly zero from either direction, so this is a division by zero
-                special_.exception_.instruction_fault = 1;
                 break;
             }
-            std::feclearexcept(FE_ALL_EXCEPT);
-            volatile float result = 0.0F;
-            switch (instruction.base()) {
-                case Operator::FloatingAddition:
-                    result = a + b;
-                    break;
-                case Operator::FloatingSubtraction:
-                    result = a - b;
-                    break;
-                case Operator::FloatingMultiplication:
-                    result = a * b;
-                    break;
-                default:
-                    result = a / b;
-                    break;
+            case Operator::Multiply: {
+                const auto& arithmetic = instruction.arithmetic;
+                switch (static_cast<instructions::Arithmetic::Size>(arithmetic.size)) {
+                    case instructions::Arithmetic::Size::Byte:  // 8-bit
+                        if (arithmetic.sign) {
+                            auto [result, evaluation] = operations::Multiply<int8_t, int16_t>(
+                                scratch_[arithmetic.src1].as_s08[0], scratch_[arithmetic.src2].as_s08[0],
+                                arithmetic.sat);
+                            if (arithmetic.cond) {
+                                // set the evaluation flag for arithmetic overflow if it occurred during the
+                                // multiplication
+                                evaluation_[arithmetic.eval] = evaluation;
+                            }
+                            scratch_[arithmetic.dst].as_s08[0] = result;
+                        } else {
+                            auto [result, evaluation] = operations::Multiply<uint8_t, uint16_t>(
+                                scratch_[arithmetic.src1].as_u08[0], scratch_[arithmetic.src2].as_u08[0],
+                                arithmetic.sat);
+                            if (arithmetic.cond) {
+                                // set the evaluation flag for arithmetic overflow if it occurred during the
+                                // multiplication
+                                evaluation_[arithmetic.eval] = evaluation;
+                            }
+                            scratch_[arithmetic.dst].as_u08[0] = result;
+                        }
+                        break;
+                    case instructions::Arithmetic::Size::HalfWord:  // 16-bit
+                        if (arithmetic.sign) {
+                            auto [result, evaluation] = operations::Multiply<int16_t, int32_t>(
+                                scratch_[arithmetic.src1].as_s16[0], scratch_[arithmetic.src2].as_s16[0],
+                                arithmetic.sat);
+                            if (arithmetic.cond) {
+                                // set the evaluation flag for arithmetic overflow if it occurred during the
+                                // multiplication
+                                evaluation_[arithmetic.eval] = evaluation;
+                            }
+                            scratch_[arithmetic.dst].as_s16[0] = result;
+                        } else {
+                            auto [result, evaluation] = operations::Multiply<uint16_t, uint32_t>(
+                                scratch_[arithmetic.src1].as_u16[0], scratch_[arithmetic.src2].as_u16[0],
+                                arithmetic.sat);
+                            if (arithmetic.cond) {
+                                // set the evaluation flag for arithmetic overflow if it occurred during the
+                                // multiplication
+                                evaluation_[arithmetic.eval] = evaluation;
+                            }
+                            scratch_[arithmetic.dst].as_u16[0] = result;
+                        }
+                        break;
+                    case instructions::Arithmetic::Size::Word:  // 32-bit
+                        if (arithmetic.sign) {
+                            auto [result, evaluation] = operations::Multiply<int32_t, int64_t>(
+                                scratch_[arithmetic.src1].as_s32[0], scratch_[arithmetic.src2].as_s32[0],
+                                arithmetic.sat);
+                            if (arithmetic.cond) {
+                                // set the evaluation flag for arithmetic overflow if it occurred during the
+                                // multiplication
+                                evaluation_[arithmetic.eval] = evaluation;
+                            }
+                            scratch_[arithmetic.dst].as_s32[0] = result;
+                        } else {
+                            auto [result, evaluation] = operations::Multiply<uint32_t, uint64_t>(
+                                scratch_[arithmetic.src1].as_u32[0], scratch_[arithmetic.src2].as_u32[0],
+                                arithmetic.sat);
+                            if (arithmetic.cond) {
+                                // set the evaluation flag for arithmetic overflow if it occurred during the
+                                // multiplication
+                                evaluation_[arithmetic.eval] = evaluation;
+                            }
+                            scratch_[arithmetic.dst].as_u32[0] = result;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                break;
             }
-            const int raised = std::fetestexcept(FE_INEXACT | FE_UNDERFLOW);
-            scratch_[precision2.dst].as_float[0] = result;
-            if (precision2.cond) {
-                PrecisionEvaluation flags;
-                flags.inexact = (raised & FE_INEXACT) != 0 ? 1U : 0U;
-                flags.rounded = flags.inexact;
-                flags.subnormal = std::fpclassify(static_cast<float>(result)) == FP_SUBNORMAL ? 1U : 0U;
-                flags.underflow = (raised & FE_UNDERFLOW) != 0 ? 1U : 0U;
-                evaluation_[precision2.eval] = flags;
+            case Operator::Divide: {
+                const auto& arithmetic = instruction.arithmetic;
+                switch (static_cast<instructions::Arithmetic::Size>(arithmetic.size)) {
+                    case instructions::Arithmetic::Size::Byte:
+                        if (arithmetic.sign) {
+                            auto [result, eval] = operations::Division<int8_t>(scratch_[arithmetic.src1].as_s08[0],
+                                                                               scratch_[arithmetic.src2].as_s08[0]);
+                            if (eval.arithmetic.undefined) {
+                                special_.exception_.arithmetic_fault = 1;
+                            } else {
+                                scratch_[arithmetic.dst].as_s08[0] = result;
+                                if (arithmetic.cond) {
+                                    evaluation_[arithmetic.eval] = eval;
+                                }
+                            }
+                        } else {
+                            auto [result, eval] = operations::Division<uint8_t>(scratch_[arithmetic.src1].as_u08[0],
+                                                                                scratch_[arithmetic.src2].as_u08[0]);
+                            if (eval.arithmetic.undefined) {
+                                special_.exception_.arithmetic_fault = 1;
+                            } else {
+                                scratch_[arithmetic.dst].as_u08[0] = result;
+                                if (arithmetic.cond) {
+                                    evaluation_[arithmetic.eval] = eval;
+                                }
+                            }
+                        }
+                        break;
+                    case instructions::Arithmetic::Size::HalfWord:
+                        if (arithmetic.sign) {
+                            auto [result, eval] = operations::Division<int16_t>(scratch_[arithmetic.src1].as_s16[0],
+                                                                                scratch_[arithmetic.src2].as_s16[0]);
+                            if (eval.arithmetic.undefined) {
+                                special_.exception_.arithmetic_fault = 1;
+                            } else {
+                                scratch_[arithmetic.dst].as_s16[0] = result;
+                                if (arithmetic.cond) {
+                                    evaluation_[arithmetic.eval] = eval;
+                                }
+                            }
+                        } else {
+                            auto [result, eval] = operations::Division<uint16_t>(scratch_[arithmetic.src1].as_u16[0],
+                                                                                 scratch_[arithmetic.src2].as_u16[0]);
+                            if (eval.arithmetic.undefined) {
+                                special_.exception_.arithmetic_fault = 1;
+                            } else {
+                                scratch_[arithmetic.dst].as_u16[0] = result;
+                                if (arithmetic.cond) {
+                                    evaluation_[arithmetic.eval] = eval;
+                                }
+                            }
+                        }
+                        break;
+                    case instructions::Arithmetic::Size::Word:
+                        if (arithmetic.sign) {
+                            auto [result, eval] = operations::Division<int32_t>(scratch_[arithmetic.src1].as_s32[0],
+                                                                                scratch_[arithmetic.src2].as_s32[0]);
+                            if (eval.arithmetic.undefined) {
+                                special_.exception_.arithmetic_fault = 1;
+                            } else {
+                                scratch_[arithmetic.dst].as_s32[0] = result;
+                                if (arithmetic.cond) {
+                                    evaluation_[arithmetic.eval] = eval;
+                                }
+                            }
+                        } else {
+                            auto [result, eval] = operations::Division<uint32_t>(scratch_[arithmetic.src1].as_u32[0],
+                                                                                 scratch_[arithmetic.src2].as_u32[0]);
+                            if (eval.arithmetic.undefined) {
+                                special_.exception_.arithmetic_fault = 1;
+                            } else {
+                                scratch_[arithmetic.dst].as_u32[0] = result;
+                                if (arithmetic.cond) {
+                                    evaluation_[arithmetic.eval] = eval;
+                                }
+                            }
+                        }
+                        break;
+                    default:
+                        special_.exception_.instruction_fault = 1;
+                        break;
+                }
+                break;
             }
-            break;
+            case Operator::Extend: {
+                const auto& extend = instruction.extend;
+                uint32_t result = 0U;
+                if (extend.size == static_cast<uint32_t>(isa::Size::Byte)) {
+                    result = extend.sign ? static_cast<uint32_t>(static_cast<int32_t>(scratch_[extend.src].as_s08[0]))
+                                         : static_cast<uint32_t>(scratch_[extend.src].as_u08[0]);
+                } else if (extend.size == static_cast<uint32_t>(isa::Size::HalfWord)) {
+                    result = extend.sign ? static_cast<uint32_t>(static_cast<int32_t>(scratch_[extend.src].as_s16[0]))
+                                         : static_cast<uint32_t>(scratch_[extend.src].as_u16[0]);
+                } else {
+                    special_.exception_.instruction_fault = 1;
+                    break;
+                }
+                scratch_[extend.dst].as_u32[0] = result;
+                if (extend.cond) {
+                    evaluation_[extend.eval] = BitwiseEvaluation(result);
+                }
+                break;
+            }
+            case Operator::Negate: {
+                const auto& negate = instruction.negate;
+                Evaluation flags;
+                switch (static_cast<isa::Size>(negate.size)) {
+                    case isa::Size::Byte: {
+                        auto [result, eval]
+                            = operations::Subtraction<int8_t, int16_t>(0, scratch_[negate.src].as_s08[0], negate.sat);
+                        scratch_[negate.dst].as_s08[0] = result;
+                        flags = eval;
+                        break;
+                    }
+                    case isa::Size::HalfWord: {
+                        auto [result, eval]
+                            = operations::Subtraction<int16_t, int32_t>(0, scratch_[negate.src].as_s16[0], negate.sat);
+                        scratch_[negate.dst].as_s16[0] = result;
+                        flags = eval;
+                        break;
+                    }
+                    case isa::Size::Word: {
+                        auto [result, eval]
+                            = operations::Subtraction<int32_t, int64_t>(0, scratch_[negate.src].as_s32[0], negate.sat);
+                        scratch_[negate.dst].as_s32[0] = result;
+                        flags = eval;
+                        break;
+                    }
+                    default:
+                        special_.exception_.instruction_fault = 1;
+                        break;
+                }
+                if (negate.cond and not special_.exception_.instruction_fault) {
+                    evaluation_[negate.eval] = flags;
+                }
+                break;
+            }
+            case Operator::Modulo: {
+                const auto& arithmetic = instruction.arithmetic;
+                switch (static_cast<instructions::Arithmetic::Size>(arithmetic.size)) {
+                    case instructions::Arithmetic::Size::Byte:
+                        if (arithmetic.sign) {
+                            auto [result, eval] = operations::Modulo<int8_t>(scratch_[arithmetic.src1].as_s08[0],
+                                                                             scratch_[arithmetic.src2].as_s08[0]);
+                            if (eval.arithmetic.undefined) {
+                                special_.exception_.arithmetic_fault = 1;
+                            } else {
+                                scratch_[arithmetic.dst].as_s08[0] = result;
+                                if (arithmetic.cond) {
+                                    evaluation_[arithmetic.eval] = eval;
+                                }
+                            }
+                        } else {
+                            auto [result, eval] = operations::Modulo<uint8_t>(scratch_[arithmetic.src1].as_u08[0],
+                                                                              scratch_[arithmetic.src2].as_u08[0]);
+                            if (eval.arithmetic.undefined) {
+                                special_.exception_.arithmetic_fault = 1;
+                            } else {
+                                scratch_[arithmetic.dst].as_u08[0] = result;
+                                if (arithmetic.cond) {
+                                    evaluation_[arithmetic.eval] = eval;
+                                }
+                            }
+                        }
+                        break;
+                    case instructions::Arithmetic::Size::HalfWord:
+                        if (arithmetic.sign) {
+                            auto [result, eval] = operations::Modulo<int16_t>(scratch_[arithmetic.src1].as_s16[0],
+                                                                              scratch_[arithmetic.src2].as_s16[0]);
+                            if (eval.arithmetic.undefined) {
+                                special_.exception_.arithmetic_fault = 1;
+                            } else {
+                                scratch_[arithmetic.dst].as_s16[0] = result;
+                                if (arithmetic.cond) {
+                                    evaluation_[arithmetic.eval] = eval;
+                                }
+                            }
+                        } else {
+                            auto [result, eval] = operations::Modulo<uint16_t>(scratch_[arithmetic.src1].as_u16[0],
+                                                                               scratch_[arithmetic.src2].as_u16[0]);
+                            if (eval.arithmetic.undefined) {
+                                special_.exception_.arithmetic_fault = 1;
+                            } else {
+                                scratch_[arithmetic.dst].as_u16[0] = result;
+                                if (arithmetic.cond) {
+                                    evaluation_[arithmetic.eval] = eval;
+                                }
+                            }
+                        }
+                        break;
+                    case instructions::Arithmetic::Size::Word:
+                        if (arithmetic.sign) {
+                            auto [result, eval] = operations::Modulo<int32_t>(scratch_[arithmetic.src1].as_s32[0],
+                                                                              scratch_[arithmetic.src2].as_s32[0]);
+                            if (eval.arithmetic.undefined) {
+                                special_.exception_.arithmetic_fault = 1;
+                            } else {
+                                scratch_[arithmetic.dst].as_s32[0] = result;
+                                if (arithmetic.cond) {
+                                    evaluation_[arithmetic.eval] = eval;
+                                }
+                            }
+                        } else {
+                            auto [result, eval] = operations::Modulo<uint32_t>(scratch_[arithmetic.src1].as_u32[0],
+                                                                               scratch_[arithmetic.src2].as_u32[0]);
+                            if (eval.arithmetic.undefined) {
+                                special_.exception_.arithmetic_fault = 1;
+                            } else {
+                                scratch_[arithmetic.dst].as_u32[0] = result;
+                                if (arithmetic.cond) {
+                                    evaluation_[arithmetic.eval] = eval;
+                                }
+                            }
+                        }
+                        break;
+                    default:
+                        special_.exception_.instruction_fault = 1;
+                        break;
+                }
+                break;
+            }
+            case Operator::FloatingAbs: {
+                const auto& precision1 = instruction.precision1;
+                float value = scratch_[precision1.src].as_float[0];
+                scratch_[precision1.dst].as_float[0] = std::abs(value);
+                break;
+            }
+            case Operator::FloatingNegate: {
+                const auto& precision1 = instruction.precision1;
+                float value = scratch_[precision1.src].as_float[0];
+                scratch_[precision1.dst].as_float[0] = -value;
+                break;
+            }
+            case Operator::FloatingCeil: {
+                const auto& precision1 = instruction.precision1;
+                float value = scratch_[precision1.src].as_float[0];
+                scratch_[precision1.dst].as_float[0] = std::ceil(value);
+                break;
+            }
+            case Operator::FloatingFloor: {
+                const auto& precision1 = instruction.precision1;
+                float value = scratch_[precision1.src].as_float[0];
+                scratch_[precision1.dst].as_float[0] = std::floor(value);
+                break;
+            }
+            case Operator::FloatingFractional: {
+                const auto& precision1 = instruction.precision1;
+                float value = scratch_[precision1.src].as_float[0];
+                scratch_[precision1.dst].as_float[0] = value - std::floor(value);
+                break;
+            }
+            case Operator::FloatingConvert: {
+                const auto& precision1 = instruction.precision1;
+                if (precision1.dir) {
+                    // float to int truncates toward zero and saturates; NaN becomes 0
+                    const float value = scratch_[precision1.src].as_float[0];
+                    int32_t result = 0;
+                    if (value >= 2147483648.0F) {
+                        result = std::numeric_limits<int32_t>::max();
+                    } else if (value <= -2147483648.0F) {
+                        result = std::numeric_limits<int32_t>::min();
+                    } else if (value == value) {
+                        result = static_cast<int32_t>(value);
+                    }
+                    scratch_[precision1.dst].as_s32[0] = result;
+                } else {
+                    scratch_[precision1.dst].as_float[0] = static_cast<float>(scratch_[precision1.src].as_s32[0]);
+                }
+                break;
+            }
+            case Operator::FloatingAddition:
+            case Operator::FloatingSubtraction:
+            case Operator::FloatingMultiplication:
+            case Operator::FloatingDivision: {
+                const auto& precision2 = instruction.precision2;
+                volatile float a = scratch_[precision2.src1].as_float[0];
+                volatile float b = scratch_[precision2.src2].as_float[0];
+                if (instruction.base() == Operator::FloatingDivision
+                    and std::abs(scratch_[precision2.src2].as_float[0]) < std::numeric_limits<float>::epsilon()) {
+                    // very nearly zero from either direction, so this is a division by zero
+                    special_.exception_.arithmetic_fault = 1;
+                    break;
+                }
+                std::feclearexcept(FE_ALL_EXCEPT);
+                volatile float result = 0.0F;
+                switch (instruction.base()) {
+                    case Operator::FloatingAddition:
+                        result = a + b;
+                        break;
+                    case Operator::FloatingSubtraction:
+                        result = a - b;
+                        break;
+                    case Operator::FloatingMultiplication:
+                        result = a * b;
+                        break;
+                    default:
+                        result = a / b;
+                        break;
+                }
+                const int raised = std::fetestexcept(FE_INEXACT | FE_UNDERFLOW);
+                scratch_[precision2.dst].as_float[0] = result;
+                if (precision2.cond) {
+                    PrecisionEvaluation flags;
+                    flags.inexact = (raised & FE_INEXACT) != 0 ? 1U : 0U;
+                    flags.rounded = flags.inexact;
+                    flags.subnormal = std::fpclassify(static_cast<float>(result)) == FP_SUBNORMAL ? 1U : 0U;
+                    flags.underflow = (raised & FE_UNDERFLOW) != 0 ? 1U : 0U;
+                    evaluation_[precision2.eval] = flags;
+                }
+                break;
+            }
+            default:
+                special_.exception_.instruction_fault = 1;
+                break;
         }
-        default:
-            special_.exception_.instruction_fault = 1;
-            break;
     }
+    // Detect a nested exception (a fault while already in a handler).
+    if (special_.exception_.HasException() and special_.mode_.exception) {
+        special_.exception_.nested = 1;
+    }
+
+    // Apply the exception mask before deciding whether to take an exception.
+    special_.exception_ &= special_.exception_mask_.as_word();
+
     if (special_.exception_.HasException()) {
+        special_.mode_.exception = 1;
+        special_.mode_.privileged = 1;
+        special_.mode_.nonprivileged = 0;
         special_.program_address_ = GetHandler();
     } else if (not control_transferred) {
         special_.program_address_ += sizeof(instructions::Instruction);

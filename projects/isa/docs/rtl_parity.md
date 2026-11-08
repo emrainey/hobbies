@@ -29,10 +29,10 @@ Milestone IDs refer to @ref rtl_roadmap.
 | --- | --- | --- | --- |
 | P-001 | `Grow` stack-overflow condition | `CPP-BUG` — fixed | M3 |
 | P-002 | `Push`/`Pull` vs `Grow`/`Fall` bound style | `CPP-BUG` — fixed | M3 |
-| P-003 | Divide-by-zero fault class | OPEN (suspected `CPP-BUG`) | M6/M8 |
+| P-003 | Divide-by-zero fault class | `MATCHED` — arithmetic fault | M8 |
 | P-004 | Caches unused on hot path | DEFERRED | M10 |
-| P-005 | Privilege not enforced | DEFERRED | M8 |
-| P-006 | Exception mask never consulted | DEFERRED | M8 |
+| P-005 | Privilege not enforced | `MATCHED` | M8 |
+| P-006 | Exception mask never consulted | `MATCHED` | M8 |
 | P-007 | Interrupts not implemented | DEFERRED | M9 |
 | P-008 | Floating-point precision semantics | STRATEGY-CHOSEN | M11 |
 | P-009 | `Load`/`Save` special-base encoding | OPEN | M2 |

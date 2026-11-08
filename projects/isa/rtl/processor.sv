@@ -161,6 +161,11 @@ module processor
     endfunction
     localparam byte_t EVAL_COMPARISON_EQUAL = comparison_equal();
 
+    // Privileged instructions (mirrors isa::IsPrivilegedInstruction).
+    function automatic logic is_privileged_op(op_e code);
+        return (code == OP_HALT) || (code == OP_TRIP);
+    endfunction
+
     // The opcodes this milestone executes. Extending this function and the S_COMMIT
     // case below is what makes a milestone land.
     function automatic logic is_implemented(op_e code);
@@ -645,9 +650,8 @@ module processor
     // written, and the exception below redirects the program address like Cycle().
     logic instruction_fault;
     assign instruction_fault = (state == S_COMMIT) && !fetch_fault &&
-                               (!decoded_valid || blu_fault || alu_fault ||
-                                ((decoded_op == OP_LOAD || decoded_op == OP_SAVE) && !memory_encoding_valid) ||
-                                (decoded_op == OP_FLOATING_DIVISION && fp_divisor_too_small));
+                               (!decoded_valid || blu_fault ||
+                                ((decoded_op == OP_LOAD || decoded_op == OP_SAVE) && !memory_encoding_valid));
 
     logic data_bus_fault;
     assign data_bus_fault = ((state == S_LOAD_RESPONSE) || (state == S_SAVE_RESPONSE) ||
@@ -664,6 +668,20 @@ module processor
         if (instruction_fault) begin
             exception_next[EXCEPTION_INSTRUCTION_FAULT] = 1'b1;
         end
+        if (alu_fault) begin
+            if (alu_eva.arithmetic.undefined) begin
+                exception_next[EXCEPTION_ARITHMETIC_FAULT] = 1'b1;
+            end else begin
+                exception_next[EXCEPTION_INSTRUCTION_FAULT] = 1'b1;
+            end
+        end
+        if (decoded_op == OP_FLOATING_DIVISION && fp_divisor_too_small) begin
+            exception_next[EXCEPTION_ARITHMETIC_FAULT] = 1'b1;
+        end
+        if (is_privileged_op(decoded_op) &&
+            mode_t'(special[SPECIAL_MODE]).nonprivileged) begin
+            exception_next[EXCEPTION_PRIVILEGE_FAULT] = 1'b1;
+        end
         if (decoded_op == OP_LEAP && !leap_is_immediate && cond_pass && leap_overflow) begin
             exception_next[EXCEPTION_BUS_FAULT] = 1'b1;
         end
@@ -676,23 +694,28 @@ module processor
         if ((decoded_op == OP_PUSH || decoded_op == OP_PULL) && push_pull_bus_fault) begin
             exception_next[EXCEPTION_BUS_FAULT] = 1'b1;
         end
-        if (decoded_op == OP_TRIP && cond_pass) begin
+        if (decoded_op == OP_TRIP && cond_pass && !mode_t'(special[SPECIAL_MODE]).nonprivileged) begin
             exception_next[EXCEPTION_TRIPPED] = 1'b1;
         end
+
+        // Apply the exception mask (reset/unmaskable bits 0/1 are not maskable).
+        exception_next = exception_next & (special[SPECIAL_EXCEPTION_MASK] | EXCEPTION_MASK_PRESERVED_BITS);
     end
 
     logic [3:0] exception_vector_index;
     always_comb begin
         if (exception_next[EXCEPTION_BUS_FAULT])
-            exception_vector_index = 4'd7;
+            exception_vector_index = VECTOR_BUS_FAULT_HANDLER;
         else if (exception_next[EXCEPTION_INSTRUCTION_FAULT])
-            exception_vector_index = 4'd8;
+            exception_vector_index = VECTOR_INSTRUCTION_FAULT_HANDLER;
         else if (exception_next[EXCEPTION_ARITHMETIC_FAULT])
-            exception_vector_index = 4'd9;
+            exception_vector_index = VECTOR_ARITHMETIC_FAULT_HANDLER;
         else if (exception_next[EXCEPTION_STACK_FAULT])
-            exception_vector_index = 4'd10;
+            exception_vector_index = VECTOR_STACK_FAULT_HANDLER;
         else if (exception_next[EXCEPTION_TRIPPED])
-            exception_vector_index = 4'd11;
+            exception_vector_index = VECTOR_TRIPPED_HANDLER;
+        else if (exception_next[EXCEPTION_PRIVILEGE_FAULT])
+            exception_vector_index = VECTOR_PRIVILEGE_HANDLER;
         else
             exception_vector_index = VECTOR_INSTRUCTION_FAULT_HANDLER;
     end
@@ -1043,6 +1066,7 @@ module processor
             end
             special[SPECIAL_VECTOR_TABLE_ADDRESS] <= DEFAULT_VECTOR_TABLE_ADDRESS;
             special[SPECIAL_MODE] <= MODE_RESET;
+            special[SPECIAL_EXCEPTION_MASK] <= 32'hFFFFFFFF;
         end else begin
             case (state)
                 S_BOOT_REQUEST: begin
@@ -1176,7 +1200,7 @@ module processor
                             // Undefined opcode: an instruction fault, handled below.
                         end else if (supported_op) begin
                             // Register writes are driven combinationally into the files below.
-                            if (decoded_op == OP_HALT) begin
+                            if (decoded_op == OP_HALT && !mode_t'(special[SPECIAL_MODE]).nonprivileged) begin
                                 halted <= 1'b1;
                                 state  <= S_HALTED;
                             end
@@ -1204,7 +1228,7 @@ module processor
                                 end
                             end
 
-                            if (decoded_op == OP_TRIP && cond_pass) begin
+                            if (decoded_op == OP_TRIP && cond_pass && !mode_t'(special[SPECIAL_MODE]).nonprivileged) begin
                                 special[SPECIAL_NUMERAL] <= (special[SPECIAL_NUMERAL] & 32'h0000FFFF) |
                                                              (32'(view.trip.imm) << 16);
                             end
@@ -1214,9 +1238,11 @@ module processor
 
                         special[SPECIAL_PERFORMANCE_COUNTER] <= special[SPECIAL_PERFORMANCE_COUNTER] + 32'd1;
                         special[SPECIAL_EXCEPTION]           <= exception_next;
+                        special[SPECIAL_MODE]               <= (exception_next != '0) ? MODE_EXCEPTION : special[SPECIAL_MODE];
 
                         if (exception_next != '0) begin
                             // Any pending exception sends the next fetch through the vector table.
+                            special[SPECIAL_MODE] <= MODE_EXCEPTION; // exception + privileged
                             vector_index <= exception_vector_index;
                             state        <= S_VECTOR_REQUEST;
                         end else if (!control_transferred) begin
@@ -1232,6 +1258,7 @@ module processor
                     if (mem_rsp_valid && mem_rsp_ready) begin
                         special[SPECIAL_PERFORMANCE_COUNTER] <= special[SPECIAL_PERFORMANCE_COUNTER] + 32'd1;
                         special[SPECIAL_EXCEPTION]           <= exception_next;
+                        special[SPECIAL_MODE]               <= (exception_next != '0) ? MODE_EXCEPTION : special[SPECIAL_MODE];
                         if (exception_next != '0) begin
                             vector_index <= exception_vector_index;
                             state        <= S_VECTOR_REQUEST;
@@ -1247,6 +1274,7 @@ module processor
                     if (mem_rsp_valid && mem_rsp_ready) begin
                         special[SPECIAL_PERFORMANCE_COUNTER] <= special[SPECIAL_PERFORMANCE_COUNTER] + 32'd1;
                         special[SPECIAL_EXCEPTION]           <= exception_next;
+                        special[SPECIAL_MODE]               <= (exception_next != '0) ? MODE_EXCEPTION : special[SPECIAL_MODE];
                         if (exception_next != '0) begin
                             vector_index <= exception_vector_index;
                             state        <= S_VECTOR_REQUEST;
@@ -1263,6 +1291,7 @@ module processor
                         if (mem_rsp_fault) begin
                             special[SPECIAL_PERFORMANCE_COUNTER] <= special[SPECIAL_PERFORMANCE_COUNTER] + 32'd1;
                             special[SPECIAL_EXCEPTION]           <= exception_next;
+                            special[SPECIAL_MODE]               <= (exception_next != '0) ? MODE_EXCEPTION : special[SPECIAL_MODE];
                             if (exception_next != '0) begin
                                 vector_index <= exception_vector_index;
                                 state        <= S_VECTOR_REQUEST;
@@ -1288,6 +1317,7 @@ module processor
                     if (mem_rsp_valid && mem_rsp_ready) begin
                         special[SPECIAL_PERFORMANCE_COUNTER] <= special[SPECIAL_PERFORMANCE_COUNTER] + 32'd1;
                         special[SPECIAL_EXCEPTION]           <= exception_next;
+                        special[SPECIAL_MODE]               <= (exception_next != '0) ? MODE_EXCEPTION : special[SPECIAL_MODE];
                         if (exception_next != '0) begin
                             vector_index <= exception_vector_index;
                             state        <= S_VECTOR_REQUEST;
@@ -1303,6 +1333,7 @@ module processor
                     if (mem_rsp_valid && mem_rsp_ready) begin
                         special[SPECIAL_PERFORMANCE_COUNTER] <= special[SPECIAL_PERFORMANCE_COUNTER] + 32'd1;
                         special[SPECIAL_EXCEPTION]           <= exception_next;
+                        special[SPECIAL_MODE]               <= (exception_next != '0) ? MODE_EXCEPTION : special[SPECIAL_MODE];
                         if (exception_next != '0) begin
                             vector_index <= exception_vector_index;
                             state        <= S_VECTOR_REQUEST;
@@ -1331,6 +1362,7 @@ module processor
                             special[SPECIAL_STACK_CURRENT] <= push_pull_end;
                             special[SPECIAL_PERFORMANCE_COUNTER] <= special[SPECIAL_PERFORMANCE_COUNTER] + 32'd1;
                             special[SPECIAL_EXCEPTION]           <= exception_next;
+                            special[SPECIAL_MODE]               <= (exception_next != '0) ? MODE_EXCEPTION : special[SPECIAL_MODE];
                             if (exception_next != '0) begin
                                 vector_index <= exception_vector_index;
                                 state        <= S_VECTOR_REQUEST;
@@ -1349,6 +1381,7 @@ module processor
                     if (mem_rsp_valid && mem_rsp_ready) begin
                         special[SPECIAL_PERFORMANCE_COUNTER] <= special[SPECIAL_PERFORMANCE_COUNTER] + 32'd1;
                         special[SPECIAL_EXCEPTION]           <= exception_next;
+                        special[SPECIAL_MODE]               <= (exception_next != '0) ? MODE_EXCEPTION : special[SPECIAL_MODE];
                         if (exception_next != '0) begin
                             vector_index <= exception_vector_index;
                             state        <= S_VECTOR_REQUEST;

@@ -30,6 +30,7 @@
 // both high. A response may arrive any number of cycles after its request.
 module processor
     import isa::*;
+    import fp_pkg::*;
 (
     input  logic clk,
     input  logic reset,
@@ -175,6 +176,7 @@ module processor
             OP_FLOATING_ADDITION: return 1'b1;
             OP_FLOATING_SUBTRACTION: return 1'b1;
             OP_FLOATING_MULTIPLICATION: return 1'b1;
+            OP_FLOATING_DIVISION: return 1'b1;
             OP_SWAP, OP_COMPLEMENT, OP_RSH, OP_ASR, OP_LSH, OP_ROTATE, OP_COUNT1S, OP_COUNT_L0S,
             OP_NOT, OP_SET_BIT, OP_CLEAR_BIT, OP_TOGGLE_BIT, OP_REVERSE: return 1'b1;
             OP_AND, OP_OR, OP_XOR, OP_COMPARE: return 1'b1;
@@ -379,6 +381,34 @@ module processor
         .rounded   (fp_mul_rounded),
         .subnormal (fp_mul_subnormal),
         .underflow (fp_mul_underflow)
+    );
+
+    // Floating division by a value whose magnitude is below FLT_EPSILON raises
+    // an instruction fault (matches C++).
+    /* verilator lint_off UNOPTFLAT */
+    logic fp_divisor_too_small;
+    always_comb begin
+        real absv;
+        absv = 0.0;
+        fp_divisor_too_small = 1'b0;
+        if (decoded_op == OP_FLOATING_DIVISION) begin
+            absv = binary32_to_real(s_read_data[1]);
+            if (absv < 0.0) absv = -absv;
+            if (absv < FP_EPSILON) fp_divisor_too_small = 1'b1;
+        end
+    end
+    /* verilator lint_on UNOPTFLAT */
+
+    logic [WORD_SIZE-1:0] fp_div_result;
+    logic fp_div_inexact, fp_div_rounded, fp_div_subnormal, fp_div_underflow;
+    fp_div u_fp_div (
+        .a         (s_read_data[0]),
+        .b         (s_read_data[1]),
+        .result    (fp_div_result),
+        .inexact   (fp_div_inexact),
+        .rounded   (fp_div_rounded),
+        .subnormal (fp_div_subnormal),
+        .underflow (fp_div_underflow)
     );
 
     register_file u_scratch (
@@ -616,7 +646,8 @@ module processor
     logic instruction_fault;
     assign instruction_fault = (state == S_COMMIT) && !fetch_fault &&
                                (!decoded_valid || blu_fault || alu_fault ||
-                                ((decoded_op == OP_LOAD || decoded_op == OP_SAVE) && !memory_encoding_valid));
+                                ((decoded_op == OP_LOAD || decoded_op == OP_SAVE) && !memory_encoding_valid) ||
+                                (decoded_op == OP_FLOATING_DIVISION && fp_divisor_too_small));
 
     logic data_bus_fault;
     assign data_bus_fault = ((state == S_LOAD_RESPONSE) || (state == S_SAVE_RESPONSE) ||
@@ -668,7 +699,8 @@ module processor
 
     logic commit_valid;
     assign commit_valid = (state == S_COMMIT) && !fetch_fault && supported_op && !blu_fault && !alu_fault &&
-                          ((decoded_op != OP_LOAD && decoded_op != OP_SAVE) || memory_encoding_valid);
+                          ((decoded_op != OP_LOAD && decoded_op != OP_SAVE) || memory_encoding_valid) &&
+                          !(decoded_op == OP_FLOATING_DIVISION && fp_divisor_too_small);
 
     always_comb begin
         s_read_control  = SCRATCH_CONTROL_NONE;
@@ -766,7 +798,7 @@ module processor
                 s_read_index[0] = view.float_unary.src;
             end
             if (decoded_op == OP_FLOATING_ADDITION || decoded_op == OP_FLOATING_SUBTRACTION ||
-                decoded_op == OP_FLOATING_MULTIPLICATION) begin
+                decoded_op == OP_FLOATING_MULTIPLICATION || decoded_op == OP_FLOATING_DIVISION) begin
                 s_read_control  = SCRATCH_CONTROL_BOTH;
                 s_read_index[0] = view.binary.src1;
                 s_read_index[1] = view.binary.src2;
@@ -964,6 +996,17 @@ module processor
                         e_write_index[0] = view.binary.eval;
                         e_write_data[0]  = {2'b00, fp_mul_underflow, fp_mul_subnormal,
                                            fp_mul_rounded, fp_mul_inexact, 2'b11};
+                    end
+                end
+                OP_FLOATING_DIVISION: begin
+                    s_write_control  = SCRATCH_CONTROL_FIRST;
+                    s_write_index[0] = view.binary.dst;
+                    s_write_data[0]  = fp_div_result;
+                    if (view.binary.cond) begin
+                        e_write_control  = EVALUATION_CONTROL_FIRST;
+                        e_write_index[0] = view.binary.eval;
+                        e_write_data[0]  = {2'b00, fp_div_underflow, fp_div_subnormal,
+                                           fp_div_rounded, fp_div_inexact, 2'b11};
                     end
                 end
                 default: ;

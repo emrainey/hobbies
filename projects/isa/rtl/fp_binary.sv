@@ -44,7 +44,7 @@ module fp_add (
             // rounded result is inexact. This also covers the case where the
             // tiny result rounds all the way to zero (result is not subnormal).
             underflow = inexact && (rexact != 0.0) &&
-                        (rexact < (2.0 ** -126)) && (rexact > -(2.0 ** -126));
+                        (rexact < FP_SMALLEST_NORMAL) && (rexact > -FP_SMALLEST_NORMAL);
         end
     end
 endmodule
@@ -88,7 +88,7 @@ module fp_mul (
             // rounded result is inexact. This also covers the case where the
             // tiny result rounds all the way to zero (result is not subnormal).
             underflow = inexact && (rexact != 0.0) &&
-                        (rexact < (2.0 ** -126)) && (rexact > -(2.0 ** -126));
+                        (rexact < FP_SMALLEST_NORMAL) && (rexact > -FP_SMALLEST_NORMAL);
         end
     end
 endmodule
@@ -132,7 +132,54 @@ module fp_sub (
             // rounded result is inexact. This also covers the case where the
             // tiny result rounds all the way to zero (result is not subnormal).
             underflow = inexact && (rexact != 0.0) &&
-                        (rexact < (2.0 ** -126)) && (rexact > -(2.0 ** -126));
+                        (rexact < FP_SMALLEST_NORMAL) && (rexact > -FP_SMALLEST_NORMAL);
+        end
+    end
+endmodule
+
+// Stage 4 of M11: IEEE-754 binary32 division.
+module fp_div (
+    input  logic [31:0] a,
+    input  logic [31:0] b,
+    output logic [31:0] result,
+    output logic       inexact,
+    output logic       rounded,
+    output logic       subnormal,
+    output logic       underflow
+);
+    real ra, rb, rexact;
+    logic [31:0] rbits;
+
+    always_comb begin
+        ra = binary32_to_real(a);   // widen: binary32 -> real (double)
+        rb = binary32_to_real(b);   // widen: binary32 -> real (double)
+        if (rb == 0.0) begin
+            // Preserve sign of infinity for division by zero (host float behaviour).
+            // Note: rb == 0.0 is true for -0.0, so use the sign bit to keep -0.0.
+            rexact = (fp_sign(a) ^ fp_sign(b)) ? FP_NEG_INF_REAL : FP_POS_INF_REAL;
+        end else begin
+            rexact = ra / rb;      // exact operation in double precision
+        end
+        rbits = real_to_binary32(rexact); // narrow: real (double) -> binary32
+
+        // NaN: propagate NaN, no flags.
+        if (ra != ra || rb != rb) begin
+            result = FP_NAN;
+            inexact = 1'b0;
+            rounded = 1'b0;
+            subnormal = 1'b0;
+            underflow = 1'b0;
+        end else begin
+            result = rbits;
+            if (rbits == FP_POS_INF || rbits == FP_NEG_INF) begin
+                inexact = (fp_exponent(a) != 8'hff && fp_exponent(b) != 8'hff) ? 1'b1 : 1'b0;
+            end else begin
+                inexact = (binary32_to_real(rbits) != rexact) ? 1'b1 : 1'b0;
+            end
+            rounded = inexact;
+            subnormal = (fp_exponent(rbits) == 8'd0 && fp_mantissa(rbits) != 0) ? 1'b1 : 1'b0;
+            underflow = inexact && (rexact != 0.0) &&
+                        (rexact < FP_SMALLEST_NORMAL) && (rexact > -FP_SMALLEST_NORMAL);
         end
     end
 endmodule

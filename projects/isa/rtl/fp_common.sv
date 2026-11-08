@@ -11,6 +11,19 @@ package fp_pkg;
     localparam logic [31:0] FP_POS_ZERO = 32'h00000000;
     localparam logic [31:0] FP_NEG_ZERO = 32'h80000000;
 
+    // Smallest normal magnitude in binary32 (2^-126).
+    localparam real FP_SMALLEST_NORMAL = 2.0 ** -126;
+
+    // Real-valued infinities (IEEE-754 division by zero).
+    localparam real FP_POS_INF_REAL = 1.0 / 0.0;
+    localparam real FP_NEG_INF_REAL = -1.0 / 0.0;
+
+    // 2^23: the mantissa step count for binary32 (used to convert mantissa to fraction).
+    localparam real FP_MANTISSA_SCALE = 8388608.0;
+
+    // FLT_EPSILON for binary32 (2^-23), used as the divide-by-zero threshold.
+    localparam real FP_EPSILON = 2.0 ** -23;
+
 
     function automatic logic        fp_sign(input logic [31:0] x);
         return x[31];
@@ -36,10 +49,10 @@ package fp_pkg;
             if (mant == 0) result = sign ? -1.0/0.0 : 1.0/0.0;
             else result = 0.0/0.0;
         end else if (expv == 0) begin
-            result = (mant / 8388608.0) * (2.0 ** -126);
+            result = (mant / FP_MANTISSA_SCALE) * FP_SMALLEST_NORMAL;
             if (sign) result = -result;
         end else begin
-            result = (1.0 + mant / 8388608.0) * (2.0 ** (expv - 127));
+            result = (1.0 + mant / FP_MANTISSA_SCALE) * (2.0 ** (expv - 127));
             if (sign) result = -result;
         end
         return result;

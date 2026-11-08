@@ -768,6 +768,13 @@ TEST_F(RtlProcessorTest, NegateAndExtendMatchTheFastModel) {
         ExpectStateMatches();                                                          \
     } while (false)
 
+TEST_F(RtlProcessorTest, FloatingDivisionByEpsilonFaultsInLockstep) {
+    using isa::Operand;
+    using namespace isa::instructions;
+    EXPECT_FAULTS_LIKE_THE_FAST_MODEL(Encode(Precision2::FDiv(
+        Operand{Operand::Type::Scratch, 3}, Operand{Operand::Type::Scratch, 1}, Operand{Operand::Type::Scratch, 2})));
+}
+
 TEST_F(RtlProcessorTest, DivideByZeroFaultsInLockstep) {
     using isa::Operand;
     using namespace isa::instructions;
@@ -1094,6 +1101,63 @@ TEST_F(RtlProcessorTest, FloatingMultiplicationOfNaNMatchesTheFastModel) {
     RunProgram_Vector(program);
 }
 
+TEST_F(RtlProcessorTest, FloatingDivisionMatchesTheFastModel) {
+    using isa::Operand;
+    using namespace isa::instructions;
+    Operand const s2{Operand::Type::Scratch, 2};
+    Operand const s3{Operand::Type::Scratch, 3};
+    Operand const dst{Operand::Type::Scratch, 1};
+
+    std::vector<uint32_t> program;
+    LoadWord(program, 2, 0x40F00000U);  // 7.5f
+    LoadWord(program, 3, 0x40200000U);  // 2.5f
+    program.push_back(Encode(Precision2::FDiv(dst, s2, s3)));
+    RunProgram_Vector(program);
+}
+
+TEST_F(RtlProcessorTest, FloatingDivisionOfInfinityMatchesTheFastModel) {
+    using isa::Operand;
+    using namespace isa::instructions;
+    Operand const s2{Operand::Type::Scratch, 2};
+    Operand const s3{Operand::Type::Scratch, 3};
+    Operand const dst{Operand::Type::Scratch, 1};
+
+    std::vector<uint32_t> program;
+    LoadWord(program, 2, 0x7F800000U);  // +inf
+    LoadWord(program, 3, 0x3F800000U);  // 1.0f
+    program.push_back(Encode(Precision2::FDiv(dst, s2, s3)));
+    RunProgram_Vector(program);
+}
+
+TEST_F(RtlProcessorTest, FloatingDivisionOfNaNMatchesTheFastModel) {
+    using isa::Operand;
+    using namespace isa::instructions;
+    Operand const s2{Operand::Type::Scratch, 2};
+    Operand const s3{Operand::Type::Scratch, 3};
+    Operand const dst{Operand::Type::Scratch, 1};
+
+    std::vector<uint32_t> program;
+    LoadWord(program, 2, 0x7FC00000U);  // NaN
+    LoadWord(program, 3, 0x3F800000U);  // 1.0f
+    program.push_back(Encode(Precision2::FDiv(dst, s2, s3)));
+    RunProgram_Vector(program);
+}
+
+TEST_F(RtlProcessorTest, ConditionalFloatingDivisionMatchesTheFastModel) {
+    using isa::Operand;
+    using namespace isa::instructions;
+    Operand const s1{Operand::Type::Scratch, 1};
+    Operand const s2{Operand::Type::Scratch, 2};
+    Operand const dst{Operand::Type::Scratch, 0};
+    Operand const e3{Operand::Type::Evaluation, 3};
+
+    std::vector<uint32_t> program;
+    LoadWord(program, 1, 0x40F00000U);  // 7.5f
+    LoadWord(program, 2, 0x40200000U);  // 2.5f
+    program.push_back(Encode(Precision2::FDiv(dst, s1, s2, e3)));
+    RunProgram_Vector(program);
+}
+
 TEST_F(RtlProcessorTest, FloatingAbsMatchesTheFastModel) {
     using isa::Operand;
     using namespace isa::instructions;
@@ -1104,17 +1168,6 @@ TEST_F(RtlProcessorTest, FloatingAbsMatchesTheFastModel) {
     LoadWord(program, 2, 0xC0500000U);  // -3.25f
     program.push_back(Encode(Precision1::FAbs(dst, src)));
     RunProgram_Vector(program);
-}
-
-TEST_F(RtlProcessorTest, OpcodesBeyondThisMilestoneAreFlagged) {
-    // 0xBC is a defined opcode (`fdiv`) that this milestone does not execute. The RTL
-    // retires it as a noop and says so; the C++ model performs the float op, so the state
-    // is expected to differ and is not compared.
-    ASSERT_TRUE(oracle.Poke(isa::Address{kCodeAddress}, 0x000000BCU));
-    oracle.Cycle();
-    ASSERT_TRUE(RunUntilRetire());
-    EXPECT_TRUE(dut.unsupported) << "defined but unimplemented opcode";
-    EXPECT_EQ(kCodeAddress + 4U, dut.special[isa::special::ProgramAddress]);
 }
 
 TEST_F(RtlProcessorTest, UndefinedOpcodeRaisesAnInstructionFaultInLockstep) {

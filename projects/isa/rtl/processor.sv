@@ -28,6 +28,7 @@
 //
 // Request and response handshakes occur on rising edges when valid and ready are
 // both high. A response may arrive any number of cycles after its request.
+/* verilator lint_off UNOPTFLAT */
 module processor
     import isa::*;
     import fp_pkg::*;
@@ -660,6 +661,7 @@ module processor
 
     // The exception state after this commit; any set bit redirects through the table.
     word_t exception_next;
+    /* verilator lint_off UNOPTFLAT */
     always_comb begin
         exception_next = special[SPECIAL_EXCEPTION];
         if (data_bus_fault) begin
@@ -701,6 +703,7 @@ module processor
         // Apply the exception mask (reset/unmaskable bits 0/1 are not maskable).
         exception_next = exception_next & (special[SPECIAL_EXCEPTION_MASK] | EXCEPTION_MASK_PRESERVED_BITS);
     end
+    /* verilator lint_on UNOPTFLAT */
 
     logic [3:0] exception_vector_index;
     always_comb begin
@@ -722,8 +725,7 @@ module processor
 
     logic commit_valid;
     assign commit_valid = (state == S_COMMIT) && !fetch_fault && supported_op && !blu_fault && !alu_fault &&
-                          ((decoded_op != OP_LOAD && decoded_op != OP_SAVE) || memory_encoding_valid) &&
-                          !(decoded_op == OP_FLOATING_DIVISION && fp_divisor_too_small);
+                          ((decoded_op != OP_LOAD && decoded_op != OP_SAVE) || memory_encoding_valid);
 
     always_comb begin
         s_read_control  = SCRATCH_CONTROL_NONE;
@@ -1022,14 +1024,16 @@ module processor
                     end
                 end
                 OP_FLOATING_DIVISION: begin
-                    s_write_control  = SCRATCH_CONTROL_FIRST;
-                    s_write_index[0] = view.binary.dst;
-                    s_write_data[0]  = fp_div_result;
-                    if (view.binary.cond) begin
-                        e_write_control  = EVALUATION_CONTROL_FIRST;
-                        e_write_index[0] = view.binary.eval;
-                        e_write_data[0]  = {2'b00, fp_div_underflow, fp_div_subnormal,
-                                           fp_div_rounded, fp_div_inexact, 2'b11};
+                    if (!fp_divisor_too_small) begin
+                        s_write_control  = SCRATCH_CONTROL_FIRST;
+                        s_write_index[0] = view.binary.dst;
+                        s_write_data[0]  = fp_div_result;
+                        if (view.binary.cond) begin
+                            e_write_control  = EVALUATION_CONTROL_FIRST;
+                            e_write_index[0] = view.binary.eval;
+                            e_write_data[0]  = {2'b00, fp_div_underflow, fp_div_subnormal,
+                                               fp_div_rounded, fp_div_inexact, 2'b11};
+                        end
                     end
                 end
                 default: ;

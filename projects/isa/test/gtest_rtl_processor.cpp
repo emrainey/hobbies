@@ -980,6 +980,63 @@ TEST_F(RtlProcessorTest, FloatingAdditionOfNaNMatchesTheFastModel) {
     RunProgram_Vector(program);
 }
 
+TEST_F(RtlProcessorTest, ConditionalFloatingSubtractionMatchesTheFastModel) {
+    using isa::Operand;
+    using namespace isa::instructions;
+    Operand const s1{Operand::Type::Scratch, 1};
+    Operand const s2{Operand::Type::Scratch, 2};
+    Operand const dst{Operand::Type::Scratch, 0};
+    Operand const e3{Operand::Type::Evaluation, 3};
+
+    std::vector<uint32_t> program;
+    LoadWord(program, 1, 0x40A00000U);  // 5.0f
+    LoadWord(program, 2, 0x3FC00000U);  // 1.5f
+    program.push_back(Encode(Precision2::FSub(dst, s1, s2, e3)));
+    RunProgram_Vector(program);
+}
+
+TEST_F(RtlProcessorTest, FloatingSubtractionOfInfinityMatchesTheFastModel) {
+    using isa::Operand;
+    using namespace isa::instructions;
+    Operand const s2{Operand::Type::Scratch, 2};
+    Operand const s3{Operand::Type::Scratch, 3};
+    Operand const dst{Operand::Type::Scratch, 1};
+
+    std::vector<uint32_t> program;
+    LoadWord(program, 2, 0x7F800000U);  // +inf
+    LoadWord(program, 3, 0x3F800000U);  // 1.0f
+    program.push_back(Encode(Precision2::FSub(dst, s2, s3)));
+    RunProgram_Vector(program);
+}
+
+TEST_F(RtlProcessorTest, FloatingSubtractionOfNaNMatchesTheFastModel) {
+    using isa::Operand;
+    using namespace isa::instructions;
+    Operand const s2{Operand::Type::Scratch, 2};
+    Operand const s3{Operand::Type::Scratch, 3};
+    Operand const dst{Operand::Type::Scratch, 1};
+
+    std::vector<uint32_t> program;
+    LoadWord(program, 2, 0x7FC00000U);  // NaN
+    LoadWord(program, 3, 0x3F800000U);  // 1.0f
+    program.push_back(Encode(Precision2::FSub(dst, s2, s3)));
+    RunProgram_Vector(program);
+}
+
+TEST_F(RtlProcessorTest, FloatingSubtractionMatchesTheFastModel) {
+    using isa::Operand;
+    using namespace isa::instructions;
+    Operand const s2{Operand::Type::Scratch, 2};
+    Operand const s3{Operand::Type::Scratch, 3};
+    Operand const dst{Operand::Type::Scratch, 1};
+
+    std::vector<uint32_t> program;
+    LoadWord(program, 2, 0x40A00000U);  // 5.0f
+    LoadWord(program, 3, 0x3FC00000U);  // 1.5f
+    program.push_back(Encode(Precision2::FSub(dst, s2, s3)));
+    RunProgram_Vector(program);
+}
+
 TEST_F(RtlProcessorTest, FloatingAbsMatchesTheFastModel) {
     using isa::Operand;
     using namespace isa::instructions;

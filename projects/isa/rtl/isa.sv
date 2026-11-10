@@ -45,12 +45,6 @@ localparam logic [2:0] BOOT_EXC_STACK_BOUNDARY = 3'd3;
 localparam logic [2:0] BOOT_RESET_HANDLER = 3'd4;
 // The handler the instruction-fault exception vectors through (VectorTable::instruction_fault_handler).
 localparam logic [3:0] VECTOR_INSTRUCTION_FAULT_HANDLER = 4'd8;
-// Vector-table word offsets for the fault handlers (VectorTable field index).
-localparam logic [3:0] VECTOR_BUS_FAULT_HANDLER = 4'd7;
-localparam logic [3:0] VECTOR_ARITHMETIC_FAULT_HANDLER = 4'd9;
-localparam logic [3:0] VECTOR_STACK_FAULT_HANDLER = 4'd10;
-localparam logic [3:0] VECTOR_TRIPPED_HANDLER = 4'd11;
-localparam logic [3:0] VECTOR_PRIVILEGE_HANDLER = 4'd15;
 
 // Bits of SPECIAL_EXCEPTION (isa::Exception, LSB first: reset, unmaskable, nested,
 // bus_fault, instruction_fault, arithmetic_fault, stack_fault).
@@ -59,16 +53,11 @@ localparam int EXCEPTION_INSTRUCTION_FAULT = 4;
 localparam int EXCEPTION_ARITHMETIC_FAULT = 5;
 localparam int EXCEPTION_STACK_FAULT = 6;
 localparam int EXCEPTION_TRIPPED = 7;
-localparam int EXCEPTION_PRIVILEGE_FAULT = 11;
-// Bits 0 and 1 (reset, unmaskable) are never maskable.
-localparam logic [31:0] EXCEPTION_MASK_PRESERVED_BITS = 32'd3;
-// Mode value when entering an exception handler: exception + privileged.
-localparam logic [31:0] MODE_EXCEPTION = 32'd3;
 
 // === Special register indices ===
 // The word index of each special register, in isa::Special order. The C++ model
 // static_asserts its own field offsets against these.
-localparam int SPECIAL_COUNT = 16;
+localparam int SPECIAL_COUNT = 18;
 localparam int SPECIAL_PROGRAM_ADDRESS = 0;  // PA: the address of the instruction being executed
 localparam int SPECIAL_RETURN_ADDRESS = 1;  // RA: the address control flow returns to
 localparam int SPECIAL_VECTOR_TABLE_ADDRESS = 2;  // VTA: base of the exception handler vector table
@@ -83,8 +72,10 @@ localparam int SPECIAL_EXCEPTION_MASK = 10;  // Mask of enabled exceptions
 localparam int SPECIAL_MODE = 11;  // Processor mode: exception/privileged/nonprivileged
 localparam int SPECIAL_NUMERAL = 12;  // Call and trip immediate values
 localparam int SPECIAL_PERFORMANCE_COUNTER = 13;  // Retired-instruction counter
-localparam int SPECIAL_RESERVED_0 = 14;  // Reserved for future expansion
-localparam int SPECIAL_RESERVED_1 = 15;  // Reserved for future expansion
+localparam int SPECIAL_EXTERNAL_PENDING = 14;  // Pending external interrupt sources (bitmask)
+localparam int SPECIAL_EXTERNAL_MASK = 15;  // Enabled external interrupt sources (bitmask)
+localparam int SPECIAL_EXTERNAL_SOURCE = 16;  // Selected external interrupt source
+localparam int SPECIAL_RESERVED = 17;  // Reserved for future expansion
 
 // === Enumerations ===
 typedef enum logic [1:0] {

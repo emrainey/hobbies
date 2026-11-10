@@ -419,7 +419,7 @@ constexpr static size_t VectorTableCount = sizeof(VectorTable) / sizeof(Address)
 
 /// The number of special registers is the size of the Special struct divided by the size of an Address, since each
 /// special register is the size of an Address.
-constexpr static size_t CountOfSpecialRegisters{16U};
+constexpr static size_t CountOfSpecialRegisters{18U};
 
 /// The Special Registers of the processor, which include the Program Address Register, the Stack Pointer, the Mode
 /// Register, etc.
@@ -446,8 +446,14 @@ struct Special {
     Numeral numeral_{};
     /// [13] A simple performance counter that can be used for counting events, measuring time, etc.
     uint32_t performance_counter_{0};
-    /// [14,15] Reserved for future expansion
-    uint32_t reserved_[2]{0};
+    /// [14] Pending external interrupt sources (bitmask)
+    uint32_t external_pending_{0};
+    /// [15] Enabled external interrupt sources (bitmask)
+    uint32_t external_mask_{0};
+    /// [16] Selected external interrupt source
+    uint32_t external_source_{0};
+    /// [17] Reserved for future expansion
+    uint32_t reserved_{0};
 
     constexpr Word as_word(size_t index) const {
         if (index < CountOfSpecialRegisters) {
@@ -481,7 +487,10 @@ static_assert(offsetof(Special, exception_mask_) == special::ExceptionMask * siz
 static_assert(offsetof(Special, mode_) == special::Mode * sizeof(Address));
 static_assert(offsetof(Special, numeral_) == special::Numeral * sizeof(Address));
 static_assert(offsetof(Special, performance_counter_) == special::PerformanceCounter * sizeof(Address));
-static_assert(offsetof(Special, reserved_) == special::Reserved0 * sizeof(Address));
+static_assert(offsetof(Special, external_pending_) == special::ExternalPending * sizeof(Address));
+static_assert(offsetof(Special, external_mask_) == special::ExternalMask * sizeof(Address));
+static_assert(offsetof(Special, external_source_) == special::ExternalSource * sizeof(Address));
+static_assert(offsetof(Special, reserved_) == special::Reserved * sizeof(Address));
 static_assert(CountOfSpecialRegisters == special::Count);
 
 constexpr static size_t ProgramAddressIndex{special::ProgramAddress};

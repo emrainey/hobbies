@@ -23,8 +23,10 @@
     {"name": "mode", "comment": "Processor mode: exception/privileged/nonprivileged"},
     {"name": "numeral", "comment": "Call and trip immediate values"},
     {"name": "performance_counter", "comment": "Retired-instruction counter"},
-    {"name": "reserved_0", "comment": "Reserved for future expansion"},
-    {"name": "reserved_1", "comment": "Reserved for future expansion"}
+    {"name": "external_pending", "comment": "Pending external interrupt sources (bitmask)"},
+    {"name": "external_mask", "comment": "Enabled external interrupt sources (bitmask)"},
+    {"name": "external_source", "comment": "Selected external interrupt source"},
+    {"name": "reserved", "comment": "Reserved for future expansion"}
   ],
   "derived": {
     "scratch_index_w": "clog2(scratch_count)",

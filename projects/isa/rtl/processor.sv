@@ -162,6 +162,16 @@ module processor
     endfunction
     localparam byte_t EVAL_COMPARISON_EQUAL = comparison_equal();
 
+    // Manual constants (not part of the generated isa package).
+    localparam int EXCEPTION_PRIVILEGE_FAULT = 11;
+    localparam logic [31:0] EXCEPTION_MASK_PRESERVED_BITS = 32'd3;
+    localparam logic [3:0] VECTOR_BUS_FAULT_HANDLER = 4'd7;
+    localparam logic [3:0] VECTOR_ARITHMETIC_FAULT_HANDLER = 4'd9;
+    localparam logic [3:0] VECTOR_STACK_FAULT_HANDLER = 4'd10;
+    localparam logic [3:0] VECTOR_TRIPPED_HANDLER = 4'd11;
+    localparam logic [3:0] VECTOR_PRIVILEGE_HANDLER = 4'd15;
+    localparam logic [31:0] MODE_EXCEPTION = 32'd3;
+
     // Privileged instructions (mirrors isa::IsPrivilegedInstruction).
     function automatic logic is_privileged_op(op_e code);
         return (code == OP_HALT) || (code == OP_TRIP);

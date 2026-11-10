@@ -269,8 +269,10 @@ constexpr size_t ExceptionMask = 10;  ///< Mask of enabled exceptions
 constexpr size_t Mode = 11;  ///< Processor mode: exception/privileged/nonprivileged
 constexpr size_t Numeral = 12;  ///< Call and trip immediate values
 constexpr size_t PerformanceCounter = 13;  ///< Retired-instruction counter
-constexpr size_t Reserved0 = 14;  ///< Reserved for future expansion
-constexpr size_t Reserved1 = 15;  ///< Reserved for future expansion
-constexpr size_t Count = 16;
+constexpr size_t ExternalPending = 14;  ///< Pending external interrupt sources (bitmask)
+constexpr size_t ExternalMask = 15;  ///< Enabled external interrupt sources (bitmask)
+constexpr size_t ExternalSource = 16;  ///< Selected external interrupt source
+constexpr size_t Reserved = 17;  ///< Reserved for future expansion
+constexpr size_t Count = 18;
 }  // namespace special
 }  // namespace isa

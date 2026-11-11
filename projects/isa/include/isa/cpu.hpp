@@ -618,6 +618,18 @@ public:
     /// Performs a single cycle of the CPU which will execute each stage of the pipeline.
     void Cycle();
 
+    /// Triggers an external interrupt source (0-31), which will be taken on the next cycle if enabled.
+    void TriggerExternal(uint32_t source);
+
+    /// Triggers the ticker interrupt.
+    void TriggerTicker();
+
+    /// Triggers the unmaskable interrupt.
+    void TriggerUnmaskable();
+
+    /// Triggers a deferred system call (fires after the next instruction).
+    void TriggerDeferred();
+
     /// Indicates if a breakpoint has been hit, which can be used for debugging and tooling purposes to determine
     /// whether to halt the CPU or not.
     bool HasBreakPoint() const;
@@ -660,6 +672,10 @@ protected:
 
     // === Control Variables for Pipeline Stages ===
     bool halted_;
+    bool ticker_pending_{false};
+    bool unmaskable_pending_{false};
+    bool deferred_pending_{false};
+    bool deferred_request_{false};
 
     // === Debugging and Tooling Aids ===
     bool break_point_hit_;

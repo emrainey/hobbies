@@ -34,6 +34,10 @@ void Processor::Reset() {
     // Enable all maskable exceptions by default.
     special_.exception_mask_.EnableAll();
     halted_ = false;
+    ticker_pending_ = false;
+    unmaskable_pending_ = false;
+    deferred_pending_ = false;
+    deferred_request_ = false;
     break_point_hit_ = false;
 
     // Load the Entry point from the Vector Table Into the Program Address Register
@@ -302,6 +306,39 @@ void Processor::Cycle() {
     // Set by the instructions which choose the next Program Address themselves (the leaps, a return and a call).
     // Those instructions already hold the address to run next, so they must not also be advanced past it below.
     bool control_transferred = false;
+
+    // External interrupts: if any enabled source is pending, take the lowest one.
+    if (not special_.exception_.HasException()) {
+        uint32_t pending_enabled = special_.external_pending_ & special_.external_mask_;
+        if (pending_enabled != 0U) {
+            uint32_t source = 0U;
+            while (((pending_enabled >> source) & 1U) == 0U) {
+                ++source;
+            }
+            special_.external_source_ = source;
+            special_.external_pending_ &= ~(1U << source);
+            special_.exception_.external = 1;
+        }
+    }
+
+    // Deferred system call: fires on the cycle after the next instruction.
+    if (deferred_pending_) {
+        special_.exception_.deferred = 1;
+        deferred_pending_ = false;
+    }
+
+    // Unmaskable interrupt: cannot be masked.
+    if (unmaskable_pending_) {
+        special_.exception_.unmaskable = 1;
+        unmaskable_pending_ = false;
+    }
+
+    // Ticker interrupt: subject to the exception mask.
+    if (ticker_pending_) {
+        special_.exception_.ticker = 1;
+        ticker_pending_ = false;
+    }
+
     if (IsPrivilegedInstruction(instruction.base()) and special_.mode_.nonprivileged) {
         special_.exception_.privilege_fault = 1;
     } else {
@@ -1368,7 +1405,31 @@ void Processor::Cycle() {
     } else if (not control_transferred) {
         special_.program_address_ += sizeof(instructions::Instruction);
     }
+    // Latch a deferred request so it fires on the following cycle.
+    if (deferred_request_) {
+        deferred_pending_ = true;
+        deferred_request_ = false;
+    }
+
     special_.performance_counter_ += 1;
+}
+
+void Processor::TriggerExternal(uint32_t source) {
+    if (source < 32U) {
+        special_.external_pending_ |= (1U << source);
+    }
+}
+
+void Processor::TriggerTicker() {
+    ticker_pending_ = true;
+}
+
+void Processor::TriggerUnmaskable() {
+    unmaskable_pending_ = true;
+}
+
+void Processor::TriggerDeferred() {
+    deferred_request_ = true;
 }
 
 Address Processor::GetHandler() const {
@@ -1402,7 +1463,7 @@ Address Processor::GetHandler() const {
         } else if (special_.exception_.external) {
             // For external exceptions, we need to look up the handler in the external handler table using the external
             // exception number as an index.
-            uint32_t external_index = special_.exception_.external - 1;  // External exception numbers are 1-based
+            uint32_t external_index = special_.external_source_;  // 0-based source number
             Address external_table_address{0U};
             if (Peek(special_.vector_table_address_ + offsetof(VectorTable, external_handler_table),
                      external_table_address.value)) {

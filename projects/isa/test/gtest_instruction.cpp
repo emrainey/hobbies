@@ -97,6 +97,57 @@ TEST_F(InstructionTest, TripInNonprivilegedModeRaisesPrivilegeFault) {
     EXPECT_TRUE(cpu.ViewSpecial().exception_.privilege_fault);
 }
 
+TEST_F(InstructionTest, TickerInterruptRoutesToTickerHandler) {
+    constexpr uint32_t kTickerHandler = 0x10000240U;
+    ASSERT_TRUE(cpu.Poke(kMemoryBase + offsetof(isa::VectorTable, ticker_handler), kTickerHandler));
+    cpu.TriggerTicker();
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::NoOp{}});
+
+    EXPECT_EQ(kTickerHandler, cpu.ViewSpecial().program_address_.value);
+    EXPECT_TRUE(cpu.ViewSpecial().exception_.ticker);
+}
+
+TEST_F(InstructionTest, UnmaskableInterruptRoutesToUnmaskableHandler) {
+    constexpr uint32_t kUnmaskableHandler = 0x10000250U;
+    ASSERT_TRUE(cpu.Poke(kMemoryBase + offsetof(isa::VectorTable, unmaskable_handler), kUnmaskableHandler));
+    cpu.TriggerUnmaskable();
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::NoOp{}});
+
+    EXPECT_EQ(kUnmaskableHandler, cpu.ViewSpecial().program_address_.value);
+    EXPECT_TRUE(cpu.ViewSpecial().exception_.unmaskable);
+}
+
+TEST_F(InstructionTest, DeferredInterruptFiresAfterNextInstruction) {
+    constexpr uint32_t kDeferredHandler = 0x10000260U;
+    ASSERT_TRUE(cpu.Poke(kMemoryBase + offsetof(isa::VectorTable, deferred_handler), kDeferredHandler));
+    cpu.TriggerDeferred();
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::NoOp{}});
+
+    EXPECT_EQ(kCodeAddress + 4U, cpu.ViewSpecial().program_address_.value);
+    EXPECT_FALSE(cpu.ViewSpecial().exception_.deferred);
+
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::NoOp{}});
+
+    EXPECT_EQ(kDeferredHandler, cpu.ViewSpecial().program_address_.value);
+    EXPECT_TRUE(cpu.ViewSpecial().exception_.deferred);
+}
+
+TEST_F(InstructionTest, ExternalInterruptRoutesToExternalHandlerTable) {
+    constexpr uint32_t kExternalHandler = 0x10000270U;
+    constexpr uint32_t kExternalTable = 0x10000300U;
+    ASSERT_TRUE(cpu.Poke(kMemoryBase + offsetof(isa::VectorTable, external_handler_table), kExternalTable));
+    ASSERT_TRUE(cpu.Poke(kExternalTable, kExternalHandler));
+
+    cpu.GetSpecial().external_mask_ = 0xFFFFFFFFU;
+    cpu.TriggerExternal(0U);
+    RunSingleInstruction(isa::instructions::Instruction{isa::instructions::NoOp{}});
+
+    EXPECT_EQ(kExternalHandler, cpu.ViewSpecial().program_address_.value);
+    EXPECT_TRUE(cpu.ViewSpecial().exception_.external);
+    EXPECT_EQ(0U, cpu.ViewSpecial().external_pending_);
+    EXPECT_EQ(0U, cpu.ViewSpecial().external_source_);
+}
+
 TEST_F(InstructionTest, HaltSetsHaltedState) {
     cpu.GetSpecial().mode_.privileged = 1;
     cpu.GetSpecial().mode_.nonprivileged = 0;

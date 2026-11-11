@@ -29,6 +29,13 @@
 // Request and response handshakes occur on rising edges when valid and ready are
 // both high. A response may arrive any number of cycles after its request.
 /* verilator lint_off UNOPTFLAT */
+
+// Non-architectural debug state.
+typedef struct packed {
+    logic [31:0] external_pending;
+    logic [4:0]  last_exception_type;
+} debug_t;
+
 module processor
     import isa::*;
     import fp_pkg::*;
@@ -48,6 +55,9 @@ module processor
     input  word_t      mem_rsp_data,
     input  logic       mem_rsp_fault,
 
+    // External interrupt injection (one bit per source)
+    input  logic [31:0] external_irq,
+
     // Special registers, exposed for the lockstep harness (scratch and evaluation
     // live in `u_scratch`/`u_evaluation` and are read hierarchically)
     output word_t      special[SPECIAL_COUNT],
@@ -56,6 +66,9 @@ module processor
     output logic retire,
     output logic halted,
     output logic booted,
+
+    // Debug (non-architectural)
+    output debug_t dbg,
 
     // Set at the commit edge when the instruction is not implemented yet
     output logic unsupported
@@ -164,12 +177,14 @@ module processor
 
     // Manual constants (not part of the generated isa package).
     localparam int EXCEPTION_PRIVILEGE_FAULT = 11;
+    localparam int EXCEPTION_EXTERNAL = 13;
     localparam logic [31:0] EXCEPTION_MASK_PRESERVED_BITS = 32'd3;
     localparam logic [3:0] VECTOR_BUS_FAULT_HANDLER = 4'd7;
     localparam logic [3:0] VECTOR_ARITHMETIC_FAULT_HANDLER = 4'd9;
     localparam logic [3:0] VECTOR_STACK_FAULT_HANDLER = 4'd10;
     localparam logic [3:0] VECTOR_TRIPPED_HANDLER = 4'd11;
     localparam logic [3:0] VECTOR_PRIVILEGE_HANDLER = 4'd15;
+    localparam logic [4:0] VECTOR_EXTERNAL_HANDLER_TABLE = 5'd17;
     localparam logic [31:0] MODE_EXCEPTION = 32'd3;
 
     // Privileged instructions (mirrors isa::IsPrivilegedInstruction).
@@ -290,7 +305,12 @@ module processor
         end else if (state == S_FETCH_REQUEST) begin
             mem_addr = special[SPECIAL_PROGRAM_ADDRESS];
         end else if (state == S_VECTOR_REQUEST) begin
-            mem_addr = special[SPECIAL_VECTOR_TABLE_ADDRESS] + (address_t'(vector_index) << 2);
+            if (external_fetch_state == 2'd1)
+                mem_addr = special[SPECIAL_VECTOR_TABLE_ADDRESS] + (address_t'(VECTOR_EXTERNAL_HANDLER_TABLE) << 2);
+            else if (external_fetch_state == 2'd2)
+                mem_addr = external_table_base + (address_t'(special[SPECIAL_EXTERNAL_SOURCE]) << 2);
+            else
+                mem_addr = special[SPECIAL_VECTOR_TABLE_ADDRESS] + (address_t'(vector_index) << 2);
         end else if (state == S_COMMIT && (decoded_op == OP_LOAD || decoded_op == OP_SAVE || decoded_op == OP_SWAP)) begin
             if (decoded_op == OP_SWAP) begin
                 mem_addr = swap_address;
@@ -398,6 +418,29 @@ module processor
         .subnormal (fp_mul_subnormal),
         .underflow (fp_mul_underflow)
     );
+
+    // External interrupts: lowest enabled pending source.
+    logic external_interrupt_pending;
+    logic [4:0] external_source_sel;
+    logic external_found;
+    logic [31:0] external_pending_effective;
+
+    // Edge detection for level-sensitive IRQ inputs.
+    logic [31:0] external_irq_prev;
+    always_comb begin
+        external_pending_effective = special[SPECIAL_EXTERNAL_PENDING] | external_irq;
+        external_interrupt_pending = (((external_pending_effective & special[SPECIAL_EXTERNAL_MASK]) != 0) &&
+                                     (mode_t'(special[SPECIAL_MODE]).nonprivileged || mode_t'(special[SPECIAL_MODE]).privileged));
+        external_source_sel = 5'd0;
+        external_found = 1'b0;
+        for (int i = 0; i < 32; i++) begin
+            if (!external_found &&
+                ((external_pending_effective & special[SPECIAL_EXTERNAL_MASK] & (32'd1 << i)) != 0)) begin
+                external_source_sel = i[4:0];
+                external_found = 1'b1;
+            end
+        end
+    end
 
     // Floating division by a value whose magnitude is below FLT_EPSILON raises
     // an instruction fault (matches C++).
@@ -625,6 +668,10 @@ module processor
     end
 
     logic [3:0]  push_pull_count;
+
+    // External interrupt table fetch state.
+    logic [31:0] external_table_base;
+    logic [1:0]  external_fetch_state;
     logic [31:0] push_pull_size;
     logic        push_pull_bounds_ok;
     logic [63:0] push_pull_end64;
@@ -708,6 +755,9 @@ module processor
         end
         if (decoded_op == OP_TRIP && cond_pass && !mode_t'(special[SPECIAL_MODE]).nonprivileged) begin
             exception_next[EXCEPTION_TRIPPED] = 1'b1;
+        end
+        if (external_interrupt_pending) begin
+            exception_next[EXCEPTION_EXTERNAL] = 1'b1;
         end
 
         // Apply the exception mask (reset/unmaskable bits 0/1 are not maskable).
@@ -1062,6 +1112,10 @@ module processor
             instruction <= ERASED_WORD;
             fetch_fault <= 1'b0;
             vector_index <= '0;
+            external_table_base <= '0;
+            external_fetch_state <= 2'd0;
+            external_irq_prev <= '0;
+            dbg <= '0;
 
             cond_pass   <= 1'b0;
             push_pull_is_push  <= 1'b0;
@@ -1082,6 +1136,9 @@ module processor
             special[SPECIAL_MODE] <= MODE_RESET;
             special[SPECIAL_EXCEPTION_MASK] <= 32'hFFFFFFFF;
         end else begin
+            // Latch external interrupts on rising edges.
+            special[SPECIAL_EXTERNAL_PENDING] <= special[SPECIAL_EXTERNAL_PENDING] | (external_irq & ~external_irq_prev);
+            external_irq_prev <= external_irq;
             case (state)
                 S_BOOT_REQUEST: begin
                     if (mem_req_ready) begin
@@ -1257,6 +1314,16 @@ module processor
                         if (exception_next != '0) begin
                             // Any pending exception sends the next fetch through the vector table.
                             special[SPECIAL_MODE] <= MODE_EXCEPTION; // exception + privileged
+                            dbg <= '{external_pending: special[SPECIAL_EXTERNAL_PENDING],
+                                     last_exception_type: 5'(exception_vector_index)};
+                            if (exception_next[EXCEPTION_EXTERNAL]) begin
+                                special[SPECIAL_EXTERNAL_SOURCE] <= 32'(external_source_sel);
+                                special[SPECIAL_EXTERNAL_PENDING] <=
+                                    special[SPECIAL_EXTERNAL_PENDING] & ~(32'd1 << external_source_sel);
+                                external_fetch_state <= 2'd1;
+                            end else begin
+                                external_fetch_state <= 2'd0;
+                            end
                             vector_index <= exception_vector_index;
                             state        <= S_VECTOR_REQUEST;
                         end else if (!control_transferred) begin
@@ -1419,9 +1486,20 @@ module processor
                     if (mem_rsp_valid && mem_rsp_ready) begin
                         // GetHandler(): the handler, or the reset handler when that read faults.
                         if (!mem_rsp_fault) begin
-                            special[SPECIAL_PROGRAM_ADDRESS] <= mem_rsp_data;
-                            retire                           <= 1'b1;
-                            state                            <= halted ? S_HALTED : S_FETCH_REQUEST;
+                            if (external_fetch_state == 2'd1) begin
+                                external_table_base <= mem_rsp_data;
+                                external_fetch_state <= 2'd2;
+                                state <= S_VECTOR_REQUEST;
+                            end else if (external_fetch_state == 2'd2) begin
+                                special[SPECIAL_PROGRAM_ADDRESS] <= mem_rsp_data;
+                                retire                           <= 1'b1;
+                                external_fetch_state             <= 2'd0;
+                                state                            <= halted ? S_HALTED : S_FETCH_REQUEST;
+                            end else begin
+                                special[SPECIAL_PROGRAM_ADDRESS] <= mem_rsp_data;
+                                retire                           <= 1'b1;
+                                state                            <= halted ? S_HALTED : S_FETCH_REQUEST;
+                            end
                         end else if (vector_index != 4'(BOOT_RESET_HANDLER)) begin
                             vector_index <= 4'(BOOT_RESET_HANDLER);
                             state        <= S_VECTOR_REQUEST;

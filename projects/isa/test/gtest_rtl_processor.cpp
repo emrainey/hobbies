@@ -435,6 +435,33 @@ TEST_F(RtlProcessorTest, PrivilegedInstructionInNonprivilegedModeFaultsInLockste
     EXPECT_EQ(kFaultHandler, dut.special[isa::special::ProgramAddress]);
 }
 
+TEST_F(RtlProcessorTest, ExternalInterruptRoutesInLockstep) {
+    using isa::Operand;
+    using namespace isa::instructions;
+    ASSERT_TRUE(oracle.Poke(isa::Address{kFlashBase + 17U * 4U}, kCodeAddress + 0x100U));
+    ASSERT_TRUE(oracle.Poke(isa::Address{kCodeAddress + 0x100U}, kFaultHandler));
+
+    oracle.GetSpecial().external_mask_ = 0xFFFFFFFFU;
+    dut.special[isa::special::ExternalMask] = 0xFFFFFFFFU;
+    oracle.TriggerExternal(0U);
+    dut.external_irq = 1U;
+
+    std::vector<uint32_t> program;
+    program.push_back(0x00000000U);  // noop
+    for (uint32_t const word : program) {
+        ASSERT_TRUE(oracle.Poke(isa::Address{next_program_address}, word));
+        next_program_address += sizeof(uint32_t);
+    }
+    oracle.Cycle();
+    ASSERT_TRUE(RunUntilRetire());
+    dut.external_irq = 0U;
+    EXPECT_FALSE(dut.unsupported);
+    ExpectStateMatches();
+
+    EXPECT_EQ(kFaultHandler, dut.special[isa::special::ProgramAddress]);
+    EXPECT_EQ(0U, dut.special[isa::special::ExternalPending]);
+}
+
 TEST_F(RtlProcessorTest, HaltStopsBothModelsAndHolds) {
     using isa::Operand;
     using namespace isa::instructions;
